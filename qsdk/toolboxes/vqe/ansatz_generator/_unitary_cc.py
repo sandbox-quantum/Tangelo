@@ -17,7 +17,7 @@ import numpy
 
 from openfermion.utils import down_index, up_index
 
-from qsdk.mol2qb.quantum_operators import FermionOperator
+from qsdk.quantum_operators import FermionOperator
 
 
 def uccsd_generator(single_amplitudes, double_amplitudes, anti_hermitian=True):

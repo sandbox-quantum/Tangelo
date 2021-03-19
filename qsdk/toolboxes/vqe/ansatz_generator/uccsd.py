@@ -10,7 +10,7 @@ from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit
 from ._unitary_cc import uccsd_singlet_generator
 from ..qubitizer import jordan_wigner
-from ..molecular_computation.integral_calculation import prepare_mf_RHF
+from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 
 
 class UCCSD(Ansatz):

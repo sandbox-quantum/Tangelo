@@ -1,4 +1,4 @@
-""" This module defines various kinds of operators used in mol2qb.
+""" This module defines various kinds of operators used in vqe.
     It can later be broken down in several modules if needed. """
 
 # Later on, if needed, we can extract the code for the operators themselves to remove the dependencies and customize
