@@ -25,13 +25,14 @@ class VQESolver:
     (hardware backend, ansatz...). They are then able to call any of the
     energy_estimation, simulate, or get_rdm methods. In particular, the simulate method
     runs the VQE algorithms, returning the optimal energy found by the classical optimizer.
+
     Attributes:
         backend_parameters (dict): A dictionary describing the target compute backend to use
             (ex: qulacs, qiskit, qdk, projectq...), the number of shots or noise model to use.
         backend (agnostic_simulator.Simulator): The Simulator object as implemented in the
             agnostic_simulator package, after "build" has been called.
         ansatz_type (Ansatze): Type of the desired ansatz, from the available ones.
-        ansatz (mol2qb.Ansatz): An implementation of the abstract Ansatz class from mol2qb
+        ansatz (vqe.Ansatz): An implementation of the abstract Ansatz class from vqe
         optimizer (function): Function performing classical optimization.
         initial_var_params (list): Initial values of the variational parameters
             used in the classical optimization process
@@ -70,10 +71,10 @@ class VQESolver:
                      virtual orbitals are frozen.
         """
         from agnostic_simulator import Simulator
-        from qsdk.mol2qb.molecular_computation.molecular_data import MolecularData
-        from qsdk.mol2qb.molecular_computation.integral_calculation import prepare_mf_RHF
-        from qsdk.mol2qb.qubitizer import jordan_wigner
-        from qsdk.mol2qb.ansatz_generator.uccsd import UCCSD
+        from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
+        from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
+        from qsdk.toolboxes.vqe.qubitizer import jordan_wigner
+        from qsdk.toolboxes.vqe.ansatz_generator.uccsd import UCCSD
 
         # Ensure inputs have valid values before moving forward
         if not mean_field:
@@ -83,9 +84,8 @@ class VQESolver:
 
         # Compute qubit hamiltonian for the input molecular system
         self.qemist_molecule = MolecularData(molecule)
-        self.molecular_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
-        self.f_hamiltonian = self.molecular_hamiltonian
-        self.qubit_hamiltonian = jordan_wigner(self.molecular_hamiltonian)
+        self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
+        self.qubit_hamiltonian = jordan_wigner(self.fermionic_hamiltonian)
 
         if self.verbose:
             n_qubits = self.qubit_hamiltonian.count_qubits()
@@ -132,6 +132,7 @@ class VQESolver:
     def energy_estimation(self, var_params):
         """ Estimate energy using the given ansatz, qubit hamiltonian and compute backend.
          Keeps track of optimal energy and variational parameters along the way
+
         Args:
              var_params (numpy.array or list): variational parameters to use for VQE energy evaluation
         Returns:
@@ -153,24 +154,19 @@ class VQESolver:
 
     def get_rdm(self, var_params):
         """ Compute the 1- and 2- RDM matrices using the VQE energy evaluation. This method allows
-        to combine the DMET problem decomposition technique with the VQE as an electronic
-        structure solver.
-         The RDMs are computed by using each fermionic Hamiltonian term,
-         transforming them and computing the elements one-by-one.
+        to combine the DMET problem decomposition technique with the VQE as an electronic structure solver.
+         The RDMs are computed by using each fermionic Hamiltonian term, transforming them and computing
+         the elements one-by-one.
          Note that the Hamiltonian coefficients will not be multiplied as in the energy evaluation.
          The first element of the Hamiltonian is the nuclear repulsion energy term,
          not the Hamiltonian term.
+
          Args:
              var_params (numpy.array or list): variational parameters to use for VQE energy evaluation
          Returns:
              (numpy.array, numpy.array): One & two-particle RDMs (rdm1_np & rdm2_np, float64).
-         Raises:
-             RuntimeError: If no simulation has been run.
          """
-        from qsdk.mol2qb.molecular_computation.molecular_data import MolecularData
-        from qsdk.mol2qb.molecular_computation.integral_calculation import prepare_mf_RHF
-        from qsdk.mol2qb.qubitizer import jordan_wigner
-        from qsdk.mol2qb.ansatz_generator.uccsd import UCCSD
+        from qsdk.toolboxes.vqe.qubitizer import jordan_wigner
 
         # Save our accurate hamiltonian
         tmp_hamiltonian = self.qubit_hamiltonian
@@ -184,7 +180,7 @@ class VQESolver:
         lookup_ham, lookup_val = list(), list()
 
         # Loop over each element of Hamiltonian (non-zero value)
-        for ikey, key in enumerate(self.f_hamiltonian):
+        for ikey, key in enumerate(self.fermionic_hamiltonian):
             length = len(key)
             # Ignore constant / empty term
             if not key:
@@ -196,7 +192,7 @@ class VQESolver:
                 iele, jele, kele, lele = (int(ele[0]) // 2 for ele in tuple(key[0:4]))
 
             # Select the Hamiltonian element (Set coefficient to one)
-            hamiltonian_temp = deepcopy(self.molecular_hamiltonian)
+            hamiltonian_temp = deepcopy(self.fermionic_hamiltonian)
             for key2 in hamiltonian_temp:
                 hamiltonian_temp[key2] = 1. if (key == key2 and ikey != 0) else 0.
 
