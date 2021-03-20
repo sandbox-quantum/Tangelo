@@ -18,7 +18,7 @@ import numpy
 from openfermion.utils import count_qubits
 from openfermion.ops import InteractionOperator, MajoranaOperator, DiagonalCoulombHamiltonian
 
-from qsdk.toolboxes.quantum_operators import FermionOperator, QubitOperator
+from qsdk.toolboxes.operators import FermionOperator, QubitOperator
 
 
 def jordan_wigner(operator):
