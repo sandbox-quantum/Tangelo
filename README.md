@@ -69,7 +69,7 @@ python setup.py install
 > multithreaded code. As a consequence, you may encounters errors, or see noticeable degradation in performance for some
 > of the dependencies of this package. We recommend you install a suitable alternative (for example, the GNU gcc compiler)
 > and then set the CC variable environment to the path to that compiler, before running the setup.py script. You may
-> unset the CC environment variable afterwards, if you see it fit.
+> unset the CC environment variable afterwards, as you see fit.
 
 > :warning: During this setup, you may encounter errors, as sometimes the Python package dependencies are installed in 
 > an order that does not seem to work out. Frequently, installing the package triggering the error by itself before reattempting
