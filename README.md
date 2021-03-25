@@ -65,13 +65,19 @@ by using the setuptools again, with the `setup.py` file present in the `qSDK` ro
 python setup.py install
 ```
 
-During this setup, you may encounter errors, as sometimes the Python package dependencies are installed in an order that
-does not seem to work out. Depending on your error, we recommend you install the packages that seem responsible
-manually. We have observed it occasionally happens with `pybind11` and `pyscf`.
+> :warning: If you are using MacOS, your C/C++ compiler may be Clang, which does not support compilation of OpenMP
+> multithreaded code. As a consequence, you may encounters errors, or see noticeable degradation in performance for some
+> of the dependencies of this package. We recommend you install a suitable alternative (for example, the GNU gcc compiler)
+> and then set the CC variable environment to the path to that compiler, before running the setup.py script. You may
+> unset the CC environment variable afterwards, if you see it fit.
+
+> :warning: During this setup, you may encounter errors, as sometimes the Python package dependencies are installed in 
+> an order that does not seem to work out. Frequently, installing the package triggering the error by itself before reattempting
+> the command that failed seemed to solve these issues (often observed with `pybind11` and `pyscf`).
 
 If you do not wish to use the code in `qSDK` or `agnostic_simulator` as python modules but want to manipulate and 
-access this code directly, you can also remove them from your environment (through pip or conda), and simply make sure
-you add the path to the root directory of `qSDK` to the beginning of your `PYTHONPATH` environment variable.
+access this code directly, you can also remove them from your environment (through the `uninstall` command of pip or conda), 
+and simply add the path to the root directory of `qSDK` to the beginning of your `PYTHONPATH` environment variable.
 
 ### Using Docker
 
