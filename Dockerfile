@@ -16,6 +16,7 @@ RUN pip3 install ipython jupyter numpy scipy pybind11 requests pandas \
 
 ########################### Finalize #############################
 # TODO: install qsdk dependencies. Do we install the qsdk package or simply add it to the path?
+
 ENV PYTHONPATH=$PYTHONPATH:/root/qsdk
 
 WORKDIR /root/
