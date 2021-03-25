@@ -2,7 +2,7 @@ import unittest
 from pyscf import gto
 
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
-from qsdk.toolboxes.vqe.qubit_mappings import jordan_wigner
+from qsdk.toolboxes.qubit_mappings import jordan_wigner
 
 H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
 mol = gto.Mole()

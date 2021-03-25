@@ -73,8 +73,8 @@ class VQESolver:
         from agnostic_simulator import Simulator
         from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
         from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
-        from qsdk.toolboxes.vqe.qubit_mappings import jordan_wigner
-        from qsdk.toolboxes.vqe.ansatz_generator.uccsd import UCCSD
+        from qsdk.toolboxes.qubit_mappings import jordan_wigner
+        from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 
         # Ensure inputs have valid values before moving forward
         if not mean_field:
@@ -166,7 +166,7 @@ class VQESolver:
          Returns:
              (numpy.array, numpy.array): One & two-particle RDMs (rdm1_np & rdm2_np, float64).
          """
-        from qsdk.toolboxes.vqe.qubit_mappings import jordan_wigner
+        from qsdk.toolboxes.qubit_mappings import jordan_wigner
 
         # Save our accurate hamiltonian
         tmp_hamiltonian = self.qubit_hamiltonian

@@ -3,8 +3,8 @@ import numpy as np
 from pyscf import gto
 
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
-from qsdk.toolboxes.vqe.qubit_mappings import jordan_wigner
-from qsdk.toolboxes.vqe.ansatz_generator.uccsd import UCCSD
+from qsdk.toolboxes.qubit_mappings import jordan_wigner
+from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 
 from agnostic_simulator import Simulator
 
