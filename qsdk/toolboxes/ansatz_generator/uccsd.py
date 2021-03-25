@@ -9,7 +9,7 @@ from agnostic_simulator import Circuit, Gate
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit
 from ._unitary_cc import uccsd_singlet_generator
-from ..qubit_mappings import jordan_wigner
+from qsdk.toolboxes.qubit_mappings import jordan_wigner
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 
 
