@@ -67,7 +67,7 @@ python setup.py install
 
 During this setup, you may encounter errors, as sometimes the Python package dependencies are installed in an order that
 does not seem to work out. Depending on your error, we recommend you install the packages that seem responsible
-manually. This happened more frequently with `pybind11` and `pyscf` in particular, depending on your platform.
+manually. We have observed it occasionally happens with `pybind11` and `pyscf`.
 
 If you do not wish to use the code in `qSDK` or `agnostic_simulator` as python modules but want to manipulate and 
 access this code directly, you can also remove them from your environment (through pip or conda), and simply make sure
@@ -75,11 +75,15 @@ you add the path to the root directory of `qSDK` to the beginning of your `PYTHO
 
 ### Using Docker
 
-TODO: figure out Dockerfile for this repo.
+TODO: validate dockerfile.
 
 ## Tests
 
-Unit tests can be found in the `tests` folders, located in the various toolboxes they are related to.
+Unit tests can be found in the `tests` folders, located in the various toolboxes they are related to. To automatically
+find and run tests (assuming you are in the `qsdk` subfolder that contains the code of the package):
+```
+python -m unittest discover
+```
 
 ## Environment variables
 
