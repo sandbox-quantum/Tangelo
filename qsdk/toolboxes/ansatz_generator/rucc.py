@@ -43,10 +43,12 @@ class RUCC(Ansatz):
 
         if self.var_params_initialization == "zeros":
             initial_var_params = np.zeros((self.n_var_params,), dtype=np.float)
-        if self.var_params_initialization == "ones":
+        elif self.var_params_initialization == "ones":
             initial_var_params = np.ones((self.n_var_params,), dtype=np.float)
         elif self.var_params_initialization == "random":
             initial_var_params = np.random.random((self.n_var_params,), dtype=np.float)
+        else:
+            pass
         self.var_params = initial_var_params
         return initial_var_params
 
