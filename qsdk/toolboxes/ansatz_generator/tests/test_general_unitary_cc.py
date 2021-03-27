@@ -2,10 +2,10 @@ import unittest
 import numpy as np
 import itertools
 
-import sys
-sys.path.append('../')
-# from qsdk.toolboxes.ansatz_generator import _general_unitary_cc
-from _general_unitary_cc import *
+
+from qsdk.toolboxes.ansatz_generator import _unitary_cc #test import from qsdk
+from qsdk.toolboxes.ansatz_generator._general_unitary_cc import hermitian_conjugate #TODO: failing!
+
 
 
 class UCCGSDTest(unittest.TestCase):
