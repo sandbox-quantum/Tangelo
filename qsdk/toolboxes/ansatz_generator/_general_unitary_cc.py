@@ -495,20 +495,3 @@ def get_coeffs(n_qubits, single_coeffs=None, double_coeffs=None):
     return coeffs
 
 
-def choose(n, m):
-    """Enumerate binomial coefficient (i.e. "n choose m") for numbers n,m.
-    This is equivalent to n!/(n-m)!/m!, where ! indicates the factorial operation.
-    Requires that n is greater or equal to m.
-
-    Args:
-        n (int): integer
-        m (int): integer
-    
-    Returns:
-        integer
-    """
-    if n < m: 
-        return 0 #invalid condition
-    else:
-        return factorial(n)/factorial(m)/factorial(n-m)
-

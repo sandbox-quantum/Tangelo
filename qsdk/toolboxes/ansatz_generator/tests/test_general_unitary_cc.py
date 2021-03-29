@@ -1,8 +1,10 @@
 import unittest
 import numpy as np
+from scipy.special import binom
 import itertools
 
 from qsdk.toolboxes.ansatz_generator._general_unitary_cc import *
+
 
 
 class UCCGSDTest(unittest.TestCase):
@@ -45,13 +47,13 @@ class UCCGSDTest(unittest.TestCase):
                 _ = get_group_5(n_orbs, pp, qq, rr, ss, up_down = up_down)
                 groups[4] += 1
 
-        self.assertEqual(groups[0], choose(n_orbs, 2)*choose(n_orbs - 2, 2) // 2,msg = "{:d} orbs: Invalid Group 1 Number".format(n_orbs))
-        self.assertEqual(groups[1], n_orbs*choose(n_orbs - 1, 2), msg = "{:d} orbs: Invalid Group 2 Number".format(n_orbs))
-        self.assertEqual(groups[2], n_orbs*choose(n_orbs-1, 2),msg = "{:d} orbs: Invalid Group 3 Number".format(n_orbs))
-        self.assertEqual(groups[3], 2*choose(n_orbs, 2), msg = "{:d} orbs: Invalid Group 4 Number".format(n_orbs))
-        self.assertEqual(groups[4], choose(n_orbs, 2),msg = "{:d} orbs: Invalid Group 5 Number".format(n_orbs))
+        self.assertEqual(groups[0], binom(n_orbs, 2)*binom(n_orbs - 2, 2) // 2,msg = "{:d} orbs: Invalid Group 1 Number".format(n_orbs))
+        self.assertEqual(groups[1], n_orbs*binom(n_orbs - 1, 2), msg = "{:d} orbs: Invalid Group 2 Number".format(n_orbs))
+        self.assertEqual(groups[2], n_orbs*binom(n_orbs-1, 2),msg = "{:d} orbs: Invalid Group 3 Number".format(n_orbs))
+        self.assertEqual(groups[3], 2*binom(n_orbs, 2), msg = "{:d} orbs: Invalid Group 4 Number".format(n_orbs))
+        self.assertEqual(groups[4], binom(n_orbs, 2),msg = "{:d} orbs: Invalid Group 5 Number".format(n_orbs))
         self.assertEqual(np.sum(groups), get_doubles_number(n_orbs), msg = "{:d} orbs: Invalid Total Number".format(n_orbs))
-        
+
 
     def test_count_doubles(self):
         """Test for checking number of doubles excitations generated."""
