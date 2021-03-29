@@ -39,6 +39,7 @@ def hermitian_conjugate(terms):
     except:
         raise ValueError('Input terms must be format as, e.g. [[((int,1),(int,0),(int,1),(int,0)),float],...]')
 
+
 def get_spin_ordered(n_orbs, pp, qq, rr=-1, ss=-1, up_down = False):
     """For a given set of orbitals, provide corresponding spin-orbital indices,
     based on the desired spin-orbital ordering. Depending on user-convention, one
@@ -121,18 +122,18 @@ def get_group_1_2(n_orbs, p, q, r, s, up_down=False):
     up,dn = get_spin_ordered(n_orbs, p, q, r, s, up_down=up_down) #get spin-orbital indices
 
     #get triplet term
-    triplet = [[((up[0],1),(up[1],1),(up[2],0),(up[3],0)),1.0],
-                [((up[0],1),(dn[1],1),(up[2],0),(dn[3],0)),0.5],
-                [((up[0],1),(dn[1],1),(dn[2],0),(up[3],0)),0.5],
-                [((dn[0],1),(up[1],1),(up[2],0),(dn[3],0)),0.5],
-                [((dn[0],1),(up[1],1),(dn[2],0),(up[3],0)),0.5],
-                [((dn[0],1),(dn[1],1),(dn[2],0),(dn[3],0)),1.0]]
+    triplet = [[((up[0], 1), (up[1], 1), (up[2],0), (up[3], 0)), 1.0],
+                [((up[0], 1), (dn[1], 1), (up[2], 0), (dn[3], 0)), 0.5],
+                [((up[0], 1), (dn[1], 1), (dn[2], 0), (up[3], 0)), 0.5],
+                [((dn[0], 1), (up[1], 1), (up[2], 0), (dn[3], 0)), 0.5],
+                [((dn[0], 1), (up[1], 1), (dn[2], 0), (up[3], 0)), 0.5],
+                [((dn[0], 1), (dn[1], 1), (dn[2], 0), (dn[3], 0)), 1.0]]
     
     #get singlet term
-    singlet = [[((up[0],1),(dn[1],1),(up[2],0),(dn[3],0)),0.5],
-                [((up[0],1),(dn[1],1),(dn[2],0),(up[3],0)),-0.5],
-                [((dn[0],1),(up[1],1),(up[2],0),(dn[3],0)),-0.5],
-                [((dn[0],1),(up[1],1),(dn[2],0),(up[3],0)),0.5]]
+    singlet = [[((up[0], 1), (dn[1], 1), (up[2], 0), (dn[3], 0)), 0.5],
+                [((up[0], 1), (dn[1], 1), (dn[2], 0), (up[3], 0)), -0.5],
+                [((dn[0], 1), (up[1], 1), (up[2], 0), (dn[3], 0)), -0.5],
+                [((dn[0], 1), (up[1], 1), (dn[2], 0), (up[3], 0)), 0.5]]
 
     #add Hermitian conjugates 
     triplet += hermitian_conjugate(triplet)
@@ -179,8 +180,8 @@ def get_group_3_4(n_orbs, p, q, r, s, up_down=False):
     up,dn = get_spin_ordered(n_orbs, p, q, r, s, up_down=up_down) #get spin-orbital indices
 
     #prepare combinations
-    singlet = [[((up[0],1),(dn[1],1),(up[2],0),(dn[3],0)),1.0],
-                [((up[0],1),(dn[1],1),(dn[2],0),(up[3],0)),1.0]]      
+    singlet = [[((up[0], 1), (dn[1], 1), (up[2], 0), (dn[3], 0)), 1.0],
+                [((up[0], 1), (dn[1], 1), (dn[2], 0), (up[3], 0)), 1.0]]      
     
     #add Hermitian conjugate
     singlet += hermitian_conjugate(singlet)
@@ -189,7 +190,7 @@ def get_group_3_4(n_orbs, p, q, r, s, up_down=False):
 
 
 def get_group_5(n_orbs, p, q, r, s, up_down=False):
-    r"""Identify spin singlet -type 4-orbital 
+    """Identify spin singlet -type 4-orbital 
     excitations. We group equivalent terms,along with their Hermitian
     conjugates to prepare a single FermionOperator which will obey
     spin-symmetries. We then generalize expressions of the form:
@@ -225,7 +226,7 @@ def get_group_5(n_orbs, p, q, r, s, up_down=False):
     up,dn = get_spin_ordered(n_orbs, p, q, r, s, up_down=up_down)
 
     #prepare combinations
-    singlet = [[((up[0],1), (dn[1],1), (up[2],0), (dn[3],0)), 2.0]]
+    singlet = [[((up[0], 1), (dn[1], 1), (up[2], 0), (dn[3], 0)), 2.0]]
 
     #add Hermitian conjugate terms
     singlet += hermitian_conjugate(singlet)
@@ -266,8 +267,8 @@ def get_doubles(n_orbs, up_down=False):
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
     all_terms = list()
-    selection = np.linspace(0,n_orbs-1,n_orbs,dtype=int)
-    for pp, qq, rr, ss in itertools.product(selection,repeat=4):
+    selection = np.linspace(0, n_orbs-1, n_orbs, dtype=int)
+    for pp, qq, rr, ss in itertools.product(selection, repeat=4):
 
         if (pp < qq and pp < rr and pp < ss) and (rr < ss) and (qq != rr and qq != ss):
             terms = get_group_1_2(n_orbs, pp, qq, rr, ss, up_down=up_down)    
@@ -280,7 +281,7 @@ def get_doubles(n_orbs, up_down=False):
         elif pp == qq and qq != rr and rr == ss and pp < ss:     
             terms = get_group_5(n_orbs, pp, qq, rr, ss, up_down=up_down)      
         else:
-            continue
+            continue #skip the append if no new terms defined by conditions above
         
         all_terms.append(terms)
 
@@ -314,7 +315,7 @@ def get_singles(n_orbs, up_down=False):
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
     all_terms = list()
-    selection = np.linspace(0,n_orbs-1,n_orbs,dtype=int) #all possible orbitals
+    selection = np.linspace(0, n_orbs-1, n_orbs, dtype = int) #all possible orbitals
     for pp, qq in itertools.product(selection, repeat=2): #iterate over all pairings of orbital-indices
 
         if qq <= pp: #avoid duplicates, take only lower-triangle
@@ -322,17 +323,17 @@ def get_singles(n_orbs, up_down=False):
 
         up,down = get_spin_ordered(n_orbs, pp, qq, up_down=up_down) #get spin-orbital indices
         
-        terms = [[((up[0],1), (up[1],0)), 1.],
-                 [((down[0],1), (down[1],0)), 1.], #spin-compensated (up <> down)
-                 [((up[1],1), (up[0],0)), -1.], #Hermitian conjugate
-                 [((down[1],1), (down[0],0)), -1.]]  #h.c. of spin-compensated term         
+        terms = [[((up[0], 1), (up[1],0)), 1.],
+                 [((down[0], 1), (down[1],0)), 1.], #spin-compensated (up <> down)
+                 [((up[1], 1), (up[0],0)), -1.], #Hermitian conjugate
+                 [((down[1], 1), (down[0],0)), -1.]]  #h.c. of spin-compensated term         
         
         all_terms.append(terms)
 
     return all_terms
 
 
-def get_all_excitations(n_orbs, up_down = False):
+def get_all_excitations(n_orbs, up_down=False):
     """Enumerate all possible single and double excitations
     in the UCCGSD for a given number of fermionic orbital basis
     states. Prepare list of inputs to be applied as FermionicOperators.
@@ -368,7 +369,7 @@ def get_all_excitations(n_orbs, up_down = False):
     return all_terms 
 
 
-def uccgsd_generator(n_qubits,single_coeffs=None,double_coeffs=None,up_down=False):
+def uccgsd_generator(n_qubits, single_coeffs=None, double_coeffs=None, up_down=False):
     """Construct a list of FermionOperators enumerating the Unitary Coupled-Cluster
     Generalized Singles and Doubles excitations. Groups of spin-compensating and conjugate
     terms are combined together, with their relative weights to enforce spin-symmetries
@@ -384,7 +385,6 @@ def uccgsd_generator(n_qubits,single_coeffs=None,double_coeffs=None,up_down=Fals
     Returns:
         all_operators (list): list of FermionOperator objects
     """
-
     if type(n_qubits) != int:
         raise TypeError('Invalid datatype for number of qubits.')
     if n_qubits < 2:
@@ -395,7 +395,7 @@ def uccgsd_generator(n_qubits,single_coeffs=None,double_coeffs=None,up_down=Fals
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
     
     coeffs = get_coeffs(n_qubits, single_coeffs, double_coeffs) #check coeffecients passed, or generate random ones
-    operators = get_all_excitations(n_qubits//2, up_down = False) #get all operator input arguments
+    operators = get_all_excitations(n_qubits//2, up_down=False) #get all operator input arguments
 
     all_operators = list()
     for index,oi in enumerate(operators):
@@ -409,7 +409,7 @@ def uccgsd_generator(n_qubits,single_coeffs=None,double_coeffs=None,up_down=Fals
 
 
 def get_singles_number(n_orbitals):
-    r"""Get number of independent terms in the set of singles excitations
+    """Get number of independent terms in the set of singles excitations
     for a designated number of orbital states. Note argument is the number of 
     spatial orbital basis states, number of spin orbitals is twice as large.
 
@@ -429,7 +429,7 @@ def get_singles_number(n_orbitals):
 
 
 def get_doubles_number(n_orbitals):
-    r"""Get number of independent terms in the set of doubles excitations
+    """Get number of independent terms in the set of doubles excitations
     for a designated number of orbital states. Note argument is the number of 
     spatial orbital basis states, number of spin orbitals is twice as large.
 
@@ -449,7 +449,7 @@ def get_doubles_number(n_orbitals):
 
 
 def get_excitation_number(n_orbitals):
-    r"""Get number of independent singles and doubles excitations for a given
+    """Get number of independent singles and doubles excitations for a given
     number of basis orbital (spatial) states. Note input argument is half the 
     number of spin-orbitals.
 
@@ -464,7 +464,7 @@ def get_excitation_number(n_orbitals):
 
 
 def get_coeffs(n_qubits, single_coeffs=None, double_coeffs=None):
-    r"""Prepare coefficients for UCCGSD excitation terms. User has option
+    """Prepare coefficients for UCCGSD excitation terms. User has option
     to either pass specified singles and doubles excitation coefficients,
     or to utilize randomly chosen values. Note, if passing own values, check
     that number is consistent with the output for *get_singles_number* and
@@ -480,10 +480,9 @@ def get_coeffs(n_qubits, single_coeffs=None, double_coeffs=None):
         coeffs (numpy array of float): coefficients for initializing the FermionOperator
             for the UCCGSD.
     """
-
     if single_coeffs is None:
         single_coeffs = np.random.random(get_singles_number(n_qubits//2))
-    elif len(single_coeffs)!=get_singles_number(n_qubits//2):
+    elif len(single_coeffs) != get_singles_number(n_qubits//2):
         raise ValueError('Invalid number of single excitation coefficients.')
 
     if double_coeffs is None:
@@ -491,13 +490,13 @@ def get_coeffs(n_qubits, single_coeffs=None, double_coeffs=None):
     elif len(double_coeffs) != get_doubles_number(n_qubits//2):
         raise ValueError('Invalid number of double excitation coefficients.')
 
-    coeffs = np.concatenate((single_coeffs,double_coeffs))
+    coeffs = np.concatenate((single_coeffs, double_coeffs))
 
     return coeffs
 
 
 def choose(n, m):
-    r"""Enumerate binomial coefficient (i.e. "n choose m") for numbers n,m.
+    """Enumerate binomial coefficient (i.e. "n choose m") for numbers n,m.
     This is equivalent to n!/(n-m)!/m!, where ! indicates the factorial operation.
     Requires that n is greater or equal to m.
 
@@ -508,7 +507,6 @@ def choose(n, m):
     Returns:
         integer
     """
-
     if n < m: 
         return 0 #invalid condition
     else:
