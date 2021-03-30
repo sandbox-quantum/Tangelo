@@ -1,13 +1,12 @@
 import unittest
 from pyscf import gto
-
-from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
-from qsdk.toolboxes.ansatz_generator.rucc import RUCC
+from openfermion.transforms import get_fermion_operator, jordan_wigner, reorder
+from openfermion.utils import up_then_down
 
 from agnostic_simulator import Simulator
 
-from openfermion.transforms import get_fermion_operator, jordan_wigner, reorder
-from openfermion.utils import up_then_down
+from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
+from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 
 # Build molecule objects used by the tests.
 NaH = [('Na', (0., 0., 0.)), ('H', (0., 0., 1.91439))]
