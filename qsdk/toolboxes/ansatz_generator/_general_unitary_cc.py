@@ -72,8 +72,11 @@ def get_spin_ordered(n_orbs, pp, qq, rr=-1, ss=-1, up_down=False):
         raise TypeError('Invalid datatype for number of orbitals.')
     if n_orbs < 1:
         raise ValueError('Number of orbitals must be positive.')
-    pp, qq, rr, ss = int(pp), int(qq), int(rr), int(ss) #Force orbital indices to int-type
-    
+    try:
+        pp, qq, rr, ss = int(pp), int(qq), int(rr), int(ss) #Force orbital indices to int-type
+    except TypeError:
+        raise TypeError("All orbital indices (pp, qq, rr, ss) must be integer-type.")
+
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
     if up_down: #all spin up then all spin down
