@@ -6,7 +6,6 @@ import itertools
 from qsdk.toolboxes.ansatz_generator._general_unitary_cc import *
 
 
-
 class UCCGSDTest(unittest.TestCase):
 
     def test_spin_order(self):
@@ -71,31 +70,32 @@ class UCCGSDTest(unittest.TestCase):
         """Test that errors are handled correctly when an invalid number of coefficients are passed.
         Also tests that good input returns good output."""
         n_qubits = 4
-        n_single_coeffs = get_singles_number(n_qubits//2) #get expected number of single-coefficients
-        n_double_coeffs = get_doubles_number(n_qubits//2) #get expected number of double-coefficients
+        #get expected number of single-coefficients
+        n_single_coeffs = get_singles_number(n_qubits//2) 
+        #get expected number of double-coefficients
+        n_double_coeffs = get_doubles_number(n_qubits//2) 
 
-        good_single_coeffs = np.random.random(n_single_coeffs) #generate good coefficients
+        #generate good coefficients
+        good_single_coeffs = np.random.random(n_single_coeffs) 
         good_double_coeffs = np.random.random(n_double_coeffs)
-        bad_single_coeffs = np.random.random(n_single_coeffs + 10) #generate bad coefficients
+        #generate bad coefficients
+        bad_single_coeffs = np.random.random(n_single_coeffs + 10) 
         bad_double_coeffs = np.random.random(n_double_coeffs + 10)
-
-        good_coeffs = np.concatenate((good_single_coeffs,good_double_coeffs)) #combine singles and doubles
-
-        with self.assertRaises(ValueError):
-            get_coeffs(n_qubits,bad_single_coeffs,good_double_coeffs) #check invalid doubles # raises exception
-        with self.assertRaises(ValueError):
-            get_coeffs(n_qubits,bad_single_coeffs,good_double_coeffs) #check invalid singles # raises exception
-        with self.assertRaises(ValueError):
-            get_coeffs(n_qubits,bad_single_coeffs,bad_double_coeffs) #check invalid singles + doubles raises exception
         
-        #check valid gives good result
-        self.assertTrue(np.allclose(good_coeffs,
-                                                        get_coeffs(n_qubits, 
-                                                                    good_single_coeffs, 
-                                                                    good_double_coeffs
-                                                                    )
-                                                        )
-                        )
+        #combine singles and doubles
+        good_coeffs = np.concatenate((good_single_coeffs,good_double_coeffs)) 
+
+        #check that an invalid input raises a ValueError in each possible case
+        with self.assertRaises(ValueError):
+            get_coeffs(n_qubits,bad_single_coeffs,good_double_coeffs) 
+        with self.assertRaises(ValueError):
+            get_coeffs(n_qubits,bad_single_coeffs,good_double_coeffs) 
+        with self.assertRaises(ValueError):
+            get_coeffs(n_qubits,bad_single_coeffs,bad_double_coeffs) 
+        
+        #check that a valid input gives the expected result
+        good_result = get_coeffs(n_qubits, good_single_coeffs, good_double_coeffs)
+        self.assertTrue(np.allclose(good_coeffs, good_result))
 
 
 if __name__ == "__main__":

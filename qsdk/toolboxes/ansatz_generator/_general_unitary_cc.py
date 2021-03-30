@@ -1,6 +1,7 @@
 """Utility functions to generate FermionOperators corresponding to the generalized UCCSD (UCCGSD)
 ansatz for a designated number of orbitals or qubits. Excitations are grouped together to minimize
-redundancy and symmetry-violating independence between related spin-orbitals."""
+redundancy and symmetry-violating independence between related spin-orbitals. Groups are specified 
+here as defined in Tang et al (arXiv:1911.10205)."""
 
 import numpy as np
 from math import factorial
@@ -79,16 +80,20 @@ def get_spin_ordered(n_orbs, pp, qq, rr=-1, ss=-1, up_down=False):
 
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
-    if up_down: #all spin up then all spin down
+
+    #all spin up then all spin down
+    if up_down: 
         up = pp, qq, rr, ss
         down = n_orbs + pp, n_orbs + qq, n_orbs + rr, n_orbs + ss
-    else: #alternating spin up/spin down 
+    #alternating spin up/spin down 
+    else: 
         up = 2*pp, 2*qq, 2*rr, 2*ss
         down = 2*pp +1, 2*qq +1, 2*rr +1, 2*ss +1
-    if rr < 0: #if user has passed a 4-fermion operator
+    #if user has passed a 2-fermion operator
+    if rr < 0: 
         return up[:2], down[:2]
-    
-    return up,down #if a user has passed a 2-fermion operator
+    #otherwise, a user has passed a 4-fermion operator
+    return up,down 
 
 
 def get_group_1_2(n_orbs, p, q, r, s, up_down=False):
@@ -274,6 +279,7 @@ def get_doubles(n_orbs, up_down=False):
     selection = np.linspace(0, n_orbs-1, n_orbs, dtype=int)
     for pp, qq, rr, ss in itertools.product(selection, repeat=4):
 
+        #generate terms according to relationship between the spin-orbitals involved.
         if (pp < qq and pp < rr and pp < ss) and (rr < ss) and (qq != rr and qq != ss):
             terms = get_group_1_2(n_orbs, pp, qq, rr, ss, up_down=up_down)    
         elif qq == rr and pp < ss and pp != qq and ss != qq:
@@ -285,7 +291,8 @@ def get_doubles(n_orbs, up_down=False):
         elif pp == qq and qq != rr and rr == ss and pp < ss:     
             terms = get_group_5(n_orbs, pp, qq, rr, ss, up_down=up_down)      
         else:
-            continue #skip the append if no new terms defined by conditions above
+            #skip the append if no new terms defined by conditions above
+            continue 
         
         all_terms.append(terms)
 
@@ -321,10 +328,12 @@ def get_singles(n_orbs, up_down=False):
     selection = np.linspace(0, n_orbs-1, n_orbs, dtype = int) #all possible orbitals
     for pp, qq in itertools.product(selection, repeat=2): #iterate over all pairings of orbital-indices
 
-        if qq <= pp: #avoid duplicates, take only lower-triangle
+        #avoid duplicates, take only lower-triangle
+        if qq <= pp: 
             continue
 
-        up,down = get_spin_ordered(n_orbs, pp, qq, up_down=up_down) #get spin-orbital indices
+        #get spin-orbital indices
+        up,down = get_spin_ordered(n_orbs, pp, qq, up_down=up_down) 
         
         terms = [[((up[0], 1), (up[1],0)), 1.],
                  [((down[0], 1), (down[1],0)), 1.], #spin-compensated (up <> down)
@@ -365,9 +374,10 @@ def get_all_excitations(n_orbs, up_down=False):
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
-    singles = get_singles(n_orbs, up_down=up_down) #get all single-excitations
-    doubles = get_doubles(n_orbs, up_down=up_down) #get all double-excitations
-    all_terms = singles + doubles #combine singles and doubles into one list
+    singles = get_singles(n_orbs, up_down=up_down)   
+    doubles = get_doubles(n_orbs, up_down=up_down) 
+    #concatenate singles and doubles into a single collection  
+    all_terms = singles + doubles 
     
     return all_terms 
 
@@ -402,11 +412,14 @@ def uccgsd_generator(n_qubits, single_coeffs=None, double_coeffs=None, up_down=F
 
     all_operators = list()
     for index,oi in enumerate(operators):
-        current= FermionOperator() #create new FermionOperator
+        #create new FermionOperator
+        current= FermionOperator() 
         for term in oi:
-            current += FermionOperator(*term[:-1], term[-1]*coeffs[index]) #add term to operator
+            #add term to operator
+            current += FermionOperator(*term[:-1], term[-1]*coeffs[index]) 
 
-        all_operators.append(current) #add to list of total 
+        #add to list of total 
+        all_operators.append(current) 
 
     return all_operators
 
