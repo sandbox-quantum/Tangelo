@@ -10,7 +10,7 @@ from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 
 # Build molecule objects used by the tests.
 NaH = [('Na', (0., 0., 0.)), ('H', (0., 0., 1.91439))]
-occupied_indices=[i for i in range(5)]
+occupied_indices=list(range(5))
 active_indices = [5, 9]
 
 mol_nah = gto.Mole()
@@ -63,7 +63,7 @@ class UCCSDTest(unittest.TestCase):
         )
 
         fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
-        fermion_hamiltonian = reorder(fermion_hamiltonian,up_then_down)
+        fermion_hamiltonian = reorder(fermion_hamiltonian, up_then_down)
         qubit_hamiltonian = jordan_wigner(fermion_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
