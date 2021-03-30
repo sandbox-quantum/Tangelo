@@ -28,7 +28,7 @@ class RUCC(Ansatz):
 
     def __init__(self, n_var_params=1):
 
-        if n_var_params not in (1,3):
+        if n_var_params not in {1,3}:
             raise ValueError("The number of parameters for RUCC must be 1 or 3.")
 
         self.n_var_params = n_var_params
