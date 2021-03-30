@@ -67,6 +67,36 @@ class UCCGSDTest(unittest.TestCase):
         self.assertEqual(len(get_singles(5)), get_singles_number(5), msg = "5 orbs: Invalid Number of singles")
         self.assertEqual(len(get_singles(10)), get_singles_number(10),msg = "5 orbs: Invalid Number of singles")
 
+    def test_coeff_pass(self):
+        """Test that errors are handled correctly when an invalid number of coefficients are passed.
+        Also tests that good input returns good output."""
+        n_qubits = 4
+        n_single_coeffs = get_singles_number(n_qubits//2) #get expected number of single-coefficients
+        n_double_coeffs = get_doubles_number(n_qubits//2) #get expected number of double-coefficients
+
+        good_single_coeffs = np.random.random(n_single_coeffs) #generate good coefficients
+        good_double_coeffs = np.random.random(n_double_coeffs)
+        bad_single_coeffs = np.random.random(n_single_coeffs + 10) #generate bad coefficients
+        bad_double_coeffs = np.random.random(n_double_coeffs + 10)
+
+        good_coeffs = np.concatenate((good_single_coeffs,good_double_coeffs)) #combine singles and doubles
+
+        with self.assertRaises(ValueError):
+            get_coeffs(n_qubits,bad_single_coeffs,good_double_coeffs) #check invalid doubles # raises exception
+        with self.assertRaises(ValueError):
+            get_coeffs(n_qubits,bad_single_coeffs,good_double_coeffs) #check invalid singles # raises exception
+        with self.assertRaises(ValueError):
+            get_coeffs(n_qubits,bad_single_coeffs,bad_double_coeffs) #check invalid singles + doubles raises exception
+        
+        #check valid gives good result
+        self.assertTrue(np.allclose(good_coeffs,
+                                                        get_coeffs(n_qubits, 
+                                                                    good_single_coeffs, 
+                                                                    good_double_coeffs
+                                                                    )
+                                                        )
+                        )
+
 
 if __name__ == "__main__":
 

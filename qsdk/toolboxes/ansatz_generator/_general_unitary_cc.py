@@ -117,9 +117,9 @@ def get_group_1_2(n_orbs, p, q, r, s, up_down=False):
             singlet and triplet terms.
     """
     if type(n_orbs) != int:
-        raise TypeError('Invalid datatype for number of orbitals.')
+        raise TypeError('Number of orbitals (n_orbs) must be integer-type.')
     if n_orbs < 1:
-        raise ValueError('Number of orbitals must be positive.')
+        raise ValueError('Number of orbitals (n_orbs) must be at least 1.')
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
@@ -175,9 +175,9 @@ def get_group_3_4(n_orbs, p, q, r, s, up_down=False):
             terms.
     """
     if type(n_orbs) != int:
-        raise TypeError('Invalid datatype for number of orbitals.')
+        raise TypeError('Number of orbitals (n_orbs) must be integer-type.')
     if n_orbs < 1:
-        raise ValueError('Number of orbitals must be positive.')
+        raise ValueError('Number of orbitals (n_orbs) must be at least 1.')
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
@@ -220,9 +220,9 @@ def get_group_5(n_orbs, p, q, r, s, up_down=False):
             terms.
     """
     if type(n_orbs) != int:
-        raise TypeError('Invalid datatype for number of orbitals.')
+        raise TypeError('Number of orbitals (n_orbs) must be integer-type.')
     if n_orbs < 1:
-        raise ValueError('Number of orbitals must be positive.')
+        raise ValueError('Number of orbitals (n_orbs) must be at least 1.')
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
@@ -264,9 +264,9 @@ def get_doubles(n_orbs, up_down=False):
             [((0,1),(1,0),(3,1),(4,0)),0.5] = 0.5a_0^{\dagger}a_1a_3^{\dagger}a_4
     """
     if type(n_orbs) != int:
-        raise TypeError('Invalid datatype for number of orbitals.')
+        raise TypeError('Number of orbitals (n_orbs) must be integer-type.')
     if n_orbs < 1:
-        raise ValueError('Number of orbitals must be positive.')
+        raise ValueError('Number of orbitals (n_orbs) must be at least 1.')
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
@@ -311,9 +311,9 @@ def get_singles(n_orbs, up_down=False):
             [((0,1),(1,0)),0.5] = 0.5a_0^{\dagger}a_1
     """
     if type(n_orbs) != int:
-        raise TypeError('Invalid datatype for number of orbitals.')
+        raise TypeError('Number of orbitals (n_orbs) must be integer-type.')
     if n_orbs < 1:
-        raise ValueError('Number of orbitals must be positive.')
+        raise ValueError('Number of orbitals (n_orbs) must be at least 1.')
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
@@ -423,12 +423,12 @@ def get_singles_number(n_orbitals):
         int number of singles excitations
     """
     if n_orbitals != np.floor(n_orbitals):
-        raise ValueError('Number of orbitals must be integer valued')
+        raise ValueError('Number of orbitals (n_orbitals) must be integer valued')
 
     try:
         return n_orbitals*(n_orbitals - 1)//2
     except:
-        raise ValueError('Invalid format for number of orbitals, expecting integer.')
+        raise ValueError('Invalid format for number of orbitals (n_orbitals), expecting integer.')
 
 
 def get_doubles_number(n_orbitals):
@@ -443,12 +443,12 @@ def get_doubles_number(n_orbitals):
         int number of doubles excitations
     """
     if np.mod(n_orbitals, 1) != 0.0:
-        raise ValueError('Number of orbitals must be integer valued')
+        raise ValueError('Number of orbitals (n_orbitals) must be integer valued')
 
     try:
         return n_orbitals * ( n_orbitals**3 + 2*n_orbitals**2 - n_orbitals - 2 ) // 8
     except:
-        raise TypeError('Invalid format for number of orbitals, expecting integer.')
+        raise TypeError('Invalid format for number of orbitals (n_orbitals), expecting integer.')
 
 
 def get_excitation_number(n_orbitals):
@@ -486,12 +486,12 @@ def get_coeffs(n_qubits, single_coeffs=None, double_coeffs=None):
     if single_coeffs is None:
         single_coeffs = np.random.random(get_singles_number(n_qubits//2))
     elif len(single_coeffs) != get_singles_number(n_qubits//2):
-        raise ValueError('Invalid number of single excitation coefficients.')
+        raise ValueError(f'Invalid number of single excitation coefficients, expecting {get_singles_number(n_qubits//2)}.')
 
     if double_coeffs is None:
         double_coeffs = np.random.random(get_doubles_number(n_qubits//2))
     elif len(double_coeffs) != get_doubles_number(n_qubits//2):
-        raise ValueError('Invalid number of double excitation coefficients.')
+        raise ValueError(f'Invalid number of double excitation coefficients, expecting {get_doubles_number(n_qubits//2)}.')
 
     coeffs = np.concatenate((single_coeffs, double_coeffs))
 
