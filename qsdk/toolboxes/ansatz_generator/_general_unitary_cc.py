@@ -40,7 +40,7 @@ def hermitian_conjugate(terms):
         raise ValueError('Input terms must be format as, e.g. [[((int,1),(int,0),(int,1),(int,0)),float],...]')
 
 
-def get_spin_ordered(n_orbs, pp, qq, rr=-1, ss=-1, up_down = False):
+def get_spin_ordered(n_orbs, pp, qq, rr=-1, ss=-1, up_down=False):
     """For a given set of orbitals, provide corresponding spin-orbital indices,
     based on the desired spin-orbital ordering. Depending on user-convention, one
     typically orders spin-orbitals as all spin-up followed by all spin-down (this
@@ -72,15 +72,16 @@ def get_spin_ordered(n_orbs, pp, qq, rr=-1, ss=-1, up_down = False):
         raise TypeError('Invalid datatype for number of orbitals.')
     if n_orbs < 1:
         raise ValueError('Number of orbitals must be positive.')
+    pp, qq, rr, ss = int(pp), int(qq), int(rr), int(ss) #Force orbital indices to int-type
     
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
     if up_down: #all spin up then all spin down
-        up = int(pp), int(qq), int(rr), int(ss)
-        down = int(n_orbs + pp), int(n_orbs + qq), int(n_orbs + rr), int(n_orbs + ss)
+        up = pp, qq, rr, ss
+        down = n_orbs + pp, n_orbs + qq, n_orbs + rr, n_orbs + ss
     else: #alternating spin up/spin down 
-        up = int(2*pp), int(2*qq), int(2*rr), int(2*ss)
-        down = int(2*pp +1), int(2*qq +1), int(2*rr +1), int(2*ss +1)
+        up = 2*pp, 2*qq, 2*rr, 2*ss
+        down = 2*pp +1, 2*qq +1, 2*rr +1, 2*ss +1
     if rr < 0: #if user has passed a 4-fermion operator
         return up[:2], down[:2]
     
@@ -293,7 +294,6 @@ def get_singles(n_orbs, up_down=False):
     orbital basis states, grouped together according to spin-compensated
     spin-orbital combinations. 
 
-
     Args:
         n_orbs (int): number of orbitals in basis (this is number of
             spin-orbitals divided by 2)
@@ -356,9 +356,9 @@ def get_all_excitations(n_orbs, up_down=False):
             and the related operator indices and actions (creation/annihilation)
     """
     if type(n_orbs) != int:
-        raise TypeError('Invalid datatype for number of orbitals.')
+        raise TypeError('Number of orbitals (n_orbs) must be integer type.')
     if n_orbs < 1:
-        raise ValueError('Number of orbitals must be positive.')
+        raise ValueError('Number of orbitals (n_orbs) must be at least 1.')
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
@@ -386,11 +386,11 @@ def uccgsd_generator(n_qubits, single_coeffs=None, double_coeffs=None, up_down=F
         all_operators (list): list of FermionOperator objects
     """
     if type(n_qubits) != int:
-        raise TypeError('Invalid datatype for number of qubits.')
+        raise TypeError('Number of qubits (n_qubits) must be integer type.')
     if n_qubits < 2:
-        raise ValueError('Number of qubits must be positive.')
-    elif n_qubits//2 != n_qubits/2:
-        raise ValueError('Invalid number of qubits -- must be even.')
+        raise ValueError('Number of qubits (n_qubits) must be at least 2.')
+    elif np.mod(n_qubits,2) != 0:
+        raise ValueError('Invalid number of qubits (n_qubits) -- must be even.')
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
     
@@ -439,13 +439,13 @@ def get_doubles_number(n_orbitals):
     Return:
         int number of doubles excitations
     """
-    if n_orbitals != np.floor(n_orbitals):
+    if np.mod(n_orbitals, 1) != 0.0:
         raise ValueError('Number of orbitals must be integer valued')
 
     try:
         return n_orbitals * ( n_orbitals**3 + 2*n_orbitals**2 - n_orbitals - 2 ) // 8
     except:
-        raise ValueError('Invalid format for number of orbitals, expecting integer.')
+        raise TypeError('Invalid format for number of orbitals, expecting integer.')
 
 
 def get_excitation_number(n_orbitals):
@@ -493,5 +493,3 @@ def get_coeffs(n_qubits, single_coeffs=None, double_coeffs=None):
     coeffs = np.concatenate((single_coeffs, double_coeffs))
 
     return coeffs
-
-
