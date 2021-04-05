@@ -13,6 +13,7 @@ class Ansatze(Enum):
     UCCSD = 0
 
 
+# TODO: VQESolver to inherit from an abstract "ElectronicStructureSolver" class implementing common interface for PD
 class VQESolver:
     """ Solve the electronic structure problem for a molecular system by using the
     variational quantum eigensolver (VQE) algorithm.
