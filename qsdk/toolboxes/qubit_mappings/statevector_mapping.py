@@ -54,7 +54,7 @@ def do_bk_transform(vector):
     return vector_bk
 
 
-def vector_to_circuit(vector, circuit = None):
+def vector_to_circuit(vector, circuit=None):
     """Translate occupation vector into a circuit. Each
     occupied state corresponds to an X-gate on the associated
     qubit index. 
