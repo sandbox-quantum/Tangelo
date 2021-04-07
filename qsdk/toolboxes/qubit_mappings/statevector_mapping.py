@@ -78,3 +78,4 @@ def vector_to_circuit(vector, circuit = None):
             circuit.add_gate(gate)
         
     return circuit
+

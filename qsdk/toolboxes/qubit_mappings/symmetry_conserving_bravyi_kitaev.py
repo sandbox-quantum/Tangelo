@@ -172,3 +172,4 @@ def prune_unused_indices(fermion_operator, prune_indices, n_qubits):
         new_operator.terms[tuple(new_term)] = fermion_operator.terms[term]
 
     return new_operator
+

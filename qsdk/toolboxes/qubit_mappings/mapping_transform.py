@@ -49,3 +49,4 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electro
         raise ValueError('Requested mapping type not supported.')
     
     return qubit_operator
+
