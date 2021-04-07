@@ -4,9 +4,6 @@ power of two.
 nb: this is a minimal implementation, just wrapping around current openfermion code (v 1.0.1).
 This wrapper enables future refactoring to utilize our own implementation, as needed."""
 
-import itertools
-import numpy
-
 from openfermion.utils import count_qubits
 from openfermion.transforms import bravyi_kitaev as openfermion_bravyi_kitaev
 from qsdk.toolboxes.operators import FermionOperator, QubitOperator
