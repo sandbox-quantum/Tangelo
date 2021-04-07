@@ -1,3 +1,5 @@
+"""Tests for statevector mapping methods, which carry a numpy array indicating fermionic
+occupation of reference state into qubit representation."""
 import unittest
 import numpy as np
 
@@ -13,8 +15,8 @@ class TestVector(unittest.TestCase):
 
         output_jw = get_vector(vector.size, sum(vector), mapping = 'jw', updown = False)
         output_jw_updown = get_vector(vector.size, sum(vector), mapping = 'jw', updown = True)
-        self.assertEquals(np.linalg.norm(vector - output_jw), 0.0)
-        self.assertEquals(np.linalg.norm(vector_updown - output_jw_updown), 0.0)
+        self.assertEqual(np.linalg.norm(vector - output_jw), 0.0)
+        self.assertEqual(np.linalg.norm(vector_updown - output_jw_updown), 0.0)
 
 
     def test_bk_value(self):
@@ -25,8 +27,8 @@ class TestVector(unittest.TestCase):
 
         output_bk = get_vector(vector.size, sum(vector), mapping = 'bk', updown = False)
         output_bk_updown = get_vector(vector.size, sum(vector), mapping = 'bk', updown = True)
-        self.assertEquals(np.linalg.norm(vector_bk - output_bk), 0.0)
-        self.assertEquals(np.linalg.norm(vector_bk_updown - output_bk_updown), 0.0)
+        self.assertEqual(np.linalg.norm(vector_bk - output_bk), 0.0)
+        self.assertEqual(np.linalg.norm(vector_bk_updown - output_bk_updown), 0.0)
 
 
     def test_circuit_width(self):
@@ -41,8 +43,8 @@ class TestVector(unittest.TestCase):
         """Check circuit width and size (number of X gates)."""
         vector = np.array([1, 1, 1, 1, 0, 0, 1, 1])
         circuit = vector_to_circuit(vector)
-        self.assertEquals(circuit.size, sum(vector))
-        self.assertEquals(circuit.width, vector.size)
+        self.assertEqual(circuit.size, sum(vector))
+        self.assertEqual(circuit.width, vector.size)
         
 
 if __name__ == "__main__":

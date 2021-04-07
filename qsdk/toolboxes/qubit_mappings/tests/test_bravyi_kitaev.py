@@ -22,7 +22,7 @@ class BravyiKitaevTest(unittest.TestCase):
 
     def test_input_raise(self):
         """Test that invalid operator type throws an error."""
-        input_operator = QubitOperator((1,'X'))
+        input_operator = QubitOperator((1, 'X'))
         with self.assertRaises(TypeError):
             bravyi_kitaev(input_operator,n_qubits = 2)
 
@@ -48,5 +48,4 @@ class BravyiKitaevTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-
     unittest.main()

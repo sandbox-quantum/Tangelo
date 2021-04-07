@@ -1,6 +1,5 @@
 """Tools to define a reference state under a specified qubit-mapping, and
 translate into a Circuit."""
-
 import numpy as np
 
 from agnostic_simulator import Gate,Circuit
@@ -32,7 +31,6 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
     if updown:
         vector = np.concatenate((vector[::2], vector[1::2]))
 
-    mapping = get_mapping(mapping)
     if mapping.upper() == 'JW':
         return vector
     elif mapping.upper() == 'BK':

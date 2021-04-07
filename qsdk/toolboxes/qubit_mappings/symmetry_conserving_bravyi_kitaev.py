@@ -74,8 +74,8 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits,
         raise ValueError('Number of qubits is too small for FermionOperator input.')
 
     # Arrange spins up then down, then BK map to qubit Hamiltonian.
-    fermion_operator_reorder = reorder(fermion_operator, up_then_down,num_modes=n_qubits)
-    qubit_operator = bravyi_kitaev_tree(fermion_operator_reorder,n_qubits=n_qubits)
+    fermion_operator_reorder = reorder(fermion_operator, up_then_down, num_modes = n_qubits)
+    qubit_operator = bravyi_kitaev_tree(fermion_operator_reorder, n_qubits = n_qubits)
     qubit_operator.compress()
 
     # Allocates the parity factors for the orbitals as in arXiv:1704.05018.
@@ -102,8 +102,8 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits,
                                                   parity_middle_orb)
     
     #We remove the N/2-th and N-th qubit from the register.                                           
-    to_prune = (n_qubits//2-1, n_qubits-1)
-    qubit_operator = prune_unused_indices(qubit_operator, prune_indices = to_prune, num_modes = n_qubits)
+    to_prune = (n_qubits//2 - 1, n_qubits - 1)
+    qubit_operator = prune_unused_indices(qubit_operator, prune_indices = to_prune, n_qubits = n_qubits)
 
     return qubit_operator
 
@@ -116,9 +116,9 @@ def edit_operator_for_spin(qubit_operator, spin_orbital, orbital_parity):
     for term, coefficient in qubit_operator.terms.items():
         # If Z acts on the specified orbital, precompute its effect and
         # remove it from the Hamiltonian.
-        if (spin_orbital-1, 'Z') in term:
+        if (spin_orbital - 1, 'Z') in term:
             new_coefficient = coefficient*orbital_parity
-            new_term = tuple(i for i in term if i != (spin_orbital-1, 'Z'))
+            new_term = tuple(i for i in term if i != (spin_orbital - 1, 'Z'))
             # Make sure to combine terms comprised of the same operators.
             if new_qubit_dict.get(new_term) is None:
                 new_qubit_dict[new_term] = new_coefficient
@@ -155,7 +155,7 @@ def prune_unused_indices(fermion_operator, prune_indices, n_qubits):
     TODO: fill in documentation
     """
 
-    indices = np.linspace(0, n_qubits-1, n_qubits, dtype = int)
+    indices = np.linspace(0, n_qubits - 1, n_qubits, dtype = int)
     indices = np.delete(indices, prune_indices)
 
     # Construct a dict that maps the old indices to new ones

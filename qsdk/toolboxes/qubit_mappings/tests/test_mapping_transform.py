@@ -25,7 +25,8 @@ class MappingTest(unittest.TestCase):
         fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
         n_qubits = 4
         qubit = fermion_to_qubit_mapping(fermion, mapping = 'BK', n_qubits = n_qubits)
-        self.assertEquals(qubit,bk_operator)
+        self.assertEqual(qubit,bk_operator)
+
 
     def test_jw(self):
         """Check output from Bravyi-Kitaev transformation"""
@@ -40,14 +41,14 @@ class MappingTest(unittest.TestCase):
         
         fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
         qubit = fermion_to_qubit_mapping(fermion, mapping = 'JW')
-        self.assertEquals(qubit,jw_operator)
+        self.assertEqual(qubit,jw_operator)
 
 
     def test_handle_invalid_mapping(self):
         """Test that error is handled if invalid mapping is requested."""
         fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
         with self.assertRaises(ValueError):
-            fermion_to_qubit_mapping(fermion, mapping = "bogus")
+            fermion_to_qubit_mapping(fermion, mapping = "fake_mapping")
 
 
 if __name__ == "__main__":

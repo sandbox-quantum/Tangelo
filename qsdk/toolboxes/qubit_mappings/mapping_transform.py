@@ -2,39 +2,14 @@
  statevectors from Fermionic to Qubit encodings via any of:
  - Jordan-Wigner
  - Bravyi-Kitaev (Fenwick Tree implementation)
- - symmetry-conserving Bravyi-Kitaev (2-qubit reduction via Z2 taper)
+ - TODO: symmetry-conserving Bravyi-Kitaev (2-qubit reduction via Z2 taper)
 """
 from qsdk.toolboxes.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings.jordan_wigner import jordan_wigner
 from qsdk.toolboxes.qubit_mappings.bravyi_kitaev import bravyi_kitaev
 # from symmetry_conserving_bravyi_kitaev import symmetry_conserving_bravyi_kitaev
 
-
-def get_mapping(mapping):
-    """Check mapping input selection, cast to integer type. User can select from
-    Jordan-Wigner, Bravyi-Kitaev, or symmetry conserving Bravyi-Kitaev.
-    TODO: scBK implementation
-    Args:
-        mapping (string): options are: 
-           'JW' (Jordan Wigner), 'BK' (Bravyi Kitaev), 'scBK' (symmetry-conserving Bravyi Kitaev).
-           
-    Returns:
-        mapping (int): integer from 0-2 inclusive.
-    """
-    if mapping.upper() == 'JW':
-        mapping = 0
-    elif mapping.lower() == 'bravyi_kitaev' or mapping.lower() == 'bk':
-        mapping = 1
-    #TODO: test and implement scBK
-    # elif mapping.lower() == 'symmetry_conserving_bravyi_kitaev' or mapping.lower() == 'scbk':
-    #     mapping = 2
-    else:
-        raise ValueError('Invalid mapping name. See get_mapping documentation for options.')
-
-    return mapping
-
-
-def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits = None, n_electrons = None):
+def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electrons=None):
     """Perform mapping of fermionic operator to qubit operator. This function is mostly a wrapper
     around standard openfermion code, with some important distinctions. We strictly enforce the
     specification of n_qubits for Bravyi-Kitaev type transformations, and n_electrons for scBK.
