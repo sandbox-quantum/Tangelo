@@ -6,11 +6,10 @@
 """
 from enum import Enum
 
+from qsdk.toolboxes.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings.jordan_wigner import jordan_wigner
 from qsdk.toolboxes.qubit_mappings.bravyi_kitaev import bravyi_kitaev
 # from symmetry_conserving_bravyi_kitaev import symmetry_conserving_bravyi_kitaev
-
-from openfermion import FermionOperator
 
 class MappingType(Enum):
     """Enumeration of the mappings supported for qubit transformations."""
