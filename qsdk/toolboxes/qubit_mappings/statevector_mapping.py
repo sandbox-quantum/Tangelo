@@ -3,8 +3,6 @@ translate into a Circuit."""
 
 import numpy as np
 
-from qsdk.toolboxes.qubit_mappings.mapping_transform import MappingType,get_mapping
-
 from agnostic_simulator import Gate,Circuit
 
 from openfermion.transforms import bravyi_kitaev_code
@@ -20,7 +18,8 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
     Args:
         n_qubits (int): number of qubits in register
         n_electrons (int): number of electrons in system
-        mapping (int or string): specify mapping, see mapping_transform.py for options
+        mapping (string): specify mapping, see mapping_transform.py for options
+            'JW' (Jordan Wigner), or 'BK' (Bravyi Kitaev)
         updown (boolean): if True, all up, then all down, if False, alternating spin
             up/down
 
@@ -34,9 +33,9 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
         vector = np.concatenate((vector[::2], vector[1::2]))
 
     mapping = get_mapping(mapping)
-    if mapping == MappingType.JORDAN_WIGNER.value:
+    if mapping.upper() == 'JW':
         return vector
-    elif mapping == MappingType.BRAVYI_KITAEV.value:
+    elif mapping.upper() == 'BK':
         return do_bk_transform(vector)
     else:
         raise ValueError('Invalid mapping selection. Only Bravyi-Kitaev and Jordan-Wigner are implemented presently.')

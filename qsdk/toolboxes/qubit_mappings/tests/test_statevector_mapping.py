@@ -11,8 +11,8 @@ class TestVector(unittest.TestCase):
         vector = np.array([1, 1, 1, 1, 0, 0, 0, 0])
         vector_updown = np.array([1, 1, 0, 0, 1, 1, 0, 0])
 
-        output_jw = get_vector(len(vector), sum(vector), mapping = 'jw', updown = False)
-        output_jw_updown = get_vector(len(vector), sum(vector), mapping = 'jw', updown = True)
+        output_jw = get_vector(vector.size, sum(vector), mapping = 'jw', updown = False)
+        output_jw_updown = get_vector(vector.size, sum(vector), mapping = 'jw', updown = True)
         self.assertEquals(np.linalg.norm(vector - output_jw), 0.0)
         self.assertEquals(np.linalg.norm(vector_updown - output_jw_updown), 0.0)
 
