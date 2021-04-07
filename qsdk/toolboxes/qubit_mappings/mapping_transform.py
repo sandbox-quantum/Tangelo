@@ -11,6 +11,7 @@ from qsdk.toolboxes.qubit_mappings.jordan_wigner import jordan_wigner
 from qsdk.toolboxes.qubit_mappings.bravyi_kitaev import bravyi_kitaev
 # from symmetry_conserving_bravyi_kitaev import symmetry_conserving_bravyi_kitaev
 
+
 class MappingType(Enum):
     """Enumeration of the mappings supported for qubit transformations."""
     JORDAN_WIGNER = 0

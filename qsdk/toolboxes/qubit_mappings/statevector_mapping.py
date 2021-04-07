@@ -3,7 +3,7 @@ translate into a Circuit."""
 
 import numpy as np
 
-from .mapping_transform import MappingType,get_mapping
+from qsdk.toolboxes.qubit_mappings.mapping_transform import MappingType,get_mapping
 
 from agnostic_simulator import Gate,Circuit
 
@@ -30,7 +30,7 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
     """
     vector = np.zeros(n_qubits, dtype = int)
     vector[:n_electrons] = 1
-    if not updown:
+    if updown:
         vector = np.concatenate((vector[::2], vector[1::2]))
 
     mapping = get_mapping(mapping)
@@ -40,7 +40,6 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
         return do_bk_transform(vector)
     else:
         raise ValueError('Invalid mapping selection. Only Bravyi-Kitaev and Jordan-Wigner are implemented presently.')
-
 
 
 def do_bk_transform(vector):
@@ -72,6 +71,9 @@ def vector_to_circuit(vector, circuit = None):
     """
     if circuit is None:
         circuit = Circuit()
+    
+    elif circuit._qubits_simulated and circuit.width != vector.size:
+        raise ValueError("Reference state has different number of qubits from fixed-width circuit input.")
 
     for index, occupation in enumerate(vector):
         if occupation:
