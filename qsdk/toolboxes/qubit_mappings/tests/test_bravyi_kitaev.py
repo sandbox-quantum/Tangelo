@@ -1,11 +1,7 @@
 import unittest
-import numpy as np
-from scipy.special import binom
-import itertools
 
 from openfermion.transforms import bravyi_kitaev as openfermion_bravyi_kitaev
-from openfermion.utils import count_qubits
-from qsdk.toolboxes.qubit_mappings.bravyi_kitaev import bravyi_kitaev,count_qubits
+from qsdk.toolboxes.qubit_mappings.bravyi_kitaev import bravyi_kitaev
 from qsdk.toolboxes.operators import FermionOperator,QubitOperator
 
 

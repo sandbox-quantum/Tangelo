@@ -6,6 +6,7 @@ import numpy as np
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_vector,vector_to_circuit
 from agnostic_simulator import Circuit,Gate
 
+
 class TestVector(unittest.TestCase):
 
     def test_jw_value(self):
