@@ -72,7 +72,8 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits,
         raise ValueError('Number of electrons should be an integer.')
     if n_qubits < count_qubits(fermion_operator):
         raise ValueError('Number of qubits is too small for FermionOperator input.')
-
+    #Check that the input operator is suitable for application of scBK
+    check_operator(fermion_operator)
     # Arrange spins up then down, then BK map to qubit Hamiltonian.
     fermion_operator_reorder = reorder(fermion_operator, up_then_down, num_modes=n_qubits)
     qubit_operator = bravyi_kitaev_tree(fermion_operator_reorder, n_qubits=n_qubits)
@@ -191,3 +192,23 @@ def prune_unused_indices(qubit_operator, prune_indices, n_qubits):
 
     return new_operator
 
+
+def check_operator(fermion_operator):
+    """Check if the input fermion operator is suitable for application
+    of symmetry-consering BK qubit reduction. Excitation must: preserve
+    parity of fermion occupation, and parity of spin expectation value.
+    This assumes alternating spin-up/spin-down ordering of input operator.
+
+    Args:
+        fermion_operator (FermionOperator): input fermionic operator
+    """
+    for term in fermion_operator.terms:
+        number_change = 0        
+        spin_change = 0
+        for index, action in term:
+            number_change += 2*action - 1
+            spin_change += (2*action - 1)*(-2*np.mod(index, 2) + 1)*0.5
+        if np.mod(number_change, 2) != 0:
+            raise ValueError('Invalid operator: input fermion operator does not conserve occupation parity.')
+        if np.mod(spin_change, 2) != 0:
+            raise ValueError('Invalid operator: input fermion operator does not conserve spin parity.')

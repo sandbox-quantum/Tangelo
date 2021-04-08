@@ -54,6 +54,18 @@ class MappingTest(unittest.TestCase):
         qubit = fermion_to_qubit_mapping(fermion, mapping='SCBK', n_qubits=4, n_electrons=2)
         self.assertEqual(qubit,scbk_operator)
 
+    def test_scbk_invalid(self):
+        """Check if fermion operator fails to conserve number parity or spin parity.
+        In either case, scBK is not an appropriate mapping."""
+        #excitation violating number and spin parity
+        fermion = FermionOperator(((1, 1)), 1.0)
+        with self.assertRaises(ValueError):
+            fermion_to_qubit_mapping(fermion, mapping='SCBK', n_qubits=2, n_electrons=1)
+        #excitation violating spin parity
+        fermion = FermionOperator(((0, 1), (1, 0)), 1.0)
+        with self.assertRaises(ValueError):
+            fermion_to_qubit_mapping(fermion, mapping='SCBK', n_qubits=2, n_electrons=1)
+
     def test_handle_invalid_mapping(self):
         """Test that error is handled if invalid mapping is requested."""
         fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
