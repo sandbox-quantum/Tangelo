@@ -2,7 +2,7 @@ import unittest
 from pyscf import gto
 import numpy as np
 
-from qsdk.electronic_structure_solvers.vqe_solver_new import Ansatze, VQESolver
+from qsdk.electronic_structure_solvers.vqe_solver import Ansatze, VQESolver
 
 
 H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
@@ -65,6 +65,20 @@ class VQESolverTest(unittest.TestCase):
 
         options = {"qubit_mapping": 'jw'}
         self.assertRaises(ValueError, VQESolver, options)
+
+    def test_get_resources_h2(self):
+        """ Resource estimation, with UCCSD ansatz, JW qubit mapping, given initial parameters """
+
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+                       "initial_var_params": [0.1, 0.1]}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        resources = vqe_solver.get_resources()
+        print(resources)
+        expected = {'qubit_hamiltonian_terms': 15, 'circuit_width': 4, 'circuit_gates': 158,
+                    'circuit_CNOTs': 64, 'circuit_var_gates': 12, 'vqe_variational_parameters': 2}
+        self.assertDictEqual(resources, expected)
 
     def test_energy_estimation_vqe(self):
         """ A single VQE energy evaluation for H2, using optimal parameters and exact simulator """

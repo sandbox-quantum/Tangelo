@@ -6,6 +6,12 @@ from enum import Enum
 import numpy as np
 from copy import deepcopy
 
+from agnostic_simulator import Simulator
+from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
+from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
+from qsdk.toolboxes.qubit_mappings import jordan_wigner
+from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
+
 
 class Ansatze(Enum):
     """ Enumeration of the ansatz circuits supported by VQE"""
@@ -66,11 +72,6 @@ class VQESolver:
         """ Build the underlying objects required to run ot build the ansatz
         circuit and run the VQE algorithm
         """
-        from agnostic_simulator import Simulator
-        from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
-        from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
-        from qsdk.toolboxes.qubit_mappings import jordan_wigner
-        from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 
         # Build adequate mean-field (RHF for now, others in future), apply frozen orbitals
         if not self.mean_field:
@@ -89,26 +90,14 @@ class VQESolver:
             raise NotImplementedError(f"Qubit mapping :: {self.qubit_mapping} not currently implemented in VQESolver")
 
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input
-        # TODO: elegant way to handle all our different built-in ansatze (do they have the same interface?)
         # TODO: what do we do for ansatz provided by users? Generate an Ansatz object? Or ask them to ?
         # if needed user could provide their own ansatze class and instantiate the object beforehand
         if self.ansatz == Ansatze.UCCSD:
             self.ansatz = UCCSD(self.qemist_molecule, self.mean_field)
+        else:
+            raise ValueError("Unsupported ansatz. Please check the Ansatze enum in VQESolver for list of builtin options")
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
-        # TODO: move most / all of this in the ansatz class itself, call a generic method from here.
-        # if not self.initial_var_params:
-        #     self.initial_var_params = self.ansatz.initialize_var_params()
-        # elif isinstance(self.initial_var_params, str):
-        #     self.ansatz.var_params_initialization = self.initial_var_params
-        #     self.initial_var_params = self.ansatz.initialize_var_params()
-        # else:
-        #     try:
-        #         assert (len(self.initial_var_params) == self.ansatz.n_var_params)
-        #     except:
-        #         raise ValueError(f"Expected {self.ansatz.n_var_params} variational parameters "
-        #                          f"but received {len(self.initial_var_params)}.")
-        #     self.ansatz.var_params = self.initial_var_params
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
 
@@ -131,15 +120,18 @@ class VQESolver:
         return self.optimizer(self.energy_estimation, self.initial_var_params)
 
     def get_resources(self):
-        """ Estimate the resources required by VQE, with the current ansatz """
-        n_qubits = self.qubit_hamiltonian.count_qubits()
+        """ Estimate the resources required by VQE, with the current ansatz. This assumes "build" has been run,
+         as it requires the ansatz circuit and the qubit Hamiltonian. Return information that pertains to the user,
+          for the purpose of running an experiment on a classical simulator or a quantum device """
+
         resources = dict()
-        resources["n_terms"] = len(self.qubit_hamiltonian.terms)
-        #resources["circuit_width"] = self.ansatz_circuit.width()
-        #resources["n_gates"] = self.ansatz_circuit.
-        #resources["circuit_depth"]
-        #n_cnots
-        print(f"VQE Number of variational parameters = {len(self.initial_var_params)}\n")
+        resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms)
+        resources["circuit_width"] = self.ansatz.circuit.width
+        resources["circuit_gates"] = self.ansatz.circuit.size
+        resources["circuit_CNOTs"] = self.ansatz.circuit.counts['CNOT']
+        resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
+        resources["vqe_variational_parameters"] = len(self.initial_var_params)
+        return resources
 
     def energy_estimation(self, var_params):
         """ Estimate energy using the given ansatz, qubit hamiltonian and compute backend.
