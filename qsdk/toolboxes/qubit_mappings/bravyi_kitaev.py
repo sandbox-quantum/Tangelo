@@ -9,7 +9,7 @@ from openfermion.transforms import bravyi_kitaev as openfermion_bravyi_kitaev
 from qsdk.toolboxes.operators import FermionOperator, QubitOperator
 
 
-def bravyi_kitaev(fermion,n_qubits):
+def bravyi_kitaev(fermion_operator, n_qubits):
     """Execute transformation of FermionOperator to QubitOperator 
     using the Bravyi-Kitaev transformation. 
     Important note: there are several implementations of "Bravyi Kitaev"
@@ -22,18 +22,18 @@ def bravyi_kitaev(fermion,n_qubits):
     behaviour.
 
     Args:
-        fermion (FermionOperator): input fermionic operator to be transformed.
+        fermion_operator (FermionOperator): input fermionic operator to be
+            transformed.
         n_qubits (int): number of qubits associated with the operator
 
     Returns:
-        qubit (QubitOperator): output bravyi-kitaev encoded qubit operator
+        qubit_operator (QubitOperator): output bravyi-kitaev encoded qubit operator
     """
     if not (type(n_qubits) is int):
         raise TypeError("Number of qubits (n_qubits) must be integer type.")
-    if n_qubits < count_qubits(fermion):
+    if n_qubits < count_qubits(fermion_operator):
         raise ValueError("Invalid (too few) number of qubits (n_qubits) for input operator.")
     
-    qubit = openfermion_bravyi_kitaev(fermion, n_qubits = n_qubits)
+    qubit_operator = openfermion_bravyi_kitaev(fermion_operator, n_qubits=n_qubits)
 
-    return qubit
- 
+    return qubit_operator

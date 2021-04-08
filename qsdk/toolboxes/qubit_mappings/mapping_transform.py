@@ -2,12 +2,11 @@
  statevectors from Fermionic to Qubit encodings via any of:
  - Jordan-Wigner
  - Bravyi-Kitaev (Fenwick Tree implementation)
- - TODO: symmetry-conserving Bravyi-Kitaev (2-qubit reduction via Z2 taper)
+ - symmetry-conserving Bravyi-Kitaev (2-qubit reduction via Z2 taper)
 """
 from qsdk.toolboxes.operators import FermionOperator
-from qsdk.toolboxes.qubit_mappings.jordan_wigner import jordan_wigner
-from qsdk.toolboxes.qubit_mappings.bravyi_kitaev import bravyi_kitaev
-# from symmetry_conserving_bravyi_kitaev import symmetry_conserving_bravyi_kitaev
+from qsdk.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev
+
 
 def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electrons=None):
     """Perform mapping of fermionic operator to qubit operator. This function is mostly a wrapper
@@ -15,7 +14,6 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electro
     specification of n_qubits for Bravyi-Kitaev type transformations, and n_electrons for scBK.
     In the absence of this information, these methods can return unexpected results if the input
     operator does not specifically address the highest-orbital/qubit index.
-    TODO: finish implementation of scBK
 
     Args:
         fermion_operator (FermionOperator): operator to translate to qubit representation
@@ -27,26 +25,23 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electro
 
     Returns:
         qubit_operator (QubitOperator): input operator, encoded in the qubit space.
-    """    
+    """
     if not type(fermion_operator) is FermionOperator:
-        raise TypeError("Invalid operator format. Must use openfermion FermionOperator.")
-
+        raise TypeError("Invalid operator format. Must use FermionOperator.")
 
     if mapping.upper() == 'JW':
         qubit_operator = jordan_wigner(fermion_operator)
     elif mapping.upper() == 'BK':
         if n_qubits is None:
             raise ValueError("Bravyi Kitaev requires specification of number of qubits.")
-        qubit_operator = bravyi_kitaev(fermion_operator, n_qubits = n_qubits)
-    #START OF SC-BK
-    # elif mapping.upper() == 'SCBK':
-    #     if n_qubits is None:
-    #         raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of qubits.")
-    #     if n_electrons is None:
-    #         raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of electrons.")
-    #     qubit_operator = symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits = n_qubits, n_electrons = n_electrons)
+        qubit_operator = bravyi_kitaev(fermion_operator, n_qubits=n_qubits)
+    elif mapping.upper() == 'SCBK':
+        if n_qubits is None:
+            raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of qubits.")
+        if n_electrons is None:
+            raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of electrons.")
+        qubit_operator = symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits=n_qubits, n_electrons=n_electrons)
     else:
         raise ValueError('Requested mapping type not supported.')
-    
-    return qubit_operator
 
+    return qubit_operator

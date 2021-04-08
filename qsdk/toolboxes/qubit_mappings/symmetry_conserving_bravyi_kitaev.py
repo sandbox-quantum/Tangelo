@@ -74,8 +74,8 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits,
         raise ValueError('Number of qubits is too small for FermionOperator input.')
 
     # Arrange spins up then down, then BK map to qubit Hamiltonian.
-    fermion_operator_reorder = reorder(fermion_operator, up_then_down, num_modes = n_qubits)
-    qubit_operator = bravyi_kitaev_tree(fermion_operator_reorder, n_qubits = n_qubits)
+    fermion_operator_reorder = reorder(fermion_operator, up_then_down, num_modes=n_qubits)
+    qubit_operator = bravyi_kitaev_tree(fermion_operator_reorder, n_qubits=n_qubits)
     qubit_operator.compress()
 
     # Allocates the parity factors for the orbitals as in arXiv:1704.05018.
@@ -103,14 +103,25 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits,
     
     #We remove the N/2-th and N-th qubit from the register.                                           
     to_prune = (n_qubits//2 - 1, n_qubits - 1)
-    qubit_operator = prune_unused_indices(qubit_operator, prune_indices = to_prune, n_qubits = n_qubits)
+    qubit_operator = prune_unused_indices(qubit_operator, prune_indices=to_prune, n_qubits=n_qubits)
 
     return qubit_operator
 
 
 def edit_operator_for_spin(qubit_operator, spin_orbital, orbital_parity):
-    """ Removes the Z terms acting on the orbital from the Hamiltonian.
-    TODO: fill in documentation
+    """ Removes the Z terms acting on the orbital from the operator.
+    For qubits to be tapered out, the action of Z-operators in operator
+    terms are reduced to the associated eigenvalues. This simply corresponds
+    to multiplying term coefficients by the related eigenvalue +/-1.
+    
+    Args:
+        qubit_operator (QubitOperator): input operator
+        spin_orbital (int): index of qubit encoding (spin/occupation) parity
+        orbital_parity (int): plus/minus one, parity of eigenvalue
+    
+    Returns:
+        qubit_operator (QubitOperator): updated operator, with relevant coefficients
+            multiplied by +/-1.
     """
     new_qubit_dict = {}
     for term, coefficient in qubit_operator.terms.items():
@@ -139,7 +150,7 @@ def edit_operator_for_spin(qubit_operator, spin_orbital, orbital_parity):
     return qubit_operator
 
 
-def prune_unused_indices(fermion_operator, prune_indices, n_qubits):
+def prune_unused_indices(qubit_operator, prune_indices, n_qubits):
     """
     Rewritten from openfermion implementation. This uses the number of 
     qubits, rather than the operator itself to specify the number of 
@@ -152,10 +163,17 @@ def prune_unused_indices(fermion_operator, prune_indices, n_qubits):
     Indices will be renumbered such that if an index i does not appear in
     any terms, then the next largest index that appears in at least one
     term will be renumbered to i.
-    TODO: fill in documentation
+    Args:
+        qubit_operator (QubitOperator): input operator
+        prune_indices (tuple of int): indices to be removed from qubit register.
+        n_qubits (int): number of qubits in register
+
+    Returns:
+         new_operator (QubitOperator): output operator, with designated qubit
+            indices excised.
     """
 
-    indices = np.linspace(0, n_qubits - 1, n_qubits, dtype = int)
+    indices = np.linspace(0, n_qubits - 1, n_qubits, dtype=int)
     indices = np.delete(indices, prune_indices)
 
     # Construct a dict that maps the old indices to new ones
@@ -163,13 +181,13 @@ def prune_unused_indices(fermion_operator, prune_indices, n_qubits):
     for index in enumerate(indices):
         index_map[index[1]] = index[0]
 
-    new_operator = copy.deepcopy(fermion_operator)
+    new_operator = copy.deepcopy(qubit_operator)
     new_operator.terms.clear()
 
     # Replace the indices in the terms with the new indices
-    for term in fermion_operator.terms:
+    for term in qubit_operator.terms:
         new_term = [(index_map[op[0]], op[1]) for op in term]
-        new_operator.terms[tuple(new_term)] = fermion_operator.terms[term]
+        new_operator.terms[tuple(new_term)] = qubit_operator.terms[term]
 
     return new_operator
 

@@ -26,7 +26,7 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
         vector (numpy array of int): binary integer array indicating occupation of
             each spin-orbital.
     """
-    vector = np.zeros(n_qubits, dtype = int)
+    vector = np.zeros(n_qubits, dtype=int)
     vector[:n_electrons] = 1
     if updown:
         vector = np.concatenate((vector[::2], vector[1::2]))
@@ -35,6 +35,10 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
         return vector
     elif mapping.upper() == 'BK':
         return do_bk_transform(vector)
+    elif mapping.upper() == 'SCBK':
+        if not updown:
+            print('WARNING: symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.')
+        return do_scbk_transform(n_qubits, n_electrons)
     else:
         raise ValueError('Invalid mapping selection. Only Bravyi-Kitaev and Jordan-Wigner are implemented presently.')
 
@@ -54,27 +58,42 @@ def do_bk_transform(vector):
     return vector_bk
 
 
-def vector_to_circuit(vector, circuit=None):
+def do_scbk_transform(n_qubits, n_electrons):
+    """Instantiate qubit vector for symmetry-conserving 
+    Bravyi-Kitaev transformation. Based on implementation by Yukio Kawashima
+    in DMET project. 
+
+    Args:
+        n_qubits (int): number of qubits in register.
+        n_electrons (int): number of fermions occupied
+
+    Returns:
+        vector (numpy array of int): qubit-encoded occupation vector
+    """
+    n_alpha, n_orb = n_electrons//2, (n_qubits-2)//2
+    vector = np.zeros(n_qubits - 2, dtype=int)
+    if n_alpha >= 1:
+        vector[:n_alpha - 1] = 1
+        vector[n_orb:n_orb + n_alpha - 1] = 1
+    return vector
+
+
+def vector_to_circuit(vector):
     """Translate occupation vector into a circuit. Each
     occupied state corresponds to an X-gate on the associated
     qubit index. 
 
     Args:
         vector (numpy array of int): occupation vector
-        circuit (Circuit()): instance of agnostic_simulator Circuit class
 
     Returns:
-        circuit (Circuit()): instance of agnostic_simulator Circuit class
+        circuit (Circuit): instance of agnostic_simulator Circuit class
     """
-    if circuit is None:
-        circuit = Circuit()
-    
-    elif circuit._qubits_simulated and circuit.width != vector.size:
-        raise ValueError("Reference state has different number of qubits from fixed-width circuit input.")
+    circuit = Circuit()
 
     for index, occupation in enumerate(vector):
         if occupation:
-            gate = Gate('X', target = index)
+            gate = Gate('X', target=index)
             circuit.add_gate(gate)
         
     return circuit
