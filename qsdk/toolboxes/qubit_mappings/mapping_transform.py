@@ -7,7 +7,7 @@
 from qsdk.toolboxes.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev
 
-available_mappings = ['JW', 'BK', 'SCBK']
+available_mappings = {'JW', 'BK', 'SCBK'}
 
 def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electrons=None):
     """Perform mapping of fermionic operator to qubit operator. This function is mostly a wrapper

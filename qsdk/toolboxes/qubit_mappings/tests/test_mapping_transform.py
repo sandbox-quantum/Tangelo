@@ -31,7 +31,7 @@ class MappingTest(unittest.TestCase):
         self.assertEqual(qubit,bk_operator)
 
     def test_jw(self):
-        """Check output from Bravyi-Kitaev transformation"""
+        """Check output from Jordan-Wigner transformation"""
         jw_operator = QubitOperator(((1, 'Y'), (2, 'X')), -0.25j)
         jw_operator += QubitOperator(((1, 'Y'), (2, 'Y')), -0.25)
         jw_operator += QubitOperator(((1, 'X'), (2, 'X')), -0.25)
@@ -44,6 +44,15 @@ class MappingTest(unittest.TestCase):
         fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
         qubit = fermion_to_qubit_mapping(fermion, mapping='JW')
         self.assertEqual(qubit,jw_operator)
+
+    def test_scbk(self):
+        """Check output from symmetry-conserving Bravyi-Kitaev transformation."""
+        scbk_operator = QubitOperator(((0, 'Y'),), 1.j)
+
+        fermion = FermionOperator(((2, 0), (0, 1)), 1.) + FermionOperator(((0, 0), (2, 1)), -1.)
+
+        qubit = fermion_to_qubit_mapping(fermion, mapping='SCBK', n_qubits=4, n_electrons=2)
+        self.assertEqual(qubit,scbk_operator)
 
     def test_handle_invalid_mapping(self):
         """Test that error is handled if invalid mapping is requested."""
@@ -59,7 +68,7 @@ class MappingTest(unittest.TestCase):
         jw_operator = fermion_to_qubit_mapping(fermion, mapping='JW')
         bk_operator = fermion_to_qubit_mapping(fermion, mapping='BK', n_qubits=4)
         scbk_operator = fermion_to_qubit_mapping(fermion, mapping='SCBK', n_qubits=4, n_electrons=2)
-        
+
         jw_ground = np.linalg.eigvalsh(qubit_operator_sparse(jw_operator).todense()).min()
         bk_ground = np.linalg.eigvalsh(qubit_operator_sparse(bk_operator, n_qubits=4).todense()).min()
         scbk_ground = np.linalg.eigvalsh(qubit_operator_sparse(scbk_operator, n_qubits=2).todense()).min()
@@ -67,7 +76,6 @@ class MappingTest(unittest.TestCase):
         self.assertEqual(ground, jw_ground)
         self.assertEqual(ground, bk_ground)
         self.assertEqual(ground, scbk_ground)
-
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ from agnostic_simulator import Gate, Circuit
 
 from openfermion.transforms import bravyi_kitaev_code
 
-available_mappings = ['JW', 'BK', 'SCBK']
+available_mappings = {'JW', 'BK', 'SCBK'}
 
 def get_vector(n_qubits, n_electrons, mapping, updown=False):
     """Get integer vector corresponding to Hartree Fock reference
@@ -44,7 +44,6 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
         if not updown:
             warnings.warn("Symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.", RuntimeWarning)
         return do_scbk_transform(n_qubits, n_electrons)
-
 
 
 def do_bk_transform(vector):
