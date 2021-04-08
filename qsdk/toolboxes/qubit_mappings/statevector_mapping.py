@@ -1,11 +1,13 @@
 """Tools to define a reference state under a specified qubit-mapping, and
 translate into a Circuit."""
 import numpy as np
+import warnings
 
-from agnostic_simulator import Gate,Circuit
+from agnostic_simulator import Gate, Circuit
 
 from openfermion.transforms import bravyi_kitaev_code
 
+available_mappings = ['JW', 'BK', 'SCBK']
 
 def get_vector(n_qubits, n_electrons, mapping, updown=False):
     """Get integer vector corresponding to Hartree Fock reference
@@ -26,6 +28,9 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
         vector (numpy array of int): binary integer array indicating occupation of
             each spin-orbital.
     """
+    if mapping.upper() not in available_mappings:
+        raise ValueError(f'Invalid mapping selection. Select from: {available_mappings}')
+        
     vector = np.zeros(n_qubits, dtype=int)
     vector[:n_electrons] = 1
     if updown:
@@ -37,10 +42,9 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
         return do_bk_transform(vector)
     elif mapping.upper() == 'SCBK':
         if not updown:
-            print('WARNING: symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.')
+            warnings.warn("Symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.", RuntimeWarning)
         return do_scbk_transform(n_qubits, n_electrons)
-    else:
-        raise ValueError('Invalid mapping selection. Only Bravyi-Kitaev and Jordan-Wigner are implemented presently.')
+
 
 
 def do_bk_transform(vector):

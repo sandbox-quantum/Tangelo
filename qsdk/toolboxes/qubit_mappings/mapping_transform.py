@@ -7,6 +7,7 @@
 from qsdk.toolboxes.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev
 
+available_mappings = ['JW', 'BK', 'SCBK']
 
 def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electrons=None):
     """Perform mapping of fermionic operator to qubit operator. This function is mostly a wrapper
@@ -29,6 +30,9 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electro
     if not type(fermion_operator) is FermionOperator:
         raise TypeError("Invalid operator format. Must use FermionOperator.")
 
+    if mapping.upper() not in available_mappings:
+        raise ValueError(f'Invalid mapping selection. Select from: {available_mappings}')
+
     if mapping.upper() == 'JW':
         qubit_operator = jordan_wigner(fermion_operator)
     elif mapping.upper() == 'BK':
@@ -41,7 +45,6 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electro
         if n_electrons is None:
             raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of electrons.")
         qubit_operator = symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits=n_qubits, n_electrons=n_electrons)
-    else:
-        raise ValueError('Requested mapping type not supported.')
+
 
     return qubit_operator

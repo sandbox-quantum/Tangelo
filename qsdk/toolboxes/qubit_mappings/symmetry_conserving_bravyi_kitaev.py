@@ -17,7 +17,7 @@
 import numpy as np
 import copy
 
-from openfermion.ops import FermionOperator
+from qsdk.toolboxes.operators import FermionOperator
 from openfermion.transforms import bravyi_kitaev_tree, reorder
 from openfermion.utils import up_then_down, count_qubits
 

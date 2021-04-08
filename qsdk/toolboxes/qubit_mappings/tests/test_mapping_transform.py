@@ -5,6 +5,7 @@ import unittest
 import numpy as np
 
 from openfermion.linalg import eigenspectrum
+from openfermion.linalg.sparse_tools import qubit_operator_sparse
 
 from qsdk.toolboxes.operators import QubitOperator, FermionOperator
 from qsdk.toolboxes.qubit_mappings import bravyi_kitaev, jordan_wigner
@@ -18,7 +19,7 @@ class MappingTest(unittest.TestCase):
         bk_operator = QubitOperator(((0, 'Z'), (1, 'Y'), (2, 'X')), -0.25j)
         bk_operator += QubitOperator(((0, 'Z'), (1, 'Y'), (2, 'Y')), -0.25)
         bk_operator += QubitOperator(((1, 'X'), (2, 'X')), -0.25)
-        bk_operator += QubitOperator(((1, 'X'), (2, 'Y')), 0.25j)
+        bk_operator += QubitOperator((((1, 'X'), (2, 'Y'))), 0.25j)
         bk_operator += QubitOperator(((0, 'X'), (1, 'Y'), (2, 'Z')), -0.125j)
         bk_operator += QubitOperator(((0, 'X'), (1, 'X'), (3, 'Z')), -0.125)
         bk_operator += QubitOperator(((0, 'Y'), (1, 'Y'), (2, 'Z')), -0.125) 
@@ -42,13 +43,31 @@ class MappingTest(unittest.TestCase):
         
         fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
         qubit = fermion_to_qubit_mapping(fermion, mapping='JW')
-        self.assertEqual(qubit, jw_operator)
+        self.assertEqual(qubit,jw_operator)
 
     def test_handle_invalid_mapping(self):
         """Test that error is handled if invalid mapping is requested."""
         fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
         with self.assertRaises(ValueError):
             fermion_to_qubit_mapping(fermion, mapping="invalid_mapping")
+
+    def test_eigen(self):
+        """Test that all encodings of the operator have the same ground state energy"""
+        fermion = FermionOperator(((1, 0), (3, 1)), 1.0) + FermionOperator(((3, 0), (1, 1)), -1.0)
+        ground = np.imag(eigenspectrum(fermion)).min()
+
+        jw_operator = fermion_to_qubit_mapping(fermion, mapping='JW')
+        bk_operator = fermion_to_qubit_mapping(fermion, mapping='BK', n_qubits=4)
+        scbk_operator = fermion_to_qubit_mapping(fermion, mapping='SCBK', n_qubits=4, n_electrons=2)
+        
+        jw_ground = np.linalg.eigvalsh(qubit_operator_sparse(jw_operator).todense()).min()
+        bk_ground = np.linalg.eigvalsh(qubit_operator_sparse(bk_operator, n_qubits=4).todense()).min()
+        scbk_ground = np.linalg.eigvalsh(qubit_operator_sparse(scbk_operator, n_qubits=2).todense()).min()
+
+        self.assertEqual(ground, jw_ground)
+        self.assertEqual(ground, bk_ground)
+        self.assertEqual(ground, scbk_ground)
+
 
 
 if __name__ == "__main__":
