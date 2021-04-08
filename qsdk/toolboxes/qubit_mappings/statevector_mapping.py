@@ -20,7 +20,7 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
         n_qubits (int): number of qubits in register
         n_electrons (int): number of electrons in system
         mapping (string): specify mapping, see mapping_transform.py for options
-            'JW' (Jordan Wigner), or 'BK' (Bravyi Kitaev)
+            'JW' (Jordan Wigner), or 'BK' (Bravyi Kitaev), or 'SCBK' (symmetry-conserving Bravyi Kitaev)
         updown (boolean): if True, all up, then all down, if False, alternating spin
             up/down
 
@@ -30,7 +30,7 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
     """
     if mapping.upper() not in available_mappings:
         raise ValueError(f'Invalid mapping selection. Select from: {available_mappings}')
-        
+
     vector = np.zeros(n_qubits, dtype=int)
     vector[:n_electrons] = 1
     if updown:
