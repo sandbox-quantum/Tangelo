@@ -4,7 +4,6 @@ redundancy and symmetry-violating independence between related spin-orbitals. Gr
 here as defined in Tang et al (arXiv:1911.10205)."""
 
 import numpy as np
-from math import factorial
 import itertools
 
 from openfermion import FermionOperator
@@ -32,10 +31,10 @@ def hermitian_conjugate(terms):
             sign flipped.
     """
     try:
-        return [[((v[0][3][0],1),
-                (v[0][2][0],1),
-                (v[0][1][0],0),
-                (v[0][0][0],0)),
+        return [[((v[0][3][0], 1),
+                (v[0][2][0], 1),
+                (v[0][1][0], 0),
+                (v[0][0][0], 0)),
                 -v[1]] for v in terms]
     except:
         raise ValueError('Input terms must be format as, e.g. [[((int,1),(int,0),(int,1),(int,0)),float],...]')

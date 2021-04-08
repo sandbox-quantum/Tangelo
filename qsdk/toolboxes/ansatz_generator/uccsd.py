@@ -64,7 +64,7 @@ class UCCSD(Ansatz):
         else:
             try:
                 assert (len(var_params) == self.n_var_params)
-                initial_var_params = var_params
+                initial_var_params = np.array(var_params)
             except ValueError:
                 raise ValueError(f"Expected {self.n_var_params} variational parameters but received {len(var_params)}.")
         self.var_params = initial_var_params
