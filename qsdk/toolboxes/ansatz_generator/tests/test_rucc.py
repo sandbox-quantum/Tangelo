@@ -34,7 +34,7 @@ class UCCSDTest(unittest.TestCase):
         molecular_hamiltonian = molecule.get_molecular_hamiltonian()
 
         fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
-        fermion_hamiltonian = reorder(fermion_hamiltonian,up_then_down)
+        fermion_hamiltonian = reorder(fermion_hamiltonian, up_then_down)
         qubit_hamiltonian = jordan_wigner(fermion_hamiltonian)
 
         # Assert energy returned is as expected for given parameters

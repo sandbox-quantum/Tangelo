@@ -7,7 +7,6 @@ import openfermion
 
 from .integral_calculation import run_pyscf
 
-
 def atom_string_to_list(atom_string):
     """ Convert atom coordinate string (typically stored in text files) into a list/tuple representation
         suitable for MolecularData """
