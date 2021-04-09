@@ -1,4 +1,5 @@
 import unittest
+from openfermion.chem.molecular_data import load_molecular_hamiltonian
 from pyscf import gto
 from pyscf.gto.mole import Mole
 
@@ -106,6 +107,13 @@ class MolecularDataTest(unittest.TestCase):
             MolecularData(mol_h2o, 5)
         with self.assertRaises(ValueError):
             MolecularData(mol_h2o, [0, 1, 2, 3, 4, 5])
+
+    def test_get_molecular_hamiltonian(self):
+        """ Verify energy shift in molecular hamiltonian """
+
+        molecule = MolecularData(mol_h2o, 1)
+        shift = molecule.get_molecular_hamiltonian().constant
+        self.assertAlmostEqual(shift, -51.47120372466002, delta=1e-6)
 
 
 if __name__ == "__main__":
