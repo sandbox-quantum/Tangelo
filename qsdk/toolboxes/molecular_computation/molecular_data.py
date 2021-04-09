@@ -34,7 +34,7 @@ class MolecularData(openfermion.MolecularData):
 
         geometry = atom_string_to_list(mol.atom) if isinstance(mol.atom, str) else mol.atom
         self.mol = mol
-        openfermion.MolecularData.__init__(self, geometry, mol.basis, mol.spin+1, mol.charge, filename="dummy")
+        openfermion.MolecularData.__init__(self, geometry, mol.basis, mol.spin+1, mol.charge)
         run_pyscf(self, run_scf=True, run_mp2=True, run_cisd=True, run_ccsd=True, run_fci=True)
 
         # By default, all orbitals are active.
