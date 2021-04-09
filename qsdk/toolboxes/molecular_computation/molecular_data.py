@@ -107,12 +107,22 @@ class MolecularData(openfermion.MolecularData):
         return super().get_molecular_hamiltonian(occupied_indices, active_indices)
 
     def get_frozen_orbitals(self):
-        """ This method returns MOs indexes for the frozen orbitals.
+        """ This method returns MOs indexes for the frozen orbitals. It was written
+            to take into account if one of the two possibilities (occ or virt) is 
+            None. In fact, list + None, None + list or None + None return an error.
+            An empty cannot be sent because PySCF mp2 returns "IndexError: list index out of range".
 
             Returns:
                 list: MOs indexes frozen (occupied + virtual).
         """
-        return self.frozen_occupied + self.frozen_virtual
+        if self.frozen_occupied and self.frozen_virtual:
+            return self.frozen_occupied + self.frozen_virtual
+        elif self.frozen_occupied:
+            return self.frozen_occupied
+        elif self.frozen_virtual:
+            return self.frozen_virtual
+        else:
+            return None
 
     def get_active_orbitals(self):
         """ This method returns MOs indexes for the active orbitals.
