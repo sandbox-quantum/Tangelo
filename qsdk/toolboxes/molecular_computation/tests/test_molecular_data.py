@@ -11,11 +11,11 @@ H       0.0        0.0        0.0
 H       0.0        0.0        0.7414
 """
 
-mol = gto.Mole()
-mol.atom = H2_string
-mol.basis = "sto-3g"
-mol.spin = 0
-mol.build()
+mol_h2 = gto.Mole()
+mol_h2.atom = H2_string
+mol_h2.basis = "sto-3g"
+mol_h2.spin = 0
+mol_h2.build()
 
 H2O_list = [('O', (0., 0., 0.11779)), 
             ('H', (0., 0.75545, -0.47116)),
@@ -38,7 +38,7 @@ class MolecularDataTest(unittest.TestCase):
     def test_instantiate_H2(self):
         """ Verify basic properties of molecule object through instantiation of MolecularData class """
 
-        molecule = MolecularData(mol)
+        molecule = MolecularData(mol_h2)
 
         assert(molecule.atoms == ['H']*2)
         assert(molecule.basis == 'sto-3g')
@@ -50,7 +50,7 @@ class MolecularDataTest(unittest.TestCase):
     def test_run_pyscf_h2(self):
         """ Verify basic properties of molecule object through instantiation of MolecularData class """
 
-        molecule = MolecularData(mol)
+        molecule = MolecularData(mol_h2)
         self.assertAlmostEqual(molecule.hf_energy, -1.1166843870853396, delta=1e-8)
         self.assertAlmostEqual(molecule.fci_energy, -1.1372701746609026, delta=1e-8)
         self.assertAlmostEqual(molecule.cisd_energy, -1.1372701746609017, delta=1e-8)

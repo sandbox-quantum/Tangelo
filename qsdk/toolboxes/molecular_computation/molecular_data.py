@@ -43,7 +43,7 @@ class MolecularData(openfermion.MolecularData):
         self.frozen_occupied = list()
         self.frozen_virtual = list()
 
-        # If frozen_orbitals is not None nor 0, the convert function is called.
+        # If frozen_orbitals is not None, 0 nor [], the convert function is called.
         # The four previous attributes (active occ, active virt, frozen occ, frozen virt)
         # are expected to change.
         if frozen_orbitals:
@@ -87,12 +87,11 @@ class MolecularData(openfermion.MolecularData):
         self.n_orbitals = len(self.active_occupied + self.active_virtual)
         self.n_electrons = len(self.active_occupied) * 2
 
-        # Exception raise here if n_occupied <= frozen_orbitals (int), because it means that there is no active electron.
-        # There exception is raised also if all occupied orbitals are in the frozen_orbitals (list).
+        # Exception raised here if n_occupied <= frozen_orbitals (int), because it means that there is no active electron.
+        # An exception is raised also if all occupied orbitals are in the frozen_orbitals (list).
         if self.n_electrons == 0:
             raise ValueError("All electrons are frozen in the system.")
 
-    # Broke the RUCC test (expect no argument but I provided occupied and active).
     def get_molecular_hamiltonian(self):
         """ This method returns the fermionic hamiltonian. It written to take into account
             calls for this function is without argument, and attributes are parsed into it.
