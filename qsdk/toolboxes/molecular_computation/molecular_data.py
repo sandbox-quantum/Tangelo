@@ -89,8 +89,8 @@ class MolecularData(openfermion.MolecularData):
 
         # Exception raised here if n_occupied <= frozen_orbitals (int), because it means that there is no active electron.
         # An exception is raised also if all occupied orbitals are in the frozen_orbitals (list).
-        if self.n_electrons == 0:
-            raise ValueError("All electrons are frozen in the system.")
+        if (len(self.active_occupied) == 0) or (len(self.active_virtual) == 0):
+            raise ValueError("All electrons or virtual orbitals are frozen in the system.")
 
     def get_molecular_hamiltonian(self):
         """ This method returns the fermionic hamiltonian. It written to take into account

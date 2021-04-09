@@ -108,6 +108,10 @@ class MolecularDataTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             MolecularData(mol_h2o, [0, 1, 2, 3, 4, 5])
 
+        # Cases where no active virtual orbitals are remaining.
+        with self.assertRaises(ValueError):
+            MolecularData(mol_h2o, [5, 6])
+
     def test_get_molecular_hamiltonian(self):
         """ Verify energy shift in molecular hamiltonian """
 
