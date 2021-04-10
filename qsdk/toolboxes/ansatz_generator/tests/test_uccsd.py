@@ -44,6 +44,13 @@ class UCCSDTest(unittest.TestCase):
         uccsd_ansatz.set_var_params(np.array([1., 1.]))
         np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, np.array([1., 1.]), decimal=6)
 
+    def test_uccsd_incorrect_number_var_params(self):
+        """ Return an error if user provide incorrect number of variational parameters """
+        molecule = MolecularData(mol_h2)
+        uccsd_ansatz = UCCSD(molecule)
+
+        self.assertRaises(ValueError, uccsd_ansatz.set_var_params, np.array([1., 1., 1., 1.]))
+
     def test_uccsd_set_params_MP2_H2(self):
         """ Verify closed-shell UCCSD functionalities for H2: MP2 initial parameters """
 

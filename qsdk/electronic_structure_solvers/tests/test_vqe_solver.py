@@ -103,7 +103,7 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
 
     def test_simulate_h4(self):
-        """ Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
+        """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
         vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
                        "initial_var_params": "MP2", "verbose": False}
         vqe_solver = VQESolver(vqe_options)
@@ -131,7 +131,7 @@ class VQESolverTest(unittest.TestCase):
                                msg="Trace of two_rdm does not match n_elec * (n_elec-1)", delta=1e-6)
 
     def test_get_rdm_h4(self):
-        """ Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized parameters, exact simulator (H2) """
+        """ Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized parameters, exact simulator (H4) """
 
         vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw'}
         vqe_solver = VQESolver(vqe_options)
@@ -151,7 +151,7 @@ class VQESolverTest(unittest.TestCase):
                                msg="Trace of two_rdm does not match n_elec * (n_elec-1)", delta=1e-6)
 
     def test_custom_vqe(self):
-        """ VQE with custom optimizer and non-optimal variaitonal parameters """
+        """ VQE with custom optimizer and non-optimal variational parameters """
 
         # Define and assign custom optimizer: cobyla
         def cobyla_oneshot_optimizer(func, var_params):
