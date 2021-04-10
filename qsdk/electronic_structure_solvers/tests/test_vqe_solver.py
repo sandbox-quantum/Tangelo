@@ -1,8 +1,9 @@
 import unittest
 from pyscf import gto
 import numpy as np
+
 from qsdk.electronic_structure_solvers.vqe_solver import Ansatze, VQESolver
-#from qemist.util import deserialize
+
 
 H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
 H4 = [["H", [0.7071067811865476, 0.0, 0.0]], ["H", [0.0, 0.7071067811865476, 0.0]],
@@ -47,52 +48,80 @@ def matricize_2rdm(two_rdm, n_orbitals):
 
 class VQESolverTest(unittest.TestCase):
 
+    def test_instantiation_vqe(self):
+        """ Try instantiating VQESolver with basic input """
+
+        options = {"molecule": mol_H2, "qubit_mapping": 'jw'}
+        VQESolver(options)
+
+    def test_instantiation_vqe_incorrect_keyword(self):
+        """ Instantiating with an incorrect keyword should return an error """
+
+        options = {"molecule": mol_H2, "qubit_mapping": 'jw', 'dummy': True}
+        self.assertRaises(KeyError, VQESolver, options)
+
+    def test_instantiation_vqe_missing_molecule(self):
+        """ Instantiating with no molecule should return an error """
+
+        options = {"qubit_mapping": 'jw'}
+        self.assertRaises(ValueError, VQESolver, options)
+
+    def test_get_resources_h2(self):
+        """ Resource estimation, with UCCSD ansatz, JW qubit mapping, given initial parameters """
+
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+                       "initial_var_params": [0.1, 0.1]}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        resources = vqe_solver.get_resources()
+        print(resources)
+        expected = {'qubit_hamiltonian_terms': 15, 'circuit_width': 4, 'circuit_gates': 158,
+                    'circuit_2qubit_gates': 64, 'circuit_var_gates': 12, 'vqe_variational_parameters': 2}
+        self.assertDictEqual(resources, expected)
+
     def test_energy_estimation_vqe(self):
-        """ A single VQE energy evaluation for H2, using given variational parameters
-         and hardware backend """
+        """ A single VQE energy evaluation for H2, using optimal parameters and exact simulator """
 
-        solver = VQESolver()
-        solver.backend_parameters = {"target": "qulacs"}
-        solver.ansatz_type = Ansatze.UCCSD
-        solver.build(mol_H2)
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw'}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
 
-        energy = solver.energy_estimation([5.86665842e-06, 5.65317429e-02])
+        energy = vqe_solver.energy_estimation([5.86665842e-06, 5.65317429e-02])
+        print(energy)
         self.assertAlmostEqual(energy, -1.137270422018, places=7)
 
-    def test_custom_vqe(self):
-        """ VQE H2 minimal basis with custom optimizer and initial variational parameters
-         Cobyla with maxiter=0 returns after evaluating energy once (for the initial var params) """
+    def test_simulate_h2(self):
+        """ Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
 
-        solver = VQESolver()
-        solver.backend_parameters = {"target": "qulacs"}
-        solver.ansatz_type = Ansatze.UCCSD
-        solver.initial_var_params = [5.86665842e-06, 5.65317429e-02]
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+                       "initial_var_params": [0.1, 0.1], "verbose": True}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
 
-        # Define and assign custom optimizer: cobyla
-        def cobyla_oneshot_optimizer(func, var_params):
-            from scipy.optimize import minimize
-            result = minimize(func, var_params, method="COBYLA",
-                              options={"disp": True, "maxiter": 0})
-            return result.fun
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
 
-        solver.optimizer = cobyla_oneshot_optimizer
-        solver.build(mol_H2)
+    def test_simulate_h4(self):
+        """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
+        vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+                       "initial_var_params": "MP2", "verbose": False}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
 
-        energy = solver.simulate()
-        self.assertAlmostEqual(energy, -1.137270422018, places=7)
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.9778312978826869, delta=1e-4)
 
     def test_get_rdm_h2(self):
-        """ VQE H2 minimal basis with custom optimizer and initial amplitudes
-         Cobyla with maxiter=0 returns after evaluating energy once (for the initial var params) """
+        """ Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized parameters, exact simulator (H2) """
 
-        solver = VQESolver()
-        solver.verbose = False
-        solver.backend_parameters = {"target": "qulacs"}
-        solver.ansatz_type = Ansatze.UCCSD
-        solver.build(mol_H2)
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw'}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
 
         # Compute RDM matrices
-        one_rdm, two_rdm = solver.get_rdm([5.86665842e-06, 5.65317429e-02])
+        one_rdm, two_rdm = vqe_solver.get_rdm([5.86665842e-06, 5.65317429e-02])
+
         # Test traces of matrices
         n_elec, n_orb = mol_H2.nelectron, mol_H2.nao_nr()
         self.assertAlmostEqual(np.trace(one_rdm), n_elec, msg="Trace of one_rdm does not match number of electrons",
@@ -102,20 +131,17 @@ class VQESolverTest(unittest.TestCase):
                                msg="Trace of two_rdm does not match n_elec * (n_elec-1)", delta=1e-6)
 
     def test_get_rdm_h4(self):
-        """ VQE H4 minimal basis with custom optimizer and initial amplitudes
-         Cobyla with maxiter=0 returns after evaluating energy once (for the initial var params) """
+        """ Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized parameters, exact simulator (H4) """
 
-        solver = VQESolver()
-        solver.verbose = False
-        solver.backend_parameters = {"target": "qulacs"}
-        solver.ansatz_type = Ansatze.UCCSD
-        solver.build(mol_H4)
+        vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw'}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
 
         # Compute RDM matrices
         var_params = [-6.47627367e-06, -5.24257363e-06, -5.99540594e-06, -7.70205325e-06, 1.15628926e-02,
                       3.42313563e-01,  3.48211343e-02,  1.49150233e-02, 7.53406401e-02,  8.44095525e-03,
                       -1.79981377e-01, -1.00585201e-01, 1.02162534e-02, -3.65870070e-02]
-        one_rdm, two_rdm = solver.get_rdm(var_params)
+        one_rdm, two_rdm = vqe_solver.get_rdm(var_params)
         # Test traces of matrices
         n_elec, n_orb = mol_H4.nelectron, mol_H4.nao_nr()
         self.assertAlmostEqual(np.trace(one_rdm), n_elec, msg="Trace of one_rdm does not match number of electrons",
@@ -124,52 +150,23 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(np.trace(rho), n_elec * (n_elec - 1),
                                msg="Trace of two_rdm does not match n_elec * (n_elec-1)", delta=1e-6)
 
-    def test_h2_no_mf_slsqp(self):
-        """ VQE-UCCSD closed-shell convergence for H2 minimal basis """
-        solver = VQESolver()
-        solver.backend_parameters = {"target": "qulacs"}
-        solver.ansatz_type = Ansatze.UCCSD
-        solver.build(mol_H2)
+    def test_custom_vqe(self):
+        """ VQE with custom optimizer and non-optimal variational parameters """
 
-        energy = solver.simulate()
-        self.assertAlmostEqual(energy, -1.1372704178510415, places=7)
+        # Define and assign custom optimizer: cobyla
+        def cobyla_oneshot_optimizer(func, var_params):
+            from scipy.optimize import minimize
+            result = minimize(func, var_params, method="COBYLA", options={"disp": True, "maxiter": 100})
+            return result.fun
 
-    def test_h4_no_mf_slsqp(self):
-        """ VQE-UCCSD closed-shell convergence for H4 minimal basis """
-        solver = VQESolver()
-        solver.backend_parameters = {"target": "qulacs"}
-        solver.ansatz_type = Ansatze.UCCSD
-        solver.build(mol_H4)
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+                       "initial_var_params": "ones", "verbose": False,
+                       "optimizer": cobyla_oneshot_optimizer}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
 
-        energy = solver.simulate()
-        self.assertAlmostEqual(energy, -1.9778312978826869, delta=1e-4)
-
-    # @unittest.skipUnless(import_successed, "agnostic_simulator not installed")
-    # def test_serialize_load_serial(self):
-    #     """ Test that serializiation then loading returns equivalent values.
-    #     Special focus on loading complex functional arguments set as the
-    #     optimizer, backend types, and anzatz types."""
-    #
-    #     from functools import partial
-    #     from scipy.optimize import minimize
-    #
-    #     optimizer = partial(minimize, method="SLSQP",
-    #                         options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
-    #
-    #     solver = VQESolver()
-    #     solver.optimizer = optimizer
-    #     solver.backend_parameters = {"target": "qulacs"}
-    #     solver.ansatz_type = Ansatze.UCCSD
-    #     solver.verbose = False
-    #
-    #     serialized = solver.serialize()
-    #     solver2 = deserialize(serialized["next_solver"], serialized["solver_params"])
-    #
-    #     self.assertEqual(solver2.verbose, False)
-    #     self.assertEqual(solver2.backend_parameters, {"target": "qulacs"})
-    #     self.assertEqual(solver2.ansatz_type, Ansatze.UCCSD)
-    #     # It is hard to check equality of this function, but the default init is None
-    #     self.assertTrue(solver2.optimizer)
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.137270422018, places=7)
 
 
 if __name__ == "__main__":
