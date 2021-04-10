@@ -77,7 +77,7 @@ class VQESolverTest(unittest.TestCase):
         resources = vqe_solver.get_resources()
         print(resources)
         expected = {'qubit_hamiltonian_terms': 15, 'circuit_width': 4, 'circuit_gates': 158,
-                    'circuit_CNOTs': 64, 'circuit_var_gates': 12, 'vqe_variational_parameters': 2}
+                    'circuit_2qubit_gates': 64, 'circuit_var_gates': 12, 'vqe_variational_parameters': 2}
         self.assertDictEqual(resources, expected)
 
     def test_energy_estimation_vqe(self):
