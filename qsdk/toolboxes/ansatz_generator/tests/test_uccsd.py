@@ -28,6 +28,53 @@ mol_h4.build()
 
 class UCCSDTest(unittest.TestCase):
 
+    def test_uccsd_set_var_params(self):
+        """ Verify behavior of set_var_params for different inputs (keyword, list, numpy array).
+        MP2 have their own tests """
+
+        molecule = MolecularData(mol_h2)
+        uccsd_ansatz = UCCSD(molecule)
+
+        uccsd_ansatz.set_var_params("ones")
+        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, np.array([1., 1.]), decimal=6)
+
+        uccsd_ansatz.set_var_params([1., 1.])
+        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, np.array([1., 1.]), decimal=6)
+
+        uccsd_ansatz.set_var_params(np.array([1., 1.]))
+        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, np.array([1., 1.]), decimal=6)
+
+    def test_uccsd_incorrect_number_var_params(self):
+        """ Return an error if user provide incorrect number of variational parameters """
+        molecule = MolecularData(mol_h2)
+        uccsd_ansatz = UCCSD(molecule)
+
+        self.assertRaises(ValueError, uccsd_ansatz.set_var_params, np.array([1., 1., 1., 1.]))
+
+    def test_uccsd_set_params_MP2_H2(self):
+        """ Verify closed-shell UCCSD functionalities for H2: MP2 initial parameters """
+
+        molecule = MolecularData(mol_h2)
+
+        uccsd_ansatz = UCCSD(molecule)
+        uccsd_ansatz.set_var_params("MP2")
+
+        expected = [2e-05, 0.0363253711023451]
+        self.assertAlmostEqual(np.linalg.norm(uccsd_ansatz.var_params), np.linalg.norm(expected), delta=1e-10)
+
+    def test_uccsd_set_params_MP2_H4(self):
+        """ Verify closed-shell UCCSD functionalities for H4: MP2 initial parameters """
+
+        molecule = MolecularData(mol_h4)
+
+        uccsd_ansatz = UCCSD(molecule)
+        uccsd_ansatz.set_var_params("MP2")
+
+        expected = [2e-05, 2e-05, 2e-05, 2e-05, 0.03894901872789466, 0.07985689676283764, 0.02019977190077326,
+                    0.03777151472046017, 0.05845449631119356, 0.017956568628560945, -0.07212522602179856,
+                    -0.03958975799697206, -0.042927857009029735, -0.025307140867721886]
+        self.assertAlmostEqual(np.linalg.norm(uccsd_ansatz.var_params), np.linalg.norm(expected), delta=1e-10)
+
     def test_uccsd_H2(self):
         """ Verify closed-shell UCCSD functionalities for H2 """
 
@@ -68,32 +115,6 @@ class UCCSDTest(unittest.TestCase):
         uccsd_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, uccsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.9778041, delta=1e-6)
-
-    def test_uccsd_H2_MP2(self):
-        """ Verify closed-shell UCCSD functionalities for H2: MP2 initial parameters """
-
-        molecule = MolecularData(mol_h2)
-
-        uccsd_ansatz = UCCSD(molecule)
-        uccsd_ansatz.var_params_initialization = "MP2"
-        uccsd_ansatz.initialize_var_params()
-
-        expected = [2e-05, 0.0363253711023451]
-        self.assertAlmostEqual(np.linalg.norm(uccsd_ansatz.var_params), np.linalg.norm(expected), delta=1e-10)
-
-    def test_uccsd_H4_MP2(self):
-        """ Verify closed-shell UCCSD functionalities for H4: MP2 initial parameters """
-
-        molecule = MolecularData(mol_h4)
-
-        uccsd_ansatz = UCCSD(molecule)
-        uccsd_ansatz.var_params_initialization = "MP2"
-        uccsd_ansatz.initialize_var_params()
-
-        expected = [2e-05, 2e-05, 2e-05, 2e-05, 0.03894901872789466, 0.07985689676283764, 0.02019977190077326,
-                    0.03777151472046017, 0.05845449631119356, 0.017956568628560945, -0.07212522602179856,
-                    -0.03958975799697206, -0.042927857009029735, -0.025307140867721886]
-        self.assertAlmostEqual(np.linalg.norm(uccsd_ansatz.var_params), np.linalg.norm(expected), delta=1e-10)
 
 
 if __name__ == "__main__":
