@@ -9,7 +9,7 @@ from copy import deepcopy
 from agnostic_simulator import Simulator
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
-from qsdk.toolboxes.qubit_mappings import jordan_wigner
+from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 
 
@@ -83,17 +83,17 @@ class VQESolver:
         # Compute qubit hamiltonian for the input molecular system
         self.qemist_molecule = MolecularData(self.molecule)
         self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
-        # TODO : implement other options for qubit mappings and hide them under a wrapper
-        if self.qubit_mapping == 'jw':
-            self.qubit_hamiltonian = jordan_wigner(self.fermionic_hamiltonian)
-        else:
-            raise NotImplementedError(f"Qubit mapping :: {self.qubit_mapping} not currently implemented in VQESolver")
+        print(type(self.fermionic_hamiltonian))
+        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian, 
+                                                          mapping=self.qubit_mapping,
+                                                          n_qubits=self.qemist_molecule.n_qubits,
+                                                          n_electrons=self.qemist_molecule.n_electrons)
 
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input
         # TODO: what do we do for ansatz provided by users? Generate an Ansatz object? Or ask them to ?
         # if needed user could provide their own ansatze class and instantiate the object beforehand
         if self.ansatz == Ansatze.UCCSD:
-            self.ansatz = UCCSD(self.qemist_molecule, self.mean_field)
+            self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field)
         else:
             raise ValueError("Unsupported ansatz. Please check the Ansatze enum in VQESolver for list of builtin options")
 
@@ -166,7 +166,6 @@ class VQESolver:
          Returns:
              (numpy.array, numpy.array): One & two-particle RDMs (rdm1_np & rdm2_np, float64).
          """
-        from qsdk.toolboxes.qubit_mappings import jordan_wigner
 
         # Save our accurate hamiltonian
         tmp_hamiltonian = self.qubit_hamiltonian
@@ -197,8 +196,10 @@ class VQESolver:
                 hamiltonian_temp[key2] = 1. if (key == key2 and ikey != 0) else 0.
 
             # Obtain qubit Hamiltonian
-            # TODO : need to handle the different qubit mappings
-            qubit_hamiltonian2 = jordan_wigner(hamiltonian_temp)
+            qubit_hamiltonian2 =fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
+                                                         mapping=self.qubit_mapping,
+                                                         n_qubits=self.qemist_molecule.n_qubits,
+                                                         n_electrons=self.qemist_molecule.n_electrons)
             qubit_hamiltonian2.compress()
 
             if qubit_hamiltonian2.terms in lookup_ham:
@@ -254,3 +255,20 @@ class VQESolver:
             print(f"\t\tNumber of Function Evaluations : {result.nfev}")
 
         return result.fun
+
+
+if __name__ == "__main__":
+    from pyscf.gto.mole import Mole
+    mol = Mole()
+    mol.atom = [('H',(0,0,0)),('H',(0,0,1.))]
+    mol.basis = 'sto-3g'
+    mol.spin = 0
+    mol.build()
+    vqe_args = {'molecule':mol,
+            'qubit_mapping':'bk',
+           'initial_var_params':'MP2',
+            }
+
+    vqe_zeros = VQESolver(vqe_args)
+    vqe_zeros.build()
+    vqe_zeros.simulate()

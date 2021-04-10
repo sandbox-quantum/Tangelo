@@ -1,1 +1,1 @@
-from .operators import FermionOperator, QubitOperator
+from .operators import FermionOperator, QubitOperator, InteractionOperator

@@ -4,6 +4,8 @@
  - Bravyi-Kitaev (Fenwick Tree implementation)
  - symmetry-conserving Bravyi-Kitaev (2-qubit reduction via Z2 taper)
 """
+from openfermion import InteractionOperator #replace when possible
+
 from qsdk.toolboxes.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev
 
@@ -27,8 +29,8 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electro
     Returns:
         qubit_operator (QubitOperator): input operator, encoded in the qubit space.
     """
-    if not type(fermion_operator) is FermionOperator:
-        raise TypeError("Invalid operator format. Must use FermionOperator.")
+    if not ((type(fermion_operator) is FermionOperator) or (type(fermion_operator) is InteractionOperator)):
+        raise TypeError("Invalid operator format. Must use FermionOperator or InteractionOperator.")
 
     if mapping.upper() not in available_mappings:
         raise ValueError(f'Invalid mapping selection. Select from: {available_mappings}')

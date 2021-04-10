@@ -101,3 +101,21 @@ def vector_to_circuit(vector):
         
     return circuit
 
+
+def get_reference_circuit(n_qubits, n_electrons, mapping, updown=False):
+    """Build the Hartree-Fock state preparation circuit for the designated
+    mapping.
+    Args:
+        n_qubits (int): number of qubits in register
+        n_electrons (int): number of electrons in system
+        mapping (string): specify mapping, see mapping_transform.py for options
+            'JW' (Jordan Wigner), or 'BK' (Bravyi Kitaev), or 'SCBK' (symmetry-conserving Bravyi Kitaev)
+        updown (boolean): if True, all up, then all down, if False, alternating spin
+            up/down
+    Returns:
+        circuit (Circuit): instance of agnostic_simulator Circuit class
+    """
+    vector = get_vector(n_qubits, n_electrons, mapping, updown=False)
+    circuit = vector_to_circuit(vector)
+    return circuit
+    

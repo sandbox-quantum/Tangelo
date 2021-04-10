@@ -9,6 +9,10 @@ class FermionOperator(openfermion.FermionOperator):
     """ Currently, this class is coming from openfermion. Can be later on be replaced by our own implementation. """
     pass
 
+class InteractionOperator(openfermion.InteractionOperator):
+    """ Currently, this class is coming from openfermion. Can be later on be replaced by our own implementation. """
+    pass
+
 
 class QubitOperator(openfermion.QubitOperator):
     """ Currently, this class is coming from openfermion. Can be later on be replaced by our own implementation. """
