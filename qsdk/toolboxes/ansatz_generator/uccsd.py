@@ -39,26 +39,34 @@ class UCCSD(Ansatz):
         self.supported_initial_var_params = {"ones", "random", "MP2"}
 
         # Default initial parameters for initialization
-        self.var_params_initialization = "MP2"
-        self.reference_state_initialization = "HF"
+        self.var_params_default = "MP2"
+        self.default_reference_state = "HF"
 
         self.var_params = None
         self.circuit = None
 
-    def initialize_var_params(self):
-        """ Compute sets of potential initial values for variational parameters, such as zeros, random numbers, MP2,
-        or any insightful values. Impacts the convergence of the variational algorithm. """
+    def set_var_params(self, var_params=None):
+        """ Set values for variational parameters, such as zeros, random numbers, MP2 (...), providing some
+        keywords for users, and also supporting direct user input (list or numpy array)
+        Return the parameters so that workflows such as VQE can retrieve these values. """
 
-        if self.var_params_initialization not in self.supported_initial_var_params:
-            raise ValueError(f"Only supported initialization methods for variational parameters are:"
-                             f"{self.supported_initial_var_params} ")
+        if isinstance(var_params, str) and (var_params not in self.supported_initial_var_params):
+            raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
+        if var_params is None:
+            var_params = self.var_params_default
 
-        if self.var_params_initialization == "ones":
-            initial_var_params = np.ones((self.n_var_params,), dtype=np.float)
-        elif self.var_params_initialization == "random":
-            initial_var_params = np.random.random((self.n_var_params,), dtype=np.float)
-        elif self.var_params_initialization == "MP2":
+        if var_params == "ones":
+            initial_var_params = np.ones((self.n_var_params,), dtype=float)
+        elif var_params == "random":
+            initial_var_params = np.random.random((self.n_var_params,), dtype=float)
+        elif var_params == "MP2":
             initial_var_params = self._compute_mp2_params()
+        else:
+            try:
+                assert (len(var_params) == self.n_var_params)
+                initial_var_params = np.array(var_params)
+            except AssertionError:
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but received {len(var_params)}.")
         self.var_params = initial_var_params
         return initial_var_params
 
@@ -69,27 +77,27 @@ class UCCSD(Ansatz):
         qubit operator.
         """
 
-        if self.reference_state_initialization not in self.supported_reference_state:
+        if self.default_reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
         # NB: this one is consistent with JW but not other transforms.
-        if self.reference_state_initialization == "HF":
+        if self.default_reference_state == "HF":
             return Circuit([Gate("X", target=i) for i in range(self.molecule.n_electrons)])
 
-    def build_circuit(self, var_params=None):
+    def build_circuit(self, var_params=None, qubit_mapping='jw'):
         """ Build and return the quantum circuit implementing the state preparation ansatz
          (with currently specified initial_state and var_params) """
 
-        # Set initial variational parameters used to build the circuit
-        if var_params is not None: # Temporary, will be replaced once set_var_params can directly update the parameters
-            assert(len(var_params) == self.n_var_params)
-            self.var_params = var_params
-        elif not self.var_params:
-            self.initialize_var_params()
+        self.set_var_params(var_params)
 
+        # TODO wrapper and support for different qubit mappings
         # Build qubit operator required to build UCCSD
         ferm_op = uccsd_singlet_generator(self.var_params, self.molecule.n_qubits, self.molecule.n_electrons)
-        qubit_op = jordan_wigner(ferm_op)
+        if qubit_mapping == 'jw':
+            qubit_op = jordan_wigner(ferm_op)
+        else:
+            raise NotImplementedError(f"UCCSD ansatz: qubit mapping not currently implemented ({qubit_mapping})")
+
         # Cast all coefs to floats (rotations angles are real)
         for key in qubit_op.terms:
             qubit_op.terms[key] = float(qubit_op.terms[key].imag)
@@ -111,10 +119,11 @@ class UCCSD(Ansatz):
 
     def update_var_params(self, var_params):
         """ Shortcut: set value of variational parameters in the already-built ansatz circuit member.
-            The circuit does not need to be rebuilt every time if only the variational parameters change. """
+            Preferable to rebuilt your circuit from scratch, which can be an involved process. """
 
         self.var_params = var_params
 
+        # TODO: we should have a dedicated build function to this. We shouldnt rewrite it every time. Use qubit mapping wrapper too
         # Build qubit operator required to build UCCSD
         ferm_op = uccsd_singlet_generator(var_params, self.molecule.n_qubits, self.molecule.n_electrons)
         qubit_op = jordan_wigner(ferm_op)

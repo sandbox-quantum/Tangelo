@@ -1,11 +1,16 @@
 """
-Class providing the means to run the variational quantum eigensolver (VQE)
-algorithm to solve electronic structure calculations.
+Implements the variational quantum eigensolver (VQE) algorithm to solve electronic structure calculations.
 """
 
 from enum import Enum
 import numpy as np
 from copy import deepcopy
+
+from agnostic_simulator import Simulator
+from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
+from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
+from qsdk.toolboxes.qubit_mappings import jordan_wigner
+from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 
 
 class Ansatze(Enum):
@@ -17,118 +22,116 @@ class Ansatze(Enum):
 class VQESolver:
     """ Solve the electronic structure problem for a molecular system by using the
     variational quantum eigensolver (VQE) algorithm.
-    It requires to choose an ansatz (variational form), a classical optimizer,
-    initial variational parameters and a hardware backend to carry the quantum circuit
-    simulation. Default values for these are provided by QEMIST, and can be overridden
-    as depicted in tests and examples.
-    In order to use this class, users must first set up the desired attributes
-    of the VQESolver object and call the "build" method to build the underlying objects
-    (hardware backend, ansatz...). They are then able to call any of the
-    energy_estimation, simulate, or get_rdm methods. In particular, the simulate method
-    runs the VQE algorithms, returning the optimal energy found by the classical optimizer.
+
+    This algorithm evaluates the energy of a molecular system by performing classical optimization
+    over a parametrized ansatz circuit.
+
+    Users must first set the desired options of the VQESolver object through the __init__ method, and call the "build"
+    method to build the underlying objects (mean-field, hardware backend, ansatz...).
+    They are then able to call any of the energy_estimation, simulate, or get_rdm methods.
+    In particular, simulate runs the VQE algorithm, returning the optimal energy found by the classical optimizer.
 
     Attributes:
-        backend_parameters (dict): A dictionary describing the target compute backend to use
-            (ex: qulacs, qiskit, qdk, projectq...), the number of shots or noise model to use.
-        backend (agnostic_simulator.Simulator): The Simulator object as implemented in the
-            agnostic_simulator package, after "build" has been called.
-        ansatz_type (Ansatze): Type of the desired ansatz, from the available ones.
-        ansatz (vqe.Ansatz): An implementation of the abstract Ansatz class from vqe
-        optimizer (function): Function performing classical optimization.
-        initial_var_params (list): Initial values of the variational parameters
-            used in the classical optimization process
-        optimal_var_params (list): Parameters returning the optimal energy found during
-            the optimization process.
-        optimal_energy (float): Optimal energy found during the optimization process
-        verbose (boolean): Controls the verbosity of the VQE methods.
+        molecule (MolecularData) : the molecular system
+        mean-field (optional) : mean-field of molecular system
+        frozen_orbitals (list[int]): a list of indices for frozen orbitals, reflected in mean-field computation
+        qubit_mapping (str) : one of the supported qubit mapping identifiers
+        ansatz (Ansatze) : one of the supported ansatze
+        optimizer (function handle): a function defining the classical optimizer and its behavior
+        initial_var_params (str or array-like) : initial value for the classical optimizer
+        backend_options (dict) : parameters to build the Simulator class (see documentation of agnostic_simulator)
+        verbose (bool) : Flag for verbosity of VQE
     """
 
-    def __init__(self):
-        self.verbose = True
+    def __init__(self, opt_dict):
 
-        self.ansatz_type = None
-        self.ansatz = None
-        self.qubit_mapping = "JW"
+        default_backend_options = {"target": "qulacs", "n_shots": None, "noise_model": None}
+        default_options = {"molecule": None, "mean_field": None, "frozen_orbitals": list(),
+                           "qubit_mapping": "jw", "ansatz": Ansatze.UCCSD,
+                           "optimizer": self._default_optimizer,
+                           "initial_var_params": None,
+                           "backend_options": default_backend_options,
+                           "verbose": False}
 
-        self.optimizer = None
-        self.initial_var_params = None
+        # Initialize with default values
+        self.__dict__ = default_options
+        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
+        for k, v in opt_dict.items():
+            if k in default_options:
+                setattr(self, k, v)
+            else:
+                raise KeyError(f"Keyword :: {k}, not available in VQESolver")
 
-        self.backend = None
-        self.backend_parameters = {}
+        # Raise error/warnings if input is not as expected
+        if not self.molecule:
+            raise ValueError(f"A molecule object must be provided when instantiating VQESolver")
 
         self.optimal_energy = None
         self.optimal_var_params = None
+        self.builtin_ansatze = set(Ansatze)
 
-    def build(self, molecule, mean_field=None, frozen_orbitals=None):
-        """ Build the underlying objects required to run ot build the ansatz
-        circuit and run the VQE algorithm
-        Args:
-             molecule (pyscf.gro.mole): A pyscf molecule
-             mean_field (): mean-field of the molecular system
-             frozen_orbitals (list, tuple, int): The frozen orbitals.
-                 If list: A complete list of frozen orbitals.
-                 If int: The first n-number of occupied orbitals are frozen.
-                 If tuple: The first n-number of occupied and last n-number of
-                     virtual orbitals are frozen.
-        """
-        from agnostic_simulator import Simulator
-        from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
-        from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
-        from qsdk.toolboxes.qubit_mappings import jordan_wigner
-        from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
+    def build(self):
+        """ Build the underlying objects required to run the VQE algorithm afterwards """
 
-        # Ensure inputs have valid values before moving forward
-        if not mean_field:
-            mean_field = prepare_mf_RHF(molecule)
-        if frozen_orbitals is not None:
-            print("VQESolver does not support frozen orbitals at this time.")
+        # Build adequate mean-field (RHF for now, others in future), apply frozen orbitals
+        if not self.mean_field:
+            self.mean_field = prepare_mf_RHF(self.molecule)
+        # TODO : handle frozen orbitals in mean-field preparation
+        if self.frozen_orbitals:
+            raise NotImplementedError("Frozen orbitals not currently implemented in VQESolver")
 
         # Compute qubit hamiltonian for the input molecular system
-        self.qemist_molecule = MolecularData(molecule)
+        self.qemist_molecule = MolecularData(self.molecule)
         self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
-        self.qubit_hamiltonian = jordan_wigner(self.fermionic_hamiltonian)
+        # TODO : implement other options for qubit mappings and hide them under a wrapper
+        if self.qubit_mapping == 'jw':
+            self.qubit_hamiltonian = jordan_wigner(self.fermionic_hamiltonian)
+        else:
+            raise NotImplementedError(f"Qubit mapping :: {self.qubit_mapping} not currently implemented in VQESolver")
 
+        # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input
+        # TODO: what do we do for ansatz provided by users? Generate an Ansatz object? Or ask them to ?
+        # if needed user could provide their own ansatze class and instantiate the object beforehand
+        if self.ansatz == Ansatze.UCCSD:
+            self.ansatz = UCCSD(self.qemist_molecule, self.mean_field)
+        else:
+            raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
+
+        # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
+        self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
+        self.ansatz.build_circuit()
+
+        # Quantum circuit simulation backend options
+        self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
+                                 noise_model=self.backend_options["noise_model"])
+
+        # Verbosity / debugging
         if self.verbose:
             n_qubits = self.qubit_hamiltonian.count_qubits()
             print(f"VQE qubit hamiltonian ::\tn_qubits = {n_qubits}\tn_terms = {len(self.qubit_hamiltonian.terms)}")
-
-        # Build ansatz circuit according to input (mean field only used for MP2)
-        if self.ansatz_type == Ansatze.UCCSD:
-            self.ansatz = UCCSD(self.qemist_molecule, mean_field)
-
-        # Build ansatz circuit with default initial parameters
-        if not self.ansatz.circuit:
-            self.ansatz.build_circuit()
-
-        # If no classical optimizer was provided, assign a default one from scipy
-        if not self.optimizer:
-            self.optimizer = self._default_optimizer
-
-        # Initial variational parameters
-        if self.initial_var_params:
-            try:
-                assert (len(self.initial_var_params) == self.ansatz.n_var_params)
-            except:
-                raise ValueError(f"Expected {self.ansatz.n_var_params} variational parameter "
-                                 f"but received {len(self.initial_var_params)}.")
-        else:
-            self.initial_var_params = self.ansatz.initialize_var_params()
-        if self.verbose:
             print(f"VQE Number of variational parameters = {len(self.initial_var_params)}\n")
-
-        # Quantum circuit simulation backend options
-        target = self.backend_parameters.get("target", "qulacs")
-        n_shots = self.backend_parameters.get("n_shots", None)
-        noise_model = self.backend_parameters.get("noise_model", None)
-        print(f"VQE Hardware backend : {target}, shots = {n_shots}")
-        self.backend = Simulator(target=target, n_shots=n_shots, noise_model=noise_model)
+            print(f"VQE Hardware backend : {self.backend_options['target']}, shots = {self.backend_options['n_shots']}")
 
     def simulate(self):
         """ Run the VQE algorithm, using the ansatz, classical optimizer, initial parameters and
          hardware backend built in the build method """
-        if not (self.ansatz or self.backend):
+        if not (self.ansatz and self.backend):
             raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")
         return self.optimizer(self.energy_estimation, self.initial_var_params)
+
+    def get_resources(self):
+        """ Estimate the resources required by VQE, with the current ansatz. This assumes "build" has been run,
+         as it requires the ansatz circuit and the qubit Hamiltonian. Return information that pertains to the user,
+          for the purpose of running an experiment on a classical simulator or a quantum device """
+
+        resources = dict()
+        resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms)
+        resources["circuit_width"] = self.ansatz.circuit.width
+        resources["circuit_gates"] = self.ansatz.circuit.size
+        resources["circuit_2qubit_gates"] = self.ansatz.circuit.counts['CNOT']  # For now, only CNOTs supported
+        resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
+        resources["vqe_variational_parameters"] = len(self.initial_var_params)
+        return resources
 
     def energy_estimation(self, var_params):
         """ Estimate energy using the given ansatz, qubit hamiltonian and compute backend.
@@ -141,15 +144,11 @@ class VQESolver:
         """
 
         # Update variational parameters, compute energy using the hardware backend
-        var_params = np.array(var_params)
-        self.ansatz.update_var_params(var_params)
+        self.ansatz.update_var_params(np.array(var_params))
         energy = self.backend.get_expectation_value(self.qubit_hamiltonian, self.ansatz.circuit)
 
         if self.verbose:
             print(f"\tEnergy = {energy:.7f} ")
-        if (self.optimal_energy and (energy < self.optimal_energy)) or not self.optimal_energy:
-            self.optimal_energy = energy
-            self.optimal_var_params = var_params
 
         return energy
 
@@ -198,6 +197,7 @@ class VQESolver:
                 hamiltonian_temp[key2] = 1. if (key == key2 and ikey != 0) else 0.
 
             # Obtain qubit Hamiltonian
+            # TODO : need to handle the different qubit mappings
             qubit_hamiltonian2 = jordan_wigner(hamiltonian_temp)
             qubit_hamiltonian2.compress()
 
@@ -225,61 +225,32 @@ class VQESolver:
 
         return rdm1_np, rdm2_np
 
-    def serialize(self) -> dict:
-        """Returns a serialized version of the solver.
-        The serialized version of the solver should be all that's needed to
-        reconstruct the solver.
-        Returns:
-            dict: Dictionary mapping the attributes of the solver to the values
-                that they take.
-        """
-        import pickle
-        return {
-            "next_solver": "VQESolver",
-            "solver_params": {
-                "backend_parameters":  pickle.dumps(self.backend_parameters),
-                "ansatz_type":                  pickle.dumps(self.ansatz_type),
-                "optimizer":                    pickle.dumps(self.optimizer),
-                "initial_var_params":           self.initial_var_params,
-                "verbose":                      self.verbose,
-            }
-        }
-
-    @staticmethod
-    def load_serial(serialized_dict: dict) -> '__class__':
-        """Builds an instance from a serialized representation.
-        Args:
-            serialized_dict(dict): The data required to builld the object.
-        Returns:
-            VQESolver: The solver instance.
-        """
-        import pickle
-
-        solver = VQESolver()
-        solver.backend_parameters = pickle.loads(serialized_dict["backend_parameters"])
-        solver.ansatz_type = pickle.loads(serialized_dict["ansatz_type"])
-        solver.optimizer = pickle.loads(serialized_dict["optimizer"])
-        solver.initial_var_params = serialized_dict["initial_var_params"]
-        solver.verbose = serialized_dict["verbose"]
-
-        return solver
-
+    # TODO: Could this be done better ?
     def _default_optimizer(self, func, var_params):
-        """ Function used as a default optimizer when user does not provide one.
+        """ Function used as a default optimizer for VQE when user does not provide one. Can be used as an example
+        for users who wish to provide their custom optimizer.
+
+        Should set the attributes "optimal_var_params" and "optimal_energy" to ensure the outcome of VQE is
+        captured at the end of classical optimization, and can be accessed in a standard way.
+
         Args:
-            func (function handle): A function to perform energy estimation.
-             Takes var_params as input and returns a float.
+            func (function handle): The function that performs energy estimation.
+                This function takes var_params as input and returns a float.
             var_params (list): The variational parameters (float64).
         Returns:
-            list: The new variational parameters (result.fun, float64).
+            The optimal energy found by the optimizer
         """
 
         from scipy.optimize import minimize
         result = minimize(func, var_params, method='SLSQP',
                           options={'disp': True, 'maxiter': 2000, 'eps': 1e-5, 'ftol': 1e-5})
+
+        self.optimal_var_params = result.x
+        self.optimal_energy = result.fun
+
         if self.verbose:
-            print("\n\t\tOptimal UCCSD Singlet Energy: {}".format(result.fun))
-            print("\t\tOptimal UCCSD Singlet Amplitudes: {}".format(result.x))
-            print("\t\tNumber of Function Evaluations : ", result.nfev)
+            print(f"\t\tOptimal UCCSD energy: {self.optimal_energy}")
+            print(f"\t\tOptimal UCCSD variational parameters: {self.optimal_var_params}")
+            print(f"\t\tNumber of Function Evaluations : {result.nfev}")
 
         return result.fun

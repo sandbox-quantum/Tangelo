@@ -28,7 +28,7 @@ class RUCC(Ansatz):
 
     def __init__(self, n_var_params=1):
 
-        if n_var_params not in {1,3}:
+        if n_var_params not in {1, 3}:
             raise ValueError("The number of parameters for RUCC must be 1 or 3.")
 
         self.n_var_params = n_var_params
@@ -39,29 +39,34 @@ class RUCC(Ansatz):
         self.supported_initial_var_params = {"zeros", "ones", "random"}
 
         # Default initial parameters for initialization.
-        self.var_params_initialization = "zeros"
+        self.var_params_default = "zeros"
         self.reference_state_initialization = "HF"
 
         self.var_params = None
         self.circuit = None
 
-    def initialize_var_params(self):
-        """Compute sets of potential initial values for variational parameters,
-        such as zeros, random numbers, MP2, or any insightful values. Impacts 
-        the convergence of the variational algorithm.
-        """
+    def set_var_params(self, var_params=None):
+        """ Set values for variational parameters, such as zeros, random numbers, MP2 (...), providing some
+        keywords for users, and also supporting direct user input (list or numpy array)
+        Return the parameters so that workflows such as VQE can retrieve these values. """
 
-        # Innitial parameters can be all 1., 0. or randomized.
-        if self.var_params_initialization == "zeros":
-            initial_var_params = np.zeros((self.n_var_params,), dtype=np.float)
-        elif self.var_params_initialization == "ones":
-            initial_var_params = np.ones((self.n_var_params,), dtype=np.float)
-        elif self.var_params_initialization == "random":
-            initial_var_params = np.random.random((self.n_var_params,), dtype=np.float)
+        if isinstance(var_params, str) and (var_params not in self.supported_initial_var_params):
+            raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
+        if var_params is None:
+            var_params = self.var_params_default
+
+        if var_params == "ones":
+            initial_var_params = np.ones((self.n_var_params,), dtype=float)
+        elif var_params == "random":
+            initial_var_params = np.random.random((self.n_var_params,), dtype=float)
+        elif var_params == "zeros":
+            initial_var_params = np.zeros((self.n_var_params,), dtype=float)
         else:
-            ValueError(f"Only supported initialization methods for variational parameters are:"
-                       f"{self.supported_initial_var_params} ")
-
+            try:
+                assert (len(var_params) == self.n_var_params)
+                initial_var_params = np.array(var_params)
+            except ValueError:
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but received {len(var_params)}.")
         self.var_params = initial_var_params
         return initial_var_params
 
@@ -79,7 +84,7 @@ class RUCC(Ansatz):
 
         # NB: this one is consistent with JW but not other transforms.
         if self.reference_state_initialization == "HF":
-            return Circuit([Gate("X", target=i) for i in (0,2)])
+            return Circuit([Gate("X", target=i) for i in (0, 2)])
  
     def build_circuit(self, var_params=None):
         """Build and return the quantum circuit implementing the state
@@ -92,11 +97,7 @@ class RUCC(Ansatz):
         """
 
         # Set initial variational parameters used to build the circuit.
-        if var_params:
-            assert(len(var_params) == self.n_var_params)
-            self.var_params = var_params
-        elif not self.var_params:
-            self.initialize_var_params()
+        self.set_var_params(var_params)
 
         # Prepare reference state circuit |1010>.
         reference_state_circuit = self.prepare_reference_state()
