@@ -1,8 +1,8 @@
 """ Class performing electronic structure calculation employing the CCSD method """
 
-import warnings
-from pyscf import cc, scf
+from pyscf import cc
 
+from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from .electronic_structure_solver import ElectronicStructureSolver
 
 
@@ -28,15 +28,9 @@ class CCSDSolver(ElectronicStructureSolver):
             float64: CCSD energy (total_energy).
         """
 
-        # TODO: all of this mean-field code needs to be a function call to our "mean field calculation" module.
         # Calculate the mean field if the user has not already done it.
         if not mean_field:
-            mean_field = scf.RHF(molecule)
-            mean_field.verbose = 0
-            mean_field.scf()
-        # Check the convergence of the mean field
-        if not mean_field.converged:
-            warnings.warn("CCSDSolver simulating with mean field not converged.", RuntimeWarning)
+            mean_field = prepare_mf_RHF(molecule)
 
         # Execute CCSD calculation
         self.cc_fragment = cc.ccsd.CCSD(mean_field)

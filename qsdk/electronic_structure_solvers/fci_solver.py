@@ -1,8 +1,8 @@
 """ Define electronic structure solver employing the full configuration interaction (CI) method """
 
-import warnings
-from pyscf import ao2mo, fci, scf
+from pyscf import ao2mo, fci
 
+from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from .electronic_structure_solver import ElectronicStructureSolver
 
 
@@ -36,15 +36,9 @@ class FCISolver(ElectronicStructureSolver):
             float64: The Full CI energy
         """
 
-        # TODO: all of this mean-field code needs to be a function call to our "mean field calculation" module.
-        # Calculate the mean field if the user has not already done it.
+        # Calculate the mean field if the user has not already done it
         if not mean_field:
-            mean_field = scf.RHF(molecule)
-            mean_field.verbose = 0
-            mean_field.scf()
-        # Check the convergence of the mean field
-        if not mean_field.converged:
-            warnings.warn("FCISolver simulating with mean field not converged.", RuntimeWarning)
+            mean_field = prepare_mf_RHF(molecule)
 
         h1 = mean_field.mo_coeff.T @ mean_field.get_hcore() @ mean_field.mo_coeff
         twoint = mean_field._eri
