@@ -33,7 +33,7 @@ class FCISolver(ElectronicStructureSolver):
             molecule (pyscf.gto.Mole): The molecule to simulate.
             mean_field (pyscf.scf.RHF): The mean field of the molecule.
         Returns:
-            float64: The Full CI energy
+            total_energy (float): FCI energy
         """
 
         # Calculate the mean field if the user has not already done it
@@ -54,19 +54,19 @@ class FCISolver(ElectronicStructureSolver):
         return energy
 
     def get_rdm(self):
-        """ Compute the Full CI 1- and 2-particle reduce density matrices.
+        """ Compute the Full CI 1- and 2-particle reduced density matrices.
 
         Returns:
-            (numpy.array, numpy.array): One & two-particle RDMs (fci_onerdm & fci_twordm, float64).
+            one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle RDMs
         Raises:
-            RuntimeError: If no simulation has been run.
+            RuntimeError: If method "simulate" hasn't been run.
         """        
 
         # Check if Full CI is performed
         if not self.norb or not self.nelec:
-            raise RuntimeError("Cannot retrieve RDM because no simulation has been run.")
+            raise RuntimeError("CCSDSolver: Cannot retrieve RDM. Please run the 'simulate' method first")
 
-        fci_onerdm = self.cisolver.make_rdm1(self.ci, self.norb, self.nelec)
-        fci_twordm = self.cisolver.make_rdm2(self.ci, self.norb, self.nelec)
+        one_rdm = self.cisolver.make_rdm1(self.ci, self.norb, self.nelec)
+        two_rdm = self.cisolver.make_rdm2(self.ci, self.norb, self.nelec)
 
-        return fci_onerdm, fci_twordm
+        return one_rdm, two_rdm

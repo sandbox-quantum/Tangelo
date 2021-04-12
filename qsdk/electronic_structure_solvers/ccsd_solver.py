@@ -25,7 +25,7 @@ class CCSDSolver(ElectronicStructureSolver):
             mean_field (pyscf.scf.RHF): The mean field of the molecule.
 
         Returns:
-            float64: CCSD energy (total_energy).
+            total_energy (float): CCSD energy
         """
 
         # Calculate the mean field if the user has not already done it.
@@ -48,18 +48,18 @@ class CCSDSolver(ElectronicStructureSolver):
          calculating the RDMs.
 
         Returns:
-            (numpy.array, numpy.array): One & two-particle RDMs (cc_onerdm & cc_twordm, float64).
+            one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle RDMs
         Raises:
             RuntimeError: If no simulation has been run.
         """        
 
         # Check if CCSD calculation is performed
         if not self.cc_fragment:
-            raise RuntimeError("Cannot retrieve RDM because no simulation has been run.")
+            raise RuntimeError("CCSDSolver: Cannot retrieve RDM. Please run the 'simulate' method first")
 
         # Solve the lambda equation and obtain the reduced density matrix from CC calculation
         self.cc_fragment.solve_lambda()
-        cc_onerdm = self.cc_fragment.make_rdm1()
-        cc_twordm = self.cc_fragment.make_rdm2()
+        one_rdm = self.cc_fragment.make_rdm1()
+        two_rdm = self.cc_fragment.make_rdm2()
 
-        return cc_onerdm, cc_twordm
+        return one_rdm, two_rdm
