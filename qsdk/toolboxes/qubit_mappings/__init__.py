@@ -1,1 +1,3 @@
 from .jordan_wigner import jordan_wigner
+from .bravyi_kitaev import bravyi_kitaev
+from .symmetry_conserving_bravyi_kitaev import symmetry_conserving_bravyi_kitaev

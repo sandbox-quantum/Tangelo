@@ -10,7 +10,7 @@ from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 
 # Build molecule objects used by the tests.
 NaH = [('Na', (0., 0., 0.)), ('H', (0., 0., 1.91439))]
-occupied_indices=list(range(5))
+occupied_indices = list(range(5))
 active_indices = [5, 9]
 
 mol_nah = gto.Mole()
