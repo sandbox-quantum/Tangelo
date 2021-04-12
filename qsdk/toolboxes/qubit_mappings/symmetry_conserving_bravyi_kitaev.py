@@ -63,7 +63,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits,
                lowest energy even and odd fermion number states, not states
                with an arbitrary number of fermions.
     """
-    if type(fermion_operator) is not FermionOperator:
+    if not isinstance(fermion_operator,FermionOperator):
         raise ValueError('Supplied operator should be an instance '
                          'of FermionOperator class')
     if type(n_qubits) is not int:

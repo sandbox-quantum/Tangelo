@@ -82,7 +82,6 @@ class VQESolver:
         # Compute qubit hamiltonian for the input molecular system
         self.qemist_molecule = MolecularData(self.molecule)
         self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
-        print(type(self.fermionic_hamiltonian))
         self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian, 
                                                           mapping=self.qubit_mapping,
                                                           n_qubits=self.qemist_molecule.n_qubits,
@@ -259,15 +258,29 @@ class VQESolver:
 if __name__ == "__main__":
     from pyscf.gto.mole import Mole
     mol = Mole()
-    mol.atom = [('H',(0,0,0)),('H',(0,0,1.))]
+    mol.atom = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
     mol.basis = 'sto-3g'
     mol.spin = 0
     mol.build()
     vqe_args = {'molecule':mol,
-            'qubit_mapping':'bk',
+            'qubit_mapping':'scbk',
            'initial_var_params':'MP2',
             }
 
-    vqe_zeros = VQESolver(vqe_args)
-    vqe_zeros.build()
-    vqe_zeros.simulate()
+    vqe = VQESolver(vqe_args)
+    vqe.build()
+    energy_scbk = vqe.simulate()
+
+    vqe = VQESolver(vqe_args)
+    vqe_args['qubit_mapping'] = 'jw'
+    vqe.build()
+    energy_jw = vqe.simulate()
+
+    vqe = VQESolver(vqe_args)
+    vqe_args['qubit_mapping'] = 'bk'
+    vqe.build()
+    energy_bk = vqe.simulate()
+
+    print(f'ENERGY JW = {energy_jw} Ha')
+    print(f'ENERGY BK = {energy_bk} Ha')
+    print(f'ENERGY scBK = {energy_scbk} Ha')

@@ -168,6 +168,33 @@ class VQESolverTest(unittest.TestCase):
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.137270422018, places=7)
 
+    def test_mapping_equivalence(self):
+        """Test that JW, BK and scBK mappings all recover same result,
+        to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD,
+                       "initial_var_params": "MP2", "verbose": False}
+
+        vqe_options[ "qubit_mapping"] = 'jw'
+        vqe_solver_jw = VQESolver(vqe_options)
+        vqe_solver_jw.build()
+        energy_jw = vqe_solver_jw.simulate()
+
+        vqe_options[ "qubit_mapping"] = 'bk'
+        vqe_solver_bk = VQESolver(vqe_options)
+        vqe_solver_bk.build()
+        energy_bk = vqe_solver_bk.simulate()
+
+        vqe_options[ "qubit_mapping"] = 'scbk'
+        vqe_solver_scbk = VQESolver(vqe_options)
+        vqe_solver_scbk.build()
+        energy_scbk = vqe_solver_scbk.simulate()
+
+        energy_target = -1.137270
+        self.assertAlmostEqual(energy_jw, energy_target, places=5)
+        self.assertAlmostEqual(energy_bk, energy_target, places=5)
+        self.assertAlmostEqual(energy_scbk, energy_target, places=5)
+
+
 
 if __name__ == "__main__":
     unittest.main()

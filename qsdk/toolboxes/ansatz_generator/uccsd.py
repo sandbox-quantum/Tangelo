@@ -92,7 +92,6 @@ class UCCSD(Ansatz):
 
         self.set_var_params(var_params)
 
-        # TODO wrapper and support for different qubit mappings
         # Build qubit operator required to build UCCSD
         qubit_op = self._get_singlet_qubit()
 
@@ -108,7 +107,12 @@ class UCCSD(Ansatz):
             pauli_words_gates += pauliword_to_circuit(pauli_word, coef)
             self.pauli_to_angles_mapping[pauli_word] = i
 
-        self.circuit = reference_state_circuit + Circuit(pauli_words_gates)
+        uccsd_circuit = Circuit(pauli_words_gates)
+        #skip over the reference state circuit if it is empty
+        try:
+            self.circuit = reference_state_circuit + uccsd_circuit
+        except ValueError:
+            self.circuit = uccsd_circuit
 
     def update_var_params(self, var_params):
         """ Shortcut: set value of variational parameters in the already-built ansatz circuit member.

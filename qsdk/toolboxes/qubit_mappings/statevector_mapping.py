@@ -115,7 +115,7 @@ def get_reference_circuit(n_qubits, n_electrons, mapping, updown=False):
     Returns:
         circuit (Circuit): instance of agnostic_simulator Circuit class
     """
-    vector = get_vector(n_qubits, n_electrons, mapping, updown=False)
+    vector = get_vector(n_qubits, n_electrons, mapping, updown=updown)
     circuit = vector_to_circuit(vector)
     return circuit
     

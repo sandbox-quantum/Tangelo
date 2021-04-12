@@ -4,12 +4,33 @@
  - Bravyi-Kitaev (Fenwick Tree implementation)
  - symmetry-conserving Bravyi-Kitaev (2-qubit reduction via Z2 taper)
 """
-from openfermion import InteractionOperator #replace when possible
+from collections.abc import Iterable
 
 from qsdk.toolboxes.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev
 
 available_mappings = {'JW', 'BK', 'SCBK'}
+
+def get_fermion_operator(operator):
+    """Cast operator to FermionOperator datatype. Input is of
+    SymbolicOperator type, but term words must be valid input
+    for FermionOperator, as for example for InteractionOperator.
+    
+    Args:
+        operator (SymbolicOperator): input operator to be cast
+
+    Returns:
+        fermion_operator (FermionOperator)
+    """
+    if not isinstance(operator, Iterable):
+        raise TypeError('Input must be iterable suitable for casting to FermionOperator type.')
+    fermion_operator = FermionOperator()
+    for term in operator:
+        try:
+            fermion_operator += FermionOperator(term,operator[term])
+        except:
+            raise TypeError('Operator terms are not formatted as valid input for FermionOperator type.')
+    return fermion_operator
 
 def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electrons=None):
     """Perform mapping of fermionic operator to qubit operator. This function is mostly a wrapper
@@ -29,8 +50,9 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electro
     Returns:
         qubit_operator (QubitOperator): input operator, encoded in the qubit space.
     """
-    if not ((type(fermion_operator) is FermionOperator) or (type(fermion_operator) is InteractionOperator)):
-        raise TypeError("Invalid operator format. Must use FermionOperator or InteractionOperator.")
+    #some methods may pass another operator class type. If this is the case, cast to FermionOperator where possible
+    if not isinstance(fermion_operator,FermionOperator):
+        fermion_operator = get_fermion_operator(fermion_operator)
 
     if mapping.upper() not in available_mappings:
         raise ValueError(f'Invalid mapping selection. Select from: {available_mappings}')
