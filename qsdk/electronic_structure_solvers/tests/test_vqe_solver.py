@@ -168,6 +168,17 @@ class VQESolverTest(unittest.TestCase):
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.137270422018, places=7)
 
+    def test_simulate_h4_frozen_orbitals(self):
+        """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator,
+            First (occupied) and last (virtual) orbitals are frozen.
+        """
+        vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+                       "initial_var_params": "MP2", "frozen_orbitals": [0, 3], "verbose": False}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.8943598012229799, delta=1e-5)
 
 if __name__ == "__main__":
     unittest.main()

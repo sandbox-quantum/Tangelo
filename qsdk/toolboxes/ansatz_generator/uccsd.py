@@ -155,7 +155,7 @@ class UCCSD(Ansatz):
         if not self.mf:
             self.mf = prepare_mf_RHF(self.molecule.mol)
 
-        mp2_fragment = mp.MP2(self.mf)
+        mp2_fragment = mp.MP2(self.mf, frozen=self.molecule.get_frozen_orbitals())
         mp2_fragment.verbose = 0
         mp2_correlation_energy, mp2_t2 = mp2_fragment.kernel()
 
