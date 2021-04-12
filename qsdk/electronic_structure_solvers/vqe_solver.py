@@ -5,18 +5,23 @@ Implements the variational quantum eigensolver (VQE) algorithm to solve electron
 from enum import Enum
 import numpy as np
 from copy import deepcopy
+from openfermion.transforms import get_fermion_operator, reorder
+from openfermion.utils import up_then_down
 
 from agnostic_simulator import Simulator
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings import jordan_wigner
+from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
-
+from qsdk.toolboxes.ansatz_generator.rucc import RUCC
+from qsdk.toolboxes.operators import FermionOperator
 
 class Ansatze(Enum):
     """ Enumeration of the ansatz circuits supported by VQE"""
     UCCSD = 0
-
+    RUCC1 = 1
+    RUCC3 = 2
 
 class VQESolver:
     """ Solve the electronic structure problem for a molecular system by using the
@@ -93,6 +98,10 @@ class VQESolver:
         # if needed user could provide their own ansatze class and instantiate the object beforehand
         if self.ansatz == Ansatze.UCCSD:
             self.ansatz = UCCSD(self.qemist_molecule, self.mean_field)
+        elif self.ansatz == Ansatze.RUCC1:
+            self.ansatz = RUCC(1)
+        elif self.ansatz == Ansatze.RUCC3:
+            self.ansatz = RUCC(3)
         else:
             raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
 
