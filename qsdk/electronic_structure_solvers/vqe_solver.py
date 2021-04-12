@@ -67,11 +67,10 @@ class VQESolver:
 
         self.optimal_energy = None
         self.optimal_var_params = None
+        self.builtin_ansatze = set(Ansatze)
 
     def build(self):
-        """ Build the underlying objects required to run ot build the ansatz
-        circuit and run the VQE algorithm
-        """
+        """ Build the underlying objects required to run the VQE algorithm afterwards """
 
         # Build adequate mean-field (RHF for now, others in future), apply frozen orbitals
         if not self.mean_field:
@@ -95,7 +94,7 @@ class VQESolver:
         if self.ansatz == Ansatze.UCCSD:
             self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field)
         else:
-            raise ValueError("Unsupported ansatz. Please check the Ansatze enum in VQESolver for list of builtin options")
+            raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
@@ -128,7 +127,7 @@ class VQESolver:
         resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms)
         resources["circuit_width"] = self.ansatz.circuit.width
         resources["circuit_gates"] = self.ansatz.circuit.size
-        resources["circuit_CNOTs"] = self.ansatz.circuit.counts['CNOT']
+        resources["circuit_2qubit_gates"] = self.ansatz.circuit.counts['CNOT']  # For now, only CNOTs supported
         resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
         resources["vqe_variational_parameters"] = len(self.initial_var_params)
         return resources
@@ -228,7 +227,7 @@ class VQESolver:
 
     # TODO: Could this be done better ?
     def _default_optimizer(self, func, var_params):
-        """ Function used as a default optimizer for VQE when user does not provide one. Can we used as an example
+        """ Function used as a default optimizer for VQE when user does not provide one. Can be used as an example
         for users who wish to provide their custom optimizer.
 
         Should set the attributes "optimal_var_params" and "optimal_energy" to ensure the outcome of VQE is

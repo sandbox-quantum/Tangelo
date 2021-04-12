@@ -42,7 +42,7 @@ class UCCSD(Ansatz):
 
         # Default initial parameters for initialization
         self.var_params_default = "MP2"
-        self.reference_state_initialization = "HF"
+        self.default_reference_state = "HF"
 
         self.var_params = None
         self.circuit = None
@@ -67,7 +67,7 @@ class UCCSD(Ansatz):
             try:
                 assert (len(var_params) == self.n_var_params)
                 initial_var_params = np.array(var_params)
-            except ValueError:
+            except AssertionError:
                 raise ValueError(f"Expected {self.n_var_params} variational parameters but received {len(var_params)}.")
         self.var_params = initial_var_params
         return initial_var_params
@@ -79,10 +79,10 @@ class UCCSD(Ansatz):
         qubit operator.
         """
 
-        if self.reference_state_initialization not in self.supported_reference_state:
+        if self.default_reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
-        if self.reference_state_initialization == "HF":
+        if self.default_reference_state == "HF":
             return get_reference_circuit(self.molecule.n_qubits, self.molecule.n_electrons, mapping=self.mapping)
         
 
@@ -90,14 +90,9 @@ class UCCSD(Ansatz):
         """ Build and return the quantum circuit implementing the state preparation ansatz
          (with currently specified initial_state and var_params) """
 
-        # Set initial variational parameters used to build the circuit
-        # if var_params is not None: # "is not None" helps us handle numpy arrays too
-        #     assert(len(var_params) == self.n_var_params)
-        #     self.var_params = var_params
-        # elif self.var_params is not None:
-        #     self.initialize_var_params()
         self.set_var_params(var_params)
 
+        # TODO wrapper and support for different qubit mappings
         # Build qubit operator required to build UCCSD
         qubit_op = self._get_singlet_qubit()
 
@@ -117,10 +112,11 @@ class UCCSD(Ansatz):
 
     def update_var_params(self, var_params):
         """ Shortcut: set value of variational parameters in the already-built ansatz circuit member.
-            The circuit does not need to be rebuilt every time if only the variational parameters change. """
+            Preferable to rebuilt your circuit from scratch, which can be an involved process. """
 
         self.var_params = var_params
 
+        # TODO: we should have a dedicated build function to this. We shouldnt rewrite it every time. Use qubit mapping wrapper too
         # Build qubit operator required to build UCCSD
         qubit_op = self._get_singlet_qubit()
 
