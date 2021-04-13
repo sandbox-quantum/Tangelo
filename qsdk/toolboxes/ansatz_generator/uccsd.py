@@ -18,11 +18,12 @@ class UCCSD(Ansatz):
     """ This class implements the UCCSD ansatz. Currently, only closed-shell UCCSD is supported.
      This implies that the mean-field is computed with the RHF reference integrals. """
 
-    def __init__(self, molecule, mapping='jw',mean_field=None):
+    def __init__(self, molecule, mapping='jw',mean_field=None, up_then_down=False):
 
         self.molecule = molecule
         self.mf = mean_field
         self.mapping = mapping
+        self.up_then_down = up_then_down
 
         # Later: refactor to handle various flavors of UCCSD
         if molecule.n_qubits % 2 != 0:
@@ -35,7 +36,7 @@ class UCCSD(Ansatz):
         self.n_var_params = self.n_singles + self.n_doubles
 
         # Supported reference state initialization
-        # TODO: support for others and compatibility with the qubit mapping used
+        # TODO: support for others
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
         self.supported_initial_var_params = {"ones", "random", "MP2"}
@@ -72,7 +73,6 @@ class UCCSD(Ansatz):
         self.var_params = initial_var_params
         return initial_var_params
 
-    # TODO: Possible initial states must be compatible with qubit transform used, add check for it later on
     def prepare_reference_state(self):
         """ Returns circuit preparing the reference state of the ansatz (e.g prepare reference wavefunction with HF,
         multi-reference state, etc). These preparations must be consistent with the transform used to obtain the
@@ -83,10 +83,9 @@ class UCCSD(Ansatz):
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
         if self.default_reference_state == "HF":
-            return get_reference_circuit(self.molecule.n_qubits, self.molecule.n_electrons, mapping=self.mapping)
-        
+            return get_reference_circuit(self.molecule.n_qubits, self.molecule.n_electrons, mapping=self.mapping, updown=self.up_then_down)
 
-    def build_circuit(self, var_params=None, qubit_mapping='jw'):
+    def build_circuit(self, var_params=None):
         """ Build and return the quantum circuit implementing the state preparation ansatz
          (with currently specified initial_state and var_params) """
 
@@ -120,7 +119,6 @@ class UCCSD(Ansatz):
 
         self.var_params = var_params
 
-        # TODO: we should have a dedicated build function to this. We shouldnt rewrite it every time. Use qubit mapping wrapper too
         # Build qubit operator required to build UCCSD
         qubit_op = self._get_singlet_qubit()
 
@@ -141,8 +139,12 @@ class UCCSD(Ansatz):
         Returns:
             qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
         """
-        ferm_op = uccsd_singlet_generator(self.var_params, self.molecule.n_qubits, self.molecule.n_electrons)
-        qubit_op = fermion_to_qubit_mapping(ferm_op, mapping=self.mapping, n_qubits=self.molecule.n_qubits, n_electrons=self.molecule.n_electrons)
+        fermion_op = uccsd_singlet_generator(self.var_params, self.molecule.n_qubits, self.molecule.n_electrons)
+        qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op, 
+                                            mapping=self.mapping, 
+                                            n_qubits=self.molecule.n_qubits, 
+                                            n_electrons=self.molecule.n_electrons, 
+                                            updown_order=self.up_then_down)
 
         # Cast all coefs to floats (rotations angles are real)
         for key in qubit_op.terms:

@@ -96,6 +96,9 @@ def up_then_down(fermion_operator,n_modes):
         raise TypeError('Invalid operator input. Must be FermionOperator.')
     if np.mod(n_modes, 2) != 0:
         raise ValueError('Invalid number of spin-orbitals. Expecting even number.')
+    term_modes = max([factor[0] for term in fermion_operator.terms for factor in term]) + 1
+    if term_modes > n_modes:
+        raise ValueError('Invalid number of modes (n_modes) for input operator. Terms in operator exceed this value.')
     new_operator = FermionOperator()
 
     #define the new mode register
@@ -103,8 +106,6 @@ def up_then_down(fermion_operator,n_modes):
     remapped[1::2] += int(np.ceil(n_modes / 2.))
     
     for term,coef in fermion_operator.terms.items():  
-        if max([ti[0] for ti in term]) >= n_modes:
-            raise ValueError('Number of modes is fewer than highest index operator in input.')
         
         new_term = tuple([(int(remapped[ti[0]]),ti[1]) for ti in term])
         new_operator += FermionOperator(new_term, coef)

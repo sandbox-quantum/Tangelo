@@ -50,6 +50,7 @@ class VQESolver:
                            "optimizer": self._default_optimizer,
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
+                           "up_then_down": False,
                            "verbose": False}
 
         # Initialize with default values
@@ -85,13 +86,14 @@ class VQESolver:
         self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian, 
                                                           mapping=self.qubit_mapping,
                                                           n_qubits=self.qemist_molecule.n_qubits,
-                                                          n_electrons=self.qemist_molecule.n_electrons)
+                                                          n_electrons=self.qemist_molecule.n_electrons,
+                                                          updown_order=self.up_then_down)
 
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input
         # TODO: what do we do for ansatz provided by users? Generate an Ansatz object? Or ask them to ?
         # if needed user could provide their own ansatze class and instantiate the object beforehand
         if self.ansatz == Ansatze.UCCSD:
-            self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field)
+            self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
         else:
             raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
 
@@ -197,7 +199,8 @@ class VQESolver:
             qubit_hamiltonian2 =fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
                                                          mapping=self.qubit_mapping,
                                                          n_qubits=self.qemist_molecule.n_qubits,
-                                                         n_electrons=self.qemist_molecule.n_electrons)
+                                                         n_electrons=self.qemist_molecule.n_electrons,
+                                                         updown_order=self.up_then_down)
             qubit_hamiltonian2.compress()
 
             if qubit_hamiltonian2.terms in lookup_ham:
@@ -253,40 +256,3 @@ class VQESolver:
             print(f"\t\tNumber of Function Evaluations : {result.nfev}")
 
         return result.fun
-
-
-if __name__ == "__main__":
-    from pyscf.gto.mole import Mole
-    mol = Mole()
-    mol.atom = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
-    mol.basis = 'sto-3g'
-    mol.spin = 0
-    mol.build()
-    vqe_args = {'molecule':mol,
-            'qubit_mapping':'scbk',
-           'initial_var_params':'MP2',
-            }
-
-    vqe = VQESolver(vqe_args)
-    vqe.build()
-
-    print(vqe.get_resources())
-    
-    # energy_scbk = vqe.simulate()
-    print('--------JW-----------')
-    vqe_args['qubit_mapping'] = 'jw'
-
-    vqe = VQESolver(vqe_args)
-    vqe.build()
-    # energy_jw = vqe.simulate()
-    print(vqe.get_resources())
-    print('--------BK-----------')
-    vqe_args['qubit_mapping'] = 'bk'
-
-    vqe = VQESolver(vqe_args)
-    vqe.build()
-    # energy_bk = vqe.simulate()
-    print(vqe.get_resources())
-    # print(f'ENERGY JW = {energy_jw} Ha')
-    # print(f'ENERGY BK = {energy_bk} Ha')
-    # print(f'ENERGY scBK = {energy_scbk} Ha')

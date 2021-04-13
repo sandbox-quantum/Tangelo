@@ -9,7 +9,7 @@ from openfermion.linalg.sparse_tools import qubit_operator_sparse
 
 from qsdk.toolboxes.operators import QubitOperator, FermionOperator
 from qsdk.toolboxes.qubit_mappings import bravyi_kitaev, jordan_wigner
-from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping, up_then_down
 
 
 class MappingTest(unittest.TestCase):
@@ -89,6 +89,29 @@ class MappingTest(unittest.TestCase):
         self.assertEqual(ground, bk_ground)
         self.assertEqual(ground, scbk_ground)
 
+    def test_spin_order(self):
+        """Test that re-ordering of spin-orbitals from alternating up down to all up, then all down
+        produces expected result."""
+        input_operator = FermionOperator(((1, 1), (3, 0), (4, 1), (6, 0)), 1.0) + FermionOperator(((2, 0), (5, 0), (5, 1), (7, 0)), 1.0)
+        expected = FermionOperator(((4, 1), (5, 0), (2, 1), (3, 0)), 1.0) + FermionOperator(((1, 0), (6, 0), (6, 1), (7, 0)), 1.0)
+        reordered_operator = up_then_down(input_operator, 8)
+        self.assertEqual(expected, reordered_operator)
+
+    def test_eigen_spin_reorder(self):
+        """Test that all encodings of the operator have the same ground state energy, after re-ordering
+        spins. Skip scBK here as this transformation forces spin-reordering."""
+        fermion = FermionOperator(((1, 0), (3, 1)), 1.0) + FermionOperator(((3, 0), (1, 1)), -1.0)
+        ground = np.imag(eigenspectrum(fermion)).min()
+
+        jw_operator = fermion_to_qubit_mapping(fermion, mapping='JW', n_qubits=4, updown_order=True)
+        bk_operator = fermion_to_qubit_mapping(fermion, mapping='BK', n_qubits=4, updown_order=True)
+
+        jw_ground = np.linalg.eigvalsh(qubit_operator_sparse(jw_operator).todense()).min()
+        bk_ground = np.linalg.eigvalsh(qubit_operator_sparse(bk_operator, n_qubits=4).todense()).min()
+
+        self.assertEqual(ground, jw_ground)
+        self.assertEqual(ground, bk_ground)
+
     def test_scbk_reorder(self):
         """scBK forces spin-orbital ordering to all up then all down. Check that
         the qubit Hamiltonian returned is the same whether the user passes a
@@ -96,7 +119,8 @@ class MappingTest(unittest.TestCase):
         fermion = FermionOperator(((2, 0), (0, 1)), 1.) + FermionOperator(((0, 0), (2, 1)), -1.)
         scBK_reordered = fermion_to_qubit_mapping(fermion, mapping='scBK', n_qubits=4, n_electrons=2, updown_order=True)
         scBK_notreordered = fermion_to_qubit_mapping(fermion, mapping='scBK', n_qubits=4, n_electrons=2, updown_order=False)
-        self.assertEqual(scBK_reordered,scBK_notreordered)
+        self.assertEqual(scBK_reordered, scBK_notreordered)
+
 
 if __name__ == "__main__":
     unittest.main()
