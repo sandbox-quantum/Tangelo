@@ -110,7 +110,7 @@ class MolecularData(openfermion.MolecularData):
         """ This method returns MOs indexes for the frozen orbitals. It was written
             to take into account if one of the two possibilities (occ or virt) is 
             None. In fact, list + None, None + list or None + None return an error.
-            An empty cannot be sent because PySCF mp2 returns "IndexError: list index out of range".
+            An empty list cannot be sent because PySCF mp2 returns "IndexError: list index out of range".
 
             Returns:
                 list: MOs indexes frozen (occupied + virtual).

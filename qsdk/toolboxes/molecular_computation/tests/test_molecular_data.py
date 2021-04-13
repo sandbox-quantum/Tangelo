@@ -77,8 +77,8 @@ class MolecularDataTest(unittest.TestCase):
         assert(freeze_with_list.frozen_occupied == [0, 1, 2])
         assert(freeze_with_list.frozen_virtual == [6])
 
-    def test_freezing_exception(self):
-        """ Verify freezing orbitals exceptions """
+    def test_freezing_empty(self):
+        """ Verify freezing orbitals empty input """
 
         # None should result in the same as nothing.
         none_as_frozen = MolecularData(mol_h2o, None)
@@ -94,6 +94,9 @@ class MolecularDataTest(unittest.TestCase):
         assert(empty_as_frozen.frozen_occupied == [])
         assert(empty_as_frozen.frozen_virtual == [])
 
+    def test_freezing_type_exception(self):
+        """ Verify freezing orbitals exceptions """
+
         # Cases where the input is wrong type.
         with self.assertRaises(TypeError):
             MolecularData(mol_h2o, "3")
@@ -102,11 +105,17 @@ class MolecularDataTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             MolecularData(mol_h2o, [0, 1, 2.2222, 3, 4, 5])
 
+    def test_no_active_electron(self):
+        """ Verify if freezing all active orbitals fails """
+
         # Cases where no active electron are remaining.
         with self.assertRaises(ValueError):
             MolecularData(mol_h2o, 5)
         with self.assertRaises(ValueError):
             MolecularData(mol_h2o, [0, 1, 2, 3, 4, 5])
+
+    def test_no_active_virtual(self):
+        """ Verify if freezing all virtual orbitals fails """
 
         # Cases where no active virtual orbitals are remaining.
         with self.assertRaises(ValueError):
