@@ -18,7 +18,7 @@ class UCCSD(Ansatz):
     """ This class implements the UCCSD ansatz. Currently, only closed-shell UCCSD is supported.
      This implies that the mean-field is computed with the RHF reference integrals. """
 
-    def __init__(self, molecule, mapping='jw',mean_field=None, up_then_down=False):
+    def __init__(self, molecule, mapping='jw', mean_field=None, up_then_down=False):
 
         self.molecule = molecule
         self.mf = mean_field
