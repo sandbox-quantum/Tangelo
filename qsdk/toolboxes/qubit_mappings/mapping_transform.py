@@ -53,7 +53,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_qubits=None, n_electro
         qubit_operator (QubitOperator): input operator, encoded in the qubit space.
     """
     #some methods may pass another operator class type. If this is the case, cast to FermionOperator where possible
-    if not isinstance(fermion_operator,FermionOperator):
+    if not isinstance(fermion_operator, FermionOperator):
         fermion_operator = get_fermion_operator(fermion_operator)
 
     if mapping.upper() not in available_mappings:
