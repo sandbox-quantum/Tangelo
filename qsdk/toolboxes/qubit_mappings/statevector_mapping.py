@@ -9,7 +9,7 @@ from openfermion.transforms import bravyi_kitaev_code
 
 available_mappings = {'JW', 'BK', 'SCBK'}
 
-def get_vector(n_qubits, n_electrons, mapping, updown=False):
+def get_vector(n_qubits, n_electrons, mapping, up_then_down=False):
     """Get integer vector corresponding to Hartree Fock reference
     state. Reference state will occupy up to the n_electron-th 
     molecular orbital. Depending on convention, basis is ordered
@@ -21,7 +21,7 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
         n_electrons (int): number of electrons in system
         mapping (string): specify mapping, see mapping_transform.py for options
             'JW' (Jordan Wigner), or 'BK' (Bravyi Kitaev), or 'SCBK' (symmetry-conserving Bravyi Kitaev)
-        updown (boolean): if True, all up, then all down, if False, alternating spin
+        up_then_down (boolean): if True, all up, then all down, if False, alternating spin
             up/down
 
     Returns:
@@ -33,7 +33,7 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
 
     vector = np.zeros(n_qubits, dtype=int)
     vector[:n_electrons] = 1
-    if updown:
+    if up_then_down:
         vector = np.concatenate((vector[::2], vector[1::2]))
 
     if mapping.upper() == 'JW':
@@ -41,7 +41,7 @@ def get_vector(n_qubits, n_electrons, mapping, updown=False):
     elif mapping.upper() == 'BK':
         return do_bk_transform(vector)
     elif mapping.upper() == 'SCBK':
-        if not updown:
+        if not up_then_down:
             warnings.warn("Symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.", RuntimeWarning)
         return do_scbk_transform(n_qubits, n_electrons)
 
@@ -73,7 +73,7 @@ def do_scbk_transform(n_qubits, n_electrons):
     Returns:
         vector (numpy array of int): qubit-encoded occupation vector
     """
-    n_alpha, n_orb = n_electrons//2, (n_qubits-2)//2
+    n_alpha, n_orb = n_electrons//2, (n_qubits - 2)//2
     vector = np.zeros(n_qubits - 2, dtype=int)
     if n_alpha >= 1:
         vector[:n_alpha - 1] = 1
@@ -102,7 +102,7 @@ def vector_to_circuit(vector):
     return circuit
 
 
-def get_reference_circuit(n_qubits, n_electrons, mapping, updown=False):
+def get_reference_circuit(n_qubits, n_electrons, mapping, up_then_down=False):
     """Build the Hartree-Fock state preparation circuit for the designated
     mapping.
     Args:
@@ -110,12 +110,11 @@ def get_reference_circuit(n_qubits, n_electrons, mapping, updown=False):
         n_electrons (int): number of electrons in system
         mapping (string): specify mapping, see mapping_transform.py for options
             'JW' (Jordan Wigner), or 'BK' (Bravyi Kitaev), or 'SCBK' (symmetry-conserving Bravyi Kitaev)
-        updown (boolean): if True, all up, then all down, if False, alternating spin
+        up_then_down (boolean): if True, all up, then all down, if False, alternating spin
             up/down
     Returns:
         circuit (Circuit): instance of agnostic_simulator Circuit class
     """
-    vector = get_vector(n_qubits, n_electrons, mapping, updown=updown)
+    vector = get_vector(n_qubits, n_electrons, mapping, up_then_down=up_then_down)
     circuit = vector_to_circuit(vector)
     return circuit
-    
