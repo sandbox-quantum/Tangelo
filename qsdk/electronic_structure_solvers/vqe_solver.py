@@ -75,15 +75,12 @@ class VQESolver:
     def build(self):
         """ Build the underlying objects required to run the VQE algorithm afterwards """
 
-        # Build adequate mean-field (RHF for now, others in future), apply frozen orbitals
+        # Build adequate mean-field (RHF for now, others in future).
         if not self.mean_field:
             self.mean_field = prepare_mf_RHF(self.molecule)
-        # TODO : handle frozen orbitals in mean-field preparation
-        if self.frozen_orbitals:
-            raise NotImplementedError("Frozen orbitals not currently implemented in VQESolver")
 
         # Compute qubit hamiltonian for the input molecular system
-        self.qemist_molecule = MolecularData(self.molecule)
+        self.qemist_molecule = MolecularData(self.molecule, self.frozen_orbitals)
         self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
         self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian, 
                                                           mapping=self.qubit_mapping,
