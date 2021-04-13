@@ -222,9 +222,9 @@ def check_operator(fermion_operator, num_orbitals=None, up_then_down=False):
                 spin_change += (2*action - 1)*(-2*(index // num_orbitals) + 1)*0.5
 
             else:
-                spin_change += (2*action - 1)*(-2*np.mod(index, 2) + 1)*0.5
-        if np.mod(number_change, 2) != 0:
+                spin_change += (2*action - 1)*(-2*(index % 2) + 1)*0.5
+        if number_change % 2 != 0:
             raise ValueError('Invalid operator: input fermion operator does not conserve occupation parity.')
-        if np.mod(spin_change, 2) != 0:
+        if spin_change % 2 != 0:
             raise ValueError('Invalid operator: input fermion operator does not conserve spin parity.')
 

@@ -97,7 +97,7 @@ def make_up_then_down(fermion_operator, n_modes):
     """
     if not isinstance(fermion_operator, FermionOperator):
         raise TypeError('Invalid operator input. Must be FermionOperator.')
-    if np.mod(n_modes, 2) != 0:
+    if n_modes % 2 != 0:
         raise ValueError('Invalid number of spin-orbitals. Expecting even number.')
     term_modes = max([factor[0] for term in fermion_operator.terms for factor in term]) + 1
     if term_modes > n_modes:

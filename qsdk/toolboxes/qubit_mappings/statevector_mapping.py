@@ -118,3 +118,4 @@ def get_reference_circuit(n_qubits, n_electrons, mapping, up_then_down=False):
     vector = get_vector(n_qubits, n_electrons, mapping, up_then_down=up_then_down)
     circuit = vector_to_circuit(vector)
     return circuit
+    

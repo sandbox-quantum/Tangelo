@@ -111,9 +111,9 @@ class UCCSD(Ansatz):
 
         uccsd_circuit = Circuit(pauli_words_gates)
         #skip over the reference state circuit if it is empty
-        try:
+        if reference_state_circuit.size != 0:
             self.circuit = reference_state_circuit + uccsd_circuit
-        except ValueError:
+        else:
             self.circuit = uccsd_circuit
 
     def update_var_params(self, var_params):
