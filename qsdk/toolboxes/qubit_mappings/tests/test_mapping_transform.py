@@ -89,6 +89,14 @@ class MappingTest(unittest.TestCase):
         self.assertEqual(ground, bk_ground)
         self.assertEqual(ground, scbk_ground)
 
+    def test_scbk_reorder(self):
+        """scBK forces spin-orbital ordering to all up then all down. Check that
+        the qubit Hamiltonian returned is the same whether the user passes a
+        FermionOperator with this ordering, or not."""
+        fermion = FermionOperator(((2, 0), (0, 1)), 1.) + FermionOperator(((0, 0), (2, 1)), -1.)
+        scBK_reordered = fermion_to_qubit_mapping(fermion, mapping='scBK', n_qubits=4, n_electrons=2, updown_order=True)
+        scBK_notreordered = fermion_to_qubit_mapping(fermion, mapping='scBK', n_qubits=4, n_electrons=2, updown_order=False)
+        self.assertEqual(scBK_reordered,scBK_notreordered)
 
 if __name__ == "__main__":
     unittest.main()

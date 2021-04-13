@@ -269,18 +269,24 @@ if __name__ == "__main__":
 
     vqe = VQESolver(vqe_args)
     vqe.build()
-    energy_scbk = vqe.simulate()
 
-    vqe = VQESolver(vqe_args)
+    print(vqe.get_resources())
+    
+    # energy_scbk = vqe.simulate()
+    print('--------JW-----------')
     vqe_args['qubit_mapping'] = 'jw'
-    vqe.build()
-    energy_jw = vqe.simulate()
 
     vqe = VQESolver(vqe_args)
-    vqe_args['qubit_mapping'] = 'bk'
     vqe.build()
-    energy_bk = vqe.simulate()
+    # energy_jw = vqe.simulate()
+    print(vqe.get_resources())
+    print('--------BK-----------')
+    vqe_args['qubit_mapping'] = 'bk'
 
-    print(f'ENERGY JW = {energy_jw} Ha')
-    print(f'ENERGY BK = {energy_bk} Ha')
-    print(f'ENERGY scBK = {energy_scbk} Ha')
+    vqe = VQESolver(vqe_args)
+    vqe.build()
+    # energy_bk = vqe.simulate()
+    print(vqe.get_resources())
+    # print(f'ENERGY JW = {energy_jw} Ha')
+    # print(f'ENERGY BK = {energy_bk} Ha')
+    # print(f'ENERGY scBK = {energy_scbk} Ha')

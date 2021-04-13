@@ -66,19 +66,25 @@ class VQESolverTest(unittest.TestCase):
         options = {"qubit_mapping": 'jw'}
         self.assertRaises(ValueError, VQESolver, options)
 
-    def test_get_resources_h2(self):
-        """ Resource estimation, with UCCSD ansatz, JW qubit mapping, given initial parameters """
-
+    def test_get_resources_h2_mappings(self):
+        """ Resource estimation, with UCCSD ansatz, given initial parameters.
+        Each of JW, BK, and scBK mappings are checked."""
+        mappings = ['jw', 'bk', 'scbk']
+        expected_values = [(15, 4, 158, 64, 12, 2),(15, 4, 107, 46, 12, 2), (5, 2, 20, 4, 4, 2)]
+        expected_keys = ['qubit_hamiltonian_terms', 'circuit_width', 'circuit_gates',
+                    'circuit_2qubit_gates', 'circuit_var_gates', 'vqe_variational_parameters']
+        
         vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
                        "initial_var_params": [0.1, 0.1]}
-        vqe_solver = VQESolver(vqe_options)
-        vqe_solver.build()
+        for mi in range(3):
+            vqe_options['qubit_mapping'] = mappings[mi]      
+            vqe_solver = VQESolver(vqe_options)
+            vqe_solver.build()
+            resources = vqe_solver.get_resources()
+            print(resources)
 
-        resources = vqe_solver.get_resources()
-        print(resources)
-        expected = {'qubit_hamiltonian_terms': 15, 'circuit_width': 4, 'circuit_gates': 158,
-                    'circuit_2qubit_gates': 64, 'circuit_var_gates': 12, 'vqe_variational_parameters': 2}
-        self.assertDictEqual(resources, expected)
+            expected_resources = {key:expected_values[mi][vi] for vi,key in enumerate(expected_keys)}
+            self.assertDictEqual(resources, expected_resources)
 
     def test_energy_estimation_vqe(self):
         """ A single VQE energy evaluation for H2, using optimal parameters and exact simulator """
