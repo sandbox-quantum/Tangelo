@@ -72,7 +72,7 @@ class VQESolver:
     def build(self):
         """ Build the underlying objects required to run the VQE algorithm afterwards """
 
-        # Build adequate mean-field (RHF for now, others in future), apply frozen orbitals
+        # Build adequate mean-field (RHF for now, others in future).
         if not self.mean_field:
             self.mean_field = prepare_mf_RHF(self.molecule)
 
