@@ -19,11 +19,12 @@ import copy
 
 from qsdk.toolboxes.operators import FermionOperator
 from openfermion.transforms import bravyi_kitaev_tree, reorder
-from openfermion.utils import up_then_down, count_qubits
+from openfermion.utils import count_qubits
+from openfermion.utils import up_then_down as up_then_down_order
 
 
 def symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits,
-                                      n_electrons, updown_order=False):
+                                      n_electrons, up_then_down=False):
     """ Returns the QubitOperator for the FermionOperator
         supplied, with two qubits removed using conservation of (parity) of
         electron spin and number, as described in arXiv:1701.08213.  This function
@@ -40,7 +41,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits,
                 being considered for the system (note, this
                 is less than the number of electrons in a
                 molecule if some orbitals have been frozen).
-            updown_order (bool): specify if the spin-orbital basis is already ordered putting
+            up_then_down (bool): specify if the spin-orbital basis is already ordered putting
                 all spin up before all spin down states.
         
         Returns:
@@ -65,7 +66,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits,
                lowest energy even and odd fermion number states, not states
                with an arbitrary number of fermions.
     """
-    if not isinstance(fermion_operator,FermionOperator):
+    if not isinstance(fermion_operator, FermionOperator):
         raise ValueError('Supplied operator should be an instance '
                          'of FermionOperator class')
     if type(n_qubits) is not int:
@@ -75,11 +76,11 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_qubits,
     if n_qubits < count_qubits(fermion_operator):
         raise ValueError('Number of qubits is too small for FermionOperator input.')
     #Check that the input operator is suitable for application of scBK
-    check_operator(fermion_operator, num_orbitals=(n_qubits//2), updown_order=updown_order)
+    check_operator(fermion_operator, num_orbitals=(n_qubits//2), up_then_down=up_then_down)
 
     # If necessary, arrange spins up then down, then BK map to qubit Hamiltonian.
-    if not updown_order:
-        fermion_operator = reorder(fermion_operator, up_then_down, num_modes=n_qubits)
+    if not up_then_down:
+        fermion_operator = reorder(fermion_operator, up_then_down_order, num_modes=n_qubits)
     qubit_operator = bravyi_kitaev_tree(fermion_operator, n_qubits=n_qubits)
     qubit_operator.compress()
 
@@ -197,7 +198,7 @@ def prune_unused_indices(qubit_operator, prune_indices, n_qubits):
     return new_operator
 
 
-def check_operator(fermion_operator, num_orbitals=None, updown_order=False):
+def check_operator(fermion_operator, num_orbitals=None, up_then_down=False):
     """Check if the input fermion operator is suitable for application
     of symmetry-consering BK qubit reduction. Excitation must: preserve
     parity of fermion occupation, and parity of spin expectation value.
@@ -210,14 +211,14 @@ def check_operator(fermion_operator, num_orbitals=None, updown_order=False):
         up_then_down (bool): True if all spin up before all spin down, otherwise
             alternates
     """
-    if updown_order and (num_orbitals is None):
+    if up_then_down and (num_orbitals is None):
         raise ValueError('Up then down spin ordering requires number of modes specified.')
     for term in fermion_operator.terms:
         number_change = 0        
         spin_change = 0
         for index, action in term:
             number_change += 2*action - 1
-            if updown_order:
+            if up_then_down:
                 spin_change += (2*action - 1)*(-2*(index // num_orbitals) + 1)*0.5
 
             else:
@@ -227,12 +228,3 @@ def check_operator(fermion_operator, num_orbitals=None, updown_order=False):
         if np.mod(spin_change, 2) != 0:
             raise ValueError('Invalid operator: input fermion operator does not conserve spin parity.')
 
-
-if __name__ == "__main__":
-
-    from qsdk.toolboxes.qubit_mappings.mapping_transform import up_then_down as my_updown
-    fermion = FermionOperator(((2, 0), (0, 1)), 1.) + FermionOperator(((0, 0), (2, 1)), -1.)
-    fermion_up = my_updown(fermion, n_modes = 4)
-
-    check_operator(fermion,num_orbitals=2,updown_order=False)
-    check_operator(fermion_up,num_orbitals=2,updown_order=True)

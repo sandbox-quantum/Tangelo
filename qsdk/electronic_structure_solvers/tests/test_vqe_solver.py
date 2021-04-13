@@ -70,9 +70,9 @@ class VQESolverTest(unittest.TestCase):
         """ Resource estimation, with UCCSD ansatz, given initial parameters.
         Each of JW, BK, and scBK mappings are checked."""
         mappings = ['jw', 'bk', 'scbk']
-        expected_values = [(15, 4, 158, 64, 12, 2),(15, 4, 107, 46, 12, 2), (5, 2, 20, 4, 4, 2)]
+        expected_values = [(15, 4, 158, 64, 12, 2), (15, 4, 107, 46, 12, 2), (5, 2, 20, 4, 4, 2)]
         expected_keys = ['qubit_hamiltonian_terms', 'circuit_width', 'circuit_gates',
-                    'circuit_2qubit_gates', 'circuit_var_gates', 'vqe_variational_parameters']
+                         'circuit_2qubit_gates', 'circuit_var_gates', 'vqe_variational_parameters']
         
         vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
                        "initial_var_params": [0.1, 0.1]}
@@ -83,7 +83,7 @@ class VQESolverTest(unittest.TestCase):
             resources = vqe_solver.get_resources()
             print(resources)
 
-            expected_resources = {key:expected_values[mi][vi] for vi,key in enumerate(expected_keys)}
+            expected_resources = {key: expected_values[mi][vi] for vi, key in enumerate(expected_keys)}
             self.assertDictEqual(resources, expected_resources)
 
     def test_energy_estimation_vqe(self):
@@ -177,20 +177,19 @@ class VQESolverTest(unittest.TestCase):
     def test_mapping_equivalence(self):
         """Test that JW, BK and scBK mappings all recover same result,
         to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
-        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD,
-                       "initial_var_params": "MP2", "verbose": False}
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
+                       "qubit_mapping": 'jw'}
 
-        vqe_options[ "qubit_mapping"] = 'jw'
         vqe_solver_jw = VQESolver(vqe_options)
         vqe_solver_jw.build()
         energy_jw = vqe_solver_jw.simulate()
 
-        vqe_options[ "qubit_mapping"] = 'bk'
+        vqe_options["qubit_mapping"] = 'bk'
         vqe_solver_bk = VQESolver(vqe_options)
         vqe_solver_bk.build()
         energy_bk = vqe_solver_bk.simulate()
 
-        vqe_options[ "qubit_mapping"] = 'scbk'
+        vqe_options["qubit_mapping"] = 'scbk'
         vqe_solver_scbk = VQESolver(vqe_options)
         vqe_solver_scbk.build()
         energy_scbk = vqe_solver_scbk.simulate()
@@ -203,16 +202,14 @@ class VQESolverTest(unittest.TestCase):
     def test_spin_reorder_equivalence(self):
         """Test that re-ordered spin input (all up followed by all down) 
         results in same optimized energy result for both JW and BK mappings."""
-        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD,
-                       "initial_var_params": "MP2", "up_then_down":True,
-                       "verbose": False}
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "up_then_down": True,
+                       "verbose": False, "qubit_mapping": 'jw'}
 
-        vqe_options[ "qubit_mapping"] = 'jw'
         vqe_solver_jw = VQESolver(vqe_options)
         vqe_solver_jw.build()
         energy_jw = vqe_solver_jw.simulate()
 
-        vqe_options[ "qubit_mapping"] = 'bk'
+        vqe_options["qubit_mapping"] = 'bk'
         vqe_solver_bk = VQESolver(vqe_options)
         vqe_solver_bk.build()
         energy_bk = vqe_solver_bk.simulate()

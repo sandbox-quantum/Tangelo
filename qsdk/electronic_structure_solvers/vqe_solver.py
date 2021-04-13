@@ -39,6 +39,8 @@ class VQESolver:
         optimizer (function handle): a function defining the classical optimizer and its behavior
         initial_var_params (str or array-like) : initial value for the classical optimizer
         backend_options (dict) : parameters to build the Simulator class (see documentation of agnostic_simulator)
+        up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
+            Default, False has alternating spin up/down ordering.
         verbose (bool) : Flag for verbosity of VQE
     """
 
@@ -87,7 +89,7 @@ class VQESolver:
                                                           mapping=self.qubit_mapping,
                                                           n_qubits=self.qemist_molecule.n_qubits,
                                                           n_electrons=self.qemist_molecule.n_electrons,
-                                                          updown_order=self.up_then_down)
+                                                          up_then_down=self.up_then_down)
 
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input
         # TODO: what do we do for ansatz provided by users? Generate an Ansatz object? Or ask them to ?
@@ -200,7 +202,7 @@ class VQESolver:
                                                          mapping=self.qubit_mapping,
                                                          n_qubits=self.qemist_molecule.n_qubits,
                                                          n_electrons=self.qemist_molecule.n_electrons,
-                                                         updown_order=self.up_then_down)
+                                                         up_then_down=self.up_then_down)
             qubit_hamiltonian2.compress()
 
             if qubit_hamiltonian2.terms in lookup_ham:

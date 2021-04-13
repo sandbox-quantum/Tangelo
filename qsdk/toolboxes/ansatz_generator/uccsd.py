@@ -83,7 +83,10 @@ class UCCSD(Ansatz):
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
         if self.default_reference_state == "HF":
-            return get_reference_circuit(self.molecule.n_qubits, self.molecule.n_electrons, mapping=self.mapping, updown=self.up_then_down)
+            return get_reference_circuit(n_qubits=self.molecule.n_qubits,
+                                         n_electrons=self.molecule.n_electrons,
+                                         mapping=self.mapping,
+                                         up_then_down=self.up_then_down)
 
     def build_circuit(self, var_params=None):
         """ Build and return the quantum circuit implementing the state preparation ansatz
@@ -144,7 +147,7 @@ class UCCSD(Ansatz):
                                             mapping=self.mapping, 
                                             n_qubits=self.molecule.n_qubits, 
                                             n_electrons=self.molecule.n_electrons, 
-                                            updown_order=self.up_then_down)
+                                            up_then_down=self.up_then_down)
 
         # Cast all coefs to floats (rotations angles are real)
         for key in qubit_op.terms:
