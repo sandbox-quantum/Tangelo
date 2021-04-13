@@ -9,7 +9,7 @@ from copy import deepcopy
 from agnostic_simulator import Simulator
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
-from qsdk.toolboxes.qubit_mappings import jordan_wigner
+from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 
 
@@ -39,6 +39,8 @@ class VQESolver:
         optimizer (function handle): a function defining the classical optimizer and its behavior
         initial_var_params (str or array-like) : initial value for the classical optimizer
         backend_options (dict) : parameters to build the Simulator class (see documentation of agnostic_simulator)
+        up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
+            Default, False has alternating spin up/down ordering.
         verbose (bool) : Flag for verbosity of VQE
     """
 
@@ -50,6 +52,7 @@ class VQESolver:
                            "optimizer": self._default_optimizer,
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
+                           "up_then_down": False,
                            "verbose": False}
 
         # Initialize with default values
@@ -79,17 +82,17 @@ class VQESolver:
         # Compute qubit hamiltonian for the input molecular system
         self.qemist_molecule = MolecularData(self.molecule, self.frozen_orbitals)
         self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
-        # TODO : implement other options for qubit mappings and hide them under a wrapper
-        if self.qubit_mapping == 'jw':
-            self.qubit_hamiltonian = jordan_wigner(self.fermionic_hamiltonian)
-        else:
-            raise NotImplementedError(f"Qubit mapping :: {self.qubit_mapping} not currently implemented in VQESolver")
+        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian, 
+                                                          mapping=self.qubit_mapping,
+                                                          n_qubits=self.qemist_molecule.n_qubits,
+                                                          n_electrons=self.qemist_molecule.n_electrons,
+                                                          up_then_down=self.up_then_down)
 
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input
         # TODO: what do we do for ansatz provided by users? Generate an Ansatz object? Or ask them to ?
         # if needed user could provide their own ansatze class and instantiate the object beforehand
         if self.ansatz == Ansatze.UCCSD:
-            self.ansatz = UCCSD(self.qemist_molecule, self.mean_field)
+            self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
         else:
             raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
 
@@ -162,7 +165,6 @@ class VQESolver:
          Returns:
              (numpy.array, numpy.array): One & two-particle RDMs (rdm1_np & rdm2_np, float64).
          """
-        from qsdk.toolboxes.qubit_mappings import jordan_wigner
 
         # Save our accurate hamiltonian
         tmp_hamiltonian = self.qubit_hamiltonian
@@ -193,8 +195,11 @@ class VQESolver:
                 hamiltonian_temp[key2] = 1. if (key == key2 and ikey != 0) else 0.
 
             # Obtain qubit Hamiltonian
-            # TODO : need to handle the different qubit mappings
-            qubit_hamiltonian2 = jordan_wigner(hamiltonian_temp)
+            qubit_hamiltonian2 =fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
+                                                         mapping=self.qubit_mapping,
+                                                         n_qubits=self.qemist_molecule.n_qubits,
+                                                         n_electrons=self.qemist_molecule.n_electrons,
+                                                         up_then_down=self.up_then_down)
             qubit_hamiltonian2.compress()
 
             if qubit_hamiltonian2.terms in lookup_ham:

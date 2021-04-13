@@ -13,8 +13,8 @@ class TestVector(unittest.TestCase):
         vector = np.array([1, 1, 1, 1, 0, 0, 0, 0])
         vector_updown = np.array([1, 1, 0, 0, 1, 1, 0, 0])
 
-        output_jw = get_vector(vector.size, sum(vector), mapping='jw', updown=False)
-        output_jw_updown = get_vector(vector.size, sum(vector), mapping='jw', updown=True)
+        output_jw = get_vector(vector.size, sum(vector), mapping='jw', up_then_down=False)
+        output_jw_updown = get_vector(vector.size, sum(vector), mapping='jw', up_then_down=True)
         self.assertEqual(np.linalg.norm(vector - output_jw), 0.0)
         self.assertEqual(np.linalg.norm(vector_updown - output_jw_updown), 0.0)
 
@@ -24,8 +24,8 @@ class TestVector(unittest.TestCase):
         vector_bk = np.array([1, 0, 1, 0, 0, 0, 0, 0])
         vector_bk_updown = np.array([1, 0, 0, 0, 1, 0, 0, 0])
 
-        output_bk = get_vector(vector.size, sum(vector), mapping='bk', updown=False)
-        output_bk_updown = get_vector(vector.size, sum(vector), mapping='bk', updown=True)
+        output_bk = get_vector(vector.size, sum(vector), mapping='bk', up_then_down=False)
+        output_bk_updown = get_vector(vector.size, sum(vector), mapping='bk', up_then_down=True)
         self.assertEqual(np.linalg.norm(vector_bk - output_bk), 0.0)
         self.assertEqual(np.linalg.norm(vector_bk_updown - output_bk_updown), 0.0)
 
@@ -33,7 +33,7 @@ class TestVector(unittest.TestCase):
         """Check that symmetry-conserving Bravyi-Kitaev mapping returns correct vector."""
         vector = np.array([1, 0, 0, 1, 0, 0])
 
-        output_bk = get_vector(8, 4, mapping='SCBK', updown=True)
+        output_bk = get_vector(8, 4, mapping='SCBK', up_then_down=True)
         self.assertEqual(np.linalg.norm(vector - output_bk), 0.0)
 
     def test_circuit_build(self):

@@ -9,7 +9,8 @@ from agnostic_simulator import Circuit, Gate
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit
 from ._unitary_cc import uccsd_singlet_generator
-from qsdk.toolboxes.qubit_mappings import jordan_wigner
+from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 
 
@@ -17,10 +18,12 @@ class UCCSD(Ansatz):
     """ This class implements the UCCSD ansatz. Currently, only closed-shell UCCSD is supported.
      This implies that the mean-field is computed with the RHF reference integrals. """
 
-    def __init__(self, molecule, mean_field=None):
+    def __init__(self, molecule, mapping='jw', mean_field=None, up_then_down=False):
 
         self.molecule = molecule
         self.mf = mean_field
+        self.mapping = mapping
+        self.up_then_down = up_then_down
 
         # Later: refactor to handle various flavors of UCCSD
         if molecule.n_qubits % 2 != 0:
@@ -33,7 +36,7 @@ class UCCSD(Ansatz):
         self.n_var_params = self.n_singles + self.n_doubles
 
         # Supported reference state initialization
-        # TODO: support for others and compatibility with the qubit mapping used
+        # TODO: support for others
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
         self.supported_initial_var_params = {"ones", "random", "MP2"}
@@ -70,7 +73,6 @@ class UCCSD(Ansatz):
         self.var_params = initial_var_params
         return initial_var_params
 
-    # TODO: Possible initial states must be compatible with qubit transform used, add check for it later on
     def prepare_reference_state(self):
         """ Returns circuit preparing the reference state of the ansatz (e.g prepare reference wavefunction with HF,
         multi-reference state, etc). These preparations must be consistent with the transform used to obtain the
@@ -80,28 +82,20 @@ class UCCSD(Ansatz):
         if self.default_reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
-        # NB: this one is consistent with JW but not other transforms.
         if self.default_reference_state == "HF":
-            return Circuit([Gate("X", target=i) for i in range(self.molecule.n_electrons)])
+            return get_reference_circuit(n_qubits=self.molecule.n_qubits,
+                                         n_electrons=self.molecule.n_electrons,
+                                         mapping=self.mapping,
+                                         up_then_down=self.up_then_down)
 
-    def build_circuit(self, var_params=None, qubit_mapping='jw'):
+    def build_circuit(self, var_params=None):
         """ Build and return the quantum circuit implementing the state preparation ansatz
          (with currently specified initial_state and var_params) """
 
         self.set_var_params(var_params)
 
-        # TODO wrapper and support for different qubit mappings
         # Build qubit operator required to build UCCSD
-        ferm_op = uccsd_singlet_generator(self.var_params, self.molecule.n_qubits, self.molecule.n_electrons)
-        if qubit_mapping == 'jw':
-            qubit_op = jordan_wigner(ferm_op)
-        else:
-            raise NotImplementedError(f"UCCSD ansatz: qubit mapping not currently implemented ({qubit_mapping})")
-
-        # Cast all coefs to floats (rotations angles are real)
-        for key in qubit_op.terms:
-            qubit_op.terms[key] = float(qubit_op.terms[key].imag)
-        qubit_op.compress()
+        qubit_op = self._get_singlet_qubit()
 
         # Prepend reference state circuit
         reference_state_circuit = self.prepare_reference_state()
@@ -115,7 +109,12 @@ class UCCSD(Ansatz):
             pauli_words_gates += pauliword_to_circuit(pauli_word, coef)
             self.pauli_to_angles_mapping[pauli_word] = i
 
-        self.circuit = reference_state_circuit + Circuit(pauli_words_gates)
+        uccsd_circuit = Circuit(pauli_words_gates)
+        #skip over the reference state circuit if it is empty
+        if reference_state_circuit.size != 0:
+            self.circuit = reference_state_circuit + uccsd_circuit
+        else:
+            self.circuit = uccsd_circuit
 
     def update_var_params(self, var_params):
         """ Shortcut: set value of variational parameters in the already-built ansatz circuit member.
@@ -123,13 +122,8 @@ class UCCSD(Ansatz):
 
         self.var_params = var_params
 
-        # TODO: we should have a dedicated build function to this. We shouldnt rewrite it every time. Use qubit mapping wrapper too
         # Build qubit operator required to build UCCSD
-        ferm_op = uccsd_singlet_generator(var_params, self.molecule.n_qubits, self.molecule.n_electrons)
-        qubit_op = jordan_wigner(ferm_op)
-        for key in qubit_op.terms:
-            qubit_op.terms[key] = float(qubit_op.terms[key].imag)
-        qubit_op.compress()
+        qubit_op = self._get_singlet_qubit()
 
         # If qubit operator terms haven't changed, perform fast parameter update
         if set(self.pauli_to_angles_mapping.keys()) != set(qubit_op.terms.keys()):
@@ -140,6 +134,26 @@ class UCCSD(Ansatz):
             for pauli_word, coef in qubit_op.terms.items():
                 gate_index = self.pauli_to_angles_mapping[pauli_word]
                 self.circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
+
+    def _get_singlet_qubit(self):
+        """Construct UCCSD FermionOperator for current variational parameters, and translate to QubitOperator
+        via relevant qubit mapping.
+
+        Returns:
+            qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
+        """
+        fermion_op = uccsd_singlet_generator(self.var_params, self.molecule.n_qubits, self.molecule.n_electrons)
+        qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op, 
+                                            mapping=self.mapping, 
+                                            n_qubits=self.molecule.n_qubits, 
+                                            n_electrons=self.molecule.n_electrons, 
+                                            up_then_down=self.up_then_down)
+
+        # Cast all coefs to floats (rotations angles are real)
+        for key in qubit_op.terms:
+            qubit_op.terms[key] = float(qubit_op.terms[key].imag)
+        qubit_op.compress()
+        return qubit_op
 
     def _compute_mp2_params(self):
         """ Computes the MP2 initial variational parameters.

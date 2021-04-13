@@ -66,19 +66,23 @@ class VQESolverTest(unittest.TestCase):
         options = {"qubit_mapping": 'jw'}
         self.assertRaises(ValueError, VQESolver, options)
 
-    def test_get_resources_h2(self):
-        """ Resource estimation, with UCCSD ansatz, JW qubit mapping, given initial parameters """
-
+    def test_get_resources_h2_mappings(self):
+        """ Resource estimation, with UCCSD ansatz, given initial parameters.
+        Each of JW, BK, and scBK mappings are checked."""
+        mappings = ['jw', 'bk', 'scbk']
+        expected_values = [(15, 4), (15, 4), (5, 2)]
+        
         vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
                        "initial_var_params": [0.1, 0.1]}
-        vqe_solver = VQESolver(vqe_options)
-        vqe_solver.build()
+        for index,mi in enumerate(mappings):
+            vqe_options['qubit_mapping'] = mi    
+            vqe_solver = VQESolver(vqe_options)
+            vqe_solver.build()
+            resources = vqe_solver.get_resources()
+            print(resources)
 
-        resources = vqe_solver.get_resources()
-        print(resources)
-        expected = {'qubit_hamiltonian_terms': 15, 'circuit_width': 4, 'circuit_gates': 158,
-                    'circuit_2qubit_gates': 64, 'circuit_var_gates': 12, 'vqe_variational_parameters': 2}
-        self.assertDictEqual(resources, expected)
+            self.assertEqual(resources['qubit_hamiltonian_terms'], expected_values[index][0])
+            self.assertEqual(resources['circuit_width'], expected_values[index][1])
 
     def test_energy_estimation_vqe(self):
         """ A single VQE energy evaluation for H2, using optimal parameters and exact simulator """
@@ -166,7 +170,52 @@ class VQESolverTest(unittest.TestCase):
         vqe_solver.build()
 
         energy = vqe_solver.simulate()
-        self.assertAlmostEqual(energy, -1.137270422018, places=7)
+        self.assertAlmostEqual(energy, -1.137270422018, places=6)
+
+    def test_mapping_BK(self):
+        """Test that BK mapping recovers the expected result,
+        to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
+                       "qubit_mapping": 'bk'}
+
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+        energy = vqe_solver.simulate()
+
+        energy_target = -1.137270
+        self.assertAlmostEqual(energy, energy_target, places=5)
+
+    def test_mapping_scBK(self):
+        """Test that scBK mapping recovers the expected result,
+        to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
+                       "qubit_mapping": 'scbk'}
+
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+        energy = vqe_solver.simulate()
+
+        energy_target = -1.137270
+        self.assertAlmostEqual(energy, energy_target, places=5)
+
+    def test_spin_reorder_equivalence(self):
+        """Test that re-ordered spin input (all up followed by all down) 
+        return the same optimized energy result for both JW and BK mappings."""
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "up_then_down": True,
+                       "verbose": False, "qubit_mapping": 'jw'}
+
+        vqe_solver_jw = VQESolver(vqe_options)
+        vqe_solver_jw.build()
+        energy_jw = vqe_solver_jw.simulate()
+
+        vqe_options["qubit_mapping"] = 'bk'
+        vqe_solver_bk = VQESolver(vqe_options)
+        vqe_solver_bk.build()
+        energy_bk = vqe_solver_bk.simulate()
+
+        energy_target = -1.137270
+        self.assertAlmostEqual(energy_jw, energy_target, places=5)
+        self.assertAlmostEqual(energy_bk, energy_target, places=5)
 
     def test_simulate_h4_frozen_orbitals(self):
         """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator.
