@@ -1,15 +1,44 @@
 import unittest
-from pyscf import gto
-from openfermion.transforms import get_fermion_operator, jordan_wigner, reorder
-from openfermion.utils import up_then_down
+import numpy as np
 
-from agnostic_simulator import Simulator
-
-from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 
 
 class UCCSDTest(unittest.TestCase):
+
+    def test_ucc1_set_var_params(self):
+        """ Verify behavior of UCC1 set_var_params for different inputs (keyword, list, numpy array). """
+
+        ucc1_ansatz = RUCC(1)
+
+        ucc1_ansatz.set_var_params("zeros")
+        np.testing.assert_array_almost_equal(ucc1_ansatz.var_params, np.array([0.]), decimal=6)
+
+        ucc1_ansatz.set_var_params("ones")
+        np.testing.assert_array_almost_equal(ucc1_ansatz.var_params, np.array([1.]), decimal=6)
+
+        ucc1_ansatz.set_var_params([1.])
+        np.testing.assert_array_almost_equal(ucc1_ansatz.var_params, np.array([1.]), decimal=6)
+
+        ucc1_ansatz.set_var_params(np.array([1.]))
+        np.testing.assert_array_almost_equal(ucc1_ansatz.var_params, np.array([1.]), decimal=6)
+
+    def test_ucc3_set_var_params(self):
+        """ Verify behavior of UCC3 set_var_params for different inputs (keyword, list, numpy array). """
+
+        ucc3_ansatz = RUCC(3)
+
+        ucc3_ansatz.set_var_params("zeros")
+        np.testing.assert_array_almost_equal(ucc3_ansatz.var_params, np.array([0., 0., 0.]), decimal=6)
+
+        ucc3_ansatz.set_var_params("ones")
+        np.testing.assert_array_almost_equal(ucc3_ansatz.var_params, np.array([1., 1., 1.]), decimal=6)
+
+        ucc3_ansatz.set_var_params([1., 1., 1.])
+        np.testing.assert_array_almost_equal(ucc3_ansatz.var_params, np.array([1., 1., 1.]), decimal=6)
+
+        ucc3_ansatz.set_var_params(np.array([1., 1., 1.]))
+        np.testing.assert_array_almost_equal(ucc3_ansatz.var_params, np.array([1., 1., 1.]), decimal=6)
 
     def test_rucc_wrong_n_params(self):
         """ Verify RUCC wrong number of parameters. """
