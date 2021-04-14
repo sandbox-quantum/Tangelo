@@ -4,7 +4,7 @@ import numpy as np
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 
 
-class UCCSDTest(unittest.TestCase):
+class RUCCTest(unittest.TestCase):
 
     def test_construction_rucc(self):
         """ Verify behavior of UCC1 and UCC3 construction. Those ansatze are constant 
