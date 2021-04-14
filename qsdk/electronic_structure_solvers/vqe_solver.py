@@ -19,8 +19,8 @@ from qsdk.toolboxes.operators import FermionOperator
 class Ansatze(Enum):
     """ Enumeration of the ansatz circuits supported by VQE"""
     UCCSD = 0
-    RUCC1 = 1
-    RUCC3 = 2
+    UCC1 = 1
+    UCC3 = 2
 
 class VQESolver:
     """ Solve the electronic structure problem for a molecular system by using the
@@ -97,9 +97,13 @@ class VQESolver:
         # if needed user could provide their own ansatze class and instantiate the object beforehand
         if self.ansatz == Ansatze.UCCSD:
             self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
-        elif self.ansatz == Ansatze.RUCC1:
+        elif self.ansatz == Ansatze.UCC1:
+            if not self.up_then_down:
+                raise ValueError("Parameter up_then_down should be set to True for UCC1 ansatz.")
             self.ansatz = RUCC(1)
-        elif self.ansatz == Ansatze.RUCC3:
+        elif self.ansatz == Ansatze.UCC3:
+            if not self.up_then_down:
+                raise ValueError("Parameter up_then_down should be set to True for UCC3 ansatz.")
             self.ansatz = RUCC(3)
         else:
             raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")

@@ -8,6 +8,7 @@ from qsdk.electronic_structure_solvers.vqe_solver import Ansatze, VQESolver
 H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
 H4 = [["H", [0.7071067811865476, 0.0, 0.0]], ["H", [0.0, 0.7071067811865476, 0.0]],
       ["H", [-1.0071067811865476, 0.0, 0.0]], ["H", [0.0, -1.0071067811865476, 0.0]]]
+NaH = [("Na", (0., 0., 0.)), ("H", (0., 0., 1.91439))]
 
 mol_H2 = gto.Mole()
 mol_H2.atom = H2
@@ -23,6 +24,12 @@ mol_H4.charge = 0
 mol_H4.spin = 0
 mol_H4.build()
 
+mol_NaH = gto.Mole()
+mol_NaH.atom = NaH
+mol_NaH.basis = "sto-3g"
+mol_NaH.charge = 0
+mol_NaH.spin = 0
+mol_NaH.build()
 
 def matricize_2rdm(two_rdm, n_orbitals):
     """ Turns the two_rdm tensor into a matrix for test purposes """
@@ -228,6 +235,49 @@ class VQESolverTest(unittest.TestCase):
 
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.8943598012229799, delta=1e-5)
+
+    def test_simulate_nah_rucc(self):
+        """ Run VQE on NaH molecule, with UCC1 and UCC3 ansatze, JW qubit mapping.
+            The computation is mapped to a HOMO-LUMO problem.
+        """
+        frozen = [i for i in range(9) if i not in [5,9]]
+
+        vqe_options = {"molecule": mol_NaH, "ansatz": Ansatze.UCC1, "qubit_mapping": 'jw',
+                       "initial_var_params": "zeros", "frozen_orbitals": frozen, 
+                       "up_then_down": True, "verbose": False}
+
+        vqe_solver_ucc1 = VQESolver(vqe_options)
+        vqe_solver_ucc1.build()
+        energy_ucc1 = vqe_solver_ucc1.simulate()
+
+        vqe_options["ansatz"] = Ansatze.UCC3
+        vqe_solver_ucc3 = VQESolver(vqe_options)
+        vqe_solver_ucc3.build()
+        energy_ucc3 = vqe_solver_ucc3.simulate()
+
+        self.assertAlmostEqual(energy_ucc1, -160.30334365109297, delta=1e-6)
+        self.assertAlmostEqual(energy_ucc3, -160.30345935884606, delta=1e-6)
+
+    def test_toomany_orbitals_rucc(self):
+        """ Test the case where there is too many orbitals in the system to be
+            mapped into a HOMO-LUMO problem.
+        """
+        frozen = None
+
+        vqe_options = {"molecule": mol_NaH, "ansatz": Ansatze.UCC1, "qubit_mapping": 'jw',
+                       "initial_var_params": "zeros", "frozen_orbitals": frozen, 
+                       "up_then_down": True, "verbose": False}
+
+        with self.assertRaises(ValueError):
+            vqe_solver_ucc1 = VQESolver(vqe_options)
+            vqe_solver_ucc1.build()
+            vqe_solver_ucc1.simulate()
+
+        with self.assertRaises(ValueError):
+            vqe_options["ansatz"] = Ansatze.UCC3
+            vqe_solver_ucc3 = VQESolver(vqe_options)
+            vqe_solver_ucc3.build()
+            vqe_solver_ucc3.simulate()
 
 
 if __name__ == "__main__":
