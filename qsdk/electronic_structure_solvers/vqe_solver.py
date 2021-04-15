@@ -85,7 +85,7 @@ class VQESolver:
         self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
         self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian, 
                                                           mapping=self.qubit_mapping,
-                                                          n_qubits=self.qemist_molecule.n_qubits,
+                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
                                                           n_electrons=self.qemist_molecule.n_electrons,
                                                           up_then_down=self.up_then_down)
 
@@ -201,7 +201,7 @@ class VQESolver:
             # Obtain qubit Hamiltonian
             qubit_hamiltonian2 =fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
                                                          mapping=self.qubit_mapping,
-                                                         n_qubits=self.qemist_molecule.n_qubits,
+                                                         n_spinorbitals=self.qemist_molecule.n_qubits,
                                                          n_electrons=self.qemist_molecule.n_electrons,
                                                          up_then_down=self.up_then_down)
             qubit_hamiltonian2.compress()
