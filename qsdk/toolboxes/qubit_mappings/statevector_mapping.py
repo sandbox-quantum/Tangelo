@@ -9,7 +9,7 @@ from openfermion.transforms import bravyi_kitaev_code
 
 available_mappings = {'JW', 'BK', 'SCBK'}
 
-def get_vector(n_qubits, n_electrons, mapping, up_then_down=False):
+def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False):
     """Get integer vector corresponding to Hartree Fock reference
     state. Reference state will occupy up to the n_electron-th 
     molecular orbital. Depending on convention, basis is ordered
@@ -17,7 +17,7 @@ def get_vector(n_qubits, n_electrons, mapping, up_then_down=False):
     all down (updown = True). 
 
     Args:
-        n_qubits (int): number of qubits in register
+        n_spinorbitals (int): number of spin-orbitals in register
         n_electrons (int): number of electrons in system
         mapping (string): specify mapping, see mapping_transform.py for options
             'JW' (Jordan Wigner), or 'BK' (Bravyi Kitaev), or 'SCBK' (symmetry-conserving Bravyi Kitaev)
@@ -31,7 +31,7 @@ def get_vector(n_qubits, n_electrons, mapping, up_then_down=False):
     if mapping.upper() not in available_mappings:
         raise ValueError(f'Invalid mapping selection. Select from: {available_mappings}')
 
-    vector = np.zeros(n_qubits, dtype=int)
+    vector = np.zeros(n_spinorbitals, dtype=int)
     vector[:n_electrons] = 1
     if up_then_down:
         vector = np.concatenate((vector[::2], vector[1::2]))
@@ -43,7 +43,7 @@ def get_vector(n_qubits, n_electrons, mapping, up_then_down=False):
     elif mapping.upper() == 'SCBK':
         if not up_then_down:
             warnings.warn("Symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.", RuntimeWarning)
-        return do_scbk_transform(n_qubits, n_electrons)
+        return do_scbk_transform(n_spinorbitals, n_electrons)
 
 
 def do_bk_transform(vector):
@@ -61,20 +61,20 @@ def do_bk_transform(vector):
     return vector_bk
 
 
-def do_scbk_transform(n_qubits, n_electrons):
+def do_scbk_transform(n_spinorbitals, n_electrons):
     """Instantiate qubit vector for symmetry-conserving 
     Bravyi-Kitaev transformation. Based on implementation by Yukio Kawashima
     in DMET project. 
 
     Args:
-        n_qubits (int): number of qubits in register.
+        n_spinorbitals (int): number of qubits in register.
         n_electrons (int): number of fermions occupied
 
     Returns:
         vector (numpy array of int): qubit-encoded occupation vector
     """
-    n_alpha, n_orb = n_electrons//2, (n_qubits - 2)//2
-    vector = np.zeros(n_qubits - 2, dtype=int)
+    n_alpha, n_orb = n_electrons//2, (n_spinorbitals - 2)//2
+    vector = np.zeros(n_spinorbitals - 2, dtype=int)
     if n_alpha >= 1:
         vector[:n_alpha - 1] = 1
         vector[n_orb:n_orb + n_alpha - 1] = 1
@@ -102,11 +102,11 @@ def vector_to_circuit(vector):
     return circuit
 
 
-def get_reference_circuit(n_qubits, n_electrons, mapping, up_then_down=False):
+def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=False):
     """Build the Hartree-Fock state preparation circuit for the designated
     mapping.
     Args:
-        n_qubits (int): number of qubits in register
+        n_spinorbitals (int): number of qubits in register
         n_electrons (int): number of electrons in system
         mapping (string): specify mapping, see mapping_transform.py for options
             'JW' (Jordan Wigner), or 'BK' (Bravyi Kitaev), or 'SCBK' (symmetry-conserving Bravyi Kitaev)
@@ -115,7 +115,7 @@ def get_reference_circuit(n_qubits, n_electrons, mapping, up_then_down=False):
     Returns:
         circuit (Circuit): instance of agnostic_simulator Circuit class
     """
-    vector = get_vector(n_qubits, n_electrons, mapping, up_then_down=up_then_down)
+    vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down)
     circuit = vector_to_circuit(vector)
     return circuit
     
