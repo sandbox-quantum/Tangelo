@@ -11,11 +11,8 @@ from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
-<<<<<<< HEAD
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
-=======
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
->>>>>>> main
 
 
 class Ansatze(Enum):
