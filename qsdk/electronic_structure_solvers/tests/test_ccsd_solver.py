@@ -1,7 +1,7 @@
 import unittest
 from pyscf import gto, scf
 
-from ..ccsd_solver import CCSDSolver
+from qsdk.electronic_structure_solvers.ccsd_solver import CCSDSolver
 
 H2 = """
    H 0.00 0.00 0.0
@@ -60,6 +60,40 @@ class CCSDSolverTest(unittest.TestCase):
         energy = solver.simulate(mol)
 
         self.assertAlmostEqual(energy, -14.531416589890926, places=8)
+
+    def test_ccsd_be_frozen_core(self):
+        """ Test CCSDSolver against result from reference implementation, with no mean-field provided as input.
+            Frozen core is considered.
+        """
+
+        mol = gto.Mole()
+        mol.atom = Be
+        mol.basis = "3-21g"
+        mol.charge = 0
+        mol.spin = 0
+        mol.build()
+
+        solver = CCSDSolver()
+        energy = solver.simulate(mol, frozen_orbitals=1)
+
+        self.assertAlmostEqual(energy, -14.530687987160581, places=8)
+
+    def test_ccsd_be_as_two_levels(self):
+        """ Test CCSDSolver against result from reference implementation, with no mean-field provided as input.
+            This atom is reduced to an HOMO-LUMO problem.
+        """
+
+        mol = gto.Mole()
+        mol.atom = Be
+        mol.basis = "3-21g"
+        mol.charge = 0
+        mol.spin = 0
+        mol.build()
+
+        solver = CCSDSolver()
+        energy = solver.simulate(mol, frozen_orbitals=[0, 3, 4, 5, 6, 7, 8])
+
+        self.assertAlmostEqual(energy, -14.498104489160106, places=8)
 
     def test_ccsd_get_rdm_without_simulate(self):
         """Test that the runtime error is raised when user calls get RDM without first running a simulation."""

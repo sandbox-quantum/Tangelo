@@ -16,7 +16,7 @@ class CCSDSolver(ElectronicStructureSolver):
     def __init__(self):
         self.cc_fragment = None
 
-    def simulate(self, molecule, mean_field=None):
+    def simulate(self, molecule, mean_field=None, frozen_orbitals=None):
         """Perform the simulation (energy calculation) for the molecule.
         If the mean field is not provided it is automatically calculated.
 
@@ -32,8 +32,11 @@ class CCSDSolver(ElectronicStructureSolver):
         if not mean_field:
             mean_field = prepare_mf_RHF(molecule)
 
+        if frozen_orbitals == []:
+            frozen_orbitals = None
+
         # Execute CCSD calculation
-        self.cc_fragment = cc.ccsd.CCSD(mean_field)
+        self.cc_fragment = cc.ccsd.CCSD(mean_field, frozen=frozen_orbitals)
         self.cc_fragment.verbose = 0
         self.cc_fragment.conv_tol = 1e-9
         self.cc_fragment.conv_tol_normt = 1e-7
