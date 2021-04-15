@@ -11,13 +11,18 @@ from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
+<<<<<<< HEAD
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
+=======
+from qsdk.toolboxes.ansatz_generator.rucc import RUCC
+>>>>>>> main
 
 
 class Ansatze(Enum):
     """ Enumeration of the ansatz circuits supported by VQE"""
     UCCSD = 0
-
+    UCC1 = 1
+    UCC3 = 2
 
 class VQESolver:
     """ Solve the electronic structure problem for a molecular system by using the
@@ -90,16 +95,22 @@ class VQESolver:
                                                           up_then_down=self.up_then_down)
 
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input
-        # TODO: what do we do for ansatz provided by users? Generate an Ansatz object? Or ask them to ?
-        # if needed user could provide their own ansatze class and instantiate the object beforehand
+
         if type(self.ansatz) == Ansatze:
             if self.ansatz == Ansatze.UCCSD:
                 self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
+            elif self.ansatz == Ansatze.UCC1:
+                if not self.up_then_down:
+                    raise ValueError("Parameter up_then_down should be set to True for UCC1 ansatz.")
+                self.ansatz = RUCC(1)
+            elif self.ansatz == Ansatze.UCC3:
+                if not self.up_then_down:
+                    raise ValueError("Parameter up_then_down should be set to True for UCC3 ansatz.")
+                self.ansatz = RUCC(3)
             else:
                 raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
-        elif type(self.ansatz) == Ansatz:
-            print('USING USER-DEFINED ANSATZ.')
-
+        elif type(self.ansatz) != Ansatz:
+            raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
