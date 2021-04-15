@@ -5,8 +5,6 @@ Implements the variational quantum eigensolver (VQE) algorithm to solve electron
 from enum import Enum
 import numpy as np
 from copy import deepcopy
-from openfermion.transforms import get_fermion_operator, reorder
-from openfermion.utils import up_then_down
 
 from agnostic_simulator import Simulator
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
@@ -14,7 +12,7 @@ from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
-from qsdk.toolboxes.operators import FermionOperator
+
 
 class Ansatze(Enum):
     """ Enumeration of the ansatz circuits supported by VQE"""
