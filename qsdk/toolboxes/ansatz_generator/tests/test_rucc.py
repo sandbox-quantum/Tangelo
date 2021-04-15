@@ -1,69 +1,57 @@
 import unittest
-from pyscf import gto
-from openfermion.transforms import get_fermion_operator, jordan_wigner, reorder
-from openfermion.utils import up_then_down
+import numpy as np
 
-from agnostic_simulator import Simulator
-
-from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 
-# Build molecule objects used by the tests.
-NaH = [('Na', (0., 0., 0.)), ('H', (0., 0., 1.91439))]
-frozen_orbitals = [i for i in range(9) if i not in [5,9]]
 
-mol_nah = gto.Mole()
-mol_nah.atom = NaH
-mol_nah.basis = "sto-3g"
-mol_nah.spin = 0
-mol_nah.build()
+class RUCCTest(unittest.TestCase):
 
+    def test_construction_rucc(self):
+        """ Verify behavior of UCC1 and UCC3 construction. Those ansatze are constant 
+            (they do not change with the system because they always represent 4 spin-orbitals).
+        """
 
-class UCCSDTest(unittest.TestCase):
-
-    def test_ucc1_NaH(self):
-        """ Verify UCC1 functionalities for NaH. """
-
-        molecule = MolecularData(mol_nah, frozen_orbitals)
-
-        # Build circuit
-        ucc1_ansatz = RUCC(n_var_params=1)
+        ucc1_ansatz = RUCC(1)
         ucc1_ansatz.build_circuit()
+        assert(ucc1_ansatz.circuit.counts == {'X': 2, 'RX': 2, 'H': 6, 'CNOT': 6, 'RZ': 1})
 
-        # Build qubit hamiltonian for energy evaluation
-        molecular_hamiltonian = molecule.get_molecular_hamiltonian()
-
-        fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
-        fermion_hamiltonian = reorder(fermion_hamiltonian, up_then_down)
-        qubit_hamiltonian = jordan_wigner(fermion_hamiltonian)
-
-        # Assert energy returned is as expected for given parameters
-        sim = Simulator(target="qulacs")
-        ucc1_ansatz.update_var_params([1.002953E-01])
-        energy = sim.get_expectation_value(qubit_hamiltonian, ucc1_ansatz.circuit)
-        self.assertAlmostEqual(energy, -160.30334364630338, delta=1e-6)
-
-    def test_ucc3_NaH(self):
-        """ Verify UCC3 functionalities for NaH. """
-
-        molecule = MolecularData(mol_nah, frozen_orbitals)
-
-        # Build circuit
-        ucc3_ansatz = RUCC(n_var_params=3)
+        ucc3_ansatz = RUCC(3)
         ucc3_ansatz.build_circuit()
+        assert(ucc3_ansatz.circuit.counts == {'X': 2, 'RX': 4, 'H': 6, 'CNOT': 8, 'RZ': 3})
 
-        # Build qubit hamiltonian for energy evaluation
-        molecular_hamiltonian = molecule.get_molecular_hamiltonian()
+    def test_ucc1_set_var_params(self):
+        """ Verify behavior of UCC1 set_var_params for different inputs (keyword, list, numpy array). """
 
-        fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
-        fermion_hamiltonian = reorder(fermion_hamiltonian, up_then_down)
-        qubit_hamiltonian = jordan_wigner(fermion_hamiltonian)
+        ucc1_ansatz = RUCC(1)
 
-        # Assert energy returned is as expected for given parameters
-        sim = Simulator(target="qulacs")
-        ucc3_ansatz.update_var_params([-1.876306E-02, -1.687847E-02, 1.030982E-01])
-        energy = sim.get_expectation_value(qubit_hamiltonian, ucc3_ansatz.circuit)
-        self.assertAlmostEqual(energy, -160.3034595375667, delta=1e-6)
+        ucc1_ansatz.set_var_params("zeros")
+        np.testing.assert_array_almost_equal(ucc1_ansatz.var_params, np.array([0.]), decimal=6)
+
+        ucc1_ansatz.set_var_params("ones")
+        np.testing.assert_array_almost_equal(ucc1_ansatz.var_params, np.array([1.]), decimal=6)
+
+        ucc1_ansatz.set_var_params([1.])
+        np.testing.assert_array_almost_equal(ucc1_ansatz.var_params, np.array([1.]), decimal=6)
+
+        ucc1_ansatz.set_var_params(np.array([1.]))
+        np.testing.assert_array_almost_equal(ucc1_ansatz.var_params, np.array([1.]), decimal=6)
+
+    def test_ucc3_set_var_params(self):
+        """ Verify behavior of UCC3 set_var_params for different inputs (keyword, list, numpy array). """
+
+        ucc3_ansatz = RUCC(3)
+
+        ucc3_ansatz.set_var_params("zeros")
+        np.testing.assert_array_almost_equal(ucc3_ansatz.var_params, np.array([0., 0., 0.]), decimal=6)
+
+        ucc3_ansatz.set_var_params("ones")
+        np.testing.assert_array_almost_equal(ucc3_ansatz.var_params, np.array([1., 1., 1.]), decimal=6)
+
+        ucc3_ansatz.set_var_params([1., 1., 1.])
+        np.testing.assert_array_almost_equal(ucc3_ansatz.var_params, np.array([1., 1., 1.]), decimal=6)
+
+        ucc3_ansatz.set_var_params(np.array([1., 1., 1.]))
+        np.testing.assert_array_almost_equal(ucc3_ansatz.var_params, np.array([1., 1., 1.]), decimal=6)
 
     def test_rucc_wrong_n_params(self):
         """ Verify RUCC wrong number of parameters. """
