@@ -120,7 +120,7 @@ class UCCSD(Ansatz):
         """ Shortcut: set value of variational parameters in the already-built ansatz circuit member.
             Preferable to rebuilt your circuit from scratch, which can be an involved process. """
 
-        self.var_params = var_params
+        self.set_var_params(var_params)
 
         # Build qubit operator required to build UCCSD
         qubit_op = self._get_singlet_qubit()
