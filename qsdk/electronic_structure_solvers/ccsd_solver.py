@@ -32,6 +32,7 @@ class CCSDSolver(ElectronicStructureSolver):
         if not mean_field:
             mean_field = prepare_mf_RHF(molecule)
 
+        # If an empty list is passed, it is converted to None (for PySCF).
         if frozen_orbitals == []:
             frozen_orbitals = None
 
