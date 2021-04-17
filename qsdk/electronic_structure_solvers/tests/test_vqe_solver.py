@@ -8,6 +8,7 @@ from qsdk.electronic_structure_solvers.vqe_solver import Ansatze, VQESolver
 H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
 H4 = [["H", [0.7071067811865476, 0.0, 0.0]], ["H", [0.0, 0.7071067811865476, 0.0]],
       ["H", [-1.0071067811865476, 0.0, 0.0]], ["H", [0.0, -1.0071067811865476, 0.0]]]
+NaH = [("Na", (0., 0., 0.)), ("H", (0., 0., 1.91439))]
 
 mol_H2 = gto.Mole()
 mol_H2.atom = H2
@@ -23,6 +24,12 @@ mol_H4.charge = 0
 mol_H4.spin = 0
 mol_H4.build()
 
+mol_NaH = gto.Mole()
+mol_NaH.atom = NaH
+mol_NaH.basis = "sto-3g"
+mol_NaH.charge = 0
+mol_NaH.spin = 0
+mol_NaH.build()
 
 def matricize_2rdm(two_rdm, n_orbitals):
     """ Turns the two_rdm tensor into a matrix for test purposes """
@@ -66,19 +73,23 @@ class VQESolverTest(unittest.TestCase):
         options = {"qubit_mapping": 'jw'}
         self.assertRaises(ValueError, VQESolver, options)
 
-    def test_get_resources_h2(self):
-        """ Resource estimation, with UCCSD ansatz, JW qubit mapping, given initial parameters """
-
+    def test_get_resources_h2_mappings(self):
+        """ Resource estimation, with UCCSD ansatz, given initial parameters.
+        Each of JW, BK, and scBK mappings are checked."""
+        mappings = ['jw', 'bk', 'scbk']
+        expected_values = [(15, 4), (15, 4), (5, 2)]
+        
         vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
                        "initial_var_params": [0.1, 0.1]}
-        vqe_solver = VQESolver(vqe_options)
-        vqe_solver.build()
+        for index,mi in enumerate(mappings):
+            vqe_options['qubit_mapping'] = mi    
+            vqe_solver = VQESolver(vqe_options)
+            vqe_solver.build()
+            resources = vqe_solver.get_resources()
+            print(resources)
 
-        resources = vqe_solver.get_resources()
-        print(resources)
-        expected = {'qubit_hamiltonian_terms': 15, 'circuit_width': 4, 'circuit_gates': 158,
-                    'circuit_2qubit_gates': 64, 'circuit_var_gates': 12, 'vqe_variational_parameters': 2}
-        self.assertDictEqual(resources, expected)
+            self.assertEqual(resources['qubit_hamiltonian_terms'], expected_values[index][0])
+            self.assertEqual(resources['circuit_width'], expected_values[index][1])
 
     def test_energy_estimation_vqe(self):
         """ A single VQE energy evaluation for H2, using optimal parameters and exact simulator """
@@ -166,7 +177,107 @@ class VQESolverTest(unittest.TestCase):
         vqe_solver.build()
 
         energy = vqe_solver.simulate()
-        self.assertAlmostEqual(energy, -1.137270422018, places=7)
+        self.assertAlmostEqual(energy, -1.137270422018, places=6)
+
+    def test_mapping_BK(self):
+        """Test that BK mapping recovers the expected result,
+        to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
+                       "qubit_mapping": 'bk'}
+
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+        energy = vqe_solver.simulate()
+
+        energy_target = -1.137270
+        self.assertAlmostEqual(energy, energy_target, places=5)
+
+    def test_mapping_scBK(self):
+        """Test that scBK mapping recovers the expected result,
+        to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
+                       "qubit_mapping": 'scbk'}
+
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+        energy = vqe_solver.simulate()
+
+        energy_target = -1.137270
+        self.assertAlmostEqual(energy, energy_target, places=5)
+
+    def test_spin_reorder_equivalence(self):
+        """Test that re-ordered spin input (all up followed by all down) 
+        return the same optimized energy result for both JW and BK mappings."""
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "up_then_down": True,
+                       "verbose": False, "qubit_mapping": 'jw'}
+
+        vqe_solver_jw = VQESolver(vqe_options)
+        vqe_solver_jw.build()
+        energy_jw = vqe_solver_jw.simulate()
+
+        vqe_options["qubit_mapping"] = 'bk'
+        vqe_solver_bk = VQESolver(vqe_options)
+        vqe_solver_bk.build()
+        energy_bk = vqe_solver_bk.simulate()
+
+        energy_target = -1.137270
+        self.assertAlmostEqual(energy_jw, energy_target, places=5)
+        self.assertAlmostEqual(energy_bk, energy_target, places=5)
+
+    def test_simulate_h4_frozen_orbitals(self):
+        """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator.
+            First (occupied) and last (virtual) orbitals are frozen.
+        """
+        vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+                       "initial_var_params": "MP2", "frozen_orbitals": [0, 3], "verbose": False}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.8943598012229799, delta=1e-5)
+
+    def test_simulate_nah_rucc(self):
+        """ Run VQE on NaH molecule, with UCC1 and UCC3 ansatze, JW qubit mapping.
+            The computation is mapped to a HOMO-LUMO problem.
+        """
+        frozen = [i for i in range(9) if i not in [5,9]]
+
+        vqe_options = {"molecule": mol_NaH, "ansatz": Ansatze.UCC1, "qubit_mapping": 'jw',
+                       "initial_var_params": "zeros", "frozen_orbitals": frozen, 
+                       "up_then_down": True, "verbose": False}
+
+        vqe_solver_ucc1 = VQESolver(vqe_options)
+        vqe_solver_ucc1.build()
+        energy_ucc1 = vqe_solver_ucc1.simulate()
+
+        vqe_options["ansatz"] = Ansatze.UCC3
+        vqe_solver_ucc3 = VQESolver(vqe_options)
+        vqe_solver_ucc3.build()
+        energy_ucc3 = vqe_solver_ucc3.simulate()
+
+        self.assertAlmostEqual(energy_ucc1, -160.30334365109297, delta=1e-6)
+        self.assertAlmostEqual(energy_ucc3, -160.30345935884606, delta=1e-6)
+
+    def test_toomany_orbitals_rucc(self):
+        """ Test the case where there is too many orbitals in the system to be
+            mapped into a HOMO-LUMO problem.
+        """
+        frozen = None
+
+        vqe_options = {"molecule": mol_NaH, "ansatz": Ansatze.UCC1, "qubit_mapping": 'jw',
+                       "initial_var_params": "zeros", "frozen_orbitals": frozen, 
+                       "up_then_down": True, "verbose": False}
+
+        with self.assertRaises(ValueError):
+            vqe_solver_ucc1 = VQESolver(vqe_options)
+            vqe_solver_ucc1.build()
+            vqe_solver_ucc1.simulate()
+
+        with self.assertRaises(ValueError):
+            vqe_options["ansatz"] = Ansatze.UCC3
+            vqe_solver_ucc3 = VQESolver(vqe_options)
+            vqe_solver_ucc3.build()
+            vqe_solver_ucc3.simulate()
 
     def test_simulate_h4_frozen_orbitals(self):
         """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator.
