@@ -24,7 +24,7 @@ class CCSDSolver(ElectronicStructureSolver):
             molecule (pyscf.gto.Mole): The molecule to simulate.
             mean_field (pyscf.scf.RHF): The mean field of the molecule.
             frozen_orbitals (int or list of int): Frozen orbitals (int -> first 
-                n are forzen, list -> indexes are frozen).
+                n, list -> indexes are frozen).
 
         Returns:
             total_energy (float): CCSD energy
