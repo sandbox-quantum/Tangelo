@@ -271,26 +271,26 @@ class VQESolverTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             vqe_solver_ucc1 = VQESolver(vqe_options)
             vqe_solver_ucc1.build()
-            vqe_solver_ucc1.simulate()
 
         with self.assertRaises(ValueError):
             vqe_options["ansatz"] = Ansatze.UCC3
             vqe_solver_ucc3 = VQESolver(vqe_options)
             vqe_solver_ucc3.build()
-            vqe_solver_ucc3.simulate()
 
-    def test_simulate_h4_frozen_orbitals(self):
-        """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator.
-            First (occupied) and last (virtual) orbitals are frozen.
-        """
-        vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
-                       "initial_var_params": "MP2", "frozen_orbitals": [0, 3], "verbose": False}
-        vqe_solver = VQESolver(vqe_options)
-        vqe_solver.build()
+    def test_wrong_mapping_rucc(self):
+        """ Test the case where another mapping process (not JW) is selected."""
 
-        energy = vqe_solver.simulate()
-        self.assertAlmostEqual(energy, -1.8943598012229799, delta=1e-5)
+        vqe_options = {"molecule": mol_NaH, "ansatz": Ansatze.UCC1, "qubit_mapping": 'bk',
+                       "initial_var_params": "zeros", "up_then_down": True}
 
+        with self.assertRaises(ValueError):
+            vqe_solver_ucc1 = VQESolver(vqe_options)
+            vqe_solver_ucc1.build()
+
+        with self.assertRaises(ValueError):
+            vqe_options["ansatz"] = Ansatze.UCC3
+            vqe_solver_ucc3 = VQESolver(vqe_options)
+            vqe_solver_ucc3.build()
 
 if __name__ == "__main__":
     unittest.main()

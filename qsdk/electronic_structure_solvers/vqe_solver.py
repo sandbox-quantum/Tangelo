@@ -10,8 +10,8 @@ from agnostic_simulator import Simulator
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
+from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 
 
@@ -91,18 +91,25 @@ class VQESolver:
                                                           n_electrons=self.qemist_molecule.n_electrons,
                                                           up_then_down=self.up_then_down)
 
-        # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input
+        # Verification of system compatibility with UCC1 or UCC3 circuits.
+        if self.ansatz in [Ansatze.UCC1, Ansatze.UCC3]:
+            # Mapping should be JW because those ansatz are chemically inspired.
+            if self.qubit_mapping != "jw":
+                raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
+            # They are encoded with this convention.
+            if not self.up_then_down:
+                raise ValueError("Parameter up_then_down must be set to True for {} ansatz.".format(self.ansatz))
+            # Only HOMO-LUMO systems are relevant.
+            if self.qubit_hamiltonian.count_qubits() != 4:
+                raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
+        # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
         if type(self.ansatz) == Ansatze:
             if self.ansatz == Ansatze.UCCSD:
                 self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
             elif self.ansatz == Ansatze.UCC1:
-                if not self.up_then_down:
-                    raise ValueError("Parameter up_then_down should be set to True for UCC1 ansatz.")
                 self.ansatz = RUCC(1)
             elif self.ansatz == Ansatze.UCC3:
-                if not self.up_then_down:
-                    raise ValueError("Parameter up_then_down should be set to True for UCC3 ansatz.")
                 self.ansatz = RUCC(3)
             else:
                 raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
