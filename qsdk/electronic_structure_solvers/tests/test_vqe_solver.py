@@ -277,6 +277,20 @@ class VQESolverTest(unittest.TestCase):
             vqe_solver_ucc3 = VQESolver(vqe_options)
             vqe_solver_ucc3.build()
 
+    def test_wrong_mapping_rucc(self):
+        """ Test the case where another mapping process is selected."""
+
+        vqe_options = {"molecule": mol_NaH, "ansatz": Ansatze.UCC1, "qubit_mapping": 'bk',
+                       "initial_var_params": "zeros", "up_then_down": True}
+
+        with self.assertRaises(ValueError):
+            vqe_solver_ucc1 = VQESolver(vqe_options)
+            vqe_solver_ucc1.build()
+
+        with self.assertRaises(ValueError):
+            vqe_options["ansatz"] = Ansatze.UCC3
+            vqe_solver_ucc3 = VQESolver(vqe_options)
+            vqe_solver_ucc3.build()
 
 if __name__ == "__main__":
     unittest.main()

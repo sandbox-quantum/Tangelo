@@ -90,6 +90,18 @@ class VQESolver:
                                                           n_electrons=self.qemist_molecule.n_electrons,
                                                           up_then_down=self.up_then_down)
 
+        # Verification of system compatibility with UCC1 or UCC3 circuits.
+        if self.ansatz in [Ansatze.UCC1, Ansatze.UCC3]:
+            # Mapping should be JW because those ansatz are chemically inspired.
+            if self.qubit_mapping != "jw":
+                raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
+            # They are encoded with this convention.
+            if not self.up_then_down:
+                raise ValueError("Parameter up_then_down should be set to True for {} ansatz.".format(self.ansatz))
+            # Only HOMO-LUMO systems are relevant.
+            if self.qubit_hamiltonian.count_qubits() != 4:
+                raise ValueError("The system should be reduced to an HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
+
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input
         # TODO: what do we do for ansatz provided by users? Generate an Ansatz object? Or ask them to ?
         # if needed user could provide their own ansatze class and instantiate the object beforehand
@@ -101,15 +113,6 @@ class VQESolver:
             self.ansatz = RUCC(3)
         else:
             raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
-
-        # Verification of system compatibility with UCC1 or UCC3 circuits.
-        if self.ansatz in [Ansatze.UCC1, Ansatze.UCC3]:
-            if self.qubit_mapping != "jw":
-                raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
-            if not self.up_then_down:
-                raise ValueError("Parameter up_then_down should be set to True for {} ansatz.".format(self.ansatz))
-            if self.qubit_hamiltonian.count_qubits() != 4:
-                raise ValueError("The system should be reduced to an HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
