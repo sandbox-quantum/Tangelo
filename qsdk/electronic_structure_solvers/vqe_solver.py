@@ -96,15 +96,20 @@ class VQESolver:
         if self.ansatz == Ansatze.UCCSD:
             self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
         elif self.ansatz == Ansatze.UCC1:
-            if not self.up_then_down:
-                raise ValueError("Parameter up_then_down should be set to True for UCC1 ansatz.")
             self.ansatz = RUCC(1)
         elif self.ansatz == Ansatze.UCC3:
-            if not self.up_then_down:
-                raise ValueError("Parameter up_then_down should be set to True for UCC3 ansatz.")
             self.ansatz = RUCC(3)
         else:
             raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
+
+        # Verification of system compatibility with UCC1 or UCC3 circuits.
+        if self.ansatz in [Ansatze.UCC1, Ansatze.UCC3]:
+            if self.qubit_mapping != "jw":
+                raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
+            if not self.up_then_down:
+                raise ValueError("Parameter up_then_down should be set to True for {} ansatz.".format(self.ansatz))
+            if self.qubit_hamiltonian.count_qubits() != 4:
+                raise ValueError("The system should be reduced to an HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)

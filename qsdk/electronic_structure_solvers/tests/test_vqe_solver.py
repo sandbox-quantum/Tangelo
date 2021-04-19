@@ -271,13 +271,11 @@ class VQESolverTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             vqe_solver_ucc1 = VQESolver(vqe_options)
             vqe_solver_ucc1.build()
-            vqe_solver_ucc1.simulate()
 
         with self.assertRaises(ValueError):
             vqe_options["ansatz"] = Ansatze.UCC3
             vqe_solver_ucc3 = VQESolver(vqe_options)
             vqe_solver_ucc3.build()
-            vqe_solver_ucc3.simulate()
 
 
 if __name__ == "__main__":
