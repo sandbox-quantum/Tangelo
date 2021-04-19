@@ -83,7 +83,7 @@ class UCCSD(Ansatz):
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
         if self.default_reference_state == "HF":
-            return get_reference_circuit(n_qubits=self.molecule.n_qubits,
+            return get_reference_circuit(n_spinorbitals=self.molecule.n_qubits,
                                          n_electrons=self.molecule.n_electrons,
                                          mapping=self.mapping,
                                          up_then_down=self.up_then_down)
@@ -145,7 +145,7 @@ class UCCSD(Ansatz):
         fermion_op = uccsd_singlet_generator(self.var_params, self.molecule.n_qubits, self.molecule.n_electrons)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op, 
                                             mapping=self.mapping, 
-                                            n_qubits=self.molecule.n_qubits, 
+                                            n_spinorbitals=self.molecule.n_qubits, 
                                             n_electrons=self.molecule.n_electrons, 
                                             up_then_down=self.up_then_down)
 

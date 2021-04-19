@@ -10,6 +10,7 @@ from agnostic_simulator import Simulator
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 
@@ -86,7 +87,7 @@ class VQESolver:
         self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
         self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian, 
                                                           mapping=self.qubit_mapping,
-                                                          n_qubits=self.qemist_molecule.n_qubits,
+                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
                                                           n_electrons=self.qemist_molecule.n_electrons,
                                                           up_then_down=self.up_then_down)
 
@@ -102,18 +103,18 @@ class VQESolver:
             if self.qubit_hamiltonian.count_qubits() != 4:
                 raise ValueError("The system should be reduced to an HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
-        # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input
-        # TODO: what do we do for ansatz provided by users? Generate an Ansatz object? Or ask them to ?
-        # if needed user could provide their own ansatze class and instantiate the object beforehand
-        if self.ansatz == Ansatze.UCCSD:
-            self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
-        elif self.ansatz == Ansatze.UCC1:
-            self.ansatz = RUCC(1)
-        elif self.ansatz == Ansatze.UCC3:
-            self.ansatz = RUCC(3)
-        else:
-            raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
-
+        # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
+        if type(self.ansatz) == Ansatze:
+            if self.ansatz == Ansatze.UCCSD:
+                self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
+            elif self.ansatz == Ansatze.UCC1:
+                self.ansatz = RUCC(1)
+            elif self.ansatz == Ansatze.UCC3:
+                self.ansatz = RUCC(3)
+            else:
+                raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
+        elif not isinstance(self.ansatz, Ansatz):
+            raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
@@ -215,7 +216,7 @@ class VQESolver:
             # Obtain qubit Hamiltonian
             qubit_hamiltonian2 =fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
                                                          mapping=self.qubit_mapping,
-                                                         n_qubits=self.qemist_molecule.n_qubits,
+                                                         n_spinorbitals=self.qemist_molecule.n_qubits,
                                                          n_electrons=self.qemist_molecule.n_electrons,
                                                          up_then_down=self.up_then_down)
             qubit_hamiltonian2.compress()

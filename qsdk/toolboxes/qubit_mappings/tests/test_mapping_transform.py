@@ -26,8 +26,8 @@ class MappingTest(unittest.TestCase):
         bk_operator += QubitOperator(((0, 'Y'), (1, 'X'), (3, 'Z')), 0.125j)
 
         fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
-        n_qubits = 4
-        qubit = fermion_to_qubit_mapping(fermion, mapping='BK', n_qubits=n_qubits)
+        n_spinorbitals = 4
+        qubit = fermion_to_qubit_mapping(fermion, mapping='BK', n_spinorbitals=n_spinorbitals)
         self.assertEqual(qubit, bk_operator)
 
     def test_jw(self):
@@ -51,7 +51,7 @@ class MappingTest(unittest.TestCase):
 
         fermion = FermionOperator(((2, 0), (0, 1)), 1.) + FermionOperator(((0, 0), (2, 1)), -1.)
 
-        qubit = fermion_to_qubit_mapping(fermion, mapping='SCBK', n_qubits=4, n_electrons=2)
+        qubit = fermion_to_qubit_mapping(fermion, mapping='SCBK', n_spinorbitals=4, n_electrons=2)
         self.assertEqual(qubit, scbk_operator)
 
     def test_scbk_invalid(self):
@@ -60,11 +60,11 @@ class MappingTest(unittest.TestCase):
         # excitation violating number and spin parity
         fermion = FermionOperator((1, 1), 1.0)
         with self.assertRaises(ValueError):
-            fermion_to_qubit_mapping(fermion, mapping='SCBK', n_qubits=2, n_electrons=1)
+            fermion_to_qubit_mapping(fermion, mapping='SCBK', n_spinorbitals=2, n_electrons=1)
         # excitation violating spin parity
         fermion = FermionOperator(((0, 1), (1, 0)), 1.0)
         with self.assertRaises(ValueError):
-            fermion_to_qubit_mapping(fermion, mapping='SCBK', n_qubits=2, n_electrons=1)
+            fermion_to_qubit_mapping(fermion, mapping='SCBK', n_spinorbitals=2, n_electrons=1)
 
     def test_handle_invalid_mapping(self):
         """Test that error is handled if invalid mapping is requested."""
@@ -78,8 +78,8 @@ class MappingTest(unittest.TestCase):
         ground = np.imag(eigenspectrum(fermion)).min()
 
         jw_operator = fermion_to_qubit_mapping(fermion, mapping='JW')
-        bk_operator = fermion_to_qubit_mapping(fermion, mapping='BK', n_qubits=4)
-        scbk_operator = fermion_to_qubit_mapping(fermion, mapping='SCBK', n_qubits=4, n_electrons=2)
+        bk_operator = fermion_to_qubit_mapping(fermion, mapping='BK', n_spinorbitals=4)
+        scbk_operator = fermion_to_qubit_mapping(fermion, mapping='SCBK', n_spinorbitals=4, n_electrons=2)
 
         jw_ground = np.linalg.eigvalsh(qubit_operator_sparse(jw_operator).todense()).min()
         bk_ground = np.linalg.eigvalsh(qubit_operator_sparse(bk_operator, n_qubits=4).todense()).min()
@@ -105,8 +105,8 @@ class MappingTest(unittest.TestCase):
         fermion = FermionOperator(((1, 0), (3, 1)), 1.0) + FermionOperator(((3, 0), (1, 1)), -1.0)
         ground = np.imag(eigenspectrum(fermion)).min()
 
-        jw_operator = fermion_to_qubit_mapping(fermion, mapping='JW', n_qubits=4, up_then_down=True)
-        bk_operator = fermion_to_qubit_mapping(fermion, mapping='BK', n_qubits=4, up_then_down=True)
+        jw_operator = fermion_to_qubit_mapping(fermion, mapping='JW', n_spinorbitals=4, up_then_down=True)
+        bk_operator = fermion_to_qubit_mapping(fermion, mapping='BK', n_spinorbitals=4, up_then_down=True)
 
         jw_ground = np.linalg.eigvalsh(qubit_operator_sparse(jw_operator).todense()).min()
         bk_ground = np.linalg.eigvalsh(qubit_operator_sparse(bk_operator, n_qubits=4).todense()).min()
@@ -121,12 +121,12 @@ class MappingTest(unittest.TestCase):
         fermion = FermionOperator(((2, 0), (0, 1)), 1.) + FermionOperator(((0, 0), (2, 1)), -1.)
         scBK_reordered = fermion_to_qubit_mapping(fermion_operator=fermion,
                                                   mapping='scBK',
-                                                  n_qubits=4,
+                                                  n_spinorbitals=4,
                                                   n_electrons=2,
                                                   up_then_down=True)
         scBK_notreordered = fermion_to_qubit_mapping(fermion_operator=fermion,
                                                      mapping='scBK',
-                                                     n_qubits=4,
+                                                     n_spinorbitals=4,
                                                      n_electrons=2,
                                                      up_then_down=False)
         self.assertEqual(scBK_reordered, scBK_notreordered)
