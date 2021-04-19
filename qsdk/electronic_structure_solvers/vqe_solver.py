@@ -98,10 +98,10 @@ class VQESolver:
                 raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
             # They are encoded with this convention.
             if not self.up_then_down:
-                raise ValueError("Parameter up_then_down should be set to True for {} ansatz.".format(self.ansatz))
+                raise ValueError("Parameter up_then_down must be set to True for {} ansatz.".format(self.ansatz))
             # Only HOMO-LUMO systems are relevant.
             if self.qubit_hamiltonian.count_qubits() != 4:
-                raise ValueError("The system should be reduced to an HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
+                raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
         if type(self.ansatz) == Ansatze:
