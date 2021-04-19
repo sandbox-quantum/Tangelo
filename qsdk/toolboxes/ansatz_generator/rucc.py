@@ -3,7 +3,7 @@ UCC1 and UCC3), providing the foundation to implement variational ansatz
 circuits. They are UCCD and UCCSD ansatz, but terms acting in the same way on an
 Hartree-Fock initial state have been removed.
 
-This must be use on a 2 levels system (2 MOs, 4 SOs) to be physically relevant.
+This must be used on a 2 levels system (2 MOs, 4 SOs) to be physically relevant.
 
 Reference for those circuit. 
 McCaskey, A.J., Parks, Z.P., Jakowski, J. et al. 
