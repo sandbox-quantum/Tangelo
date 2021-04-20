@@ -13,7 +13,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh "docker image ls"
-                echo "docker run qsdk_test_image ./cont_integration/run_test.sh"
+                sh "docker run qsdk_test_image ./cont_integration/run_test.sh"
             }
         }
     }
