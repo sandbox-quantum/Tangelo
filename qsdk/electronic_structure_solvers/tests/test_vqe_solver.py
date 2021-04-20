@@ -113,6 +113,21 @@ class VQESolverTest(unittest.TestCase):
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
 
+    def test_simulate_h2_qiskit(self):
+        """ Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact qiskit simulator """
+
+        backend_options = {"target": "qiskit", "n_shots": None, "noise_model": None}
+        vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+                       "initial_var_params": [6.28531447e-06, 5.65431626e-02], "verbose": True,
+                       "backend_options": backend_options}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        print(vqe_solver.energy_estimation([6.28531447e-06, 5.65431626e-02]))
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.13727042117, delta=1e-7)
+
     def test_simulate_h4(self):
         """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
         vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
