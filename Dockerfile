@@ -12,14 +12,15 @@ RUN dnf -y install gcc redhat-rpm-config gcc-c++ python3-devel make cmake git
 RUN pip3 install ipython jupyter numpy scipy pyscf pybind11 requests pandas \
     setuptools wheel sphinx py3Dmol sphinx_rtd_theme nbsphinx scikit-build
 
-# TODO: install agnostic simulator and dependencies using setuptools
-
-
-########################### Finalize #############################
-# TODO: install qsdk dependencies. Do we install the qsdk package or simply add it to the path?
-
 ENV PYTHONPATH=$PYTHONPATH:/root/qsdk
 
 WORKDIR /root/
 COPY . /root
 RUN chmod -R 777 /root/cont_integration/run_test.sh
+
+# Install agnostic simulator
+RUN git submodule init && git submodule update
+RUN cd /root/agnostic_simulator && python setup.py install && cd ..
+
+# Install qSDK
+RUN python setup.py install
