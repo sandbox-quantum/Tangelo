@@ -21,3 +21,5 @@ RUN pip3 install ipython jupyter numpy scipy pyscf pybind11 requests pandas \
 ENV PYTHONPATH=$PYTHONPATH:/root/qsdk
 
 WORKDIR /root/
+COPY . /root
+RUN chmod -R 777 /root/cont_integration/run_test.sh

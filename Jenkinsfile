@@ -7,18 +7,19 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building..'
-                echo "${BUILD_ID}"
+                sh "docker build . -t qsdk_test_image"
             }
         }
         stage('Test') {
             steps {
-                echo 'testing'
+                sh "docker image ls"
+                echo "docker run qsdk_test_image ./cont_integration/run_test.sh"
             }
         }
     }
     post {
         always {
-            echo 'post build'
+            echo "maybe remove qsdk_test_image"
         }
     }
 }
