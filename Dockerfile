@@ -13,6 +13,7 @@ RUN pip3 install ipython jupyter numpy scipy pyscf pybind11 requests pandas \
     setuptools wheel sphinx py3Dmol sphinx_rtd_theme nbsphinx scikit-build
 
 RUN pip3 install urllib3
+RUN cd /usr/local/lib/python3.*/site-packages/urllib3-*.dist-info && mkdir METADATA && cp metadata.json METADATA
 
 ENV PYTHONPATH=$PYTHONPATH:/root/qsdk
 
