@@ -9,7 +9,7 @@ RUN dnf -y install gcc redhat-rpm-config gcc-c++ python3-devel make cmake git
 
 # Python modules for documentation, Jupyter notebook support, visualization
 # and some computational packages
-RUN python -m pip install -U pip
+RUN pip3 install --upgrade pip
 RUN pip3 install ipython jupyter numpy scipy pyscf pybind11 requests pandas \
     setuptools wheel sphinx py3Dmol sphinx_rtd_theme nbsphinx scikit-build
 
