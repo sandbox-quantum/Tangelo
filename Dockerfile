@@ -20,7 +20,7 @@ RUN chmod -R 777 /root/cont_integration/run_test.sh
 
 # Install agnostic simulator
 RUN git submodule init && git submodule update
-RUN cd /root/agnostic_simulator && python3 setup.py install && cd ..
+RUN cd /root/agnostic_simulator && python3 setup.py install && cd /root/
 
 # Install qSDK
 RUN python3 setup.py install
