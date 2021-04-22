@@ -12,14 +12,15 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh "docker image ls"
                 sh "docker run qsdk_test_image ./cont_integration/run_test.sh"
             }
         }
     }
     post {
         always {
-            echo "maybe remove qsdk_test_image"
+            echo "Cleaning up image and containers"
+            sh "docker ps -a | awk '{ print \$1,\$2 }' | grep qsdk_test_image | awk '{print \$1 }' | xargs -I {} docker rm {}"
+            sh "docker image rm qsdk_test_image"
         }
     }
 }
