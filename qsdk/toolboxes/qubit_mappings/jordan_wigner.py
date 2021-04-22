@@ -17,6 +17,8 @@ import numpy
 
 from openfermion.utils import count_qubits
 from openfermion.ops import InteractionOperator, MajoranaOperator, DiagonalCoulombHamiltonian
+from openfermion.transforms import jordan_wigner as openfermion_jordan_wigner
+
 
 from qsdk.toolboxes.operators import FermionOperator, QubitOperator
 
@@ -41,6 +43,7 @@ def jordan_wigner(operator):
         TypeError: Operator must be a FermionOperator,
             DiagonalCoulombHamiltonian, or InteractionOperator.
     """
+    # return openfermion_jordan_wigner(operator)
     if isinstance(operator, FermionOperator):
         return jordan_wigner_fermion_operator(operator)
     if isinstance(operator, MajoranaOperator):
