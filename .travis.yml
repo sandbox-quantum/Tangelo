@@ -1,5 +1,0 @@
-language: python
-python: 3.8
-script: cont_integration/run_travis.sh
-git:
-  depth: 1
