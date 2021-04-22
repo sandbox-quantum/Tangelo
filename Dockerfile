@@ -29,7 +29,7 @@ RUN chmod -R 777 /root/cont_integration/run_test.sh
 
 # Install agnostic simulator
 RUN git submodule init && git submodule update
-RUN ls -la && cd /usr/local/lib/python3.*/site-packages/urllib3-*.dist-info && pwd && ls -l && cd /root/
+#RUN ls -la && cd /usr/local/lib/python3.*/site-packages/urllib3-*.dist-info && pwd && ls -l && cd /root/
 RUN cd /root/agnostic_simulator && python3 setup.py install && cd /root/
 
 # Install qSDK
