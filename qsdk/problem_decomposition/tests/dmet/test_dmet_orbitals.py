@@ -1,12 +1,14 @@
 """ Test the construction of localized orbitals for DMET calculation """
 
 import unittest
+import os
 from pyscf import gto, scf
 import numpy as np
 
 from qsdk.problem_decomposition.dmet._helpers.dmet_orbitals import dmet_orbitals
 from qsdk.problem_decomposition.electron_localization import iao_localization
 
+path_file = os.path.dirname(__file__)
 
 class TestDMETorbitals(unittest.TestCase):
     """ Generate the localized orbitals employing IAOs """
@@ -52,7 +54,7 @@ class TestDMETorbitals(unittest.TestCase):
         mf.scf()
 
         dmet_orbs = dmet_orbitals(mol, mf, range(mol.nao_nr()), iao_localization)
-        dmet_orbitals_ref = np.loadtxt('data/test_dmet_orbitals.txt')
+        dmet_orbitals_ref = np.loadtxt('{}/data/test_dmet_orbitals.txt'.format(path_file))
 
         # Test the construction of IAOs
         for index, value_ref in np.ndenumerate(dmet_orbitals_ref):

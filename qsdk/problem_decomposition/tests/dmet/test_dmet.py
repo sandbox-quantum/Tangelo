@@ -139,25 +139,6 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         energy = solver.simulate(mol, [1, 1, 1, 1], fragment_solvers=['fci', 'fci', 'ccsd', 'ccsd'])
         self.assertAlmostEqual(energy, -2.0284, places=4)
 
-    @unittest.skip("Behavior currently non deterministic. Newton solver in DMET sometimes fails to converge "
-                   "Changing tolerance or initial guess may help")
-    def test_h4ring_iao_ccsd_no_mf_321g(self):
-        """ Tests the result from DMET against a value from a reference
-        implementation with IAO localization, 3-21g basis, and CCSD solution to
-        fragments."""
-        mol = gto.Mole()
-        mol.atom = H4_RING
-        mol.basis = "3-21g"
-        mol.charge = 0
-        mol.spin = 0
-        mol.build()
-
-        dmet_solver = DMETProblemDecomposition()
-        dmet_solver.electron_localization_method = iao_localization
-        energy = dmet_solver.simulate(mol, [2, 2], fragment_solvers=['ccsd']*2)
-
-        self.assertAlmostEqual(energy, -2.0290205366, places=6)
-
 
 if __name__ == "__main__":
     unittest.main()

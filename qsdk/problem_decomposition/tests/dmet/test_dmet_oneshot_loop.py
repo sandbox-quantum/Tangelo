@@ -1,6 +1,7 @@
 """ Test the functions in the main loop of DMET calculation """
 
 import unittest
+import os
 from pyscf import gto, scf
 import numpy as np
 
@@ -11,6 +12,7 @@ from qsdk.problem_decomposition.dmet._helpers.dmet_scf_guess import dmet_fragmen
 from qsdk.problem_decomposition.dmet._helpers.dmet_scf import dmet_fragment_scf
 from qsdk.problem_decomposition.electron_localization import iao_localization
 
+path_file = os.path.dirname(__file__)
 
 class TestDMETloop(unittest.TestCase):
     """ Generate the localized orbitals employing IAOs """
@@ -60,7 +62,7 @@ class TestDMETloop(unittest.TestCase):
 
         # Test the construction of one particle RDM from low-level calculation
         onerdm_low = dmet_low_rdm(dmet_orbs.active_fock, dmet_orbs.number_active_electrons)
-        onerdm_low_ref = np.loadtxt('data/test_dmet_oneshot_loop_low_rdm.txt')
+        onerdm_low_ref = np.loadtxt('{}/data/test_dmet_oneshot_loop_low_rdm.txt'.format(path_file))
         for index, value_ref in np.ndenumerate(onerdm_low_ref):
             self.assertAlmostEqual(value_ref, onerdm_low[index], msg=f'Low-level RDM error at index {str(index)}',
                                    delta=1e-6)
@@ -75,7 +77,7 @@ class TestDMETloop(unittest.TestCase):
         norb_high, nelec_high, onerdm_high = dmet_fragment_rdm(t_list, bath_orb, e_occupied, dmet_orbs.number_active_electrons)
         self.assertEqual(norb_high, 23, "The number of orbitals for a fragment does not agree")
         self.assertEqual(nelec_high, 16, "The number of electrons for a fragment does not agree")
-        onerdm_high_ref = np.loadtxt('data/test_dmet_oneshot_loop_core_rdm.txt')
+        onerdm_high_ref = np.loadtxt('{}/data/test_dmet_oneshot_loop_core_rdm.txt'.format(path_file))
         for index, value_ref in np.ndenumerate(onerdm_high_ref):
             self.assertAlmostEqual(value_ref, onerdm_high[index], msg='One RDM for fragment error at index ' + str(index), delta=1e-6)
 
