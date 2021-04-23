@@ -65,13 +65,13 @@ class MolecularDataTest(unittest.TestCase):
         assert(no_freezing.frozen_occupied == [])
         assert(no_freezing.frozen_virtual == [])
 
-        freeze_with_int = MolecularData(mol_h2o, 3)
+        freeze_with_int = MolecularData(mol_h2o, frozen_orbitals=3)
         assert(freeze_with_int.active_occupied == [3, 4])
         assert(freeze_with_int.active_virtual == [5, 6])
         assert(freeze_with_int.frozen_occupied == [0, 1, 2])
         assert(freeze_with_int.frozen_virtual == [])
 
-        freeze_with_list = MolecularData(mol_h2o, [0, 1, 2, 6])
+        freeze_with_list = MolecularData(mol_h2o, frozen_orbitals=[0, 1, 2, 6])
         assert(freeze_with_list.active_occupied == [3, 4])
         assert(freeze_with_list.active_virtual == [5])
         assert(freeze_with_list.frozen_occupied == [0, 1, 2])
@@ -81,14 +81,14 @@ class MolecularDataTest(unittest.TestCase):
         """ Verify freezing orbitals empty input """
 
         # None should result in the same as nothing.
-        none_as_frozen = MolecularData(mol_h2o, None)
+        none_as_frozen = MolecularData(mol_h2o, frozen_orbitals=None)
         assert(none_as_frozen.active_occupied == [0, 1, 2, 3, 4])
         assert(none_as_frozen.active_virtual == [5, 6])
         assert(none_as_frozen.frozen_occupied == [])
         assert(none_as_frozen.frozen_virtual == [])
 
         # An empty list should result in the same as nothing.
-        empty_as_frozen = MolecularData(mol_h2o, [])
+        empty_as_frozen = MolecularData(mol_h2o, frozen_orbitals=[])
         assert(empty_as_frozen.active_occupied == [0, 1, 2, 3, 4])
         assert(empty_as_frozen.active_virtual == [5, 6])
         assert(empty_as_frozen.frozen_occupied == [])
@@ -99,32 +99,32 @@ class MolecularDataTest(unittest.TestCase):
 
         # Cases where the input is wrong type.
         with self.assertRaises(TypeError):
-            MolecularData(mol_h2o, "3")
+            MolecularData(mol_h2o, frozen_orbitals="3")
         with self.assertRaises(TypeError):
-            MolecularData(mol_h2o, 3.141592)
+            MolecularData(mol_h2o, frozen_orbitals=3.141592)
         with self.assertRaises(TypeError):
-            MolecularData(mol_h2o, [0, 1, 2.2222, 3, 4, 5])
+            MolecularData(mol_h2o, frozen_orbitals=[0, 1, 2.2222, 3, 4, 5])
 
     def test_no_active_electron(self):
         """ Verify if freezing all active orbitals fails """
 
         # Cases where no active electron are remaining.
         with self.assertRaises(ValueError):
-            MolecularData(mol_h2o, 5)
+            MolecularData(mol_h2o, frozen_orbitals=5)
         with self.assertRaises(ValueError):
-            MolecularData(mol_h2o, [0, 1, 2, 3, 4, 5])
+            MolecularData(mol_h2o, frozen_orbitals=[0, 1, 2, 3, 4, 5])
 
     def test_no_active_virtual(self):
         """ Verify if freezing all virtual orbitals fails """
 
         # Cases where no active virtual orbitals are remaining.
         with self.assertRaises(ValueError):
-            MolecularData(mol_h2o, [5, 6])
+            MolecularData(mol_h2o, frozen_orbitals=[5, 6])
 
     def test_get_molecular_hamiltonian(self):
         """ Verify energy shift in molecular hamiltonian """
 
-        molecule = MolecularData(mol_h2o, 1)
+        molecule = MolecularData(mol_h2o, frozen_orbitals=1)
         shift = molecule.get_molecular_hamiltonian().constant
         self.assertAlmostEqual(shift, -51.47120372466002, delta=1e-6)
 
