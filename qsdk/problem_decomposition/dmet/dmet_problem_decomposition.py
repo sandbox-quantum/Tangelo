@@ -170,7 +170,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 energy = solver_fragment.simulate(mol_frag, mf_fragment)
                 onerdm, twordm = solver_fragment.get_rdm()
             elif solver_fragment == 'vqe':
-                solver_fragment = VQESolver({"molecule": mol_frag, "mean_field": mf_fragment, "verbose": True,
+                solver_fragment = VQESolver({"molecule": mol_frag, "mean_field": mf_fragment, "verbose": False,
                                              "initial_var_params": "ones"})
                 solver_fragment.build()
                 energy = solver_fragment.simulate()
