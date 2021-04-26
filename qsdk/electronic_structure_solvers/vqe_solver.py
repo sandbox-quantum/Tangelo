@@ -117,7 +117,7 @@ class VQESolver:
             raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
-        self.ansatz.build_circuit(var_params=self.initial_var_params)
+        self.ansatz.build_circuit()
 
         # Quantum circuit simulation backend options
         self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],

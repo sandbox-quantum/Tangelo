@@ -92,7 +92,8 @@ class UCCSD(Ansatz):
         """ Build and return the quantum circuit implementing the state preparation ansatz
          (with currently specified initial_state and var_params) """
 
-        self.set_var_params(var_params)
+        if var_params is not None:
+            self.set_var_params(var_params)
 
         # Build qubit operator required to build UCCSD
         qubit_op = self._get_singlet_qubit()
