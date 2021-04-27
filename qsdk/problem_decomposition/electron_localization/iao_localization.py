@@ -29,8 +29,8 @@ def iao_localization(mol, mf):
         numpy.array: The localized orbitals (float64).
     """
 
-    if mol.basis == "minao":
-        raise RuntimeError("Using IAO localization with minao basis is not supported.")
+    if mol.basis in {"minao", "sto-3g", "sto-6g"}:
+        raise RuntimeError("Using IAO localization with minimal basis is not supported.")
 
     #   Construct IAO from occupied orbitals
     iao1 = _iao_occupied_orbitals(mol, mf)
