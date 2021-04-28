@@ -1,8 +1,7 @@
 import unittest
 from pyscf import gto
 
-from qsdk.problem_decomposition import DMETProblemDecomposition
-from qsdk.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization
+from qsdk.problem_decomposition.dmet.dmet_problem_decomposition import Localization, DMETProblemDecomposition
 
 H10_RING = """
         H      0.970820393250   0.000000000000   0.000000000000
@@ -37,10 +36,15 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol.spin = 0
         mol.build()
 
-        dmet_solver = DMETProblemDecomposition()
-        dmet_solver.electron_localization_method = meta_lowdin_localization
+        opt_dmet = {"molecule": mol,
+                    "fragment_atoms": [1, 1, 1, 1],
+                    "electron_localization": Localization.meta_lowdin,
+                    "verbose": False
+                    }
+
         # The molecule has more atoms than this.
-        self.assertRaises(RuntimeError, dmet_solver.simulate, mol, [1, 1, 1, 1])
+        with self.assertRaises(RuntimeError):
+            DMETProblemDecomposition(opt_dmet)
 
     def test_incorrect_number_solvers(self):
         """Tests if the program raises the error when the number of
@@ -52,8 +56,14 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol.spin = 0
         mol.build()
 
-        dmet_solver = DMETProblemDecomposition()
-        self.assertRaises(RuntimeError, dmet_solver.simulate, mol, [2, 3, 2, 3], fragment_solvers=['fci'])
+        opt_dmet = {"molecule": mol,
+                    "fragment_atoms": [2, 3, 2, 3],
+                    "fragment_solvers": ["fci", "fci"],
+                    "verbose": False
+                    }
+
+        with self.assertRaises(RuntimeError):
+            DMETProblemDecomposition(opt_dmet)
 
     def test_h10ring_ml_fci_no_mf(self):
         """ Tests the result from DMET against a value from a reference
@@ -66,9 +76,16 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol.spin = 0
         mol.build()
 
-        dmet_solver = DMETProblemDecomposition()
-        dmet_solver.electron_localization_method = meta_lowdin_localization
-        energy = dmet_solver.simulate(mol, [1]*10, fragment_solvers=['fci']*10)
+        opt_dmet = {"molecule": mol,
+                    "fragment_atoms": [1]*10,
+                    "fragment_solvers": "fci",
+                    "electron_localization": Localization.meta_lowdin,
+                    "verbose": False
+                    }
+
+        dmet_solver = DMETProblemDecomposition(opt_dmet)
+        dmet_solver.build()
+        energy = dmet_solver.simulate()
 
         self.assertAlmostEqual(energy, -4.498973024, places=4)
 
@@ -83,9 +100,16 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol.spin = 0
         mol.build()
 
-        dmet_solver = DMETProblemDecomposition()
-        dmet_solver.electron_localization_method = meta_lowdin_localization
-        energy = dmet_solver.simulate(mol, [1, 1, 1, 1], fragment_solvers=['ccsd']*4)
+        opt_dmet = {"molecule": mol,
+                    "fragment_atoms": [1, 1, 1, 1],
+                    "fragment_solvers": "ccsd",
+                    "electron_localization": Localization.meta_lowdin,
+                    "verbose": False
+                    }
+
+        dmet_solver = DMETProblemDecomposition(opt_dmet)
+        dmet_solver.build()
+        energy = dmet_solver.simulate()
 
         self.assertAlmostEqual(energy, -1.9916120594, places=6)
 
@@ -99,9 +123,15 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol.spin = 0
         mol.build()
 
-        dmet_solver = DMETProblemDecomposition()
-        dmet_solver.electron_localization_method = meta_lowdin_localization
-        energy = dmet_solver.simulate(mol, [1, 1, 1, 1])
+        opt_dmet = {"molecule": mol,
+                    "fragment_atoms": [1, 1, 1, 1],
+                    "electron_localization": Localization.meta_lowdin,
+                    "verbose": False
+                    }
+
+        dmet_solver = DMETProblemDecomposition(opt_dmet)
+        dmet_solver.build()
+        energy = dmet_solver.simulate()
 
         self.assertAlmostEqual(energy, -1.9916120594, places=6)
 
@@ -116,9 +146,16 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol.spin = 0
         mol.build()
 
-        dmet_solver = DMETProblemDecomposition()
-        dmet_solver.electron_localization_method = meta_lowdin_localization
-        energy = dmet_solver.simulate(mol, [1, 1, 1, 1], fragment_solvers=['fci']*4)
+        opt_dmet = {"molecule": mol,
+                    "fragment_atoms": [1, 1, 1, 1],
+                    "fragment_solvers": "fci",
+                    "electron_localization": Localization.meta_lowdin,
+                    "verbose": False
+                    }
+
+        dmet_solver = DMETProblemDecomposition(opt_dmet)
+        dmet_solver.build()
+        energy = dmet_solver.simulate()
 
         self.assertAlmostEqual(energy, -1.9916120594, places=4)
 
@@ -134,9 +171,16 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol.spin = 0
         mol.build()
 
-        solver = DMETProblemDecomposition()
-        solver.electron_localization_method = iao_localization
-        energy = solver.simulate(mol, [1, 1, 1, 1], fragment_solvers=['fci', 'fci', 'ccsd', 'ccsd'])
+        opt_dmet = {"molecule": mol,
+                    "fragment_atoms": [1, 1, 1, 1],
+                    "fragment_solvers": ['fci', 'fci', 'ccsd', 'ccsd'],
+                    "electron_localization": Localization.iao,
+                    "verbose": False
+                    }
+
+        solver = DMETProblemDecomposition(opt_dmet)
+        solver.build()
+        energy = solver.simulate()
         self.assertAlmostEqual(energy, -2.0284, places=4)
 
 

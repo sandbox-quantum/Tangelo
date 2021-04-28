@@ -2,10 +2,7 @@ import unittest
 
 from pyscf import gto
 
-from qsdk.electronic_structure_solvers import FCISolver, VQESolver
-from qsdk.electronic_structure_solvers.vqe_solver import Ansatze
-from qsdk.problem_decomposition import DMETProblemDecomposition
-from qsdk.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization
+from qsdk.problem_decomposition.dmet.dmet_problem_decomposition import Localization, DMETProblemDecomposition
 
 H4_RING = [['H', [0.7071067811865476,   0.0,                 0.0]],
            ['H', [0.0,                  0.7071067811865476,  0.0]],
@@ -25,13 +22,17 @@ class DMETVQETest(unittest.TestCase):
         mol.spin = 0
         mol.build()
 
-        # Run DMET
-        dmet = DMETProblemDecomposition()
-        dmet.electron_localization_method = meta_lowdin_localization
+        opt_dmet = {"molecule": mol,
+                    "fragment_atoms": [1, 1, 1, 1],
+                    "fragment_solvers": ['vqe', 'ccsd', 'ccsd', 'ccsd'],
+                    "electron_localization": Localization.meta_lowdin,
+                    "verbose": False
+                    }
 
-        fragment_atoms = [1, 1, 1, 1]
-        fragment_solvers = ['vqe', 'ccsd', 'ccsd', 'ccsd']
-        energy = dmet.simulate(mol, fragment_atoms, fragment_solvers=fragment_solvers)
+        # Run DMET
+        dmet = DMETProblemDecomposition(opt_dmet)
+        dmet.build()
+        energy = dmet.simulate()
 
         self.assertAlmostEqual(energy, -1.9916120594, delta=1e-3)
 
