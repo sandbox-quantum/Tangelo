@@ -2,15 +2,16 @@
 
 from enum import Enum
 from functools import reduce
+from pyscf.cc import CCSD
 import scipy
-from pyscf import scf
+#from pyscf import scf
 import numpy as np
 
-from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
-from qsdk.electronic_structure_solvers import FCISolver, CCSDSolver, VQESolver
+from . import _helpers as helpers
 from ..problem_decomposition import ProblemDecomposition
 from ..electron_localization import iao_localization, meta_lowdin_localization
-from . import _helpers as helpers
+from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
+from qsdk.electronic_structure_solvers import FCISolver, CCSDSolver, VQESolver
 
 
 class Localization(Enum):
@@ -23,23 +24,45 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
     DMET single-shot algorithm is used for problem decomposition technique.
     By default, CCSD is used as the electronic structure solver, and
-    IAO is used for the localization scheme.
+    Meta-Lowdin is used for the localization scheme.
     Users can define other electronic structure solver such as FCI or
-    VQE as an impurity solver. Meta-Lowdin localization scheme can be
-    used instead of the IAO scheme, which cannot be used for minimal
-    basis set.
+    VQE as an impurity solver. IAO scheme can be used instead of the Meta-Lowdin
+    localization scheme, but it cannot be used for minimal basis set.
 
     Attributes:
+        molecule (pyscf.gto.mol): the molecular system
+        mean-field (optional): mean-field of molecular system
+        electron_localization (Localization): A type of localization scheme. Default is Meta-Lowdin.
+        electronic_structure_solvers
+
+        optimizer (function handle): a function defining the classical optimizer and its behavior
+        initial_var_params (str or array-like) : initial value for the classical optimizer
+        backend_options (dict) : parameters to build the Simulator class (see documentation of agnostic_simulator)
+        up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
+            Default, False has alternating spin up/down ordering.
+        verbose (bool) : Flag for DMET verbosity .
+
         electronic_structure_solver (subclass of ElectronicStructureSolver): A type of electronic structure solver. Default is CCSD.
         electron_localization_method (string): A type of localization scheme. Default is IAO.
     """
 
     def __init__(self, opt_dict):
 
-        default_options = {"molecule": None, "mean_field": None, "electron_localization": Localization.meta_lowdin,
-                           "electronic_structure_solver": "ccsd", 
-                           "fragment_atoms": list(), "fragment_solvers": list(),
-                           "initial_chemical_potential": 0.0, "verbose": False}
+        default_ccsd_options = dict()
+        default_fci_options = dict()
+        default_vqe_options = {"qubit_mapping": "jw",
+                               "initial_var_params": "ones",
+                               "verbose": False}
+
+        default_options = {"molecule": None, "mean_field": None, 
+                           "electron_localization": Localization.meta_lowdin,
+                           "fragment_atoms": list(), 
+                           "fragment_solvers": "ccsd",
+                           "initial_chemical_potential": 0.0,
+                           "solvers_options": list(),
+                           "verbose": False}
+
+        self.builtin_localization = set(Localization)
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -59,13 +82,31 @@ class DMETProblemDecomposition(ProblemDecomposition):
             raise RuntimeError("The number of fragment sites is not equal to the number of atoms in the molecule")
 
         # Check that the number of solvers matches the number of fragments.
-        if self.fragment_solvers:
+        # If a single string is detected, it is converted to a list.
+        # If a list is detected, it must have the same length than the fragment_atoms.
+        if isinstance(self.fragment_solvers, str):
+            self.fragment_solvers = [self.fragment_solvers for _ in range(len(self.fragment_atoms))]
+        elif isinstance(self.fragment_solvers, list):
             if len(self.fragment_solvers) != len(self.fragment_atoms):
                 raise RuntimeError("The number of solvers does not match the number of fragments.")
 
+        # Check that the number of solvers options matches the number of solvers.
+        if not self.solvers_options:
+            for solver in self.fragment_solvers:
+                if solver == "ccsd":
+                    self.solvers_options.append(default_ccsd_options)
+                elif solver == "fci":
+                    self.solvers_options.append(default_fci_options)
+                elif solver == "vqe":
+                    self.solvers_options.append(default_vqe_options)
+        elif isinstance(self.solvers_options, dict):
+            self.solvers_options = [self.solvers_options for _ in self.fragment_solvers]
+        elif isinstance(self.solvers_options, list):
+            if len(self.solvers_options) != len(self.fragment_solvers):
+                raise RuntimeError("The number of solvers options does not match the number of solvers.")
+
         self.chemical_potential = None
         self.dmet_energy = None
-        self.builtin_localization = set(Localization)
 
         # Define during the building phase (self.build()).
         self.orbitals = None
@@ -140,12 +181,6 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         Return:
             float64: The DMET energy (dmet_energy).
-
-        Raise:
-            RuntimeError: If the sum of the atoms in the fragments is different
-                from the number of atoms in the molecule.
-            RuntimeError: If the number fragments is different from the number
-                of solvers.
         """
         # TODO : find a better initial guess than 0.0 for chemical potential. DMET fails often currently.
         # Initialize the energy list and SCF procedure employing newton-raphson algorithm
@@ -179,7 +214,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             float64: The new chemical potential.
         """
 
-        # Calculate the 1-RDM for the entire molecule
+        # Calculate the 1-RDM for the entire molecule.
         onerdm_low = helpers._low_rdm(self.orbitals.active_fock, self.orbitals.number_active_electrons)
 
         self.n_iter += 1
@@ -203,18 +238,19 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Input shouldnt solver objects, but strings/enum "vqe", "fci", "ccsd", with some options
             # Solver objects should be built on the fly, using the fragment molecule / mean-field as input
-            solver_fragment = self.default_electronic_structure_solver if not self.fragment_solvers else self.fragment_solvers[i]
+            solver_fragment = self.fragment_solvers[i]
+            solver_options = self.solvers_options[i]
             if solver_fragment == 'fci':
                 solver_fragment = FCISolver()
-                solver_fragment.simulate(mol_frag, mf_fragment)
+                solver_fragment.simulate(mol_frag, mf_fragment, **solver_options)
                 onerdm, twordm = solver_fragment.get_rdm()
             elif solver_fragment == 'ccsd':
                 solver_fragment = CCSDSolver()
-                solver_fragment.simulate(mol_frag, mf_fragment)
+                solver_fragment.simulate(mol_frag, mf_fragment, **solver_options)
                 onerdm, twordm = solver_fragment.get_rdm()
             elif solver_fragment == 'vqe':
-                solver_fragment = VQESolver({"molecule": mol_frag, "mean_field": mf_fragment, "verbose": False,
-                                             "initial_var_params": "ones"})
+                system = {"molecule": mol_frag, "mean_field": mf_fragment}
+                solver_fragment = VQESolver({**system, **solver_options})
                 solver_fragment.build()
                 solver_fragment.simulate()
                 onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params)
@@ -285,15 +321,3 @@ class DMETProblemDecomposition(ProblemDecomposition):
         fragment_energy = fragment_energy_one_rdm + fragment_energy_twordm
 
         return fragment_energy, total_energy_rdm, one_rdm
-
-"""
-    def get_resources(self):
-
-            solver_fragment = VQESolver({"molecule": mol_frag, "mean_field": mf_fragment, "verbose": False,
-                                            "initial_var_params": "ones"})
-            solver_fragment.build()
-
-            print("\t\tFragment Number : # ", i + 1)
-            print('\t\t------------------------')
-            print('\t\t{}'.format(solver_fragment.get_resources()))
-"""
