@@ -94,6 +94,8 @@ class UCCSD(Ansatz):
 
         if var_params is not None:
             self.set_var_params(var_params)
+        elif self.var_params is None:
+            self.set_var_params()
 
         # Build qubit operator required to build UCCSD
         qubit_op = self._get_singlet_qubit()
