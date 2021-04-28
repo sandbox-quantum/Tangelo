@@ -1,10 +1,8 @@
-"DOC STRING"
+"""Employ DMET as a problem decomposition technique. """
 
 from enum import Enum
 from functools import reduce
-from pyscf.cc import CCSD
 import scipy
-#from pyscf import scf
 import numpy as np
 
 from . import _helpers as helpers
@@ -20,9 +18,7 @@ class Localization(Enum):
     iao = 1
 
 class DMETProblemDecomposition(ProblemDecomposition):
-    """Employ DMET as a problem decomposition technique.
-
-    DMET single-shot algorithm is used for problem decomposition technique.
+    """DMET single-shot algorithm is used for problem decomposition technique.
     By default, CCSD is used as the electronic structure solver, and
     Meta-Lowdin is used for the localization scheme.
     Users can define other electronic structure solver such as FCI or
@@ -30,20 +26,19 @@ class DMETProblemDecomposition(ProblemDecomposition):
     localization scheme, but it cannot be used for minimal basis set.
 
     Attributes:
-        molecule (pyscf.gto.mol): the molecular system
-        mean-field (optional): mean-field of molecular system
+        molecule (pyscf.gto.mol): The molecular system.
+        mean-field (optional): Mean-field of molecular system.
         electron_localization (Localization): A type of localization scheme. Default is Meta-Lowdin.
-        electronic_structure_solvers
-
-        optimizer (function handle): a function defining the classical optimizer and its behavior
-        initial_var_params (str or array-like) : initial value for the classical optimizer
-        backend_options (dict) : parameters to build the Simulator class (see documentation of agnostic_simulator)
-        up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
-            Default, False has alternating spin up/down ordering.
-        verbose (bool) : Flag for DMET verbosity .
-
-        electronic_structure_solver (subclass of ElectronicStructureSolver): A type of electronic structure solver. Default is CCSD.
-        electron_localization_method (string): A type of localization scheme. Default is IAO.
+        fragment_atoms (list): List of number of atoms in each fragment. Sum of this list
+            should be the same as the number of atoms in the original system.
+        fargment_solvers (list or str): List of solvers for each fragment. If only a string is
+            detected, this solver is used for all fragments.
+        optimizer (function handle): A function defining the classical optimizer and its behavior.
+        initial_chemical_potential (str or array-like) : Initial value for the chemical potential.
+        solvers_options (list or dict): List of dictionaries for the solver options. If only a single
+            dictionary is passed, the same options are applied for every solver. This will raise an error
+            if different solver are parsed.
+        verbose (bool) : Flag for DMET verbosity.
     """
 
     def __init__(self, opt_dict):
@@ -92,6 +87,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 raise RuntimeError("The number of solvers does not match the number of fragments.")
 
         # Check that the number of solvers options matches the number of solvers.
+        # If there is no options, all default ones are applied.
+        # If a single options dictionary is parsed, it is repeated for every solvers.
+        # If it is a list, we verified that the length is the same.
         if not self.solvers_options:
             for solver in self.fragment_solvers:
                 if solver == "ccsd":
@@ -106,6 +104,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             if len(self.solvers_options) != len(self.fragment_solvers):
                 raise RuntimeError("The number of solvers options does not match the number of solvers.")
 
+        # Results of the DMET loops.
         self.chemical_potential = None
         self.dmet_energy = None
 
@@ -115,11 +114,15 @@ class DMETProblemDecomposition(ProblemDecomposition):
         self.orb_list2 = None
 
     def build(self):
+        """Building the orbitals list for each fragment. It sets the values of 
+        self.orbitals, self.orb_list and self.orb_list2.
+        """
+
         # Build adequate mean-field (RHF for now, others in future).
         if not self.mean_field:
             self.mean_field = prepare_mf_RHF(self.molecule)
 
-        # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
+        # Locate electron with a built-in method. A custom one can be provided.
         if type(self.electron_localization) == Localization:
             if self.electron_localization == Localization.meta_lowdin:
                 self.electron_localization = meta_lowdin_localization
@@ -130,62 +133,27 @@ class DMETProblemDecomposition(ProblemDecomposition):
         elif not callable(self.electron_localization):
             raise TypeError(f"Invalid electron localization function. Expecting a function.")
 
-        # Construct orbital object
+        # Construct orbital object.
         self.orbitals = helpers._orbitals(self.molecule, self.mean_field, range(self.molecule.nao_nr()), self.electron_localization)
 
-        # TODO: remove last argument, combining fragments not supported
+        # TODO: remove last argument, combining fragments not supported.
         self.orb_list, self.orb_list2, _ = helpers._fragment_constructor(self.molecule, self.fragment_atoms, 0)
 
-    def _build_scf_fragments(self, onerdm_low, chemical_potential):
-        
-        scf_fragments = list()
-
-        for i, norb in enumerate(self.orb_list):
-
-            t_list = list()
-            t_list.append(norb)
-            temp_list = self.orb_list2[i]
-
-            # Construct bath orbitals
-            bath_orb, e_occupied = helpers._fragment_bath(self.orbitals.mol_full, t_list, temp_list, onerdm_low)
-
-            # Obtain one particle rdm for a fragment
-            norb_high, nelec_high, onerdm_high = helpers._fragment_rdm(t_list, bath_orb, e_occupied,
-                                                                        self.orbitals.number_active_electrons)
-
-            # Obtain one particle rdm for a fragment
-            one_ele, fock, two_ele = self.orbitals.dmet_fragment_hamiltonian(bath_orb, norb_high, onerdm_high)
-
-            # Construct guess orbitals for fragment SCF calculations
-            guess_orbitals = helpers._fragment_guess(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
-                                                        self.orbitals.active_fock)
-
-            # Carry out SCF calculation for a fragment
-            mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf(t_list, two_ele, fock, nelec_high, norb_high,
-                                                            guess_orbitals, chemical_potential)
-
-            scf_fragments.append([mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock])
-
-        return scf_fragments
-
     def simulate(self):
-        """Perform DMET single-shot calculation.
+        """Perform DMET loop to optimize the chemical potential. It converges
+        when the electron summation across all fragments is the same as the 
+        number of electron in the molecule.
 
-        If the mean field is not provided it is automatically calculated.
-
-        Args:
-            molecule (pyscf.gto.Mole): The molecule to simulate.
-            fragment_atoms (list): List of number of atoms for each fragment (int).
-            mean_field (pyscf.scf.RHF): The mean field of the molecule.
-            fragment_solvers (list): Specifies what solvers should be used for each fragment
-                which to solve each fragment. If None is passed here, a defaulot solover is used instead for all fragments.
-
-        Return:
-            float64: The DMET energy (dmet_energy).
+        Returns:
+            float: The DMET energy (dmet_energy).
         """
-        # TODO : find a better initial guess than 0.0 for chemical potential. DMET fails often currently.
-        # Initialize the energy list and SCF procedure employing newton-raphson algorithm
+
+        # To keep track the number of iteration (was done with an energy list before).
+        # TODO: A decorator function to do the same thing?
         self.n_iter = 0
+
+        # Initialize the energy list and SCF procedure employing newton-raphson algorithm.
+        # TODO : find a better initial guess than 0.0 for chemical potential. DMET fails often currently.
         if not self.orbitals:
             raise RuntimeError("No fragment built. Have you called DMET.build ?")
 
@@ -198,24 +166,57 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         return self.dmet_energy
 
-    def _oneshot_loop(self, chemical_potential):
-        """Perform the DMET loop.
-
-        This is the function which runs in the minimizer.
-        DMET calculation converges when the chemical potential is below the
-        threshold value of the Newton-Rhapson optimizer.
+    def _build_scf_fragments(self, onerdm_low, chemical_potential):
+        """Building the orbitals list for each fragment. It sets the values of 
+        self.orbitals, self.orb_list and self.orb_list2.
 
         Args:
-            chemical_potential (float64): The Chemical potential.
-            orbitals (numpy.array): The localized orbitals (float64).
-            orb_list (list): The number of orbitals for each fragment (int).
-            orb_list2 (list): List of lists of the minimum and maximum orbital label for each fragment (int).
-            energy_list (list): List of DMET energy for each iteration (float64).
-            solvers (list): List of ElectronicStructureSolvers used to solve
-                each fragment.
+            onerdm_low (matrix): 1-RDM for the whole molecule.
+            chemical_potential (float): Variational parameter for DMET. 
 
         Returns:
-            float64: The new chemical potential.
+            list: List of many objects important for each fragments.
+        """
+
+        # Empty list, all fragment informations will be returned in this list.
+        scf_fragments = list()
+
+        for i, norb in enumerate(self.orb_list):
+            t_list = list()
+            t_list.append(norb)
+            temp_list = self.orb_list2[i]
+
+            # Construct bath orbitals.
+            bath_orb, e_occupied = helpers._fragment_bath(self.orbitals.mol_full, t_list, temp_list, onerdm_low)
+
+            # Obtain one particle rdm for a fragment.
+            norb_high, nelec_high, onerdm_high = helpers._fragment_rdm(t_list, bath_orb, e_occupied,
+                                                                        self.orbitals.number_active_electrons)
+
+            # Obtain one particle rdm for a fragment.
+            one_ele, fock, two_ele = self.orbitals.dmet_fragment_hamiltonian(bath_orb, norb_high, onerdm_high)
+
+            # Construct guess orbitals for fragment SCF calculations.
+            guess_orbitals = helpers._fragment_guess(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
+                                                        self.orbitals.active_fock)
+
+            # Carry out SCF calculation for a fragment.
+            mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf(t_list, two_ele, fock, nelec_high, norb_high,
+                                                            guess_orbitals, chemical_potential)
+
+            scf_fragments.append([mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock])
+
+        return scf_fragments
+
+    def _oneshot_loop(self, chemical_potential):
+        """Perform the DMET loop. This is the cost function which is optimized
+        with respect to the chemical potential.
+
+        Args:
+            chemical_potential (float): The chemical potential.
+
+        Returns:
+            float: The new chemical potential.
         """
 
         # Calculate the 1-RDM for the entire molecule.
@@ -233,15 +234,20 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # Carry out SCF calculation for all fragments.
         scf_fragments = self._build_scf_fragments(onerdm_low, chemical_potential)
 
+        # Iterate across all fragment and compute their energies.
+        # The total energy is stored in energy_temp.
         for i, info_fragment in enumerate(scf_fragments):
+
+            # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
             if self.verbose:
                 print("\t\tFragment Number : # ", i + 1)
                 print('\t\t------------------------')
 
-            # Input shouldnt solver objects, but strings/enum "vqe", "fci", "ccsd", with some options
-            # Solver objects should be built on the fly, using the fragment molecule / mean-field as input
+            # TODO: Input should'nt solver objects, but strings/enum "vqe", "fci", 
+            # "ccsd", with some options. Solver objects should be built on the fly, 
+            # using the fragment molecule / mean-field as input.
             solver_fragment = self.fragment_solvers[i]
             solver_options = self.solvers_options[i]
             if solver_fragment == 'fci':
@@ -260,13 +266,13 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params)
 
             fragment_energy, _, one_rdm = self._compute_energy(mf_fragment, onerdm, twordm,
-                                                                              fock_frag_copy, t_list, one_ele, two_ele,
-                                                                              fock)
+                                                               fock_frag_copy, t_list, one_ele, 
+                                                               two_ele, fock)
 
-            # Sum up the energy
+            # Sum up the energy.
             energy_temp += fragment_energy
 
-            # Sum up the number of electrons
+            # Sum up the number of electrons.
             number_of_electron += np.trace(one_rdm[: t_list[0], : t_list[0]])
 
             if self.verbose:
@@ -284,18 +290,18 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         Args:
             mf_frag (pyscf.scf.RHF): The mean field of the fragment.
-            onerdm (numpy.array): one-particle reduced density matrix (float64).
-            twordm (numpy.array): two-particle reduced density matrix (float64).
-            fock_frag_copy (numpy.array): Fock matrix with the chemical potential subtracted (float64).
+            onerdm (numpy.array): one-particle reduced density matrix (float).
+            twordm (numpy.array): two-particle reduced density matrix (float).
+            fock_frag_copy (numpy.array): Fock matrix with the chemical potential subtracted (float).
             t_list (list): List of number of fragment and bath orbitals (int).
-            oneint (numpy.array): One-electron integrals of fragment (float64).
-            twoint (numpy.array): Two-electron integrals of fragment (float64).
-            fock (numpy.array): Fock matrix of fragment (float64).
+            oneint (numpy.array): One-electron integrals of fragment (float).
+            twoint (numpy.array): Two-electron integrals of fragment (float).
+            fock (numpy.array): Fock matrix of fragment (float).
 
         Returns:
-            float64: Fragment energy (fragment_energy).
-            float64: Total energy for fragment using RDMs (total_energy_rdm).
-            numpy.array: One-particle RDM for a fragment (one_rdm, float64).
+            float: Fragment energy (fragment_energy).
+            float: Total energy for fragment using RDMs (total_energy_rdm).
+            numpy.array: One-particle RDM for a fragment (one_rdm, float).
         """
 
         # Execute CCSD calculation
@@ -327,18 +333,14 @@ class DMETProblemDecomposition(ProblemDecomposition):
         return fragment_energy, total_energy_rdm, one_rdm
 
     def _default_optimizer(self, func, var_params):
-        """ Function used as a default optimizer for VQE when user does not provide one. Can be used as an example
-        for users who wish to provide their custom optimizer.
-
-        Should set the attributes "optimal_var_params" and "optimal_energy" to ensure the outcome of VQE is
-        captured at the end of classical optimization, and can be accessed in a standard way.
+        """ Function used as a default optimizer for DMET when user does not provide one.
 
         Args:
             func (function handle): The function that performs energy estimation.
                 This function takes var_params as input and returns a float.
-            var_params (list): The variational parameters (float64).
+            var_params (list): The variational parameters (float).
         Returns:
-            The optimal energy found by the optimizer
+            The optimal chemical potential found by the optimizer.
         """
 
         result = scipy.optimize.newton(func, var_params, tol=1e-5)
