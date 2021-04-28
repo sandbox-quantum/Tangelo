@@ -58,6 +58,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                            "electron_localization": Localization.meta_lowdin,
                            "fragment_atoms": list(), 
                            "fragment_solvers": "ccsd",
+                           "optimizer": self._default_optimizer,
                            "initial_chemical_potential": 0.0,
                            "solvers_options": list(),
                            "verbose": False}
@@ -185,7 +186,10 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # TODO : find a better initial guess than 0.0 for chemical potential. DMET fails often currently.
         # Initialize the energy list and SCF procedure employing newton-raphson algorithm
         self.n_iter = 0
-        self.chemical_potential = scipy.optimize.newton(self._oneshot_loop, self.initial_chemical_potential, tol=1e-5)
+        if not self.orbitals:
+            raise RuntimeError("No fragment built. Have you called DMET.build ?")
+
+        self.chemical_potential = self.optimizer(self._oneshot_loop, self.initial_chemical_potential)
 
         if self.verbose:
             print(' \t*** DMET Cycle Done *** ')
@@ -321,3 +325,22 @@ class DMETProblemDecomposition(ProblemDecomposition):
         fragment_energy = fragment_energy_one_rdm + fragment_energy_twordm
 
         return fragment_energy, total_energy_rdm, one_rdm
+
+    def _default_optimizer(self, func, var_params):
+        """ Function used as a default optimizer for VQE when user does not provide one. Can be used as an example
+        for users who wish to provide their custom optimizer.
+
+        Should set the attributes "optimal_var_params" and "optimal_energy" to ensure the outcome of VQE is
+        captured at the end of classical optimization, and can be accessed in a standard way.
+
+        Args:
+            func (function handle): The function that performs energy estimation.
+                This function takes var_params as input and returns a float.
+            var_params (list): The variational parameters (float64).
+        Returns:
+            The optimal energy found by the optimizer
+        """
+
+        result = scipy.optimize.newton(func, var_params, tol=1e-5)
+
+        return result
