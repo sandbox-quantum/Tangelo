@@ -2,6 +2,7 @@
 
 from enum import Enum
 from functools import reduce
+from pyscf import scf
 import scipy
 import numpy as np
 
@@ -285,6 +286,46 @@ class DMETProblemDecomposition(ProblemDecomposition):
         self.dmet_energy = energy_temp
 
         return number_of_electron - self.orbitals.number_active_electrons
+
+    def get_resources(self):
+        """ Estimate the resources required by DMET. Only supports fragments solved 
+        with VQESolver. Each 
+        """
+
+        # Calculate the 1-RDM for the entire molecule.
+        onerdm_low = helpers._low_rdm(self.orbitals.active_fock, self.orbitals.number_active_electrons)
+
+        # Carry out SCF calculation for all fragments.
+        scf_fragments = self._build_scf_fragments(onerdm_low, self.initial_chemical_potential)
+        resources_fragments = [None for _ in range(len(scf_fragments))]
+
+        # Iterate across all fragment and compute their energies.
+        # The total energy is stored in energy_temp.
+        for i, info_fragment in enumerate(scf_fragments):
+
+            # Unpacking the information for the selected fragment.
+            mf_fragment, _, mol_frag, _, _, _, _ = info_fragment
+
+            if self.verbose:
+                print("\t\tFragment Number : # ", i + 1)
+                print('\t\t------------------------')
+
+            # Buiding SCF fragments and quantum circuit. Resources are then 
+            # estimated. For classical sovlers, this functionality is not 
+            # implemented yet.
+            solver_fragment = self.fragment_solvers[i]
+            solver_options = self.solvers_options[i]
+            if solver_fragment == 'vqe':
+                system = {"molecule": mol_frag, "mean_field": mf_fragment}
+                solver_fragment = VQESolver({**system, **solver_options})
+                solver_fragment.build()
+                vqe_ressources = solver_fragment.get_resources()
+                resources_fragments[i] = vqe_ressources
+                print("\t\t{}\n".format(vqe_ressources))
+            else:
+                print("\t\tRessources estimation not supported for {} solver.\n".format(self.fragment_solvers[i]))
+
+        return resources_fragments
 
     def _compute_energy(self, mf_frag, onerdm, twordm, fock_frag_copy, t_list, oneint, twoint, fock):
         """Calculate the fragment energy.
