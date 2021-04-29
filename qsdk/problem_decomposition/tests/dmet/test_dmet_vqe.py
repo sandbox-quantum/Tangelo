@@ -36,8 +36,8 @@ class DMETVQETest(unittest.TestCase):
 
         self.assertAlmostEqual(energy, -1.9916120594, delta=1e-3)
 
-    def test_h4ring_vqe_jw_ressources(self):
-        """ Resources estimation on H4 ring (JW). """
+    def test_h4ring_vqe_ressources(self):
+        """Resources estimation on H4 ring. """
 
         mol = gto.Mole()
         mol.atom = H4_RING
@@ -48,58 +48,28 @@ class DMETVQETest(unittest.TestCase):
 
         opt_dmet = {"molecule": mol,
                     "fragment_atoms": [1, 1, 1, 1],
-                    "fragment_solvers": "vqe",
+                    "fragment_solvers": ["vqe", "ccsd", "ccsd", "ccsd"],
                     "electron_localization": Localization.meta_lowdin,
                     "verbose": False
                     }
 
-        ref_resources = [{'qubit_hamiltonian_terms': 15, 
-                          'circuit_width': 4, 
-                          'circuit_gates': 158, 
-                          'circuit_2qubit_gates': 64, 
-                          'circuit_var_gates': 12, 
-                          'vqe_variational_parameters': 2}] * 4
-
-        # Run DMET
+        # Building DMET fragments (with JW).
         dmet = DMETProblemDecomposition(opt_dmet)
         dmet.build()
-        resources = dmet.get_resources()
+        resources_jw = dmet.get_resources()
 
-        self.assertEqual(resources, ref_resources)
-
-    def test_h4ring_vqe_bk_ressources(self):
-        """ Resources estimation on H4 ring (BK). """
-
-        mol = gto.Mole()
-        mol.atom = H4_RING
-        mol.basis = "minao"
-        mol.charge = 0
-        mol.spin = 0
-        mol.build()
-
-        vqe_options = {"qubit_mapping": "bk"}
-
-        opt_dmet = {"molecule": mol,
-                    "fragment_atoms": [1, 1, 1, 1],
-                    "fragment_solvers": "vqe",
-                    "electron_localization": Localization.meta_lowdin,
-                    "solvers_options": vqe_options,
-                    "verbose": False
-                    }
-
-        ref_resources = [{'qubit_hamiltonian_terms': 15, 
-                          'circuit_width': 4, 
-                          'circuit_gates': 107, 
-                          'circuit_2qubit_gates': 46, 
-                          'circuit_var_gates': 12, 
-                          'vqe_variational_parameters': 2}] * 4
-
-        # Run DMET
+        # Building DMET fragments (with scBK).
+        opt_dmet["solvers_options"] = {"qubit_mapping": "scbk", "up_then_down": True}
         dmet = DMETProblemDecomposition(opt_dmet)
         dmet.build()
-        resources = dmet.get_resources()
+        resources_bk = dmet.get_resources()
 
-        self.assertEqual(resources, ref_resources)
+        # JW.
+        self.assertEqual(resources_jw[0]["qubit_hamiltonian_terms"], 15)
+        self.assertEqual(resources_jw[0]["circuit_width"], 4)
+        # scBK.
+        self.assertEqual(resources_bk[0]["qubit_hamiltonian_terms"], 5)
+        self.assertEqual(resources_bk[0]["circuit_width"], 2)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,6 @@
 
 from enum import Enum
 from functools import reduce
-from pyscf import scf
 import scipy
 import numpy as np
 
@@ -306,10 +305,6 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, _, mol_frag, _, _, _, _ = info_fragment
 
-            if self.verbose:
-                print("\t\tFragment Number : # ", i + 1)
-                print('\t\t------------------------')
-
             # Buiding SCF fragments and quantum circuit. Resources are then 
             # estimated. For classical sovlers, this functionality is not 
             # implemented yet.
@@ -321,9 +316,14 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 solver_fragment.build()
                 vqe_ressources = solver_fragment.get_resources()
                 resources_fragments[i] = vqe_ressources
-                print("\t\t{}\n".format(vqe_ressources))
+                verbose_output = "\t\t{}".format(vqe_ressources)
             else:
-                print("\t\tRessources estimation not supported for {} solver.\n".format(self.fragment_solvers[i]))
+                verbose_output = "\t\tRessources estimation not supported for {} solver.".format(self.fragment_solvers[i])
+
+            if self.verbose:
+                print("\t\tFragment Number : # ", i + 1)
+                print('\t\t------------------------')
+                print(verbose_output + "\n")
 
         return resources_fragments
 
