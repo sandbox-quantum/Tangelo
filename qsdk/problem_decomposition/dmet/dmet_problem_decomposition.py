@@ -245,9 +245,10 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 print("\t\tFragment Number : # ", i + 1)
                 print('\t\t------------------------')
 
-            # TODO: Input should'nt solver objects, but strings/enum "vqe", "fci", 
-            # "ccsd", with some options. Solver objects should be built on the fly, 
-            # using the fragment molecule / mean-field as input.
+            # TODO: Changing this into something more simple is preferable. There 
+            # would be an enum class with every solver in it. After this, we would
+            # define every solver in a list and call them recursively.
+            # FCISolver and CCSDSolver must be taken care of, but this is a PR itself.
             solver_fragment = self.fragment_solvers[i]
             solver_options = self.solvers_options[i]
             if solver_fragment == 'fci':
