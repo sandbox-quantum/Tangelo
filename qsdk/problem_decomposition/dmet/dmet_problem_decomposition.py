@@ -113,6 +113,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         self.orbitals = None
         self.orb_list = None
         self.orb_list2 = None
+        self.onerdm_low = None
 
     def build(self):
         """Building the orbitals list for each fragment. It sets the values of 
@@ -139,6 +140,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         # TODO: remove last argument, combining fragments not supported.
         self.orb_list, self.orb_list2, _ = helpers._fragment_constructor(self.molecule, self.fragment_atoms, 0)
+
+        # Calculate the 1-RDM for the entire molecule.
+        self.onerdm_low = helpers._low_rdm(self.orbitals.active_fock, self.orbitals.number_active_electrons)
 
     def simulate(self):
         """Perform DMET loop to optimize the chemical potential. It converges
@@ -167,7 +171,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         return self.dmet_energy
 
-    def _build_scf_fragments(self, onerdm_low, chemical_potential):
+    def _build_scf_fragments(self, chemical_potential):
         """Building the orbitals list for each fragment. It sets the values of 
         self.orbitals, self.orb_list and self.orb_list2.
 
@@ -188,7 +192,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             temp_list = self.orb_list2[i]
 
             # Construct bath orbitals.
-            bath_orb, e_occupied = helpers._fragment_bath(self.orbitals.mol_full, t_list, temp_list, onerdm_low)
+            bath_orb, e_occupied = helpers._fragment_bath(self.orbitals.mol_full, t_list, temp_list, self.onerdm_low)
 
             # Obtain one particle rdm for a fragment.
             norb_high, nelec_high, onerdm_high = helpers._fragment_rdm(t_list, bath_orb, e_occupied,
@@ -220,9 +224,6 @@ class DMETProblemDecomposition(ProblemDecomposition):
             float: The new chemical potential.
         """
 
-        # Calculate the 1-RDM for the entire molecule.
-        onerdm_low = helpers._low_rdm(self.orbitals.active_fock, self.orbitals.number_active_electrons)
-
         self.n_iter += 1
         if self.verbose:
             print(" \tIteration = ", self.n_iter)
@@ -233,7 +234,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         energy_temp = 0.0
 
         # Carry out SCF calculation for all fragments.
-        scf_fragments = self._build_scf_fragments(onerdm_low, chemical_potential)
+        scf_fragments = self._build_scf_fragments(chemical_potential)
 
         # Iterate across all fragment and compute their energies.
         # The total energy is stored in energy_temp.
@@ -292,11 +293,10 @@ class DMETProblemDecomposition(ProblemDecomposition):
         with VQESolver. Each 
         """
 
-        # Calculate the 1-RDM for the entire molecule.
-        onerdm_low = helpers._low_rdm(self.orbitals.active_fock, self.orbitals.number_active_electrons)
-
         # Carry out SCF calculation for all fragments.
-        scf_fragments = self._build_scf_fragments(onerdm_low, self.initial_chemical_potential)
+        scf_fragments = self._build_scf_fragments(self.initial_chemical_potential)
+
+        # Store ressources for each fragments.
         resources_fragments = [None for _ in range(len(scf_fragments))]
 
         # Iterate across all fragment and compute their energies.
