@@ -290,7 +290,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
     def get_resources(self):
         """ Estimate the resources required by DMET. Only supports fragments solved 
-        with VQESolver. Each 
+        with VQESolver. Resources for each fragments are outputed as a list.
         """
 
         # Carry out SCF calculation for all fragments.
