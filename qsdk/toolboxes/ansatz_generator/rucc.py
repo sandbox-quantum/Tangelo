@@ -99,7 +99,10 @@ class RUCC(Ansatz):
         """
 
         # Set initial variational parameters used to build the circuit.
-        self.set_var_params(var_params)
+        if var_params is not None:
+            self.set_var_params(var_params)
+        elif self.var_params is None:
+            self.set_var_params()
 
         # Prepare reference state circuit |1010>.
         reference_state_circuit = self.prepare_reference_state()

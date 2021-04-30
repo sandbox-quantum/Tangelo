@@ -4,6 +4,7 @@
 
 import numpy as np
 import openfermion
+from pyscf import ao2mo
 
 from .integral_calculation import run_pyscf
 
@@ -30,12 +31,42 @@ class MolecularData(openfermion.MolecularData):
             frozen_orbitals (int or list of int): Optional argument to freeze MOs.
     """
 
-    def __init__(self, mol, frozen_orbitals=None):
+    def __init__(self, mol, mean_field=None, frozen_orbitals=None):
 
         geometry = atom_string_to_list(mol.atom) if isinstance(mol.atom, str) else mol.atom
         self.mol = mol
+
         openfermion.MolecularData.__init__(self, geometry, mol.basis, mol.spin+1, mol.charge)
         run_pyscf(self, run_scf=True, run_mp2=True, run_cisd=True, run_ccsd=True, run_fci=True)
+
+        # Overwrite Openfermion object with information consistent with mean-field
+        if mean_field:
+            self.mf = mean_field
+            self.n_atoms = mol.natm
+            self.atoms = [row[0] for row in mol.atom],
+            self.protons = 0
+            self.nuclear_repulsion = mol.energy_nuc()
+            self.charge = mol.charge
+            self.n_electrons = mol.nelectron
+            self.n_orbitals = len(mean_field.mo_energy)
+            self.n_spin_orbitals = 2 * self.n_orbitals
+            self.hf_energy = mean_field.e_tot
+            self.orbital_energies = mean_field.mo_energy
+            self.mp2_energy = None
+            self.cisd_energy = None
+            self.fci_energy = None
+            self.ccsd_energy = None
+            self.general_calculations = {}
+            self._canonical_orbitals = mean_field.mo_coeff
+            self._overlap_integrals = mean_field.get_ovlp()
+            self.h_core = mean_field.get_hcore()
+            self._one_body_integrals = self._canonical_orbitals.T @ self.h_core @ self._canonical_orbitals
+            twoint = mean_field._eri
+            eri = ao2mo.restore(8, twoint, self.n_orbitals)
+            eri = ao2mo.incore.full(eri, self._canonical_orbitals)
+            eri = ao2mo.restore(1, eri, self.n_orbitals)
+            self._two_body_integrals = np.asarray(eri.transpose(0, 2, 3, 1), order='C')
+            self.n_qubits = self.n_spin_orbitals
 
         # By default, all orbitals are active.
         self.active_occupied = [i for i in range(int(np.ceil(self.n_electrons / 2)))]
