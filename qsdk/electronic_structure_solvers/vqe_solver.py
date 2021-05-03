@@ -7,6 +7,7 @@ import numpy as np
 from copy import deepcopy
 
 from agnostic_simulator import Simulator
+from qsdk.toolboxes.operators import count_qubits
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -100,7 +101,7 @@ class VQESolver:
             if not self.up_then_down:
                 raise ValueError("Parameter up_then_down must be set to True for {} ansatz.".format(self.ansatz))
             # Only HOMO-LUMO systems are relevant.
-            if self.qubit_hamiltonian.count_qubits() != 4:
+            if count_qubits(self.qubit_hamiltonian) != 4:
                 raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
@@ -122,13 +123,6 @@ class VQESolver:
         # Quantum circuit simulation backend options
         self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
                                  noise_model=self.backend_options["noise_model"])
-
-        # Verbosity / debugging
-        if self.verbose:
-            n_qubits = self.qubit_hamiltonian.count_qubits()
-            print(f"VQE qubit hamiltonian ::\tn_qubits = {n_qubits}\tn_terms = {len(self.qubit_hamiltonian.terms)}")
-            print(f"VQE Number of variational parameters = {len(self.initial_var_params)}\n")
-            print(f"VQE Hardware backend : {self.backend_options['target']}, shots = {self.backend_options['n_shots']}")
 
     def simulate(self):
         """ Run the VQE algorithm, using the ansatz, classical optimizer, initial parameters and

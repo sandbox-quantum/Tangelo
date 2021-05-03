@@ -60,7 +60,7 @@ class RUCC(Ansatz):
         if var_params == "ones":
             initial_var_params = np.ones((self.n_var_params,), dtype=float)
         elif var_params == "random":
-            initial_var_params = np.random.random((self.n_var_params,), dtype=float)
+            initial_var_params = np.random.random((self.n_var_params,))
         elif var_params == "zeros":
             initial_var_params = np.zeros((self.n_var_params,), dtype=float)
         else:

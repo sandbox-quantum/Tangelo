@@ -8,6 +8,7 @@ import itertools
 
 from openfermion import FermionOperator
 
+
 def hermitian_conjugate(terms):
     """Create nested list of tuples which can be utilized
     to generate FermionOperator associated with the Hermitian 
@@ -32,10 +33,10 @@ def hermitian_conjugate(terms):
     """
     try:
         return [[((v[0][3][0], 1),
-                (v[0][2][0], 1),
-                (v[0][1][0], 0),
-                (v[0][0][0], 0)),
-                -v[1]] for v in terms]
+                  (v[0][2][0], 1),
+                  (v[0][1][0], 0),
+                  (v[0][0][0], 0)),
+                 -v[1]] for v in terms]
     except:
         raise ValueError('Input terms must be format as, e.g. [[((int,1),(int,0),(int,1),(int,0)),float],...]')
 
@@ -73,26 +74,26 @@ def get_spin_ordered(n_orbs, pp, qq, rr=-1, ss=-1, up_down=False):
     if n_orbs < 1:
         raise ValueError('Number of orbitals must be positive.')
     try:
-        pp, qq, rr, ss = int(pp), int(qq), int(rr), int(ss) #Force orbital indices to int-type
+        pp, qq, rr, ss = int(pp), int(qq), int(rr), int(ss)  # Force orbital indices to int-type
     except TypeError:
         raise TypeError("All orbital indices (pp, qq, rr, ss) must be integer-type.")
 
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
-    #all spin up then all spin down
-    if up_down: 
+    # all spin up then all spin down
+    if up_down:
         up = pp, qq, rr, ss
         down = n_orbs + pp, n_orbs + qq, n_orbs + rr, n_orbs + ss
-    #alternating spin up/spin down 
-    else: 
-        up = 2*pp, 2*qq, 2*rr, 2*ss
-        down = 2*pp +1, 2*qq +1, 2*rr +1, 2*ss +1
-    #if user has passed a 2-fermion operator
-    if rr < 0: 
+    # alternating spin up/spin down
+    else:
+        up = 2 * pp, 2 * qq, 2 * rr, 2 * ss
+        down = 2 * pp + 1, 2 * qq + 1, 2 * rr + 1, 2 * ss + 1
+    # if user has passed a 2-fermion operator
+    if rr < 0:
         return up[:2], down[:2]
-    #otherwise, a user has passed a 4-fermion operator
-    return up,down 
+    # otherwise, a user has passed a 4-fermion operator
+    return up, down
 
 
 def get_group_1_2(n_orbs, p, q, r, s, up_down=False):
@@ -127,27 +128,26 @@ def get_group_1_2(n_orbs, p, q, r, s, up_down=False):
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
-    up,dn = get_spin_ordered(n_orbs, p, q, r, s, up_down=up_down) #get spin-orbital indices
+    up, dn = get_spin_ordered(n_orbs, p, q, r, s, up_down=up_down)  # get spin-orbital indices
 
-    #get triplet term
-    triplet = [[((up[0], 1), (up[1], 1), (up[2],0), (up[3], 0)), 1.0],
-                [((up[0], 1), (dn[1], 1), (up[2], 0), (dn[3], 0)), 0.5],
-                [((up[0], 1), (dn[1], 1), (dn[2], 0), (up[3], 0)), 0.5],
-                [((dn[0], 1), (up[1], 1), (up[2], 0), (dn[3], 0)), 0.5],
-                [((dn[0], 1), (up[1], 1), (dn[2], 0), (up[3], 0)), 0.5],
-                [((dn[0], 1), (dn[1], 1), (dn[2], 0), (dn[3], 0)), 1.0]]
-    
-    #get singlet term
+    # get triplet term
+    triplet = [[((up[0], 1), (up[1], 1), (up[2], 0), (up[3], 0)), 1.0],
+               [((up[0], 1), (dn[1], 1), (up[2], 0), (dn[3], 0)), 0.5],
+               [((up[0], 1), (dn[1], 1), (dn[2], 0), (up[3], 0)), 0.5],
+               [((dn[0], 1), (up[1], 1), (up[2], 0), (dn[3], 0)), 0.5],
+               [((dn[0], 1), (up[1], 1), (dn[2], 0), (up[3], 0)), 0.5],
+               [((dn[0], 1), (dn[1], 1), (dn[2], 0), (dn[3], 0)), 1.0]]
+
+    # get singlet term
     singlet = [[((up[0], 1), (dn[1], 1), (up[2], 0), (dn[3], 0)), 0.5],
-                [((up[0], 1), (dn[1], 1), (dn[2], 0), (up[3], 0)), -0.5],
-                [((dn[0], 1), (up[1], 1), (up[2], 0), (dn[3], 0)), -0.5],
-                [((dn[0], 1), (up[1], 1), (dn[2], 0), (up[3], 0)), 0.5]]
+               [((up[0], 1), (dn[1], 1), (dn[2], 0), (up[3], 0)), -0.5],
+               [((dn[0], 1), (up[1], 1), (up[2], 0), (dn[3], 0)), -0.5],
+               [((dn[0], 1), (up[1], 1), (dn[2], 0), (up[3], 0)), 0.5]]
 
-    #add Hermitian conjugates 
+    # add Hermitian conjugates
     triplet += hermitian_conjugate(triplet)
-    
     singlet += hermitian_conjugate(singlet)
-    
+
     return singlet + triplet
 
 
@@ -185,13 +185,13 @@ def get_group_3_4(n_orbs, p, q, r, s, up_down=False):
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
-    up,dn = get_spin_ordered(n_orbs, p, q, r, s, up_down=up_down) #get spin-orbital indices
+    up, dn = get_spin_ordered(n_orbs, p, q, r, s, up_down=up_down)  # get spin-orbital indices
 
-    #prepare combinations
+    # prepare combinations
     singlet = [[((up[0], 1), (dn[1], 1), (up[2], 0), (dn[3], 0)), 1.0],
-                [((up[0], 1), (dn[1], 1), (dn[2], 0), (up[3], 0)), 1.0]]      
-    
-    #add Hermitian conjugate
+               [((up[0], 1), (dn[1], 1), (dn[2], 0), (up[3], 0)), 1.0]]
+
+    # add Hermitian conjugate
     singlet += hermitian_conjugate(singlet)
 
     return singlet
@@ -230,13 +230,13 @@ def get_group_5(n_orbs, p, q, r, s, up_down=False):
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
-    #get spin-orbital indices
-    up,dn = get_spin_ordered(n_orbs, p, q, r, s, up_down=up_down)
+    # get spin-orbital indices
+    up, dn = get_spin_ordered(n_orbs, p, q, r, s, up_down=up_down)
 
-    #prepare combinations
+    # prepare combinations
     singlet = [[((up[0], 1), (dn[1], 1), (up[2], 0), (dn[3], 0)), 2.0]]
 
-    #add Hermitian conjugate terms
+    # add Hermitian conjugate terms
     singlet += hermitian_conjugate(singlet)
 
     return singlet
@@ -275,24 +275,24 @@ def get_doubles(n_orbs, up_down=False):
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
     all_terms = list()
-    selection = np.linspace(0, n_orbs-1, n_orbs, dtype=int)
+    selection = np.linspace(0, n_orbs - 1, n_orbs, dtype=int)
     for pp, qq, rr, ss in itertools.product(selection, repeat=4):
 
-        #generate terms according to relationship between the spin-orbitals involved.
+        # generate terms according to relationship between the spin-orbitals involved.
         if (pp < qq and pp < rr and pp < ss) and (rr < ss) and (qq != rr and qq != ss):
-            terms = get_group_1_2(n_orbs, pp, qq, rr, ss, up_down=up_down)    
+            terms = get_group_1_2(n_orbs, pp, qq, rr, ss, up_down=up_down)
         elif qq == rr and pp < ss and pp != qq and ss != qq:
             terms = get_group_1_2(n_orbs, pp, qq, rr, ss, up_down=up_down)
         elif (pp == qq and qq != rr and rr != ss and ss != pp) and rr < ss:
             terms = get_group_3_4(n_orbs, pp, qq, rr, ss, up_down=up_down)
         elif pp == qq and qq == rr and rr != ss:
             terms = get_group_3_4(n_orbs, pp, qq, rr, ss, up_down=up_down)
-        elif pp == qq and qq != rr and rr == ss and pp < ss:     
-            terms = get_group_5(n_orbs, pp, qq, rr, ss, up_down=up_down)      
+        elif pp == qq and qq != rr and rr == ss and pp < ss:
+            terms = get_group_5(n_orbs, pp, qq, rr, ss, up_down=up_down)
         else:
-            #skip the append if no new terms defined by conditions above
-            continue 
-        
+            # skip the append if no new terms defined by conditions above
+            continue
+
         all_terms.append(terms)
 
     return all_terms
@@ -324,21 +324,21 @@ def get_singles(n_orbs, up_down=False):
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
     all_terms = list()
-    selection = np.linspace(0, n_orbs-1, n_orbs, dtype = int) #all possible orbitals
-    for pp, qq in itertools.product(selection, repeat=2): #iterate over all pairings of orbital-indices
+    selection = np.linspace(0, n_orbs - 1, n_orbs, dtype=int)  # all possible orbitals
+    for pp, qq in itertools.product(selection, repeat=2):  # iterate over all pairings of orbital-indices
 
-        #avoid duplicates, take only lower-triangle
-        if qq <= pp: 
+        # avoid duplicates, take only lower-triangle
+        if qq <= pp:
             continue
 
-        #get spin-orbital indices
-        up,down = get_spin_ordered(n_orbs, pp, qq, up_down=up_down) 
-        
-        terms = [[((up[0], 1), (up[1],0)), 1.],
-                 [((down[0], 1), (down[1],0)), 1.], #spin-compensated (up <> down)
-                 [((up[1], 1), (up[0],0)), -1.], #Hermitian conjugate
-                 [((down[1], 1), (down[0],0)), -1.]]  #h.c. of spin-compensated term         
-        
+        # get spin-orbital indices
+        up, down = get_spin_ordered(n_orbs, pp, qq, up_down=up_down)
+
+        terms = [[((up[0], 1), (up[1], 0)), 1.],
+                 [((down[0], 1), (down[1], 0)), 1.],  # spin-compensated (up <> down)
+                 [((up[1], 1), (up[0], 0)), -1.],  # Hermitian conjugate
+                 [((down[1], 1), (down[0], 0)), -1.]]  # h.c. of spin-compensated term
+
         all_terms.append(terms)
 
     return all_terms
@@ -373,12 +373,9 @@ def get_all_excitations(n_orbs, up_down=False):
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
 
-    singles = get_singles(n_orbs, up_down=up_down)   
-    doubles = get_doubles(n_orbs, up_down=up_down) 
-    #concatenate singles and doubles into a single collection  
-    all_terms = singles + doubles 
-    
-    return all_terms 
+    singles = get_singles(n_orbs, up_down=up_down)
+    doubles = get_doubles(n_orbs, up_down=up_down)
+    return singles + doubles
 
 
 def uccgsd_generator(n_qubits, single_coeffs=None, double_coeffs=None, up_down=False):
@@ -401,24 +398,22 @@ def uccgsd_generator(n_qubits, single_coeffs=None, double_coeffs=None, up_down=F
         raise TypeError('Number of qubits (n_qubits) must be integer type.')
     if n_qubits < 2:
         raise ValueError('Number of qubits (n_qubits) must be at least 2.')
-    elif np.mod(n_qubits,2) != 0:
+    elif n_qubits % 2 != 0:
         raise ValueError('Invalid number of qubits (n_qubits) -- must be even.')
     if type(up_down) != bool:
         raise TypeError('Spin-ordering arg (up_down) must be boolean.')
-    
-    coeffs = get_coeffs(n_qubits, single_coeffs, double_coeffs) #check coeffecients passed, or generate random ones
-    operators = get_all_excitations(n_qubits//2, up_down=False) #get all operator input arguments
+
+    coeffs = get_coeffs(n_qubits, single_coeffs, double_coeffs)  # check coeffecients passed, or generate random ones
+    operators = get_all_excitations(n_qubits // 2, up_down=False)  # get all operator input arguments
 
     all_operators = list()
-    for index,oi in enumerate(operators):
-        #create new FermionOperator
-        current= FermionOperator() 
+    for index, oi in enumerate(operators):
+        # create new FermionOperator
+        current = FermionOperator()
         for term in oi:
-            #add term to operator
-            current += FermionOperator(*term[:-1], term[-1]*coeffs[index]) 
-
-        #add to list of total 
-        all_operators.append(current) 
+            # add term to operator
+            current += FermionOperator(*term[:-1], term[-1] * coeffs[index])
+        all_operators.append(current)
 
     return all_operators
 
@@ -432,15 +427,11 @@ def get_singles_number(n_orbitals):
         n_orbitals(int): number of basis orbitals
 
     Return:
-        int number of singles excitations
+        number of singles excitations (int)
     """
-    if n_orbitals != np.floor(n_orbitals):
-        raise ValueError('Number of orbitals (n_orbitals) must be integer valued')
-
-    try:
-        return n_orbitals*(n_orbitals - 1)//2
-    except:
-        raise ValueError('Invalid format for number of orbitals (n_orbitals), expecting integer.')
+    if not isinstance(n_orbitals, int):
+        raise TypeError('Number of orbitals (n_orbitals) must be integer valued')
+    return n_orbitals * (n_orbitals - 1) // 2
 
 
 def get_doubles_number(n_orbitals):
@@ -452,15 +443,11 @@ def get_doubles_number(n_orbitals):
         n_orbitals(int): number of basis orbitals
 
     Return:
-        int number of doubles excitations
+        number of doubles excitations (int)
     """
-    if np.mod(n_orbitals, 1) != 0.0:
-        raise ValueError('Number of orbitals (n_orbitals) must be integer valued')
-
-    try:
-        return n_orbitals * ( n_orbitals**3 + 2*n_orbitals**2 - n_orbitals - 2 ) // 8
-    except:
-        raise TypeError('Invalid format for number of orbitals (n_orbitals), expecting integer.')
+    if not isinstance(n_orbitals, int):
+        raise TypeError('Number of orbitals (n_orbitals) must be an integer')
+    return n_orbitals * (n_orbitals ** 3 + 2 * n_orbitals ** 2 - n_orbitals - 2) // 8
 
 
 def get_excitation_number(n_orbitals):
@@ -472,7 +459,7 @@ def get_excitation_number(n_orbitals):
         n_orbitals(int): number of basis orbitals
 
     Return:
-        int number of excitations
+        number of excitations (int)
     """
 
     return get_singles_number(n_orbitals) + get_doubles_number(n_orbitals)
@@ -496,14 +483,16 @@ def get_coeffs(n_qubits, single_coeffs=None, double_coeffs=None):
             for the UCCGSD.
     """
     if single_coeffs is None:
-        single_coeffs = np.random.random(get_singles_number(n_qubits//2))
-    elif len(single_coeffs) != get_singles_number(n_qubits//2):
-        raise ValueError(f'Invalid number of single excitation coefficients, expecting {get_singles_number(n_qubits//2)}.')
+        single_coeffs = np.random.random(get_singles_number(n_qubits // 2))
+    elif len(single_coeffs) != get_singles_number(n_qubits // 2):
+        raise ValueError(
+            f'Invalid number of single excitation coefficients, expecting {get_singles_number(n_qubits // 2)}.')
 
     if double_coeffs is None:
-        double_coeffs = np.random.random(get_doubles_number(n_qubits//2))
-    elif len(double_coeffs) != get_doubles_number(n_qubits//2):
-        raise ValueError(f'Invalid number of double excitation coefficients, expecting {get_doubles_number(n_qubits//2)}.')
+        double_coeffs = np.random.random(get_doubles_number(n_qubits // 2))
+    elif len(double_coeffs) != get_doubles_number(n_qubits // 2):
+        raise ValueError(
+            f'Invalid number of double excitation coefficients, expecting {get_doubles_number(n_qubits // 2)}.')
 
     coeffs = np.concatenate((single_coeffs, double_coeffs))
 
