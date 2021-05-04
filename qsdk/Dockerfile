@@ -23,6 +23,16 @@ RUN pip3 install --upgrade pip
 RUN pip3 install ipython jupyter numpy scipy pyscf pybind11 requests pandas \
     setuptools wheel sphinx py3Dmol sphinx_rtd_theme nbsphinx scikit-build
 
+# Install Microsoft QDK for agnostic_simulator tests and qsharp package
+WORKDIR /tmp/
+RUN dnf clean all
+RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc
+RUN wget -q -O /etc/yum.repos.d/microsoft-prod.repo https://packages.microsoft.com/config/fedora/30/prod.repo
+RUN dnf install -y dotnet-sdk-3.1
+RUN dotnet tool install -g Microsoft.Quantum.IQSharp
+RUN /root/.dotnet/tools/dotnet-iqsharp install --user
+RUN pip3 install qsharp
+
 # Copy and set root directory, enable test script to be run
 ENV PYTHONPATH=$PYTHONPATH:/root/qsdk/qsdk:/root/agnostic_simulator/agnostic_simulator
 WORKDIR /root/
@@ -35,6 +45,6 @@ RUN python3 /root/agnostic_simulator/setup.py install
 # Install qSDK
 RUN python3 /root/qsdk/setup.py install
 
-# Run qSDK tests
-# RUN cd /root/qsdk/qsdk
-# RUN python3 -m unittest
+# DEBUG
+RUN echo "PIP FREEZE"
+RUN pip3 freeze
