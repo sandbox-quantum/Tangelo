@@ -20,14 +20,13 @@ RUN pip3 install ipython jupyter numpy scipy pyscf pybind11 requests pandas \
     setuptools wheel sphinx py3Dmol sphinx_rtd_theme nbsphinx scikit-build
 
 # Copy and set root directory, enable test script to be run
-ENV PYTHONPATH=$PYTHONPATH:/root/qsdk
+ENV PYTHONPATH=$PYTHONPATH:/root/qsdk/qsdk:/root/agnostic_simulator/agnostic_simulator
 WORKDIR /root/
 COPY . /root
 RUN chmod -R 777 /root/cont_integration/run_test.sh
 
 # Install agnostic simulator
-RUN git submodule init && git submodule update
-RUN cd /root/agnostic_simulator && python3 setup.py install && cd /root/
+RUN python3 root/agnostic_simulator/setup.py install
 
 # Install qSDK
-RUN python3 setup.py install
+RUN python3 root/qsdk/setup.py install
