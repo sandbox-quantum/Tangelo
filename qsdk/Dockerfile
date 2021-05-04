@@ -12,6 +12,10 @@ RUN pip3 install virtualenv
 ENV VIRTUAL_ENV=/opt/venv
 RUN virtualenv -p python3 $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+RUN ls -al /root/.bashrc
+RUN more /root/.bashrc
+RUN echo "export PATH=$PATH" >> /root/.bashrc
+
 
 # Python modules for documentation, Jupyter notebook support, visualization
 # and some computational packages
