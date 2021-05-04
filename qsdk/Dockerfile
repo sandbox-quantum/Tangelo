@@ -44,7 +44,3 @@ RUN python3 /root/agnostic_simulator/setup.py install
 
 # Install qSDK
 RUN python3 /root/qsdk/setup.py install
-
-# DEBUG
-RUN echo "PIP FREEZE"
-RUN pip3 freeze
