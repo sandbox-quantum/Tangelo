@@ -47,15 +47,6 @@ class MolecularDataTest(unittest.TestCase):
         assert(molecule.n_electrons == 2)
         assert(molecule.protons == [1]*2)
 
-    def test_run_pyscf_h2(self):
-        """ Verify basic properties of molecule object through instantiation of MolecularData class """
-
-        molecule = MolecularData(mol_h2)
-        self.assertAlmostEqual(molecule.hf_energy, -1.1166843870853396, delta=1e-8)
-        self.assertAlmostEqual(molecule.fci_energy, -1.1372701746609026, delta=1e-8)
-        self.assertAlmostEqual(molecule.cisd_energy, -1.1372701746609017, delta=1e-8)
-        self.assertAlmostEqual(molecule.ccsd_energy, -1.1372703406409188, delta=1e-8)
-
     def test_freezing_orbitals(self):
         """ Verify freezing orbitals functionalities """
 

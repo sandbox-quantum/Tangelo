@@ -31,12 +31,13 @@ mol_NaH.charge = 0
 mol_NaH.spin = 0
 mol_NaH.build()
 
+
 def matricize_2rdm(two_rdm, n_orbitals):
     """ Turns the two_rdm tensor into a matrix for test purposes """
 
     l = 0
     sq = n_orbitals * n_orbitals
-    jpqrs = np.zeros((n_orbitals, n_orbitals), dtype=np.int)
+    jpqrs = np.zeros((n_orbitals, n_orbitals), dtype=int)
     for i in range(n_orbitals):
         for j in range(n_orbitals):
             jpqrs[i, j] = l
@@ -306,6 +307,7 @@ class VQESolverTest(unittest.TestCase):
             vqe_options["ansatz"] = Ansatze.UCC3
             vqe_solver_ucc3 = VQESolver(vqe_options)
             vqe_solver_ucc3.build()
+
 
 if __name__ == "__main__":
     unittest.main()

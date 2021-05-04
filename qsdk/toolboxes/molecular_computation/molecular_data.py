@@ -37,7 +37,7 @@ class MolecularData(openfermion.MolecularData):
         self.mol = mol
 
         openfermion.MolecularData.__init__(self, geometry, mol.basis, mol.spin+1, mol.charge)
-        run_pyscf(self, run_scf=True, run_mp2=True, run_cisd=True, run_ccsd=True, run_fci=True)
+        run_pyscf(self, run_scf=True, run_mp2=False, run_cisd=False, run_ccsd=False, run_fci=False)
 
         # Overwrite Openfermion object with information consistent with mean-field
         if mean_field:
