@@ -9,7 +9,7 @@ RUN dnf -y install gcc redhat-rpm-config gcc-c++ python3-devel make cmake git
 
 # Set up a virtual environment, set all calls to pip3 and python3 to use it
 RUN pip3 install virtualenv
-ENV VIRTUAL_ENV=/opt/venv
+ENV VIRTUAL_ENV=/root/env
 RUN virtualenv -p python3 $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN ls -al /root/.bashrc
