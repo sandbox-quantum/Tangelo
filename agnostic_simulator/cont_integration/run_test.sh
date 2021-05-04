@@ -1,5 +1,6 @@
 #!/bin/bash
 
 # Run unit tests
-cd /root/qsdk/qsdk
+cd /root/agnostic_simulator/tests
 python3 -m unittest discover
+
