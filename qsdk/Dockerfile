@@ -26,7 +26,7 @@ COPY . /root
 RUN chmod -R 777 /root/cont_integration/run_test.sh
 
 # Install agnostic simulator
-RUN python3 root/agnostic_simulator/setup.py install
+RUN python3 /root/agnostic_simulator/setup.py install
 
 # Install qSDK
-RUN python3 root/qsdk/setup.py install
+RUN python3 /root/qsdk/setup.py install
