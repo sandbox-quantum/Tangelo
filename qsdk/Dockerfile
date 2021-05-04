@@ -32,5 +32,5 @@ RUN python3 /root/agnostic_simulator/setup.py install
 RUN python3 /root/qsdk/setup.py install
 
 # Run qSDK tests
-RUN cd /root/qsdk/qsdk
-RUN python3 -m unittest
+# RUN cd /root/qsdk/qsdk
+# RUN python3 -m unittest
