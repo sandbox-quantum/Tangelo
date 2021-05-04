@@ -4,5 +4,5 @@
 #more /root/.bashrc
 #source /root/.bashrc
 #ls -l /root/env/bin
-#cd /root/qsdk/qsdk
+cd /root/qsdk/
 /root/env/bin/python3 -m unittest
