@@ -186,6 +186,24 @@ class TestSimulate(unittest.TestCase):
                 exp_values[i][j] = simulator._get_expectation_value_from_statevector(op, circuit)
         np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
 
+    def test_get_exp_value_complex(self):
+        """ Get expectation value of qubit operator with complex coefficients """
+
+        for b in ["qulacs", "qiskit", "projectq"]:
+            simulator = Simulator(target=b)
+
+            # Return complex expectation value corresponding to linear combinations of real and complex parts
+            op_c = op1 + 1.0j * op2
+            exp_c = simulator.get_expectation_value(op_c, circuit3)
+            exp_r1 = simulator.get_expectation_value(op1, circuit3)
+            exp_r2 = simulator.get_expectation_value(op2, circuit3)
+            assert(exp_c == (exp_r1 + 1.0j * exp_r2))
+
+            # Edge case: all coefficients are complex but with imaginary part null: exp value must return a float
+            op_c = op1 + 0.j * op1
+            exp_c = simulator.get_expectation_value(op_c, circuit3)
+            assert (type(exp_c) in {float, np.float64} and exp_c == exp_r1)
+
     def test_get_exp_value_from_statevector_h2(self):
         """ Get expectation value of large circuits and qubit Hamiltonians corresponding to molecules.
             Molecule: H2 sto-3g = [("H", (0., 0., 0.)), ("H", (0., 0., 0.741377))]
