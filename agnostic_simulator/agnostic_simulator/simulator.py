@@ -24,10 +24,12 @@ import qulacs
 import qiskit
 from projectq import MainEngine
 from projectq.ops import *
+from openfermion.ops import QubitOperator
 
 from agnostic_simulator import Gate, Circuit
 from agnostic_simulator.helpers import measurement_basis_gates
 import agnostic_simulator.translator as translator
+
 
 # Data-structure showing what functionalities are supported by the backend, in this package
 backend_info = dict()
@@ -250,23 +252,39 @@ class Simulator:
                 The expectation value of this operator with regards to the state preparation
         """
 
-        # Check that qubit operator does not operate on qubits beyond circuit size
-        # Forces coefficients to be real numbers (Openfermion stores them as complex numbers although they are real)
+        # Check that qubit operator does not operate on qubits beyond circuit size.
+        # Keep track if coefficients are real or not
+        are_coefficients_real = True
         for term, coef in qubit_operator.terms.items():
             if state_prep_circuit.width < len(term):
                 raise ValueError(f'Term {term} requires more qubits than the circuit contains ({state_prep_circuit.width})')
-            qubit_operator.terms[term] = coef.real
+            if type(coef) in {complex, np.complex64, np.complex128}:
+                are_coefficients_real = False
 
-        if self._noise_model or not self.statevector_available \
-                or state_prep_circuit.is_mixed_state or state_prep_circuit.size == 0:
-            return self._get_expectation_value_from_frequencies(qubit_operator, state_prep_circuit)
-        elif self.statevector_available:
-            return self._get_expectation_value_from_statevector(qubit_operator, state_prep_circuit)
+        # If the underlying operator is hermitian, expectation value is real and can be computed right away
+        if are_coefficients_real:
+            if self._noise_model or not self.statevector_available \
+                    or state_prep_circuit.is_mixed_state or state_prep_circuit.size == 0:
+                return self._get_expectation_value_from_frequencies(qubit_operator, state_prep_circuit)
+            elif self.statevector_available:
+                return self._get_expectation_value_from_statevector(qubit_operator, state_prep_circuit)
+
+        # Else, separate the operator into 2 hermitian operators, use linearity and call this function twice
+        else:
+            qb_op_real, qb_op_imag = QubitOperator(), QubitOperator()
+            for term, coef in qubit_operator.terms.items():
+                qb_op_real.terms[term], qb_op_imag.terms[term] = coef.real, coef.imag
+            qb_op_real.compress()
+            qb_op_imag.compress()
+            exp_real = self.get_expectation_value(qb_op_real, state_prep_circuit)
+            exp_imag = self.get_expectation_value(qb_op_imag, state_prep_circuit)
+            return exp_real if (exp_imag == 0.) else exp_real + 1.0j * exp_imag
 
     def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit):
         """
             Take as input a qubit operator H and a state preparation returning a ket |\psi>.
             Return the expectation value <\psi | H | \psi>, computed without drawing samples (statevector only)
+            Users should not be calling this function directly, please call "get_expectation_value" instead.
 
             Args:
                 qubit_operator(openfermion-style QubitOperator class): a qubit operator
