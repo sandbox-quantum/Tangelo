@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from qsdk.toolboxes.post_processing.mc_weeny_rdm_purification import mw_2rdm
+from qsdk.toolboxes.post_processing import mcweeny_purify_2rdm
 
 
 class McWeenyPurificationTest(unittest.TestCase):
@@ -16,7 +16,7 @@ class McWeenyPurificationTest(unittest.TestCase):
         with open("data/rdm2_nw_exact.npy", 'rb') as f:
             rdm2_mw_ref = np.load(f)
 
-        rdm1_mw, rdm2_mw = mw_2rdm(rdm2_spin)
+        rdm1_mw, rdm2_mw = mcweeny_purify_2rdm(rdm2_spin)
         np.testing.assert_array_almost_equal(rdm1_mw, rdm1_mw_ref)
         np.testing.assert_array_almost_equal(rdm2_mw, rdm2_mw_ref)
 
@@ -30,7 +30,7 @@ class McWeenyPurificationTest(unittest.TestCase):
         with open("data/rdm2_nw.npy", 'rb') as f:
             rdm2_mw_ref = np.load(f)
 
-        rdm1_mw, rdm2_mw = mw_2rdm(rdm2_spin)
+        rdm1_mw, rdm2_mw = mcweeny_purify_2rdm(rdm2_spin)
         np.testing.assert_array_almost_equal(rdm1_mw, rdm1_mw_ref)
         np.testing.assert_array_almost_equal(rdm2_mw, rdm2_mw_ref)
 

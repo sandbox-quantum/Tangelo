@@ -2,7 +2,7 @@ import numpy as np
 import itertools
 
 
-def mw_2rdm(rdm2_spin, conv=1.0e-07):
+def mcweeny_purify_2rdm(rdm2_spin, conv=1.0e-07):
     """ Perform 2-RDM purification based on McWeeny's algorithm. The value selected for the convergence criteria
     should be consistent with the accuracy of the 2-RDM provided as input (in particular it should be correlated to
     the number of shots used to compute the RDM values, if a QPU or a shot-based quantum circuit simulator was used).
