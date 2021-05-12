@@ -7,6 +7,8 @@ def mcweeny_purify_2rdm(rdm2_spin, conv=1.0e-07):
     should be consistent with the accuracy of the 2-RDM provided as input (in particular it should be correlated to
     the number of shots used to compute the RDM values, if a QPU or a shot-based quantum circuit simulator was used).
 
+    This algorithm only works on a RDM associated with a 2-electron system.
+
     Args:
         rdm2_spin (numpy array): The 2-RDM to be purified (In chemistry notation)
         conv (float), optional: The convergence criteria for McWeeny's purification.
