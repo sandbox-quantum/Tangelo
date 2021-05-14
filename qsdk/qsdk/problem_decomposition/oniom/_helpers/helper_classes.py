@@ -30,6 +30,8 @@ class Fragment:
             mol_high (pyscf.gto.Mole): PySCF molecule of this fragment, to be solved with high accuracy.
         """
 
+        default_solver_options = {"basis": "sto-3g"}
+
         # Check to see if a fragment has no solver_high when only a portion of a molecule
         # is selected. If this is allowed, the energy of a fragment is added to the
         # system (all system with solver_low + fragment with solver_low), adding
@@ -41,11 +43,11 @@ class Fragment:
 
         # Solver with low accuracy.
         self.solver_low = solver_low.upper()
-        self.options_low = options_low
+        self.options_low = options_low if options_low is not None else default_solver_options
 
         # Solver with higher accuracy.
         self.solver_high = solver_high.upper() if solver_high is not None else solver_high
-        self.options_high = options_high
+        self.options_high = options_high if options_high is not None else default_solver_options
 
         # For this fragment (not the whole molecule).
         self.spin = spin
