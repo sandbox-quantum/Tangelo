@@ -152,10 +152,8 @@ class Fragment:
             solver = FCISolver()
             energy = solver.simulate(molecule, **options_solver)
         elif solver == "VQE":
-            vqe_options = {'molecule': molecule,
-                           "qubit_mapping": "jw",
-                           "initial_var_params": "MP2"}
-            solver = VQESolver(vqe_options)
+            molecule_options = {'molecule': molecule}
+            solver = VQESolver({**molecule_options, **options_solver})
             solver.build()
             energy = solver.simulate()
         else:
