@@ -9,10 +9,8 @@ of increasing sophistication.
 # TODO: Supporting many (3+) layers of different accuracy.
 # TODO: Capping with CH3 or other functional groups.
 
-from qsdk.problem_decomposition.oniom._helpers.helper_classes import Fragment
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
-from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 
 
 class ONIOMProblemDecomposition(ProblemDecomposition):
@@ -25,7 +23,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         Attributes:
             geometry (strin or list): XYZ atomic coords (in "str float float\n..." or
                 [[str, (float, float, float)], ...] format).
-            models (list of Fragment): Specification of different system-subgroups and
+            fragments (list of Fragment): Specification of different system-subgroups and
                 their solvers.
             verbose (bolean): Verbose flag.
         """
@@ -86,7 +84,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         E_ONIOM = E_LOW[SYSTEM] + \sum_i {E_HIGH_i[MODEL_i] - E_LOW_i[MODEL_i]}
 
         Returns:
-            float: Total energy
+            float: Total ONIOM energy.
         """
 
         e_oniom = 0.

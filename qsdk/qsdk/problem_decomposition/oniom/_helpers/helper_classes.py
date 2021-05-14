@@ -6,6 +6,7 @@ and how to fix them) as well as the solver(s) to use.
 import numpy as np
 from pyscf import gto
 
+# Imports of electronic solvers.
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.electronic_structure_solvers.ccsd_solver import CCSDSolver
 from qsdk.electronic_structure_solvers.fci_solver import FCISolver
@@ -18,16 +19,20 @@ class Fragment:
         """Main class for the ONIOM hybrid solver.
 
         Args:
-            solver (list of dict or dict): Specification of solver(s) for fragment.
-            select_atoms (list of int or int): Which atoms from molecule are in fragment. int counts from start of xyz.
-            links (list of Link): Bonds broken when forming fragment.
+            solver_low (str): Specification of low accuracy solver for fragment.
+            options_low (str): Specification of low accuracy solver options.
+            solver_high (str): Specification of higher accuracy solver for fragment.
+            options_high (str): Specification of higher accuracy solver options.
+            selected_atoms (list of int or int): Which atoms from molecule are in fragment. int counts from start of xyz.
             spin (int): Spin associated witht this fragment.
             charge (int): Charge associated witht this fragment.
+            broken_links (list of Link): Bonds broken when forming fragment.
 
         Attributes:
-            broken_links (list of Link): Broken link in this fragment.
             mol_low (pyscf.gto.Mole): PySCF molecule of this fragment, to be solved with low accuracy.
             mol_high (pyscf.gto.Mole): PySCF molecule of this fragment, to be solved with high accuracy.
+            e_fragment (flaot): Energy of this fragment as defined by ONIOM. None if simulate
+                has not yet been called.
         """
 
         default_solver_options = {"basis": "sto-3g"}
@@ -56,6 +61,7 @@ class Fragment:
         self.broken_links = broken_links
         self.mol_low = None
         self.mol_high = None
+        self.e_fragment = None
 
     def set_geometry(self, geometry=None):
         """Setter for the fragment geometry.
