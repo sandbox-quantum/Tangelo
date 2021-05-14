@@ -4,7 +4,7 @@ from qsdk.problem_decomposition.oniom.oniom_problem_decomposition import ONIOMPr
 from qsdk.problem_decomposition.oniom._helpers.helper_classes import Fragment, Link
 
 H4 = [('H', (0., 0., 0.)), ('H', (0., 0., 0.75)),
-            ('H', (0., 0., 2.)), ('H', (0., 0., 2.75))]
+      ('H', (0., 0., 2.)), ('H', (0., 0., 2.75))]
 
 PHE = """
 N      0.7060     -1.9967     -0.0757
@@ -32,9 +32,14 @@ H     -1.1260     -0.2065      2.4095
 H      4.1118     -0.2131     -1.6830
 """
 
+
 class ONIOMTest(unittest.TestCase):
 
     def test_selected_atom(self):
+        """Test selection of atoms. If it is not a list of int or an int, an error
+        should be raised.
+        """
+
         # Definition of simple fragments to test the error raising.
         system = Fragment(solver_low="RHF")
         model = Fragment(solver_low="RHF",
@@ -74,7 +79,7 @@ class ONIOMTest(unittest.TestCase):
         # Retrieving fragment geometry with an H atom replacing a broken bond.
         geom_fragment_capped = oniom_solver.fragments[1].geometry
 
-        # Verified with a molecular visualization software.
+        # Those position have been verified with a molecular visualization software.
         PHE_backbone_capped = [('N', (0.706, -1.9967, -0.0757)),
                                ('C', (1.1211, -0.6335, -0.4814)),
                                ('C', (2.6429, -0.5911, -0.5338)),
@@ -100,7 +105,8 @@ class ONIOMTest(unittest.TestCase):
         """Testing the oniom energy with a low accuraccy method (RHF) and an
         higher one (CCSD). The molecule is PHE, and the important fragment is
         the chosen to be the backbone. The side chain is computed at the RHF
-        level. """
+        level.
+        """
 
         options_low = {"basis": "sto-3g"}
         options_high = {"basis": "sto-3g"}
@@ -118,9 +124,13 @@ class ONIOMTest(unittest.TestCase):
         oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
         e_oniom = oniom_solver.simulate()
 
-        self.assertAlmostEquals(e_oniom, -544.7306189719625)
+        self.assertAlmostEquals(e_oniom, -544.7306189, places=6)
 
     def test_vqe_cc(self):
+        """Test to verifiy the implementation of VQE (with UCCSD) in ONIOM. Results
+        between VQE-uCCSD and CCSD should be the same.
+        """
+
         options_both = {"basis": "sto-3g"}
 
         # With this line, the interaction between H2-H2 is computed with a low
