@@ -1,5 +1,5 @@
 """Fragment class, used in construction of ONIOM layers -- contains details of both the
-constituent geometry (i.e. which atoms from system are in fragment, which bonds are broken 
+constituent geometry (i.e. which atoms from system are in fragment, which bonds are broken
 and how to fix them) as well as the solver(s) to use.
 """
 
@@ -52,12 +52,12 @@ class Fragment:
         """Stter for the fragment geometry.
 
         Args:
-            geometry (strin or list): XYZ atomic coords (in "str float float\n..." or 
+            geometry (strin or list): XYZ atomic coords (in "str float float\n..." or
                 [[str, (float, float, float)], ...] format).
         """
 
         self.geometry = geometry
-        
+
         if self.broken_links:
             self.fix_links(geometry)
 
@@ -84,7 +84,7 @@ class Fragment:
                        basis=self.options_low["basis"],
                        charge=self.charge,
                        spin=self.spin)
-        
+
         self.options_low = {i:self.options_low[i] for i in self.options_low if i!="basis"}
         e_low = self.get_energy(mol_low, self.solver_low, self.options_low)
 
@@ -98,7 +98,7 @@ class Fragment:
                         basis=self.options_high["basis"],
                         charge=self.charge,
                         spin=self.spin)
-            
+
             self.options_high = {i:self.options_high[i] for i in self.options_high if i!="basis"}
             e_high = self.get_energy(mol_high, self.solver_high, self.options_high)
 
@@ -130,7 +130,7 @@ class Fragment:
             solver = FCISolver()
             energy = solver.simulate(molecule, **options_solver)
         elif solver == "VQE":
-            vqe_options = {'molecule': molecule, 
+            vqe_options = {'molecule': molecule,
                            "qubit_mapping": "jw",
                            "initial_var_params": "MP2"}
             solver = VQESolver(vqe_options)
@@ -148,7 +148,7 @@ class Link:
         """Bonds broken during the layer-construction process in ONIOM must be mended.
         This class represents a broken-bond link, and has associated methods to generate
         a new bond, appending the intended species.
-        
+
         Args:
             index1 (int): Order in the molecular geometry of atom retained in model-unit.
             leaving (int): Order in mol. Geometry of atom lost.

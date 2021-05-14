@@ -3,9 +3,11 @@ the indices, of atoms which are to be identified as the model system(s), from th
 
 Main model class for running oniom-calculations. This is analogous to the
 scf.RHF, etc. methods, requiring however a bit more information. User supplies
-an atomic-geometry, and specifies the system, as well as necessary models, 
+an atomic-geometry, and specifies the system, as well as necessary models,
 of increasing sophistication.
 """
+# TODO: Supporting many (3+) layers of different accuracy.
+# TODO:
 
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
@@ -15,12 +17,14 @@ from qsdk.problem_decomposition.problem_decomposition import ProblemDecompositio
 class ONIOMProblemDecomposition(ProblemDecomposition):
 
     def __init__(self, opt_dict):
-        """Main class for the ONIOM hybrid solver.
+        """Main class for the ONIOM hybrid solver. At the moment, it is only
+        supporting two layers (high and low accuracy). This can be generalized
+        to many layers.
 
         Attributes:
-            geometry (strin or list): XYZ atomic coords (in "str float float\n..." or 
+            geometry (strin or list): XYZ atomic coords (in "str float float\n..." or
                 [[str, (float, float, float)], ...] format).
-            models (list of Fragment): Specification of different system-subgroups and 
+            models (list of Fragment): Specification of different system-subgroups and
                 their solvers.
             verbose (bolean): Verbose flag.
         """
