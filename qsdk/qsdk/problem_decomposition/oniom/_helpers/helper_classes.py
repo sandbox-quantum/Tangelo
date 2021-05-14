@@ -16,7 +16,9 @@ from qsdk.electronic_structure_solvers.vqe_solver import VQESolver
 class Fragment:
 
     def __init__(self, solver_low, options_low=None, solver_high=None, options_high=None, selected_atoms=None, charge=0, spin=0, broken_links=None):
-        """Main class for the ONIOM hybrid solver.
+        """Fragment class for the ONIOM solver. Each fragment can have broken links.
+        In this case, they are capped with a chosen atom. Each fragment can also have
+        up to two solvers (low and high accuracy).
 
         Args:
             solver_low (str): Specification of low accuracy solver for fragment.
