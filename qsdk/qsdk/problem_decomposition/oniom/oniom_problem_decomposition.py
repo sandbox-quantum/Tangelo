@@ -74,7 +74,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
                 raise TypeError("selected_atoms must be an int or a list of int.")
 
             # If there are broken_links (other than an empty list nor None).
-            # The whole molecule geometry is needed to compute de position of
+            # The whole molecule geometry is needed to compute the position of
             # the capping atom (or functional group in the future).
             if fragment.broken_links:
                 fragment.fix_links(self.geometry)
