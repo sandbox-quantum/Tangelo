@@ -23,6 +23,11 @@ class Fragment:
             links (list of Link): Bonds broken when forming fragment.
             spin (int): Spin associated witht this fragment.
             charge (int): Charge associated witht this fragment.
+
+        Attributes:
+            broken_links (list of Link): Broken link in this fragment.
+            mol_low (pyscf.gto.Mole): PySCF molecule of this fragment, to be solved with low accuracy.
+            mol_high (pyscf.gto.Mole): PySCF molecule of this fragment, to be solved with high accuracy.
         """
 
         # Check to see if a fragment has no solver_high when only a portion of a molecule
@@ -47,6 +52,8 @@ class Fragment:
         self.charge = charge
 
         self.broken_links = broken_links
+        self.mol_low = None
+        self.mol_high = None
 
     def set_geometry(self, geometry=None):
         """Stter for the fragment geometry.
@@ -79,34 +86,47 @@ class Fragment:
 
         # Low accuracy solver.
         # We begin by defining the molecule.
-        mol_low = gto.Mole()
-        mol_low.build(atom=self.geometry,
-                       basis=self.options_low["basis"],
-                       charge=self.charge,
-                       spin=self.spin)
+        if self.mol_low is None:
+            self.mol_low = self.get_mol(self.options_low["basis"])
+            # Basis is only relevant when making the pyscf molecule. After this,
+            # it is discarded (not needed for electronic solver becasue they retrieved
+            # it from the molecule object).
+            self.options_low = {i:self.options_low[i] for i in self.options_low if i!="basis"}
 
-        self.options_low = {i:self.options_low[i] for i in self.options_low if i!="basis"}
-        e_low = self.get_energy(mol_low, self.solver_low, self.options_low)
+        e_low = self.get_energy(self.mol_low, self.solver_low, self.options_low)
 
         # Higher accuracy solver.
         e_high = 0.
         if self.solver_high is not None:
 
             # Molecule is reconstructed (in case a different basis is used).
-            mol_high = gto.Mole()
-            mol_high.build(atom=self.geometry,
-                        basis=self.options_high["basis"],
-                        charge=self.charge,
-                        spin=self.spin)
+            if self.mol_high is None:
+                self.mol_high = self.get_mol(self.options_high["basis"])
+                # Same process done as in low accuracy process.
+                self.options_high = {i:self.options_high[i] for i in self.options_high if i!="basis"}
 
-            self.options_high = {i:self.options_high[i] for i in self.options_high if i!="basis"}
-            e_high = self.get_energy(mol_high, self.solver_high, self.options_high)
+            e_high = self.get_energy(self.mol_high, self.solver_high, self.options_high)
 
             # Contribution from low accuracy is substracted, as defined by ONIOM.
             e_low *= -1
 
         self.e_fragment = e_high + e_low
         return self.e_fragment
+
+    def get_mol(self, basis):
+        """Get the molecule object for this fragment (with a specified basis).
+
+        Returns:
+            pyscf.gto.Mole: Molecule object.
+        """
+
+        mol= gto.Mole()
+        mol.build(atom=self.geometry,
+                  basis=basis,
+                  charge=self.charge,
+                  spin=self.spin)
+
+        return mol
 
     def get_energy(self, molecule, solver, options_solver):
         """Get the solver object for this layer.
