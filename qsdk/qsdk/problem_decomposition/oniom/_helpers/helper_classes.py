@@ -58,7 +58,7 @@ class Fragment:
         self.mol_high = None
 
     def set_geometry(self, geometry=None):
-        """Stter for the fragment geometry.
+        """Setter for the fragment geometry.
 
         Args:
             geometry (strin or list): XYZ atomic coords (in "str float float\n..." or
@@ -67,17 +67,16 @@ class Fragment:
 
         self.geometry = geometry
 
-        if self.broken_links:
-            self.fix_links(geometry)
-
-    def fix_links(self, geometry):
+    def fix_links(self, whole_geometry):
         """Mend broken links to the system, preserving the electron configuration of the fragment.
+        The whole molecule atomic positions is required to detect where is the capped atom
+        is expected.
 
-        *return*:
-            - **geometry**: list of atomic labels, locations in the model fragment
+        Args:
+            whole_geometry (list of atomic position): Whole molecule geometry.
         """
 
-        self.geometry += [li.relink(geometry) for li in self.broken_links]
+        self.geometry += [li.relink(whole_geometry) for li in self.broken_links]
 
     def simulate(self):
         """Get the solver object for this layer.
@@ -195,4 +194,4 @@ class Link:
         leaving = np.array(geometry[self.leaving][1])
         replacement = self.factor*(leaving-staying) + staying
 
-        return [self.species, (replacement[0], replacement[1], replacement[2])]
+        return (self.species, (replacement[0], replacement[1], replacement[2]))

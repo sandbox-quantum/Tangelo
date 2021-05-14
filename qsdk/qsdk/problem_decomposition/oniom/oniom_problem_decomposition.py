@@ -7,8 +7,9 @@ an atomic-geometry, and specifies the system, as well as necessary models,
 of increasing sophistication.
 """
 # TODO: Supporting many (3+) layers of different accuracy.
-# TODO:
+# TODO: Capping with CH3 or other functional groups.
 
+from qsdk.problem_decomposition.oniom._helpers.helper_classes import Fragment
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
@@ -73,6 +74,12 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
             # Otherwise, an error is raised (list of float, str, etc.).
             else:
                 raise TypeError("selected_atoms must be an int or a list of int.")
+
+            # If there are broken_links (other than an empty list nor None).
+            # The whole molecule geometry is needed to compute de position of
+            # the capping atom (or functional group in the future).
+            if fragment.broken_links:
+                fragment.fix_links(self.geometry)
 
     def simulate(self):
         """Run the ONIOM core-method. The total energy is defined as
