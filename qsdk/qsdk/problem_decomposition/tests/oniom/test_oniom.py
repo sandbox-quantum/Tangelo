@@ -103,8 +103,8 @@ class ONIOMTest(unittest.TestCase):
 
     def test_energy(self):
         """Testing the oniom energy with a low accuraccy method (RHF) and an
-        higher one (CCSD). The molecule is PHE, and the important fragment is
-        the chosen to be the backbone. The side chain is computed at the RHF
+        higher one (CCSD) for PHE molecule. The important fragment is
+        chosen to be the backbone. The side chain is computed at the RHF
         level.
         """
 
@@ -128,13 +128,13 @@ class ONIOMTest(unittest.TestCase):
 
     def test_vqe_cc(self):
         """Test to verifiy the implementation of VQE (with UCCSD) in ONIOM. Results
-        between VQE-uCCSD and CCSD should be the same.
+        between VQE-UCCSD and CCSD should be the same.
         """
 
         options_both = {"basis": "sto-3g"}
 
         # With this line, the interaction between H2-H2 is computed with a low
-        # method.
+        # accuracy method.
         system = Fragment(solver_low="RHF", options_low=options_both)
 
         # VQE-UCCSD fragments.
@@ -149,7 +149,7 @@ class ONIOMTest(unittest.TestCase):
                                options_high=options_both,
                                selected_atoms=[2, 3])
 
-        # Compairing VQE-UCCSD to CCSD.
+        # Comparing VQE-UCCSD to CCSD.
         model_cc_1 = Fragment(solver_low="RHF",
                               options_low=options_both,
                               solver_high="CCSD",

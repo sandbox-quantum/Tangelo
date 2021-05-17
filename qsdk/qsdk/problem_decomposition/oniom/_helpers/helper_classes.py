@@ -8,9 +8,7 @@ from pyscf import gto
 
 # Imports of electronic solvers.
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
-from qsdk.electronic_structure_solvers.ccsd_solver import CCSDSolver
-from qsdk.electronic_structure_solvers.fci_solver import FCISolver
-from qsdk.electronic_structure_solvers.vqe_solver import VQESolver
+from qsdk.electronic_structure_solvers import CCSDSolver, FCISolver, VQESolver
 
 
 class Fragment:
@@ -33,7 +31,7 @@ class Fragment:
         Attributes:
             mol_low (pyscf.gto.Mole): PySCF molecule of this fragment, to be solved with low accuracy.
             mol_high (pyscf.gto.Mole): PySCF molecule of this fragment, to be solved with high accuracy.
-            e_fragment (flaot): Energy of this fragment as defined by ONIOM. None if simulate
+            e_fragment (float): Energy of this fragment as defined by ONIOM. None if simulate
                 has not yet been called.
         """
 
@@ -65,27 +63,6 @@ class Fragment:
         self.mol_high = None
         self.e_fragment = None
 
-    def set_geometry(self, geometry=None):
-        """Setter for the fragment geometry.
-
-        Args:
-            geometry (strin or list): XYZ atomic coords (in "str float float\n..." or
-                [[str, (float, float, float)], ...] format).
-        """
-
-        self.geometry = geometry
-
-    def fix_links(self, whole_geometry):
-        """Mend broken links to the system, preserving the electron configuration of the fragment.
-        The whole molecule atomic positions is required to detect where is the capped atom
-        is expected.
-
-        Args:
-            whole_geometry (list of atomic position): Whole molecule geometry.
-        """
-
-        self.geometry += [li.relink(whole_geometry) for li in self.broken_links]
-
     def simulate(self):
         """Get the solver object for this layer.
 
@@ -98,7 +75,7 @@ class Fragment:
         if self.mol_low is None:
             self.mol_low = self.get_mol(self.options_low["basis"])
             # Basis is only relevant when making the pyscf molecule. After this,
-            # it is discarded (not needed for electronic solver becasue they retrieved
+            # it is discarded (not needed for electronic solver because they retrieved
             # it from the molecule object).
             self.options_low = {i:self.options_low[i] for i in self.options_low if i!="basis"}
 

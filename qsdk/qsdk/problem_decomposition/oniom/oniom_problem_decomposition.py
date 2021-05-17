@@ -1,14 +1,24 @@
-"""Hybrid electronic-structure solver. User specifies either the number (if beginning from start of list), or
-the indices, of atoms which are to be identified as the model system(s), from the larger molecular system.
+"""Our own n-layered Integrated molecular Orbital and Molecular mechanics (ONIOM) solver.
+User specifies either the number (if beginning from start of list), or the indices, of
+atoms which are to be identified as the model system(s), from the larger molecular system.
 
 Main model class for running oniom-calculations. This is analogous to the
 scf.RHF, etc. methods, requiring however a bit more information. User supplies
 an atomic-geometry, and specifies the system, as well as necessary models,
 of increasing sophistication.
+
+Reference:
+The ONIOM Method and Its Applications
+Lung Wa Chung, W. M. C. Sameera, Romain Ramozzi, Alister J. Page, Miho Hatanaka,
+Galina P. Petrova, Travis V. Harris, Xin Li, Zhuofeng Ke, Fengyi Liu, Hai-Bei Li,
+Lina Ding, and Keiji Morokuma
+Chemical Reviews 2015 115 (12), 5678-5796.
+DOI: 10.1021/cr5004419
 """
 # TODO: Supporting many (3+) layers of different accuracy.
 # TODO: Capping with CH3 or other functional groups.
 
+from qsdk.problem_decomposition.oniom._helpers.helper_classes import Fragment
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
 
@@ -55,20 +65,19 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
     def distribute_atoms(self):
         """For each fragment, the atom selection is passed to the Fragment object.
         Depending on the input, the method has several behaviors.
-        It calss the Fragment.set_geometry method.
         """
 
         for fragment in self.fragments:
             # Case when no atom are selected -> whole system.
             if fragment.selected_atoms is None:
-                fragment.set_geometry(self.geometry)
+                fragment.geometry = self.geometry
             # Case where an int is detected -> first n atoms.
             elif type(fragment.selected_atoms) is int:
-                fragment.set_geometry(self.geometry[:fragment.selected_atoms])
+                fragment.geometry = self.geometry[:fragment.selected_atoms]
             # Case where a list of int is detected -> atom indexes are selected.
             # First atom is 0.
             elif isinstance(fragment.selected_atoms, list) and all(isinstance(_, int) for _ in fragment.selected_atoms):
-                fragment.set_geometry([self.geometry[n] for n in fragment.selected_atoms])
+                fragment.geometry = [self.geometry[n] for n in fragment.selected_atoms]
             # Otherwise, an error is raised (list of float, str, etc.).
             else:
                 raise TypeError("selected_atoms must be an int or a list of int.")
@@ -77,7 +86,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
             # The whole molecule geometry is needed to compute the position of
             # the capping atom (or functional group in the future).
             if fragment.broken_links:
-                fragment.fix_links(self.geometry)
+                fragment.geometry += [li.relink(self.geometry) for li in fragment.broken_links]
 
     def simulate(self):
         """Run the ONIOM core-method. The total energy is defined as
