@@ -86,7 +86,7 @@ class VQESolver:
         # Compute qubit hamiltonian for the input molecular system
         self.qemist_molecule = MolecularData(self.molecule, self.mean_field, self.frozen_orbitals)
         self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
-        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian, 
+        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian,
                                                           mapping=self.qubit_mapping,
                                                           n_spinorbitals=self.qemist_molecule.n_qubits,
                                                           n_electrons=self.qemist_molecule.n_electrons,
