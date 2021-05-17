@@ -93,8 +93,6 @@ class ONIOMTest(unittest.TestCase):
 
         # Every atom must be the same (same order too).
         # Position can be almost equals.
-        # I coded a loop because there is no easy way to compare arrays with
-        # different data types (to my knowledge).
         for i, atom in enumerate(geom_fragment_capped):
             self.assertEquals(atom[0], PHE_backbone_capped[i][0])
 

@@ -26,9 +26,8 @@ from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_l
 class ONIOMProblemDecomposition(ProblemDecomposition):
 
     def __init__(self, opt_dict):
-        """Main class for the ONIOM hybrid solver. At the moment, it is only
-        supporting two layers (high and low accuracy). This can be generalized
-        to many layers.
+        """Main class for the ONIOM hybrid solver. It defines layers with
+        with different electronic solvers.
 
         Attributes:
             geometry (strin or list): XYZ atomic coords (in "str float float\n..." or
@@ -49,15 +48,11 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
             if k in default_options:
                 setattr(self, k, v)
             else:
-                raise KeyError(f"Keyword :: {k}, not available in ONIOMProblemDecomposition.")
+                raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}.")
 
         # Raise error/warnings if input is not as expected
         if not self.geometry or not self.fragments:
             raise ValueError(f"A geometry and models must be provided when instantiating ONIOMProblemDecomposition.")
-
-        # Converting a single Fragment instance into a list with one element.
-        #if isinstance(self.model, Fragment):
-        #    self.model = [self.model]
 
         self.geometry = atom_string_to_list(self.geometry) if isinstance(self.geometry, str) else self.geometry
         self.distribute_atoms()
@@ -76,7 +71,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
                 fragment.geometry = self.geometry[:fragment.selected_atoms]
             # Case where a list of int is detected -> atom indexes are selected.
             # First atom is 0.
-            elif isinstance(fragment.selected_atoms, list) and all(isinstance(_, int) for _ in fragment.selected_atoms):
+            elif isinstance(fragment.selected_atoms, list) and all(isinstance(id_atom, int) for id_atom in fragment.selected_atoms):
                 fragment.geometry = [self.geometry[n] for n in fragment.selected_atoms]
             # Otherwise, an error is raised (list of float, str, etc.).
             else:
@@ -96,9 +91,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
             float: Total ONIOM energy.
         """
 
-        e_oniom = 0.
         # Run energy calculation for each fragment.
-        for fragment in self.fragments:
-            e_oniom += fragment.simulate()
+        e_oniom = sum([fragment.simulate() for fragment in self.fragments])
 
         return e_oniom
