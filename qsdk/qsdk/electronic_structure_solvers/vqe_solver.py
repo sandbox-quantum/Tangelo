@@ -57,6 +57,7 @@ class VQESolver:
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
                            "up_then_down": False,
+                           "qubit_hamiltonian": None,
                            "verbose": False}
 
         # Initialize with default values
@@ -68,16 +69,42 @@ class VQESolver:
             else:
                 raise KeyError(f"Keyword :: {k}, not available in VQESolver")
 
-        # Raise error/warnings if input is not as expected
-        if not self.molecule:
-            raise ValueError(f"A molecule object must be provided when instantiating VQESolver")
+        # Raise error/warnings if input is not as expected. Only a single input
+        # must be provided to avoid conflicts.
+        if sum([bool(self.molecule), bool(self.qubit_hamiltonian)]) != 1:
+            raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
         self.optimal_energy = None
         self.optimal_var_params = None
         self.builtin_ansatze = set(Ansatze)
 
     def build(self):
-        """ Build the underlying objects required to run the VQE algorithm afterwards """
+        """Build the underlying objects required to run the VQE algorithm afterwards. """
+
+        # Building from a molecule.
+        if self.molecule:
+            self.build_with_molecule()
+        # If there is a qubit_hamiltonian (and no molecule), the build is done
+        # with another method.
+        else:
+            self.build_with_hamiltonian()
+
+    def build_with_hamiltonian(self):
+        """Build the underlying objects from a qubit Hamiltonian and a custom ansatz. """
+
+        # Build / set ansatz circuit. The user is forced to use a custom circuit.
+        if not isinstance(self.ansatz, Ansatz):
+            raise TypeError(f"Invalid ansatz dataype. Expecting custom of Ansatz.")
+        # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
+        self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
+        self.ansatz.build_circuit()
+
+        # Quantum circuit simulation backend options
+        self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
+                                 noise_model=self.backend_options["noise_model"])
+
+    def build_with_molecule(self):
+        """Build the underlying objects required from a molecule object. """
 
         # Build adequate mean-field (RHF for now, others in future).
         if not self.mean_field:
