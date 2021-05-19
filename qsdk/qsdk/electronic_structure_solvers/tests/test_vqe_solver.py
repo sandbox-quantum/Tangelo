@@ -7,6 +7,7 @@ from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 
+
 H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
 H4 = [["H", [0.7071067811865476, 0.0, 0.0]], ["H", [0.0, 0.7071067811865476, 0.0]],
       ["H", [-1.0071067811865476, 0.0, 0.0]], ["H", [0.0, -1.0071067811865476, 0.0]]]
