@@ -311,7 +311,7 @@ class VQESolverTest(unittest.TestCase):
             vqe_solver_ucc3 = VQESolver(vqe_options)
             vqe_solver_ucc3.build()
 
-    def test_qubit_H_input(self):
+    def test_qubit_qhamiltonian_input(self):
         """Test the case where a qubit Hamiltonian is used to construct VQE. """
 
         qemist_mol = MolecularData(mol_H2)
@@ -322,7 +322,7 @@ class VQESolverTest(unittest.TestCase):
                    "ansatz": UCCSD(qemist_mol, mapping="jw")}
         VQESolver(options)
 
-    def test_qubit_H_input_conflicts(self):
+    def test_qubit_qhamiltonian_input_conflicts(self):
         """ Test the case where a molecule and a qubit Hamiltonian are passed
         as inputs.
         """
@@ -338,7 +338,7 @@ class VQESolverTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             VQESolver(options)
 
-    def test_qubit_H_input_no_custom_ansatz(self):
+    def test_qubit_qhamiltonian_input_no_custom_ansatz(self):
         """Test the case where no custom ansatz is passed when using a qubit
         Hamiltonian as input.
         """
