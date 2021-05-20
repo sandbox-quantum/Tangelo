@@ -71,7 +71,7 @@ class VQESolver:
 
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
-        if sum([bool(self.molecule), bool(self.qubit_hamiltonian)]) != 1:
+        if (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
         self.optimal_energy = None
