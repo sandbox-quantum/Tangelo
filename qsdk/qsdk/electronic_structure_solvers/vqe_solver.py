@@ -94,7 +94,7 @@ class VQESolver:
 
         # Build / set ansatz circuit. The user is forced to use a custom circuit.
         if not isinstance(self.ansatz, Ansatz):
-            raise TypeError(f"Invalid ansatz dataype. Expecting custom of Ansatz.")
+            raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz.")
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
