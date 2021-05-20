@@ -82,11 +82,8 @@ class VQESolver:
     def build(self):
         """Build the underlying objects required to run the VQE algorithm afterwards. """
 
-        # Building with a qubit Hamiltonian.
-        if (not self.molecule) and (not isinstance(self.ansatz, Ansatz)):
-            raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
         # Building VQE with a molecule as input.
-        else:
+        if self.molecule:
             # Build adequate mean-field (RHF for now, others in future).
             if not self.mean_field:
                 self.mean_field = prepare_mf_RHF(self.molecule)
@@ -124,6 +121,9 @@ class VQESolver:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
+        # Building with a qubit Hamiltonian.
+        elif (not isinstance(self.ansatz, Ansatz)):
+            raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
