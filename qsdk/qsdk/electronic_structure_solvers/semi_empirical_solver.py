@@ -31,7 +31,7 @@ class MINDO3Solver(ElectronicStructureSolver):
             total_energy (float): RMINDO3 energy
         """
 
-        solver = mindo3.RMINDO3(molecule).run()
+        solver = mindo3.RMINDO3(molecule).run(verbose=0)
         total_energy = solver.e_tot
 
         return total_energy
