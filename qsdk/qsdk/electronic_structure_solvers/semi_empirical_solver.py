@@ -14,8 +14,8 @@ class MINDO3Solver(ElectronicStructureSolver):
     through pyscf. Only the restricted (RMINDO3) flavor is implemented.
 
     Refs:
-    R. C. Bingham, M. J. Dewar, D. H. Lo, J. Am. Chem. Soc., 97, 1285 (1975)
-    D. F. Lewis, Chem. Rev. 86, 1111 (1986).
+    - R. C. Bingham, M. J. Dewar, D. H. Lo, J. Am. Chem. Soc., 97, 1285 (1975)
+    - D. F. Lewis, Chem. Rev. 86, 1111 (1986)
     """
 
     def __init__(self):
