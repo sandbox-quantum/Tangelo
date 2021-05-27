@@ -168,6 +168,27 @@ class ONIOMTest(unittest.TestCase):
         # The two results (VQE-UCCSD and CCSD) should be more or less the same.
         self.assertAlmostEqual(e_oniom_vqe, e_oniom_cc, places=5)
 
+    def test_semi_empirical_link(self):
+        """Testing the oniom link witht he semi-empirical electronic solver. """
+
+        # For semi-empirical solver, no basis set is required.
+        # There is no options_low in this context.
+        options_high = {"basis": "sto-3g"}
+
+        system = Fragment(solver_low="MINDO3")
+
+        link = [Link(1, 2, 0.709, 'H')]
+        model = Fragment(solver_low="MINDO3",
+                         solver_high="CCSD",
+                         options_high=options_high,
+                         selected_atoms=[0, 1, 9, 10, 11, 12, 13, 14, 22],
+                         broken_links=link)
+
+        oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
+        e_oniom = oniom_solver.simulate()
+
+        self.assertAlmostEquals(e_oniom, -315.23418566258914, places=6)
+
 
 if __name__ == "__main__":
     unittest.main()
