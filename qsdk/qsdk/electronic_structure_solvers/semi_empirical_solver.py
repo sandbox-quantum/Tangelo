@@ -4,12 +4,11 @@ in a very fast way to optimize its geometry. Those methods are not ab initio as 
 employ empirical parameters, as stated in the name "semi-empirical". They are in
 fact related to simplified Hartree-Fock versions with empirical correction. Differences
 between them come from the process chosen to compute the empirical parameters. For example,
-MINDO3 inventors used atomization energy to fit their mathematical models.
+MINDO3 inventors used atomization energies to fit their mathematical models.
 
-Their use cases in QEMIST_qSDK are to compute an environment energy and to
-induce geometry constraints on a system described by an ab initio method, without
-freezing atomic positions. This should not be used alone, as it gives far to be
-precise energies.
+They have been introduced in this package for the purpose of computing an environment
+energy and inducing constraints on atomic positions. As stand-alone solvers, they are
+however a poor choice, as they do not provide an accurate approximation of energies.
 
 Here are the semi-empirical method(s) implemented:
 - MINDO3
