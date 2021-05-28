@@ -2,7 +2,7 @@
 At first, semi-empirical methods are ways of computing the total energy of a molecule
 in a very fast way to optimize its geometry. Those methods are not ab initio as they
 employ empirical parameters, as stated in the name "semi-empirical". They are in
-fact related to simplified Hartree-Fock versions with empirical correction. Differences
+fact related to simplified Hartree-Fock versions with empirical corrections. Differences
 between them come from the process chosen to compute the empirical parameters. For example,
 MINDO3 inventors used atomization energies to fit their mathematical models.
 
