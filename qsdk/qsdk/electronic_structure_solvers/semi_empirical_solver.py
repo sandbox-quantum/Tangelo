@@ -1,6 +1,17 @@
 """ Class performing electronic structure calculation employing the semi-empirical methods.
+At first, semi-empirical methods are ways of computing the total energy of a molecule
+in a very fast way to optimize its geometry. Those methods are not ab initio as they
+employ empirical parameters, as stated in the name "semi-empirical". They are in
+fact related to simplified Hartree-Fock versions with empirical correction. Differences
+between them come from the process chosen to compute the empirical parameters. For example,
+MINDO3 inventors used atomization energy to fit their mathematical models.
 
-Here are semi-empirical methods implemented:
+Their use cases in QEMIST_qSDK are to compute an environment energy and to
+induce geometry constraints on a system described by an ab initio method, without
+freezing atomic positions. This should not be used alone, as it gives far to be
+precise energies.
+
+Here are the semi-empirical method(s) implemented:
 - MINDO3
 """
 

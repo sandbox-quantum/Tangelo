@@ -168,8 +168,10 @@ class ONIOMTest(unittest.TestCase):
         # The two results (VQE-UCCSD and CCSD) should be more or less the same.
         self.assertAlmostEqual(e_oniom_vqe, e_oniom_cc, places=5)
 
-    def test_semi_empirical_link(self):
-        """Testing the oniom link witht he semi-empirical electronic solver. """
+    def test_semi_empirical_mindo3_link(self):
+        """Testing the oniom link with the semi-empirical electronic solver
+        MINDO3.
+        """
 
         # For semi-empirical solver, no basis set is required.
         # There is no options_low in this context.
