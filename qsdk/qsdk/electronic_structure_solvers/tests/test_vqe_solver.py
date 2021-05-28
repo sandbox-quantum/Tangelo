@@ -3,6 +3,9 @@ from pyscf import gto
 import numpy as np
 
 from qsdk.electronic_structure_solvers.vqe_solver import Ansatze, VQESolver
+from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
+from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
+from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 
 
 H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
@@ -79,11 +82,11 @@ class VQESolverTest(unittest.TestCase):
         Each of JW, BK, and scBK mappings are checked."""
         mappings = ['jw', 'bk', 'scbk']
         expected_values = [(15, 4), (15, 4), (5, 2)]
-        
+
         vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
                        "initial_var_params": [0.1, 0.1]}
         for index,mi in enumerate(mappings):
-            vqe_options['qubit_mapping'] = mi    
+            vqe_options['qubit_mapping'] = mi
             vqe_solver = VQESolver(vqe_options)
             vqe_solver.build()
             resources = vqe_solver.get_resources()
@@ -222,7 +225,7 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, energy_target, places=5)
 
     def test_spin_reorder_equivalence(self):
-        """Test that re-ordered spin input (all up followed by all down) 
+        """Test that re-ordered spin input (all up followed by all down)
         return the same optimized energy result for both JW and BK mappings."""
         vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "up_then_down": True,
                        "verbose": False, "qubit_mapping": 'jw'}
@@ -259,7 +262,7 @@ class VQESolverTest(unittest.TestCase):
         frozen = [i for i in range(9) if i not in [5,9]]
 
         vqe_options = {"molecule": mol_NaH, "ansatz": Ansatze.UCC1, "qubit_mapping": 'jw',
-                       "initial_var_params": "zeros", "frozen_orbitals": frozen, 
+                       "initial_var_params": "zeros", "frozen_orbitals": frozen,
                        "up_then_down": True, "verbose": False}
 
         vqe_solver_ucc1 = VQESolver(vqe_options)
@@ -281,7 +284,7 @@ class VQESolverTest(unittest.TestCase):
         frozen = None
 
         vqe_options = {"molecule": mol_NaH, "ansatz": Ansatze.UCC1, "qubit_mapping": 'jw',
-                       "initial_var_params": "zeros", "frozen_orbitals": frozen, 
+                       "initial_var_params": "zeros", "frozen_orbitals": frozen,
                        "up_then_down": True, "verbose": False}
 
         with self.assertRaises(ValueError):
@@ -307,6 +310,52 @@ class VQESolverTest(unittest.TestCase):
             vqe_options["ansatz"] = Ansatze.UCC3
             vqe_solver_ucc3 = VQESolver(vqe_options)
             vqe_solver_ucc3.build()
+
+    def test_qubit_qhamiltonian_input(self):
+        """Test the case where a qubit Hamiltonian is used to construct VQE. """
+
+        qemist_mol = MolecularData(mol_H2)
+        fermionic_hamiltonian = qemist_mol.get_molecular_hamiltonian()
+        qubit_hamiltonian = fermion_to_qubit_mapping(fermionic_hamiltonian, mapping="jw")
+
+        options = {"qubit_hamiltonian": qubit_hamiltonian,
+                   "ansatz": UCCSD(qemist_mol, mapping="jw")}
+        VQESolver(options)
+
+    def test_qubit_qhamiltonian_input_conflicts(self):
+        """ Test the case where a molecule and a qubit Hamiltonian are passed
+        as inputs.
+        """
+
+        qemist_mol = MolecularData(mol_H2)
+        fermionic_hamiltonian = qemist_mol.get_molecular_hamiltonian()
+        qubit_hamiltonian = fermion_to_qubit_mapping(fermionic_hamiltonian, mapping="jw")
+
+        options = {"molecule": qemist_mol,
+                   "qubit_hamiltonian": qubit_hamiltonian,
+                   "ansatz": UCCSD(qemist_mol, mapping="jw")}
+
+        with self.assertRaises(ValueError):
+            VQESolver(options)
+
+    def test_qubit_qhamiltonian_input_no_custom_ansatz(self):
+        """Test the case where no custom ansatz is passed when using a qubit
+        Hamiltonian as input.
+        """
+
+        qemist_mol = MolecularData(mol_H2)
+        fermionic_hamiltonian = qemist_mol.get_molecular_hamiltonian()
+        qubit_hamiltonian = fermion_to_qubit_mapping(fermionic_hamiltonian, mapping="jw")
+
+        options = {"qubit_hamiltonian": qubit_hamiltonian}
+
+        with self.assertRaises(TypeError):
+            VQESolver(options).build()
+
+        options["ansatz"] = Ansatze.UCCSD
+
+        with self.assertRaises(TypeError):
+            VQESolver(options).build()
 
 
 if __name__ == "__main__":

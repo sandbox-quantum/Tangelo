@@ -18,7 +18,6 @@ DOI: 10.1021/cr5004419
 # TODO: Supporting many (3+) layers of different accuracy.
 # TODO: Capping with CH3 or other functional groups.
 
-from qsdk.problem_decomposition.oniom._helpers.helper_classes import Fragment
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
 

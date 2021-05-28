@@ -8,7 +8,7 @@ from pyscf import gto
 
 # Imports of electronic solvers.
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
-from qsdk.electronic_structure_solvers import CCSDSolver, FCISolver, VQESolver
+from qsdk.electronic_structure_solvers import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
 
 
 class Fragment:
@@ -134,6 +134,9 @@ class Fragment:
             energy = solver.simulate(molecule, **options_solver)
         elif solver == "FCI":
             solver = FCISolver()
+            energy = solver.simulate(molecule, **options_solver)
+        elif solver == "MINDO3":
+            solver = MINDO3Solver()
             energy = solver.simulate(molecule, **options_solver)
         elif solver == "VQE":
             molecule_options = {'molecule': molecule}

@@ -57,6 +57,7 @@ class VQESolver:
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
                            "up_then_down": False,
+                           "qubit_hamiltonian": None,
                            "verbose": False}
 
         # Initialize with default values
@@ -68,54 +69,61 @@ class VQESolver:
             else:
                 raise KeyError(f"Keyword :: {k}, not available in VQESolver")
 
-        # Raise error/warnings if input is not as expected
-        if not self.molecule:
-            raise ValueError(f"A molecule object must be provided when instantiating VQESolver")
+        # Raise error/warnings if input is not as expected. Only a single input
+        # must be provided to avoid conflicts.
+        if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
+            raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
         self.optimal_energy = None
         self.optimal_var_params = None
         self.builtin_ansatze = set(Ansatze)
 
     def build(self):
-        """ Build the underlying objects required to run the VQE algorithm afterwards """
+        """Build the underlying objects required to run the VQE algorithm afterwards. """
 
-        # Build adequate mean-field (RHF for now, others in future).
-        if not self.mean_field:
-            self.mean_field = prepare_mf_RHF(self.molecule)
+        # Building VQE with a molecule as input.
+        if self.molecule:
+            # Build adequate mean-field (RHF for now, others in future).
+            if not self.mean_field:
+                self.mean_field = prepare_mf_RHF(self.molecule)
 
-        # Compute qubit hamiltonian for the input molecular system
-        self.qemist_molecule = MolecularData(self.molecule, self.mean_field, self.frozen_orbitals)
-        self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
-        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian,
-                                                          mapping=self.qubit_mapping,
-                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
-                                                          n_electrons=self.qemist_molecule.n_electrons,
-                                                          up_then_down=self.up_then_down)
+            # Compute qubit hamiltonian for the input molecular system
+            self.qemist_molecule = MolecularData(self.molecule, self.mean_field, self.frozen_orbitals)
+            self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
+            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian,
+                                                              mapping=self.qubit_mapping,
+                                                              n_spinorbitals=self.qemist_molecule.n_qubits,
+                                                              n_electrons=self.qemist_molecule.n_electrons,
+                                                              up_then_down=self.up_then_down)
 
-        # Verification of system compatibility with UCC1 or UCC3 circuits.
-        if self.ansatz in [Ansatze.UCC1, Ansatze.UCC3]:
-            # Mapping should be JW because those ansatz are chemically inspired.
-            if self.qubit_mapping != "jw":
-                raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
-            # They are encoded with this convention.
-            if not self.up_then_down:
-                raise ValueError("Parameter up_then_down must be set to True for {} ansatz.".format(self.ansatz))
-            # Only HOMO-LUMO systems are relevant.
-            if count_qubits(self.qubit_hamiltonian) != 4:
-                raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
+            # Verification of system compatibility with UCC1 or UCC3 circuits.
+            if self.ansatz in [Ansatze.UCC1, Ansatze.UCC3]:
+                # Mapping should be JW because those ansatz are chemically inspired.
+                if self.qubit_mapping != "jw":
+                    raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
+                # They are encoded with this convention.
+                if not self.up_then_down:
+                    raise ValueError("Parameter up_then_down must be set to True for {} ansatz.".format(self.ansatz))
+                # Only HOMO-LUMO systems are relevant.
+                if count_qubits(self.qubit_hamiltonian) != 4:
+                    raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
-        # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
-        if type(self.ansatz) == Ansatze:
-            if self.ansatz == Ansatze.UCCSD:
-                self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
-            elif self.ansatz == Ansatze.UCC1:
-                self.ansatz = RUCC(1)
-            elif self.ansatz == Ansatze.UCC3:
-                self.ansatz = RUCC(3)
-            else:
-                raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
-        elif not isinstance(self.ansatz, Ansatz):
-            raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
+            # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
+            if type(self.ansatz) == Ansatze:
+                if self.ansatz == Ansatze.UCCSD:
+                    self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
+                elif self.ansatz == Ansatze.UCC1:
+                    self.ansatz = RUCC(1)
+                elif self.ansatz == Ansatze.UCC3:
+                    self.ansatz = RUCC(3)
+                else:
+                    raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
+            elif not isinstance(self.ansatz, Ansatz):
+                raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
+        # Building with a qubit Hamiltonian.
+        elif (not isinstance(self.ansatz, Ansatz)):
+            raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
+
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
