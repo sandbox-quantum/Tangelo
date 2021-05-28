@@ -7,7 +7,6 @@
 
 import warnings
 from openfermion.measurements import group_into_tensor_product_basis_sets
-from agnostic_simulator import Simulator
 
 
 def qubitwise_commutativity_of(qb_ham, seed=None):
@@ -44,6 +43,9 @@ def exp_value_from_measurement_bases(sub_ops, histograms):
         Returns:
             exp_value (float or complex): Expectation value of the sum of all suboperators
     """
+
+    # To avoid circular imports
+    from agnostic_simulator import Simulator
 
     # Warning if dicts dont have exact set of keys
     if set(sub_ops) != set(histograms):
