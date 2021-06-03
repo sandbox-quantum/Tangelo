@@ -11,3 +11,8 @@ cd /root/agnostic_simulator/tests/
 cd /root/qsdk/
 /root/env/bin/python3 -m unittest
 
+# Tests jupyter
+cd /root/qsdk/examples
+sh run_notebooks
+cd /root/agnostic_simulator/examples
+sh run_notebooks
