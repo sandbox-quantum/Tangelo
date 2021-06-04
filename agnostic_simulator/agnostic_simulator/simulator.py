@@ -27,7 +27,7 @@ from projectq.ops import *
 from openfermion.ops import QubitOperator
 
 from agnostic_simulator import Gate, Circuit
-from agnostic_simulator.helpers import measurement_basis_gates
+from agnostic_simulator.helpers.circuits.measurement_basis import measurement_basis_gates
 import agnostic_simulator.translator as translator
 
 
