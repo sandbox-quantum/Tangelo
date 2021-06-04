@@ -54,24 +54,30 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
             raise ValueError(f"A geometry and models must be provided when instantiating ONIOMProblemDecomposition.")
 
         self.geometry = atom_string_to_list(self.geometry) if isinstance(self.geometry, str) else self.geometry
-        self.distribute_atoms()
+        self.update_geometry(self.geometry)
 
-    def distribute_atoms(self):
+    def update_geometry(self, new_geometry):
         """For each fragment, the atom selection is passed to the Fragment object.
-        Depending on the input, the method has several behaviors.
+        Depending on the input, the method has several behaviors. This method is
+        compatible with updating the geometry on the fly (optimization).
+
+        Args:
+            new_geometry (list): XYZ atomic coords in [[str, (float, float,
+                float)], ...].
         """
+        self.geometry = new_geometry
 
         for fragment in self.fragments:
             # Case when no atom are selected -> whole system.
             if fragment.selected_atoms is None:
-                fragment.geometry = self.geometry
+                fragment_geometry = new_geometry
             # Case where an int is detected -> first n atoms.
             elif type(fragment.selected_atoms) is int:
-                fragment.geometry = self.geometry[:fragment.selected_atoms]
+                fragment_geometry = new_geometry[:fragment.selected_atoms]
             # Case where a list of int is detected -> atom indexes are selected.
             # First atom is 0.
             elif isinstance(fragment.selected_atoms, list) and all(isinstance(id_atom, int) for id_atom in fragment.selected_atoms):
-                fragment.geometry = [self.geometry[n] for n in fragment.selected_atoms]
+                fragment_geometry = [self.geometry[n] for n in fragment.selected_atoms]
             # Otherwise, an error is raised (list of float, str, etc.).
             else:
                 raise TypeError("selected_atoms must be an int or a list of int.")
@@ -80,7 +86,9 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
             # The whole molecule geometry is needed to compute the position of
             # the capping atom (or functional group in the future).
             if fragment.broken_links:
-                fragment.geometry += [li.relink(self.geometry) for li in fragment.broken_links]
+                fragment_geometry += [li.relink(new_geometry) for li in fragment.broken_links]
+
+            fragment.update_geometry(fragment_geometry)
 
     def simulate(self):
         """Run the ONIOM core-method. The total energy is defined as
@@ -94,3 +102,9 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         e_oniom = sum([fragment.simulate() for fragment in self.fragments])
 
         return e_oniom
+
+    run = simulate
+
+
+if __name__ == "__main__":
+    pass

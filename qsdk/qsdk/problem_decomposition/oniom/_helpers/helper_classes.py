@@ -55,6 +55,7 @@ class Fragment:
         self.options_high = options_high if options_high is not None else default_solver_options
 
         # For this fragment (not the whole molecule).
+        self.geometry = None
         self.spin = spin
         self.charge = charge
 
@@ -113,6 +114,23 @@ class Fragment:
                   spin=self.spin)
 
         return mol
+
+    def update_geometry(self, new_geometry):
+        """Update the geometry of the fragment. If there is already a mol
+        object built, update it with the appropriate method.
+
+        Args:
+            new_geometry (list): XYZ atomic coords in [[str, (float, float,
+                float)], ...].
+        """
+
+        self.geometry = new_geometry
+
+        if self.mol_low is not None:
+            self.mol_low.set_geom_(new_geometry, inplace=True)
+
+        if self.mol_high is not None:
+            self.mol_high.set_geom_(new_geometry, inplace=True)
 
     def get_energy(self, molecule, solver, options_solver):
         """Get the solver object for this layer.
