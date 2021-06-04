@@ -18,8 +18,43 @@ DOI: 10.1021/cr5004419
 # TODO: Supporting many (3+) layers of different accuracy.
 # TODO: Capping with CH3 or other functional groups.
 
+from pyscf import gto, lib
+
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
+
+
+def as_scanner(model):
+    """
+    Prepare scanner method to enable repeated execution of ONIOM over different
+    molecular geometries rapidly, as for other standard solvers in pyscf
+    Defines a Scanner class, specific to the associated model.
+    Note this scanner is energy-specific, rather than the related, gradient-scanner
+    *args*:
+        - **model**: instance of oniom_model class (defined below)
+    *return*:
+        - **ONIOM_Scanner**: scanner class
+    """
+    class ONIOM_Scanner(model.__class__,lib.SinglePointScanner):
+
+            def __init__(self,model):
+                self.mol = self.model.mol
+                self.__dict__.update(model.__dict__)
+
+            def __call__(self,geometry):
+
+                if isinstance(geometry,gto.Mole):
+                    mol = geometry
+                else:
+                    mol = self.mol.set_geom_(geometry,inplace=False)
+
+                self.update_geometry(mol.atom)
+
+                e_tot = self.kernel()
+                self.mol = mol
+
+                return e_tot
+    return
 
 
 class ONIOMProblemDecomposition(ProblemDecomposition):
@@ -104,7 +139,8 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         return e_oniom
 
     run = simulate
-
+    kernel = simulate
+    as_scanner = as_scanner
 
 if __name__ == "__main__":
     pass
