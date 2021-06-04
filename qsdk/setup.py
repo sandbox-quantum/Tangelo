@@ -22,5 +22,5 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     test_suite="qsdk",
     setup_requires=['agnostic_simulator'],
-    install_requires=['pyscf', 'openfermion', 'openfermionpyscf']
+    install_requires=['pyscf', 'openfermion', 'openfermionpyscf', 'geometric']
 )
