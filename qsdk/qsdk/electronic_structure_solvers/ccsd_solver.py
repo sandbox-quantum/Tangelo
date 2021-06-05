@@ -12,7 +12,7 @@ class CCSDSolver(ElectronicStructureSolver):
     Attributes:
         cc_fragment (pyscf.cc.CCSD): The coupled-cluster object.
     """
-    
+
     def __init__(self):
         self.cc_fragment = None
 
@@ -23,7 +23,7 @@ class CCSDSolver(ElectronicStructureSolver):
         Args:
             molecule (pyscf.gto.Mole): The molecule to simulate.
             mean_field (pyscf.scf.RHF): The mean field of the molecule.
-            frozen_orbitals (int or list of int): Frozen orbitals (int -> first 
+            frozen_orbitals (int or list of int): Frozen orbitals (int -> first
                 n, list -> indexes are frozen).
 
         Returns:
@@ -57,7 +57,7 @@ class CCSDSolver(ElectronicStructureSolver):
             one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle RDMs
         Raises:
             RuntimeError: If no simulation has been run.
-        """        
+        """
 
         # Check if CCSD calculation is performed
         if not self.cc_fragment:
