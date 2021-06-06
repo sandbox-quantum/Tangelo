@@ -69,3 +69,12 @@ class CCSDSolver(ElectronicStructureSolver):
         two_rdm = self.cc_fragment.make_rdm2()
 
         return one_rdm, two_rdm
+
+    def get_solver(self):
+        """Get the CCSD solver pyscf object.
+
+        Returns:
+        self.cc_fragment (pyscf.cc.CCSD): CCSD pyscf solver object.
+        """
+
+        return self.cc_fragment
