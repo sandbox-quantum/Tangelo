@@ -60,7 +60,7 @@ class FCISolver(ElectronicStructureSolver):
             one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle RDMs
         Raises:
             RuntimeError: If method "simulate" hasn't been run.
-        """        
+        """
 
         # Check if Full CI is performed
         if not self.norb or not self.nelec:
@@ -70,3 +70,12 @@ class FCISolver(ElectronicStructureSolver):
         two_rdm = self.cisolver.make_rdm2(self.ci, self.norb, self.nelec)
 
         return one_rdm, two_rdm
+
+    def get_solver(self):
+        """Get the FCI solver pyscf object.
+
+        Returns:
+        self.cisolver (pyscf.fci.direct_spin0.FCI): FCI pyscf solver object.
+        """
+
+        return self.cisolver
