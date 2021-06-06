@@ -29,7 +29,7 @@ class MINDO3Solver(ElectronicStructureSolver):
     """
 
     def __init__(self):
-        pass
+        self.solver = None
 
     def simulate(self, molecule):
         """Perform the simulation (energy calculation) for the molecule.
@@ -41,8 +41,8 @@ class MINDO3Solver(ElectronicStructureSolver):
             total_energy (float): RMINDO3 energy
         """
 
-        solver = mindo3.RMINDO3(molecule).run(verbose=0)
-        total_energy = solver.e_tot
+        self.solver = mindo3.RMINDO3(molecule).run(verbose=0)
+        total_energy = self.solver.e_tot
 
         return total_energy
 
@@ -52,3 +52,12 @@ class MINDO3Solver(ElectronicStructureSolver):
         """
 
         raise NotImplementedError("Method get_rdm is not relevant for semi-empirical methods.")
+
+    def get_solver(self):
+        """Get the MINDO3 solver pyscf object.
+
+        Returns:
+        self.solver (pyscf.semiempirical.mindo3.RMINDO3): MINDO3 pyscf solver object.
+        """
+
+        return self.solver
