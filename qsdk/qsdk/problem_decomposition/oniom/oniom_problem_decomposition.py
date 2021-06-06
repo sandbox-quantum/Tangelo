@@ -18,13 +18,14 @@ DOI: 10.1021/cr5004419
 # TODO: Supporting many (3+) layers of different accuracy.
 # TODO: Capping with CH3 or other functional groups.
 
+import numpy as np
 from pyscf import gto, lib
 
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
 
 
-def as_scanner(model):
+def as_scanner(fragment):
     """
     Prepare scanner method to enable repeated execution of ONIOM over different
     molecular geometries rapidly, as for other standard solvers in pyscf
@@ -35,9 +36,9 @@ def as_scanner(model):
     *return*:
         - **ONIOM_Scanner**: scanner class
     """
-    class ONIOM_Scanner(model.__class__,lib.SinglePointScanner):
+    class ONIOM_Scanner(fragment.__class__, lib.SinglePointScanner):
 
-            def __init__(self,model):
+            def __init__(self, fragment):
                 self.mol = self.model.mol
                 self.__dict__.update(model.__dict__)
 
@@ -138,9 +139,35 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
         return e_oniom
 
+    def _get_jacobian(self, fragment):
+        """Get Jacobian, computed for layer-atomic positions, relative to system atomic-positions
+        Used in calculation of method gradient
+        *return*:
+            - **Jmatrix**: numpy array of len(layer) x len(system) float
+        """
+
+        Nall = len(self.geometry)
+        Natoms = len(fragment.geometry)
+        Jmatrix = np.eye(Natoms, Nall)
+
+        try:
+            Nlinks = len(fragment.broken_links)
+        except TypeError:
+            return Jmatrix # When it is None?
+
+        rows = Natoms - (1+ np.mod(np.linspace(0,2*Nlinks-1,2*Nlinks,dtype=int), Nlinks))
+        cols = np.array([[li.staying, li.leaving] for li in fragment.broken_links]).astype(int).flatten(order='F')
+        indices = (rows, cols)
+
+        Jmatrix[(Natoms-Nlinks):, :] = 0.0
+        Jmatrix[indices] = np.array([li.factor for li in fragment.broken_links] + [1-li.factor for li in fragment.broken_links])
+
+        return Jmatrix
+
     run = simulate
     kernel = simulate
     as_scanner = as_scanner
+
 
 if __name__ == "__main__":
     pass

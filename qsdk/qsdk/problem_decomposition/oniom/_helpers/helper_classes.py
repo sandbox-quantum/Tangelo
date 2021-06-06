@@ -166,6 +166,16 @@ class Fragment:
 
         return energy
 
+    def get_scanner(self, grad=True):
+        """
+        Get the scanner necessary for either gradient, or energy-only associated
+        with this layer's solver.
+        """
+
+        if grad:
+            self.grad_scanner = self.solver.nuc_grad_method().as_scanner()
+        else:
+            self.scanner = self.solver.as_scanner()
 
 class Link:
 
