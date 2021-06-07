@@ -5,14 +5,15 @@ export PYTHONPATH=$PYTHONPATH:/root/agnostic_simulator:/root/qsdk
 
 # Tests agn sim
 cd /root/agnostic_simulator/tests/
-/root/env/bin/python3 -m unittest
+#/root/env/bin/python3 -m unittest
 
 # Tests qsdk
 cd /root/qsdk/
-/root/env/bin/python3 -m unittest
+#/root/env/bin/python3 -m unittest
 
 # Tests jupyter
 cd /root/qsdk/examples
+pytest --nbmake "dmet.ipynb"
 bash run_notebooks.sh
 cd /root/agnostic_simulator/examples
 bash run_notebooks.sh
