@@ -13,6 +13,6 @@ cd /root/qsdk/
 
 # Tests jupyter
 cd /root/qsdk/examples
-sh run_notebooks.sh
+python3 test_notebooks.py
 cd /root/agnostic_simulator/examples
-#sh run_notebooks.sh
+python3 test_notebooks.py
