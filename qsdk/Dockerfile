@@ -21,7 +21,8 @@ RUN echo "export PATH=$PATH" >> /root/.bashrc
 # and some computational packages
 RUN pip3 install --upgrade pip
 RUN pip3 install ipython jupyter numpy scipy pyscf pybind11 requests pandas \
-    setuptools wheel sphinx py3Dmol sphinx_rtd_theme nbsphinx scikit-build
+    setuptools wheel sphinx py3Dmol sphinx_rtd_theme nbsphinx scikit-build \
+nbmake
 
 # Install Microsoft QDK for agnostic_simulator tests and qsharp package
 WORKDIR /tmp/
