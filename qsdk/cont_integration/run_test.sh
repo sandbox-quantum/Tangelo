@@ -13,7 +13,7 @@ cd /root/qsdk/
 
 # Tests jupyter
 cd /root/qsdk/examples
-pytest --nbmake "dmet.ipynb"
-bash run_notebooks.sh
+#pytest --nbmake "dmet.ipynb"
+#bash run_notebooks.sh
 cd /root/agnostic_simulator/examples
-bash run_notebooks.sh
+#bash run_notebooks.sh
