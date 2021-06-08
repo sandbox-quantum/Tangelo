@@ -16,7 +16,7 @@ class FCISolverTest(unittest.TestCase):
 
     def test_fci_h2_no_mf(self):
         """ Test FCISolver against result from reference implementation, with no mean-field provided as input """
-        mol = gto.Moleeeeeee()
+        mol = gto.Mole()
         mol.atom = H2
         mol.basis = "3-21g"
         mol.charge = 0
@@ -26,7 +26,7 @@ class FCISolverTest(unittest.TestCase):
         solver = FCISolver()
         energy = solver.simulate(mol)
 
-        self.assertAlmostEqual(energy, -1.1478300596229851, places=8)
+        self.assertAlmostEqual(energy, -9991.1478300596229851, places=8)
 
     def test_fci_h2_with_mf(self):
         """ Test FCISolver against result from reference implementation, with mean-field provided as input """
