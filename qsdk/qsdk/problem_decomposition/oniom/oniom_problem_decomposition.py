@@ -20,14 +20,14 @@ DOI: 10.1021/cr5004419
 
 import numpy as np
 from pyscf import gto, lib
+from qsdk.problem_decomposition.oniom._helpers.oniom_gradients import ONIOMGradient
 
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
 
 
 def as_scanner(fragment):
-    """
-    Prepare scanner method to enable repeated execution of ONIOM over different
+    """Prepare scanner method to enable repeated execution of ONIOM over different
     molecular geometries rapidly, as for other standard solvers in pyscf
     Defines a Scanner class, specific to the associated model.
     Note this scanner is energy-specific, rather than the related, gradient-scanner
@@ -39,23 +39,21 @@ def as_scanner(fragment):
     class ONIOM_Scanner(fragment.__class__, lib.SinglePointScanner):
 
             def __init__(self, fragment):
-                self.mol = self.model.mol
-                self.__dict__.update(model.__dict__)
+                self.mol_low = self.fragment.mol_low
+                self.mol_high = self.fragment.mol_high
+                self.__dict__.update(fragment.__dict__)
 
-            def __call__(self,geometry):
+            def __call__(self, geometry):
 
-                if isinstance(geometry,gto.Mole):
-                    mol = geometry
+                if isinstance(geometry, gto.Mole):
+                    raise ValueError("Algorithm must be changed...")
                 else:
-                    mol = self.mol.set_geom_(geometry,inplace=False)
-
-                self.update_geometry(mol.atom)
+                    self.update_geometry(geometry)
 
                 e_tot = self.kernel()
-                self.mol = mol
 
                 return e_tot
-    return
+    return ONIOM_Scanner
 
 
 class ONIOMProblemDecomposition(ProblemDecomposition):
@@ -91,6 +89,8 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
         self.geometry = atom_string_to_list(self.geometry) if isinstance(self.geometry, str) else self.geometry
         self.update_geometry(self.geometry)
+
+        self.mol = self.fragments[0].mol_low
 
     def update_geometry(self, new_geometry):
         """For each fragment, the atom selection is passed to the Fragment object.
@@ -155,7 +155,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         except TypeError:
             return Jmatrix # When it is None?
 
-        rows = Natoms - (1+ np.mod(np.linspace(0,2*Nlinks-1,2*Nlinks,dtype=int), Nlinks))
+        rows = Natoms - (1+ np.mod(np.linspace(0, 2*Nlinks-1, 2*Nlinks, dtype=int), Nlinks))
         cols = np.array([[li.staying, li.leaving] for li in fragment.broken_links]).astype(int).flatten(order='F')
         indices = (rows, cols)
 
@@ -164,9 +164,16 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
         return Jmatrix
 
+    def nuc_grad_method(self):
+        """Get ONIOM gradient object, from grad module.
+        Instantiates class
+        *return*:
+            - **grad.oniom_grad(self)**: instance of grad.oniom_grad class
+        """
+        return ONIOMGradient(self)
+
     run = simulate
     kernel = simulate
-    as_scanner = as_scanner
 
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 import numpy as np
-
 from pyscf import lib,gto
 
 def as_scanner(grad):
@@ -46,33 +45,30 @@ def as_scanner(grad):
     return ONIOM_GradScanner(grad)
 
 
-
-class oniom_grad:
-    '''
-    ONIOM gradient class. Each layer has its own solver-specific
+class ONIOMGradient:
+    """ONIOM gradient class. Each layer has its own solver-specific
     gradient which, when implemented as a scanner enables fast updating
     by saving the density-matrix, as well as gradients for SCF fields e.g.
     At the ONIOM level, we maintain this treatment of layer-specific gradients,
     and bring each together to define a high-level ONIOM energy gradient.
-    '''
+    """
 
-    def __init__(self,model):
-        '''
+    def __init__(self, oniom_model):
+        """
         Initialize gradient object. If each layer does not yet have a
         gradient_scanner initialized, this is done at the start.
         *args*:
             - **model**: instance of oniom_model class
-        '''
+        """
 
-        self.model = model
+        self.model = oniom_model
         self.mol = self.model.mol #link to model molecule
-        self.base = model
+        self.base = oniom_model
         if not np.product([hasattr(li, 'grad_scanner') for li in self.model.layers]):
             self.model.get_scanners(True)
 
     def kernel(self):
-        '''
-        The ONIOM gradient is defined in, for example, https://doi.org/10.1021/cr5004419
+        """The ONIOM gradient is defined in, for example, https://doi.org/10.1021/cr5004419
         Gradient is defined with respect to atomic coordinates of the system, R = R_SYS.
         dE_ONIOM/dR = dE_LOW[R]/dR + sum_i dE_HIGH_i[R_i]/dR - dE_LOW_i[R_i]/dR
         one can use chain rule to express
@@ -85,15 +81,19 @@ class oniom_grad:
         *return*:
             - **e_tot**: float, total energy
             - **de**: numpy array of Nx3 float, with N # of atoms in the system
-        '''
+        """
 
         e_tot = 0
-        de = np.zeros((len(self.model.geometry), 3))
-        for li in self.model.layers:
-            etmp,dtmp = li.grad_scanner(li.mol)
-            e_tot += etmp*li.layer_factor
-            de += li.layer_factor*np.einsum('ij,ik->kj', dtmp, li.jacobian)
+        de = np.zeros((len(self.oniom_model.geometry), 3))
+        for fragment in self.oniom_model.fragments:
 
-        return e_tot, de
+            #etmp, dtmp = fragment.grad_scanner(li.mol)
 
-    as_scanner = as_scanner
+            jacobian = self.oniom_model._get_jacobian(fragment)
+            print(jacobian)
+            #e_tot += etmp*li.layer_factor
+            #de += li.layer_factor*np.einsum('ij,ik->kj', dtmp, li.jacobian)
+
+        #return e_tot, de
+
+    #as_scanner = as_scanner
