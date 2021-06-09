@@ -26,36 +26,6 @@ from qsdk.problem_decomposition.problem_decomposition import ProblemDecompositio
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
 
 
-def as_scanner(fragment):
-    """Prepare scanner method to enable repeated execution of ONIOM over different
-    molecular geometries rapidly, as for other standard solvers in pyscf
-    Defines a Scanner class, specific to the associated model.
-    Note this scanner is energy-specific, rather than the related, gradient-scanner
-    *args*:
-        - **model**: instance of oniom_model class (defined below)
-    *return*:
-        - **ONIOM_Scanner**: scanner class
-    """
-    class ONIOM_Scanner(fragment.__class__, lib.SinglePointScanner):
-
-            def __init__(self, fragment):
-                self.mol_low = self.fragment.mol_low
-                self.mol_high = self.fragment.mol_high
-                self.__dict__.update(fragment.__dict__)
-
-            def __call__(self, geometry):
-
-                if isinstance(geometry, gto.Mole):
-                    raise ValueError("Algorithm must be changed...")
-                else:
-                    self.update_geometry(geometry)
-
-                e_tot = self.kernel()
-
-                return e_tot
-    return ONIOM_Scanner
-
-
 class ONIOMProblemDecomposition(ProblemDecomposition):
 
     def __init__(self, opt_dict):
@@ -150,6 +120,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         Natoms = len(fragment.geometry)
         Jmatrix = np.eye(Natoms, Nall)
 
+        # TODO replace this portion of the code.
         try:
             Nlinks = len(fragment.broken_links)
         except TypeError:
