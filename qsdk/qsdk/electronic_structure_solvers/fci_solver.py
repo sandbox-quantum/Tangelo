@@ -79,3 +79,13 @@ class FCISolver(ElectronicStructureSolver):
         """
 
         return self.cisolver
+
+    def nuc_grad_method(self):
+        """Get the FCI nuc_grad_method pyscf object. It is not implmented in
+        pyscf, therefore an error is raised if it is called.
+
+        Raises:
+            NotImplementedError
+        """
+
+        raise NotImplementedError("Nuclear gradients are not implemented for FCI.")

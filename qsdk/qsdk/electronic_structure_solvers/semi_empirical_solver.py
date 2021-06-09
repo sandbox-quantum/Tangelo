@@ -53,11 +53,11 @@ class MINDO3Solver(ElectronicStructureSolver):
 
         raise NotImplementedError("Method get_rdm is not relevant for semi-empirical methods.")
 
-    def get_solver(self):
-        """Get the MINDO3 solver pyscf object.
+    def nuc_grad_method(self):
+        """Get the MINDO3 nuc_grad_method pyscf object.
 
         Returns:
-        self.solver (pyscf.semiempirical.mindo3.RMINDO3): MINDO3 pyscf solver object.
+        pyscf.semiempirical.mindo3.RMINDO3.nuc_grad_method(): MINDO3 pyscf grad scanner object.
         """
 
-        return self.solver
+        return self.solver.nuc_grad_method()

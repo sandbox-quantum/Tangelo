@@ -70,11 +70,11 @@ class CCSDSolver(ElectronicStructureSolver):
 
         return one_rdm, two_rdm
 
-    def get_solver(self):
-        """Get the CCSD solver pyscf object.
+    def nuc_grad_method(self):
+        """Get the CCSD nuc_grad_method pyscf object.
 
         Returns:
-        self.cc_fragment (pyscf.cc.CCSD): CCSD pyscf solver object.
+        pyscf.cc.CCSD.nuc_grad_method(): CCSD pyscf grad scanner object.
         """
 
-        return self.cc_fragment
+        return self.cc_fragment.nuc_grad_method()
