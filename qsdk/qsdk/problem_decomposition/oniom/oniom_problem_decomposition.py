@@ -19,9 +19,9 @@ DOI: 10.1021/cr5004419
 # TODO: Capping with CH3 or other functional groups.
 
 import numpy as np
-from pyscf import gto, lib
-from qsdk.problem_decomposition.oniom._helpers.oniom_gradients import ONIOMGradient
+from pyscf.geomopt.geometric_solver import GeometryOptimizer
 
+from qsdk.problem_decomposition.oniom._helpers.oniom_gradients import ONIOMGradient
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
 
@@ -109,7 +109,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
         return e_oniom
 
-    def _get_jacobian(self, fragment):
+    def get_jacobian(self, fragment):
         """Get Jacobian, computed for layer-atomic positions, relative to system atomic-positions
         Used in calculation of method gradient
         *return*:
@@ -145,6 +145,24 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
     run = simulate
     kernel = simulate
+
+    def optimize(self, constraints=None, params=None):
+        """
+        Run geomeTRIC optimizer backend, applying the oniom solver
+        as our method.
+        TODO: match Ang, Bohr inputs for successful execution with
+        either unit input
+
+        *kwargs*:
+            - **constraints**: string, textfile with constraints for optimization
+            - **params**: dictionary of parameters for convergence
+        *return*:
+            - **opt**: optimizer object, containing its mol attribute
+        """
+
+        opt = GeometryOptimizer(self)
+        opt.run()
+        return opt
 
 
 if __name__ == "__main__":
