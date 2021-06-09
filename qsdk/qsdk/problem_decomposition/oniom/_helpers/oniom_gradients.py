@@ -1,9 +1,11 @@
+"""Docstring"""
+
 import numpy as np
-from pyscf import lib,gto
+from pyscf import gto, lib
+
 
 def as_scanner(grad):
-    """
-    Define scanner class specific to gradient method passed in.
+    """Define scanner class specific to gradient method passed in.
     This relies on the ONIOM procedure's definition of the
     energy gradient.
     *args*:
@@ -13,31 +15,33 @@ def as_scanner(grad):
     """
 
     class ONIOM_GradScanner(grad.__class__, lib.GradScanner):
-        """
-        ONIOM gradient scanner class.
-        """
+        """ONIOM gradient scanner class. """
+
         def __init__(self, g):
             lib.GradScanner.__init__(self, g)
-            self.verbose = self.model.verbose
-            self.stdout = self.model.stdout
-            self.max_memory = self.model.max_memory
-            self.unit = 'au' #need to deal with this for geometric optimizer, relaxing need for Bohr units
+            self.verbose = self.oniom_model.verbose
+            #self.stdout = self.oniom_model.stdout
+            #self.max_memory = self.model.max_memory
+            self.unit = "AU" #need to deal with this for geometric optimizer, relaxing need for Bohr units
 
-            self.model.get_scanners()
+            for fragment in self.oniom_model.fragments:
+                fragment.get_scanners()
 
         def __call__(self, geometry, **kwargs):
 
             if isinstance(geometry, gto.Mole): #define updated molecular geometry
                 mol = geometry
             else:
-                mol = self.model.mol.set_geom_(geometry, inplace=False)
+                mol = self.oniom_model.mol.set_geom_(geometry, inplace=False)
 
+            # Update the molecular geometry for all fragments.
+            self.oniom_model.update_geometry(mol.atom)
 
-            self.model.update_geometry(mol.atom) #update the molecular geometry for all fragments
+            # Compute energy and gradient.
+            e_tot, de = self.kernel()
 
-            e_tot, de = self.kernel() #compute energy and gradient
-
-            self.model.mol = mol #update molecule attributes
+            #Update molecule attributes
+            self.oniom_model.mol = mol
             self.mol = mol
 
             return e_tot, de
@@ -61,11 +65,13 @@ class ONIOMGradient:
             - **model**: instance of oniom_model class
         """
 
-        self.model = oniom_model
-        self.mol = self.model.mol #link to model molecule
+        self.oniom_model = oniom_model
+        self.mol = self.oniom_model.mol #link to model molecule
         self.base = oniom_model
-        if not np.product([hasattr(li, 'grad_scanner') for li in self.model.layers]):
-            self.model.get_scanners(True)
+
+        if not np.product([hasattr(f, "grad_scanners") for f in self.oniom_model.fragments]):
+            for fragment in self.oniom_model.fragments:
+                fragment.get_scanners()
 
     def kernel(self):
         """The ONIOM gradient is defined in, for example, https://doi.org/10.1021/cr5004419
@@ -85,15 +91,24 @@ class ONIOMGradient:
 
         e_tot = 0
         de = np.zeros((len(self.oniom_model.geometry), 3))
+
         for fragment in self.oniom_model.fragments:
 
-            #etmp, dtmp = fragment.grad_scanner(li.mol)
+            grad_scanner_low = fragment.grad_scanners[0]
+            etmp, dtmp = grad_scanner_low(fragment.mol_low)
 
-            jacobian = self.oniom_model._get_jacobian(fragment)
-            print(jacobian)
-            #e_tot += etmp*li.layer_factor
-            #de += li.layer_factor*np.einsum('ij,ik->kj', dtmp, li.jacobian)
+            if fragment.solver_high:
+                grad_scanner_high = fragment.grad_scanners[1]
+                etmp_high, dtmp_high = grad_scanner_high(fragment.mol_high)
 
-        #return e_tot, de
+                etmp = etmp_high - etmp
+                dtmp = dtmp_high - dtmp
 
-    #as_scanner = as_scanner
+            jacobian = self.oniom_model.get_jacobian(fragment)
+
+            e_tot += etmp
+            de += np.einsum('ij,ik->kj', dtmp, jacobian)
+
+        return e_tot, de
+
+    as_scanner = as_scanner
