@@ -63,6 +63,7 @@ class Fragment:
         self.mol_low = None
         self.mol_high = None
         self.e_fragment = None
+        self.solvers = list()
 
     def simulate(self):
         """Get the solver object for this layer.
@@ -145,8 +146,8 @@ class Fragment:
         """
 
         if solver == "RHF":
-            mean_field = prepare_mf_RHF(molecule, **options_solver)
-            energy = mean_field.e_tot
+            solver = prepare_mf_RHF(molecule, **options_solver)
+            energy = solver.e_tot
         elif solver == "CCSD":
             solver = CCSDSolver()
             energy = solver.simulate(molecule, **options_solver)
@@ -164,15 +165,10 @@ class Fragment:
         else:
             raise NotImplementedError("This {} solver has not been implemented yet in ONIOMProblemDecomposition".format(solver))
 
+        # Storing the solver object after the energy computation.
+        self.solvers.append(solver)
+
         return energy
-
-    def get_scanners(self):
-        """
-        Get the scanner necessary for either gradient, or energy-only associated
-        with this layer's solver.
-        """
-
-        self.grad_scanner = self.solver.nuc_grad_method().as_scanner()
 
 
 class Link:
