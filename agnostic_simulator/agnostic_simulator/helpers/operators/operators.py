@@ -22,7 +22,7 @@ def string_ham_to_of(string_ham):
 
     for term in string_ham:
         coef, word = term.split('\t')
-        of_terms_dict[eval(word)] = float(coef)
+        of_terms_dict[eval(word)] = eval(coef)
 
     res = QubitOperator()
     res.terms = of_terms_dict
