@@ -55,10 +55,12 @@ def as_scanner(oniom_model):
                     mol = self.mol.set_geom_(geometry, inplace=False)
 
                 self.update_geometry(mol.atom)
-                self.mol = mol
 
                 # Computing the total energy.
                 e_tot = self.kernel()
+
+                # Updating the attribute.
+                self.mol = mol
 
                 return e_tot
 
