@@ -1,5 +1,5 @@
 """Fragment class, used in construction of ONIOM layers -- contains details of both the
-constituent geometry (i.e. which atoms from system are in fragment, which bonds are broken
+constituent geometry (i.e. which atoms from the system are in fragment, which bonds are broken
 and how to fix them) as well as the solver(s) to use.
 """
 
