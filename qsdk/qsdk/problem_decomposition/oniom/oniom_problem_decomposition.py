@@ -1,9 +1,9 @@
 """Our own n-layered Integrated molecular Orbital and Molecular mechanics (ONIOM) solver.
-User specifies either the number (if beginning from start of list), or the indices, of
+The user specifies either the number (if beginning from start of list), or the indices, of
 atoms which are to be identified as the model system(s), from the larger molecular system.
 
-Main model class for running oniom-calculations. This is analogous to the
-scf.RHF, etc. methods, requiring however a bit more information. User supplies
+Main model class for running ONIOM calculations. This is analogous to the
+scf.RHF, etc. methods, requiring, however, a bit more information. User supplies
 an atomic-geometry, and specifies the system, as well as necessary models,
 of increasing sophistication.
 
@@ -19,6 +19,7 @@ DOI: 10.1021/cr5004419
 # TODO: Capping with CH3 or other functional groups.
 
 import numpy as np
+from pyscf import lib, gto
 from pyscf.geomopt.geometric_solver import GeometryOptimizer
 
 from qsdk.problem_decomposition.oniom._helpers.oniom_gradients import ONIOMGradient
@@ -26,11 +27,50 @@ from qsdk.problem_decomposition.problem_decomposition import ProblemDecompositio
 from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
 
 
+def as_scanner(oniom_model):
+    """Prepare scanner method to enable repeated execution of ONIOM over different
+    molecular geometries rapidly, as for other standard solvers in pyscf. Defines
+    a Scanner class, specific to the associated model. Note this scanner is
+    energy-specific, rather than the related, gradient scanner.
+
+    Args:
+        oniom_model (ONIOMProblemDecomposition): Instance of ONIOM.
+
+    Returns:
+        ONIOM_Scanner: Scanner class.
+    """
+
+    class ONIOM_Scanner(oniom_model.__class__, lib.SinglePointScanner):
+
+            def __init__(self, oniom_model):
+                self.mol = self.oniom_model.mol
+                self.__dict__.update(oniom_model.__dict__)
+
+            def __call__(self, geometry):
+
+                # Updating the molecule geometry.
+                if isinstance(geometry, gto.Mole):
+                    mol = geometry
+                else:
+                    mol = self.mol.set_geom_(geometry, inplace=False)
+
+                self.update_geometry(mol.atom)
+                self.mol = mol
+
+                # Computing the total energy.
+                e_tot = self.kernel()
+
+                return e_tot
+
+
+    return ONIOM_Scanner
+
+
 class ONIOMProblemDecomposition(ProblemDecomposition):
 
     def __init__(self, opt_dict):
         """Main class for the ONIOM hybrid solver. It defines layers with
-        with different electronic solvers.
+        different electronic solvers.
 
         Attributes:
             geometry (strin or list): XYZ atomic coords (in "str float float\n..." or
@@ -60,7 +100,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         self.geometry = atom_string_to_list(self.geometry) if isinstance(self.geometry, str) else self.geometry
         self.update_geometry(self.geometry)
 
-        self.mol = self.fragments[0].mol_low
+        self.mol = None
 
     def update_geometry(self, new_geometry):
         """For each fragment, the atom selection is passed to the Fragment object.
@@ -106,63 +146,71 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
         # Run energy calculation for each fragment.
         e_oniom = sum([fragment.simulate() for fragment in self.fragments])
+        self.mol = self.fragments[0].mol_low
 
         return e_oniom
 
     def get_jacobian(self, fragment):
-        """Get Jacobian, computed for layer-atomic positions, relative to system atomic-positions
-        Used in calculation of method gradient
-        *return*:
-            - **Jmatrix**: numpy array of len(layer) x len(system) float
+        """Get Jacobian, computed for layer-atomic positions, relative to system
+        atomic positions used in calculation of method gradient.
+
+        Returns:
+            np.array: Jacobian to map fragment energy derivatives to the ONIOM model.
         """
 
         Nall = len(self.geometry)
         Natoms = len(fragment.geometry)
-        Jmatrix = np.eye(Natoms, Nall)
+        jacobian = np.eye(Natoms, Nall)
 
-        # TODO replace this portion of the code.
-        try:
+        # If there is no broken bond, the jacobian is trivial.
+        if fragment.broken_links:
             Nlinks = len(fragment.broken_links)
-        except TypeError:
-            return Jmatrix # When it is None?
+        else:
+            return jacobian
 
         rows = Natoms - (1+ np.mod(np.linspace(0, 2*Nlinks-1, 2*Nlinks, dtype=int), Nlinks))
         cols = np.array([[li.staying, li.leaving] for li in fragment.broken_links]).astype(int).flatten(order='F')
         indices = (rows, cols)
 
-        Jmatrix[(Natoms-Nlinks):, :] = 0.0
-        Jmatrix[indices] = np.array([li.factor for li in fragment.broken_links] + [1-li.factor for li in fragment.broken_links])
+        jacobian[(Natoms-Nlinks):, :] = 0.0
+        jacobian[indices] = np.array([li.factor for li in fragment.broken_links] + [1-li.factor for li in fragment.broken_links])
 
-        return Jmatrix
+        return jacobian
 
     def nuc_grad_method(self):
-        """Get ONIOM gradient object, from grad module.
-        Instantiates class
-        *return*:
-            - **grad.oniom_grad(self)**: instance of grad.oniom_grad class
+        """Get ONIOM gradient object, from the gradient module.
+
+        Returns:
+            ONIOMGradient: Definition of energy derivative vs atomic coordinates.
         """
         return ONIOMGradient(self)
 
+    def optimize(self, constraints=None, params=None):
+        """Run geomeTRIC optimizer backend, applying the oniom solver as our method.
+
+        Args:
+            constraints (string): Textfile path with constraints for optimization.
+            params (dict): Dictionary of parameters for convergence.
+
+        Returns:
+            GeometryOptimizer: Optimizer object, containing its mol attribute.
+        """
+
+        # Instanciate molecule if simulate method was never called.
+        if self.mol is None:
+            self.simulate()
+
+        # Run the geomeTRIC object.
+        opt = GeometryOptimizer(self)
+
+        opt.set(constraints=constraints, params=params)
+        opt.run()
+
+        return opt
+
     run = simulate
     kernel = simulate
-
-    def optimize(self, constraints=None, params=None):
-        """
-        Run geomeTRIC optimizer backend, applying the oniom solver
-        as our method.
-        TODO: match Ang, Bohr inputs for successful execution with
-        either unit input
-
-        *kwargs*:
-            - **constraints**: string, textfile with constraints for optimization
-            - **params**: dictionary of parameters for convergence
-        *return*:
-            - **opt**: optimizer object, containing its mol attribute
-        """
-
-        opt = GeometryOptimizer(self)
-        opt.run()
-        return opt
+    as_scanner = as_scanner
 
 
 if __name__ == "__main__":
