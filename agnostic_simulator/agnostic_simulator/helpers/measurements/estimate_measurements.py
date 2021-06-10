@@ -9,14 +9,20 @@
 import math
 
 
-def get_measurement_estimate(qb_ham, digits=3, method="uniform"):
+def get_measurement_estimate(qb_op, digits=3, method="uniform"):
     """ Given a qubit operator and a level of accuracy, computes the number of measurements required by each term
      of the qubit operator to reach the accuracy provided by the user when computing expectation values, returns it
      as a dictionary mapping measurement basis to number of measurements.
 
      "uniform" method makes no assumption about the underlying probability distribution resulting from the quantum
      state preparation circuit. The rule of thumb is "Multiply number of samples by 100 for each digit of accuracy".
-     """
+
+    Args:
+        qb_op: qubit operator
+        digits (integer): number of digits of accuracy desired on expectation value
+    Returns:
+        measurements (dict): Dictionary mapping terms / measurement bases to their number of measurements
+    """
 
     available_methods = {'uniform'}
     if method not in available_methods:
@@ -25,7 +31,7 @@ def get_measurement_estimate(qb_ham, digits=3, method="uniform"):
     scaling_factor = 100**(digits+1)
 
     measurements = dict()
-    for term, coef in qb_ham.terms.items():
+    for term, coef in qb_op.terms.items():
         coef = max(abs(coef.real), abs(coef.imag))
         if not term or coef < 10**(-digits):
             measurements[term] = 0

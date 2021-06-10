@@ -14,6 +14,7 @@ op2 = 0.01 * QubitOperator('Z0 X1')
 class MeasurementsTest(unittest.TestCase):
 
     def test_measurement_uniform(self):
+        """ Test uniform measurement estimation method on simple cases """
 
         # Integer log10 coefficients
         mes1 = get_measurement_estimate(op1)
@@ -41,6 +42,8 @@ class MeasurementsTest(unittest.TestCase):
         assert(mes7 == {((0, 'Y'), (1, 'X')): 1000000})
 
     def test_measurement_uniform_H2(self):
+        """ Test on UCCSD H2 usecase that uniform measurement estimation method guarantees on average the level
+        of accuracy expected by the user """
 
         # Load state preparation circuit
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as f:
