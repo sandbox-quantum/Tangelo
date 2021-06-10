@@ -38,6 +38,6 @@ def get_measurement_estimate(qb_op, digits=3, method="uniform"):
         else:
             n_samples = math.floor(scaling_factor * 100**(math.log10(coef)))
             # Assign to dictionary, handle edge case
-            measurements[term] = 10 if n_samples == 1 else n_samples
+            measurements[term] = 100 if n_samples == 1 else n_samples
 
     return measurements
