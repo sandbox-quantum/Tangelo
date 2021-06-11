@@ -221,7 +221,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         """
         return ONIOMGradient(self)
 
-    def optimize(self, max_cycle=50):
+    def optimize(self, max_cycle=50, constraints=None, params=None):
         """Run geomeTRIC optimizer backend, applying the oniom solver as our method.
 
         Args:
@@ -239,6 +239,13 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         # Run the geomeTRIC object.
         opt = GeometryOptimizer(self)
         opt.max_cycle = max_cycle
+
+        if constraints:
+            opt.set(constraints=constraints)
+
+        if params:
+            opt.set(params=params)
+
         opt.run()
 
         return opt
@@ -255,7 +262,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
         content = "{}\n\n".format(n_atoms)
         for i in range(n_atoms):
-            element = mol.atom_pure_symbol(i)
+            element = self.mol.atom_pure_symbol(i)
             x = coords[i, 0]
             y = coords[i, 1]
             z = coords[i, 2]
