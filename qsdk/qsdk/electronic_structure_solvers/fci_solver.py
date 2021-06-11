@@ -71,15 +71,6 @@ class FCISolver(ElectronicStructureSolver):
 
         return one_rdm, two_rdm
 
-    def get_solver(self):
-        """Get the FCI solver pyscf object.
-
-        Returns:
-        self.cisolver (pyscf.fci.direct_spin0.FCI): FCI pyscf solver object.
-        """
-
-        return self.cisolver
-
     def nuc_grad_method(self):
         """Get the FCI nuc_grad_method pyscf object. It is not implmented in
         pyscf, therefore an error is raised if it is called.
