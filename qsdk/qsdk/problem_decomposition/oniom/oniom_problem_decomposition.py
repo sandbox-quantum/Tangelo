@@ -172,7 +172,8 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
             if fragment.broken_links:
                 Nlinks = len(fragment.broken_links)
             else:
-                return jacobian
+                fragment.jacobian = jacobian
+                continue
 
             rows = Natoms - (1+ np.mod(np.linspace(0, 2*Nlinks-1, 2*Nlinks, dtype=int), Nlinks))
             cols = np.array([[li.staying, li.leaving] for li in fragment.broken_links]).astype(int).flatten(order='F')
