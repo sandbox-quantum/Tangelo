@@ -128,12 +128,10 @@ class UCCSD(Ansatz):
         # Build qubit operator required to build UCCSD
         qubit_op = self._get_singlet_qubit()
 
-        # If qubit operator terms haven't changed, perform fast parameter update
+        # If qubit operator terms have changed, rebuild circuit. Else, simply update variational gates directly
         if set(self.pauli_to_angles_mapping.keys()) != set(qubit_op.terms.keys()):
-            print(f"Pauli words in qubit operator have changed, rebuilding UCCSD ansatz circuit.")
             self.build_circuit(var_params)
         else:
-            # Directly update angles in variational gates without rebuilding the circuit
             for pauli_word, coef in qubit_op.terms.items():
                 gate_index = self.pauli_to_angles_mapping[pauli_word]
                 self.circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef

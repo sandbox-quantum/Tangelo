@@ -2,6 +2,7 @@ import unittest
 from pyscf import gto
 import numpy as np
 
+from agnostic_simulator import Simulator
 from qsdk.electronic_structure_solvers.vqe_solver import Ansatze, VQESolver
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
@@ -141,6 +142,18 @@ class VQESolverTest(unittest.TestCase):
 
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.9778312978826869, delta=1e-4)
+
+    def test_optimal_circuit_h4(self):
+        """ Run VQE on H4 molecule, save optimal circuit. Verify it yields optimal energy """
+        vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+                       "initial_var_params": "MP2", "verbose": False}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+        energy = vqe_solver.simulate()
+
+        sim = Simulator(target='qulacs')
+        self.assertAlmostEqual(energy, sim.get_expectation_value(vqe_solver.qubit_hamiltonian, vqe_solver.optimal_circuit),
+                               delta=1e-10)
 
     def test_get_rdm_h2(self):
         """ Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized parameters, exact simulator (H2) """
