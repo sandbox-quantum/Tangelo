@@ -91,6 +91,8 @@ class ONIOMTest(unittest.TestCase):
                                ('H', (4.1118, -0.2131, -1.683)),
                                ('H', (0.772272, 0.1628488, 0.1778991))]
 
+        PHE_backbone_capped = oniom_solver.angstrom_to_bohr(PHE_backbone_capped)
+
         # Every atom must be the same (same order too).
         # Position can be almost equals.
         for i, atom in enumerate(geom_fragment_capped):
@@ -189,7 +191,7 @@ class ONIOMTest(unittest.TestCase):
         oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
         e_oniom = oniom_solver.simulate()
 
-        self.assertAlmostEquals(e_oniom, -315.23418566258914, places=6)
+        self.assertAlmostEquals(e_oniom, -315.23418566258914, places=5)
 
 
 if __name__ == "__main__":

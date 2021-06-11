@@ -45,6 +45,7 @@ def as_scanner(oniom_model):
             def __init__(self, oniom_model):
                 self.mol = self.oniom_model.mol
                 self.__dict__.update(oniom_model.__dict__)
+                self.unit = "bohr"
 
             def __call__(self, geometry):
 
@@ -84,6 +85,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
         default_options = {"geometry": None,
                            "fragments": list(),
+                           "unit": "angstrom",
                            "verbose": False}
 
         # Initialize with default values
@@ -100,10 +102,37 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
             raise ValueError(f"A geometry and models must be provided when instantiating ONIOMProblemDecomposition.")
 
         self.geometry = atom_string_to_list(self.geometry) if isinstance(self.geometry, str) else self.geometry
-        self.update_geometry(self.geometry)
+        self.geometry = self.angstrom_to_bohr(self.geometry)
+
+        # Converting units to bohrs, it is required for geometry optimisation.
+        if self.unit.upper() in ["A", "ANG", "ANGSTROM"]:
+            self.update_geometry(self.geometry)
         self.get_jacobians()
 
         self.mol = None
+
+    def angstrom_to_bohr(self, geometry):
+        """Convert geometry positions from angstrom to bohrs.
+
+        Args:
+            geometry (list): XYZ atomic coords in [[str, (float, float, float)],
+                ...] (angstrom).
+
+        Returns:
+            list: XYZ atomic coords in [[str, (float, float, float)], ...] (bohrs).
+        """
+
+        bohr_to_angstrom = 0.529177
+        geometry_bohr = list()
+
+        for element, r in geometry:
+            x = r[0] / bohr_to_angstrom
+            y = r[1] / bohr_to_angstrom
+            z = r[2] / bohr_to_angstrom
+
+            geometry_bohr += [[element, (x, y, z)]]
+
+        return geometry_bohr
 
     def update_geometry(self, new_geometry):
         """For each fragment, the atom selection is passed to the Fragment object.
@@ -213,6 +242,30 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         opt.run()
 
         return opt
+
+    def write_xyz(self, filename="mol.xzy"):
+        """Write an xyz file with the actual state of the molecule.
+
+        Args:
+        filename (str): Filename for the xyz file.
+        """
+
+        coords = self.mol.atom_coords(unit="ANG")
+        n_atoms = coords.shape[0]
+
+        content = "{}\n\n".format(n_atoms)
+        for i in range(n_atoms):
+            element = mol.atom_pure_symbol(i)
+            x = coords[i, 0]
+            y = coords[i, 1]
+            z = coords[i, 2]
+
+            content += "{:2} {:10.5f} {:10.5f} {:10.5f}\n".format(element, x, y, z)
+
+        content = content[:-1]
+
+        with open(filename, 'w') as f:
+            f.write(content)
 
     run = simulate
     kernel = simulate

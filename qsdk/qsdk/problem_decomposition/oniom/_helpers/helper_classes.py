@@ -113,7 +113,8 @@ class Fragment:
         mol.build(atom=self.geometry,
                   basis=basis,
                   charge=self.charge,
-                  spin=self.spin)
+                  spin=self.spin,
+                  unit="bohr")
 
         return mol
 
