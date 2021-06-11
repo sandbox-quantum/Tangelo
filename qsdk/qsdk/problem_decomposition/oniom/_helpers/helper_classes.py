@@ -64,6 +64,7 @@ class Fragment:
         self.mol_high = None
         self.e_fragment = None
         self.solvers = list()
+        self.jacobian = None
 
     def simulate(self):
         """Get the solver object for this layer.

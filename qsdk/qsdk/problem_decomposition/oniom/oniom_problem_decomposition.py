@@ -101,6 +101,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
         self.geometry = atom_string_to_list(self.geometry) if isinstance(self.geometry, str) else self.geometry
         self.update_geometry(self.geometry)
+        self.get_jacobians()
 
         self.mol = None
 
@@ -152,7 +153,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
         return e_oniom
 
-    def get_jacobian(self, fragment):
+    def get_jacobians(self):
         """Get Jacobian, computed for layer-atomic positions, relative to system
         atomic positions used in calculation of method gradient.
 
@@ -161,23 +162,25 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         """
 
         Nall = len(self.geometry)
-        Natoms = len(fragment.geometry)
-        jacobian = np.eye(Natoms, Nall)
 
-        # If there is no broken bond, the jacobian is trivial.
-        if fragment.broken_links:
-            Nlinks = len(fragment.broken_links)
-        else:
-            return jacobian
+        for fragment in self.fragments:
+            Natoms = len(fragment.geometry)
+            jacobian = np.eye(Natoms, Nall)
 
-        rows = Natoms - (1+ np.mod(np.linspace(0, 2*Nlinks-1, 2*Nlinks, dtype=int), Nlinks))
-        cols = np.array([[li.staying, li.leaving] for li in fragment.broken_links]).astype(int).flatten(order='F')
-        indices = (rows, cols)
+            # If there is no broken bond, the jacobian is trivial.
+            if fragment.broken_links:
+                Nlinks = len(fragment.broken_links)
+            else:
+                return jacobian
 
-        jacobian[(Natoms-Nlinks):, :] = 0.0
-        jacobian[indices] = np.array([li.factor for li in fragment.broken_links] + [1-li.factor for li in fragment.broken_links])
+            rows = Natoms - (1+ np.mod(np.linspace(0, 2*Nlinks-1, 2*Nlinks, dtype=int), Nlinks))
+            cols = np.array([[li.staying, li.leaving] for li in fragment.broken_links]).astype(int).flatten(order='F')
+            indices = (rows, cols)
 
-        return jacobian
+            jacobian[(Natoms-Nlinks):, :] = 0.0
+            jacobian[indices] = np.array([li.factor for li in fragment.broken_links] + [1-li.factor for li in fragment.broken_links])
+
+            fragment.jacobian = jacobian
 
     def nuc_grad_method(self):
         """Get ONIOM gradient object, from the gradient module.
@@ -187,7 +190,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         """
         return ONIOMGradient(self)
 
-    def optimize(self, constraints=None, params=None):
+    def optimize(self, max_cycle=50):
         """Run geomeTRIC optimizer backend, applying the oniom solver as our method.
 
         Args:
@@ -204,8 +207,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
         # Run the geomeTRIC object.
         opt = GeometryOptimizer(self)
-
-        opt.set(constraints=constraints, params=params)
+        opt.max_cycle = max_cycle
         opt.run()
 
         return opt
