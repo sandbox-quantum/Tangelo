@@ -150,6 +150,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         # Run energy calculation for each fragment.
         e_oniom = sum([fragment.simulate() for fragment in self.fragments])
         self.mol = self.fragments[0].mol_low
+        self.stdout = self.mol.stdout
 
         return e_oniom
 
