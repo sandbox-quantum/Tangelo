@@ -102,11 +102,12 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
             raise ValueError(f"A geometry and models must be provided when instantiating ONIOMProblemDecomposition.")
 
         self.geometry = atom_string_to_list(self.geometry) if isinstance(self.geometry, str) else self.geometry
-        self.geometry = self.angstrom_to_bohr(self.geometry)
 
         # Converting units to bohrs, it is required for geometry optimisation.
         if self.unit.upper() in ["A", "ANG", "ANGSTROM"]:
-            self.update_geometry(self.geometry)
+            self.geometry = self.angstrom_to_bohr(self.geometry)
+
+        self.update_geometry(self.geometry)
         self.get_jacobians()
 
         self.mol = None
