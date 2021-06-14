@@ -221,11 +221,10 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         """
         return ONIOMGradient(self)
 
-    def optimize(self, max_cycle=50, constraints=None, params=None):
+    def optimize(self, max_cycle=50, params=None):
         """Run geomeTRIC optimizer backend, applying the oniom solver as our method.
 
         Args:
-            constraints (string): Textfile path with constraints for optimization.
             params (dict): Dictionary of parameters for convergence.
 
         Returns:
@@ -239,9 +238,6 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         # Run the geomeTRIC object.
         opt = GeometryOptimizer(self)
         opt.max_cycle = max_cycle
-
-        if constraints:
-            opt.set(constraints=constraints)
 
         if params:
             opt.set(params=params)
