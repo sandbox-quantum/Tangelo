@@ -187,9 +187,6 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
     def get_jacobians(self):
         """Get Jacobian, computed for layer-atomic positions, relative to system
         atomic positions used in calculation of method gradient.
-
-        Returns:
-            np.array: Jacobian to map fragment energy derivatives to the ONIOM model.
         """
 
         Nall = len(self.geometry)
@@ -205,7 +202,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
                 fragment.jacobian = jacobian
                 continue
 
-            rows = Natoms - (1+ np.mod(np.linspace(0, 2*Nlinks-1, 2*Nlinks, dtype=int), Nlinks))
+            rows = Natoms - (1 + np.mod(np.linspace(0, 2*Nlinks-1, 2*Nlinks, dtype=int), Nlinks))
             cols = np.array([[li.staying, li.leaving] for li in fragment.broken_links]).astype(int).flatten(order='F')
             indices = (rows, cols)
 
@@ -220,6 +217,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         Returns:
             ONIOMGradient: Definition of energy derivative vs atomic coordinates.
         """
+
         return ONIOMGradient(self)
 
     def optimize(self, max_cycle=50, params=None):
@@ -248,7 +246,8 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         return opt
 
     def write_xyz(self, filename="mol.xzy"):
-        """Write an xyz file with the actual state of the molecule.
+        """Write an xyz file with the actual state of the molecule. The units
+        are specified to be angstroms.
 
         Args:
         filename (str): Filename for the xyz file.
