@@ -250,7 +250,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         are specified to be angstroms.
 
         Args:
-        filename (str): Filename for the xyz file.
+            filename (str): Filename for the xyz file.
         """
 
         coords = self.mol.atom_coords(unit="ANG")

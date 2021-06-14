@@ -74,7 +74,7 @@ class CCSDSolver(ElectronicStructureSolver):
         """Get the CCSD nuc_grad_method pyscf object.
 
         Returns:
-        pyscf.cc.CCSD.nuc_grad_method(): CCSD pyscf grad scanner object.
+            pyscf.cc.CCSD.nuc_grad_method(): CCSD pyscf grad scanner object.
         """
 
         return self.cc_fragment.nuc_grad_method()

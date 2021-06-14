@@ -57,7 +57,7 @@ class MINDO3Solver(ElectronicStructureSolver):
         """Get the MINDO3 nuc_grad_method pyscf object.
 
         Returns:
-        pyscf.semiempirical.mindo3.RMINDO3.nuc_grad_method(): MINDO3 pyscf grad scanner object.
+            pyscf.semiempirical.mindo3.RMINDO3.nuc_grad_method(): MINDO3 pyscf grad scanner object.
         """
 
         return self.solver.nuc_grad_method()
