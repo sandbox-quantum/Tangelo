@@ -7,29 +7,29 @@ H4 = [('H', (0., 0., 0.)), ('H', (0., 0., 0.75)),
       ('H', (0., 0., 2.)), ('H', (0., 0., 2.75))]
 
 PHE = """
-N      0.7060     -1.9967     -0.0757
-C      1.1211     -0.6335     -0.4814
-C      0.6291      0.4897      0.4485
-C     -0.8603      0.6071      0.4224
-C     -1.4999      1.1390     -0.6995
-C     -2.8840      1.2600     -0.7219
-C     -3.6384      0.8545      0.3747
-C     -3.0052      0.3278      1.4949
-C     -1.6202      0.2033      1.5209
-C      2.6429     -0.5911     -0.5338
-O      3.1604     -0.2029     -1.7213
-O      3.4477     -0.8409      0.3447
-H     -0.2916     -2.0354     -0.0544
-H      1.0653     -2.2124      0.8310
-H      0.6990     -0.4698     -1.5067
-H      1.0737      1.4535      0.1289
-H      0.9896      0.3214      1.4846
-H     -0.9058      1.4624     -1.5623
-H     -3.3807      1.6765     -1.6044
-H     -4.7288      0.9516      0.3559
-H     -3.5968      0.0108      2.3601
-H     -1.1260     -0.2065      2.4095
-H      4.1118     -0.2131     -1.6830
+N     0.68274   -2.04442   -0.00262
+C     1.12932   -0.71878   -0.50109
+C     0.65219    0.50498    0.34793
+C    -0.87144    0.63909    0.37265
+C    -1.54896    1.17847   -0.71891
+C    -2.92863    1.28804   -0.71077
+C    -3.65534    0.85827    0.39099
+C    -2.99217    0.32145    1.48162
+C    -1.60909    0.21252    1.47096
+C     2.67929   -0.72562   -0.55612
+O     3.16186    0.14811   -1.52435
+O     3.41930   -1.37436    0.15808
+H    -0.33407   -1.98612    0.16691
+H     1.10677   -2.18182    0.92918
+H     0.76187   -0.59639   -1.52257
+H     1.09357    1.40375   -0.07905
+H     1.02860    0.39932    1.36347
+H    -0.98834    1.51875   -1.58040
+H    -3.44085    1.71133   -1.56567
+H    -4.73426    0.94475    0.39800
+H    -3.55144   -0.01364    2.34607
+H    -1.09895   -0.20287    2.33068
+H     4.14692    0.07049   -1.46330
 """
 
 
@@ -77,29 +77,20 @@ class ONIOMTest(unittest.TestCase):
         oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
 
         # Retrieving fragment geometry with an H atom replacing a broken bond.
-        geom_fragment_capped = oniom_solver.fragments[1].geometry
+        # Only getting the addition H.
+        hydrogen_cap = [oniom_solver.fragments[1].geometry[-1]]
 
         # Those position have been verified with a molecular visualization software.
-        PHE_backbone_capped = [('N', (0.706, -1.9967, -0.0757)),
-                               ('C', (1.1211, -0.6335, -0.4814)),
-                               ('C', (2.6429, -0.5911, -0.5338)),
-                               ('O', (3.1604, -0.2029, -1.7213)),
-                               ('O', (3.4477, -0.8409, 0.3447)),
-                               ('H', (-0.2916, -2.0354, -0.0544)),
-                               ('H', (1.0653, -2.2124, 0.831)),
-                               ('H', (0.699, -0.4698, -1.5067)),
-                               ('H', (4.1118, -0.2131, -1.683)),
-                               ('H', (0.772272, 0.1628488, 0.1778991))]
+        hydrogen_cap_ref = [('H', (1.494839, 0.281315, 0.190607))]
 
-        PHE_backbone_capped = oniom_solver.angstrom_to_bohr(PHE_backbone_capped)
+        # Internally, coordinates are in bohrs.
+        #hydrogen_cap_ref = oniom_solver.angstrom_to_bohr(hydrogen_cap_ref)
 
         # Every atom must be the same (same order too).
         # Position can be almost equals.
-        for i, atom in enumerate(geom_fragment_capped):
-            self.assertEquals(atom[0], PHE_backbone_capped[i][0])
 
-            for dim in range(3):
-                self.assertAlmostEquals(atom[1][dim], PHE_backbone_capped[i][1][dim])
+        for dim in range(3):
+            self.assertAlmostEquals(hydrogen_cap_ref[0][1][dim], hydrogen_cap[0][1][dim])
 
     def test_energy(self):
         """Testing the oniom energy with a low accuraccy method (RHF) and an
@@ -124,7 +115,7 @@ class ONIOMTest(unittest.TestCase):
         oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
         e_oniom = oniom_solver.simulate()
 
-        self.assertAlmostEquals(e_oniom, -544.7306189, places=6)
+        self.assertAlmostEquals(e_oniom, -544.7577848720764, places=6)
 
     def test_vqe_cc(self):
         """Test to verifiy the implementation of VQE (with UCCSD) in ONIOM. Results
@@ -191,7 +182,26 @@ class ONIOMTest(unittest.TestCase):
         oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
         e_oniom = oniom_solver.simulate()
 
-        self.assertAlmostEquals(e_oniom, -315.23418566258914, places=5)
+        self.assertAlmostEquals(e_oniom, -315.2538461038537, places=5)
+
+    def test_geom_optimization(self):
+        """Testing the oniom geometry optimization capability. """
+
+        options_low = {"basis": "sto-3g"}
+        options_high = {"basis": "sto-3g"}
+
+        system = Fragment(solver_low="RHF", options_low=options_low)
+
+        link = [Link(1, 2, 0.709, 'H')]
+        model = Fragment(solver_low="RHF",
+                         options_low=options_low,
+                         solver_high="RHF",
+                         options_high=options_high,
+                         selected_atoms=[0, 1, 9, 10, 11, 12, 13, 14, 22],
+                         broken_links=link)
+
+        oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
+        oniom_solver.optimize()
 
 
 if __name__ == "__main__":
