@@ -269,6 +269,8 @@ class VQESolver:
 
         self.optimal_var_params = result.x
         self.optimal_energy = result.fun
+        self.ansatz.build_circuit(self.optimal_var_params)
+        self.optimal_circuit = self.ansatz.circuit
 
         if self.verbose:
             print(f"\t\tOptimal UCCSD energy: {self.optimal_energy}")
