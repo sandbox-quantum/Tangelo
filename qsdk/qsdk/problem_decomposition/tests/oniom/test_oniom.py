@@ -86,11 +86,9 @@ class ONIOMTest(unittest.TestCase):
         # Internally, coordinates are in bohrs.
         #hydrogen_cap_ref = oniom_solver.angstrom_to_bohr(hydrogen_cap_ref)
 
-        # Every atom must be the same (same order too).
         # Position can be almost equals.
-
         for dim in range(3):
-            self.assertAlmostEquals(hydrogen_cap_ref[0][1][dim], hydrogen_cap[0][1][dim])
+            self.assertAlmostEquals(hydrogen_cap_ref[0][1][dim], hydrogen_cap[0][1][dim], places=5)
 
     def test_energy(self):
         """Testing the oniom energy with a low accuraccy method (RHF) and an
