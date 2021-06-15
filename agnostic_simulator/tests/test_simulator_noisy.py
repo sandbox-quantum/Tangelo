@@ -165,6 +165,5 @@ class TestSimulate(unittest.TestCase):
         res_cumul, _ = s_nmc.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
-
 if __name__ == "__main__":
     unittest.main()
