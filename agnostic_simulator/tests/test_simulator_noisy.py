@@ -140,6 +140,30 @@ class TestSimulate(unittest.TestCase):
         res_cumul, _ = s_nmp.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
+    def test_noisy_simulation_cirq(self):
+        """
+            Test noisy simulation through cirq.
+            Currently tested: pauli noise, depolarization noise (1 and 2 qubit gates)
+        """
+
+        # Pauli noise for one- and two-qubit gates. Circuits are only a X gate, or just a CNOT gate.
+        s_nmp = Simulator(target='cirq', n_shots=10**6, noise_model=nmp)
+        res_pauli1, _ = s_nmp.simulate(cn1)
+        assert_freq_dict_almost_equal(res_pauli1, ref_pauli1, 1e-2)
+        res_pauli2, _ = s_nmp.simulate(cn2)
+        assert_freq_dict_almost_equal(res_pauli2, ref_pauli2, 1e-2)
+
+        # Depol noise for one- and two-qubit gates. Circuits are only a X gate or just a CNOT gate.
+        s_nmd = Simulator(target='cirq', n_shots=10**6, noise_model=nmd)
+        res_depol1, _ = s_nmd.simulate(cn1)
+        assert_freq_dict_almost_equal(res_depol1, ref_depol1, 1e-2)
+        res_depol2, _ = s_nmd.simulate(cn2)
+        assert_freq_dict_almost_equal(res_depol2, ref_depol2, 1e-2)
+
+        # Cumulate several noises on a given gate (here noise simplifies to identity)
+        s_nmc = Simulator(target='cirq', n_shots=10**6, noise_model=nmc)
+        res_cumul, _ = s_nmc.simulate(cn1)
+        assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
 if __name__ == "__main__":
     unittest.main()

@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 import qiskit
 import qulacs
+import cirq
 
 from braket.circuits import Circuit as BraketCircuit
 from braket.devices import LocalSimulator as BraketLocalSimulator
@@ -86,6 +87,41 @@ class TestTranslation(unittest.TestCase):
         job_sim = qiskit.execute(circ, qiskit_simulator)
         sim_results = job_sim.result()
         v2 = sim_results.get_statevector()
+
+        np.testing.assert_array_equal(v1, v2)
+
+    def test_cirq(self):
+        """
+            Compares the results of a simulation with cirq using a cirq circuit directly
+            VS one obtained through translation from an abstract format
+        """
+
+        # Generate the qiskit circuit by translating from the abstract one and print it
+        translated_circuit = translator.translate_cirq(abs_circ)
+        print(' ')
+        print('cirq Circuit')
+        print(translated_circuit)
+
+        # Generate the cirq circuit directly and print it
+        qubit_labels=cirq.LineQubit.range(3)
+        circ = cirq.Circuit()
+        circ.append(cirq.H(qubit_labels[2]))
+        circ.append(cirq.CNOT(qubit_labels[0],qubit_labels[1]))
+        circ.append(cirq.CNOT(qubit_labels[1],qubit_labels[2]))
+        circ.append(cirq.Y(qubit_labels[0]))
+        circ.append(cirq.S(qubit_labels[0]))
+        gate_rx=cirq.rx(2.)
+        circ.append(gate_rx(qubit_labels[1]))
+        print(circ)
+
+        # Simulate both circuits, assert state vectors are equal
+        cirq_simulator = cirq.Simulator()
+
+        job_sim = cirq_simulator.simulate(circ)
+        v1 = job_sim.final_state_vector
+
+        job_sim = cirq_simulator.simulate(translated_circuit)
+        v2 = job_sim.final_state_vector
 
         np.testing.assert_array_equal(v1, v2)
 

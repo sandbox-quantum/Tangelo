@@ -7,6 +7,7 @@ import unittest
 import time
 import pickle
 import numpy as np
+import qiskit
 from openfermion.ops import QubitOperator
 
 from agnostic_simulator import Gate, Circuit, translator, Simulator, backend_info
@@ -96,6 +97,17 @@ class TestSimulate(unittest.TestCase):
         for i, circuit in enumerate(circuits):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
+    
+    def test_simulate_cirq(self):
+        """
+            Must return correct f
+            requencies for simulation of different quantum circuits
+            Backend: cirq
+        """
+        simulator = Simulator(target="cirq")
+        for i, circuit in enumerate(circuits):
+            frequencies, _ = simulator.simulate(circuit)
+            assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
     def test_simulate_qdk(self):
         """
@@ -148,7 +160,7 @@ class TestSimulate(unittest.TestCase):
         empty_circuit = Circuit([], n_qubits=2)
         identity_circuit = Circuit([Gate('X', 0), Gate('X', 1)] *2)
 
-        for b in ['qulacs', 'qiskit', 'projectq']:
+        for b in ['qulacs', 'qiskit', 'projectq','cirq']:
             simulator = Simulator(target=b)
             for op in [op1, op2]:
                 exp_value_empty = simulator.get_expectation_value(op, empty_circuit)
@@ -164,6 +176,17 @@ class TestSimulate(unittest.TestCase):
         for i, circuit in enumerate(circuits):
             for j, op in enumerate(ops):
                 exp_values[i][j] = simulator._get_expectation_value_from_statevector(op, circuit)
+        np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
+
+    def test_get_exp_value_from_statevector_cirq(self):
+        """ Test the generic method computing the expectation value from a statevector with a simulator providing
+            a statevector """
+
+        simulator = Simulator(target="cirq")
+        exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
+        for i, circuit in enumerate(circuits):
+            for j, op in enumerate(ops):
+                exp_values[i][j] = float(simulator._get_expectation_value_from_statevector(op, circuit))
         np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
 
     def test_get_exp_value_from_statevector_qulacs(self):
@@ -189,7 +212,7 @@ class TestSimulate(unittest.TestCase):
     def test_get_exp_value_complex(self):
         """ Get expectation value of qubit operator with complex coefficients """
 
-        for b in ["qulacs", "qiskit", "projectq"]:
+        for b in ["qulacs", "qiskit", "projectq","cirq"]:
             simulator = Simulator(target=b)
 
             # Return complex expectation value corresponding to linear combinations of real and complex parts
@@ -216,7 +239,7 @@ class TestSimulate(unittest.TestCase):
             openqasm_circ = circ_handle.read()
 
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
-        backends = ["qulacs", "projectq", "qiskit"]
+        backends = ["qulacs", "projectq", "qiskit","cirq"]
         results = dict()
         expected = -1.1372704
         test_fail = False
@@ -252,7 +275,7 @@ class TestSimulate(unittest.TestCase):
             openqasm_circ = circ_handle.read()
 
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
-        backends = ["qulacs", "projectq", "qiskit"]
+        backends = ["qulacs", "projectq", "qiskit","cirq"]
         results = dict()
         expected = -1.9778374
         test_fail = False
@@ -327,7 +350,7 @@ class TestSimulate(unittest.TestCase):
         Some simulators are NOT good at this, by design (ProjectQ).
         """
 
-        backends = ["qiskit", "qulacs", "projectq",  "qdk"]
+        backends = ["qiskit", "qulacs", "projectq",  "qdk", "cirq"]
         results = dict()
         for b in backends:
             sim = Simulator(target=b, n_shots=10**5)
@@ -339,7 +362,7 @@ class TestSimulate(unittest.TestCase):
         Some simulators are NOT good at this, by design (ProjectQ). """
 
         reference = 0.41614683  # Exact value
-        backends = ["qiskit", "qulacs", "projectq", "qdk"]
+        backends = ["qiskit", "qulacs", "projectq", "qdk", "cirq"]
         results = dict()
         for b in backends:
             sim = Simulator(target=b, n_shots=10**5)
