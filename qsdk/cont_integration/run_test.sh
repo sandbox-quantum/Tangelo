@@ -40,6 +40,9 @@ run_notebooks_as_unittests()
   echo $NOTEBOOKS
   for notebook in $NOTEBOOKS; do
     jupyter nbconvert --to script $notebook
+    nb=$notebook.py
+    echo $nb
+    chmod 777 $nb
   done
 
   $PYTHON -m unittest
