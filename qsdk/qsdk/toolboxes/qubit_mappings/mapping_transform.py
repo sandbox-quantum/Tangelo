@@ -12,6 +12,7 @@ from qsdk.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry
 
 available_mappings = {'JW', 'BK', 'SCBK'}
 
+
 def get_qubit_number(mapping, n_spinorbitals):
     """Get the number of qubits for a specified number of spin orbitals,
     after passing through the qubit mapping. Symmetry-conserving
@@ -51,6 +52,7 @@ def get_fermion_operator(operator):
             raise TypeError('Operator terms are not formatted as valid input for FermionOperator type.')
     return fermion_operator
 
+
 def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_electrons=None, up_then_down=False):
     """Perform mapping of fermionic operator to qubit operator. This function is mostly a wrapper
     around standard openfermion code, with some important distinctions. We strictly enforce the
@@ -70,7 +72,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
     Returns:
         qubit_operator (QubitOperator): input operator, encoded in the qubit space.
     """
-    #some methods may pass another operator class type. If this is the case, cast to FermionOperator where possible
+    # Some methods may pass another operator class type. If this is the case, cast to FermionOperator where possible
     if not isinstance(fermion_operator, FermionOperator):
         fermion_operator = get_fermion_operator(fermion_operator)
 
@@ -122,7 +124,7 @@ def make_up_then_down(fermion_operator, n_spinorbitals):
         raise ValueError('Invalid number of modes (n_spinorbitals) for input operator. Terms in operator exceed this value.')
     new_operator = FermionOperator()
 
-    #define the new mode register
+    # Define the new mode register
     remapped = np.linspace(0, n_spinorbitals - 1, n_spinorbitals, dtype=int)//2
     remapped[1::2] += int(np.ceil(n_spinorbitals / 2.))
     
