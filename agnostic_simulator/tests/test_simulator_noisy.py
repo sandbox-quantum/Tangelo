@@ -70,7 +70,7 @@ class TestSimulate(unittest.TestCase):
         self.assertRaises(ValueError, nm.add_quantum_error, 'X', 'depol', 1)
         self.assertRaises(ValueError, nm.add_quantum_error, 'X', 'depol', [0.3, 0.2, 0.1])
 
-    #TODO: replace the noise channel name by one supported by agnostic simulator, but not with qiskit backend later
+    # TODO: replace the noise channel name by one supported by agnostic simulator, but not with qiskit backend later
     def test_unsupported_noise_channel_qiskit(self):
         """ Ensures an error is returned if user attempts to user an unsupported noise channel, for qiskit """
         nm = NoiseModel()
@@ -164,6 +164,7 @@ class TestSimulate(unittest.TestCase):
         s_nmc = Simulator(target='cirq', n_shots=10**6, noise_model=nmc)
         res_cumul, _ = s_nmc.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
+
 
 if __name__ == "__main__":
     unittest.main()

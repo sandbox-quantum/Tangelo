@@ -25,6 +25,7 @@ references = [0., 0.38205142 ** 2, 0., 0.59500984 ** 2, 0., 0.38205142 ** 2, 0.,
 
 abs_circ_mixed = Circuit(gates) + Circuit([Gate("RX", 1, parameter=1.5), Gate("MEASURE", 0)])
 
+
 class TestTranslation(unittest.TestCase):
 
     def test_qulacs(self):
@@ -103,14 +104,14 @@ class TestTranslation(unittest.TestCase):
         print(translated_circuit)
 
         # Generate the cirq circuit directly and print it
-        qubit_labels=cirq.LineQubit.range(3)
+        qubit_labels = cirq.LineQubit.range(3)
         circ = cirq.Circuit()
         circ.append(cirq.H(qubit_labels[2]))
-        circ.append(cirq.CNOT(qubit_labels[0],qubit_labels[1]))
-        circ.append(cirq.CNOT(qubit_labels[1],qubit_labels[2]))
+        circ.append(cirq.CNOT(qubit_labels[0], qubit_labels[1]))
+        circ.append(cirq.CNOT(qubit_labels[1], qubit_labels[2]))
         circ.append(cirq.Y(qubit_labels[0]))
         circ.append(cirq.S(qubit_labels[0]))
-        gate_rx=cirq.rx(2.)
+        gate_rx = cirq.rx(2.)
         circ.append(gate_rx(qubit_labels[1]))
         print(circ)
 
@@ -273,7 +274,7 @@ class TestTranslation(unittest.TestCase):
 
         device = BraketLocalSimulator()
         circ_result = device.run(circ, shots=0).result()
-        translated_result= device.run(translated_circuit, shots=0).result()
+        translated_result = device.run(translated_circuit, shots=0).result()
 
         np.testing.assert_array_equal(circ_result.values[0], translated_result.values[0])
 

@@ -97,7 +97,7 @@ class TestSimulate(unittest.TestCase):
         for i, circuit in enumerate(circuits):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
-    
+
     def test_simulate_cirq(self):
         """
             Must return correct f
@@ -158,9 +158,9 @@ class TestSimulate(unittest.TestCase):
         observed and compute the expectation value using these frequencies """
 
         empty_circuit = Circuit([], n_qubits=2)
-        identity_circuit = Circuit([Gate('X', 0), Gate('X', 1)] *2)
+        identity_circuit = Circuit([Gate('X', 0), Gate('X', 1)] * 2)
 
-        for b in ['qulacs', 'qiskit', 'projectq','cirq']:
+        for b in ['qulacs', 'qiskit', 'projectq', 'cirq']:
             simulator = Simulator(target=b)
             for op in [op1, op2]:
                 exp_value_empty = simulator.get_expectation_value(op, empty_circuit)
@@ -212,7 +212,7 @@ class TestSimulate(unittest.TestCase):
     def test_get_exp_value_complex(self):
         """ Get expectation value of qubit operator with complex coefficients """
 
-        for b in ["qulacs", "qiskit", "projectq","cirq"]:
+        for b in ["qulacs", "qiskit", "projectq", "cirq"]:
             simulator = Simulator(target=b)
 
             # Return complex expectation value corresponding to linear combinations of real and complex parts
@@ -239,7 +239,7 @@ class TestSimulate(unittest.TestCase):
             openqasm_circ = circ_handle.read()
 
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
-        backends = ["qulacs", "projectq", "qiskit","cirq"]
+        backends = ["qulacs", "projectq", "qiskit", "cirq"]
         results = dict()
         expected = -1.1372704
         test_fail = False
@@ -275,7 +275,7 @@ class TestSimulate(unittest.TestCase):
             openqasm_circ = circ_handle.read()
 
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
-        backends = ["qulacs", "projectq", "qiskit","cirq"]
+        backends = ["qulacs", "projectq", "qiskit", "cirq"]
         results = dict()
         expected = -1.9778374
         test_fail = False
@@ -331,7 +331,7 @@ class TestSimulate(unittest.TestCase):
         simulator = Simulator(target="qdk", n_shots=10**4)
         exp_values = np.zeros((len(ops)), dtype=float)
         for j, op in enumerate(ops):
-                exp_values[j] = simulator.get_expectation_value(op, circuit3)
+            exp_values[j] = simulator.get_expectation_value(op, circuit3)
         np.testing.assert_almost_equal(exp_values, reference_exp_values[2], decimal=1)
 
     def test_get_exp_value_from_frequencies_oneterm(self):
