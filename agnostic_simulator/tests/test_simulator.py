@@ -98,7 +98,7 @@ class TestSimulate(unittest.TestCase):
         for i, circuit in enumerate(circuits):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
-    
+
     def test_simulate_cirq(self):
         """
             Must return correct f
