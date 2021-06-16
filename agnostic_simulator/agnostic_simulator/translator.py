@@ -427,6 +427,7 @@ def translate_braket(source_circuit):
             raise ValueError(f"Gate '{gate.name}' not supported on backend braket")
     return target_circuit
 
+
 def translate_cirq(source_circuit, noise_model=None):
     """ Take in an abstract circuit, return an equivalent cirq QuantumCircuit instance
 
