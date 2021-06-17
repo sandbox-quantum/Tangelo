@@ -3,10 +3,10 @@ from openfermion.chem.molecular_data import load_molecular_hamiltonian
 from pyscf import gto
 from pyscf.gto.mole import Mole
 
-from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData, atom_string_to_list
+from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData, atom_string_to_list, suggest_frozen_orbitals
 
 H2_list = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
-H2_string = """ 
+H2_string = """
 H       0.0        0.0        0.0
 H       0.0        0.0        0.7414
 """
@@ -17,7 +17,7 @@ mol_h2.basis = "sto-3g"
 mol_h2.spin = 0
 mol_h2.build()
 
-H2O_list = [('O', (0., 0., 0.11779)), 
+H2O_list = [('O', (0., 0., 0.11779)),
             ('H', (0., 0.75545, -0.47116)),
             ('H', (0., -0.75545, -0.47116))
         ]
@@ -118,6 +118,17 @@ class MolecularDataTest(unittest.TestCase):
         molecule = MolecularData(mol_h2o, frozen_orbitals=1)
         shift = molecule.get_molecular_hamiltonian().constant
         self.assertAlmostEqual(shift, -51.47120372466002, delta=1e-6)
+
+    def test_suggestion_frozen_orbitals(self):
+        """ Verify if the frozen orbitals suggestion is consistent with
+        chemical intuiton.
+        """
+
+        frozen_h2 = suggest_frozen_orbitals(mol_h2)
+        self.assertEqual(frozen_h2, 0)
+
+        frozen_h2o = suggest_frozen_orbitals(mol_h2o)
+        self.assertEqual(frozen_h2o, 1)
 
 
 if __name__ == "__main__":
