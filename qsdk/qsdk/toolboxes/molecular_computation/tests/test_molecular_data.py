@@ -3,7 +3,7 @@ from openfermion.chem.molecular_data import load_molecular_hamiltonian
 from pyscf import gto
 from pyscf.gto.mole import Mole
 
-from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData, atom_string_to_list, suggest_frozen_orbitals
+from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData, atom_string_to_list
 
 H2_list = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
 H2_string = """
