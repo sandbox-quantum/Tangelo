@@ -256,14 +256,10 @@ class Simulator:
             # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
             if self._noise_model or source_circuit.is_mixed_state:
                 sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
-                dm = sim.final_density_matrix
-                self._current_state = dm
+                self._current_state = sim.final_density_matrix
                 indices = list(range(source_circuit.width))
-                isamples = cirq.sample_density_matrix(dm, indices, repetitions=self.n_shots)
-                samples = list()
-                for i in range(self.n_shots):
-                    string_result = ''.join([str(int(q))for q in isamples[i]])
-                    samples.append(string_result)
+                isamples = cirq.sample_density_matrix(self._current_state, indices, repetitions=self.n_shots)
+                samples = [ ''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots) ]
 
                 frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
             # Noiseless simulation using the statevector simulator otherwise
