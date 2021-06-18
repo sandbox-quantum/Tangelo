@@ -148,7 +148,11 @@ class VQESolver:
         resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms)
         resources["circuit_width"] = self.ansatz.circuit.width
         resources["circuit_gates"] = self.ansatz.circuit.size
-        resources["circuit_2qubit_gates"] = self.ansatz.circuit.counts['CNOT']  # For now, only CNOTs supported
+        # For now, only CNOTs supported. Try block for 1 qubit circuit (0 CNOT).
+        try:
+            resources["circuit_2qubit_gates"] = self.ansatz.circuit.counts['CNOT']
+        except KeyError:
+            resources["circuit_2qubit_gates"] = 0
         resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
         resources["vqe_variational_parameters"] = len(self.initial_var_params)
         return resources
