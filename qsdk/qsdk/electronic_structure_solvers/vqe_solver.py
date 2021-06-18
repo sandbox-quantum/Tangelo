@@ -273,8 +273,8 @@ class VQESolver:
         self.optimal_circuit = self.ansatz.circuit
 
         if self.verbose:
-            print(f"\t\tOptimal UCCSD energy: {self.optimal_energy}")
-            print(f"\t\tOptimal UCCSD variational parameters: {self.optimal_var_params}")
+            print(f"\t\tOptimal VQE energy: {self.optimal_energy}")
+            print(f"\t\tOptimal VQE variational parameters: {self.optimal_var_params}")
             print(f"\t\tNumber of Function Evaluations : {result.nfev}")
 
         return result.fun
