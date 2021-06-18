@@ -21,29 +21,6 @@ def atom_string_to_list(atom_string):
             geometry += [(atom, coordinates)]
     return geometry
 
-def suggest_frozen_orbitals(molecule):
-    """Function to compute de number of frozen orbitals. This function is only
-    for the core (occupied orbitals).
-
-    Args:
-        molecule (pyscf.gto): Molecule to be evaluated.
-    """
-
-    # Freezing core of each atom.
-    core_orbitals = {
-        "H": 0, "He": 0,
-        "Li": 1, "Be": 1, "B": 1, "C": 1, "N": 1, "O": 1, "F": 1, "Ne": 1,
-    }
-
-    frozen_core = 0
-
-    # Copunting how many of each element is in the molecule.
-    elements = {i: molecule.elements.count(i) for i in molecule.elements}
-    for k, v in elements.items():
-        frozen_core += v * core_orbitals[k]
-
-    return frozen_core
-
 
 class MolecularData(openfermion.MolecularData):
     """ Currently, this class is coming from openfermion. It will later on be replaced by our own implementation.

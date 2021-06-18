@@ -119,17 +119,6 @@ class MolecularDataTest(unittest.TestCase):
         shift = molecule.get_molecular_hamiltonian().constant
         self.assertAlmostEqual(shift, -51.47120372466002, delta=1e-6)
 
-    def test_suggestion_frozen_orbitals(self):
-        """ Verify if the frozen orbitals suggestion is consistent with
-        chemical intuiton.
-        """
-
-        frozen_h2 = suggest_frozen_orbitals(mol_h2)
-        self.assertEqual(frozen_h2, 0)
-
-        frozen_h2o = suggest_frozen_orbitals(mol_h2o)
-        self.assertEqual(frozen_h2o, 1)
-
 
 if __name__ == "__main__":
     unittest.main()
