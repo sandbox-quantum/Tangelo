@@ -24,11 +24,9 @@ def get_frozen_core(molecule):
         "Na": 5, "Mg": 5, "Al": 5, "Si": 5, "P": 5, "S": 5, "Cl": 5, "Ar": 5
     }
 
-    frozen_core = 0
     # Counting how many of each element is in the molecule.
     elements = {i: molecule.elements.count(i) for i in molecule.elements}
-    for k, v in elements.items():
-        frozen_core += v * core_orbitals[k]
+    frozen_core = sum([v * core_orbitals[k] for k, v in elements.items()])
 
     return frozen_core
 
