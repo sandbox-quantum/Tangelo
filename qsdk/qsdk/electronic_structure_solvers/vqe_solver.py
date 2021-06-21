@@ -14,6 +14,7 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
+from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 
 
 class Ansatze(Enum):
@@ -37,7 +38,9 @@ class VQESolver:
     Attributes:
         molecule (MolecularData) : the molecular system
         mean-field (optional) : mean-field of molecular system
-        frozen_orbitals (list[int]): a list of indices for frozen orbitals, reflected in mean-field computation
+        frozen_orbitals (list[int]): a list of indices for frozen orbitals.
+            Default is the string "frozen_core", corresponding to the output
+            of the function molecular_computation.frozen_orbitals.get_frozen_core.
         qubit_mapping (str) : one of the supported qubit mapping identifiers
         ansatz (Ansatze) : one of the supported ansatze
         optimizer (function handle): a function defining the classical optimizer and its behavior
@@ -51,7 +54,7 @@ class VQESolver:
     def __init__(self, opt_dict):
 
         default_backend_options = {"target": "qulacs", "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None, "mean_field": None, "frozen_orbitals": list(),
+        default_options = {"molecule": None, "mean_field": None, "frozen_orbitals": "frozen_core",
                            "qubit_mapping": "jw", "ansatz": Ansatze.UCCSD,
                            "optimizer": self._default_optimizer,
                            "initial_var_params": None,
@@ -86,6 +89,9 @@ class VQESolver:
             # Build adequate mean-field (RHF for now, others in future).
             if not self.mean_field:
                 self.mean_field = prepare_mf_RHF(self.molecule)
+
+            if self.frozen_orbitals == "frozen_core":
+                self.frozen_orbitals = get_frozen_core(self.molecule)
 
             # Compute qubit hamiltonian for the input molecular system
             self.qemist_molecule = MolecularData(self.molecule, self.mean_field, self.frozen_orbitals)
