@@ -5,9 +5,7 @@
 
 import unittest
 import time
-import pickle
 import numpy as np
-import qiskit
 from openfermion.ops import QubitOperator
 
 from agnostic_simulator import Gate, Circuit, translator, Simulator, backend_info
@@ -100,8 +98,7 @@ class TestSimulate(unittest.TestCase):
 
     def test_simulate_cirq(self):
         """
-            Must return correct f
-            requencies for simulation of different quantum circuits
+            Must return correct frequencies for simulation of different quantum circuits
             Backend: cirq
         """
         simulator = Simulator(target="cirq")
@@ -350,7 +347,7 @@ class TestSimulate(unittest.TestCase):
         Some simulators are NOT good at this, by design (ProjectQ).
         """
 
-        backends = ["qiskit", "qulacs", "projectq",  "qdk", "cirq"]
+        backends = ["qiskit", "qulacs", "projectq", "qdk", "cirq"]
         results = dict()
         for b in backends:
             sim = Simulator(target=b, n_shots=10**5)

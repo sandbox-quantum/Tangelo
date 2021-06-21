@@ -249,22 +249,15 @@ class Simulator:
                 cirq_simulator = cirq.Simulator(dtype=np.complex128)
 
             # If requested, set initial state
-            if initial_statevector is not None:
-                cirq_initial_statevector = initial_statevector
-            else:
-                cirq_initial_statevector = 0
+            cirq_initial_statevector = initial_statevector if initial_statevector is not None else 0
 
             # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
             if self._noise_model or source_circuit.is_mixed_state:
                 sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
-                dm = sim.final_density_matrix
-                self._current_state = dm
-                indices = [i for i in range(source_circuit.width)]
-                isamples = cirq.sample_density_matrix(dm, indices, repetitions=self.n_shots)
-                samples = list()
-                for i in range(self.n_shots):
-                    string_result = ''.join([str(int(q))for q in isamples[i]])
-                    samples.append(string_result)
+                self._current_state = sim.final_density_matrix
+                indices = list(range(source_circuit.width))
+                isamples = cirq.sample_density_matrix(sim.final_density_matrix, indices, repetitions=self.n_shots)
+                samples = [ ''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots) ]
 
                 frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
             # Noiseless simulation using the statevector simulator otherwise
@@ -367,17 +360,11 @@ class Simulator:
         if self._target == "cirq" and not self.n_shots:
             qubit_labels = cirq.LineQubit.range(n_qubits)
             qubit_map = {q: i for i, q in enumerate(qubit_labels)}
-            GATE_CIRQ = dict()
-            GATE_CIRQ["X"] = cirq.X
-            GATE_CIRQ["Y"] = cirq.Y
-            GATE_CIRQ["Z"] = cirq.Z
+            from agnostic_simulator.translator import GATE_CIRQ
             paulisum = 0.*cirq.PauliString(cirq.I(qubit_labels[0]))
             for term, coef in qubit_operator.terms.items():
-                pauli_list = list()
-                for index, pauli in term:
-                    pauli_list.append(GATE_CIRQ[pauli](qubit_labels[index]))
-                paulistring = cirq.PauliString(pauli_list, coefficient=coef)
-                paulisum += paulistring
+                pauli_list = [GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
+                paulisum += cirq.PauliString(pauli_list, coefficient=coef)
             if self._noise_model:
                 exp_value = paulisum.expectation_from_density_matrix(prepared_state, qubit_map)
             else:
