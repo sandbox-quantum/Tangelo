@@ -7,7 +7,6 @@ import unittest
 import os
 import time
 import numpy as np
-import qiskit
 from openfermion.ops import QubitOperator
 
 from agnostic_simulator import Gate, Circuit, translator, Simulator, backend_info
@@ -101,8 +100,7 @@ class TestSimulate(unittest.TestCase):
 
     def test_simulate_cirq(self):
         """
-            Must return correct f
-            requencies for simulation of different quantum circuits
+            Must return correct frequencies for simulation of different quantum circuits
             Backend: cirq
         """
         simulator = Simulator(target="cirq")
