@@ -15,6 +15,7 @@ from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
+from qsdk.toolboxes.ansatz_generator.hea import HEA
 
 
 class Ansatze(Enum):
@@ -22,6 +23,8 @@ class Ansatze(Enum):
     UCCSD = 0
     UCC1 = 1
     UCC3 = 2
+    HEA = 3
+
 
 class VQESolver:
     """ Solve the electronic structure problem for a molecular system by using the
@@ -61,7 +64,8 @@ class VQESolver:
                            "backend_options": default_backend_options,
                            "up_then_down": False,
                            "qubit_hamiltonian": None,
-                           "verbose": False}
+                           "verbose": False,
+                           "n_hea_layers": 4}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -122,6 +126,8 @@ class VQESolver:
                     self.ansatz = RUCC(1)
                 elif self.ansatz == Ansatze.UCC3:
                     self.ansatz = RUCC(3)
+                elif self.ansatz == Ansatze.HEA:
+                    self.ansatz = HEA(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down, self.n_hea_layers)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
