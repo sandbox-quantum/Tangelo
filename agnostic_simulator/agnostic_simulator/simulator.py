@@ -360,10 +360,9 @@ class Simulator:
         if self._target == "cirq" and not self.n_shots:
             qubit_labels = cirq.LineQubit.range(n_qubits)
             qubit_map = {q: i for i, q in enumerate(qubit_labels)}
-            from agnostic_simulator.translator import GATE_CIRQ
             paulisum = 0.*cirq.PauliString(cirq.I(qubit_labels[0]))
             for term, coef in qubit_operator.terms.items():
-                pauli_list = [GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
+                pauli_list = [translator.GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
                 paulisum += cirq.PauliString(pauli_list, coefficient=coef)
             if self._noise_model:
                 exp_value = paulisum.expectation_from_density_matrix(prepared_state, qubit_map)
