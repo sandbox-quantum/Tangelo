@@ -22,6 +22,7 @@ from collections import Counter
 
 import qulacs
 import qiskit
+import cirq
 from projectq import MainEngine
 from projectq.ops import *
 from openfermion.ops import QubitOperator
@@ -35,6 +36,7 @@ import agnostic_simulator.translator as translator
 backend_info = dict()
 backend_info["qiskit"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
 backend_info["qulacs"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
+backend_info["cirq"] = {"statevector_available": True, "statevector_order": "lsq_first", "noisy_simulation": True}
 backend_info["projectq"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": False}
 backend_info["qdk"] = {"statevector_available": False, "statevector_order": None, "noisy_simulation": False}
 
@@ -99,7 +101,7 @@ class Simulator:
         # If the unitary is the identity (no gates), no need for simulation: return all-zero state
         if source_circuit.size == 0:
             frequencies = {'0'*source_circuit.width: 1.0}
-            statevector = np.zeros(2**source_circuit.width); statevector[0] =1.0
+            statevector = np.zeros(2**source_circuit.width); statevector[0] = 1.0
             return (frequencies, statevector) if return_statevector else (frequencies, None)
 
         if self._target == "qulacs":
@@ -234,6 +236,38 @@ class Simulator:
                            if v > self.freq_threshold}
             return (frequencies, None)
 
+        elif self._target == "cirq":
+
+            translated_circuit = translator.translate_cirq(source_circuit, self._noise_model)
+
+            if source_circuit.is_mixed_state or self._noise_model:
+                # Only DensityMatrixSimulator handles noise well, can use Simulator but it is slower
+                # ignore_measurement_results changes measurement gates to Krauss operators so simulators
+                # can be called once and density matrix sampled repeatedly.
+                cirq_simulator = cirq.DensityMatrixSimulator(dtype=np.complex128, ignore_measurement_results=True)
+            else:
+                cirq_simulator = cirq.Simulator(dtype=np.complex128)
+
+            # If requested, set initial state
+            cirq_initial_statevector = initial_statevector if initial_statevector is not None else 0
+
+            # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
+            if self._noise_model or source_circuit.is_mixed_state:
+                sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
+                self._current_state = sim.final_density_matrix
+                indices = list(range(source_circuit.width))
+                isamples = cirq.sample_density_matrix(sim.final_density_matrix, indices, repetitions=self.n_shots)
+                samples = [ ''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots) ]
+
+                frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
+            # Noiseless simulation using the statevector simulator otherwise
+            else:
+                job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
+                self._current_state = job_sim.final_state_vector
+                frequencies = self._statevector_to_frequencies(self._current_state)
+
+            return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
+
     def get_expectation_value(self, qubit_operator, state_prep_circuit):
         """
             Take as input a qubit operator H and a quantum circuit preparing a state |\psi>
@@ -321,6 +355,21 @@ class Simulator:
             eng.flush()
             return exp_value
 
+        # Use cirq built-in expectation_from_state_vector/epectation_from_density_matrix
+        # noise model would require
+        if self._target == "cirq" and not self.n_shots:
+            qubit_labels = cirq.LineQubit.range(n_qubits)
+            qubit_map = {q: i for i, q in enumerate(qubit_labels)}
+            paulisum = 0.*cirq.PauliString(cirq.I(qubit_labels[0]))
+            for term, coef in qubit_operator.terms.items():
+                pauli_list = [translator.GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
+                paulisum += cirq.PauliString(pauli_list, coefficient=coef)
+            if self._noise_model:
+                exp_value = paulisum.expectation_from_density_matrix(prepared_state, qubit_map)
+            else:
+                exp_value = paulisum.expectation_from_state_vector(prepared_state, qubit_map)
+            return np.real(exp_value)
+
         # Otherwise, use generic statevector expectation value
         for term, coef in qubit_operator.terms.items():
 
@@ -371,7 +420,7 @@ class Simulator:
 
             if len(term) > n_qubits:
                 raise ValueError(f"Size of operator {qubit_operator} beyond circuit width ({n_qubits} qubits)")
-            elif not term: # Empty term: no simulation needed
+            elif not term:  # Empty term: no simulation needed
                 expectation_value += coef
                 continue
 

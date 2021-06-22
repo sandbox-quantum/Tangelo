@@ -4,9 +4,10 @@
 """
 
 import unittest
-import numpy as np
+import os
 import qiskit
 import qulacs
+import cirq
 
 from braket.circuits import Circuit as BraketCircuit
 from braket.devices import LocalSimulator as BraketLocalSimulator
@@ -18,11 +19,14 @@ from agnostic_simulator import Gate
 from agnostic_simulator import Circuit
 import agnostic_simulator.translator as translator
 
+path_data = os.path.dirname(__file__) + '/data'
+
 gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1), Gate("Y", 0), Gate("S", 0)]
 abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=2.)])
 references = [0., 0.38205142 ** 2, 0., 0.59500984 ** 2, 0., 0.38205142 ** 2, 0., 0.59500984 ** 2]
 
 abs_circ_mixed = Circuit(gates) + Circuit([Gate("RX", 1, parameter=1.5), Gate("MEASURE", 0)])
+
 
 class TestTranslation(unittest.TestCase):
 
@@ -86,6 +90,39 @@ class TestTranslation(unittest.TestCase):
         job_sim = qiskit.execute(circ, qiskit_simulator)
         sim_results = job_sim.result()
         v2 = sim_results.get_statevector()
+
+        np.testing.assert_array_equal(v1, v2)
+
+    def test_cirq(self):
+        """
+            Compares the results of a simulation with cirq using a cirq circuit directly
+            VS one obtained through translation from an abstract format
+        """
+
+        # Generate the qiskit circuit by translating from the abstract one and print it
+        translated_circuit = translator.translate_cirq(abs_circ)
+        print(f"\n Cirq Circuit \n{translated_circuit}\n")
+
+        # Generate the cirq circuit directly and print it
+        qubit_labels = cirq.LineQubit.range(3)
+        circ = cirq.Circuit()
+        circ.append(cirq.H(qubit_labels[2]))
+        circ.append(cirq.CNOT(qubit_labels[0], qubit_labels[1]))
+        circ.append(cirq.CNOT(qubit_labels[1], qubit_labels[2]))
+        circ.append(cirq.Y(qubit_labels[0]))
+        circ.append(cirq.S(qubit_labels[0]))
+        gate_rx = cirq.rx(2.)
+        circ.append(gate_rx(qubit_labels[1]))
+        print(f"{circ}\n")
+
+        # Simulate both circuits, assert state vectors are equal
+        cirq_simulator = cirq.Simulator()
+
+        job_sim = cirq_simulator.simulate(circ)
+        v1 = job_sim.final_state_vector
+
+        job_sim = cirq_simulator.simulate(translated_circuit)
+        v2 = job_sim.final_state_vector
 
         np.testing.assert_array_equal(v1, v2)
 
@@ -155,7 +192,7 @@ class TestTranslation(unittest.TestCase):
         assert(abs_circ.__str__() == abs_circ2.__str__())
 
         # Inverse test: assume input is a ProjectQ circuit such as the output of the CommandPrinter engine
-        with open("data/projectq_circuit.txt", 'r') as pq_circ_file:
+        with open(f"{path_data}/projectq_circuit.txt", 'r') as pq_circ_file:
             pq_circ1 = pq_circ_file.read()
             abs_circ1 = translator._translate_projectq2abs(pq_circ1)
             pq_circ2 = translator.translate_projectq(abs_circ1)
@@ -237,7 +274,7 @@ class TestTranslation(unittest.TestCase):
 
         device = BraketLocalSimulator()
         circ_result = device.run(circ, shots=0).result()
-        translated_result= device.run(translated_circuit, shots=0).result()
+        translated_result = device.run(translated_circuit, shots=0).result()
 
         np.testing.assert_array_equal(circ_result.values[0], translated_result.values[0])
 

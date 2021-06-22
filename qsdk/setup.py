@@ -8,8 +8,7 @@ __title__ = "1QBit's quantum SDK for quantum chemistry"
 __copyright__ = "1QBit Inc"
 __version__ = "0.1.0"
 __status__ = "beta"
-__authors__ = ["Valentin Senicourt"]
-__credits__ = ["Valentin Senicourt"]
+__authors__ = ["Valentin Senicourt, Alexandre Fleury, Ryan Day"]
 
 
 setuptools.setup(
@@ -22,5 +21,5 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     test_suite="qsdk",
     setup_requires=['agnostic_simulator'],
-    install_requires=['pyscf', 'openfermion', 'openfermionpyscf']
+    install_requires=['h5py==2.9.0', 'pyscf', 'openfermion', 'openfermionpyscf']
 )
