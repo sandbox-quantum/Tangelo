@@ -81,6 +81,8 @@ class HEA(Ansatz):
         hea_circuit = HEACircuit(self.n_qubits, self.n_layers)
 
         if reference_state_circuit.size != 0:
+            print('reference circuit')
+            print(reference_state_circuit)
             self.circuit = reference_state_circuit + hea_circuit
         else:
             self.circuit = hea_circuit
