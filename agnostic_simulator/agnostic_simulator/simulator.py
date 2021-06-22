@@ -496,10 +496,18 @@ class Simulator:
             for k, v in frequencies.items():
                 xk.append(int(k[::-1], 2))
                 pk.append(frequencies[k])
-
             distr = stats.rv_discrete(name='distr', values=(np.array(xk), np.array(pk)))
-            samples = distr.rvs(size=self.n_shots)
-            freqs_shots = {self.__int_to_binstr(k, n_qubits): v / self.n_shots for k, v in Counter(samples).items()}
+
+            # Generate samples from distribution. Cut in chunks to ensure samples fit in memory, gradually accumulate
+            chunk_size = 10**7
+            n_chunks = self.n_shots // chunk_size
+            freqs_shots = Counter()
+
+            for i in range(n_chunks+1):
+                this_chunk = self.n_shots % chunk_size if i == n_chunks else chunk_size
+                samples = distr.rvs(size=this_chunk)
+                freqs_shots += Counter(samples)
+            freqs_shots = {self.__int_to_binstr(k, n_qubits): v / self.n_shots for k, v in freqs_shots.items()}
             return freqs_shots
 
     def __int_to_binstr(self, i, n_qubits):
