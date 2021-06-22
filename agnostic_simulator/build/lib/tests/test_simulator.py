@@ -347,7 +347,7 @@ class TestSimulate(unittest.TestCase):
         Some simulators are NOT good at this, by design (ProjectQ).
         """
 
-        backends = ["qiskit", "qulacs", "projectq",  "qdk", "cirq"]
+        backends = ["qiskit", "qulacs", "projectq", "qdk", "cirq"]
         results = dict()
         for b in backends:
             sim = Simulator(target=b, n_shots=10**5)

@@ -99,7 +99,7 @@ class TestTranslation(unittest.TestCase):
 
         # Generate the qiskit circuit by translating from the abstract one and print it
         translated_circuit = translator.translate_cirq(abs_circ)
-        print(f"\n Cirq Circuit \n{translated_circuit}")
+        print(f"\n Cirq Circuit \n{translated_circuit}\n")
 
         # Generate the cirq circuit directly and print it
         qubit_labels = cirq.LineQubit.range(3)
@@ -111,7 +111,7 @@ class TestTranslation(unittest.TestCase):
         circ.append(cirq.S(qubit_labels[0]))
         gate_rx = cirq.rx(2.)
         circ.append(gate_rx(qubit_labels[1]))
-        print(circ)
+        print(f"{circ}\n")
 
         # Simulate both circuits, assert state vectors are equal
         cirq_simulator = cirq.Simulator()

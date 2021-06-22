@@ -101,8 +101,7 @@ class Simulator:
         # If the unitary is the identity (no gates), no need for simulation: return all-zero state
         if source_circuit.size == 0:
             frequencies = {'0'*source_circuit.width: 1.0}
-            statevector = np.zeros(2**source_circuit.width)
-            statevector[0] = 1.0
+            statevector = np.zeros(2**source_circuit.width); statevector[0] = 1.0
             return (frequencies, statevector) if return_statevector else (frequencies, None)
 
         if self._target == "qulacs":
@@ -182,8 +181,7 @@ class Simulator:
 
             translated_circuit = translator.translate_projectq(source_circuit)
             translated_circuit = re.sub(r'(.*)llocate(.*)\n', '', translated_circuit)
-            all_zero_state = np.zeros(2 ** source_circuit.width, dtype=np.complex)
-            all_zero_state[0] = 1.0
+            all_zero_state = np.zeros(2 ** source_circuit.width, dtype=np.complex);  all_zero_state[0] = 1.0
 
             eng = MainEngine()
             if initial_statevector is not None:
@@ -250,7 +248,7 @@ class Simulator:
             else:
                 cirq_simulator = cirq.Simulator(dtype=np.complex128)
 
-            # If requested, set initial state, else set to zero state
+            # If requested, set initial state
             cirq_initial_statevector = initial_statevector if initial_statevector is not None else 0
 
             # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
@@ -258,7 +256,7 @@ class Simulator:
                 sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
                 self._current_state = sim.final_density_matrix
                 indices = list(range(source_circuit.width))
-                isamples = cirq.sample_density_matrix(self._current_state, indices, repetitions=self.n_shots)
+                isamples = cirq.sample_density_matrix(sim.final_density_matrix, indices, repetitions=self.n_shots)
                 samples = [ ''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots) ]
 
                 frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
@@ -360,9 +358,9 @@ class Simulator:
         # Use cirq built-in expectation_from_state_vector/epectation_from_density_matrix
         # noise model would require
         if self._target == "cirq" and not self.n_shots:
-            from agnostic_simulator import GATE_CIRQ
             qubit_labels = cirq.LineQubit.range(n_qubits)
             qubit_map = {q: i for i, q in enumerate(qubit_labels)}
+            from agnostic_simulator.translator import GATE_CIRQ
             paulisum = 0.*cirq.PauliString(cirq.I(qubit_labels[0]))
             for term, coef in qubit_operator.terms.items():
                 pauli_list = [GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
