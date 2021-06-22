@@ -4,7 +4,7 @@
 """
 
 import unittest
-import numpy as np
+import os
 import qiskit
 import qulacs
 import cirq
@@ -18,6 +18,8 @@ from projectq import MainEngine
 from agnostic_simulator import Gate
 from agnostic_simulator import Circuit
 import agnostic_simulator.translator as translator
+
+path_data = os.path.dirname(__file__) + '/data'
 
 gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1), Gate("Y", 0), Gate("S", 0)]
 abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=2.)])
@@ -190,7 +192,7 @@ class TestTranslation(unittest.TestCase):
         assert(abs_circ.__str__() == abs_circ2.__str__())
 
         # Inverse test: assume input is a ProjectQ circuit such as the output of the CommandPrinter engine
-        with open("data/projectq_circuit.txt", 'r') as pq_circ_file:
+        with open(f"{path_data}/projectq_circuit.txt", 'r') as pq_circ_file:
             pq_circ1 = pq_circ_file.read()
             abs_circ1 = translator._translate_projectq2abs(pq_circ1)
             pq_circ2 = translator.translate_projectq(abs_circ1)

@@ -4,6 +4,7 @@
 """
 
 import unittest
+import os
 import time
 import numpy as np
 from openfermion.ops import QubitOperator
@@ -11,6 +12,7 @@ from openfermion.ops import QubitOperator
 from agnostic_simulator import Gate, Circuit, translator, Simulator, backend_info
 from agnostic_simulator.helpers import string_ham_to_of
 
+path_data = os.path.dirname(__file__) + '/data'
 
 # Simple circuit for superposition, also tells us qubit ordering as well immediately from the statevector
 # probabilities : |00> = 0.5  |01> = 0.5
@@ -228,11 +230,11 @@ class TestSimulate(unittest.TestCase):
         """ Get expectation value of large circuits and qubit Hamiltonians corresponding to molecules.
             Molecule: H2 sto-3g = [("H", (0., 0., 0.)), ("H", (0., 0., 0.741377))]
         """
-        with open("data/H2_qubit_hamiltonian.txt", "r") as ham_handle:
+        with open(f"{path_data}/H2_qubit_hamiltonian.txt", "r") as ham_handle:
             string_ham = ham_handle.read()
             qubit_operator = string_ham_to_of(string_ham)
 
-        with open("data/H2_UCCSD.qasm", "r") as circ_handle:
+        with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
@@ -265,10 +267,10 @@ class TestSimulate(unittest.TestCase):
                   ['H', [0.0,                 -1.0071067811865476,  0.0]]]
         """
 
-        with open("data/H4_qubit_hamiltonian.txt", "r") as ham_handle:
+        with open(f"{path_data}/H4_qubit_hamiltonian.txt", "r") as ham_handle:
             string_ham = ham_handle.read()
             qubit_operator = string_ham_to_of(string_ham)
-        with open("data/H4_UCCSD.qasm", "r") as circ_handle:
+        with open(f"{path_data}/H4_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
@@ -298,10 +300,10 @@ class TestSimulate(unittest.TestCase):
             The result is computed using samples ("shots") drawn form a statevector simulator here. This is the kind
             of results we could expect from a noiseless QPU.
         """
-        with open("data/H2_qubit_hamiltonian.txt", "r") as ham_handle:
+        with open(f"{path_data}/H2_qubit_hamiltonian.txt", "r") as ham_handle:
             string_ham = ham_handle.read()
             qubit_operator = string_ham_to_of(string_ham)
-        with open("data/H2_UCCSD.qasm", "r") as circ_handle:
+        with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
 
