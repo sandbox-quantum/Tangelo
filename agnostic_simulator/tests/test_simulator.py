@@ -214,11 +214,12 @@ class TestSimulate(unittest.TestCase):
         for b in ["qulacs", "qiskit", "projectq", "cirq"]:
             simulator = Simulator(target=b)
 
-            # Return complex expectation value corresponding to linear combinations of real and complex parts
+            # Return complex expectation value corresponding to linear combinations of real and imaginary parts
             op_c = op1 + 1.0j * op2
             exp_c = simulator.get_expectation_value(op_c, circuit3)
             exp_r1 = simulator.get_expectation_value(op1, circuit3)
             exp_r2 = simulator.get_expectation_value(op2, circuit3)
+            print(f"complex exp with {b} ::\t {exp_c} =? {exp_r1} + {exp_r2}j")
             assert(exp_c == (exp_r1 + 1.0j * exp_r2))
 
             # Edge case: all coefficients are complex but with imaginary part null: exp value must return a float

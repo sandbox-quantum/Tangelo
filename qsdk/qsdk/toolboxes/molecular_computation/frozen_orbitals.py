@@ -1,7 +1,8 @@
-"""This module defines functions to get suggestions for freezing orbitals. Those
-functions take a pyscf.gto object and return an integer or a list of orbital indexes
-for freezing orbitals.
 """
+This module defines functions to get suggestions for freezing orbitals. Those functions take a pyscf.gto object
+and return an integer or a list of orbital indices for freezing orbitals.
+"""
+
 
 def get_frozen_core(molecule):
     """Function to compute the number of frozen orbitals. This function is only
@@ -11,7 +12,7 @@ def get_frozen_core(molecule):
         molecule (pyscf.gto): Molecule to be evaluated.
 
     Returns:
-        int: First N molecular orbitals to freeze.
+        frozen_core (int): First N molecular orbitals to freeze.
     """
 
     # Freezing core of each atom. "Row" refers to a periodic table row.
@@ -30,6 +31,7 @@ def get_frozen_core(molecule):
 
     return frozen_core
 
+
 def get_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
     """Function to returns a list of orbitals frozen if the user wants to consider
     only a subset from HOMO(-homo_min_n) to LUMO(+lumo_plus_n) orbitals. Users
@@ -42,7 +44,7 @@ def get_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
         lumo_plus_n (int): Ending point at LUMO + lumo_plus_n.
 
     Returns:
-        list of int: Frozen orbitals not detected in the active space.
+        frozen_orbitals (list of int): Frozen orbitals not detected in the active space.
     """
 
     # Getting the number of molecular orbitals. It also works with different
