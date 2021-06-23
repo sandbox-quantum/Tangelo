@@ -6,7 +6,7 @@ from pyscf.gto.mole import Mole
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData, atom_string_to_list
 
 H2_list = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
-H2_string = """ 
+H2_string = """
 H       0.0        0.0        0.0
 H       0.0        0.0        0.7414
 """
@@ -17,7 +17,7 @@ mol_h2.basis = "sto-3g"
 mol_h2.spin = 0
 mol_h2.build()
 
-H2O_list = [('O', (0., 0., 0.11779)), 
+H2O_list = [('O', (0., 0., 0.11779)),
             ('H', (0., 0.75545, -0.47116)),
             ('H', (0., -0.75545, -0.47116))
         ]

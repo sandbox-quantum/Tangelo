@@ -45,13 +45,14 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         default_ccsd_options = dict()
         default_fci_options = dict()
-        default_vqe_options = {"qubit_mapping": "jw",
+        default_vqe_options = {"frozen_orbitals": None,
+                               "qubit_mapping": "jw",
                                "initial_var_params": "ones",
                                "verbose": False}
 
-        default_options = {"molecule": None, "mean_field": None, 
+        default_options = {"molecule": None, "mean_field": None,
                            "electron_localization": Localization.meta_lowdin,
-                           "fragment_atoms": list(), 
+                           "fragment_atoms": list(),
                            "fragment_solvers": "ccsd",
                            "optimizer": self._default_optimizer,
                            "initial_chemical_potential": 0.0,
@@ -115,7 +116,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         self.onerdm_low = None
 
     def build(self):
-        """Building the orbitals list for each fragment. It sets the values of 
+        """Building the orbitals list for each fragment. It sets the values of
         self.orbitals, self.orb_list and self.orb_list2.
         """
 
@@ -145,7 +146,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
     def simulate(self):
         """Perform DMET loop to optimize the chemical potential. It converges
-        when the electron summation across all fragments is the same as the 
+        when the electron summation across all fragments is the same as the
         number of electron in the molecule.
 
         Returns:
@@ -171,12 +172,12 @@ class DMETProblemDecomposition(ProblemDecomposition):
         return self.dmet_energy
 
     def _build_scf_fragments(self, chemical_potential):
-        """Building the orbitals list for each fragment. It sets the values of 
+        """Building the orbitals list for each fragment. It sets the values of
         self.orbitals, self.orb_list and self.orb_list2.
 
         Args:
             onerdm_low (matrix): 1-RDM for the whole molecule.
-            chemical_potential (float): Variational parameter for DMET. 
+            chemical_potential (float): Variational parameter for DMET.
 
         Returns:
             list: List of many objects important for each fragments.
@@ -246,7 +247,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 print("\t\tFragment Number : # ", i + 1)
                 print('\t\t------------------------')
 
-            # TODO: Changing this into something more simple is preferable. There 
+            # TODO: Changing this into something more simple is preferable. There
             # would be an enum class with every solver in it. After this, we would
             # define every solver in a list and call them recursively.
             # FCISolver and CCSDSolver must be taken care of, but this is a PR itself.
@@ -268,7 +269,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params)
 
             fragment_energy, _, one_rdm = self._compute_energy(mf_fragment, onerdm, twordm,
-                                                               fock_frag_copy, t_list, one_ele, 
+                                                               fock_frag_copy, t_list, one_ele,
                                                                two_ele, fock)
 
             # Sum up the energy.
@@ -288,7 +289,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         return number_of_electron - self.orbitals.number_active_electrons
 
     def get_resources(self):
-        """ Estimate the resources required by DMET. Only supports fragments solved 
+        """ Estimate the resources required by DMET. Only supports fragments solved
         with VQESolver. Resources for each fragments are outputed as a list.
         """
 
@@ -305,8 +306,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, _, mol_frag, _, _, _, _ = info_fragment
 
-            # Buiding SCF fragments and quantum circuit. Resources are then 
-            # estimated. For classical sovlers, this functionality is not 
+            # Buiding SCF fragments and quantum circuit. Resources are then
+            # estimated. For classical sovlers, this functionality is not
             # implemented yet.
             solver_fragment = self.fragment_solvers[i]
             solver_options = self.solvers_options[i]
