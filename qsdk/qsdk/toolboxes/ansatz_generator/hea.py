@@ -52,7 +52,9 @@ class HEA(Ansatz):
         if var_params == "ones":
             initial_var_params = np.ones((self.n_var_params,), dtype=float)
         elif var_params == "random":
-            initial_var_params = np.random.random((self.n_var_params,))
+            initial_var_params = 2 * 3.14159 * (np.random.random((self.n_var_params,)) - 0.5)
+        elif var_params == "zeros":
+            initial_var_params = np.zeros((self.n_var_params,), dtype=float)
         else:
             try:
                 assert (len(var_params) == self.n_var_params)
@@ -63,7 +65,7 @@ class HEA(Ansatz):
         return initial_var_params
 
     def prepare_reference_state(self):
-        """Prepare a circuit generating the HF reference state."""
+        """Prepare a circuit generating the HF reference state."""      
         if self.default_reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
@@ -81,14 +83,15 @@ class HEA(Ansatz):
         hea_circuit = HEACircuit(self.n_qubits, self.n_layers)
 
         if reference_state_circuit.size != 0:
-            print('reference circuit')
-            print(reference_state_circuit)
-            self.circuit = reference_state_circuit + hea_circuit
+            self.circuit = hea_circuit + reference_state_circuit 
         else:
             self.circuit = hea_circuit
         return self.circuit
 
     def update_var_params(self, var_params):
         """Update variational parameters (done repeatedly during VQE)"""
+        self.set_var_params(var_params)
+        var_params = self.var_params
+
         for param_index in range(self.n_var_params):
             self.circuit._variational_gates[param_index].parameter = var_params[param_index]

@@ -9,12 +9,13 @@ from openfermion.transforms import bravyi_kitaev_code
 
 available_mappings = {'JW', 'BK', 'SCBK'}
 
+
 def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False):
     """Get integer vector corresponding to Hartree Fock reference
-    state. Reference state will occupy up to the n_electron-th 
+    state. Reference state will occupy up to the n_electron-th
     molecular orbital. Depending on convention, basis is ordered
-    alternating spin-up/spin-down (updown = False), or all up, then 
-    all down (updown = True). 
+    alternating spin-up/spin-down (updown = False), or all up, then
+    all down (updown = True).
 
     Args:
         n_spinorbitals (int): number of spin-orbitals in register
@@ -62,9 +63,9 @@ def do_bk_transform(vector):
 
 
 def do_scbk_transform(n_spinorbitals, n_electrons):
-    """Instantiate qubit vector for symmetry-conserving 
+    """Instantiate qubit vector for symmetry-conserving
     Bravyi-Kitaev transformation. Based on implementation by Yukio Kawashima
-    in DMET project. 
+    in DMET project.
 
     Args:
         n_spinorbitals (int): number of qubits in register.
@@ -84,7 +85,7 @@ def do_scbk_transform(n_spinorbitals, n_electrons):
 def vector_to_circuit(vector):
     """Translate occupation vector into a circuit. Each
     occupied state corresponds to an X-gate on the associated
-    qubit index. 
+    qubit index.
 
     Args:
         vector (numpy array of int): occupation vector
@@ -98,7 +99,7 @@ def vector_to_circuit(vector):
         if occupation:
             gate = Gate('X', target=index)
             circuit.add_gate(gate)
-        
+
     return circuit
 
 
@@ -118,4 +119,3 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
     vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down)
     circuit = vector_to_circuit(vector)
     return circuit
-    

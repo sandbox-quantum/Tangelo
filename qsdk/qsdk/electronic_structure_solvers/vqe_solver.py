@@ -7,6 +7,8 @@ import numpy as np
 from copy import deepcopy
 
 from agnostic_simulator import Simulator
+from openfermion.ops.operators.fermion_operator import FermionOperator
+from openfermion.utils.indexing import up_then_down
 from qsdk.toolboxes.operators import count_qubits
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
@@ -65,7 +67,8 @@ class VQESolver:
                            "up_then_down": False,
                            "qubit_hamiltonian": None,
                            "verbose": False,
-                           "n_hea_layers": 4}
+                           "n_hea_layers": 2,
+                           "penalty_params": [0.,0.,0.]}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -105,6 +108,24 @@ class VQESolver:
                                                               n_spinorbitals=self.qemist_molecule.n_qubits,
                                                               n_electrons=self.qemist_molecule.n_electrons,
                                                               up_then_down=self.up_then_down)
+
+            from qsdk.toolboxes.ansatz_generator._general_unitary_cc import get_number_operator_penalty, get_spin_operator_penalty, get_spin2_operator_penalty
+
+            if self.penalty_params != [0,0,0]:
+                pen_ferm = 0
+                if (self.penalty_params[0] > 0):
+                    pen_ferm += get_number_operator_penalty(self.qemist_molecule.n_orbitals, self.qemist_molecule.n_electrons, mu=self.penalty_params[0], up_then_down=False)
+                if (self.penalty_params[1] > 0):
+                    pen_ferm += get_spin_operator_penalty(self.qemist_molecule.n_orbitals, 0, mu=self.penalty_params[1], up_then_down=False)
+                if (self.penalty_params[2] > 0):
+                    pen_ferm += get_spin2_operator_penalty(self.qemist_molecule.n_orbitals, 0, mu=self.penalty_params[2], up_then_down=False)
+
+                pen_qubit = fermion_to_qubit_mapping(fermion_operator=pen_ferm,
+                                                     mapping=self.qubit_mapping,
+                                                     n_spinorbitals=self.qemist_molecule.n_qubits,
+                                                     n_electrons=self.qemist_molecule.n_electrons,
+                                                     up_then_down=self.up_then_down)
+                self.qubit_hamiltonian += pen_qubit
 
             # Verification of system compatibility with UCC1 or UCC3 circuits.
             if self.ansatz in [Ansatze.UCC1, Ansatze.UCC3]:

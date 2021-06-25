@@ -1,1 +1,1 @@
-from .operators import FermionOperator, QubitOperator, count_qubits
+from .operators import FermionOperator, QubitOperator, count_qubits, normal_ordered

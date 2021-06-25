@@ -21,3 +21,17 @@ def count_qubits(qb_op):
         return 0
     else:
         return max([(sorted(pw))[-1][0] for pw in qb_op.terms.keys() if len(pw) > 0]) + 1
+
+
+def normal_ordered(fe_op):
+    """ Input: a Fermionic operator of class qsdk.toolboxes.operators.FermionicOperator or openfermion.FermionicOperator
+        Return: normal ordered qsdk.toolboxe.operators.FermionicOperator"""
+
+    # Obtain normal ordered fermionic operator as list of terms
+    norm_ord_terms = openfermion.transforms.normal_ordered(fe_op).terms
+
+    # Regeneratore full operator using class of qsdk.toolboxes.operators.FermionicOperator
+    norm_ord_fe_op = FermionOperator()
+    for term in norm_ord_terms:
+        norm_ord_fe_op += FermionOperator(term, norm_ord_terms[term])
+    return norm_ord_fe_op

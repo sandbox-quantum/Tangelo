@@ -18,7 +18,7 @@ def pauli_op_to_gate(index, op, inverse=False):
         return Gate("RX", index, parameter=angle) if not inverse else Gate("RX", index, parameter=-angle+4*np.pi)
 
 
-def pauliword_to_circuit(pauli_word, coef):
+def pauliword_to_circuit(pauli_word, coef, variational=True):
     """ Generates a quantum circuit corresponding to the pauli word, as described in Whitfield 2010
         https://arxiv.org/pdf/1001.3855.pdf
     """
@@ -35,7 +35,7 @@ def pauliword_to_circuit(pauli_word, coef):
     gates += cnot_ladder_gates
 
     angle = 2.*coef if coef >= 0. else 4*np.pi+2*coef
-    gates += [Gate("RZ", target=indices[-1], parameter=angle, is_variational=True)]
+    gates += [Gate("RZ", target=indices[-1], parameter=angle, is_variational=variational)]
 
     gates += cnot_ladder_gates[::-1]
 
