@@ -73,7 +73,8 @@ class VQESolver:
                            "up_then_down": False,
                            "qubit_hamiltonian": None,
                            "verbose": False,
-                           "n_hea_layers": 4}
+                           "n_hea_layers": 2,
+                           "penalty_params": [0.,0.,0.]}
 
         # Initialize with default values
         self.__dict__ = default_options
