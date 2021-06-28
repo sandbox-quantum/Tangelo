@@ -37,5 +37,5 @@ def HEACircuit(n_qubits, n_layers, rottype='euler'):
     circuit = RotationCircuit(n_qubits, rottype)
     for ii in range(n_layers):
         circuit += EntanglerCircuit(n_qubits)
-        circuit += RotationCircuit(n_qubits)
+        circuit += RotationCircuit(n_qubits, rottype)
     return circuit

@@ -11,7 +11,7 @@ from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circ
 class HEA(Ansatz):
     """ This class implements the HEA ansatz.  """
 
-    def __init__(self, molecule, mapping='jw', mean_field=None, up_then_down=False, n_layers=4, rottype='euler'):
+    def __init__(self, molecule, mapping='jw', mean_field=None, up_then_down=False, n_layers=2, rottype='euler'):
 
         self.molecule = molecule
         self.mapping = mapping
