@@ -113,7 +113,7 @@ class UCCSD(Ansatz):
             self.pauli_to_angles_mapping[pauli_word] = i
 
         uccsd_circuit = Circuit(pauli_words_gates)
-        #skip over the reference state circuit if it is empty
+        # skip over the reference state circuit if it is empty
         if reference_state_circuit.size != 0:
             self.circuit = reference_state_circuit + uccsd_circuit
         else:

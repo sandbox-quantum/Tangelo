@@ -11,27 +11,32 @@ from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circ
 class HEA(Ansatz):
     """ This class implements the HEA ansatz.  """
 
-    def __init__(self, molecule, mapping='jw', mean_field=None, up_then_down=False, n_layers=4):
+    def __init__(self, molecule, mapping='jw', mean_field=None, up_then_down=False, n_layers=4, rottype='euler'):
 
         self.molecule = molecule
         self.mapping = mapping
         self.mf = mean_field
         self.up_then_down = up_then_down
         self.n_layers = n_layers
+        self.rottype = rottype
 
         self.n_electrons = self.molecule.n_electrons
         self.n_spinorbitals = self.molecule.n_qubits  # This label makes no sense for some mappings but is correct
         self.n_qubits = get_qubit_number(mapping, self.n_spinorbitals)
 
-        # Each layer has 3 variational parameters per qubit, and one non-variational entangler
+        # Each euler layer has 3 variational parameters per qubit, and one non-variational entangler
+        # Each real rottion layer has 1 variational parameter per qubit, and one non-variational entangler
         # There is an additional layer with no entangler.
-        self.n_var_params = self.n_qubits * 3 * (self.n_layers + 1)
+        if self.rottype == 'euler':
+            self.n_var_params = self.n_qubits * 3 * (self.n_layers + 1)
+        elif self.rottype == 'real':
+            self.n_var_params = self.n_qubits * 1 * (self.n_layers + 1)
 
         # Supported reference state initialization
         # TODO: support for others
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"ones", "random"}
+        self.supported_initial_var_params = {"ones", "random", "zeros"}
 
         # Default initial parameters for initialization
         self.var_params_default = "random"
@@ -52,7 +57,7 @@ class HEA(Ansatz):
         if var_params == "ones":
             initial_var_params = np.ones((self.n_var_params,), dtype=float)
         elif var_params == "random":
-            initial_var_params = 2 * 3.14159 * (np.random.random((self.n_var_params,)) - 0.5)
+            initial_var_params = 4 * np.pi * (np.random.random((self.n_var_params,)) - 0.5)
         elif var_params == "zeros":
             initial_var_params = np.zeros((self.n_var_params,), dtype=float)
         else:
@@ -80,12 +85,15 @@ class HEA(Ansatz):
         self.var_params = self.set_var_params(var_params)
 
         reference_state_circuit = self.prepare_reference_state()
-        hea_circuit = HEACircuit(self.n_qubits, self.n_layers)
+
+        hea_circuit = HEACircuit(self.n_qubits, self.n_layers, self.rottype)
 
         if reference_state_circuit.size != 0:
             self.circuit = hea_circuit + reference_state_circuit 
         else:
             self.circuit = hea_circuit
+        
+        self.update_var_params(self.var_params)
         return self.circuit
 
     def update_var_params(self, var_params):
