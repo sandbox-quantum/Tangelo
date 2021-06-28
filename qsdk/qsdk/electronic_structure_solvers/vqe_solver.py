@@ -74,7 +74,8 @@ class VQESolver:
                            "qubit_hamiltonian": None,
                            "verbose": False,
                            "n_hea_layers": 2,
-                           "penalty_params": [0.,0.,0.]}
+                           "penalty_params": [0, 0, 0],
+                           'hea_rot_type': 'euler'}
 
         # Initialize with default values
         self.__dict__ = default_options
