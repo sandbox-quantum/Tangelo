@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """ This module defines the penatly terms that can be added to the target fermionic Hamiltonian,
     providing the ability to restrict the Hilbert space of solutions using VQE.
     For example usages see
@@ -7,6 +8,10 @@
           multireference molecular states optimized by the Variational Quantum Eigensolver"
           https://arxiv.org/abs/1910.05168
     """
+=======
+""" This module defines the penatly terms that can be added to the fermionic Hamiltonian,
+    providing the ability to restrict the Hilbert space of solutions using VQE"""
+>>>>>>> removed white spaces
 
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator_list, spinz_operator_list, spin2_operator_list
 from qsdk.toolboxes.operators import FermionOperator, squared_normal_ordered
@@ -20,10 +25,15 @@ def number_operator_penalty(n_orbs, n_electrons, mu=1, up_then_down=False):
             spin-orbitals divided by 2)
         n_electrons (int): number of electrons
         mu (float): Positive number in front of penalty term
+<<<<<<< HEAD
         up_then_down (bool): The ordering of the spin orbitals.
                       qiskit (True) openfermion (False)
                       If later transforming to qubits, one should generally let the
                       qubit mapping handle the ordering.
+=======
+        up_then_down: The ordering of the spin orbitals. Should generally let the
+                      qubit mapping handle this but can do it here as well.
+>>>>>>> removed white spaces
 
     Returns:
         (FermionicOperator): The number operator penalty term mu*(\hat{N}-n_electrons)^2"""
@@ -41,10 +51,15 @@ def spin_operator_penalty(n_orbs, sz, mu=1, up_then_down=False):
             spin-orbitals divided by 2)
         sz (int): the desired Sz quantum number to penalize for
         mu (float): Positive number in front of penalty term
+<<<<<<< HEAD
         up_then_down: The ordering of the spin orbitals.
                       qiskit (True) openfermion (False)
                       If later transforming to qubits, one should generally let the
                       qubit mapping handle the ordering.
+=======
+        up_then_down: The ordering of the spin orbitals. Should generally let the
+                      qubit mapping handle this but can do it here as well.
+>>>>>>> removed white spaces
 
     Returns:
         (FermionicOperator): The Sz operator penalty term mu*(\hat{Sz}-sz)^2"""
@@ -62,12 +77,18 @@ def spin2_operator_penalty(n_orbs, s2, mu=1, up_then_down=False):
         n_orbs (int): number of orbitals in the fermion basis (this is number of
             spin-orbitals divided by 2)
         s2 (int): the desired S^2 quantum number to penalize for
+<<<<<<< HEAD
                   singlet: s2=0*(0+1)=0, doublet: s2=(1/2)*(1/2+1)=3/4, triplet, s2=1*(1+1)=2 ...
         mu (float): Positive number in front of penalty term
         up_then_down: The ordering of the spin orbitals.
                       qiskit (True) openfermion (False)
                       If later transforming to qubits, one should generally let the
                       qubit mapping handle the ordering.
+=======
+        mu (float): Positive number in front of penalty term
+        up_then_down: The ordering of the spin orbitals. Should generally let the
+                      qubit mapping handle this but can do it here as well.
+>>>>>>> removed white spaces
 
     Returns:
         (FermionicOperator): The S^2 operator penalty term mu*(\hat{S}^2-s2)^2"""
