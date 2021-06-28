@@ -70,7 +70,7 @@ class HEA(Ansatz):
         return initial_var_params
 
     def prepare_reference_state(self):
-        """Prepare a circuit generating the HF reference state."""      
+        """Prepare a circuit generating the HF reference state."""
         if self.default_reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
@@ -89,10 +89,10 @@ class HEA(Ansatz):
         hea_circuit = HEACircuit(self.n_qubits, self.n_layers, self.rottype)
 
         if reference_state_circuit.size != 0:
-            self.circuit = hea_circuit + reference_state_circuit 
+            self.circuit = hea_circuit + reference_state_circuit
         else:
             self.circuit = hea_circuit
-        
+
         self.update_var_params(self.var_params)
         return self.circuit
 

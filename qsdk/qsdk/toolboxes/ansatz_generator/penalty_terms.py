@@ -1,4 +1,4 @@
-""" This module defines the penatly terms that can be added to the fermionic Hamiltonian, 
+""" This module defines the penatly terms that can be added to the fermionic Hamiltonian,
     providing the ability to restrict the Hilbert space of solutions using VQE"""
 
 from qsdk.toolboxes.ansatz_generator._general_unitary_cc import get_spin_ordered
@@ -12,7 +12,7 @@ def number_operator_penalty(n_orbs, n_electrons, mu=1, up_then_down=False):
         n_orbs (int): number of orbitals in the fermion basis (this is number of
             spin-orbitals divided by 2)
         n_electrons (int): number of electrons
-        mu (float): Positive number in front of penalty term 
+        mu (float): Positive number in front of penalty term
         up_then_down: The ordering of the spin orbitals. Should generally let the
                       qubit mapping handle this but can do it here as well.
 
@@ -41,7 +41,7 @@ def spin_operator_penalty(n_orbs, sz, mu=1, up_then_down=False):
         n_orbs (int): number of orbitals in the fermion basis (this is number of
             spin-orbitals divided by 2)
         sz (int): the desired Sz quantum number to penalize for
-        mu (float): Positive number in front of penalty term 
+        mu (float): Positive number in front of penalty term
         up_then_down: The ordering of the spin orbitals. Should generally let the
                       qubit mapping handle this but can do it here as well.
 
@@ -70,7 +70,7 @@ def spin2_operator_penalty(n_orbs, s2, mu=1, up_then_down=False):
         n_orbs (int): number of orbitals in the fermion basis (this is number of
             spin-orbitals divided by 2)
         s2 (int): the desired S^2 quantum number to penalize for
-        mu (float): Positive number in front of penalty term 
+        mu (float): Positive number in front of penalty term
         up_then_down: The ordering of the spin orbitals. Should generally let the
                       qubit mapping handle this but can do it here as well.
 

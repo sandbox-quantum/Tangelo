@@ -248,11 +248,11 @@ class VQESolver:
                 hamiltonian_temp[key2] = 1. if (key == key2 and ikey != 0) else 0.
 
             # Obtain qubit Hamiltonian
-            qubit_hamiltonian2 =fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
-                                                         mapping=self.qubit_mapping,
-                                                         n_spinorbitals=self.qemist_molecule.n_qubits,
-                                                         n_electrons=self.qemist_molecule.n_electrons,
-                                                         up_then_down=self.up_then_down)
+            qubit_hamiltonian2 = fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
+                                                          mapping=self.qubit_mapping,
+                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
+                                                          n_electrons=self.qemist_molecule.n_electrons,
+                                                          up_then_down=self.up_then_down)
             qubit_hamiltonian2.compress()
 
             if qubit_hamiltonian2.terms in lookup_ham:
