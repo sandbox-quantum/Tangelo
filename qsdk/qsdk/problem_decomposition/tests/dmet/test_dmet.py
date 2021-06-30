@@ -183,6 +183,53 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         energy = solver.simulate()
         self.assertAlmostEqual(energy, -2.0284, places=4)
 
+    def test_fragment_ids(self):
+        """Tests if a nested list of atom ids is provided. """
+        mol = gto.Mole()
+        mol.atom = H4_RING
+        mol.basis = "3-21g"
+        mol.charge = 0
+        mol.spin = 0
+        mol.build()
+
+        opt_dmet = {"molecule": mol,
+                    "fragment_atoms": [[0], [1], [2], [3]],
+                    "fragment_solvers": "ccsd",
+                    "electron_localization": Localization.iao,
+                    "verbose": False
+                    }
+
+        solver = DMETProblemDecomposition(opt_dmet)
+
+        self.assertEqual(solver.fragment_atoms, [1, 1, 1, 1])
+
+    def test_fragment_ids_exception(self):
+        """Tests exception if a bad nested list of atom ids is provided.
+        2 cases: if an atom id is higher than the number of atoms and if an
+        id is detected twice (or more).
+        """
+        mol = gto.Mole()
+        mol.atom = H4_RING
+        mol.basis = "3-21g"
+        mol.charge = 0
+        mol.spin = 0
+        mol.build()
+
+        opt_dmet = {"molecule": mol,
+                    "fragment_atoms": [[0,0], [1], [2], [3]],
+                    "fragment_solvers": "ccsd",
+                    "electron_localization": Localization.iao,
+                    "verbose": False
+                    }
+
+        with self.assertRaises(RuntimeError):
+            DMETProblemDecomposition(opt_dmet)
+
+        opt_dmet["fragment_atoms"] = [[0], [1], [2], [4]]
+
+        with self.assertRaises(RuntimeError):
+            DMETProblemDecomposition(opt_dmet)
+
 
 if __name__ == "__main__":
     unittest.main()
