@@ -18,6 +18,7 @@ class Localization(Enum):
     meta_lowdin= 0
     iao = 1
 
+
 class DMETProblemDecomposition(ProblemDecomposition):
     """DMET single-shot algorithm is used for problem decomposition technique.
     By default, CCSD is used as the electronic structure solver, and
