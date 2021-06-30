@@ -2,6 +2,7 @@
 
 from enum import Enum
 from functools import reduce
+from pyscf import gto
 import scipy
 import numpy as np
 
@@ -73,6 +74,39 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # Raise error/warnings if input is not as expected
         if not self.molecule:
             raise ValueError(f"A molecule object must be provided when instantiating DMETProblemDecomposition.")
+
+        # If fragment_atoms is detected as a list of list (of int), atoms are rearranged to be
+        # consistent with a list of number representing the number of atoms in each fragment.
+        if isinstance(self.fragment_atoms, list) and all(isinstance(list_atoms, list) for list_atoms in self.fragment_atoms):
+            fragment_atoms_flatten = [atom_id for frag in self.fragment_atoms for atom_id in frag]
+
+            if max(fragment_atoms_flatten) >= self.molecule.natm:
+                raise RuntimeError("An atom id is higher than the number of atom (indices start at 0).")
+            elif len(fragment_atoms_flatten) != len(set(fragment_atoms_flatten)):
+                raise RuntimeError("Atom indexes must only appear once.")
+
+            # Converting fragment_atoms to an expected list of number of atoms
+            # (not atom ids).
+            new_fragment_atoms = [len(frag) for frag in self.fragment_atoms]
+
+            # Reordering the molecule geometry.
+            new_geometry = [self.molecule._atom[atom_id] for atom_id in fragment_atoms_flatten]
+
+            # Building a new PySCF molecule with correct ordering.
+            new_molecule = gto.Mole()
+            new_molecule.atom = new_geometry
+            new_molecule.basis = self.molecule.basis
+            new_molecule.charge = self.molecule.charge
+            new_molecule.spin = self.molecule.spin
+            new_molecule.unit =  "B"
+            new_molecule.build()
+
+            # Attribution of expected fragment_atoms and a reordered molecule.
+            self.molecule = new_molecule
+            self.fragment_atoms = new_fragment_atoms
+
+            # Force recomputing the mean field if the atom ordering as been altered.
+            self.mean_field = None
 
         # Check if the number of fragment sites is equal to the number of atoms in the molecule
         if self.molecule.natm != sum(self.fragment_atoms):
