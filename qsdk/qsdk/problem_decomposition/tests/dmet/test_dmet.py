@@ -96,7 +96,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol = gto.Mole()
         mol.atom = H4_RING
         mol.basis = "minao"
-        mol.charge = 0
+        mol.charge = 2
         mol.spin = 0
         mol.build()
 
@@ -111,7 +111,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         dmet_solver.build()
         energy = dmet_solver.simulate()
 
-        self.assertAlmostEqual(energy, -1.9916120594, places=6)
+        self.assertAlmostEqual(energy, -0.854379, places=6)
 
     def test_h4ring_ml_default_minao(self):
         """ Tests the result from DMET against a value from a reference
@@ -119,7 +119,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol = gto.Mole()
         mol.atom = H4_RING
         mol.basis = "minao"
-        mol.charge = 0
+        mol.charge = 2
         mol.spin = 0
         mol.build()
 
@@ -133,7 +133,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         dmet_solver.build()
         energy = dmet_solver.simulate()
 
-        self.assertAlmostEqual(energy, -1.9916120594, places=6)
+        self.assertAlmostEqual(energy, -0.854379, places=6)
 
     def test_h4ring_ml_fci_no_mf_minao(self):
         """ Tests the result from DMET against a value from a reference
@@ -142,7 +142,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol = gto.Mole()
         mol.atom = H4_RING
         mol.basis = "minao"
-        mol.charge = 0
+        mol.charge = 2
         mol.spin = 0
         mol.build()
 
@@ -157,7 +157,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         dmet_solver.build()
         energy = dmet_solver.simulate()
 
-        self.assertAlmostEqual(energy, -1.9916120594, places=4)
+        self.assertAlmostEqual(energy, -0.854379, places=4)
 
     def test_solver_mix(self):
         """Tests that solving with multiple solvers works.
@@ -167,7 +167,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol = gto.Mole()
         mol.atom = H4_RING
         mol.basis = "3-21g"
-        mol.charge = 0
+        mol.charge = 2
         mol.spin = 0
         mol.build()
 
@@ -181,14 +181,14 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         solver = DMETProblemDecomposition(opt_dmet)
         solver.build()
         energy = solver.simulate()
-        self.assertAlmostEqual(energy, -2.0284, places=4)
+        self.assertAlmostEqual(energy, -0.94199, places=4)
 
     def test_fragment_ids(self):
         """Tests if a nested list of atom ids is provided. """
         mol = gto.Mole()
         mol.atom = H4_RING
         mol.basis = "3-21g"
-        mol.charge = 0
+        mol.charge = 2
         mol.spin = 0
         mol.build()
 
@@ -211,7 +211,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         mol = gto.Mole()
         mol.atom = H4_RING
         mol.basis = "3-21g"
-        mol.charge = 0
+        mol.charge = 2
         mol.spin = 0
         mol.build()
 
