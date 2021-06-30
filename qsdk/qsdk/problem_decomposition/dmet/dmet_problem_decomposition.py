@@ -75,7 +75,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         if not self.molecule:
             raise ValueError(f"A molecule object must be provided when instantiating DMETProblemDecomposition.")
 
-        # If fragment_atoms is detected as a list of list (of int), atoms are rearranged to be
+        # If fragment_atoms is detected as a nested list of int, atoms are reordered to be
         # consistent with a list of number representing the number of atoms in each fragment.
         if isinstance(self.fragment_atoms, list) and all(isinstance(list_atoms, list) for list_atoms in self.fragment_atoms):
             fragment_atoms_flatten = [atom_id for frag in self.fragment_atoms for atom_id in frag]
