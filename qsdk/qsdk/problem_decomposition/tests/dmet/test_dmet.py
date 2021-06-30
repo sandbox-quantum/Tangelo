@@ -203,8 +203,8 @@ class DMETProblemDecompositionTest(unittest.TestCase):
 
         self.assertEqual(solver.fragment_atoms, [1, 1, 1, 1])
 
-    def test_fragment_ids_exception(self):
-        """Tests exception if a bad nested list of atom ids is provided.
+    def test_fragment_ids_exceptions(self):
+        """Tests exceptions if a bad nested list of atom ids is provided.
         2 cases: if an atom id is higher than the number of atoms and if an
         id is detected twice (or more).
         """
