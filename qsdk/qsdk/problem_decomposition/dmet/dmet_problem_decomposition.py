@@ -77,7 +77,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             raise ValueError(f"A molecule object must be provided when instantiating DMETProblemDecomposition.")
 
         # If fragment_atoms is detected as a nested list of int, atoms are reordered to be
-        # consistent with a list of number representing the number of atoms in each fragment.
+        # consistent with a list of numbers representing the number of atoms in each fragment.
         if isinstance(self.fragment_atoms, list) and all(isinstance(list_atoms, list) for list_atoms in self.fragment_atoms):
             fragment_atoms_flatten = [atom_id for frag in self.fragment_atoms for atom_id in frag]
 
@@ -102,11 +102,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
             new_molecule.unit =  "B"
             new_molecule.build()
 
-            # Attribution of expected fragment_atoms and a reordered molecule.
+            # Attribution of the expected fragment_atoms and a reordered molecule.
             self.molecule = new_molecule
             self.fragment_atoms = new_fragment_atoms
 
-            # Force recomputing the mean field if the atom ordering as been altered.
+            # Force recomputing the mean field if the atom ordering has been changed.
             self.mean_field = None
 
         # Check if the number of fragment sites is equal to the number of atoms in the molecule
