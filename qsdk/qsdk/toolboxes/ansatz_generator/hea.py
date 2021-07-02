@@ -6,23 +6,27 @@ from .ansatz import Ansatz
 from ._hea_circuit import HEACircuit
 from qsdk.toolboxes.qubit_mappings.mapping_transform import get_qubit_number
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
+from agnostic_simulator import Circuit
 
 
 class HEA(Ansatz):
     """ This class implements the HEA ansatz.  """
 
-    def __init__(self, molecule, mapping='jw', mean_field=None, up_then_down=False, n_layers=2, rottype='euler'):
-
-        self.molecule = molecule
-        self.mapping = mapping
-        self.mf = mean_field
+    def __init__(self, molecule=None, mapping='jw', mean_field=None, up_then_down=False, n_layers=2, rottype='euler', n_qubits=None, reference_state=None):
         self.up_then_down = up_then_down
         self.n_layers = n_layers
         self.rottype = rottype
 
-        self.n_electrons = self.molecule.n_electrons
-        self.n_spinorbitals = self.molecule.n_qubits  # This label makes no sense for some mappings but is correct
-        self.n_qubits = get_qubit_number(mapping, self.n_spinorbitals)
+        if molecule:
+            self.molecule = molecule
+            self.mapping = mapping
+            self.mf = mean_field
+            self.n_electrons = self.molecule.n_electrons
+            self.n_spinorbitals = self.molecule.n_qubits  # This label makes no sense for some mappings but is correct
+            self.n_qubits = get_qubit_number(mapping, self.n_spinorbitals)
+
+        if n_qubits:
+            self.n_qubits = n_qubits
 
         # Each euler layer has 3 variational parameters per qubit, and one non-variational entangler
         # Each real rottion layer has 1 variational parameter per qubit, and one non-variational entangler
@@ -31,16 +35,21 @@ class HEA(Ansatz):
             self.n_var_params = self.n_qubits * 3 * (self.n_layers + 1)
         elif self.rottype == 'real':
             self.n_var_params = self.n_qubits * 1 * (self.n_layers + 1)
+        else:
+            raise ValueError("Supported rottype is 'euler' and 'real'")
 
         # Supported reference state initialization
         # TODO: support for others
-        self.supported_reference_state = {"HF"}
+        self.supported_reference_state = {"HF", "zero"}
         # Supported var param initialization
         self.supported_initial_var_params = {"ones", "random", "zeros"}
 
         # Default initial parameters for initialization
         self.var_params_default = "random"
-        self.default_reference_state = "HF"
+        if reference_state:
+            self.default_reference_state = reference_state
+        else:
+            self.default_reference_state = "HF"
 
         self.var_params = None
         self.circuit = None
@@ -50,16 +59,19 @@ class HEA(Ansatz):
         keywords for users, and also supporting direct user input (list or numpy array)
         Return the parameters so that workflows such as VQE can retrieve these values. """
 
-        if isinstance(var_params, str) and (var_params not in self.supported_initial_var_params):
-            raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
         if var_params is None:
             var_params = self.var_params_default
-        if var_params == "ones":
-            initial_var_params = np.ones((self.n_var_params,), dtype=float)
-        elif var_params == "random":
-            initial_var_params = 4 * np.pi * (np.random.random((self.n_var_params,)) - 0.5)
-        elif var_params == "zeros":
-            initial_var_params = np.zeros((self.n_var_params,), dtype=float)
+
+        if isinstance(var_params, str):
+            if (var_params not in self.supported_initial_var_params):
+                raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
+            else:
+                if var_params == "ones":
+                    initial_var_params = np.ones((self.n_var_params,), dtype=float)
+                elif var_params == "random":
+                    initial_var_params = 4 * np.pi * (np.random.random((self.n_var_params,)) - 0.5)
+                elif var_params == "zeros":
+                    initial_var_params = np.zeros((self.n_var_params,), dtype=float)
         else:
             try:
                 assert (len(var_params) == self.n_var_params)
@@ -75,10 +87,12 @@ class HEA(Ansatz):
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
         if self.default_reference_state == "HF":
-            return get_reference_circuit(n_spinorbitals=self.molecule.n_qubits,
-                                         n_electrons=self.molecule.n_electrons,
+            return get_reference_circuit(n_spinorbitals=self.n_spinorbitals,
+                                         n_electrons=self.n_electrons,
                                          mapping=self.mapping,
                                          up_then_down=self.up_then_down)
+        if self.default_reference_state == "zero":
+            return Circuit()
 
     def build_circuit(self, var_params=None):
         """Construct the variational circuit to be used as our ansatz."""

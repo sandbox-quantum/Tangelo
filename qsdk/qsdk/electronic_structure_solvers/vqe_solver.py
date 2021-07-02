@@ -17,6 +17,7 @@ from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.ansatz_generator.hea import HEA
 from qsdk.toolboxes.ansatz_generator.penalty_terms import number_operator_penalty, spin_operator_penalty, spin2_operator_penalty
+from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
 
 
 class Ansatze(Enum):
@@ -68,7 +69,8 @@ class VQESolver:
                            "verbose": False,
                            "n_hea_layers": 2,
                            "penalty_params": [0, 0, 0],
-                           'hea_rot_type': 'euler'}
+                           'hea_rot_type': 'euler',
+                           'reference_state': None}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -146,7 +148,7 @@ class VQESolver:
                 elif self.ansatz == Ansatze.UCC3:
                     self.ansatz = RUCC(3)
                 elif self.ansatz == Ansatze.HEA:
-                    self.ansatz = HEA(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down, self.n_hea_layers, self.hea_rot_type)
+                    self.ansatz = HEA(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down, self.n_hea_layers, self.hea_rot_type, reference_state=self.reference_state)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
@@ -168,7 +170,13 @@ class VQESolver:
          hardware backend built in the build method """
         if not (self.ansatz and self.backend):
             raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")
-        return self.optimizer(self.energy_estimation, self.initial_var_params)
+        optimal_energy, optimal_var_params = self.optimizer(self.energy_estimation, self.initial_var_params)
+
+        self.optimal_var_params = optimal_var_params
+        self.optimal_energy = optimal_energy
+        self.ansatz.build_circuit(self.optimal_var_params)
+        self.optimal_circuit = self.ansatz.circuit
+        return self.optimal_energy
 
     def get_resources(self):
         """ Estimate the resources required by VQE, with the current ansatz. This assumes "build" has been run,
@@ -203,6 +211,63 @@ class VQESolver:
             print(f"\tEnergy = {energy:.7f} ")
 
         return energy
+
+    def get_num_electrons(self, var_params=None):
+        if var_params is None:
+            var_params = self.optimal_var_params
+        # Save our accurate hamiltonian
+        tmp_hamiltonian = self.qubit_hamiltonian
+        num_op = number_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
+        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=num_op,
+                                                          mapping=self.qubit_mapping,
+                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
+                                                          n_electrons=self.qemist_molecule.n_electrons,
+                                                          up_then_down=self.up_then_down)
+
+        number_expectation = self.energy_estimation(var_params)
+
+        # Restore the accurate hamiltonian
+        self.qubit_hamiltonian = tmp_hamiltonian
+
+        return number_expectation
+
+    def get_sz(self, var_params=None):
+        if var_params is None:
+            var_params = self.optimal_var_params
+        # Save our accurate hamiltonian
+        tmp_hamiltonian = self.qubit_hamiltonian
+        num_op = spinz_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
+        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=num_op,
+                                                          mapping=self.qubit_mapping,
+                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
+                                                          n_electrons=self.qemist_molecule.n_electrons,
+                                                          up_then_down=self.up_then_down)
+
+        number_expectation = self.energy_estimation(var_params)
+
+        # Restore the accurate hamiltonian
+        self.qubit_hamiltonian = tmp_hamiltonian
+
+        return number_expectation
+
+    def get_s2(self, var_params=None):
+        if var_params is None:
+            var_params = self.optimal_var_params
+        # Save our accurate hamiltonian
+        tmp_hamiltonian = self.qubit_hamiltonian
+        num_op = spin2_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
+        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=num_op,
+                                                          mapping=self.qubit_mapping,
+                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
+                                                          n_electrons=self.qemist_molecule.n_electrons,
+                                                          up_then_down=self.up_then_down)
+
+        number_expectation = self.energy_estimation(var_params)
+
+        # Restore the accurate hamiltonian
+        self.qubit_hamiltonian = tmp_hamiltonian
+
+        return number_expectation
 
     def get_rdm(self, var_params):
         """ Compute the 1- and 2- RDM matrices using the VQE energy evaluation. This method allows
@@ -299,14 +364,9 @@ class VQESolver:
         result = minimize(func, var_params, method='SLSQP',
                           options={'disp': True, 'maxiter': 2000, 'eps': 1e-5, 'ftol': 1e-5})
 
-        self.optimal_var_params = result.x
-        self.optimal_energy = result.fun
-        self.ansatz.build_circuit(self.optimal_var_params)
-        self.optimal_circuit = self.ansatz.circuit
-
         if self.verbose:
             print(f"\t\tOptimal VQE energy: {self.optimal_energy}")
             print(f"\t\tOptimal VQE variational parameters: {self.optimal_var_params}")
             print(f"\t\tNumber of Function Evaluations : {result.nfev}")
 
-        return result.fun
+        return result.fun, result.x

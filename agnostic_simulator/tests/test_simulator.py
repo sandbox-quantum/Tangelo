@@ -12,7 +12,7 @@ from openfermion.ops import QubitOperator
 from agnostic_simulator import Gate, Circuit, translator, Simulator, backend_info
 from agnostic_simulator.helpers import string_ham_to_of
 
-path_data = os.path.dirname(__file__) + '/data'
+path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
 # Simple circuit for superposition, also tells us qubit ordering as well immediately from the statevector
 # probabilities : |00> = 0.5  |01> = 0.5

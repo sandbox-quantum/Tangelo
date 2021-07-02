@@ -257,7 +257,7 @@ class Simulator:
                 self._current_state = sim.final_density_matrix
                 indices = list(range(source_circuit.width))
                 isamples = cirq.sample_density_matrix(sim.final_density_matrix, indices, repetitions=self.n_shots)
-                samples = [ ''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots) ]
+                samples = [''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots)]
 
                 frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
             # Noiseless simulation using the statevector simulator otherwise
@@ -269,7 +269,7 @@ class Simulator:
             return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
     def get_expectation_value(self, qubit_operator, state_prep_circuit):
-        """
+        R"""
             Take as input a qubit operator H and a quantum circuit preparing a state |\psi>
             Return the expectation value <\psi | H | \psi>
 
@@ -315,7 +315,7 @@ class Simulator:
             return exp_real if (exp_imag == 0.) else exp_real + 1.0j * exp_imag
 
     def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit):
-        """
+        R"""
             Take as input a qubit operator H and a state preparation returning a ket |\psi>.
             Return the expectation value <\psi | H | \psi>, computed without drawing samples (statevector only)
             Users should not be calling this function directly, please call "get_expectation_value" instead.
@@ -391,7 +391,7 @@ class Simulator:
 
             else:
                 # Run simulation with statevector but compute expectation value with samples directly drawn from it
-                basis_circuit = Circuit(measurement_basis_gates(term))
+                basis_circuit = Circuit(measurement_basis_gates(term), n_qubits=state_prep_circuit.width)
                 if basis_circuit.size > 0:
                     frequencies, _ = self.simulate(basis_circuit, initial_statevector=prepared_state)
                 else:
@@ -402,7 +402,7 @@ class Simulator:
         return expectation_value
 
     def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit):
-        """
+        R"""
             Take as input a qubit operator H and a state preparation returning a ket |\psi>.
             Return the expectation value <\psi | H | \psi> computed using the frequencies of observable states.
 
@@ -427,7 +427,6 @@ class Simulator:
             basis_circuit = Circuit(measurement_basis_gates(term))
             full_circuit = state_prep_circuit + basis_circuit if (basis_circuit.size > 0) else state_prep_circuit
             frequencies, _ = self.simulate(full_circuit)
-
             expectation_term = self.get_expectation_value_from_frequencies_oneterm(term, frequencies)
             expectation_value += coef * expectation_term
 
@@ -507,7 +506,7 @@ class Simulator:
                 this_chunk = self.n_shots % chunk_size if i == n_chunks else chunk_size
                 samples = distr.rvs(size=this_chunk)
                 freqs_shots += Counter(samples)
-            freqs_shots = {self.__int_to_binstr(k, n_qubits): v / self.n_shots for k, v in freqs_shots.items()}
+            freqs_shots = {self.__int_to_binstr_lsq(k, n_qubits): v / self.n_shots for k, v in freqs_shots.items()}
             return freqs_shots
 
     def __int_to_binstr(self, i, n_qubits):
@@ -515,3 +514,10 @@ class Simulator:
         bs = bin(i).split('b')[-1]
         state_binstr = "0" * (n_qubits - len(bs)) + bs
         return state_binstr[::-1] if (self.statevector_order == "msq_first") else state_binstr
+
+    def __int_to_binstr_lsq(self, i, n_qubits):
+        """ Convert an integer into a bit string of size n_qubits, order is already lsq and no
+            change in order is necessary"""
+        bs = bin(i).split('b')[-1]
+        state_binstr = "0" * (n_qubits - len(bs)) + bs
+        return state_binstr[::-1]

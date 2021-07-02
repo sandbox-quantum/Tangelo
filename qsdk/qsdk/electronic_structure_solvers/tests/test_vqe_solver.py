@@ -200,7 +200,7 @@ class VQESolverTest(unittest.TestCase):
         def cobyla_oneshot_optimizer(func, var_params):
             from scipy.optimize import minimize
             result = minimize(func, var_params, method="COBYLA", options={"disp": True, "maxiter": 100})
-            return result.fun
+            return result.fun, result.x
 
         vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
                        "initial_var_params": "ones", "verbose": False,

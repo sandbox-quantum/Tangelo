@@ -15,7 +15,7 @@ def RotationCircuit(n_qubits, rot_type='euler'):
         for target in range(n_qubits):
             circuit.add_gate(Gate("RY", target, parameter=0.0, is_variational=True))
     else:
-        print('Not a valid rotation circuit, returning empty circuit')
+        raise ValueError(f"Supported keywords for initializing variational parameters: ['real', 'euler']")
     return circuit
 
 
