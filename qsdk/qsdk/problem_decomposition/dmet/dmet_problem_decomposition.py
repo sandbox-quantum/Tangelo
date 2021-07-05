@@ -5,6 +5,7 @@ from functools import reduce
 from pyscf import gto
 import scipy
 import numpy as np
+import warnings
 
 from . import _helpers as helpers
 from ..problem_decomposition import ProblemDecomposition
@@ -86,8 +87,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             elif len(fragment_atoms_flatten) != len(set(fragment_atoms_flatten)):
                 raise RuntimeError("Atom indexes must only appear once.")
 
-            # Converting fragment_atoms to an expected list of number of atoms
-            # (not atom ids).
+            # Converting fragment_atoms to an expected list of number of atoms (not atom ids).
             new_fragment_atoms = [len(frag) for frag in self.fragment_atoms]
 
             # Reordering the molecule geometry.
@@ -108,6 +108,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Force recomputing the mean field if the atom ordering has been changed.
             self.mean_field = None
+            warnings.warn("The mean field will be recomputed even if one has been provided by the user.", RuntimeWarning)
 
         # Check if the number of fragment sites is equal to the number of atoms in the molecule
         if self.molecule.natm != sum(self.fragment_atoms):
