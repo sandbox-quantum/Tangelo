@@ -78,6 +78,8 @@ def spin2_operator(n_orbs, up_then_down=False):
         all_terms.append([((dn[0], 1), (dn[1], 0), (dn[0], 1), (dn[1], 0)), 1/4])
         all_terms.append([((up[0], 1), (up[1], 0), (dn[0], 1), (dn[1], 0)), -1/4])
         all_terms.append([((dn[0], 1), (dn[1], 0), (up[0], 1), (up[1], 0)), -1/4])
+        all_terms.append([((up[0], 1), (dn[1], 0), (dn[0], 1), (up[1], 0)), 1/2])
+        all_terms.append([((dn[0], 1), (up[1], 0), (up[0], 1), (dn[1], 0)), 1/2])
         for j in range(n_orbs):
             if (i != j):
                 up2, dn2 = get_spin_ordered(n_orbs, j, j, up_down=up_then_down)

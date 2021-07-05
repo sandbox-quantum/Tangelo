@@ -53,17 +53,18 @@ class UCCSD(Ansatz):
         keywords for users, and also supporting direct user input (list or numpy array)
         Return the parameters so that workflows such as VQE can retrieve these values. """
 
-        if isinstance(var_params, str) and (var_params not in self.supported_initial_var_params):
-            raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
         if var_params is None:
             var_params = self.var_params_default
 
-        if var_params == "ones":
-            initial_var_params = np.ones((self.n_var_params,), dtype=float)
-        elif var_params == "random":
-            initial_var_params = np.random.random((self.n_var_params,))
-        elif var_params == "MP2":
-            initial_var_params = self._compute_mp2_params()
+        if isinstance(var_params, str):
+            if (var_params not in self.supported_initial_var_params):
+                raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
+            if var_params == "ones":
+                initial_var_params = np.ones((self.n_var_params,), dtype=float)
+            elif var_params == "random":
+                initial_var_params = np.random.random((self.n_var_params,))
+            elif var_params == "MP2":
+                initial_var_params = self._compute_mp2_params()
         else:
             try:
                 assert (len(var_params) == self.n_var_params)
@@ -144,10 +145,10 @@ class UCCSD(Ansatz):
             qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
         """
         fermion_op = uccsd_singlet_generator(self.var_params, self.molecule.n_qubits, self.molecule.n_electrons)
-        qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op, 
-                                            mapping=self.mapping, 
-                                            n_spinorbitals=self.molecule.n_qubits, 
-                                            n_electrons=self.molecule.n_electrons, 
+        qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
+                                            mapping=self.mapping,
+                                            n_spinorbitals=self.molecule.n_qubits,
+                                            n_electrons=self.molecule.n_electrons,
                                             up_then_down=self.up_then_down)
 
         # Cast all coefs to floats (rotations angles are real)

@@ -6,6 +6,7 @@ import warnings
 from agnostic_simulator import Gate, Circuit
 
 from openfermion.transforms import bravyi_kitaev_code
+from qsdk.toolboxes.qubit_mappings.mapping_transform import get_qubit_number
 
 available_mappings = {'JW', 'BK', 'SCBK'}
 
@@ -93,7 +94,9 @@ def vector_to_circuit(vector):
     Returns:
         circuit (Circuit): instance of agnostic_simulator Circuit class
     """
-    circuit = Circuit()
+
+    n_qubits = len(vector)
+    circuit = Circuit(n_qubits=n_qubits)
 
     for index, occupation in enumerate(vector):
         if occupation:

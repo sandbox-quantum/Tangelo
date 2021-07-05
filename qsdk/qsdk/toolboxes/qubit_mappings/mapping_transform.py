@@ -35,7 +35,7 @@ def get_fermion_operator(operator):
     """Cast operator to FermionOperator datatype. Input is of
     SymbolicOperator type, but term words must be valid input
     for FermionOperator, as for example for InteractionOperator.
-    
+
     Args:
         operator (SymbolicOperator): input operator to be cast
 

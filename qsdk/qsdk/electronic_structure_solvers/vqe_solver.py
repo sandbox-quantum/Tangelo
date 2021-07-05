@@ -198,13 +198,13 @@ class VQESolver:
          Keeps track of optimal energy and variational parameters along the way
 
         Args:
-             var_params (numpy.array or list): variational parameters to use for VQE energy evaluation
+             var_params (numpy.array or str): variational parameters to use for VQE energy evaluation
         Returns:
              energy (float): energy computed by VQE using the ansatz and input variational parameters
         """
 
         # Update variational parameters, compute energy using the hardware backend
-        self.ansatz.update_var_params(np.array(var_params))
+        self.ansatz.update_var_params(var_params)
         energy = self.backend.get_expectation_value(self.qubit_hamiltonian, self.ansatz.circuit)
 
         if self.verbose:

@@ -64,7 +64,8 @@ def spin_operator_penalty(n_orbs, sz, mu=1, up_then_down=False):
 
 
 def spin2_operator_penalty(n_orbs, s2, mu=1, up_then_down=False):
-    R"""Function to generator the normal ordered S^2 opeator penalty term
+    R"""Function to generator the normal ordered S^2 opeator penalty term, operator form taken from
+        https://pubs.rsc.org/en/content/articlepdf/2019/cp/c9cp02546d
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
@@ -85,6 +86,8 @@ def spin2_operator_penalty(n_orbs, s2, mu=1, up_then_down=False):
         all_terms.append([((dn[0], 1), (dn[1], 0), (dn[0], 1), (dn[1], 0)), -1/4])
         all_terms.append([((up[0], 1), (up[1], 0), (dn[0], 1), (dn[1], 0)), 1/4])
         all_terms.append([((dn[0], 1), (dn[1], 0), (up[0], 1), (up[1], 0)), 1/4])
+        all_terms.append([((up[0], 1), (dn[1], 0), (dn[0], 1), (up[1], 0)), -1/2])
+        all_terms.append([((dn[0], 1), (up[1], 0), (up[0], 1), (dn[1], 0)), -1/2])
         for j in range(n_orbs):
             if (i != j):
                 up2, dn2 = get_spin_ordered(n_orbs, j, j, up_down=up_then_down)
