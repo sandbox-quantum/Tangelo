@@ -10,6 +10,7 @@ from agnostic_simulator import Simulator
 from qsdk.toolboxes.operators import count_qubits
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
+from qsdk.toolboxes.operators.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
@@ -68,7 +69,9 @@ class VQESolver:
                            "qubit_hamiltonian": None,
                            "verbose": False,
                            "n_hea_layers": 2,
-                           "penalty_params": [0, 0, 0],
+                           "n_electron_penalty": [0, 0],
+                           "sz_penalty": [0, 0],
+                           "s2_penalty": [0, 0],
                            'hea_rot_type': 'euler',
                            'reference_state': None}
 
@@ -80,6 +83,12 @@ class VQESolver:
                 setattr(self, k, v)
             else:
                 raise KeyError(f"Keyword :: {k}, not available in VQESolver")
+
+        # Check if penalty term is included
+        if self.n_electron_penalty[0] > 0 or self.sz_penalty[0] > 0 or self.s2_penalty[0] > 0:
+            self.penalty_term = True
+        else:
+            self.penalty_term = False
 
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
@@ -111,14 +120,20 @@ class VQESolver:
                                                               n_electrons=self.qemist_molecule.n_electrons,
                                                               up_then_down=self.up_then_down)
 
-            if self.penalty_params != [0, 0, 0]:
-                pen_ferm = 0
-                if (self.penalty_params[0] > 0):
-                    pen_ferm += number_operator_penalty(self.qemist_molecule.n_orbitals, self.qemist_molecule.n_electrons, mu=self.penalty_params[0], up_then_down=False)
-                if (self.penalty_params[1] > 0):
-                    pen_ferm += spin_operator_penalty(self.qemist_molecule.n_orbitals, 0, mu=self.penalty_params[1], up_then_down=False)
-                if (self.penalty_params[2] > 0):
-                    pen_ferm += spin2_operator_penalty(self.qemist_molecule.n_orbitals, 0, mu=self.penalty_params[2], up_then_down=False)
+            if self.penalty_term:
+                pen_ferm = FermionOperator()
+                if (self.n_electron_penalty[0] > 0):
+                    prefactor = self.n_electron_penalty[0]
+                    n_electrons = self.n_electron_penalty[1]
+                    pen_ferm += number_operator_penalty(self.qemist_molecule.n_orbitals, n_electrons, mu=prefactor, up_then_down=False)
+                if (self.sz_penalty[0] > 0):
+                    prefactor = self.sz_penalty[0]
+                    sz = self.sz_penalty[1]
+                    pen_ferm += spin_operator_penalty(self.qemist_molecule.n_orbitals, sz, mu=prefactor, up_then_down=False)
+                if (self.s2_penalty[0] > 0):
+                    prefactor = self.s2_penalty[0]
+                    s2 = self.s2_penalty[1]
+                    pen_ferm += spin2_operator_penalty(self.qemist_molecule.n_orbitals, s2, mu=prefactor, up_then_down=False)
 
                 pen_qubit = fermion_to_qubit_mapping(fermion_operator=pen_ferm,
                                                      mapping=self.qubit_mapping,
