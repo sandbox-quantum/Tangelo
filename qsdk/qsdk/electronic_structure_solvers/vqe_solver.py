@@ -30,7 +30,7 @@ class Ansatze(Enum):
 
 
 class VQESolver:
-    """ Solve the electronic structure problem for a molecular system by using the
+    R""" Solve the electronic structure problem for a molecular system by using the
     variational quantum eigensolver (VQE) algorithm.
 
     This algorithm evaluates the energy of a molecular system by performing classical optimization
@@ -55,6 +55,15 @@ class VQESolver:
         up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
             Default, False has alternating spin up/down ordering.
         verbose (bool) : Flag for verbosity of VQE
+        n_electron_penalty (array or list): [Prefactor, Value] Prefactor * (\hat{N} - Value)^2
+        sz_penalty (list[float]): [Prefactor, Value] Prefactor * (\hat{Sz} - Value)^2
+        s2_penalty (list[float]): [Prefactor, Value] Prefactor * (\hat{S}^2 - Value)^2
+        hea_rot_type (str): 'euler' for RzRxRz on each qubit
+                               'real' for Ry on each qubit
+        n_hea_layers (int): The number of HEA ansatz layers to use
+                            One layer is hea_rot_type + grid of Cnots
+        reference_state (str): 'HF' for Hartree-Fock reference state,
+                         'zero' for no reference state
     """
 
     def __init__(self, opt_dict):
@@ -258,12 +267,12 @@ class VQESolver:
                                                           n_electrons=self.qemist_molecule.n_electrons,
                                                           up_then_down=self.up_then_down)
 
-        number_expectation = self.energy_estimation(var_params)
+        sz_expectation = self.energy_estimation(var_params)
 
         # Restore the accurate hamiltonian
         self.qubit_hamiltonian = tmp_hamiltonian
 
-        return number_expectation
+        return sz_expectation
 
     def get_s2(self, var_params=None):
         if var_params is None:
@@ -277,12 +286,12 @@ class VQESolver:
                                                           n_electrons=self.qemist_molecule.n_electrons,
                                                           up_then_down=self.up_then_down)
 
-        number_expectation = self.energy_estimation(var_params)
+        s2_expectation = self.energy_estimation(var_params)
 
         # Restore the accurate hamiltonian
         self.qubit_hamiltonian = tmp_hamiltonian
 
-        return number_expectation
+        return s2_expectation
 
     def get_rdm(self, var_params):
         """ Compute the 1- and 2- RDM matrices using the VQE energy evaluation. This method allows

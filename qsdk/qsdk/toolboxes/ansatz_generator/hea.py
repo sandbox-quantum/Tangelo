@@ -10,7 +10,19 @@ from agnostic_simulator import Circuit
 
 
 class HEA(Ansatz):
-    """ This class implements the HEA ansatz.  """
+    """ This class implements the HEA ansatz.
+        Args:
+            molecule (MolecularData) : the molecular system
+            mean-field (optional) : mean-field of molecular system
+            up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
+                                 Default, False has alternating spin up/down ordering.
+            rottype (str): 'euler' for RzRxRz on each qubit
+                           'real' for Ry on each qubit
+            n_layers (int): The number of HEA ansatz layers to use
+                            One layer is hea_rot_type + grid of CNots
+            reference_state (str): 'HF' for Hartree-Fock reference state,
+                             'zero' for no reference state
+        """
 
     def __init__(self, molecule=None, mapping='jw', mean_field=None, up_then_down=False, n_layers=2, rottype='euler', n_qubits=None, reference_state=None):
         self.up_then_down = up_then_down
