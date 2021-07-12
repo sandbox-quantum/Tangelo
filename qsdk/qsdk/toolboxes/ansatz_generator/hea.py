@@ -1,4 +1,6 @@
-""" This module defines the hardware efficient ansatz class, for use in applying VQE """
+""" This module defines the hardware efficient ansatz class, for use in applying VQE as first defined in
+    "Hardware-efficient Variational Quantum Eigensolver for Small Molecules and Quantum Magnets" 
+    https://arxiv.org/abs/1704.05018 """
 
 import numpy as np
 
@@ -16,7 +18,7 @@ class HEA(Ansatz):
             mean-field (optional) : mean-field of molecular system
             up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
                                  Default, False has alternating spin up/down ordering.
-            rottype (str): 'euler' for RzRxRz on each qubit
+            rot_type (str): 'euler' for RzRxRz on each qubit
                            'real' for Ry on each qubit
             n_layers (int): The number of HEA ansatz layers to use
                             One layer is hea_rot_type + grid of CNots
@@ -24,10 +26,10 @@ class HEA(Ansatz):
                              'zero' for no reference state
         """
 
-    def __init__(self, molecule=None, mapping='jw', mean_field=None, up_then_down=False, n_layers=2, rottype='euler', n_qubits=None, reference_state=None):
+    def __init__(self, molecule=None, mapping='jw', mean_field=None, up_then_down=False, n_layers=2, rot_type='euler', n_qubits=None, reference_state=None):
         self.up_then_down = up_then_down
         self.n_layers = n_layers
-        self.rottype = rottype
+        self.rot_type = rot_type
 
         if molecule:
             self.molecule = molecule
@@ -43,12 +45,12 @@ class HEA(Ansatz):
         # Each euler layer has 3 variational parameters per qubit, and one non-variational entangler
         # Each real rottion layer has 1 variational parameter per qubit, and one non-variational entangler
         # There is an additional layer with no entangler.
-        if self.rottype == 'euler':
+        if self.rot_type == 'euler':
             self.n_var_params = self.n_qubits * 3 * (self.n_layers + 1)
-        elif self.rottype == 'real':
+        elif self.rot_type == 'real':
             self.n_var_params = self.n_qubits * 1 * (self.n_layers + 1)
         else:
-            raise ValueError("Supported rottype is 'euler' and 'real'")
+            raise ValueError("Supported rot_type is 'euler' and 'real'")
 
         # Supported reference state initialization
         # TODO: support for others
@@ -112,7 +114,7 @@ class HEA(Ansatz):
 
         reference_state_circuit = self.prepare_reference_state()
 
-        hea_circuit = HEACircuit(self.n_qubits, self.n_layers, self.rottype)
+        hea_circuit = HEACircuit(self.n_qubits, self.n_layers, self.rot_type)
 
         if reference_state_circuit.size != 0:
             self.circuit = hea_circuit + reference_state_circuit

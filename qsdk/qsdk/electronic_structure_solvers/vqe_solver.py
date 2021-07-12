@@ -10,14 +10,13 @@ from agnostic_simulator import Simulator
 from qsdk.toolboxes.operators import count_qubits
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
-from qsdk.toolboxes.operators.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
-from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.ansatz_generator.hea import HEA
-from qsdk.toolboxes.ansatz_generator.penalty_terms import number_operator_penalty, spin_operator_penalty, spin2_operator_penalty
+from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
+from qsdk.toolboxes.ansatz_generator.penalty_terms import penalty
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
 
 
@@ -30,7 +29,7 @@ class Ansatze(Enum):
 
 
 class VQESolver:
-    R""" Solve the electronic structure problem for a molecular system by using the
+    r""" Solve the electronic structure problem for a molecular system by using the
     variational quantum eigensolver (VQE) algorithm.
 
     This algorithm evaluates the energy of a molecular system by performing classical optimization
@@ -55,15 +54,9 @@ class VQESolver:
         up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
             Default, False has alternating spin up/down ordering.
         verbose (bool) : Flag for verbosity of VQE
-        n_electron_penalty (array or list): [Prefactor, Value] Prefactor * (\hat{N} - Value)^2
-        sz_penalty (list[float]): [Prefactor, Value] Prefactor * (\hat{Sz} - Value)^2
-        s2_penalty (list[float]): [Prefactor, Value] Prefactor * (\hat{S}^2 - Value)^2
-        hea_rot_type (str): 'euler' for RzRxRz on each qubit
-                               'real' for Ry on each qubit
-        n_hea_layers (int): The number of HEA ansatz layers to use
-                            One layer is hea_rot_type + grid of Cnots
-        reference_state (str): 'HF' for Hartree-Fock reference state,
-                         'zero' for no reference state
+        penalty_terms (dict) : parameters for penalty terms to append to target qubit Hamiltonian
+            (see penaly_terms for more details)
+        ansatz_options (dict) : parameters for the given ansatz (see given ansatz file for details)
     """
 
     def __init__(self, opt_dict):
@@ -74,15 +67,11 @@ class VQESolver:
                            "optimizer": self._default_optimizer,
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
+                           "penalty_terms": None,
+                           "ansatz_options": None,
                            "up_then_down": False,
                            "qubit_hamiltonian": None,
-                           "verbose": False,
-                           "n_hea_layers": 2,
-                           "n_electron_penalty": [0, 0],
-                           "sz_penalty": [0, 0],
-                           "s2_penalty": [0, 0],
-                           'hea_rot_type': 'euler',
-                           'reference_state': None}
+                           "verbose": False}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -92,12 +81,6 @@ class VQESolver:
                 setattr(self, k, v)
             else:
                 raise KeyError(f"Keyword :: {k}, not available in VQESolver")
-
-        # Check if penalty term is included
-        if self.n_electron_penalty[0] > 0 or self.sz_penalty[0] > 0 or self.s2_penalty[0] > 0:
-            self.penalty_term = True
-        else:
-            self.penalty_term = False
 
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
@@ -129,21 +112,8 @@ class VQESolver:
                                                               n_electrons=self.qemist_molecule.n_electrons,
                                                               up_then_down=self.up_then_down)
 
-            if self.penalty_term:
-                pen_ferm = FermionOperator()
-                if (self.n_electron_penalty[0] > 0):
-                    prefactor = self.n_electron_penalty[0]
-                    n_electrons = self.n_electron_penalty[1]
-                    pen_ferm += number_operator_penalty(self.qemist_molecule.n_orbitals, n_electrons, mu=prefactor, up_then_down=False)
-                if (self.sz_penalty[0] > 0):
-                    prefactor = self.sz_penalty[0]
-                    sz = self.sz_penalty[1]
-                    pen_ferm += spin_operator_penalty(self.qemist_molecule.n_orbitals, sz, mu=prefactor, up_then_down=False)
-                if (self.s2_penalty[0] > 0):
-                    prefactor = self.s2_penalty[0]
-                    s2 = self.s2_penalty[1]
-                    pen_ferm += spin2_operator_penalty(self.qemist_molecule.n_orbitals, s2, mu=prefactor, up_then_down=False)
-
+            if self.penalty_terms:
+                pen_ferm = penalty(self.qemist_molecule.n_orbitals, self.penalty_terms)
                 pen_qubit = fermion_to_qubit_mapping(fermion_operator=pen_ferm,
                                                      mapping=self.qubit_mapping,
                                                      n_spinorbitals=self.qemist_molecule.n_qubits,
@@ -165,6 +135,25 @@ class VQESolver:
 
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if type(self.ansatz) == Ansatze:
+                # Obtain default ansatz_options for a given ansatz
+                default_ansatz_options = {"UCCSD": {},
+                                          "UCC1": {},
+                                          "UCC3": {},
+                                          "HEA": {"n_layers": 2, "rot_type": 'euler', "reference_state": "HF"}}
+                chosen_default_ansatz_options = default_ansatz_options[self.ansatz.name]
+
+                if self.ansatz_options is None:
+                    self.ansatz_options = chosen_default_ansatz_options
+                else:
+                    # Check if ansatz_options dictionary has valid keys
+                    for k, v in self.ansatz_options.items():
+                        if k not in chosen_default_ansatz_options:
+                            raise KeyError(f"Keyword :: {k}, not available in {self.ansatz.name} ansatz_options")
+                    # Add default ansatz_options keys to self.ansatz_options
+                    for k, v in chosen_default_ansatz_options.items():
+                        if k not in self.ansatz_options:
+                            self.ansatz_options[k] = v
+
                 if self.ansatz == Ansatze.UCCSD:
                     self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
                 elif self.ansatz == Ansatze.UCC1:
@@ -172,7 +161,9 @@ class VQESolver:
                 elif self.ansatz == Ansatze.UCC3:
                     self.ansatz = RUCC(3)
                 elif self.ansatz == Ansatze.HEA:
-                    self.ansatz = HEA(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down, self.n_hea_layers, self.hea_rot_type, reference_state=self.reference_state)
+                    self.ansatz = HEA(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down,
+                                      n_layers=self.ansatz_options['n_layers'], rot_type=self.ansatz_options['rot_type'],
+                                      reference_state=self.ansatz_options['reference_state'])
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):

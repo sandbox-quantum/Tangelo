@@ -7,7 +7,8 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit, get_vector, vector_to_circuit
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
 
-from agnostic_simulator import Simulator
+# Initiate simulator
+sim = Simulator(target="qulacs")
 
 # Build molecule objects used by the tests
 H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
@@ -33,8 +34,6 @@ class fermionic_operators_Test(unittest.TestCase):
         """ Verify that the number penalty terms return zero for all mappings given the correct number of
         electrons and mapping"""
 
-        sim = Simulator(target="cirq")
-
         for mol in [mol_h2, mol_h4]:
             molecule = MolecularData(mol)
             for mapping in ['jw', 'bk', 'scbk']:
@@ -56,8 +55,6 @@ class fermionic_operators_Test(unittest.TestCase):
     def test_spinz_operator_hf_ref(self):
         """ Verify that the number penalty terms return zero for all mappings given the correct number of
         electrons and mapping"""
-
-        sim = Simulator(target="cirq")
 
         for mol in [mol_h2, mol_h4]:
             molecule = MolecularData(mol)
@@ -81,8 +78,6 @@ class fermionic_operators_Test(unittest.TestCase):
         """ Verify that the number penalty terms return zero for all mappings given the correct number of
         S^2 and mapping"""
 
-        sim = Simulator(target="cirq")
-
         for mol in [mol_h2, mol_h4]:
             molecule = MolecularData(mol)
             for mapping in ['jw', 'bk', 'scbk']:
@@ -104,8 +99,6 @@ class fermionic_operators_Test(unittest.TestCase):
     def test_doublet(self):
         """ Verify that the number penalty terms return zero for all mappings given the correct number of
         S^2 and mapping"""
-
-        sim = Simulator(target="cirq")
 
         for mol in [mol_h2, mol_h4]:
             for mapping in ['jw']:  # may add tests for other mappings later
@@ -160,8 +153,6 @@ class fermionic_operators_Test(unittest.TestCase):
     def test_triplet(self):
         """ Verify that the number penalty terms return zero for all mappings given the correct number of
         S^2 and mapping"""
-
-        sim = Simulator(target="cirq")
 
         for mol in [mol_h2, mol_h4]:
             for mapping in ['jw']:

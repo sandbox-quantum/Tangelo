@@ -1,14 +1,14 @@
-"""This module defines the reduced UCCs ansatz class (RUCC, refering to both 
-UCC1 and UCC3), providing the foundation to implement variational ansatz 
+"""This module defines the reduced UCCs ansatz class (RUCC, refering to both
+UCC1 and UCC3), providing the foundation to implement variational ansatz
 circuits. They are UCCD and UCCSD ansatz, but terms acting in the same way on an
 Hartree-Fock initial state have been removed.
 
 This must be used on a 2 levels system (2 MOs, 4 SOs) to be physically relevant.
 
-Reference for those circuit. 
-McCaskey, A.J., Parks, Z.P., Jakowski, J. et al. 
-Quantum chemistry as a benchmark for near-term quantum computers. 
-npj Quantum Inf 5, 99 (2019). 
+Reference for those circuit.
+McCaskey, A.J., Parks, Z.P., Jakowski, J. et al.
+Quantum chemistry as a benchmark for near-term quantum computers.
+npj Quantum Inf 5, 99 (2019).
 https://doi.org/10.1038/s41534-019-0209-0
 """
 
@@ -20,7 +20,7 @@ from .ansatz import Ansatz
 
 
 class RUCC(Ansatz):
-    """This class implements the reduced-UCC ansatz, i.e. UCC1=UCCD and 
+    """This class implements the reduced-UCC ansatz, i.e. UCC1=UCCD and
     UCC3=UCCSD. Currently, only closed-shell is supported. This implies that the
     mean-field is computed with the RHF reference integrals.
 
@@ -52,17 +52,18 @@ class RUCC(Ansatz):
         keywords for users, and also supporting direct user input (list or numpy array)
         Return the parameters so that workflows such as VQE can retrieve these values. """
 
-        if isinstance(var_params, str) and (var_params not in self.supported_initial_var_params):
-            raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
         if var_params is None:
             var_params = self.var_params_default
 
-        if var_params == "ones":
-            initial_var_params = np.ones((self.n_var_params,), dtype=float)
-        elif var_params == "random":
-            initial_var_params = np.random.random((self.n_var_params,))
-        elif var_params == "zeros":
-            initial_var_params = np.zeros((self.n_var_params,), dtype=float)
+        if isinstance(var_params, str):
+            if (var_params not in self.supported_initial_var_params):
+                raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
+            if var_params == "ones":
+                initial_var_params = np.ones((self.n_var_params,), dtype=float)
+            elif var_params == "random":
+                initial_var_params = np.random.random((self.n_var_params,))
+            elif var_params == "zeros":
+                initial_var_params = np.zeros((self.n_var_params,), dtype=float)
         else:
             try:
                 assert (len(var_params) == self.n_var_params)
@@ -73,7 +74,7 @@ class RUCC(Ansatz):
         return initial_var_params
 
     def prepare_reference_state(self):
-        """Returns circuit preparing the reference state of the ansatz (e.g 
+        """Returns circuit preparing the reference state of the ansatz (e.g.
         prepare reference wavefunction with HF, multi-reference state, etc).
         This method outputs |1010>.
 
@@ -87,10 +88,10 @@ class RUCC(Ansatz):
         # NB: this one is consistent with JW but not other transforms.
         if self.reference_state_initialization == "HF":
             return Circuit([Gate("X", target=i) for i in (0, 2)])
- 
+
     def build_circuit(self, var_params=None):
         """Build and return the quantum circuit implementing the state
-        preparation ansatz (with currently specified initial_state and 
+        preparation ansatz (with currently specified initial_state and
         var_params).
 
         Args:
@@ -118,13 +119,13 @@ class RUCC(Ansatz):
         self.circuit = reference_state_circuit + rucc_circuit
 
     def update_var_params(self, var_params):
-        """ Shortcut: set value of variational parameters in the already-built 
-        ansatz circuit member. The circuit does not need to be rebuilt every 
+        """ Shortcut: set value of variational parameters in the already-built
+        ansatz circuit member. The circuit does not need to be rebuilt every
         time if only the variational parameters change.
 
         Args:
-            var_params (array-like): Variational parameters to parse into the 
-                circuit.   
+            var_params (array-like): Variational parameters to parse into the
+                circuit.
         """
 
         assert len(var_params) == self.n_var_params
@@ -136,7 +137,7 @@ class RUCC(Ansatz):
     def _ucc1(self):
         """This class implements the reduced-UCC ansatz UCC1.
         UCC1 is equivalent to the UCCD ansatz, but terms that act in the same
-        manner of the HF state are removed. 
+        manner of the HF state are removed.
 
         Returns:
             agnostic_simulator.Circuit: UCC1 quantum circuit.
@@ -148,14 +149,14 @@ class RUCC(Ansatz):
         # UCC1 gates are appended.
         lst_gates += [Gate("RX", 0, parameter=np.pi/2)]
 
-        lst_gates += [Gate("H", qubit_i) for qubit_i in range(1,4)]
+        lst_gates += [Gate("H", qubit_i) for qubit_i in range(1, 4)]
         lst_gates += [Gate("CNOT", qubit_i+1, qubit_i) for qubit_i in range(3)]
 
         # Rz with var param to modifiy double excitation.
         lst_gates += [Gate("RZ", 3, parameter="theta", is_variational=True)]
 
-        lst_gates += [Gate("CNOT", qubit_i, qubit_i-1) for qubit_i in range(3,0,-1)]
-        lst_gates += [Gate("H", qubit_i) for qubit_i in range(3,0,-1)]
+        lst_gates += [Gate("CNOT", qubit_i, qubit_i-1) for qubit_i in range(3, 0, -1)]
+        lst_gates += [Gate("H", qubit_i) for qubit_i in range(3, 0, -1)]
 
         lst_gates += [Gate("RX", 0, parameter=-np.pi/2)]
 
@@ -163,9 +164,9 @@ class RUCC(Ansatz):
 
     def _ucc3(self):
         """This class implements the reduced-UCC ansatz UCC3.
-        UCC3 is equivalent to the UCCSD ansatz, but terms that act in the same 
-        manner of the HF state are removed. 
-        
+        UCC3 is equivalent to the UCCSD ansatz, but terms that act in the same
+        manner of the HF state are removed.
+
         Returns:
             agnostic_simulator.Circuit: UCC3 quantum circuit.
         """
@@ -195,8 +196,8 @@ class RUCC(Ansatz):
         # Rz with var param to modifiy double excitation.
         lst_gates += [Gate("RZ", 3, parameter="theta2", is_variational=True)]
 
-        lst_gates += [Gate("CNOT", qubit_i, qubit_i-1) for qubit_i in range(3,0,-1)]
-        lst_gates += [Gate("H", qubit_i) for qubit_i in range(3,0,-1)]
+        lst_gates += [Gate("CNOT", qubit_i, qubit_i-1) for qubit_i in range(3, 0, -1)]
+        lst_gates += [Gate("H", qubit_i) for qubit_i in range(3, 0, -1)]
 
         lst_gates += [Gate("RX", 0, parameter=-np.pi/2)]
 

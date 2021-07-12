@@ -269,7 +269,7 @@ class Simulator:
             return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
     def get_expectation_value(self, qubit_operator, state_prep_circuit):
-        R"""
+        r"""
             Take as input a qubit operator H and a quantum circuit preparing a state |\psi>
             Return the expectation value <\psi | H | \psi>
 
@@ -315,7 +315,7 @@ class Simulator:
             return exp_real if (exp_imag == 0.) else exp_real + 1.0j * exp_imag
 
     def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit):
-        R"""
+        r"""
             Take as input a qubit operator H and a state preparation returning a ket |\psi>.
             Return the expectation value <\psi | H | \psi>, computed without drawing samples (statevector only)
             Users should not be calling this function directly, please call "get_expectation_value" instead.
@@ -402,7 +402,7 @@ class Simulator:
         return expectation_value
 
     def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit):
-        R"""
+        r"""
             Take as input a qubit operator H and a state preparation returning a ket |\psi>.
             Return the expectation value <\psi | H | \psi> computed using the frequencies of observable states.
 
@@ -516,8 +516,7 @@ class Simulator:
         return state_binstr[::-1] if (self.statevector_order == "msq_first") else state_binstr
 
     def __int_to_binstr_lsq(self, i, n_qubits):
-        """ Convert an integer into a bit string of size n_qubits, order is already lsq and no
-            change in order is necessary"""
+        """ Convert an integer into a bit string of size n_qubits, in the least-significant qubit order"""
         bs = bin(i).split('b')[-1]
         state_binstr = "0" * (n_qubits - len(bs)) + bs
         return state_binstr[::-1]

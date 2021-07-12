@@ -6,7 +6,6 @@ import warnings
 from agnostic_simulator import Gate, Circuit
 
 from openfermion.transforms import bravyi_kitaev_code
-from qsdk.toolboxes.qubit_mappings.mapping_transform import get_qubit_number
 
 available_mappings = {'JW', 'BK', 'SCBK'}
 

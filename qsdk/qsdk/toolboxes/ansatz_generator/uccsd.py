@@ -1,4 +1,5 @@
-""" This module defines the ansatz abstract class, providing the foundation to implement variational ansatz circuits """
+""" This module defines the ansatz abstract class, providing the foundation to implement
+    variational ansatz circuits """
 
 import itertools
 import numpy as np
