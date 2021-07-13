@@ -7,6 +7,7 @@ import numpy as np
 from copy import deepcopy
 
 from agnostic_simulator import Simulator
+from openfermion.ops.operators.qubit_operator import QubitOperator
 from qsdk.toolboxes.operators import count_qubits
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
@@ -135,25 +136,6 @@ class VQESolver:
 
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if type(self.ansatz) == Ansatze:
-                # Obtain default ansatz_options for a given ansatz
-                default_ansatz_options = {"UCCSD": {},
-                                          "UCC1": {},
-                                          "UCC3": {},
-                                          "HEA": {"n_layers": 2, "rot_type": 'euler', "reference_state": "HF"}}
-                chosen_default_ansatz_options = default_ansatz_options[self.ansatz.name]
-
-                if self.ansatz_options is None:
-                    self.ansatz_options = chosen_default_ansatz_options
-                else:
-                    # Check if ansatz_options dictionary has valid keys
-                    for k, v in self.ansatz_options.items():
-                        if k not in chosen_default_ansatz_options:
-                            raise KeyError(f"Keyword :: {k}, not available in {self.ansatz.name} ansatz_options")
-                    # Add default ansatz_options keys to self.ansatz_options
-                    for k, v in chosen_default_ansatz_options.items():
-                        if k not in self.ansatz_options:
-                            self.ansatz_options[k] = v
-
                 if self.ansatz == Ansatze.UCCSD:
                     self.ansatz = UCCSD(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down)
                 elif self.ansatz == Ansatze.UCC1:
@@ -162,8 +144,7 @@ class VQESolver:
                     self.ansatz = RUCC(3)
                 elif self.ansatz == Ansatze.HEA:
                     self.ansatz = HEA(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down,
-                                      n_layers=self.ansatz_options['n_layers'], rot_type=self.ansatz_options['rot_type'],
-                                      reference_state=self.ansatz_options['reference_state'])
+                                      ansatz_options=self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
@@ -227,62 +208,53 @@ class VQESolver:
 
         return energy
 
-    def get_num_electrons(self, var_params=None):
+    def get_operator_expectation(self, operator, var_params=None):
+        """Obtains the operator expectation value for
+           operator
+           Args:
+                operator (str or QubitOperator): The operator to find the expectation value of
+                    str availability:
+                        N : Particle number
+                        Sz: Spin in z-direction
+                        S^2: Spin quantum number s(s+1)
+                var_params (str or numpy.array): variational parameters to use for VQE expectation value
+                                                 evaluation
+           Returns:
+                expectation (float): operator expectation value computed by VQE using the ansatz and
+                                     input variational parameters
+           """
         if var_params is None:
             var_params = self.optimal_var_params
-        # Save our accurate hamiltonian
+
+        # Save our current hamiltonian
         tmp_hamiltonian = self.qubit_hamiltonian
-        num_op = number_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
-        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=num_op,
+
+        if isinstance(operator, str):
+            if operator == 'N':
+                exp_op = number_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
+            elif operator == 'Sz':
+                exp_op = spinz_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
+            elif operator == 'S^2':
+                exp_op = spin2_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
+            else:
+                raise ValueError('Only expectation values of N, Sz and S^2')
+        elif isinstance(operator, QubitOperator):
+            exp_op = operator
+        else:
+            raise TypeError('operator must be a of string or QubitOperator type')
+
+        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=exp_op,
                                                           mapping=self.qubit_mapping,
                                                           n_spinorbitals=self.qemist_molecule.n_qubits,
                                                           n_electrons=self.qemist_molecule.n_electrons,
                                                           up_then_down=self.up_then_down)
 
-        number_expectation = self.energy_estimation(var_params)
+        expectation = self.energy_estimation(var_params)
 
-        # Restore the accurate hamiltonian
+        # Restore the current hamiltonian
         self.qubit_hamiltonian = tmp_hamiltonian
 
-        return number_expectation
-
-    def get_sz(self, var_params=None):
-        if var_params is None:
-            var_params = self.optimal_var_params
-        # Save our accurate hamiltonian
-        tmp_hamiltonian = self.qubit_hamiltonian
-        num_op = spinz_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
-        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=num_op,
-                                                          mapping=self.qubit_mapping,
-                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
-                                                          n_electrons=self.qemist_molecule.n_electrons,
-                                                          up_then_down=self.up_then_down)
-
-        sz_expectation = self.energy_estimation(var_params)
-
-        # Restore the accurate hamiltonian
-        self.qubit_hamiltonian = tmp_hamiltonian
-
-        return sz_expectation
-
-    def get_s2(self, var_params=None):
-        if var_params is None:
-            var_params = self.optimal_var_params
-        # Save our accurate hamiltonian
-        tmp_hamiltonian = self.qubit_hamiltonian
-        num_op = spin2_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
-        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=num_op,
-                                                          mapping=self.qubit_mapping,
-                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
-                                                          n_electrons=self.qemist_molecule.n_electrons,
-                                                          up_then_down=self.up_then_down)
-
-        s2_expectation = self.energy_estimation(var_params)
-
-        # Restore the accurate hamiltonian
-        self.qubit_hamiltonian = tmp_hamiltonian
-
-        return s2_expectation
+        return expectation
 
     def get_rdm(self, var_params):
         """ Compute the 1- and 2- RDM matrices using the VQE energy evaluation. This method allows

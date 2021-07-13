@@ -1,5 +1,5 @@
 """ This module defines the hardware efficient ansatz class, for use in applying VQE as first defined in
-    "Hardware-efficient Variational Quantum Eigensolver for Small Molecules and Quantum Magnets" 
+    "Hardware-efficient Variational Quantum Eigensolver for Small Molecules and Quantum Magnets"
     https://arxiv.org/abs/1704.05018 """
 
 import numpy as np
@@ -24,27 +24,44 @@ class HEA(Ansatz):
                             One layer is hea_rot_type + grid of CNots
             reference_state (str): 'HF' for Hartree-Fock reference state,
                              'zero' for no reference state
+            ansatz_options (dict): Can provide any of the above arguments as a dictionary.
+                                   Dictionary will take priority over other input arguments
         """
 
-    def __init__(self, molecule=None, mapping='jw', mean_field=None, up_then_down=False, n_layers=2, rot_type='euler', n_qubits=None, reference_state=None):
-        self.up_then_down = up_then_down
-        self.n_layers = n_layers
-        self.rot_type = rot_type
+    def __init__(self, molecule=None, mapping='jw', mean_field=None, up_then_down=False, n_layers=2,
+                 rot_type='euler', n_qubits=None, reference_state="HF", ansatz_options=None):
+        default_options = {"molecule": None, "mapping": 'jw', "mean_field": None, "up_then_down": False,
+                           "n_layers": 2, "rot_type": 'euler', "n_qubits": None, "reference_state": 'HF'}
 
-        if molecule:
-            self.molecule = molecule
-            self.mapping = mapping
-            self.mf = mean_field
+        if ansatz_options:
+            for k, v in ansatz_options.items():
+                if k not in default_options:
+                    raise KeyError(f"Keyword :: {k}, not available in HEA ansatz_options")
+        else:
+            ansatz_options = dict()
+
+        self.up_then_down = ansatz_options.get('up_then_down', up_then_down)
+        self.n_layers = ansatz_options.get('n_layers', n_layers)
+        self.rot_type = ansatz_options.get('rot_type', rot_type)
+        self.molecule = ansatz_options.get('molecule', molecule)
+        self.mapping = ansatz_options.get('mapping', mapping)
+        self.mf = ansatz_options.get('mean_field', mean_field)
+        self.n_qubits = ansatz_options.get('n_qubits', n_qubits)
+        self.reference_state = ansatz_options.get('reference_state', reference_state)
+
+        if not (bool(self.molecule) ^ bool(self.n_qubits)):
+            raise ValueError(f"A molecule OR qubit number must be provided when instantiating the HEA")
+
+        if self.molecule:
             self.n_electrons = self.molecule.n_electrons
             self.n_spinorbitals = self.molecule.n_qubits  # This label makes no sense for some mappings but is correct
             self.n_qubits = get_qubit_number(mapping, self.n_spinorbitals)
-
-        if n_qubits:
+        elif n_qubits:
             self.n_qubits = n_qubits
 
-        # Each euler layer has 3 variational parameters per qubit, and one non-variational entangler
-        # Each real rottion layer has 1 variational parameter per qubit, and one non-variational entangler
-        # There is an additional layer with no entangler.
+        # Each euler rotation layer has 3 variational parameters per qubit, and one non-variational entangler
+        # Each real rotation layer has 1 variational parameter per qubit, and one non-variational entangler
+        # There is an additional rotation layer with no entangler.
         if self.rot_type == 'euler':
             self.n_var_params = self.n_qubits * 3 * (self.n_layers + 1)
         elif self.rot_type == 'real':
@@ -60,10 +77,6 @@ class HEA(Ansatz):
 
         # Default initial parameters for initialization
         self.var_params_default = "random"
-        if reference_state:
-            self.default_reference_state = reference_state
-        else:
-            self.default_reference_state = "HF"
 
         self.var_params = None
         self.circuit = None
@@ -97,15 +110,15 @@ class HEA(Ansatz):
 
     def prepare_reference_state(self):
         """Prepare a circuit generating the HF reference state."""
-        if self.default_reference_state not in self.supported_reference_state:
-            raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
+        if self.reference_state not in self.supported_reference_state:
+            raise ValueError(f"{self.reference_state} not in supported reference state methods of:{self.supported_reference_state}")
 
-        if self.default_reference_state == "HF":
+        if self.reference_state == "HF":
             return get_reference_circuit(n_spinorbitals=self.n_spinorbitals,
                                          n_electrons=self.n_electrons,
                                          mapping=self.mapping,
                                          up_then_down=self.up_then_down)
-        if self.default_reference_state == "zero":
+        if self.reference_state == "zero":
             return Circuit()
 
     def build_circuit(self, var_params=None):

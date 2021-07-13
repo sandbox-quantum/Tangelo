@@ -1,5 +1,15 @@
-""" This module defines the ansatz abstract class, providing the foundation to implement
-    variational ansatz circuits """
+""" This module defines the UCCSD ansatz class. It provides a chemically inspired ansatzs
+    and is an implementation of the classical unitary CCSD ansatz. Single and double excitation
+    determinants, in accordance with the system number of electron and spin, are considered.
+    For more information about this ansatz, see references below.
+
+    Refs:
+        * P.Kl. Barkoutsos, J.F. Gonthier, I. Sokolov, N. Moll, G. Salis, A. Fuhrer, M. Ganzhorn,
+          D.J. Egger, M. Troyer, A. Mezzacapo, S. Filipp, and I. Tavernelli, Phys. Rev. A 98, 022322 (2018).
+        * I.O. Sokolov, P.Kl. Barkoutsos, P.J. Ollitrault, D. Greenberg, J. Rice, M. Pistoia,
+          and I. Tavernelli, J. Chem. Phys. 152, 124107 (2020).
+        * Y. Shen, X. Zhang, S. Zhang, J.N. Zhang, M.H. Yung, and K. Kim, Physical Review A 95, 020501 (2017).
+"""
 
 import itertools
 import numpy as np
