@@ -143,8 +143,12 @@ class VQESolver:
                 elif self.ansatz == Ansatze.UCC3:
                     self.ansatz = RUCC(3)
                 elif self.ansatz == Ansatze.HEA:
-                    self.ansatz = HEA(self.qemist_molecule, self.qubit_mapping, self.mean_field, self.up_then_down,
-                                      ansatz_options=self.ansatz_options)
+                    if not self.ansatz_options:
+                        self.ansatz_options = dict()
+                    self.ansatz = HEA({**self.ansatz_options, **{'molecule': self.qemist_molecule,
+                                                                 'qubit_mapping': self.qubit_mapping,
+                                                                 'mean_field': self.mean_field,
+                                                                 'up_then_down': self.up_then_down}})
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
@@ -208,9 +212,8 @@ class VQESolver:
 
         return energy
 
-    def get_operator_expectation(self, operator, var_params=None):
-        """Obtains the operator expectation value for
-           operator
+    def operator_expectation(self, operator, var_params=None):
+        """Obtains the operator expectation value of a given operator
            Args:
                 operator (str or QubitOperator): The operator to find the expectation value of
                     str availability:
@@ -226,7 +229,7 @@ class VQESolver:
         if var_params is None:
             var_params = self.optimal_var_params
 
-        # Save our current hamiltonian
+        # Save our current target hamiltonian
         tmp_hamiltonian = self.qubit_hamiltonian
 
         if isinstance(operator, str):
@@ -251,7 +254,7 @@ class VQESolver:
 
         expectation = self.energy_estimation(var_params)
 
-        # Restore the current hamiltonian
+        # Restore the current target hamiltonian
         self.qubit_hamiltonian = tmp_hamiltonian
 
         return expectation

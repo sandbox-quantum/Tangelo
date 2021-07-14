@@ -1,6 +1,6 @@
 """Utility functions to generate FermionOperators corresponding to the generalized UCCSD (UCCGSD)
 ansatz for a designated number of orbitals or qubits. Excitations are grouped together to minimize
-redundancy and symmetry-violating independence between related spin-orbitals. Groups are specified 
+redundancy and symmetry-violating independence between related spin-orbitals. Groups are specified
 here as defined in Tang et al (arXiv:1911.10205)."""
 
 import numpy as np
@@ -10,13 +10,13 @@ from openfermion import FermionOperator
 
 
 def hermitian_conjugate(terms):
-    R"""Create nested list of tuples which can be utilized
-    to generate FermionOperator associated with the Hermitian 
+    r"""Create nested list of tuples which can be utilized
+    to generate FermionOperator associated with the Hermitian
     conjugate of those same operators implied by input *terms*.
 
     For a product of fermionic terms, the Hermitian conjugate corresponds
     to a reverse ordering of the operators. The prefactor is the same, up to
-    an overall sign, dictated by the number of permutations. 
+    an overall sign, dictated by the number of permutations.
 
     For singles and doubles, permutations are odd, so sign of prefactor is flipped.
 
@@ -47,7 +47,7 @@ def get_spin_ordered(n_orbs, pp, qq, rr=-1, ss=-1, up_down=False):
     typically orders spin-orbitals as all spin-up followed by all spin-down (this
     is the convention followed in e.g. qiskit), or alternating spin-up, spin-down
     (as done in e.g. openfermion). By setting *up_down* flag to True, one uses
-    the qiskit convention, and False, the openfermion convention. 
+    the qiskit convention, and False, the openfermion convention.
 
     This function accommodates either a pair or quartet of orbital indices, and returns
     two tuples of int reflecting the spin-up fermion indices for desired orbitals, and
@@ -97,7 +97,7 @@ def get_spin_ordered(n_orbs, pp, qq, rr=-1, ss=-1, up_down=False):
 
 
 def get_group_1_2(n_orbs, p, q, r, s, up_down=False):
-    R"""Identify spin singlet and spin triplet -type 4-orbital 
+    r"""Identify spin singlet and spin triplet -type 4-orbital
     excitations. We group equivalent terms,along with their Hermitian
     conjugates to prepare a single FermionOperator which will obey
     spin-symmetries. We then generalize expressions of the form:
@@ -105,7 +105,7 @@ def get_group_1_2(n_orbs, p, q, r, s, up_down=False):
     a_p^{\dagger}a_q^{\dagger}a_r a_s with the constraints
 
     Either: (p < q and p < r and p < s and r < s) and (q != r and q != s)
-    Or: (q == r and p < s) and (pp != qq and ss != qq). 
+    Or: (q == r and p < s) and (pp != qq and ss != qq).
 
     Args:
         n_orbs (int): number of orbitals in basis (this is number of
@@ -115,7 +115,7 @@ def get_group_1_2(n_orbs, p, q, r, s, up_down=False):
         r (int): orbital index
         s (int): orbital index
         up_down (bool): flag for using qiskit (True) or openfermion (False)
-            spin-ordering conventions.        
+            spin-ordering conventions.
 
     Returns:
         (list): list of input for FermionOperator corresponding to all
@@ -152,7 +152,7 @@ def get_group_1_2(n_orbs, p, q, r, s, up_down=False):
 
 
 def get_group_3_4(n_orbs, p, q, r, s, up_down=False):
-    R"""Identify spin singlet -type 4-orbital 
+    r"""Identify spin singlet -type 4-orbital
     excitations. We group equivalent terms,along with their Hermitian
     conjugates to prepare a single FermionOperator which will obey
     spin-symmetries. We then generalize expressions of the form:
@@ -160,7 +160,7 @@ def get_group_3_4(n_orbs, p, q, r, s, up_down=False):
     a_p^{\dagger}a_q^{\dagger}a_r a_s with the constraints
 
     Either: (p == q and q != r and r != s and s != p) and r < s
-    Or: p == q and q == r and r != s. 
+    Or: p == q and q == r and r != s.
 
     Note there is no spin-triplet term for these criteria.
 
@@ -172,7 +172,7 @@ def get_group_3_4(n_orbs, p, q, r, s, up_down=False):
         r (int): orbital index
         s (int): orbital index
         up_down (bool): flag for using qiskit (True) or openfermion (False)
-            spin-ordering conventions.        
+            spin-ordering conventions.
 
     Returns:
         singlet (list): list of input for FermionOperator corresponding to spin-singlet
@@ -198,7 +198,7 @@ def get_group_3_4(n_orbs, p, q, r, s, up_down=False):
 
 
 def get_group_5(n_orbs, p, q, r, s, up_down=False):
-    """Identify spin singlet -type 4-orbital 
+    r"""Identify spin singlet -type 4-orbital
     excitations. We group equivalent terms,along with their Hermitian
     conjugates to prepare a single FermionOperator which will obey
     spin-symmetries. We then generalize expressions of the form:
@@ -217,7 +217,7 @@ def get_group_5(n_orbs, p, q, r, s, up_down=False):
         r (int): orbital index
         s (int): orbital index
         up_down (bool): flag for using qiskit (True) or openfermion (False)
-            spin-ordering conventions.        
+            spin-ordering conventions.
 
     Returns:
         singlet (list): list of input for FermionOperator corresponding to spin-singlet
@@ -243,9 +243,9 @@ def get_group_5(n_orbs, p, q, r, s, up_down=False):
 
 
 def get_doubles(n_orbs, up_down=False):
-    """Prepare a list of all double-excitation terms in the UCCGSD for a given number of fermionic
+    r"""Prepare a list of all double-excitation terms in the UCCGSD for a given number of fermionic
     orbital basis states, grouped together according to spin-compensated
-    spin-triplet or spin-singlet spin-orbital combinations. The number of 
+    spin-triplet or spin-singlet spin-orbital combinations. The number of
     combinations of spin-orbitals for a given combination of orbital basis states,
     as well as the relative prefactors, depend on the specific orbital indices.
     For example, there are more ways to permute four distinct orbitals, than when
@@ -258,7 +258,7 @@ def get_doubles(n_orbs, up_down=False):
         n_orbs (int): number of orbitals in basis (this is number of
             spin-orbitals divided by 2)
         up_down (bool): flag for using qiskit (True) or openfermion (False)
-            spin-ordering conventions. 
+            spin-ordering conventions.
 
     Returns:
         all_terms (list): list of lists. Each sub-list is formatted as a tuple, and
@@ -299,15 +299,15 @@ def get_doubles(n_orbs, up_down=False):
 
 
 def get_singles(n_orbs, up_down=False):
-    """Prepare a list of all single-excitation terms in the UCCGSD for a given number of fermionic
+    r"""Prepare a list of all single-excitation terms in the UCCGSD for a given number of fermionic
     orbital basis states, grouped together according to spin-compensated
-    spin-orbital combinations. 
+    spin-orbital combinations.
 
     Args:
         n_orbs (int): number of orbitals in basis (this is number of
             spin-orbitals divided by 2)
         up_down (bool): flag for using qiskit (True) or openfermion (False)
-            spin-ordering conventions. 
+            spin-ordering conventions.
 
     Returns:
         all_terms (list): list of lists. Each sub-list is formatted as a tuple, and
@@ -359,7 +359,7 @@ def get_all_excitations(n_orbs, up_down=False):
         n_orbs (int): number of orbitals in basis (this is number of
             spin-orbitals divided by 2)
         up_down (bool): flag for using qiskit (True) or openfermion (False)
-            spin-ordering conventions. 
+            spin-ordering conventions.
 
     Returns:
         all_terms (list): nested list as detailed above. Each element is a list
@@ -420,7 +420,7 @@ def uccgsd_generator(n_qubits, single_coeffs=None, double_coeffs=None, up_down=F
 
 def get_singles_number(n_orbitals):
     """Get number of independent terms in the set of singles excitations
-    for a designated number of orbital states. Note argument is the number of 
+    for a designated number of orbital states. Note argument is the number of
     spatial orbital basis states, number of spin orbitals is twice as large.
 
     Args:
@@ -436,7 +436,7 @@ def get_singles_number(n_orbitals):
 
 def get_doubles_number(n_orbitals):
     """Get number of independent terms in the set of doubles excitations
-    for a designated number of orbital states. Note argument is the number of 
+    for a designated number of orbital states. Note argument is the number of
     spatial orbital basis states, number of spin orbitals is twice as large.
 
     Args:
@@ -452,7 +452,7 @@ def get_doubles_number(n_orbitals):
 
 def get_excitation_number(n_orbitals):
     """Get number of independent singles and doubles excitations for a given
-    number of basis orbital (spatial) states. Note input argument is half the 
+    number of basis orbital (spatial) states. Note input argument is half the
     number of spin-orbitals.
 
     Args:

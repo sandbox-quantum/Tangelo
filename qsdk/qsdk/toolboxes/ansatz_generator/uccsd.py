@@ -15,7 +15,7 @@ import itertools
 import numpy as np
 from pyscf import mp
 
-from agnostic_simulator import Circuit, Gate
+from agnostic_simulator import Circuit
 
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit

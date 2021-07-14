@@ -35,7 +35,7 @@ class HEATest(unittest.TestCase):
         """ Verify behavior of set_var_params for different inputs (keyword, list, numpy array)."""
 
         molecule = MolecularData(mol_h2)
-        hea_ansatz = HEA(molecule)
+        hea_ansatz = HEA({'molecule': molecule})
 
         hea_ansatz.set_var_params("ones")
         np.testing.assert_array_almost_equal(hea_ansatz.var_params, np.ones(4 * 3 * 3), decimal=6)
@@ -49,7 +49,7 @@ class HEATest(unittest.TestCase):
     def test_hea_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """
         molecule = MolecularData(mol_h2)
-        hea_ansatz = HEA(molecule)
+        hea_ansatz = HEA({'molecule': molecule})
 
         self.assertRaises(ValueError, hea_ansatz.set_var_params, np.ones(4 * 3 * 3 + 1))
 
@@ -59,7 +59,7 @@ class HEATest(unittest.TestCase):
         molecule = MolecularData(mol_h2)
 
         # Build circuit
-        hea_ansatz = HEA(molecule)
+        hea_ansatz = HEA({'molecule': molecule})
         hea_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
@@ -93,7 +93,7 @@ class HEATest(unittest.TestCase):
                        1.54411852e+00, -1.25781487e-01, -4.12791444e+00, -1.60220361e+00]
 
         # Build circuit with Ry rotationas instead of RZ*RX*RZ rotations
-        hea_ansatz = HEA(molecule, rot_type='real')
+        hea_ansatz = HEA({'molecule': molecule, 'rot_type': 'real'})
         hea_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
