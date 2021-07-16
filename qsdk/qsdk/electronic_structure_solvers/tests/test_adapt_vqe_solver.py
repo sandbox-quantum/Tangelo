@@ -52,90 +52,13 @@ class ADAPTSolverTest(unittest.TestCase):
 
         # Insert molecule here
         opt_dict = {"molecule": mol_H2O}
-        opt_dict['vqe_options'] = {'optimizer': LBFGSB_optimizer, "frozen_orbitals": 0}
+        opt_dict['vqe_options'] = {'optimizer': LBFGSB_optimizer, "frozen_orbitals": 0} # on my local branch, freezing core still gives me 14 qubits, thats weird. results are not good
         adapt_solver = ADAPTSolver(opt_dict)
         adapt_solver.build()
         energies, operators, adapt_vqe = adapt_solver.simulate()
         print(f'ADAPT RESOURCES:\n {adapt_solver.get_resources()}\n')
         print()
 
-
-    # def test_simulate_h2(self):
-    #     """ Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
-    #
-    #     vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
-    #                    "initial_var_params": [0.1, 0.1], "verbose": True}
-    #     vqe_solver = VQESolver(vqe_options)
-    #     vqe_solver.build()
-    #
-    #     energy = vqe_solver.simulate()
-    #     self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
-    #
-    # def test_simulate_h4(self):
-    #     """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
-    #     vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
-    #                    "initial_var_params": "MP2", "verbose": False}
-    #     vqe_solver = VQESolver(vqe_options)
-    #     vqe_solver.build()
-    #
-    #     energy = vqe_solver.simulate()
-    #     self.assertAlmostEqual(energy, -1.9778312978826869, delta=1e-4)
-    #
-    # def test_optimal_circuit_h4(self):
-    #     """ Run VQE on H4 molecule, save optimal circuit. Verify it yields optimal energy """
-    #     vqe_options = {"molecule": mol_H4, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
-    #                    "initial_var_params": "MP2", "verbose": False}
-    #     vqe_solver = VQESolver(vqe_options)
-    #     vqe_solver.build()
-    #     energy = vqe_solver.simulate()
-    #
-    #     sim = Simulator(target='qulacs')
-    #     self.assertAlmostEqual(energy, sim.get_expectation_value(vqe_solver.qubit_hamiltonian, vqe_solver.optimal_circuit),
-    #                            delta=1e-10)
-    #
-    # def test_custom_vqe(self):
-    #     """ VQE with custom optimizer and non-optimal variational parameters """
-    #
-    #     # Define and assign custom optimizer: cobyla
-    #     def cobyla_oneshot_optimizer(func, var_params):
-    #         from scipy.optimize import minimize
-    #         result = minimize(func, var_params, method="COBYLA", options={"disp": True, "maxiter": 100})
-    #         return result.fun
-    #
-    #     vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
-    #                    "initial_var_params": "ones", "verbose": False,
-    #                    "optimizer": cobyla_oneshot_optimizer}
-    #     vqe_solver = VQESolver(vqe_options)
-    #     vqe_solver.build()
-    #
-    #     energy = vqe_solver.simulate()
-    #     self.assertAlmostEqual(energy, -1.137270422018, places=6)
-    #
-    # def test_mapping_BK(self):
-    #     """Test that BK mapping recovers the expected result,
-    #     to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
-    #     vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
-    #                    "qubit_mapping": 'bk'}
-    #
-    #     vqe_solver = VQESolver(vqe_options)
-    #     vqe_solver.build()
-    #     energy = vqe_solver.simulate()
-    #
-    #     energy_target = -1.137270
-    #     self.assertAlmostEqual(energy, energy_target, places=5)
-    #
-    # def test_mapping_scBK(self):
-    #     """Test that scBK mapping recovers the expected result,
-    #     to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
-    #     vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
-    #                    "qubit_mapping": 'scbk'}
-    #
-    #     vqe_solver = VQESolver(vqe_options)
-    #     vqe_solver.build()
-    #     energy = vqe_solver.simulate()
-    #
-    #     energy_target = -1.137270
-    #     self.assertAlmostEqual(energy, energy_target, places=5)
 
 if __name__ == "__main__":
     unittest.main()

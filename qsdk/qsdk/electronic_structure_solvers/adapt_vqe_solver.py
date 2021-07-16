@@ -137,7 +137,7 @@ class ADAPTSolver:
 
         default_backend_options = {"target": "qulacs", "n_shots": None, "noise_model": None}
         default_options = {"molecule": None, "verbose": False,
-                           "tol": 1e-3, "max_cycles": 30,
+                           "tol": 1e-3, "max_cycles": 15,
                            "vqe_options": dict(),
                            "backend": default_backend_options}
 
@@ -173,34 +173,32 @@ class ADAPTSolver:
         self.ansatz.build_circuit()
 
         # Initialize pool of operators to draw from during the ADAPT procedure
-        # self.pool_operators, self.pool_tuples = get_pool(self.vqe_solver.qubit_hamiltonian, self.n_spinorbitals)
-        # self.pool_operators = [commutator(self.vqe_solver.qubit_hamiltonian, element) for element in self.pool_generators]
-        # Initialize pool of operators like in ADAPT-VQE paper
-        from qsdk.toolboxes.ansatz_generator._unitary_cc import uccsd_singlet_generator, uccsd_singlet_paramsize
-        from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-        import math
-        n_amplitudes = uccsd_singlet_paramsize(self.n_spinorbitals, self.molecule.nelectron)
-        n_singles = int(math.sqrt(2*n_amplitudes + 2.25) - 1.5)
-        n_doubles = n_amplitudes - n_singles
-        f_op = uccsd_singlet_generator([1.]*n_amplitudes, self.n_spinorbitals, self.molecule.nelectron)
-        from copy import deepcopy
-        f_op_tmp = deepcopy(f_op)
-        self.pool_operators = list()
-        for k, v in f_op.terms.items():
-            f_op_tmp.terms = {k: v}
-            self.pool_operators += [fermion_to_qubit_mapping(f_op_tmp, self.vqe_solver.qubit_mapping,
-                                                             self.n_spinorbitals, self.molecule.nelectron)]
+        self.pool_operators, self.pool_tuples = get_pool(self.vqe_solver.qubit_hamiltonian, self.n_spinorbitals)
+        self.pool_operators = [commutator(self.vqe_solver.qubit_hamiltonian, element) for element in self.pool_operators]
 
+        # Initialize pool of operators like in ADAPT-VQE paper, based on single and double excitations (Work in progress)
+        # Use uccsd functions from openfermion to get a hold on the single and second excitations, per Lee's advice.
 
-
-        pass
+        # from qsdk.toolboxes.ansatz_generator._unitary_cc import uccsd_singlet_generator, uccsd_singlet_paramsize
+        # from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+        # import math
+        # n_amplitudes = uccsd_singlet_paramsize(self.n_spinorbitals, self.molecule.nelectron)
+        # n_singles = int(math.sqrt(2*n_amplitudes + 2.25) - 1.5)
+        # n_doubles = n_amplitudes - n_singles
+        # f_op = uccsd_singlet_generator([1.]*n_amplitudes, self.n_spinorbitals, self.molecule.nelectron)
+        # from copy import deepcopy
+        # f_op_tmp = deepcopy(f_op)
+        # self.pool_operators = list()
+        # for k, v in f_op.terms.items():
+        #     f_op_tmp.terms = {k: v}
+        #     self.pool_operators += [fermion_to_qubit_mapping(f_op_tmp, self.vqe_solver.qubit_mapping,
+        #                                                      self.n_spinorbitals, self.molecule.nelectron)]
 
     def simulate(self):
         """ Fill in    """
 
         operators, energies = list(), list()
         params = np.array([0.0])
-        converged = False
         n_cycles = 0
 
         while n_cycles < self.max_cycles:
