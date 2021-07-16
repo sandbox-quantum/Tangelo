@@ -40,8 +40,6 @@ class UpCCGSD(Ansatz):
         self.n_spatial_orbitals = self.molecule.n_qubits // 2
         self.n_spin_orbitals = self.molecule.n_qubits
         self.spin = self.molecule.multiplicity - 1
-        self.n_al_occupied = int(np.ceil(self.molecule.n_electrons / 2 + self.spin / 2))
-        self.n_be_occupied = self.molecule.n_electrons - self.n_al_occupied
         self.n_doubles = self.n_spatial_orbitals * (self.n_spatial_orbitals - 1)//2
         self.n_singles = 2*self.n_doubles
         self.n_var_params_per_step = self.n_doubles + self.n_singles
