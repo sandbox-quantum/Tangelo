@@ -1,10 +1,21 @@
-""" This module defines the ansatz abstract class, providing the foundation to implement variational ansatz circuits """
+""" This module defines the UCCSD ansatz class. It provides a chemically inspired ansatzs
+    and is an implementation of the classical unitary CCSD ansatz. Single and double excitation
+    determinants, in accordance with the system number of electron and spin, are considered.
+    For more information about this ansatz, see references below.
+
+    Refs:
+        * P.Kl. Barkoutsos, J.F. Gonthier, I. Sokolov, N. Moll, G. Salis, A. Fuhrer, M. Ganzhorn,
+          D.J. Egger, M. Troyer, A. Mezzacapo, S. Filipp, and I. Tavernelli, Phys. Rev. A 98, 022322 (2018).
+        * I.O. Sokolov, P.Kl. Barkoutsos, P.J. Ollitrault, D. Greenberg, J. Rice, M. Pistoia,
+          and I. Tavernelli, J. Chem. Phys. 152, 124107 (2020).
+        * Y. Shen, X. Zhang, S. Zhang, J.N. Zhang, M.H. Yung, and K. Kim, Physical Review A 95, 020501 (2017).
+"""
 
 import itertools
 import numpy as np
 from pyscf import mp
 
-from agnostic_simulator import Circuit, Gate
+from agnostic_simulator import Circuit
 
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit
@@ -53,17 +64,18 @@ class UCCSD(Ansatz):
         keywords for users, and also supporting direct user input (list or numpy array)
         Return the parameters so that workflows such as VQE can retrieve these values. """
 
-        if isinstance(var_params, str) and (var_params not in self.supported_initial_var_params):
-            raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
         if var_params is None:
             var_params = self.var_params_default
 
-        if var_params == "ones":
-            initial_var_params = np.ones((self.n_var_params,), dtype=float)
-        elif var_params == "random":
-            initial_var_params = np.random.random((self.n_var_params,))
-        elif var_params == "MP2":
-            initial_var_params = self._compute_mp2_params()
+        if isinstance(var_params, str):
+            if (var_params not in self.supported_initial_var_params):
+                raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
+            if var_params == "ones":
+                initial_var_params = np.ones((self.n_var_params,), dtype=float)
+            elif var_params == "random":
+                initial_var_params = np.random.random((self.n_var_params,))
+            elif var_params == "MP2":
+                initial_var_params = self._compute_mp2_params()
         else:
             try:
                 assert (len(var_params) == self.n_var_params)
@@ -113,7 +125,7 @@ class UCCSD(Ansatz):
             self.pauli_to_angles_mapping[pauli_word] = i
 
         uccsd_circuit = Circuit(pauli_words_gates)
-        #skip over the reference state circuit if it is empty
+        # skip over the reference state circuit if it is empty
         if reference_state_circuit.size != 0:
             self.circuit = reference_state_circuit + uccsd_circuit
         else:
@@ -144,10 +156,10 @@ class UCCSD(Ansatz):
             qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
         """
         fermion_op = uccsd_singlet_generator(self.var_params, self.molecule.n_qubits, self.molecule.n_electrons)
-        qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op, 
-                                            mapping=self.mapping, 
-                                            n_spinorbitals=self.molecule.n_qubits, 
-                                            n_electrons=self.molecule.n_electrons, 
+        qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
+                                            mapping=self.mapping,
+                                            n_spinorbitals=self.molecule.n_qubits,
+                                            n_electrons=self.molecule.n_electrons,
                                             up_then_down=self.up_then_down)
 
         # Cast all coefs to floats (rotations angles are real)

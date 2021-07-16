@@ -86,7 +86,7 @@ class VQESolverTest(unittest.TestCase):
 
         vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
                        "initial_var_params": [0.1, 0.1]}
-        for index,mi in enumerate(mappings):
+        for index, mi in enumerate(mappings):
             vqe_options['qubit_mapping'] = mi
             vqe_solver = VQESolver(vqe_options)
             vqe_solver.build()
@@ -200,7 +200,7 @@ class VQESolverTest(unittest.TestCase):
         def cobyla_oneshot_optimizer(func, var_params):
             from scipy.optimize import minimize
             result = minimize(func, var_params, method="COBYLA", options={"disp": True, "maxiter": 100})
-            return result.fun
+            return result.fun, result.x
 
         vqe_options = {"molecule": mol_H2, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
                        "initial_var_params": "ones", "verbose": False,
@@ -272,7 +272,7 @@ class VQESolverTest(unittest.TestCase):
         """ Run VQE on NaH molecule, with UCC1 and UCC3 ansatze, JW qubit mapping.
             The computation is mapped to a HOMO-LUMO problem.
         """
-        frozen = [i for i in range(9) if i not in [5,9]]
+        frozen = [i for i in range(9) if i not in [5, 9]]
 
         vqe_options = {"molecule": mol_NaH, "ansatz": Ansatze.UCC1, "qubit_mapping": 'jw',
                        "initial_var_params": "zeros", "frozen_orbitals": frozen,

@@ -12,7 +12,7 @@ from openfermion.ops import QubitOperator
 from agnostic_simulator import Gate, Circuit, translator, Simulator, backend_info
 from agnostic_simulator.helpers import string_ham_to_of
 
-path_data = os.path.dirname(__file__) + '/data'
+path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
 # Simple circuit for superposition, also tells us qubit ordering as well immediately from the statevector
 # probabilities : |00> = 0.5  |01> = 0.5
@@ -94,6 +94,16 @@ class TestSimulate(unittest.TestCase):
             Backend: Projectq
         """
         simulator = Simulator(target="projectq")
+        for i, circuit in enumerate(circuits):
+            frequencies, _ = simulator.simulate(circuit)
+            assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
+
+    def test_simulate_cirq(self):
+        """
+            Must return correct frequencies for simulation of different quantum circuits
+            Backend: cirq
+        """
+        simulator = Simulator(target="cirq")
         for i, circuit in enumerate(circuits):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
