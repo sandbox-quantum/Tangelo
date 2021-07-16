@@ -10,7 +10,7 @@ from qsdk.toolboxes.operators import normal_ordered, list_to_fermionoperator
 
 
 def number_operator(n_orbs, up_then_down=False):
-    r"""Function to generator the normal ordered number operator as a FermionicOperator
+    r"""Function to generate the normal ordered number operator as a FermionicOperator
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
@@ -27,7 +27,7 @@ def number_operator(n_orbs, up_then_down=False):
 
 
 def number_operator_list(n_orbs, up_then_down=False):
-    r"""Function to generator the normal ordered number operator as a list
+    r"""Function to generate the normal ordered number operator as a list
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
@@ -45,7 +45,7 @@ def number_operator_list(n_orbs, up_then_down=False):
 
 
 def spinz_operator(n_orbs, up_then_down=False):
-    r"""Function to generator the normal ordered Sz operator
+    r"""Function to generate the normal ordered Sz operator
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
@@ -62,7 +62,7 @@ def spinz_operator(n_orbs, up_then_down=False):
 
 
 def spinz_operator_list(n_orbs, up_then_down=False):
-    r"""Function to generator the normal ordered Sz operator as a list
+    r"""Function to generate the normal ordered Sz operator as a list
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
@@ -80,7 +80,7 @@ def spinz_operator_list(n_orbs, up_then_down=False):
 
 
 def spin2_operator(n_orbs, up_then_down=False):
-    r"""Function to generator the normal ordered S^2 operator as a FermionicOperator
+    r"""Function to generate the normal ordered S^2 operator as a FermionicOperator
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
@@ -97,7 +97,7 @@ def spin2_operator(n_orbs, up_then_down=False):
 
 
 def spin2_operator_list(n_orbs, up_then_down=False):
-    r"""Function to generator the normal ordered S^2 operator as a FermionicOperator
+    r"""Function to generate the normal ordered S^2 operator as a FermionicOperator
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
