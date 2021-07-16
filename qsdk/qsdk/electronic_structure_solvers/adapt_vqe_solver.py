@@ -167,8 +167,9 @@ class ADAPTSolver:
         self.vqe_solver.build()
 
         # Initialize ansatz with molecular information
-        self.n_spinorbitals = 2*len(self.vqe_solver.mean_field.mo_occ)
-        self.ansatz = AdaptAnsatz(n_spinorbitals=self.n_spinorbitals, n_electrons=self.molecule.nelectron)
+        self.n_spinorbitals = 2 * self.vqe_solver.qemist_molecule.n_orbitals
+        self.n_electrons = self.vqe_solver.qemist_molecule.n_electrons
+        self.ansatz = AdaptAnsatz(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons)
         self.vqe_solver.ansatz = self.ansatz
         self.ansatz.build_circuit()
 
