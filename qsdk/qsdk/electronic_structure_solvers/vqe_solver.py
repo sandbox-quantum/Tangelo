@@ -17,7 +17,7 @@ from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 from qsdk.toolboxes.ansatz_generator.hea import HEA
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
-from qsdk.toolboxes.ansatz_generator.penalty_terms import penalty
+from qsdk.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
 
 
@@ -114,7 +114,7 @@ class VQESolver:
                                                               up_then_down=self.up_then_down)
 
             if self.penalty_terms:
-                pen_ferm = penalty(self.qemist_molecule.n_orbitals, self.penalty_terms)
+                pen_ferm = combined_penalty(self.qemist_molecule.n_orbitals, self.penalty_terms)
                 pen_qubit = fermion_to_qubit_mapping(fermion_operator=pen_ferm,
                                                      mapping=self.qubit_mapping,
                                                      n_spinorbitals=self.qemist_molecule.n_qubits,

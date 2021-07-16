@@ -13,7 +13,7 @@ from qsdk.toolboxes.operators import FermionOperator, squared_normal_ordered
 
 
 def number_operator_penalty(n_orbs, n_electrons, mu=1, up_then_down=False):
-    r"""Function to generator the normal ordered number operator penalty term as a FermionicOperator
+    r"""Function to generate the normal ordered number operator penalty term as a FermionicOperator
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
@@ -26,7 +26,7 @@ def number_operator_penalty(n_orbs, n_electrons, mu=1, up_then_down=False):
                       qubit mapping handle the ordering.
 
     Returns:
-        (FermionicOperator): The number operator penalty term mu*(n_electrons-\hat{N})^2"""
+        (FermionicOperator): The number operator penalty term mu*(\hat{N}-n_electrons)^2"""
 
     all_terms = [[(), -n_electrons]] + number_operator_list(n_orbs, up_then_down)
 
@@ -34,7 +34,7 @@ def number_operator_penalty(n_orbs, n_electrons, mu=1, up_then_down=False):
 
 
 def spin_operator_penalty(n_orbs, sz, mu=1, up_then_down=False):
-    r"""Function to generator the normal ordered Sz operator penalty term
+    r"""Function to generate the normal ordered Sz operator penalty term
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
@@ -47,7 +47,7 @@ def spin_operator_penalty(n_orbs, sz, mu=1, up_then_down=False):
                       qubit mapping handle the ordering.
 
     Returns:
-        (FermionicOperator): The Sz operator penalty term mu*(sz-\hat{Sz})^2"""
+        (FermionicOperator): The Sz operator penalty term mu*(\hat{Sz}-sz)^2"""
 
     all_terms = [[(), -sz]] + spinz_operator_list(n_orbs, up_then_down)
 
@@ -55,13 +55,14 @@ def spin_operator_penalty(n_orbs, sz, mu=1, up_then_down=False):
 
 
 def spin2_operator_penalty(n_orbs, s2, mu=1, up_then_down=False):
-    r"""Function to generator the normal ordered S^2 operator penalty term, operator form taken from
+    r"""Function to generate the normal ordered S^2 operator penalty term, operator form taken from
         https://pubs.rsc.org/en/content/articlepdf/2019/cp/c9cp02546d
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
             spin-orbitals divided by 2)
         s2 (int): the desired S^2 quantum number to penalize for
+                  singlet: s2=0*(0+1)=0, doublet: s2=(1/2)*(1/2+1)=3/4, triplet, s2=1*(1+1)=2 ...
         mu (float): Positive number in front of penalty term
         up_then_down: The ordering of the spin orbitals.
                       qiskit (True) openfermion (False)
@@ -69,21 +70,24 @@ def spin2_operator_penalty(n_orbs, s2, mu=1, up_then_down=False):
                       qubit mapping handle the ordering.
 
     Returns:
-        (FermionicOperator): The S^2 operator penalty term mu*(s2-\hat{S}^2)^2"""
+        (FermionicOperator): The S^2 operator penalty term mu*(\hat{S}^2-s2)^2"""
 
     all_terms = [[(), -s2]] + spin2_operator_list(n_orbs, up_then_down)
 
     return mu*squared_normal_ordered(all_terms)
 
 
-def penalty(n_orbs, opt_penalty_terms=None, up_then_down=False):
-    r"""Function to generator the normal ordered combined N, Sz, and S^2 opeator penalty term
+def combined_penalty(n_orbs, opt_penalty_terms=None, up_then_down=False):
+    r"""Function to generate the sum of all available penalty terms, currently implemented are
+        'N': number operator with eigenvalue (number of particles)
+        'Sz': Sz|s,m_s> = ms|s,m_s>
+        'S^2': S^2|s,m_s> = s(s+1)|s,m_s>. 
 
     Args:
         n_orbs (int): number of active orbitals in the fermion basis (this is number of
             spin-orbitals divided by 2)
         opt_penalty_terms (dict): The options for each penalty 'N', 'Sz', 'S^2' as
-                "N" (array or list): [Prefactor, Value] Prefactor * (\hat{N} - Value)^2
+                "N" (array or list[float]): [Prefactor, Value] Prefactor * (\hat{N} - Value)^2
                 "Sz" (array or list[float]): [Prefactor, Value] Prefactor * (\hat{Sz} - Value)^2
                 "S^2" (array or list[float]): [Prefactor, Value] Prefactor * (\hat{S}^2 - Value)^2
         up_then_down: The ordering of the spin orbitals.

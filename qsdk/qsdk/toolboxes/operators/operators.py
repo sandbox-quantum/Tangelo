@@ -38,12 +38,20 @@ def normal_ordered(fe_op):
 
 
 def squared_normal_ordered(all_terms):
-    """ Input: a list of terms to generate toolboxes.operators.FermionicOperator or openfermion.FermionicOperator
-        Return: squared (i.e. fe_op*fe_op) and normal ordered toolboxes.operators.FermionicOperator"""
+    """ Input: a list of terms to generate toolboxes.operators.FermionOperator or openfermion.FermionOperator
+        Return: squared (i.e. fe_op*fe_op) and normal ordered toolboxes.operators.FermionOperator"""
 
     # Obtain normal ordered fermionic operator as list of terms
+    fe_op = list_to_fermionoperator(all_terms)
+    fe_op *= fe_op
+    return normal_ordered(fe_op)
+
+
+def list_to_fermionoperator(all_terms):
+    """ Input: a list of terms to generate FermionOperator
+        Return: a toolboxes.operators.FermionOperator"""
+
     fe_op = FermionOperator()
     for item in all_terms:
         fe_op += FermionOperator(item[0], item[1])
-    fe_op *= fe_op
-    return normal_ordered(fe_op)
+    return fe_op

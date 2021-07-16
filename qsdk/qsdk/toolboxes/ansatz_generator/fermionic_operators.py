@@ -6,7 +6,7 @@ r""" This module defines the fermionic operators that can be used to obtain expe
     which allows one to decide whether the state has the correct properties."""
 
 from qsdk.toolboxes.ansatz_generator._general_unitary_cc import get_spin_ordered
-from qsdk.toolboxes.operators import FermionOperator, normal_ordered
+from qsdk.toolboxes.operators import normal_ordered, list_to_fermionoperator
 
 
 def number_operator(n_orbs, up_then_down=False):
@@ -21,12 +21,9 @@ def number_operator(n_orbs, up_then_down=False):
         num_op (FermionicOperator): The number operator penalty \hat{N}"""
 
     all_terms = number_operator_list(n_orbs, up_then_down)
+    num_op = list_to_fermionoperator(all_terms)
 
-    num_op = FermionOperator()
-    for item in all_terms:
-        num_op += FermionOperator(item[0], item[1])
-    num_op = normal_ordered(num_op)
-    return num_op
+    return normal_ordered(num_op)
 
 
 def number_operator_list(n_orbs, up_then_down=False):
@@ -59,12 +56,9 @@ def spinz_operator(n_orbs, up_then_down=False):
         spin_op (FermionicOperator): The Sz operator \hat{Sz}"""
 
     all_terms = spinz_operator_list(n_orbs, up_then_down)
+    spinz_op = list_to_fermionoperator(all_terms)
 
-    spinz_op = FermionOperator()
-    for item in all_terms:
-        spinz_op += FermionOperator(item[0], item[1])
-    spinz_op = normal_ordered(spinz_op)
-    return spinz_op
+    return normal_ordered(spinz_op)
 
 
 def spinz_operator_list(n_orbs, up_then_down=False):
@@ -97,12 +91,9 @@ def spin2_operator(n_orbs, up_then_down=False):
         spin2_op (FermionicOperator): The S^2 operator \hat{S}^2"""
 
     all_terms = spin2_operator_list(n_orbs, up_then_down)
+    spin2_op = list_to_fermionoperator(all_terms)
 
-    spin2_op = FermionOperator()
-    for item in all_terms:
-        spin2_op += FermionOperator(item[0], item[1])
-    spin2_op = normal_ordered(spin2_op)
-    return spin2_op
+    return normal_ordered(spin2_op)
 
 
 def spin2_operator_list(n_orbs, up_then_down=False):
