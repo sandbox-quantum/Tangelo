@@ -1,4 +1,4 @@
-name: learn-github-actions
+name: automated_testing
 
 on: [pull_request]
 
