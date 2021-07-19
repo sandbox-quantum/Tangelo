@@ -34,9 +34,11 @@ jobs:
         ls -la
         cd agnostic_simulator
         pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+      if: ${{ failure() }}
 
     - name: qsdk install
       run: |
+        pip install pyscf
         cd qsdk
         python setup.py install
       if: always()
