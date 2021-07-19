@@ -36,7 +36,8 @@ jobs:
         sudo apt-get update; sudo apt-get install -y apt-transport-https && sudo apt-get update
         sudo apt-get install -y dotnet-sdk-5.0
         dotnet tool install -g Microsoft.Quantum.IQSharp
-        .dotnet/tools/dotnet-iqsharp install --user
+        ls -la
+        # .dotnet/tools/dotnet-iqsharp install --user
         pip install qsharp
       
     - name: agnostic_simulator tests
