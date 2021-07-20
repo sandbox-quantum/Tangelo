@@ -26,13 +26,23 @@ class UpCCGSD(Ansatz):
     """ This class implements the UpCCGSD ansatz.
      This implies that the mean-field is computed with the RHF or ROHF reference integrals. """
 
-    def __init__(self, molecule, mapping='jw', mean_field=None, up_then_down=False, k=3):
+    def __init__(self, molecule, ansatz_options=dict()):
+        default_options = {"qubit_mapping": 'jw', "mean_field": None, "up_then_down": False,
+                           "k": 2}
+
+        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
+        for k, v in ansatz_options.items():
+            if k in default_options:
+                default_options[k] = v
+            else:
+                raise KeyError(f"Keyword :: {k}, not available in VQESolver")
 
         self.molecule = molecule
-        self.k = k
-        self.mf = mean_field
-        self.mapping = mapping
-        self.up_then_down = up_then_down
+        # Write default options
+        for k, v in default_options.items():
+            setattr(self, k, v)
+
+        self.mf = self.mean_field  # necessary duplication for get_rdm in vqe_solver
 
         # Later: refactor to handle various flavors of UCCSD
         if molecule.n_qubits % 2 != 0:
@@ -43,8 +53,6 @@ class UpCCGSD(Ansatz):
         self.n_doubles = self.n_spatial_orbitals * (self.n_spatial_orbitals - 1)//2
         self.n_singles = 2*self.n_doubles
         self.n_var_params_per_step = self.n_doubles + self.n_singles
-        print(f'n per step {self.n_var_params_per_step}')
-        print(self.molecule.n_electrons)
         self.n_var_params = self.k * (self.n_singles + self.n_doubles)
 
         # Supported reference state initialization
@@ -74,7 +82,7 @@ class UpCCGSD(Ansatz):
             if var_params == "ones":
                 initial_var_params = np.ones((self.n_var_params,), dtype=float)
             elif var_params == "random":
-                initial_var_params = np.random.random((self.n_var_params,))
+                initial_var_params = 1.e-1 * (np.random.random((self.n_var_params,)) - 0.5)
         else:
             try:
                 assert (len(var_params) == self.n_var_params)
@@ -96,7 +104,7 @@ class UpCCGSD(Ansatz):
         if self.default_reference_state == "HF":
             return get_reference_circuit(n_spinorbitals=self.molecule.n_qubits,
                                          n_electrons=self.molecule.n_electrons,
-                                         mapping=self.mapping,
+                                         mapping=self.qubit_mapping,
                                          up_then_down=self.up_then_down,
                                          spin=self.spin)
 
@@ -164,7 +172,7 @@ class UpCCGSD(Ansatz):
         # print(current_k_params)
         fermion_op = get_upccgsd(self.n_spatial_orbitals, current_k_params)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
-                                            mapping=self.mapping,
+                                            mapping=self.qubit_mapping,
                                             n_spinorbitals=self.molecule.n_qubits,
                                             n_electrons=self.molecule.n_electrons,
                                             up_then_down=self.up_then_down)
