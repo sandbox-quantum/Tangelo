@@ -1,11 +1,21 @@
-"""
-ADAPT-VQE algorithm framework, to solve electronic structure calculations.
-https://www.nature.com/articles/s41467-019-10988-2
+"""ADAPT-VQE algorithm framework, to solve electronic structure calculations.
+It consists of constructing the ansatz as VQE iterations are performed.
+From a set of operators, the most important one (stepiest energy gradient) versus
+the current circuit is chosen. This operator is added to the ansatz, converted into
+a set of gates and appended to the circuit. An VQE minimization is performed to
+get a set of parameters that minimize the energy. The process is repeated n times
+to end hopefully with a good ansatz for the studied molecule (or Hamiltonian).
+
+Ref:
+Grimsley, H.R., Economou, S.E., Barnes, E. et al.
+An adaptive variational algorithm for exact molecular simulations on a quantum computer.
+Nat Commun 10, 3007 (2019). https://doi.org/10.1038/s41467-019-10988-2
 """
 
 from scipy.optimize import minimize
 import numpy as np
 from openfermion import commutator
+import math
 
 from qsdk.electronic_structure_solvers.vqe_solver import Ansatze, VQESolver
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
@@ -13,67 +23,24 @@ from qsdk.toolboxes.ansatz_generator.ansatz_utils import pauliword_to_circuit
 from agnostic_simulator import Circuit
 from qsdk.toolboxes.operators import QubitOperator
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
+from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
+from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
+from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
+from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+
+from qsdk.toolboxes.ansatz_generator._unitary_cc import uccsd_singlet_generator, uccsd_singlet_paramsize
+from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from copy import deepcopy
 
 
-def get_pool(qubit_hamiltonian, n_qubits):
-    """Use Hamiltonian to identify non-commuting Pauli strings to use as operator pool.
-    We identify terms with even number of Y-operators, in order to define excitations
-    which preserve T-reversal symmetry. We remove all Z operators, and we flip the first
-    X or Y to its partner (i.e. X <> Y).
-    Args:
-        qubit_hamiltonian (QubitOperator): input Hamiltonian
-        n_qubits (int): number of qubits for Hamiltonian
+# TODO: put things into the right folders...
+# TODO: Generators pool of UCCGSD.
 
-    Returns:
-        pool_generators (list of QubitOperator): list of generators
-    """
+class AdaptUCCGSD(Ansatz):
+    def __init__(self, n_spinorbitals, operators=list()):
+        pass
 
-    pauli_lookup = {'Z': 1, 'X': 2, 'Y': 3}
-    pauli_reverse_lookup = ['I', 'Z', 'X', 'Y']
-
-    pool_generators, pool_tuples = list(), list()
-    indices = list()
-
-    for term in qubit_hamiltonian.terms:
-        pauli_string = np.zeros(n_qubits, dtype=int)
-
-        # identify all X or Y factors
-        for index, action in term:
-            if pauli_lookup[action] > 1:
-                pauli_string[index] = pauli_lookup[action]
-
-        # only allow one operator acting on a given set of qubits
-        action_mask = tuple(pauli_string > 1)
-        if action_mask in indices:
-            continue
-
-        # only consider terms with even number of Y
-        if sum(pauli_string) % 2 == 0 and sum(pauli_string) > 0:
-            # identify qubit operator to change X<>Y
-            flip_index = np.where(pauli_string > 1)[0][0]
-            pauli_string[flip_index] += (-1) ** (pauli_string[flip_index] % 2)
-
-            # update set of used qubit combinations
-            indices.append(action_mask)
-            # create QubitOperator for the new generator
-            operator_tuple = tuple(
-                [(index, pauli_reverse_lookup[pauli]) for index, pauli in enumerate(pauli_string) if pauli > 0])
-            # We don't use the coefficients directly, so since we need to multiply by 1.j for evaluating gradients,
-            # I'm just instantiating these with that coefficient in place
-            pool_generators.append(QubitOperator(operator_tuple, 1.0j))
-            pool_tuples.append(operator_tuple)
-
-    return pool_generators, pool_tuples
-
-
-def rank_pool(pool_commutators, circuit, backend, tolerance=1e-3):
-    gradient = [abs(backend.get_expectation_value(element, circuit)) for element in pool_commutators]
-    max_partial = max(gradient)
-    print(f'LARGEST PARTIAL DERIVATIVE: {max_partial :4E} \t[{gradient.index(max_partial)}]')
-    return gradient.index(max_partial) if max_partial >= tolerance else -1
-
-
-class AdaptAnsatz(Ansatz):
+class AdaptUCCSD(Ansatz):
 
     def __init__(self, n_spinorbitals, n_electrons, operators=list()):
 
@@ -83,30 +50,36 @@ class AdaptAnsatz(Ansatz):
 
         self.var_params = None
         self.circuit = None
+        self.length_operators = list()
+        self.var_params_prefactor = list()
 
     @property
     def n_var_params(self):
-        return len(self.operators)
+        return len(self.length_operators)
 
     def set_var_params(self, var_params=None):
         """ Set initial variational parameter values. Defaults to zeros. """
         if var_params is None:
             var_params = np.zeros(self.n_var_params, dtype=float)
-        elif var_params.size != self.n_var_params:
+        elif len(var_params) != self.n_var_params:
             raise ValueError('Invalid number of parameters.')
         self.var_params = var_params
         return var_params
 
     def update_var_params(self, var_params):
         """ Update variational parameters (done repeatedly during VQE) """
-        pass
-        for param_index in range(self.n_var_params):
-            self.circuit._variational_gates[param_index].parameter = var_params[param_index]
+        for var_index in range(self.n_var_params):
+            length_op = self.length_operators[var_index] # 2 or 8
+
+            param_index = sum(self.length_operators[:var_index])
+            for param_subindex in range(length_op):
+                prefactor = self.var_params_prefactor[param_index+param_subindex]
+                self.circuit._variational_gates[param_index+param_subindex].parameter = prefactor*var_params[var_index]
 
     def prepare_reference_state(self):
         """ Prepare a circuit generating the HF reference state. """
         # TODO non hardcoded mapping
-        return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping='JW')
+        return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping='JW', up_then_down=True)
 
     def build_circuit(self, var_params=None):
         """ Construct the variational circuit to be used as our ansatz. """
@@ -114,30 +87,92 @@ class AdaptAnsatz(Ansatz):
 
         self.circuit = Circuit(n_qubits=self.n_spinorbitals)
         self.circuit += self.prepare_reference_state()
-        adapt_circuit = []
-        for op in self.operators:
-            adapt_circuit += pauliword_to_circuit(op, 0.1)
+        #adapt_circuit = list()
+        #for op in self.operators:
+        #    adapt_circuit += pauliword_to_circuit(op, .1)
 
-        adapt_circuit = Circuit(adapt_circuit)
-        if adapt_circuit.size != 0:
-            self.circuit += adapt_circuit
+        #adapt_circuit = Circuit(adapt_circuit)
+        #if adapt_circuit.size != 0:
+        #    self.circuit += adapt_circuit
+
+        # Must be included because after convergence, the circuit is rebuilt.
+        # If this is not present, the gradient on the previous operator chosen
+        # is selected again (as the parameters are not minimized in respect to it
+        # as with initialized coefficient to 0.1). If the parameters are
+        # updated, it stays consistent.
+        self.update_var_params(self.var_params)
+
         return self.circuit
 
-    def add_operator(self, pauli_tuple):
+    def add_operator(self, pauli_operator):
         """Add a new operator to our circuit"""
-        new_operator = Circuit(pauliword_to_circuit(pauli_tuple, 0.1))
-        self.circuit += new_operator
-        self.operators.append(pauli_tuple)
+
+        self.length_operators += [len(pauli_operator.terms)]
+
+        for pauli_term in pauli_operator.get_operators():
+            coeff = list(pauli_term.terms.values())[0]
+            self.var_params_prefactor += [math.copysign(1., coeff)]
+
+            pauli_tuple = list(pauli_term.terms.keys())[0]
+            new_operator = Circuit(pauliword_to_circuit(pauli_tuple, 0.1))
+
+            #self.operators.append(pauli_operator.terms)
+            self.circuit += new_operator
+
+    def get_pool(self):
+        """TBD
+        """
+        # Initialize pool of operators like in ADAPT-VQE paper, based on single and double excitations (Work in progress)
+        # Use uccsd functions from openfermion to get a hold on the single and second excitations, per Lee's advice.
+
+        n_spatial_orbitals = self.n_spinorbitals // 2
+        n_occupied = int(np.ceil(self.n_electrons / 2))
+        n_virtual = n_spatial_orbitals - n_occupied
+        n_singles = n_occupied * n_virtual
+        n_doubles = n_singles * (n_singles + 1) // 2
+        n_amplitudes = n_singles + n_doubles
+
+        f_op = uccsd_singlet_generator([1.]*n_amplitudes, 2*n_spatial_orbitals, self.n_electrons)
+        lst_fermion_op = list()
+        for i in f_op.get_operator_groups(len(f_op.terms) // 2):
+            lst_fermion_op.append(i)
+
+        pool_operators = [fermion_to_qubit_mapping(fermion_operator=fi,
+                                                mapping="JW",
+                                                n_spinorbitals=self.n_spinorbitals,
+                                                n_electrons=self.n_electrons,
+                                                up_then_down=True) for fi in lst_fermion_op]
+
+        # Cast all coefs to floats (rotations angles are real)
+        for qubit_op in pool_operators:
+            for key in qubit_op.terms:
+                qubit_op.terms[key] = math.copysign(1., float(qubit_op.terms[key].imag))
+            qubit_op.compress()
+
+        return pool_operators, lst_fermion_op
 
 
 class ADAPTSolver:
-    """ Add string """
+    """ ADAPT VQE class.
+
+    Attributes:
+        molecule (MolecularData): The molecular system.
+        mean-field (optional): mean-field of molecular system.
+        frozen_orbitals (list[int]): a list of indices for frozen orbitals.
+            Default is the string "frozen_core", corresponding to the output
+            of the function molecular_computation.frozen_orbitals.get_frozen_core.
+        qubit_mapping (str): one of the supported qubit mapping identifiers
+        ansatz (Ansatze): one of the supported ansatze.
+        vqe_options:
+        verbose (bool): Flag for verbosity of VQE.
+     """
 
     def __init__(self, opt_dict):
 
         default_backend_options = {"target": "qulacs", "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None, "verbose": False,
+        default_options = {"molecule": None, "mean_field": None, "verbose": False,
                            "tol": 1e-3, "max_cycles": 15,
+                           "frozen_orbitals": "frozen_core",
                            "vqe_options": dict(),
                            "backend": default_backend_options}
 
@@ -161,83 +196,99 @@ class ADAPTSolver:
 
     def build(self):
 
+        # Building molecule data with a pyscf molecule.
+        if self.molecule:
+            # Build adequate mean-field (RHF for now).
+            if not self.mean_field:
+                self.mean_field = prepare_mf_RHF(self.molecule)
+
+            # Same default as in vanilla VQE.
+            if self.frozen_orbitals == "frozen_core":
+                self.frozen_orbitals = get_frozen_core(self.molecule)
+
+            # Compute qubit hamiltonian for the input molecular system.
+            self.qemist_molecule = MolecularData(self.molecule, self.mean_field, self.frozen_orbitals)
+
+            self.n_spinorbitals = 2 * self.qemist_molecule.n_orbitals
+            self.n_electrons = self.qemist_molecule.n_electrons
+
+            self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
+            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian,
+                                                              mapping="JW",
+                                                              n_spinorbitals=self.n_spinorbitals,
+                                                              n_electrons=self.n_electrons,
+                                                              up_then_down=True)
+        else:
+            assert(self.n_spinnorbitals)
+            assert(self.n_electrons)
+
+        # Initialize ansatz with molecular information.
+        self.ansatz = AdaptUCCSD(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons)
+
         # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles
-        self.vqe_options['molecule'] = self.molecule
+        #self.vqe_options['molecule'] = self.molecule
+        self.vqe_options["qubit_hamiltonian"] = self.qubit_hamiltonian
+        self.vqe_options["ansatz"] = self.ansatz
+        #self.vqe_options["verbose"] =  True
+        self.vqe_options["optimizer"] = self.LBFGSB_optimizer
         self.vqe_solver = VQESolver(self.vqe_options)
         self.vqe_solver.build()
 
-        # Initialize ansatz with molecular information
-        self.n_spinorbitals = 2 * self.vqe_solver.qemist_molecule.n_orbitals
-        self.n_electrons = self.vqe_solver.qemist_molecule.n_electrons
-        self.ansatz = AdaptAnsatz(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons)
-        self.vqe_solver.ansatz = self.ansatz
-        self.ansatz.build_circuit()
-
-        # Initialize pool of operators to draw from during the ADAPT procedure
-        self.pool_operators, self.pool_tuples = get_pool(self.vqe_solver.qubit_hamiltonian, self.n_spinorbitals)
-        self.pool_operators = [commutator(self.vqe_solver.qubit_hamiltonian, element) for element in self.pool_operators]
-
-        # Initialize pool of operators like in ADAPT-VQE paper, based on single and double excitations (Work in progress)
-        # Use uccsd functions from openfermion to get a hold on the single and second excitations, per Lee's advice.
-
-        # from qsdk.toolboxes.ansatz_generator._unitary_cc import uccsd_singlet_generator, uccsd_singlet_paramsize
-        # from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-        # import math
-        # n_amplitudes = uccsd_singlet_paramsize(self.n_spinorbitals, self.molecule.nelectron)
-        # n_singles = int(math.sqrt(2*n_amplitudes + 2.25) - 1.5)
-        # n_doubles = n_amplitudes - n_singles
-        # f_op = uccsd_singlet_generator([1.]*n_amplitudes, self.n_spinorbitals, self.molecule.nelectron)
-        # from copy import deepcopy
-        # f_op_tmp = deepcopy(f_op)
-        # self.pool_operators = list()
-        # for k, v in f_op.terms.items():
-        #     f_op_tmp.terms = {k: v}
-        #     self.pool_operators += [fermion_to_qubit_mapping(f_op_tmp, self.vqe_solver.qubit_mapping,
-        #                                                      self.n_spinorbitals, self.molecule.nelectron)]
+        #self.pool_generators, self.pool_tuples = get_pool(self.qubit_hamiltonian, self.n_spinorbitals)
+        self.pool_operators, self.fermionic_operators = self.ansatz.get_pool()
+        self.pool_commutators = self.get_commutators(self.qubit_hamiltonian, self.pool_operators)
 
     def simulate(self):
         """ Fill in    """
 
         operators, energies = list(), list()
-        params = np.array([0.0])
-        n_cycles = 0
+        params = list()
 
-        while n_cycles < self.max_cycles:
-
-            n_cycles += 1
-            pool_select = rank_pool(self.pool_operators, self.vqe_solver.ansatz.circuit,
+        for _ in range(self.max_cycles):
+            pool_select = self.rank_pool(self.pool_commutators, self.vqe_solver.ansatz.circuit,
                                     backend=self.vqe_solver.backend, tolerance=self.tol)
 
             if pool_select > -1:
-                operators.append(self.pool_tuples[pool_select])
-                self.vqe_solver.ansatz.add_operator(operators[-1])
+                # TODO: add print?
+                params = list(params) + [0.]
+
+                operators += [self.fermionic_operators[pool_select]]
+                self.vqe_solver.ansatz.add_operator(self.pool_operators[pool_select])
+
                 self.vqe_solver.initial_var_params = params
-                opt_energy, opt_params = self.vqe_solver.simulate()
-                params = np.concatenate([opt_params, np.array([0.])])
+                opt_energy, params = self.vqe_solver.simulate()
                 energies.append(opt_energy)
             else:
                 break
 
-        return energies, operators, self.vqe_solver
+        return energies, operators
+
+    def get_commutators(self, qubit_hamiltonian, pool_generators):
+        gradient_operators = [commutator(qubit_hamiltonian, element) for element in pool_generators]
+        return gradient_operators
+
+    def rank_pool(self, pool_commutators, circuit, backend, tolerance=1e-3):
+        gradient = [abs(backend.get_expectation_value(element, circuit)) for element in pool_commutators]
+        max_partial = max(gradient)
+        print(f'LARGEST PARTIAL DERIVATIVE: {max_partial :4E} \t[{gradient.index(max_partial)}]')
+        return gradient.index(max_partial) if max_partial >= tolerance else -1
 
     def get_resources(self):
         """ Return resources currently used in underlying VQE """
         return self.vqe_solver.get_resources()
 
+    def LBFGSB_optimizer(self, func, var_params):
+        result = minimize(func, var_params, method="L-BFGS-B",
+                        options={"disp": False, "maxiter": 100, 'gtol': 1e-10, 'iprint': -1})
 
-def LBFGSB_optimizer(func, var_params):
-    result = minimize(func, var_params, method="L-BFGS-B",
-                      options={"disp": False, "maxiter": 100, 'gtol': 1e-10, 'iprint': -1})
+        self.optimal_var_params = result.x
+        self.optimal_energy = result.fun
+        #self.ansatz.build_circuit(self.optimal_var_params)
+        #self.optimal_circuit = self.vqe_solver.ansatz.circuit
+        #
+        # if self.verbose:
+        #     print(f"\t\tOptimal VQE energy: {self.optimal_energy}")
+        #     print(f"\t\tOptimal VQE variational parameters: {self.optimal_var_params}")
+        #     print(f"\t\tNumber of Function Evaluations : {result.nfev}")
 
-    # self.optimal_var_params = result.x
-    # self.optimal_energy = result.fun
-    # # self.ansatz.build_circuit(self.optimal_var_params)
-    # # self.optimal_circuit = self.ansatz.circuit
-    #
-    # if self.verbose:
-    #     print(f"\t\tOptimal VQE energy: {self.optimal_energy}")
-    #     print(f"\t\tOptimal VQE variational parameters: {self.optimal_var_params}")
-    #     print(f"\t\tNumber of Function Evaluations : {result.nfev}")
-
-    print(result.fun)
-    return result.fun, result.x
+        return result.fun, result.x
