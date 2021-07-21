@@ -24,16 +24,8 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 from qsdk.toolboxes.ansatz_generator.adapt_uccgsd import ADAPTUCCGSD
 
 
-# TODO: put things into the right folders...
-# TODO: Generators pool of UCCGSD.
-
-#class AdaptUCCGSD(Ansatz):
-#    def __init__(self, n_spinorbitals, operators=list()):
-#        pass
-
 class ADAPTAnsatze(Enum):
     """Enumeration of the adaptive ansatz circuits supported by ADAPT-VQE. """
-    #UCCSD = 0
     UCCGSD = 0
 
 
@@ -59,10 +51,10 @@ class ADAPTSolver:
         default_options = {"molecule": None, "mean_field": None, "verbose": False,
                            "tol": 1e-3, "max_cycles": 15,
                            "qubit_mapping": "jw",
-                           "ansatz": ADAPTAnsatze.UCCSD,
+                           "ansatz": ADAPTAnsatze.UCCGSD,
                            "frozen_orbitals": "frozen_core",
                            "qubit_hamiltonian": None,
-                           "n_spinnorbitals": None,
+                           "n_spinorbitals": None,
                            "n_electrons": None,
                            "optimizer": self.LBFGSB_optimizer,
                            "backend_options": default_backend_options,
@@ -125,7 +117,7 @@ class ADAPTSolver:
                                                               n_electrons=self.n_electrons,
                                                               up_then_down=self.up_then_down)
         else:
-            assert(self.n_spinnorbitals), "Expecting number of spin-orbitals (n_spinnorbitals) with a qubit_hamiltonian."
+            assert(self.n_spinorbitals), "Expecting number of spin-orbitals (n_spinnorbitals) with a qubit_hamiltonian."
             assert(self.n_electrons), "Expecting number of electrons (n_electrons) with a qubit_hamiltonian."
 
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
