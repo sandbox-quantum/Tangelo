@@ -115,7 +115,6 @@ class ADAPTSolver:
 
             # Compute qubit hamiltonian for the input molecular system.
             self.qemist_molecule = MolecularData(self.molecule, self.mean_field, self.frozen_orbitals)
-
             self.n_spinorbitals = 2 * self.qemist_molecule.n_orbitals
             self.n_electrons = self.qemist_molecule.n_electrons
 
@@ -124,7 +123,7 @@ class ADAPTSolver:
                                                               mapping=self.qubit_mapping,
                                                               n_spinorbitals=self.n_spinorbitals,
                                                               n_electrons=self.n_electrons,
-                                                              up_then_down=True)
+                                                              up_then_down=self.up_then_down)
         else:
             assert(self.n_spinnorbitals), "Expecting number of spin-orbitals (n_spinnorbitals) with a qubit_hamiltonian."
             assert(self.n_electrons), "Expecting number of electrons (n_electrons) with a qubit_hamiltonian."
@@ -132,7 +131,7 @@ class ADAPTSolver:
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
         if type(self.ansatz) == ADAPTAnsatze:
             if self.ansatz == ADAPTAnsatze.UCCSD:
-                self.ansatz = ADAPTUCCSD(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons)
+                self.ansatz = ADAPTUCCSD(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.qubit_mapping, up_then_down=self.up_then_down)
         else:
             raise ValueError(f"Unsupported ansatz. Expecting built-in adaptive ansatze:\n\t{self.builtin_ansatze}")
 

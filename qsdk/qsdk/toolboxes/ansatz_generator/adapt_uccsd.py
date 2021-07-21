@@ -12,11 +12,14 @@ from qsdk.toolboxes.ansatz_generator._unitary_cc import uccsd_singlet_generator
 
 
 class ADAPTUCCSD(Ansatz):
+    """This class implements the adaptive UCCSD ansatz. """
 
-    def __init__(self, n_spinorbitals, n_electrons, operators=list(), ferm_operators=list()):
+    def __init__(self, n_spinorbitals, n_electrons, operators=list(), ferm_operators=list(), mapping="jw", up_then_down=False):
 
         self.n_spinorbitals = n_spinorbitals
         self.n_electrons = n_electrons
+        self.mapping = mapping
+        self.up_then_down = up_then_down
 
         self.var_params = None
         self.circuit = None
@@ -63,7 +66,7 @@ class ADAPTUCCSD(Ansatz):
     def prepare_reference_state(self):
         """ Prepare a circuit generating the HF reference state. """
         # TODO non hardcoded mapping
-        return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping='JW', up_then_down=True)
+        return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.mapping, up_then_down=self.up_then_down)
 
     def build_circuit(self, var_params=None):
         """ Construct the variational circuit to be used as our ansatz. """
@@ -126,10 +129,10 @@ class ADAPTUCCSD(Ansatz):
             lst_fermion_op.append(i)
 
         pool_operators = [fermion_to_qubit_mapping(fermion_operator=fi,
-                                                mapping="JW",
+                                                mapping=self.mapping,
                                                 n_spinorbitals=self.n_spinorbitals,
                                                 n_electrons=self.n_electrons,
-                                                up_then_down=True) for fi in lst_fermion_op]
+                                                up_then_down=self.up_then_down) for fi in lst_fermion_op]
 
         # Cast all coefs to floats (rotations angles are real)
         for qubit_op in pool_operators:
