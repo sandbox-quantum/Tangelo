@@ -105,15 +105,7 @@ def get_group_1_2(n_orbs, p, q, r, s, up_down=False):
     a_p^{\dagger}a_q^{\dagger}a_r a_s with the constraints
 
     Either: (p < q and p < r and p < s and r < s) and (q != r and q != s)
-<<<<<<< HEAD
-<<<<<<< HEAD
     Or: (q == r and p < s) and (pp != qq and ss != qq).
-=======
-    Or: (q == r and p < s) and (pp != qq and ss != qq). 
->>>>>>> moved penalty terms to own file
-=======
-    Or: (q == r and p < s) and (pp != qq and ss != qq).
->>>>>>> 83385cf345aaec35e8d9ec0b120eaf4f0da25dc6
 
     Args:
         n_orbs (int): number of orbitals in basis (this is number of

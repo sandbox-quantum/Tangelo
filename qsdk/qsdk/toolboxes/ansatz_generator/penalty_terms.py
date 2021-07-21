@@ -92,11 +92,7 @@ def combined_penalty(n_orbs, opt_penalty_terms=None, up_then_down=False):
         n_orbs (int): number of active orbitals in the fermion basis (this is number of
             spin-orbitals divided by 2)
         opt_penalty_terms (dict): The options for each penalty 'N', 'Sz', 'S^2' as
-<<<<<<< HEAD
                 "N" (array or list[float]): [Prefactor, Value] Prefactor * (\hat{N} - Value)^2
-=======
-                "N" (array or list): [Prefactor, Value] Prefactor * (\hat{N} - Value)^2
->>>>>>> 83385cf345aaec35e8d9ec0b120eaf4f0da25dc6
                 "Sz" (array or list[float]): [Prefactor, Value] Prefactor * (\hat{Sz} - Value)^2
                 "S^2" (array or list[float]): [Prefactor, Value] Prefactor * (\hat{S}^2 - Value)^2
         up_then_down: The ordering of the spin orbitals.
