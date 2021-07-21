@@ -43,14 +43,10 @@ class UCCSD(Ansatz):
 
         self.spin = self.molecule.multiplicity - 1
 
-        # choose openshell uccsd if spin not zero
+        # choose openshell uccsd if spin not zero, else choose singlet ccsd
         if self.spin != 0:
-            if self.molecule.n_electrons % 2 == 0:
-                self.n_alpha = self.molecule.n_electrons//2 + self.spin//2
-                self.n_beta = self.molecule.n_electrons//2 - self.spin//2
-            else:
-                self.n_alpha = self.molecule.n_electrons//2 + self.spin//2 + 1
-                self.n_beta = self.molecule.n_electrons//2 - self.spin//2
+            self.n_alpha = self.molecule.n_electrons//2 + self.spin//2 + 1 * (self.molecule.n_electrons % 2)
+            self.n_beta = self.molecule.n_electrons//2 - self.spin//2
             self.n_singles, self.n_doubles, _, _, _, _, _ = uccsd_openshell_paramsize(self.molecule.n_qubits, self.n_alpha, self.n_beta)
         else:
             self.n_spatial_orbitals = self.molecule.n_qubits // 2

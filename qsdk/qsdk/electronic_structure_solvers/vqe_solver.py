@@ -153,8 +153,8 @@ class VQESolver:
                                                                  'up_then_down': self.up_then_down}})
                 elif self.ansatz == Ansatze.UpCCGSD:
                     self.ansatz = UpCCGSD(self.qemist_molecule, {**{'qubit_mapping': self.qubit_mapping,
-                                                                 'mean_field': self.mean_field,
-                                                                 'up_then_down': self.up_then_down},
+                                                                    'mean_field': self.mean_field,
+                                                                    'up_then_down': self.up_then_down},
                                                                  **self.ansatz_options})
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
