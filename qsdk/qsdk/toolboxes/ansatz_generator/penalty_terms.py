@@ -46,12 +46,8 @@ def spin_operator_penalty(n_orbs, sz, mu=1, up_then_down=False):
                       If later transforming to qubits, one should generally let the
                       qubit mapping handle the ordering.
 
-        up_then_down: The ordering of the spin orbitals. Should generally let the
-                      qubit mapping handle this but can do it here as well.
-
     Returns:
         (FermionicOperator): The Sz operator penalty term mu*(\hat{Sz}-sz)^2"""
-
 
     all_terms = [[(), -sz]] + spinz_operator_list(n_orbs, up_then_down)
 
@@ -75,7 +71,6 @@ def spin2_operator_penalty(n_orbs, s2, mu=1, up_then_down=False):
 
     Returns:
         (FermionicOperator): The S^2 operator penalty term mu*(\hat{S}^2-s2)^2"""
-
 
     all_terms = [[(), -s2]] + spin2_operator_list(n_orbs, up_then_down)
 

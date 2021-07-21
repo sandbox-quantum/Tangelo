@@ -130,6 +130,7 @@ class HEA(Ansatz):
             self.circuit = reference_state_circuit + hea_circuit
         else:
             self.circuit = hea_circuit
+
         self.update_var_params(self.var_params)
         return self.circuit
 
