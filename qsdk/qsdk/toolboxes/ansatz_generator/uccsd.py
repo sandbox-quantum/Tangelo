@@ -43,7 +43,7 @@ class UCCSD(Ansatz):
 
         self.spin = self.molecule.multiplicity - 1
 
-        # choose openshell uccsd if spin not zero, else choose singlet ccsd
+        # choose open-shell uccsd if spin not zero, else choose singlet ccsd
         if self.spin != 0:
             self.n_alpha = self.molecule.n_electrons//2 + self.spin//2 + 1 * (self.molecule.n_electrons % 2)
             self.n_beta = self.molecule.n_electrons//2 - self.spin//2
@@ -183,7 +183,7 @@ class UCCSD(Ansatz):
         return qubit_op
 
     def _get_openshell_qubit(self):
-        """Construct openshell UCCSD FermionOperator for current variational parameters, and translate to QubitOperator
+        """Construct open-shell UCCSD FermionOperator for current variational parameters, and translate to QubitOperator
         via relevant qubit mapping.
 
         Returns:

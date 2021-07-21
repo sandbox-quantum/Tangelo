@@ -79,7 +79,7 @@ class UpCCGSDTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.1372658, delta=1e-6)
 
     def test_upccgsd_H4_open(self):
-        """ Verify close-shell UpCCGSD functionalities for H4 """
+        """ Verify open-shell UpCCGSD functionalities for H4 """
 
         molecule = MolecularData(mol_h4_open)
         var_params = [-0.0291763,   0.36927821,  0.14654907, -0.13845063,  0.14387348, -0.00903457,
