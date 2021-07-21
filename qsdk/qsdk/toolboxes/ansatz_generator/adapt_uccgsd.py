@@ -11,8 +11,8 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 from qsdk.toolboxes.ansatz_generator._unitary_cc import uccsd_singlet_generator
 
 
-class ADAPTUCCSD(Ansatz):
-    """This class implements the adaptive UCCSD ansatz. """
+class ADAPTUCCGSD(Ansatz):
+    """Doc string """
 
     def __init__(self, n_spinorbitals, n_electrons, operators=list(), ferm_operators=list(), mapping="jw", up_then_down=False):
 

@@ -21,7 +21,7 @@ from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from qsdk.toolboxes.ansatz_generator.adapt_uccsd import ADAPTUCCSD
+from qsdk.toolboxes.ansatz_generator.adapt_uccgsd import ADAPTUCCGSD
 
 
 # TODO: put things into the right folders...
@@ -33,8 +33,8 @@ from qsdk.toolboxes.ansatz_generator.adapt_uccsd import ADAPTUCCSD
 
 class ADAPTAnsatze(Enum):
     """Enumeration of the adaptive ansatz circuits supported by ADAPT-VQE. """
-    UCCSD = 0
-    #UCCGSD = 1
+    #UCCSD = 0
+    UCCGSD = 0
 
 
 class ADAPTSolver:
@@ -130,8 +130,8 @@ class ADAPTSolver:
 
         # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
         if type(self.ansatz) == ADAPTAnsatze:
-            if self.ansatz == ADAPTAnsatze.UCCSD:
-                self.ansatz = ADAPTUCCSD(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.qubit_mapping, up_then_down=self.up_then_down)
+            if self.ansatz == ADAPTAnsatze.UCCGSD:
+                self.ansatz = ADAPTUCCGSD(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.qubit_mapping, up_then_down=self.up_then_down)
         else:
             raise ValueError(f"Unsupported ansatz. Expecting built-in adaptive ansatze:\n\t{self.builtin_ansatze}")
 
