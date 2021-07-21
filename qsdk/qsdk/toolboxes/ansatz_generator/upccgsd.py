@@ -1,5 +1,5 @@
 """ This module defines the k-UpCCGSD ansatz class. It provides a chemically inspired ansatzs
-    and is an implementation of the classical unitary GCCSD ansatz. Generalized Single and pairwise
+    and is an implementation of the classical unitary CCGSD ansatz. Generalized Single and pairwise
     double excitation determinants, in accordance with the system number of electron and spin, are considered.
     For more information about this ansatz, see references below.
 
@@ -8,9 +8,7 @@
           Couple Cluster Wavefunctions for Quantum Computation" arxiv:1810.02327
 """
 
-import itertools
 import numpy as np
-from pyscf import mp
 
 from agnostic_simulator import Circuit
 
@@ -19,12 +17,22 @@ from .ansatz_utils import pauliword_to_circuit
 from ._paired_unitary_cc import get_upccgsd
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
-from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 
 
 class UpCCGSD(Ansatz):
     """ This class implements the UpCCGSD ansatz.
-     This implies that the mean-field is computed with the RHF or ROHF reference integrals. """
+        This implies that the mean-field is computed with the RHF or ROHF reference integrals.
+        Args:
+            molecule (MolecularData) : the molecular system
+            mean-field (optional) : mean-field of molecular system
+                                    Default, None
+            qubit_mapping (str) : one of the supported qubit mapping identifiers
+                                  Default, 'jw'
+            up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
+                                 Default, False (i.e. has alternating spin up/down ordering)
+            k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details
+                Default, 2
+    """
 
     def __init__(self, molecule, ansatz_options=dict()):
         default_options = {"qubit_mapping": 'jw', "mean_field": None, "up_then_down": False,
@@ -117,25 +125,34 @@ class UpCCGSD(Ansatz):
         elif self.var_params is None:
             self.set_var_params()
 
-        # Prepend reference state circuit
+        # Prepare reference state circuit
         reference_state_circuit = self.prepare_reference_state()
 
-        # Build qubit operator required to build UpCCGSD
-        pauli_words_gates = []
+        # Build qubit operator required to build k-UpCCGSD
+
+        # Build dictionary of ordered pauli words for fast update of parameters intead of rebuilding circuit
+        # Initialize dictionary of, dictionaries for each UpCCGSD step (current_k)
         self.pauli_to_angles_mapping = dict()
+        # Initialize array of integers to keep track of starting point in qubit_op for each UpCCGSD step (current_k)
         sum_prev_qubit_terms = np.zeros(self.k+1, dtype=int)
+
+        pauli_words_gates = list()
         for current_k in range(self.k):
             qubit_op = self._get_qubit(current_k)
-            self.pauli_to_angles_mapping[current_k] = dict()
-            # Obtain quantum circuit through trivial trotterization of the qubit operator
-            # Keep track of the order in which pauli words have been visited for fast subsequent parameter updates
             pauli_words = sorted(qubit_op.terms.items(), key=lambda x: len(x[0]))
-            sum_prev_qubit_terms[current_k + 1] = len(qubit_op.terms.items())
+
+            # Initialize dictionary of qubit_op terms for each UpCCGSD step
+            self.pauli_to_angles_mapping[current_k] = dict()
+
+            # Obtain quantum circuit through trivial trotterization of the qubit operator for each current_k
             for i, (pauli_word, coef) in enumerate(pauli_words):
                 pauli_words_gates += pauliword_to_circuit(pauli_word, coef)
                 self.pauli_to_angles_mapping[current_k][pauli_word] = i + sum_prev_qubit_terms[current_k]
 
+            sum_prev_qubit_terms[current_k + 1] = len(qubit_op.terms.items())
+
         upccgsd_circuit = Circuit(pauli_words_gates)
+
         # skip over the reference state circuit if it is empty
         if reference_state_circuit.size != 0:
             self.circuit = reference_state_circuit + upccgsd_circuit
@@ -148,28 +165,29 @@ class UpCCGSD(Ansatz):
 
         self.set_var_params(var_params)
 
-        # Build qubit operator required to build UpCCGSD
+        # Loop through each current_k step
         for current_k in range(self.k):
+            # Build qubit operator required to build UpCCGSD for current_k
             qubit_op = self._get_qubit(current_k)
 
             # If qubit operator terms have changed, rebuild circuit. Else, simply update variational gates directly
             if set(self.pauli_to_angles_mapping[current_k].keys()) != set(qubit_op.terms.keys()):
                 self.build_circuit(var_params)
+                break
             else:
                 for pauli_word, coef in qubit_op.terms.items():
                     gate_index = self.pauli_to_angles_mapping[current_k][pauli_word]
                     self.circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
 
     def _get_qubit(self, current_k):
-        """Construct k-UpCCGSD FermionOperator for current variational parameters, and translate to QubitOperator
+        """Construct UpCCGSD FermionOperator for current_k variational parameters, and translate to QubitOperator
         via relevant qubit mapping.
 
         Returns:
-            qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
+            qubit_op (QubitOperator): qubit-encoded elements of the UpCCGSD ansatz for current_k.
         """
         current_k_params = self.var_params[current_k*self.n_var_params_per_step:(current_k+1)*self.n_var_params_per_step]
-        # print(f'curren_k {current_k}')
-        # print(current_k_params)
+
         fermion_op = get_upccgsd(self.n_spatial_orbitals, current_k_params)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
                                             mapping=self.qubit_mapping,

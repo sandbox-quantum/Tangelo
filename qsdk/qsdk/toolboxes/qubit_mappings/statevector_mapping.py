@@ -34,12 +34,9 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
 
     vector = np.zeros(n_spinorbitals, dtype=int)
     if spin:
-        if n_electrons % 2 == 0:
-            n_alpha = n_electrons//2 + spin//2
-            n_beta = n_electrons//2 - spin//2
-        else:
-            n_alpha = n_electrons//2 + spin//2 + 1
-            n_beta = n_electrons//2 - spin//2
+        # if n_electrons is odd, spin is also odd (this relationship is confirmed by pyscf)
+        n_alpha = n_electrons//2 + spin//2 + 1 * (n_electrons % 2)
+        n_beta = n_electrons//2 - spin//2
         vector[0:2*n_alpha:2] = 1
         vector[1:2*n_beta+1:2] = 1
     else:

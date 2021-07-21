@@ -13,7 +13,6 @@
 """Module to create and manipulate unitary coupled cluster operators."""
 
 import itertools
-import numpy
 
 from openfermion.utils import down_index, up_index
 
@@ -100,8 +99,8 @@ def uccsd_openshell_generator(packed_amplitudes, n_qubits, n_alpha_electrons,
     n_virt_b = n_orb_a_b - n_beta_electrons
 
     # Unpack the single and double amplitudes
-    n_single_amplitudes, n_double_amplitudes, n_single_a, n_single_b, \
-        n_double_aa, n_double_bb, n_double_ab = uccsd_openshell_paramsize(n_qubits, n_alpha_electrons, n_beta_electrons)
+    _, _, n_single_a, n_single_b, \
+        n_double_aa, n_double_bb, _ = uccsd_openshell_paramsize(n_qubits, n_alpha_electrons, n_beta_electrons)
 
     # Define the various increments for the sizes of the orbital spaces
     n_s_1 = n_single_a
@@ -336,8 +335,7 @@ def uccsd_openshell_get_packed_amplitudes(alpha_double_amplitudes, beta_double_a
     n_virt_b = n_orb_a_b - n_beta_electrons
 
     # Calculate the number of non-redundant single and double amplitudes
-    n_single_amplitudes, n_double_amplitudes, n_single_a, n_single_b, \
-        n_double_aa, n_double_bb, n_double_ab = uccsd_openshell_paramsize(n_qubits, n_alpha_electrons, n_beta_electrons)
+    _, _, n_single_a, n_single_b, _, _, _ = uccsd_openshell_paramsize(n_qubits, n_alpha_electrons, n_beta_electrons)
 
     # packed amplitudes list
     packed_amplitudes = []
