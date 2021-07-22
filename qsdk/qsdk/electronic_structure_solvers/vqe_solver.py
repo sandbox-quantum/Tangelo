@@ -352,7 +352,7 @@ class VQESolver:
 
         from scipy.optimize import minimize
         result = minimize(func, var_params, method='SLSQP',
-                          options={'disp': True, 'maxiter': 2000, 'eps': 1e-8, 'ftol': 1e-8})
+                          options={'disp': True, 'maxiter': 2000, 'eps': 1e-5, 'ftol': 1e-5})
 
         if self.verbose:
             print(f"\t\tOptimal VQE energy: {self.optimal_energy}")
