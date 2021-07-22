@@ -1,4 +1,4 @@
-""" This module defines the k-UpCCGSD ansatz class. It provides a chemically inspired ansatzs
+""" This module defines the k-UpCCGSD ansatz class. It provides a chemically inspired ansatz
     and is an implementation of the classical unitary CCGSD ansatz. Generalized Single and pairwise
     double excitation determinants, in accordance with the system number of electron and spin, are considered.
     For more information about this ansatz, see references below.
