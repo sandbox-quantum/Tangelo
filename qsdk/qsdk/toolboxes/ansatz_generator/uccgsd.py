@@ -1,4 +1,12 @@
-"""This module defines the adaptive UCCGSD ansatz class. """
+"""This module defines the adaptive UCCGSD ansatz class. Excitations to occupied
+orbitals are allowed. Excitations are grouped together to minimize redundancy and
+symmetry-violating independence between related spin-orbitals.
+
+    Refs:
+        J. Lee, W.J. Huggins, M. Head-Gordon, and K.B. Whaley.
+        J. Chem. Theory Comput. 15, 311 (2019).
+"""
+
 
 import numpy as np
 
@@ -13,7 +21,14 @@ from qsdk.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator
 
 
 class UCCGSD(Ansatz):
-    """TBD
+    """This class implements the UCCGSD ansatz.
+
+    Args:
+        n_spinorbitals: Self-explanatory.
+        n_electrons: Self-explanatory.
+        mapping: Qubit mapping scheme.
+        up_then_down: Spin orbitals ordering (for alpha and beta spin orbitals).
+
     """
 
     def __init__(self, n_spinorbitals, n_electrons, mapping='jw', up_then_down=False):
@@ -41,9 +56,11 @@ class UCCGSD(Ansatz):
         self.circuit = None
 
     def set_var_params(self, var_params=None):
-        """ Set values for variational parameters, such as zeros, random numbers, MP2 (...), providing some
-        keywords for users, and also supporting direct user input (list or numpy array)
-        Return the parameters so that workflows such as VQE can retrieve these values. """
+        """Set values for variational parameters, such as zeros, random numbers,
+        providing some keywords for users, and also supporting direct user input
+        (list or numpy array). Return the parameters so that workflows such as
+        VQE can retrieve these values.
+        """
 
         if var_params is None:
             var_params = self.var_params_default
@@ -62,12 +79,15 @@ class UCCGSD(Ansatz):
             except AssertionError:
                 raise ValueError(f"Expected {self.n_var_params} variational parameters but received {len(var_params)}.")
         self.var_params = initial_var_params
+
         return initial_var_params
 
     def update_var_params(self, var_params):
-        """ Shortcut: set value of variational parameters in the already-built ansatz circuit member.
-            Preferable to rebuilt your circuit from scratch, which can be an involved process. """
-        print(var_params)
+        """Shortcut: set value of variational parameters in the already-built
+        ansatz circuit member. Preferable to rebuilt your circuit from scratch,
+        which can be an involved process.
+        """
+
         self.set_var_params(var_params)
 
         # Build qubit operator required to build UCCSD
@@ -82,7 +102,7 @@ class UCCGSD(Ansatz):
                 self.circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
 
     def prepare_reference_state(self):
-        """ Prepare a circuit generating the HF reference state. """
+        """Prepare a circuit generating the HF reference state. """
 
         return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.mapping, up_then_down=self.up_then_down)
 
@@ -117,11 +137,17 @@ class UCCGSD(Ansatz):
             self.circuit = uccsd_circuit
 
     def get_generators(self):
-        """TBD
+        """Construct UCCGSD FermionOperator for current variational parameters,
+        and translate to QubitOperator via relevant qubit mapping.
+
+        Returns:
+            qubit_op (QubitOperator): qubit-encoded elements of the UCCGSD ansatz.
         """
 
         # Initialize pool of (qubit) operators like in ADAPT-VQE paper, based on single and double excitations.
-        lst_fermion_op = uccgsd_generator(self.n_spinorbitals, single_coeffs=self.var_params[:self.n_singles], double_coeffs=self.var_params[self.n_singles:])
+        lst_fermion_op = uccgsd_generator(self.n_spinorbitals,
+                                          single_coeffs=self.var_params[:self.n_singles],
+                                          double_coeffs=self.var_params[self.n_singles:])
         fermion_op = FermionOperator()
         for f_op in lst_fermion_op:
             fermion_op += f_op
@@ -136,4 +162,5 @@ class UCCGSD(Ansatz):
         for key in qubit_op.terms:
             qubit_op.terms[key] = float(qubit_op.terms[key].imag)
         qubit_op.compress()
+
         return qubit_op
