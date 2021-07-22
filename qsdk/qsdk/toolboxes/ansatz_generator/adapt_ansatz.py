@@ -1,4 +1,4 @@
-"""This module defines the adaptive UCCGSD ansatz class. """
+"""This module defines the adaptive ansatz class. """
 
 import math
 
@@ -91,7 +91,7 @@ class ADAPTAnsatz(Ansatz):
         """Update variational parameters (done repeatedly during VQE). """
 
         for var_index in range(self.n_var_params):
-            length_op = self.length_operators[var_index] # 2 or 8
+            length_op = self.length_operators[var_index]
 
             param_index = sum(self.length_operators[:var_index])
             for param_subindex in range(length_op):

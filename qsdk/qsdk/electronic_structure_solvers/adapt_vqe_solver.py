@@ -7,9 +7,9 @@ get a set of parameters that minimize the energy. The process is repeated n time
 to end hopefully with a good ansatz for the studied molecule (or Hamiltonian).
 
 Ref:
-Grimsley, H.R., Economou, S.E., Barnes, E. et al.
-An adaptive variational algorithm for exact molecular simulations on a quantum computer.
-Nat Commun 10, 3007 (2019). https://doi.org/10.1038/s41467-019-10988-2
+    Grimsley, H.R., Economou, S.E., Barnes, E. et al.
+    An adaptive variational algorithm for exact molecular simulations on a quantum computer.
+    Nat Commun 10, 3007 (2019). https://doi.org/10.1038/s41467-019-10988-2
 """
 
 import math
