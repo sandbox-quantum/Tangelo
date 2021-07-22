@@ -12,8 +12,9 @@ An adaptive variational algorithm for exact molecular simulations on a quantum c
 Nat Commun 10, 3007 (2019). https://doi.org/10.1038/s41467-019-10988-2
 """
 
-from enum import Enum
+import math
 from openfermion import commutator
+from qsdk.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from scipy.optimize import minimize
 
 from qsdk.electronic_structure_solvers.vqe_solver import VQESolver
@@ -21,13 +22,7 @@ from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from qsdk.toolboxes.ansatz_generator.adapt_uccgsd import ADAPTUCCGSD
-
-
-class ADAPTAnsatze(Enum):
-    """Enumeration of the adaptive ansatz circuits supported by ADAPT-VQE. """
-    UCCGSD = 0
-
+from qsdk.toolboxes.ansatz_generator.uccgsd import get_pool as uccgsd_pool
 
 class ADAPTSolver:
     """ADAPT VQE class. This is basically a wrapper on top of VQE. Each iteration,
@@ -51,7 +46,7 @@ class ADAPTSolver:
         default_options = {"molecule": None, "mean_field": None, "verbose": False,
                            "tol": 1e-3, "max_cycles": 15,
                            "qubit_mapping": "jw",
-                           "ansatz": ADAPTAnsatze.UCCGSD,
+                           "pool": uccgsd_pool,
                            "frozen_orbitals": "frozen_core",
                            "qubit_hamiltonian": None,
                            "n_spinorbitals": None,
@@ -82,7 +77,6 @@ class ADAPTSolver:
         self.optimal_energy = None
         self.optimal_var_params = None
         self.optimal_circuit = None
-        self.builtin_ansatze = set(ADAPTAnsatze)
 
     @property
     def operators(self):
@@ -120,12 +114,9 @@ class ADAPTSolver:
             assert(self.n_spinorbitals), "Expecting number of spin-orbitals (n_spinnorbitals) with a qubit_hamiltonian."
             assert(self.n_electrons), "Expecting number of electrons (n_electrons) with a qubit_hamiltonian."
 
-        # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
-        if type(self.ansatz) == ADAPTAnsatze:
-            if self.ansatz == ADAPTAnsatze.UCCGSD:
-                self.ansatz = ADAPTUCCGSD(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.qubit_mapping, up_then_down=self.up_then_down)
-        else:
-            raise ValueError(f"Unsupported ansatz. Expecting built-in adaptive ansatze:\n\t{self.builtin_ansatze}")
+        # Build / set ansatz circuit.
+        ansatz_options = {"n_spinorbitals": self.n_spinorbitals, "n_electrons": self.n_electrons, "mapping": self.qubit_mapping, "up_then_down": self.up_then_down}
+        self.ansatz = ADAPTAnsatz(ansatz_options)
 
         # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles
         self.vqe_options = dict()
@@ -136,7 +127,17 @@ class ADAPTSolver:
         self.vqe_solver = VQESolver(self.vqe_options)
         self.vqe_solver.build()
 
-        self.pool_operators, self.fermionic_operators = self.ansatz.get_pool()
+        self.fermionic_operators = self.pool(self.n_spinorbitals, self.n_electrons)
+        self.pool_operators = [fermion_to_qubit_mapping(fermion_operator=fi,
+                                                        mapping=self.qubit_mapping,
+                                                        n_spinorbitals=self.n_spinorbitals,
+                                                        n_electrons=self.n_electrons,
+                                                        up_then_down=self.up_then_down) for fi in self.fermionic_operators]
+
+        # Cast all coefs to floats (rotations angles are real)
+        for qubit_op in self.pool_operators:
+            for key in qubit_op.terms:
+                qubit_op.terms[key] = math.copysign(1., float(qubit_op.terms[key].imag))
 
         # Getting commutators to compute gradients:
         # \frac{\partial E}{\partial \theta_n} = \langle \psi | [\hat{H}, A_n] | \psi \rangle
@@ -172,7 +173,9 @@ class ADAPTSolver:
                 # Also, forcing params to be a list to make it easier to append
                 # new parameters. The behavior with a np.array is multiplication
                 # with broadcasting (not wanted).
-                opt_energy, params = self.vqe_solver.simulate()
+                self.vqe_solver.simulate()
+                opt_energy = self.vqe_solver.optimal_energy
+                params = self.vqe_solver.optimal_var_params
                 params = list(params)
                 energies.append(opt_energy)
             else:

@@ -7,14 +7,18 @@ from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circ
 from qsdk.toolboxes.ansatz_generator.ansatz_utils import pauliword_to_circuit
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from qsdk.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator
 
 
-class ADAPTUCCGSD(Ansatz):
-    """Adaptive ansatz used with ADAPT-VQE. The operator pool is taken from
-    excitation defined with UCCGSD.
+class ADAPTAnsatz(Ansatz):
+    """Adaptive ansatz used with ADAPT-VQE. It is agnostic in relation to the
+    operator pool chosen. Compared to a normal Ansatz class, it can add a qubit
+    operator and assign a single variational parameter to it. Therefore, the
+    number of parameters is the amount of iterations where an operator is added.
 
     Args:
+        ansatz_options (dict): ansatz options to defined attributes.
+
+    Attributes:
         n_spinorbitals (int): Number of spin orbitals in a given basis.
         n_electrons (int): Number of electrons.
         operators (list of QubitOperator): List of operator to consider at the
@@ -24,8 +28,6 @@ class ADAPTUCCGSD(Ansatz):
             convenient for analyzing results.
         mapping (string): Qubit encoding.
         up_then_down (bool): Ordering convention.
-
-    Attributes:
         var_params (list of float): Variational parameters.
         circuit (angostic_simulation.Circuit): Quantum circuit.
         length_operators (list of int): Length of every self.operators. With an
@@ -38,31 +40,37 @@ class ADAPTUCCGSD(Ansatz):
             each sub-operators sign.
     """
 
-    def __init__(self, n_spinorbitals, n_electrons, operators=list(), ferm_operators=list(), mapping="jw", up_then_down=False):
+    #def __init__(self, n_spinorbitals, n_electrons, pool_generator, operators=list(), ferm_operators=list(), mapping="jw", up_then_down=False):
+    def __init__(self, ansatz_options=None):
+        default_options = {"n_spinorbitals": 0, "n_electrons": 0,
+                           "operators": list(), "ferm_operators":list(),
+                           "mapping": "jw", "up_then_down": False,
+                           "reference_state": "HF"}
 
-        self.n_spinorbitals = n_spinorbitals
-        self.n_electrons = n_electrons
-        self.mapping = mapping
-        self.up_then_down = up_then_down
+        # Initialize with default values
+        self.__dict__ = default_options
+        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
+        for k, v in ansatz_options.items():
+            if k in default_options:
+                setattr(self, k, v)
+            else:
+                # TODO Raise a warning instead, that variable will not be used unless user made mods to code
+                raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}")
 
         self.var_params = None
         self.circuit = None
 
         # The remaining of the constructor is useful to restart an ADAPT calculation.
-        self.operators = operators
-        self.length_operators = [len(pauli_op.terms) for pauli_op in operators]
+        self.length_operators = [len(pauli_op.terms) for pauli_op in self.operators]
 
         # Getting the sign of each pauli words. As UCCSD terms are hermitian,
         # each tau_i = excitation_i - deexcitation_i. The coefficient are
         # initialized to 1 (or -1).
         self.var_params_prefactor = list()
-        for pauli_op in operators:
+        for pauli_op in self.operators:
             for pauli_term in pauli_op.get_operators():
                 coeff = list(pauli_term.terms.values())[0]
                 self.var_params_prefactor += [math.copysign(1., coeff)]
-
-        # Useful to keep track of excitations term, but not necessary.
-        self.ferm_operators = ferm_operators
 
     @property
     def n_var_params(self):
@@ -147,24 +155,3 @@ class ADAPTUCCGSD(Ansatz):
             new_operator = Circuit(pauliword_to_circuit(pauli_tuple, 0.1))
 
             self.circuit += new_operator
-
-    def get_pool(self):
-        """Compute all excitation possible with this ansatz.
-
-        Returns:
-            list of QubitOperator, list of fermionic operator: Self explanatory.
-        """
-        # Initialize pool of (qubit) operators like in ADAPT-VQE paper, based on single and double excitations.
-        lst_fermion_op = uccgsd_generator(self.n_spinorbitals, up_down=self.up_then_down)
-        pool_operators = [fermion_to_qubit_mapping(fermion_operator=fi,
-                                                mapping=self.mapping,
-                                                n_spinorbitals=self.n_spinorbitals,
-                                                n_electrons=self.n_electrons,
-                                                up_then_down=self.up_then_down) for fi in lst_fermion_op]
-
-        # Cast all coefs to floats (rotations angles are real)
-        for qubit_op in pool_operators:
-            for key in qubit_op.terms:
-                qubit_op.terms[key] = math.copysign(1., float(qubit_op.terms[key].imag))
-
-        return pool_operators, lst_fermion_op
