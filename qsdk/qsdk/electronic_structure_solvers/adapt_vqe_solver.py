@@ -24,6 +24,7 @@ from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
 
+
 class ADAPTSolver:
     """ADAPT VQE class. This is basically a wrapper on top of VQE. Each iteration,
     the ansatz grows.

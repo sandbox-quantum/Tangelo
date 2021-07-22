@@ -7,7 +7,6 @@ symmetry-violating independence between related spin-orbitals.
         J. Chem. Theory Comput. 15, 311 (2019).
 """
 
-
 import numpy as np
 
 from agnostic_simulator import Circuit
