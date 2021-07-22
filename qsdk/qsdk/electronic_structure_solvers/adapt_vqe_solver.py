@@ -22,7 +22,7 @@ from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from qsdk.toolboxes.ansatz_generator.uccgsd import get_pool as uccgsd_pool
+from qsdk.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
 
 class ADAPTSolver:
     """ADAPT VQE class. This is basically a wrapper on top of VQE. Each iteration,
@@ -127,7 +127,7 @@ class ADAPTSolver:
         self.vqe_solver = VQESolver(self.vqe_options)
         self.vqe_solver.build()
 
-        self.fermionic_operators = self.pool(self.n_spinorbitals, self.n_electrons)
+        self.fermionic_operators = self.pool(self.n_spinorbitals)
         self.pool_operators = [fermion_to_qubit_mapping(fermion_operator=fi,
                                                         mapping=self.qubit_mapping,
                                                         n_spinorbitals=self.n_spinorbitals,
@@ -175,8 +175,7 @@ class ADAPTSolver:
                 # with broadcasting (not wanted).
                 self.vqe_solver.simulate()
                 opt_energy = self.vqe_solver.optimal_energy
-                params = self.vqe_solver.optimal_var_params
-                params = list(params)
+                params = list(self.vqe_solver.optimal_var_params)
                 energies.append(opt_energy)
             else:
                 self.converged = True
@@ -229,7 +228,7 @@ class ADAPTSolver:
             self.optimal_circuit = self.vqe_solver.ansatz.circuit
 
         if self.verbose:
-            print(f"\t\tOptimal ADAPT-VQE energy: {self.optimal_energy}")
+            print(f"\t\tOptimal VQE energy: {self.optimal_energy}")
             print(f"\t\tOptimal VQE variational parameters: {self.optimal_var_params}")
             print(f"\t\tNumber of Function Evaluations : {result.nfev}")
 

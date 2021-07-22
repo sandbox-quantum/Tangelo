@@ -12,18 +12,6 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 from qsdk.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator, get_singles_number, get_doubles_number
 
 
-def get_pool(n_spinorbitals, n_electrons=None, single_coeffs=None, double_coeffs=None, up_then_down=False):
-    """Compute all excitation possible with this ansatz.
-
-    Returns:
-        list of fermionic operator: Self explanatory.
-    """
-    # Initialize pool of (qubit) operators like in ADAPT-VQE paper, based on single and double excitations.
-    lst_fermion_op = uccgsd_generator(n_spinorbitals, single_coeffs, double_coeffs, up_then_down)
-
-    return lst_fermion_op
-
-
 class UCCGSD(Ansatz):
     """TBD
     """
@@ -131,8 +119,9 @@ class UCCGSD(Ansatz):
     def get_generators(self):
         """TBD
         """
+
         # Initialize pool of (qubit) operators like in ADAPT-VQE paper, based on single and double excitations.
-        lst_fermion_op = get_pool(self.n_spinorbitals, single_coeffs=self.var_params[:self.n_singles], double_coeffs=self.var_params[self.n_singles:], up_then_down=self.up_then_down)
+        lst_fermion_op = uccgsd_generator(self.n_spinorbitals, single_coeffs=self.var_params[:self.n_singles], double_coeffs=self.var_params[self.n_singles:])
         fermion_op = FermionOperator()
         for f_op in lst_fermion_op:
             fermion_op += f_op
