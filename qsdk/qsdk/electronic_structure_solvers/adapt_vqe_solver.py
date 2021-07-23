@@ -14,9 +14,9 @@ Ref:
 
 import math
 from openfermion import commutator
-from qsdk.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from scipy.optimize import minimize
 
+from qsdk.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from qsdk.electronic_structure_solvers.vqe_solver import VQESolver
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
@@ -59,7 +59,7 @@ class ADAPTSolver:
                            "frozen_orbitals": "frozen_core",
                            "qubit_mapping": "jw",
                            "qubit_hamiltonian": None,
-                            "up_then_down": False,
+                           "up_then_down": False,
                            "n_spinorbitals": None,
                            "n_electrons": None,
                            "optimizer": self.LBFGSB_optimizer,
