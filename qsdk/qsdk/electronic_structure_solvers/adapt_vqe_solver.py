@@ -235,7 +235,7 @@ class ADAPTSolver:
         self.optimal_var_params = result.x
         self.optimal_energy = result.fun
 
-        # Only defined at the of ADAPT cycles. If not, the circuit is rebuilt
+        # Only defined at the end of ADAPT cycles. If not, the circuit is rebuilt
         # everytime and each ADAPT cycle becomes slow.
         if self.converged or self.iteration == self.max_cycles:
             self.ansatz.build_circuit(self.optimal_var_params)
