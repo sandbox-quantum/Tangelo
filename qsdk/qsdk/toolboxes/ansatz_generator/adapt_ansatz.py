@@ -49,12 +49,13 @@ class ADAPTAnsatz(Ansatz):
         # Initialize with default values
         self.__dict__ = default_options
         # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in ansatz_options.items():
-            if k in default_options:
-                setattr(self, k, v)
-            else:
-                # TODO Raise a warning instead, that variable will not be used unless user made mods to code
-                raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}")
+        if ansatz_options:
+            for k, v in ansatz_options.items():
+                if k in default_options:
+                    setattr(self, k, v)
+                else:
+                    # TODO Raise a warning instead, that variable will not be used unless user made mods to code
+                    raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}")
 
         self.n_spinorbitals = n_spinorbitals
         self.n_electrons = n_electrons
