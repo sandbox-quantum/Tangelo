@@ -78,12 +78,12 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
 
     if mapping.upper() not in available_mappings:
         raise ValueError(f'Invalid mapping selection. Select from: {available_mappings}')
-
+    
     if up_then_down:
         if n_spinorbitals is None:
             raise ValueError('The number of spin-orbitals is required to execute basis re-ordering.')
         fermion_operator = make_up_then_down(fermion_operator, n_spinorbitals=n_spinorbitals)
-
+    
     if mapping.upper() == 'JW':
         qubit_operator = jordan_wigner(fermion_operator)
     elif mapping.upper() == 'BK':
@@ -95,7 +95,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
             raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of qubits.")
         if n_electrons is None:
             raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of electrons.")
-
+        
         qubit_operator = symmetry_conserving_bravyi_kitaev(fermion_operator=fermion_operator,
                                                            n_spinorbitals=n_spinorbitals,
                                                            n_electrons=n_electrons,
@@ -127,10 +127,10 @@ def make_up_then_down(fermion_operator, n_spinorbitals):
     # define the new mode register
     remapped = np.linspace(0, n_spinorbitals - 1, n_spinorbitals, dtype=int)//2
     remapped[1::2] += int(np.ceil(n_spinorbitals / 2.))
-
+    
     for term, coef in fermion_operator.terms.items():
-
+        
         new_term = tuple([(int(remapped[ti[0]]), ti[1]) for ti in term])
         new_operator += FermionOperator(new_term, coef)
-
+    
     return new_operator

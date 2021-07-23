@@ -68,9 +68,11 @@ def uccsd_generator(single_amplitudes, double_amplitudes, anti_hermitian=True):
     # Add double excitations
     for (i, j, k, l), t_ijkl in double_amplitudes:
         i, j, k, l = int(i), int(j), int(k), int(l)
-        generator += FermionOperator( ((i, 1), (j, 0), (k, 1), (l, 0)), t_ijkl)
+        generator += FermionOperator(
+            ((i, 1), (j, 0), (k, 1), (l, 0)), t_ijkl)
         if anti_hermitian:
-            generator += FermionOperator(((l, 1), (k, 0), (j, 1), (i, 0)), -t_ijkl)
+            generator += FermionOperator(
+                ((l, 1), (k, 0), (j, 1), (i, 0)), -t_ijkl)
 
     return generator
 
