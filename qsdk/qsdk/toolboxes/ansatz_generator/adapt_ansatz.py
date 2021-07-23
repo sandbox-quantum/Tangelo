@@ -40,7 +40,6 @@ class ADAPTAnsatz(Ansatz):
             each sub-operator sign.
     """
 
-    #def __init__(self, n_spinorbitals, n_electrons, pool_generator, operators=list(), ferm_operators=list(), mapping="jw", up_then_down=False):
     def __init__(self, n_spinorbitals, n_electrons, ansatz_options=None):
         default_options = {"operators": list(), "ferm_operators":list(),
                            "mapping": "jw", "up_then_down": False,
