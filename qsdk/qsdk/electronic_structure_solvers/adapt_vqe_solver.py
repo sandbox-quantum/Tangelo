@@ -1,6 +1,6 @@
 """ADAPT-VQE algorithm framework, to solve electronic structure calculations.
 It consists of constructing the ansatz as VQE iterations are performed.
-From a set of operators, the most important one (stepiest energy gradient) versus
+From a set of operators, the most important one (steepest energy gradient) versus
 the current circuit is chosen. This operator is added to the ansatz, converted into
 a set of gates and appended to the circuit. An VQE minimization is performed to
 get a set of parameters that minimize the energy. The process is repeated n times
@@ -27,17 +27,26 @@ from qsdk.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator
 
 class ADAPTSolver:
     """ADAPT VQE class. This is basically a wrapper on top of VQE. Each iteration,
-    the ansatz grows.
+    the ansatz grows with one operator.
 
     Attributes:
         molecule (pyscf.gto.Mole): The molecular system.
-        mean-field (optional): mean-field of molecular system.
-        frozen_orbitals (list[int]): a list of indices for frozen orbitals.
+        mean-field (optional): Mean-field of the molecular system.
+        tol (float): Maximum gradient allowed for a particular operator  before
+            convergence.
+        max_cycles (int): Maximum number of iterations.
+        pool (func): Function that returns a list of FermionOperator. Each element
+            represents excitation/operator that has an effect of the total
+            energy.
+        frozen_orbitals (list[int]): A list of indices for frozen orbitals.
             Default is the string "frozen_core", corresponding to the output
             of the function molecular_computation.frozen_orbitals.get_frozen_core.
-        qubit_mapping (str): one of the supported qubit mapping identifiers
-        ansatz (Ansatze): one of the supported ansatze.
-        vqe_options:
+        qubit_mapping (str): One of the supported qubit mapping identifiers.
+        up_then_down (bool): Spin orbitals ordering.
+        n_spinorbitals (int): Self-explanatory.
+        n_electrons (int): Self-explanatory.
+        optimizer (func): Optimization function for VQE minimization.
+        backend_options (dict): Backend options for the underlying VQE object.
         verbose (bool): Flag for verbosity of VQE.
      """
 
@@ -46,15 +55,15 @@ class ADAPTSolver:
         default_backend_options = {"target": "qulacs", "n_shots": None, "noise_model": None}
         default_options = {"molecule": None, "mean_field": None, "verbose": False,
                            "tol": 1e-3, "max_cycles": 15,
-                           "qubit_mapping": "jw",
                            "pool": uccgsd_pool,
                            "frozen_orbitals": "frozen_core",
+                           "qubit_mapping": "jw",
                            "qubit_hamiltonian": None,
+                            "up_then_down": False,
                            "n_spinorbitals": None,
                            "n_electrons": None,
                            "optimizer": self.LBFGSB_optimizer,
                            "backend_options": default_backend_options,
-                           "up_then_down": False,
                            "verbose": True}
 
         # Initialize with default values
@@ -112,6 +121,7 @@ class ADAPTSolver:
                                                               n_electrons=self.n_electrons,
                                                               up_then_down=self.up_then_down)
         else:
+            # If a qubit Hamiltonian is passed instead of a molecule.
             assert(self.n_spinorbitals), "Expecting number of spin-orbitals (n_spinnorbitals) with a qubit_hamiltonian."
             assert(self.n_electrons), "Expecting number of electrons (n_electrons) with a qubit_hamiltonian."
 
@@ -119,15 +129,18 @@ class ADAPTSolver:
         ansatz_options = {"n_spinorbitals": self.n_spinorbitals, "n_electrons": self.n_electrons, "mapping": self.qubit_mapping, "up_then_down": self.up_then_down}
         self.ansatz = ADAPTAnsatz(ansatz_options)
 
-        # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles
+        # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles.
         self.vqe_options = dict()
         self.vqe_options["qubit_hamiltonian"] = self.qubit_hamiltonian
         self.vqe_options["ansatz"] = self.ansatz
         self.vqe_options["optimizer"] = self.optimizer
+        self.vqe_options["backend_options"] = self.backend_options
 
         self.vqe_solver = VQESolver(self.vqe_options)
         self.vqe_solver.build()
 
+        # Getting the pool of operators for the ansatz. If more functionalities
+        # are added, this part must be modified and generalized.
         self.fermionic_operators = self.pool(self.n_spinorbitals)
         self.pool_operators = [fermion_to_qubit_mapping(fermion_operator=fi,
                                                         mapping=self.qubit_mapping,
@@ -135,7 +148,7 @@ class ADAPTSolver:
                                                         n_electrons=self.n_electrons,
                                                         up_then_down=self.up_then_down) for fi in self.fermionic_operators]
 
-        # Cast all coefs to floats (rotations angles are real)
+        # Cast all coefs to floats (rotations angles are real).
         for qubit_op in self.pool_operators:
             for key in qubit_op.terms:
                 qubit_op.terms[key] = math.copysign(1., float(qubit_op.terms[key].imag))
@@ -213,7 +226,7 @@ class ADAPTSolver:
 
     def LBFGSB_optimizer(self, func, var_params):
         """Default optimizer for ADAPT-VQE. According to our in-house experiments,
-        this one is more robust for ADAPT layer.
+        this one is more robust for ADAPT layers.
         """
 
         result = minimize(func, var_params, method="L-BFGS-B",

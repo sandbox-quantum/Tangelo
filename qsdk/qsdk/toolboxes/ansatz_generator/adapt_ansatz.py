@@ -13,7 +13,7 @@ class ADAPTAnsatz(Ansatz):
     """Adaptive ansatz used with ADAPT-VQE. It is agnostic in relation to the
     operator pool chosen. Compared to a normal Ansatz class, it can add a qubit
     operator and assign a single variational parameter to it. Therefore, the
-    number of parameters is the amount of iterations where an operator is added.
+    number of parameters is the number of iterations where an operator is added.
 
     Args:
         ansatz_options (dict): ansatz options to defined attributes.
@@ -21,23 +21,23 @@ class ADAPTAnsatz(Ansatz):
     Attributes:
         n_spinorbitals (int): Number of spin orbitals in a given basis.
         n_electrons (int): Number of electrons.
-        operators (list of QubitOperator): List of operator to consider at the
+        operators (list of QubitOperator): List of operators to consider at the
             construction step. Can be useful for restarting computation.
         ferm_operators (list of FermionOperator): Same as operators, but in
-            fermionic form. Not necessary for running the ansatz, but it is
+            fermionic form. Not necessarily for running the ansatz, but it is
             convenient for analyzing results.
         mapping (string): Qubit encoding.
         up_then_down (bool): Ordering convention.
         var_params (list of float): Variational parameters.
         circuit (angostic_simulation.Circuit): Quantum circuit.
         length_operators (list of int): Length of every self.operators. With an
-            adaptive ansatz, one variational parameter correponds to a single
-            cycle. Every term are hermitian, so there are many terms in each
+            adaptive ansatz, one variational parameter corresponds to a single
+            cycle. Every term is hermitian, so there are many terms in each
             'meta' term. Therefore, many variational gates are defined for each
-            operator in self.operators. This attributes is used to map the number
-            of var_params to actual number of variational gates.
+            operator in self.operators. This attribute is used to map the number
+            of var_params to the actual number of variational gates.
         var_params_prefactor (list of float): List of 1. or -1. to keep track of
-            each sub-operators sign.
+            each sub-operator sign.
     """
 
     #def __init__(self, n_spinorbitals, n_electrons, pool_generator, operators=list(), ferm_operators=list(), mapping="jw", up_then_down=False):
@@ -99,7 +99,7 @@ class ADAPTAnsatz(Ansatz):
                 self.circuit._variational_gates[param_index+param_subindex].parameter = prefactor*var_params[var_index]
 
     def prepare_reference_state(self):
-        """ Prepare a circuit generating the HF reference state. """
+        """Prepare a circuit generating the HF reference state. """
 
         return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.mapping, up_then_down=self.up_then_down)
 
