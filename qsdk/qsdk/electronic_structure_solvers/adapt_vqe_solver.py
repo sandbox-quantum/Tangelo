@@ -126,8 +126,8 @@ class ADAPTSolver:
             assert(self.n_electrons), "Expecting number of electrons (n_electrons) with a qubit_hamiltonian."
 
         # Build / set ansatz circuit.
-        ansatz_options = {"n_spinorbitals": self.n_spinorbitals, "n_electrons": self.n_electrons, "mapping": self.qubit_mapping, "up_then_down": self.up_then_down}
-        self.ansatz = ADAPTAnsatz(ansatz_options)
+        ansatz_options = {"mapping": self.qubit_mapping, "up_then_down": self.up_then_down}
+        self.ansatz = ADAPTAnsatz(self.n_spinorbitals, self.n_electrons, ansatz_options)
 
         # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles.
         self.vqe_options = dict()

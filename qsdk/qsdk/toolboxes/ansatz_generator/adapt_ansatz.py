@@ -41,9 +41,8 @@ class ADAPTAnsatz(Ansatz):
     """
 
     #def __init__(self, n_spinorbitals, n_electrons, pool_generator, operators=list(), ferm_operators=list(), mapping="jw", up_then_down=False):
-    def __init__(self, ansatz_options=None):
-        default_options = {"n_spinorbitals": 0, "n_electrons": 0,
-                           "operators": list(), "ferm_operators":list(),
+    def __init__(self, n_spinorbitals, n_electrons, ansatz_options=None):
+        default_options = {"operators": list(), "ferm_operators":list(),
                            "mapping": "jw", "up_then_down": False,
                            "reference_state": "HF"}
 
@@ -56,6 +55,9 @@ class ADAPTAnsatz(Ansatz):
             else:
                 # TODO Raise a warning instead, that variable will not be used unless user made mods to code
                 raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}")
+
+        self.n_spinorbitals = n_spinorbitals
+        self.n_electrons = n_electrons
 
         self.var_params = None
         self.circuit = None
