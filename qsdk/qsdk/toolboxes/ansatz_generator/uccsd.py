@@ -66,7 +66,7 @@ class UCCSD(Ansatz):
 
         # Default initial parameters for initialization
         # TODO: support for openshell MP2 initialization
-        self.var_params_default = "MP2" if self.spin == 0 else "random"
+        self.var_params_default = "MP2" if self.spin == 0 else "ones"
         self.default_reference_state = "HF"
 
         self.var_params = None
