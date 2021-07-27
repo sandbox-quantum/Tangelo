@@ -42,14 +42,16 @@ class UCCSDTest(unittest.TestCase):
         molecule = MolecularData(mol_h2)
         uccsd_ansatz = UCCSD(molecule)
 
+        two_ones = np.ones((2,))
+
         uccsd_ansatz.set_var_params("ones")
-        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, np.array([1., 1.]), decimal=6)
+        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, two_ones, decimal=6)
 
         uccsd_ansatz.set_var_params([1., 1.])
-        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, np.array([1., 1.]), decimal=6)
+        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, two_ones, decimal=6)
 
         uccsd_ansatz.set_var_params(np.array([1., 1.]))
-        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, np.array([1., 1.]), decimal=6)
+        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, two_ones, decimal=6)
 
     def test_uccsd_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """

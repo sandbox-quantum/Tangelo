@@ -14,7 +14,7 @@ from agnostic_simulator import Circuit
 
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit
-from ._paired_unitary_cc import get_upccgsd
+from ._unitary_cc_paired import get_upccgsd
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 
@@ -35,7 +35,7 @@ class UpCCGSD(Ansatz):
                 up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
                                     Default, False (i.e. has alternating spin up/down ordering)
                 k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details
-                                    Default, 2 
+                                    Default, 2
         """
         default_options = {"qubit_mapping": 'jw', "mean_field": None, "up_then_down": False,
                            "k": 2}
@@ -69,7 +69,7 @@ class UpCCGSD(Ansatz):
         # TODO: support for others
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.var_params_default = 'random'
+        self.var_params_default = 'ones'
         self.supported_initial_var_params = {"ones", "random"}
 
         # Default initial parameters for initialization
@@ -79,7 +79,7 @@ class UpCCGSD(Ansatz):
         self.circuit = None
 
     def set_var_params(self, var_params=None):
-        """ Set values for variational parameters, such as zeros, random numbers, MP2 (...), providing some
+        """ Set values for variational parameters, such as zeros, random numbers, providing some
         keywords for users, and also supporting direct user input (list or numpy array)
         Return the parameters so that workflows such as VQE can retrieve these values. """
 

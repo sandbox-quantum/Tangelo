@@ -42,14 +42,16 @@ class UpCCGSDTest(unittest.TestCase):
         molecule = MolecularData(mol_h2)
         upccgsd_ansatz = UpCCGSD(molecule)
 
+        six_ones = np.ones((6,))
+
         upccgsd_ansatz.set_var_params("ones")
-        np.testing.assert_array_almost_equal(upccgsd_ansatz.var_params, np.array([1., 1., 1., 1., 1., 1.]), decimal=6)
+        np.testing.assert_array_almost_equal(upccgsd_ansatz.var_params, six_ones, decimal=6)
 
         upccgsd_ansatz.set_var_params([1., 1., 1., 1., 1., 1.])
-        np.testing.assert_array_almost_equal(upccgsd_ansatz.var_params, np.array([1., 1., 1., 1., 1., 1.]), decimal=6)
+        np.testing.assert_array_almost_equal(upccgsd_ansatz.var_params, six_ones, decimal=6)
 
         upccgsd_ansatz.set_var_params(np.array([1., 1., 1., 1., 1., 1.]))
-        np.testing.assert_array_almost_equal(upccgsd_ansatz.var_params, np.array([1., 1., 1., 1., 1., 1.]), decimal=6)
+        np.testing.assert_array_almost_equal(upccgsd_ansatz.var_params, six_ones, decimal=6)
 
     def test_upccgsd_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """

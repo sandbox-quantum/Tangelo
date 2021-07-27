@@ -10,7 +10,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Module to create and manipulate unitary coupled cluster operators."""
+"""Module to create and manipulate unitary coupled cluster operators for 
+   open shell systems. This requires the number of alpha and beta electrons 
+   to be specified.
+"""
 
 import itertools
 
@@ -19,10 +22,10 @@ from openfermion.utils import down_index, up_index
 from qsdk.toolboxes.operators import FermionOperator
 
 
-def uccsd_openshell_paramsize(n_qubits, n_alpha_electrons, n_beta_electrons):
+def uccsd_openshell_paramsize(n_spinorbitals, n_alpha_electrons, n_beta_electrons):
     """Determine number of independent amplitudes for open-shell UCCSD
      Args:
-        n_qubits(int): Number of qubits/spin-orbitals in the system
+        n_spinorbitals(int): Number of spin-orbitals in the system
         n_alpha_electrons(int): Number of alpha electrons in the reference state
         n_beta_electrons(int): Number of beta electrons in the reference state
     Returns:
@@ -30,11 +33,11 @@ def uccsd_openshell_paramsize(n_qubits, n_alpha_electrons, n_beta_electrons):
         and the number of single alpha and beta amplitudes, as well as the
         number of double alpha-alpha, beta-beta and alpha-beta amplitudes
     """
-    if n_qubits % 2 != 0:
+    if n_spinorbitals % 2 != 0:
         raise ValueError('The total number of spin-orbitals should be even.')
 
     # Compute the number of occupied and virtual alpha and beta orbitals
-    n_orb_a_b = n_qubits // 2
+    n_orb_a_b = n_spinorbitals // 2
     n_occ_a = n_alpha_electrons
     n_occ_b = n_beta_electrons
     n_virt_a = n_orb_a_b - n_alpha_electrons
@@ -65,12 +68,12 @@ def uccsd_openshell_paramsize(n_qubits, n_alpha_electrons, n_beta_electrons):
         n_double_aa, n_double_bb, n_double_ab
 
 
-def uccsd_openshell_generator(packed_amplitudes, n_qubits, n_alpha_electrons,
+def uccsd_openshell_generator(packed_amplitudes, n_spinorbitals, n_alpha_electrons,
                               n_beta_electrons, anti_hermitian=True):
     r"""Create an open-shell UCCSD generator for a system with n_alpha_electrons and
        n_beta_electrons
     This function generates a FermionOperator for a UCCSD generator designed
-        to act on a single reference state consisting of n_qubits spin orbitals
+        to act on a single reference state consisting of n_spinorbitals spin orbitals
         and n_alpha_electrons alpha electrons and n_beta_electrons beta electrons,
         that is a high-spin open-shell operator
     Args:
@@ -78,8 +81,7 @@ def uccsd_openshell_generator(packed_amplitudes, n_qubits, n_alpha_electrons,
             and double excitation amplitudes for an open-shell UCCSD operator.
             The ordering lists unique single excitations before double
             excitations.
-        n_qubits(int): Number of spin-orbitals used to represent the system,
-            which also corresponds to number of qubits in a non-compact map.
+        n_spinorbitals(int): Number of spin-orbitals used to represent the system
         n_alpha_electrons(int): Number of alpha electrons in the physical system.
         n_beta_electrons(int): Number of beta electrons in the physical system.
         anti_hermitian(Bool): Flag to generate only normal CCSD operator
@@ -88,11 +90,11 @@ def uccsd_openshell_generator(packed_amplitudes, n_qubits, n_alpha_electrons,
         generator(FermionOperator): Generator of the UCCSD operator that
             builds the open-shell UCCSD wavefunction.
     """
-    if n_qubits % 2 != 0:
+    if n_spinorbitals % 2 != 0:
         raise ValueError('The total number of spin-orbitals should be even.')
 
     # Compute the number of occupied and virtual alpha and beta orbitals
-    n_orb_a_b = n_qubits // 2
+    n_orb_a_b = n_spinorbitals // 2
     n_occ_a = n_alpha_electrons
     n_occ_b = n_beta_electrons
     n_virt_a = n_orb_a_b - n_alpha_electrons
@@ -100,7 +102,7 @@ def uccsd_openshell_generator(packed_amplitudes, n_qubits, n_alpha_electrons,
 
     # Unpack the single and double amplitudes
     _, _, n_single_a, n_single_b, \
-        n_double_aa, n_double_bb, _ = uccsd_openshell_paramsize(n_qubits, n_alpha_electrons, n_beta_electrons)
+        n_double_aa, n_double_bb, _ = uccsd_openshell_paramsize(n_spinorbitals, n_alpha_electrons, n_beta_electrons)
 
     # Define the various increments for the sizes of the orbital spaces
     n_s_1 = n_single_a
@@ -276,7 +278,7 @@ def uccsd_openshell_generator(packed_amplitudes, n_qubits, n_alpha_electrons,
 
 
 def uccsd_openshell_get_packed_amplitudes(alpha_double_amplitudes, beta_double_amplitudes,
-                                          alpha_beta_double_amplitudes, n_qubits, n_alpha_electrons,
+                                          alpha_beta_double_amplitudes, n_spinorbitals, n_alpha_electrons,
                                           n_beta_electrons, alpha_single_amplitudes=None,
                                           beta_single_amplitudes=None):
     r"""Convert amplitudes for use with the open-shell UCCSD (e.g. from a UHF MP2 guess)
@@ -305,8 +307,7 @@ def uccsd_openshell_get_packed_amplitudes(alpha_double_amplitudes, beta_double_a
             double excitation amplitudes corresponding to
             t[i_alpha,j_beta,a_alpha,b_beta] * (a_a_alpha^\dagger a_i_alpha
             a_b_beta^\dagger a_j_beta - H.C.)
-        n_qubits(int): Number of spin-orbitals used to represent the system,
-            which also corresponds to number of qubits in a non-compact map.
+        n_spinorbitals(int): Number of spin-orbitals used to represent the system
         n_alpha_electrons(int): Number of alpha electrons in the physical system.
         n_beta_electrons(int): Number of beta electrons in the physical system
         alpha_single_amplitudes(ndarray optional): optional [N_occupied_alpha
@@ -324,18 +325,18 @@ def uccsd_openshell_get_packed_amplitudes(alpha_double_amplitudes, beta_double_a
             excitations.
     """
 
-    if n_qubits % 2 != 0:
+    if n_spinorbitals % 2 != 0:
         raise ValueError('The total number of spin-orbitals should be even.')
 
     # Compute the number of occupied and virtual alpha and beta orbitals
-    n_orb_a_b = n_qubits // 2
+    n_orb_a_b = n_spinorbitals // 2
     n_occ_a = n_alpha_electrons
     n_occ_b = n_beta_electrons
     n_virt_a = n_orb_a_b - n_alpha_electrons
     n_virt_b = n_orb_a_b - n_beta_electrons
 
     # Calculate the number of non-redundant single and double amplitudes
-    _, _, n_single_a, n_single_b, _, _, _ = uccsd_openshell_paramsize(n_qubits, n_alpha_electrons, n_beta_electrons)
+    _, _, n_single_a, n_single_b, _, _, _ = uccsd_openshell_paramsize(n_spinorbitals, n_alpha_electrons, n_beta_electrons)
 
     # packed amplitudes list
     packed_amplitudes = []
