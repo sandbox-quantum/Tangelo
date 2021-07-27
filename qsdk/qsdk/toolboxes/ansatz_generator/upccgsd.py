@@ -52,7 +52,7 @@ class UpCCGSD(Ansatz):
         for k, v in default_options.items():
             setattr(self, k, v)
 
-        self.mf = self.mean_field  # necessary duplication for get_rdm in vqe_solver
+        self.mf = self.mean_field  # necessary label duplication for get_rdm in vqe_solver
 
         # Later: refactor to handle various flavors of UCCSD
         if molecule.n_qubits % 2 != 0:
