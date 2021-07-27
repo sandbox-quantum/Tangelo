@@ -22,19 +22,21 @@ from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circ
 class UpCCGSD(Ansatz):
     """ This class implements the UpCCGSD ansatz.
         This implies that the mean-field is computed with the RHF or ROHF reference integrals.
-        Args:
-            molecule (MolecularData) : the molecular system
-            mean-field (optional) : mean-field of molecular system
-                                    Default, None
-            qubit_mapping (str) : one of the supported qubit mapping identifiers
-                                  Default, 'jw'
-            up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
-                                 Default, False (i.e. has alternating spin up/down ordering)
-            k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details
-                Default, 2
     """
 
     def __init__(self, molecule, ansatz_options=dict()):
+        """ Args:
+            molecule (MolecularData) : the molecular system
+            ansatz_options (dict): With possible arguments below
+                mean-field (optional) : mean-field of molecular system
+                                    Default, None
+                qubit_mapping (str) : one of the supported qubit mapping identifiers
+                                    Default, 'jw'
+                up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
+                                    Default, False (i.e. has alternating spin up/down ordering)
+                k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details
+                                    Default, 2 
+        """
         default_options = {"qubit_mapping": 'jw', "mean_field": None, "up_then_down": False,
                            "k": 2}
 
@@ -138,7 +140,7 @@ class UpCCGSD(Ansatz):
 
         pauli_words_gates = list()
         for current_k in range(self.k):
-            qubit_op = self._get_qubit(current_k)
+            qubit_op = self._get_qubit_operator(current_k)
             pauli_words = sorted(qubit_op.terms.items(), key=lambda x: len(x[0]))
 
             # Initialize dictionary of qubit_op terms for each UpCCGSD step
@@ -168,7 +170,7 @@ class UpCCGSD(Ansatz):
         # Loop through each current_k step
         for current_k in range(self.k):
             # Build qubit operator required to build UpCCGSD for current_k
-            qubit_op = self._get_qubit(current_k)
+            qubit_op = self._get_qubit_operator(current_k)
 
             # If qubit operator terms have changed, rebuild circuit. Else, simply update variational gates directly
             if set(self.pauli_to_angles_mapping[current_k].keys()) != set(qubit_op.terms.keys()):
@@ -179,7 +181,7 @@ class UpCCGSD(Ansatz):
                     gate_index = self.pauli_to_angles_mapping[current_k][pauli_word]
                     self.circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
 
-    def _get_qubit(self, current_k):
+    def _get_qubit_operator(self, current_k):
         """Construct UpCCGSD FermionOperator for current_k variational parameters, and translate to QubitOperator
         via relevant qubit mapping.
 

@@ -18,7 +18,7 @@ def get_upccgsd(n_orbs, values, up_then_down=False, anti_hermitian=True):
     Returns:
         ferm_op (FermionicOperator): The 1-UpCCGSD ansatz as a fermionic operator"""
 
-    all_terms = generalized_singles_list(n_orbs, up_then_down) + paired_doubles_list(n_orbs, up_then_down)
+    all_terms = get_generalized_singles(n_orbs, up_then_down) + get_paired_doubles(n_orbs, up_then_down)
 
     ferm_op = FermionOperator()
     for i, item in enumerate(all_terms):
@@ -32,7 +32,7 @@ def get_upccgsd(n_orbs, values, up_then_down=False, anti_hermitian=True):
     return ferm_op
 
 
-def generalized_singles_list(n_orbs, up_then_down=False):
+def get_generalized_singles(n_orbs, up_then_down=False):
     r"""Function to obtain the generalized singles fermionic generator
 
     Args:
@@ -51,7 +51,7 @@ def generalized_singles_list(n_orbs, up_then_down=False):
     return all_terms
 
 
-def paired_doubles_list(n_orbs, up_then_down=False):
+def get_paired_doubles(n_orbs, up_then_down=False):
     r"""Function to obtain the generalized paired doubles fermionic generator
 
     Args:

@@ -20,7 +20,7 @@ from agnostic_simulator import Circuit
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit
 from ._unitary_cc import uccsd_singlet_generator
-from ._openshell_unitary_cc import uccsd_openshell_paramsize, uccsd_openshell_generator
+from ._unitary_cc_openshell import uccsd_openshell_paramsize, uccsd_openshell_generator
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
@@ -124,7 +124,7 @@ class UCCSD(Ansatz):
             self.set_var_params()
 
         # Build qubit operator required to build UCCSD
-        qubit_op = self._get_singlet_qubit() if self.spin == 0 else self._get_openshell_qubit()
+        qubit_op = self._get_singlet_qubit_operator() if self.spin == 0 else self._get_openshell_qubit_operator()
 
         # Prepend reference state circuit
         reference_state_circuit = self.prepare_reference_state()
@@ -152,7 +152,7 @@ class UCCSD(Ansatz):
         self.set_var_params(var_params)
 
         # Build qubit operator required to build UCCSD
-        qubit_op = self._get_singlet_qubit()
+        qubit_op = self._get_singlet_qubit_operator() if self.spin == 0 else self._get_openshell_qubit_operator()
 
         # If qubit operator terms have changed, rebuild circuit. Else, simply update variational gates directly
         if set(self.pauli_to_angles_mapping.keys()) != set(qubit_op.terms.keys()):
@@ -162,7 +162,7 @@ class UCCSD(Ansatz):
                 gate_index = self.pauli_to_angles_mapping[pauli_word]
                 self.circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
 
-    def _get_singlet_qubit(self):
+    def _get_singlet_qubit_operator(self):
         """Construct UCCSD FermionOperator for current variational parameters, and translate to QubitOperator
         via relevant qubit mapping.
 
@@ -182,7 +182,7 @@ class UCCSD(Ansatz):
         qubit_op.compress()
         return qubit_op
 
-    def _get_openshell_qubit(self):
+    def _get_openshell_qubit_operator(self):
         """Construct open-shell UCCSD FermionOperator for current variational parameters, and translate to QubitOperator
         via relevant qubit mapping.
 
