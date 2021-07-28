@@ -10,11 +10,10 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 
 
 class ADAPTAnsatz(Ansatz):
-    """Adaptive ansatz used with ADAPT-VQE. It is agnostic in relation to the
-    operator pool chosen. This Ansatz class has methods to take a (or many)
-    QubitOperator, transform it into a circuit and append it. The number of
-    variational parameters corresponds to the amont of terms added to the
-    Ansatz.
+    """Adaptive ansatz used with ADAPT-VQE. This Ansatz class has methods to
+    take a (or many) QubitOperator, transform it (them) into a circuit and append
+    it (them). The number of variational parameters corresponds to the amont of
+    terms added to the Ansatz.
 
     Attributes:
         n_spinorbitals (int): Number of spin orbitals in a given basis.
