@@ -82,6 +82,7 @@ class ADAPTSolver:
 
         self.converged = False
         self.iteration = 0
+        self.energies = list()
 
         self.optimal_energy = None
         self.optimal_var_params = None
@@ -159,7 +160,6 @@ class ADAPTSolver:
     def simulate(self):
         """Performs the ADAPT cycles. Each iteration, a VQE minimization is done. """
 
-        energies = list()
         params = self.vqe_solver.ansatz.var_params
 
         # Construction of the ansatz. self.max_cycles terms are added, unless
@@ -189,12 +189,12 @@ class ADAPTSolver:
                 self.vqe_solver.simulate()
                 opt_energy = self.vqe_solver.optimal_energy
                 params = list(self.vqe_solver.optimal_var_params)
-                energies.append(opt_energy)
+                self.energies.append(opt_energy)
             else:
                 self.converged = True
                 break
 
-        return energies
+        return self.energies[-1]
 
     def rank_pool(self, pool_commutators, circuit, backend, tolerance=1e-3):
         """Rank pool of operators with a specific circuit.
