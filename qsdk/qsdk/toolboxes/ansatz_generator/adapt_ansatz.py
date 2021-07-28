@@ -86,7 +86,7 @@ class ADAPTAnsatz(Ansatz):
 
             param_index = sum(self._n_terms_operators[:var_index])
             for param_subindex in range(length_op):
-                prefactor = self.var_params_prefactor[param_index+param_subindex]
+                prefactor = self._var_params_prefactor[param_index+param_subindex]
                 self.circuit._variational_gates[param_index+param_subindex].parameter = prefactor*var_params[var_index]
 
     def prepare_reference_state(self):
