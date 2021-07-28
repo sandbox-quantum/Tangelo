@@ -2,7 +2,7 @@ import unittest
 from pyscf import gto
 from qsdk.electronic_structure_solvers import ADAPTSolver
 
-H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.75))]
+H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
 mol_H2 = gto.Mole()
 mol_H2.atom = H2
 mol_H2.basis = "sto-3g"
@@ -36,7 +36,7 @@ class ADAPTSolverTest(unittest.TestCase):
         adapt_solver.build()
         adapt_solver.simulate()
 
-        self.assertAlmostEqual(adapt_solver.optimal_energy, -1.137117, places=3)
+        self.assertAlmostEqual(adapt_solver.optimal_energy, -1.13727, places=3)
 
         resources = {"qubit_hamiltonian_terms": 15,
                      "circuit_width": 4,

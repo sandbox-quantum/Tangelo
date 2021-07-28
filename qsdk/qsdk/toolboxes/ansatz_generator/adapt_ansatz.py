@@ -11,12 +11,10 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 
 class ADAPTAnsatz(Ansatz):
     """Adaptive ansatz used with ADAPT-VQE. It is agnostic in relation to the
-    operator pool chosen. Compared to a normal Ansatz class, it can add a qubit
-    operator and assign a single variational parameter to it. Therefore, the
-    number of parameters is the number of iterations where an operator is added.
-
-    Args:
-        ansatz_options (dict): ansatz options to defined attributes.
+    operator pool chosen. This Ansatz class has methods to take a (or many)
+    QubitOperator, transforms it into a circuit and appends it. The number of
+    variational parameters corresponds to the amont of terms added to the
+    Ansatz.
 
     Attributes:
         n_spinorbitals (int): Number of spin orbitals in a given basis.
@@ -29,15 +27,7 @@ class ADAPTAnsatz(Ansatz):
         mapping (string): Qubit encoding.
         up_then_down (bool): Ordering convention.
         var_params (list of float): Variational parameters.
-        circuit (angostic_simulation.Circuit): Quantum circuit.
-        length_operators (list of int): Length of every self.operators. With an
-            adaptive ansatz, one variational parameter corresponds to a single
-            cycle. Every term is hermitian, so there are many terms in each
-            'meta' term. Therefore, many variational gates are defined for each
-            operator in self.operators. This attribute is used to map the number
-            of var_params to the actual number of variational gates.
-        var_params_prefactor (list of float): List of 1. or -1. to keep track of
-            each sub-operator sign.
+        circuit (Circuit): Quantum circuit defined by a list of Gates.
     """
 
     def __init__(self, n_spinorbitals, n_electrons, ansatz_options=None):
@@ -53,7 +43,6 @@ class ADAPTAnsatz(Ansatz):
                 if k in default_options:
                     setattr(self, k, v)
                 else:
-                    # TODO Raise a warning instead, that variable will not be used unless user made mods to code
                     raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}")
 
         self.n_spinorbitals = n_spinorbitals
@@ -63,20 +52,20 @@ class ADAPTAnsatz(Ansatz):
         self.circuit = None
 
         # The remaining of the constructor is useful to restart an ADAPT calculation.
-        self.length_operators = [len(pauli_op.terms) for pauli_op in self.operators]
+        self._n_terms_operators = [len(pauli_op.terms) for pauli_op in self.operators]
 
         # Getting the sign of each pauli words. As UCCSD terms are hermitian,
         # each tau_i = excitation_i - deexcitation_i. The coefficient are
         # initialized to 1 (or -1).
-        self.var_params_prefactor = list()
+        self._var_params_prefactor = list()
         for pauli_op in self.operators:
             for pauli_term in pauli_op.get_operators():
                 coeff = list(pauli_term.terms.values())[0]
-                self.var_params_prefactor += [math.copysign(1., coeff)]
+                self._var_params_prefactor += [math.copysign(1., coeff)]
 
     @property
     def n_var_params(self):
-        return len(self.length_operators)
+        return len(self._n_terms_operators)
 
     def set_var_params(self, var_params=None):
         """Set initial variational parameter values. Defaults to zeros. """
@@ -93,9 +82,9 @@ class ADAPTAnsatz(Ansatz):
         """Update variational parameters (done repeatedly during VQE). """
 
         for var_index in range(self.n_var_params):
-            length_op = self.length_operators[var_index]
+            length_op = self._n_terms_operators[var_index]
 
-            param_index = sum(self.length_operators[:var_index])
+            param_index = sum(self._n_terms_operators[:var_index])
             for param_subindex in range(length_op):
                 prefactor = self.var_params_prefactor[param_index+param_subindex]
                 self.circuit._variational_gates[param_index+param_subindex].parameter = prefactor*var_params[var_index]
@@ -141,7 +130,7 @@ class ADAPTAnsatz(Ansatz):
         """
 
         # Keeping track of the added operator.
-        self.length_operators += [len(pauli_operator.terms)]
+        self._n_terms_operators += [len(pauli_operator.terms)]
         self.operators.append(pauli_operator)
 
         if ferm_operator is not None:
@@ -151,7 +140,7 @@ class ADAPTAnsatz(Ansatz):
         # of each term sign.
         for pauli_term in pauli_operator.get_operators():
             coeff = list(pauli_term.terms.values())[0]
-            self.var_params_prefactor += [math.copysign(1., coeff)]
+            self._var_params_prefactor += [math.copysign(1., coeff)]
 
             pauli_tuple = list(pauli_term.terms.keys())[0]
             new_operator = Circuit(pauliword_to_circuit(pauli_tuple, 0.1))

@@ -1,10 +1,9 @@
-"""ADAPT-VQE algorithm framework, to solve electronic structure calculations.
-It consists of constructing the ansatz as VQE iterations are performed.
-From a set of operators, the most important one (steepest energy gradient) versus
-the current circuit is chosen. This operator is added to the ansatz, converted into
-a set of gates and appended to the circuit. An VQE minimization is performed to
-get a set of parameters that minimize the energy. The process is repeated n times
-to end hopefully with a good ansatz for the studied molecule (or Hamiltonian).
+"""Module that defines the ADAPT-VQE algorithm framework. ADAPT-VQE is a
+variational  approach that builds an ansatz iteratively, until a convergence
+criteria or a maximum number of cycles is reached. Each iteration ("cycle")
+of ADAPT consists in drawing an operator from a pre-defined operator pool,
+selecting the one that impacts the energy the most, growing the ansatz circuit
+accordingly, and optimizing the variational parameters using VQE.
 
 Ref:
     Grimsley, H.R., Economou, S.E., Barnes, E. et al.
@@ -26,15 +25,15 @@ from qsdk.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator
 
 
 class ADAPTSolver:
-    """ADAPT VQE class. This is basically a wrapper on top of VQE. Each iteration,
-    the ansatz grows with one operator.
+    """ADAPT VQE class. This is an iterative algorithm that uses VQE. Methods are
+    defined to rank operators with respect to their influence on the total energy.
 
     Attributes:
         molecule (pyscf.gto.Mole): The molecular system.
         mean-field (optional): Mean-field of the molecular system.
         tol (float): Maximum gradient allowed for a particular operator  before
             convergence.
-        max_cycles (int): Maximum number of iterations.
+        max_cycles (int): Maximum number of iterations for ADAPT.
         pool (func): Function that returns a list of FermionOperator. Each element
             represents excitation/operator that has an effect of the total
             energy.
@@ -130,11 +129,11 @@ class ADAPTSolver:
         self.ansatz = ADAPTAnsatz(self.n_spinorbitals, self.n_electrons, ansatz_options)
 
         # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles.
-        self.vqe_options = dict()
-        self.vqe_options["qubit_hamiltonian"] = self.qubit_hamiltonian
-        self.vqe_options["ansatz"] = self.ansatz
-        self.vqe_options["optimizer"] = self.optimizer
-        self.vqe_options["backend_options"] = self.backend_options
+        self.vqe_options = {"qubit_hamiltonian": self.qubit_hamiltonian,
+                            "ansatz": self.ansatz,
+                            "optimizer": self.optimizer,
+                            "backend_options": self.backend_options
+                            }
 
         self.vqe_solver = VQESolver(self.vqe_options)
         self.vqe_solver.build()
@@ -150,8 +149,8 @@ class ADAPTSolver:
 
         # Cast all coefs to floats (rotations angles are real).
         for qubit_op in self.pool_operators:
-            for key in qubit_op.terms:
-                qubit_op.terms[key] = math.copysign(1., float(qubit_op.terms[key].imag))
+            for term, coeff in qubit_op.terms.items():
+                qubit_op.terms[term] = math.copysign(1., coeff.imag)
 
         # Getting commutators to compute gradients:
         # \frac{\partial E}{\partial \theta_n} = \langle \psi | [\hat{H}, A_n] | \psi \rangle
@@ -225,9 +224,7 @@ class ADAPTSolver:
         return self.vqe_solver.get_resources()
 
     def LBFGSB_optimizer(self, func, var_params):
-        """Default optimizer for ADAPT-VQE. According to our in-house experiments,
-        this one is more robust for ADAPT layers.
-        """
+        """Default optimizer for ADAPT-VQE. """
 
         result = minimize(func, var_params, method="L-BFGS-B",
             options={"disp": False, "maxiter": 100, 'gtol': 1e-10, 'iprint': -1})

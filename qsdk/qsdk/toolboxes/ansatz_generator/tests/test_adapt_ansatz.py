@@ -9,8 +9,7 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 
 f_op = FermionOperator("2^ 3^ 0 1") - FermionOperator("0^ 1^ 2 3")
 qu_op = fermion_to_qubit_mapping(f_op, "jw")
-for key in qu_op.terms:
-    qu_op.terms[key] = math.copysign(1., float(qu_op.terms[key].imag))
+qu_op.terms = {term: math.copysign(1.0, coeff.imag) for term, coeff in qu_op.terms.items()}
 
 
 class ADAPTAnsatzTest(unittest.TestCase):
@@ -30,7 +29,7 @@ class ADAPTAnsatzTest(unittest.TestCase):
         ansatz.add_operator(qu_op)
 
         self.assertEqual(ansatz.n_var_params, 1)
-        self.assertEqual(ansatz.length_operators, [8])
+        self.assertEqual(ansatz._n_terms_operators, [8])
 
     def test_adaptansatz_set_var_params(self):
         """Verify variational parameter tuning behavior of ADAPTAnsatz class. """
