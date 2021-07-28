@@ -14,6 +14,7 @@ Ref:
 import math
 from openfermion import commutator
 from scipy.optimize import minimize
+import warnings
 
 from qsdk.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from qsdk.electronic_structure_solvers.vqe_solver import VQESolver
@@ -80,6 +81,7 @@ class ADAPTSolver:
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
+        self.ansatz = None
         self.converged = False
         self.iteration = 0
         self.energies = list()
@@ -90,10 +92,18 @@ class ADAPTSolver:
 
     @property
     def operators(self):
+        if self.ansatz is None:
+            warnings.warn("ADAPT-VQE objects are not built yet. The build method has been called.")
+            self.build()
+
         return self.ansatz.operators
 
     @property
     def ferm_operators(self):
+        if self.ansatz is None:
+            warnings.warn("ADAPT-VQE objects are not built yet. The build method has been called.")
+            self.build()
+
         return self.ansatz.ferm_operators
 
     def build(self):
