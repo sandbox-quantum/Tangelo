@@ -10,7 +10,7 @@ from openfermion.transforms import bravyi_kitaev_code
 available_mappings = {'JW', 'BK', 'SCBK'}
 
 
-def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False):
+def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=None):
     """Get integer vector corresponding to Hartree Fock reference
     state. Reference state will occupy up to the n_electron-th
     molecular orbital. Depending on convention, basis is ordered
@@ -33,7 +33,14 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False):
         raise ValueError(f'Invalid mapping selection. Select from: {available_mappings}')
 
     vector = np.zeros(n_spinorbitals, dtype=int)
-    vector[:n_electrons] = 1
+    if spin:
+        # if n_electrons is odd, then spin is also odd
+        n_alpha = n_electrons//2 + spin//2 + (n_electrons % 2)
+        n_beta = n_electrons//2 - spin//2
+        vector[0:2*n_alpha:2] = 1
+        vector[1:2*n_beta+1:2] = 1
+    else:
+        vector[:n_electrons] = 1
     if up_then_down:
         vector = np.concatenate((vector[::2], vector[1::2]))
 
@@ -105,7 +112,7 @@ def vector_to_circuit(vector):
     return circuit
 
 
-def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=False):
+def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=None):
     """Build the Hartree-Fock state preparation circuit for the designated
     mapping.
     Args:
@@ -115,9 +122,10 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
             'JW' (Jordan Wigner), or 'BK' (Bravyi Kitaev), or 'SCBK' (symmetry-conserving Bravyi Kitaev)
         up_then_down (boolean): if True, all up, then all down, if False, alternating spin
             up/down
+        spin (int): 2*S = n_alpha - n_beta
     Returns:
         circuit (Circuit): instance of agnostic_simulator Circuit class
     """
-    vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down)
+    vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down, spin=spin)
     circuit = vector_to_circuit(vector)
     return circuit
