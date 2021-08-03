@@ -93,16 +93,14 @@ class ADAPTSolver:
     @property
     def operators(self):
         if self.ansatz is None:
-            warnings.warn("ADAPT-VQE objects are not built yet. The build method has been called.")
-            self.build()
+            warnings.warn("ADAPT-VQE objects are not built yet. Please call the build method.")
 
         return self.ansatz.operators
 
     @property
     def ferm_operators(self):
         if self.ansatz is None:
-            warnings.warn("ADAPT-VQE objects are not built yet. The build method has been called.")
-            self.build()
+            warnings.warn("ADAPT-VQE objects are not built yet. Please call the build method.")
 
         return self.ansatz.ferm_operators
 
