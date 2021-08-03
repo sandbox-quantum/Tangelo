@@ -6,7 +6,7 @@ here as defined in Tang et al (arXiv:1911.10205)."""
 import numpy as np
 import itertools
 
-from openfermion import FermionOperator
+from qsdk.toolboxes.operators import FermionOperator
 
 
 def hermitian_conjugate(terms):
