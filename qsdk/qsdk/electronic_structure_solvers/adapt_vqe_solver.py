@@ -81,6 +81,10 @@ class ADAPTSolver:
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
+        if self.qubit_hamiltonian:
+            if not (self.n_spinorbitals and self.n_electrons):
+                raise ValueError("Expecting the number of spin-orbitals (n_spinnorbitals) and the number of electrons (n_electrons) with a qubit_hamiltonian.")
+
         self.ansatz = None
         self.converged = False
         self.iteration = 0
@@ -94,6 +98,7 @@ class ADAPTSolver:
     def operators(self):
         if self.ansatz is None:
             warnings.warn("ADAPT-VQE objects are not built yet. Please call the build method.")
+            return None
 
         return self.ansatz.operators
 
@@ -101,6 +106,7 @@ class ADAPTSolver:
     def ferm_operators(self):
         if self.ansatz is None:
             warnings.warn("ADAPT-VQE objects are not built yet. Please call the build method.")
+            return None
 
         return self.ansatz.ferm_operators
 
