@@ -16,6 +16,7 @@ from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 from qsdk.toolboxes.ansatz_generator.hea import HEA
+from qsdk.toolboxes.ansatz_generator.upccgsd import UpCCGSD
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
@@ -27,6 +28,7 @@ class Ansatze(Enum):
     UCC1 = 1
     UCC3 = 2
     HEA = 3
+    UpCCGSD = 4
 
 
 class VQESolver:
@@ -149,6 +151,11 @@ class VQESolver:
                                                                  'qubit_mapping': self.qubit_mapping,
                                                                  'mean_field': self.mean_field,
                                                                  'up_then_down': self.up_then_down}})
+                elif self.ansatz == Ansatze.UpCCGSD:
+                    self.ansatz = UpCCGSD(self.qemist_molecule, {**{'qubit_mapping': self.qubit_mapping,
+                                                                    'mean_field': self.mean_field,
+                                                                    'up_then_down': self.up_then_down},
+                                                                 **self.ansatz_options})
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):

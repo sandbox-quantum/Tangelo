@@ -20,6 +20,7 @@ from agnostic_simulator import Circuit
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit
 from ._unitary_cc import uccsd_singlet_generator
+from ._unitary_cc_openshell import uccsd_openshell_paramsize, uccsd_openshell_generator
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
@@ -39,21 +40,33 @@ class UCCSD(Ansatz):
         # Later: refactor to handle various flavors of UCCSD
         if molecule.n_qubits % 2 != 0:
             raise ValueError('The total number of spin-orbitals should be even.')
-        self.n_spatial_orbitals = self.molecule.n_qubits // 2
-        self.n_occupied = int(np.ceil(self.molecule.n_electrons / 2))
-        self.n_virtual = self.n_spatial_orbitals - self.n_occupied
-        self.n_singles = self.n_occupied * self.n_virtual
-        self.n_doubles = self.n_singles * (self.n_singles + 1) // 2
+
+        self.spin = self.molecule.multiplicity - 1
+
+        # choose open-shell uccsd if spin not zero, else choose singlet ccsd
+        if self.spin != 0:
+            self.n_alpha = self.molecule.n_electrons//2 + self.spin//2 + 1 * (self.molecule.n_electrons % 2)
+            self.n_beta = self.molecule.n_electrons//2 - self.spin//2
+            self.n_singles, self.n_doubles, _, _, _, _, _ = uccsd_openshell_paramsize(self.molecule.n_qubits, self.n_alpha, self.n_beta)
+        else:
+            self.n_spatial_orbitals = self.molecule.n_qubits // 2
+            self.n_occupied = int(np.ceil(self.molecule.n_electrons / 2))
+            self.n_virtual = self.n_spatial_orbitals - self.n_occupied
+            self.n_singles = self.n_occupied * self.n_virtual
+            self.n_doubles = self.n_singles * (self.n_singles + 1) // 2
+
+        # set total number of parameters
         self.n_var_params = self.n_singles + self.n_doubles
 
         # Supported reference state initialization
         # TODO: support for others
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"ones", "random", "MP2"}
+        self.supported_initial_var_params = {"ones", "random", "MP2"} if self.spin == 0 else {"ones", "random"}
 
         # Default initial parameters for initialization
-        self.var_params_default = "MP2"
+        # TODO: support for openshell MP2 initialization
+        self.var_params_default = "MP2" if self.spin == 0 else "ones"
         self.default_reference_state = "HF"
 
         self.var_params = None
@@ -73,7 +86,7 @@ class UCCSD(Ansatz):
             if var_params == "ones":
                 initial_var_params = np.ones((self.n_var_params,), dtype=float)
             elif var_params == "random":
-                initial_var_params = np.random.random((self.n_var_params,))
+                initial_var_params = 2.e-1 * (np.random.random((self.n_var_params,)) - 0.5)
             elif var_params == "MP2":
                 initial_var_params = self._compute_mp2_params()
         else:
@@ -98,7 +111,8 @@ class UCCSD(Ansatz):
             return get_reference_circuit(n_spinorbitals=self.molecule.n_qubits,
                                          n_electrons=self.molecule.n_electrons,
                                          mapping=self.mapping,
-                                         up_then_down=self.up_then_down)
+                                         up_then_down=self.up_then_down,
+                                         spin=self.spin)
 
     def build_circuit(self, var_params=None):
         """ Build and return the quantum circuit implementing the state preparation ansatz
@@ -110,7 +124,7 @@ class UCCSD(Ansatz):
             self.set_var_params()
 
         # Build qubit operator required to build UCCSD
-        qubit_op = self._get_singlet_qubit()
+        qubit_op = self._get_singlet_qubit_operator() if self.spin == 0 else self._get_openshell_qubit_operator()
 
         # Prepend reference state circuit
         reference_state_circuit = self.prepare_reference_state()
@@ -138,7 +152,7 @@ class UCCSD(Ansatz):
         self.set_var_params(var_params)
 
         # Build qubit operator required to build UCCSD
-        qubit_op = self._get_singlet_qubit()
+        qubit_op = self._get_singlet_qubit_operator() if self.spin == 0 else self._get_openshell_qubit_operator()
 
         # If qubit operator terms have changed, rebuild circuit. Else, simply update variational gates directly
         if set(self.pauli_to_angles_mapping.keys()) != set(qubit_op.terms.keys()):
@@ -148,7 +162,7 @@ class UCCSD(Ansatz):
                 gate_index = self.pauli_to_angles_mapping[pauli_word]
                 self.circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
 
-    def _get_singlet_qubit(self):
+    def _get_singlet_qubit_operator(self):
         """Construct UCCSD FermionOperator for current variational parameters, and translate to QubitOperator
         via relevant qubit mapping.
 
@@ -156,6 +170,29 @@ class UCCSD(Ansatz):
             qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
         """
         fermion_op = uccsd_singlet_generator(self.var_params, self.molecule.n_qubits, self.molecule.n_electrons)
+        qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
+                                            mapping=self.mapping,
+                                            n_spinorbitals=self.molecule.n_qubits,
+                                            n_electrons=self.molecule.n_electrons,
+                                            up_then_down=self.up_then_down)
+
+        # Cast all coefs to floats (rotations angles are real)
+        for key in qubit_op.terms:
+            qubit_op.terms[key] = float(qubit_op.terms[key].imag)
+        qubit_op.compress()
+        return qubit_op
+
+    def _get_openshell_qubit_operator(self):
+        """Construct open-shell UCCSD FermionOperator for current variational parameters, and translate to QubitOperator
+        via relevant qubit mapping.
+
+        Returns:
+            qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
+        """
+        fermion_op = uccsd_openshell_generator(self.var_params,
+                                               self.molecule.n_qubits,
+                                               self.n_alpha,
+                                               self.n_beta)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
                                             mapping=self.mapping,
                                             n_spinorbitals=self.molecule.n_qubits,

@@ -8,6 +8,7 @@ from pyscf import ao2mo
 
 from .integral_calculation import run_pyscf
 
+
 def atom_string_to_list(atom_string):
     """ Convert atom coordinate string (typically stored in text files) into a list/tuple representation
         suitable for MolecularData """
@@ -116,7 +117,7 @@ class MolecularData(openfermion.MolecularData):
         # Frozen things are not considered anymore.
         self.n_qubits = len(self.active_occupied + self.active_virtual) * 2
         self.n_orbitals = len(self.active_occupied + self.active_virtual)
-        self.n_electrons = len(self.active_occupied) * 2
+        self.n_electrons = len(self.active_occupied) * 2 - self.n_electrons % 2
 
         # Exception raised here if n_occupied <= frozen_orbitals (int), because it means that there is no active electron.
         # An exception is raised also if all occupied orbitals are in the frozen_orbitals (list).

@@ -25,6 +25,13 @@ mol_h4.basis = "sto-3g"
 mol_h4.spin = 0
 mol_h4.build()
 
+mol_h4_open = gto.Mole()
+mol_h4_open.atom = H4
+mol_h4_open.basis = "sto-3g"
+mol_h4_open.charge = 1
+mol_h4_open.spin = 1
+mol_h4_open.build()
+
 
 class UCCSDTest(unittest.TestCase):
 
@@ -35,14 +42,16 @@ class UCCSDTest(unittest.TestCase):
         molecule = MolecularData(mol_h2)
         uccsd_ansatz = UCCSD(molecule)
 
+        two_ones = np.ones((2,))
+
         uccsd_ansatz.set_var_params("ones")
-        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, np.array([1., 1.]), decimal=6)
+        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, two_ones, decimal=6)
 
         uccsd_ansatz.set_var_params([1., 1.])
-        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, np.array([1., 1.]), decimal=6)
+        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, two_ones, decimal=6)
 
         uccsd_ansatz.set_var_params(np.array([1., 1.]))
-        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, np.array([1., 1.]), decimal=6)
+        np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, two_ones, decimal=6)
 
     def test_uccsd_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """
@@ -93,6 +102,30 @@ class UCCSDTest(unittest.TestCase):
         uccsd_ansatz.update_var_params([5.86665842e-06, 0.0565317429])
         energy = sim.get_expectation_value(qubit_hamiltonian, uccsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.137270174551959, delta=1e-6)
+
+    def test_uccsd_H4_open(self):
+        """ Verify close-shell UCCSD functionalities for H4 """
+
+        molecule = MolecularData(mol_h4_open)
+        var_params = [-3.68699814e-03,  1.96987010e-02, -1.12573056e-03,  1.31279980e-04,
+                      -4.78466616e-02, -8.56400635e-05,  1.60914422e-03, -2.92334744e-02,
+                       3.08405067e-03,  1.39404070e-01,  2.42040971e-02, -2.80714763e-03,
+                       1.34675820e-01, -7.70867505e-02,  9.86158364e-05,  2.54962567e-02,
+                       5.78169071e-02,  2.46873743e-03, -1.05736505e-01, -4.22089003e-02]
+
+        # Build circuit
+        uccsd_ansatz = UCCSD(molecule)
+        uccsd_ansatz.build_circuit()
+
+        # Build qubit hamiltonian for energy evaluation
+        molecular_hamiltonian = molecule.get_molecular_hamiltonian()
+        qubit_hamiltonian = jordan_wigner(molecular_hamiltonian)
+
+        # Assert energy returned is as expected for given parameters
+        sim = Simulator(target="qulacs")
+        uccsd_ansatz.update_var_params(var_params)
+        energy = sim.get_expectation_value(qubit_hamiltonian, uccsd_ansatz.circuit)
+        self.assertAlmostEqual(energy, -1.639461490, delta=1e-6)
 
     def test_uccsd_H4(self):
         """ Verify closed-shell UCCSD functionalities for H4 """

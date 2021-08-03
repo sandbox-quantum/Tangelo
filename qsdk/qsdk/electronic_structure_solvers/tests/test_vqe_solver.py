@@ -28,6 +28,13 @@ mol_H4.charge = 0
 mol_H4.spin = 0
 mol_H4.build()
 
+mol_H4_open = gto.Mole()
+mol_H4_open.atom = H4
+mol_H4_open.basis = "sto-3g"
+mol_H4_open.charge = 1
+mol_H4_open.spin = 1
+mol_H4_open.build()
+
 mol_NaH = gto.Mole()
 mol_NaH.atom = NaH
 mol_NaH.basis = "sto-3g"
@@ -142,6 +149,16 @@ class VQESolverTest(unittest.TestCase):
 
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.9778312978826869, delta=1e-4)
+
+    def test_simulate_h4_open(self):
+        """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
+        vqe_options = {"molecule": mol_H4_open, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+                       "initial_var_params": "random", "verbose": False}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.6394, delta=1e-3)
 
     def test_optimal_circuit_h4(self):
         """ Run VQE on H4 molecule, save optimal circuit. Verify it yields optimal energy """
