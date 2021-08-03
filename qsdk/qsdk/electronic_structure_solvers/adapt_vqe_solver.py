@@ -83,7 +83,7 @@ class ADAPTSolver:
 
         if self.qubit_hamiltonian:
             if not (self.n_spinorbitals and self.n_electrons):
-                raise ValueError("Expecting the number of spin-orbitals (n_spinnorbitals) and the number of electrons (n_electrons) with a qubit_hamiltonian.")
+                raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals) and the number of electrons (n_electrons) with a qubit_hamiltonian.")
 
         self.ansatz = None
         self.converged = False
