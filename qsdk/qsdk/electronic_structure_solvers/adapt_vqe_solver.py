@@ -134,10 +134,6 @@ class ADAPTSolver:
                                                               n_spinorbitals=self.n_spinorbitals,
                                                               n_electrons=self.n_electrons,
                                                               up_then_down=self.up_then_down)
-        else:
-            # If a qubit Hamiltonian is passed instead of a molecule.
-            assert(self.n_spinorbitals), "Expecting number of spin-orbitals (n_spinnorbitals) with a qubit_hamiltonian."
-            assert(self.n_electrons), "Expecting number of electrons (n_electrons) with a qubit_hamiltonian."
 
         # Build / set ansatz circuit.
         ansatz_options = {"mapping": self.qubit_mapping, "up_then_down": self.up_then_down}
