@@ -12,7 +12,7 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 class ADAPTAnsatz(Ansatz):
     """Adaptive ansatz used with ADAPT-VQE. This Ansatz class has methods to
     take a (or many) QubitOperator, transform it (them) into a circuit and append
-    it (them). The number of variational parameters corresponds to the amont of
+    it (them). The number of variational parameters corresponds to the number of
     terms added to the Ansatz.
 
     Attributes:
