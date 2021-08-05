@@ -371,11 +371,7 @@ class VQESolver:
             if length == 2:
                 rdm1_spin[iele, jele] += opt_energy2
             elif length == 4:
-                if iele != lele or jele != kele:
-                    rdm2_spin[lele, iele, kele, jele] += 0.5 * opt_energy2
-                    rdm2_spin[iele, lele, jele, kele] += 0.5 * opt_energy2
-                else:
-                    rdm2_spin[iele, lele, jele, kele] += opt_energy2
+                rdm2_spin[iele, lele, jele, kele] += opt_energy2
 
         if savefrequencies:
             self.rdm_freq_dict = freq_dict
@@ -384,12 +380,9 @@ class VQESolver:
             rdm1_np = np.zeros((n_mol_orbitals,) * 2, dtype=np.complex128)
             rdm2_np = np.zeros((n_mol_orbitals,) * 4, dtype=np.complex128)
 
-            # Construct 1-RDM using 2-RDM
-            rdm1_np_temp = np.zeros((n_spin_orbitals, )*2)
-            for i, j, k in itertools.product(range(n_spin_orbitals), repeat=3):
-                rdm1_np_temp[i, j] += rdm2_spin[i, j, k, k]
+            # Construct 1-RDM
             for i, j in itertools.product(range(n_spin_orbitals), repeat=2):
-                rdm1_np[i//2, j//2] += rdm1_np_temp[i, j]
+                rdm1_np[i//2, j//2] += rdm1_spin[i, j]
 
             # Construct 2-RDM
             for i, j, k, l in itertools.product(range(n_spin_orbitals), repeat=4):
