@@ -6,7 +6,7 @@ def make_samples_box(freq_dict, ncount):
     """
     Make the box of samples for bootstrapping from the dictionary of frequencies
     and number of measurements
-    We will draw from this box randomly for bootstrapping
+    This box will be drawn from randomly for bootstrapping
     Args:
         freq_dict (dict): Dictionary of frequencies for each measurment
         ncount (int) : Number of measurements performed.
@@ -36,10 +36,10 @@ def make_samples_box(freq_dict, ncount):
     return temp_box
 
 
-def get_new_frequencies(freq_dict, ncount):
+def get_resampled_frequencies(freq_dict, ncount):
     """
     From a frequencies dictionary, makes a set of samples consistent with those frequencies and
-    resamples from that set to obtain a new frequencies dictionary consistent with ncount measurements.
+    resample from that set to obtain a new frequencies dictionary consistent with ncount measurements.
     Args:
         freq_dict (array): dictionary of measurement/sample frequencies
         ncount (int): number of shots/samples to generate resampled frequencies

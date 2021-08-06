@@ -19,7 +19,7 @@ from qsdk.toolboxes.ansatz_generator.hea import HEA
 from qsdk.toolboxes.ansatz_generator.upccgsd import UpCCGSD
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.ansatz_generator.penalty_terms import combined_penalty
-from qsdk.toolboxes.post_processing.bootstrapping import get_new_frequencies
+from qsdk.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from agnostic_simulator.helpers.circuits.measurement_basis import measurement_basis_gates
 import warnings
 import itertools
@@ -350,7 +350,7 @@ class VQESolver:
                         qb_freq_dict[qb_term], _ = self.backend.simulate(full_circuit)
                     if resample:
                         if qb_term not in resampled_freq_dict:
-                            resampled_freq_dict[qb_term] = get_new_frequencies(qb_freq_dict[qb_term], self.backend.n_shots)
+                            resampled_freq_dict[qb_term] = get_resampled_frequencies(qb_freq_dict[qb_term], self.backend.n_shots)
                             resampled_expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, resampled_freq_dict[qb_term])
                         expectation = resampled_expect_dict[qb_term]
                     else:
