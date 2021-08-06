@@ -24,7 +24,7 @@ def make_samples_box(freq_dict, ncount):
     for key, value in freq_dict.items():
         added_size = round(value*ncount)
         current_end = current_start + added_size
-        if current_end != ncount:
+        if current_end > ncount-2:
             if abs(current_end - ncount) < 2:
                 raise ValueError('Frequency dictionary sums to greater than 1')
             else:
@@ -39,16 +39,15 @@ def make_samples_box(freq_dict, ncount):
 def get_new_frequencies(freq_dict, ncount):
     """
     From a frequencies dictionary, makes a set of samples consistent with those frequencies and
-    resample to obtain new frequencies dictionary consistent with ncount measurements.
+    resamples from that set to obtain a new frequencies dictionary consistent with ncount measurements.
     Args:
         freq_dict (array): dictionary of measurement/sample frequencies
         ncount (int): number of shots/samples to generate resampled frequencies
-
     Returns
-        frequencies: new frequencies dictionary with resampled distribution
+        frequencies (dict): new frequencies dictionary with resampled distribution
     """
 
-    # regenerate measurements from frequencies
+    # regenerate samples from frequencies
     original_sample = make_samples_box(freq_dict, ncount)
 
     # Get ncount random integers (between 0 and ncount-1)

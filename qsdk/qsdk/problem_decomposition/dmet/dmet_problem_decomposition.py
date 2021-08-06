@@ -211,24 +211,24 @@ class DMETProblemDecomposition(ProblemDecomposition):
         return self.dmet_energy
 
     def energy_error_bars(self, n_shots, n_resamples, purify=False):
-        """Perform DMET loop to optimize the chemical potential. It converges
-        when the electron summation across all fragments is the same as the
-        number of electron in the molecule.
+        """Perform bootstrapping of measured qubit terms in RDMs to obtain error bars for the
+           calculated energy. Can also perform McWeeny purification of the RDMs between resampling and 
+           calculating the energy.
         Args:
-            n_shots (int): The number of shots to resample from the frequencies
-            n_resamples (int): The number of bootstrapping samples to obtain
-            purify (bool): Use mc_weeny_rdm_purification one 2-RDMs if true
+            n_shots (int): The number of shots used to resample from qubit terms
+            n_resamples (int): The number of bootstrapping samples for the estimate of the energy and 
+                               standard deviation
+            purify (bool): Use mc_weeny_rdm_purification technique on 2-RDMs. Will only apply to fragments with 
+                           2 electrons.
 
         Returns:
-            float: The DMET energy (dmet_energy).
+            float: The bootstrapped DMET energy and standard deviation.
         """
 
-        # Initialize the energy list and SCF procedure employing newton-raphson algorithm.
-        # TODO : find a better initial guess than 0.0 for chemical potential. DMET fails often currently.
         if self.chemical_potential is None:
             raise RuntimeError("No chemical_potential. Have you run a simulation yet?")
 
-        # Run once to obtain a single set of results
+        # Run once with saveresults=True to obtain a single set of results
         _ = self._oneshot_loop(self.chemical_potential, saveresults=True, resample=False, n_shots=n_shots)
 
         # begin resampling
@@ -294,7 +294,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             resample (bool): If True, the saved frequencies are resampled using bootstrapping
             n_shots (int): The number of shots used for resampling,
                            Ideally the same as used in the simulation but can be different
-            purify (bool): If True, call mc_weeny_rdm_purification to purify 2-RDM. Only called for
+            purify (bool): If True, use McWeeny's purification technique to purify 2-RDM. Only called for
                            fragments with 2 electrons.
 
         Returns:

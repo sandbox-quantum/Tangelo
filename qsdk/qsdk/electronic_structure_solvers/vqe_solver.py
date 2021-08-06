@@ -8,7 +8,7 @@ from copy import deepcopy
 
 from agnostic_simulator import Simulator, Circuit
 from openfermion.ops.operators.qubit_operator import QubitOperator
-from qsdk.toolboxes.operators import count_qubits
+from qsdk.toolboxes.operators import count_qubits, FermionOperator
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -280,15 +280,16 @@ class VQESolver:
          not the Hamiltonian term.
 
          Args:
-             var_params (numpy.array or list): variational parameters to use for VQE energy evaluation
+             var_params (numpy.array or list): variational parameters to use for rdm calculation
              savefrequencies (bool): Whether to save measured frequencies for each qubit term in rdm
-                                     Must run before bootstrapping can occur
-             resample (bool): Whether to resample saved frequencies. get_rdm with savefrequencies must
-                              be called with savefrequencies=True or will result in an error
+                                     Must run before resample=True call
+             resample (bool): Whether to resample saved frequencies. get_rdm with savefrequencies=True must
+                              be called or a dictionary for each qubit terms' frequencies must be set to
+                              self.rdm_freq_dict
              sumspin (bool): If True, the spin-summed 1-RDM and 2-RDM will be returned. If False, the full
                              1-RDM and 2-RDM will be returned.
          Returns:
-             (numpy.array, numpy.array): One & two-particle spin summed RDMs if sumspin=True or the 
+             (numpy.array, numpy.array): One & two-particle spin summed RDMs if sumspin=True or the
                                          full One & two-Particle RDMs if sumspin=False.
          """
 
@@ -300,35 +301,33 @@ class VQESolver:
         rdm1_spin = np.zeros((n_spin_orbitals,) * 2, dtype=np.complex128)
         rdm2_spin = np.zeros((n_spin_orbitals,) * 4, dtype=np.complex128)
 
-        # Lookup "dictionary" (lists are used because keys are non-hashable) to avoid redundant computation
-        lookup_ham, lookup_val = list(), list()
+        # If resampling is requested, check that a previous savefrequencies run has been called
         if resample:
             if hasattr(self, 'rdm_freq_dict'):
-                freq_dict = self.rdm_freq_dict
+                qb_freq_dict = self.rdm_freq_dict
                 resampled_freq_dict = dict()
                 resampled_expect_dict = dict()
             else:
                 raise AttributeError('need to run RDM calculation with savefrequencies=True')
         else:
-            freq_dict = dict()  # self.backend.freq_dict
-            expect_dict = dict()
+            qb_freq_dict = dict()
+            qb_expect_dict = dict()
 
         # Loop over each element of Hamiltonian (non-zero value)
-        for ikey, key in enumerate(self.fermionic_hamiltonian):
-            length = len(key)
+        for key in self.fermionic_hamiltonian:
             # Ignore constant / empty term
             if not key:
                 continue
+
             # Assign indices depending on one- or two-body term
+            length = len(key)
             if (length == 2):
                 iele, jele = (int(ele[0]) for ele in tuple(key[0:2]))
             elif (length == 4):
                 iele, jele, kele, lele = (int(ele[0]) for ele in tuple(key[0:4]))
 
-            # Select the Hamiltonian element (Set coefficient to one)
-            hamiltonian_temp = deepcopy(self.fermionic_hamiltonian)
-            for key2 in hamiltonian_temp:
-                hamiltonian_temp[key2] = 1. if (key == key2 and ikey != 0) else 0.
+            # Create the Hamiltonian with the correct key (Set coefficient to one)
+            hamiltonian_temp = FermionOperator(key)
 
             # Obtain qubit Hamiltonian
             qubit_hamiltonian2 = fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
@@ -338,34 +337,29 @@ class VQESolver:
                                                           up_then_down=self.up_then_down)
             qubit_hamiltonian2.compress()
 
-            if qubit_hamiltonian2.terms in lookup_ham:
-                opt_energy2 = lookup_val[lookup_ham.index(qubit_hamiltonian2.terms)]
-            else:
-                # Overwrite with the temp hamiltonian, use it to calculate the energy, store in lookup lists
-                opt_energy2 = 0.
-                for qb_term, qb_coef in qubit_hamiltonian2.terms.items():
-                    if qb_term:
-                        if qb_term not in freq_dict:
-                            if resample:
-                                warnings.warn(f'Warning: rerunning circuit for missing qubit term {qb_term}')
-                            basis_circuit = Circuit(measurement_basis_gates(qb_term))
-                            full_circuit = self.ansatz.circuit + basis_circuit
-                            freq_dict[qb_term], _ = self.backend.simulate(full_circuit)
+            # Run through each qubit term separately, use previously calculated result for the qubit term or
+            # calculate and save results for that qubit term
+            opt_energy2 = 0.
+            for qb_term, qb_coef in qubit_hamiltonian2.terms.items():
+                if qb_term:
+                    if qb_term not in qb_freq_dict:
                         if resample:
-                            if qb_term not in resampled_freq_dict:
-                                resampled_freq_dict[qb_term] = get_new_frequencies(freq_dict[qb_term], self.backend.n_shots)
-                                resampled_expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, resampled_freq_dict[qb_term])
-                            expectation = resampled_expect_dict[qb_term]
-                        else:
-                            if qb_term not in expect_dict:
-                                expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, freq_dict[qb_term])
-                            expectation = expect_dict[qb_term]
-                        opt_energy2 += qb_coef * expectation
+                            warnings.warn(f'Warning: rerunning circuit for missing qubit term {qb_term}')
+                        basis_circuit = Circuit(measurement_basis_gates(qb_term))
+                        full_circuit = self.ansatz.circuit + basis_circuit
+                        qb_freq_dict[qb_term], _ = self.backend.simulate(full_circuit)
+                    if resample:
+                        if qb_term not in resampled_freq_dict:
+                            resampled_freq_dict[qb_term] = get_new_frequencies(qb_freq_dict[qb_term], self.backend.n_shots)
+                            resampled_expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, resampled_freq_dict[qb_term])
+                        expectation = resampled_expect_dict[qb_term]
                     else:
-                        opt_energy2 += qb_coef
-
-                lookup_ham.append(qubit_hamiltonian2.terms)
-                lookup_val.append(opt_energy2)
+                        if qb_term not in qb_expect_dict:
+                            qb_expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, qb_freq_dict[qb_term])
+                        expectation = qb_expect_dict[qb_term]
+                    opt_energy2 += qb_coef * expectation
+                else:
+                    opt_energy2 += qb_coef
 
             # Put the values in np arrays (differentiate 1- and 2-RDM)
             if length == 2:
@@ -374,17 +368,17 @@ class VQESolver:
                 rdm2_spin[iele, lele, jele, kele] += opt_energy2
 
         if savefrequencies:
-            self.rdm_freq_dict = freq_dict
+            self.rdm_freq_dict = qb_freq_dict
 
         if sumspin:
             rdm1_np = np.zeros((n_mol_orbitals,) * 2, dtype=np.complex128)
             rdm2_np = np.zeros((n_mol_orbitals,) * 4, dtype=np.complex128)
 
-            # Construct 1-RDM
+            # Construct spin-summed 1-RDM
             for i, j in itertools.product(range(n_spin_orbitals), repeat=2):
                 rdm1_np[i//2, j//2] += rdm1_spin[i, j]
 
-            # Construct 2-RDM
+            # Construct spin-summed 2-RDM
             for i, j, k, l in itertools.product(range(n_spin_orbitals), repeat=4):
                 rdm2_np[i//2, j//2, k//2, l//2] += rdm2_spin[i, j, k, l]
 
