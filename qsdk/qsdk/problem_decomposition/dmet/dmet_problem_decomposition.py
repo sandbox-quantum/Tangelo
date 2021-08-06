@@ -212,14 +212,14 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
     def energy_error_bars(self, n_shots, n_resamples, purify=False):
         """Perform bootstrapping of measured qubit terms in RDMs to obtain error bars for the
-           calculated energy. Can also perform McWeeny purification of the RDMs between resampling and 
+           calculated energy. Can also perform McWeeny purification of the RDMs between resampling and
            calculating the energy.
         Args:
             n_shots (int): The number of shots used to resample from qubit terms
-            n_resamples (int): The number of bootstrapping samples for the estimate of the energy and 
+            n_resamples (int): The number of bootstrapping samples for the estimate of the energy and
                                standard deviation
-            purify (bool): Use mc_weeny_rdm_purification technique on 2-RDMs. Will only apply to fragments with 
-                           2 electrons.
+            purify (bool): Use mc_weeny_rdm_purification technique on 2-RDMs. Will only apply to fragments
+                           with 2 electrons.
 
         Returns:
             float: The bootstrapped DMET energy and standard deviation.
