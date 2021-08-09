@@ -4,7 +4,7 @@ and how to fix them) as well as the solver(s) to use.
 """
 
 import numpy as np
-from pyscf import gto
+from pyscf import gto, scf
 
 # Imports of electronic solvers.
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
@@ -63,12 +63,8 @@ class Fragment:
         self.mol_high = None
         self.e_fragment = None
 
-    def simulate(self):
-        """Get the solver object for this layer.
-
-        Returns:
-            float: Energy for the fragment.
-        """
+    def build(self):
+        """Get the solver objects for this layer. Also defined molecule objects. """
 
         # Low accuracy solver.
         # We begin by defining the molecule.
@@ -79,10 +75,9 @@ class Fragment:
             # it from the molecule object).
             self.options_low = {i:self.options_low[i] for i in self.options_low if i!="basis"}
 
-        e_low = self.get_energy(self.mol_low, self.solver_low, self.options_low)
+        self.solver_low = self.get_solver(self.mol_low, self.solver_low, self.options_low)
 
         # Higher accuracy solver.
-        e_high = 0.
         if self.solver_high is not None:
 
             # Molecule is reconstructed (in case a different basis is used).
@@ -91,6 +86,21 @@ class Fragment:
                 # Same process done as in low accuracy process.
                 self.options_high = {i:self.options_high[i] for i in self.options_high if i!="basis"}
 
+            self.solver_high = self.get_solver(self.mol_high, self.solver_high, self.options_high)
+
+    def simulate(self):
+        """Get the energy for this fragment.
+
+        Returns:
+            float: Energy for the fragment.
+        """
+
+        # Low accuracy solver.
+        e_low = self.get_energy(self.mol_low, self.solver_low, self.options_low)
+
+        # Higher accuracy solver.
+        e_high = 0.
+        if self.solver_high is not None:
             e_high = self.get_energy(self.mol_high, self.solver_high, self.options_high)
 
             # Contribution from low accuracy is substracted, as defined by ONIOM.
@@ -115,39 +125,71 @@ class Fragment:
         return mol
 
     def get_energy(self, molecule, solver, options_solver):
-        """Get the solver object for this layer.
+        """Get the energy for a specific solver.
 
         Args:
             molecule (pyscf.gto): Molecule for this fragment (with repaired links).
-            sovler (str): Which solver to use.
+            solver (solver object): Which solver to use.
             options_solver (dict): Options for the solver.
 
         Returns:
             float: Energy of the fragment.
         """
 
-        if solver == "RHF":
-            mean_field = prepare_mf_RHF(molecule, **options_solver)
-            energy = mean_field.e_tot
-        elif solver == "CCSD":
-            solver = CCSDSolver()
+        if isinstance(solver, scf.hf.RHF):
+            energy = solver.e_tot
+        elif isinstance(solver, CCSDSolver) or isinstance(solver, FCISolver) or isinstance(solver, MINDO3Solver):
             energy = solver.simulate(molecule, **options_solver)
-        elif solver == "FCI":
-            solver = FCISolver()
-            energy = solver.simulate(molecule, **options_solver)
-        elif solver == "MINDO3":
-            solver = MINDO3Solver()
-            energy = solver.simulate(molecule, **options_solver)
-        elif solver == "VQE":
-            molecule_options = {'molecule': molecule}
-            solver = VQESolver({**molecule_options, **options_solver})
-            solver.build()
-            energy = solver.simulate()
+        # The remaining case is for VQESolver.
         else:
-            raise NotImplementedError("This {} solver has not been implemented yet in ONIOMProblemDecomposition".format(solver))
+            energy = solver.simulate()
 
         return energy
 
+    def get_solver(self, molecule, solver_string, options_solver):
+        """Get the solver object for this layer.
+
+        Args:
+            molecule (pyscf.gto): Molecule for this fragment (with repaired links).
+            solver_string (str): Which solver to use.
+            options_solver (dict): Options for the solver.
+
+        Returns:
+            Solver object.
+        """
+
+        if solver_string == "RHF":
+            return prepare_mf_RHF(molecule, **options_solver)
+        elif solver_string == "CCSD":
+            return CCSDSolver()
+        elif solver_string == "FCI":
+            return FCISolver()
+        elif solver_string == "MINDO3":
+            return MINDO3Solver()
+        elif solver_string == "VQE":
+            molecule_options = {'molecule': molecule}
+            solver = VQESolver({**molecule_options, **options_solver})
+            solver.build()
+            return solver
+        else:
+            raise NotImplementedError("This {} solver has not been implemented yet in ONIOMProblemDecomposition".format(solver_string))
+
+    def get_resources(self):
+        """Estimate the quantum esources required for this fragment Only supports
+        VQESolver solvers.
+        """
+
+        # If one of the solver is VQE, quantum resources are returned. If both
+        # are VQE, the solver_high overrides the solver_low resources.
+        resources = {}
+
+        if isinstance(self.solver_low, VQESolver):
+            resources = self.solver_low.get_resources()
+
+        if isinstance(self.solver_high, VQESolver):
+            resources = self.solver_high.get_resources()
+
+        return resources
 
 class Link:
 

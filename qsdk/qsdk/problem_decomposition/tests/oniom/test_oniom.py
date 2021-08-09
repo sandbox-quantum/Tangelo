@@ -57,11 +57,8 @@ class ONIOMTest(unittest.TestCase):
                          solver_high="BANANA",
                          selected_atoms=[0, 1])
 
-        ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model]})
-
         with self.assertRaises(NotImplementedError):
             oniom_solver = ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model]})
-            oniom_solver.simulate()
 
     def test_capping_broken_link(self):
         """Testing the positon of a new H atom when a bond is broken. """
@@ -134,7 +131,6 @@ class ONIOMTest(unittest.TestCase):
         # With this line, the interaction between H2-H2 is computed with a low
         # accuracy method.
         system = Fragment(solver_low="RHF", options_low=options_both)
-
         # VQE-UCCSD fragments.
         model_vqe_1 = Fragment(solver_low="RHF",
                                options_low=options_both,
@@ -146,8 +142,10 @@ class ONIOMTest(unittest.TestCase):
                                solver_high="VQE",
                                options_high=options_both,
                                selected_atoms=[2, 3])
+        oniom_model_vqe = ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model_vqe_1, model_vqe_2]})
 
         # Comparing VQE-UCCSD to CCSD.
+        system = Fragment(solver_low="RHF", options_low=options_both)
         model_cc_1 = Fragment(solver_low="RHF",
                               options_low=options_both,
                               solver_high="CCSD",
@@ -158,11 +156,9 @@ class ONIOMTest(unittest.TestCase):
                               solver_high="CCSD",
                               options_high=options_both,
                               selected_atoms=[2, 3])
-
-        oniom_model_vqe = ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model_vqe_1, model_vqe_2]})
-        e_oniom_vqe = oniom_model_vqe.simulate()
-
         oniom_model_cc = ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model_cc_1, model_cc_2]})
+
+        e_oniom_vqe = oniom_model_vqe.simulate()
         e_oniom_cc = oniom_model_cc.simulate()
 
         # The two results (VQE-UCCSD and CCSD) should be more or less the same.
@@ -190,6 +186,38 @@ class ONIOMTest(unittest.TestCase):
         e_oniom = oniom_solver.simulate()
 
         self.assertAlmostEquals(e_oniom, -315.23418566258914, places=6)
+
+    def test_get_resources(self):
+        """Test to verifiy the implementation of resources estimation in ONIOM. """
+
+        options_both = {"basis": "sto-3g"}
+
+        system = Fragment(solver_low="RHF", options_low=options_both)
+
+        # VQE-UCCSD fragments.
+        model_vqe_1 = Fragment(solver_low="RHF",
+                               options_low=options_both,
+                               solver_high="VQE",
+                               options_high=options_both,
+                               selected_atoms=[0, 1])
+        model_vqe_2 = Fragment(solver_low="RHF",
+                               options_low=options_both,
+                               solver_high="VQE",
+                               options_high=options_both,
+                               selected_atoms=[2, 3])
+        oniom_model_vqe = ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model_vqe_1, model_vqe_2]})
+
+        vqe_resources = {"qubit_hamiltonian_terms": 15,
+                         "circuit_width": 4,
+                         "circuit_gates": 158,
+                         "circuit_2qubit_gates": 64,
+                         "circuit_var_gates": 12,
+                         "vqe_variational_parameters": 2}
+
+        res = oniom_model_vqe.get_resources()
+
+        self.assertEqual(res[1], vqe_resources)
+        self.assertEqual(res[2], vqe_resources)
 
 
 if __name__ == "__main__":
