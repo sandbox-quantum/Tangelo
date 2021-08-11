@@ -269,7 +269,7 @@ class VQESolver:
 
         return expectation
 
-    def get_rdm(self, var_params, save_frequencies=False, resample=False, sum_spin=True):
+    def get_rdm(self, var_params, resample=False, sum_spin=True):
         """ Compute the 1- and 2- RDM matrices using the VQE energy evaluation. This method allows
         to combine the DMET problem decomposition technique with the VQE as an electronic structure solver.
          The RDMs are computed by using each fermionic Hamiltonian term, transforming them and computing
@@ -280,8 +280,6 @@ class VQESolver:
 
          Args:
              var_params (numpy.array or list): variational parameters to use for rdm calculation
-             save_frequencies (bool): Whether to save measured frequencies for each qubit term in rdm
-                                     Must run before resample=True call
              resample (bool): Whether to resample saved frequencies. get_rdm with savefrequencies=True must
                               be called or a dictionary for each qubit terms' frequencies must be set to
                               self.rdm_freq_dict
@@ -365,8 +363,8 @@ class VQESolver:
             elif length == 4:
                 rdm2_spin[iele, lele, jele, kele] += opt_energy2
 
-        if save_frequencies:
-            self.rdm_freq_dict = qb_freq_dict
+        # save rdm frequency dictionary
+        self.rdm_freq_dict = qb_freq_dict
 
         if sum_spin:
             rdm1_np = np.zeros((n_mol_orbitals,) * 2, dtype=np.complex128)
