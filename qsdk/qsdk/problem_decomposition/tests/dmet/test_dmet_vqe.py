@@ -35,10 +35,11 @@ class DMETVQETest(unittest.TestCase):
         energy = dmet.simulate()
 
         # Test boostrapping error
-        energy_2, standard_deviation = dmet.energy_error_bars(n_shots=500, n_resamples=5, purify=False)
+        bootstrap_energy, standard_deviation = dmet.energy_error_bars(n_shots=500, n_resamples=5, purify=False)
 
         self.assertAlmostEqual(energy, -1.9916120594, delta=1e-3)
-        self.assertAlmostEqual(energy_2, -1.9916120594, delta=standard_deviation*4)
+        # Should pass 99.993666% of the time with 4\sigma distance
+        self.assertAlmostEqual(bootstrap_energy, -1.9916120594, delta=standard_deviation*4)
 
     def test_h4ring_vqe_ressources(self):
         """Resources estimation on H4 ring. """

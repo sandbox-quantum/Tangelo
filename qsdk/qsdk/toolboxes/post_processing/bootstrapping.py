@@ -1,39 +1,6 @@
 import numpy as np
+from scipy import stats
 from collections import Counter
-
-
-def make_samples_box(freq_dict, ncount):
-    """
-    Make the box of samples for bootstrapping from the dictionary of frequencies
-    and number of measurements
-    This box will be drawn from randomly for bootstrapping
-    Args:
-        freq_dict (dict): Dictionary of frequencies for each measurment
-        ncount (int) : Number of measurements performed.
-    Return:
-        temp_box (size:ncount) a numpy array with values of keys in the dictionary
-                          with number of them reflecting the histogram
-    """
-
-    current_start = 0
-    # pre allocate samples box. All keys have the same length of string
-    for key in freq_dict:
-        datatype = '<U'+str(len(key))
-    temp_box = np.empty(ncount, dtype=datatype)
-    # Get probabilty of each elements from the dictionary and create proportional number in samples box
-    for key, value in freq_dict.items():
-        added_size = round(value*ncount)
-        current_end = current_start + added_size
-        if current_end > ncount-2:
-            if abs(current_end - ncount) < 2:
-                raise ValueError('Frequency dictionary sums to greater than 1')
-            else:
-                # most likely a finite precision error
-                current_end = ncount
-        temp_box[current_start:current_end] = key
-        current_start += added_size
-
-    return temp_box
 
 
 def get_resampled_frequencies(freq_dict, ncount):
@@ -47,30 +14,29 @@ def get_resampled_frequencies(freq_dict, ncount):
         frequencies (dict): new frequencies dictionary with resampled distribution
     """
 
-    # regenerate samples from frequencies
-    original_sample = make_samples_box(freq_dict, ncount)
+    length_dict = len(freq_dict.keys())
+    xk = np.empty(length_dict, dtype=np.int64)
+    pk = np.empty(length_dict, dtype=float)
 
-    # Get ncount random integers (between 0 and ncount-1)
-    rand_indices = np.random.randint(ncount, size=ncount)
+    # Convert to arrays of integers and frequencies and create generator for samples
+    for i, (k, v) in enumerate(freq_dict.items()):
+        xk[i] = int(k, 2)
+        pk[i] = v
+    distr = stats.rv_discrete(name='distr', values=(xk, pk))
 
-    # Pick out rand_indices from original to make resampled list of samples
-    resample = [original_sample[newint] for newint in rand_indices]
+    # Obtain output bitstring string format
+    n_qubits = len(list(freq_dict.keys())[0])
+    format_specifier = '0'+str(n_qubits)+'b'
 
-    # generate new dictionary of samples
-    frequencies = {k: v / ncount for k, v in Counter(resample).items()}
+    # Generate samples from distribution. Cut in chunks to ensure samples fit in memory, gradually accumulate
+    chunk_size = 10**7
+    n_chunks = ncount // chunk_size
+    freqs_shots = Counter()
+
+    for i in range(n_chunks+1):
+        this_chunk = ncount % chunk_size if i == n_chunks else chunk_size
+        samples = distr.rvs(size=this_chunk)
+        freqs_shots += Counter(samples)
+    frequencies = {format(k, format_specifier): v / ncount for k, v in freqs_shots.items()}
 
     return frequencies
-
-
-def get_average_sd(energy_list):
-    """
-    Calculate the average and standard deviation from the energy distribution
-    Args:
-        energy_list (array): list of energy values
-    Returns:
-        Average and standard deviation of the energy distribution
-    """
-
-    energy_average = np.mean(energy_list)
-    energy_standard_deviation = np.std(energy_list, ddof=1)
-    return energy_average, energy_standard_deviation

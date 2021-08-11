@@ -1,13 +1,15 @@
 """
 Implements the variational quantum eigensolver (VQE) algorithm to solve electronic structure calculations.
 """
+import warnings
+import itertools
 
 from enum import Enum
 import numpy as np
-from copy import deepcopy
+from openfermion.ops.operators.qubit_operator import QubitOperator
 
 from agnostic_simulator import Simulator, Circuit
-from openfermion.ops.operators.qubit_operator import QubitOperator
+from agnostic_simulator.helpers.circuits.measurement_basis import measurement_basis_gates
 from qsdk.toolboxes.operators import count_qubits, FermionOperator
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
@@ -20,9 +22,6 @@ from qsdk.toolboxes.ansatz_generator.upccgsd import UpCCGSD
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from qsdk.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
-from agnostic_simulator.helpers.circuits.measurement_basis import measurement_basis_gates
-import warnings
-import itertools
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
 
 
@@ -270,7 +269,7 @@ class VQESolver:
 
         return expectation
 
-    def get_rdm(self, var_params, savefrequencies=False, resample=False, sumspin=True):
+    def get_rdm(self, var_params, save_frequencies=False, resample=False, sum_spin=True):
         """ Compute the 1- and 2- RDM matrices using the VQE energy evaluation. This method allows
         to combine the DMET problem decomposition technique with the VQE as an electronic structure solver.
          The RDMs are computed by using each fermionic Hamiltonian term, transforming them and computing
@@ -281,12 +280,12 @@ class VQESolver:
 
          Args:
              var_params (numpy.array or list): variational parameters to use for rdm calculation
-             savefrequencies (bool): Whether to save measured frequencies for each qubit term in rdm
+             save_frequencies (bool): Whether to save measured frequencies for each qubit term in rdm
                                      Must run before resample=True call
              resample (bool): Whether to resample saved frequencies. get_rdm with savefrequencies=True must
                               be called or a dictionary for each qubit terms' frequencies must be set to
                               self.rdm_freq_dict
-             sumspin (bool): If True, the spin-summed 1-RDM and 2-RDM will be returned. If False, the full
+             sum_spin (bool): If True, the spin-summed 1-RDM and 2-RDM will be returned. If False, the full
                              1-RDM and 2-RDM will be returned.
          Returns:
              (numpy.array, numpy.array): One & two-particle spin summed RDMs if sumspin=True or the
@@ -296,16 +295,15 @@ class VQESolver:
         self.ansatz.update_var_params(var_params)
 
         # Initialize the RDM arrays
-        n_mol_orbitals = len(self.ansatz.mf.mo_energy)
-        n_spin_orbitals = len(self.ansatz.mf.mo_energy) * 2
-        rdm1_spin = np.zeros((n_spin_orbitals,) * 2, dtype=np.complex128)
-        rdm2_spin = np.zeros((n_spin_orbitals,) * 4, dtype=np.complex128)
+        n_mol_orbitals = self.ansatz.molecule.n_orbitals
+        n_spin_orbitals = self.ansatz.molecule.n_spin_orbitals
+        rdm1_spin = np.zeros((n_spin_orbitals,) * 2, dtype=complex)
+        rdm2_spin = np.zeros((n_spin_orbitals,) * 4, dtype=complex)
 
         # If resampling is requested, check that a previous savefrequencies run has been called
         if resample:
             if hasattr(self, 'rdm_freq_dict'):
                 qb_freq_dict = self.rdm_freq_dict
-                resampled_freq_dict = dict()
                 resampled_expect_dict = dict()
             else:
                 raise AttributeError('need to run RDM calculation with savefrequencies=True')
@@ -349,9 +347,9 @@ class VQESolver:
                         full_circuit = self.ansatz.circuit + basis_circuit
                         qb_freq_dict[qb_term], _ = self.backend.simulate(full_circuit)
                     if resample:
-                        if qb_term not in resampled_freq_dict:
-                            resampled_freq_dict[qb_term] = get_resampled_frequencies(qb_freq_dict[qb_term], self.backend.n_shots)
-                            resampled_expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, resampled_freq_dict[qb_term])
+                        if qb_term not in resampled_expect_dict:
+                            resampled_freq_dict = get_resampled_frequencies(qb_freq_dict[qb_term], self.backend.n_shots)
+                            resampled_expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, resampled_freq_dict)
                         expectation = resampled_expect_dict[qb_term]
                     else:
                         if qb_term not in qb_expect_dict:
@@ -367,10 +365,10 @@ class VQESolver:
             elif length == 4:
                 rdm2_spin[iele, lele, jele, kele] += opt_energy2
 
-        if savefrequencies:
+        if save_frequencies:
             self.rdm_freq_dict = qb_freq_dict
 
-        if sumspin:
+        if sum_spin:
             rdm1_np = np.zeros((n_mol_orbitals,) * 2, dtype=np.complex128)
             rdm2_np = np.zeros((n_mol_orbitals,) * 4, dtype=np.complex128)
 

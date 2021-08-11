@@ -1,19 +1,19 @@
 """Employ DMET as a problem decomposition technique. """
 
 from enum import Enum
+import warnings
+
 from functools import reduce
 from multiprocessing import Value
 from pyscf import gto
 import scipy
 import numpy as np
-import warnings
 
 from . import _helpers as helpers
 from ..problem_decomposition import ProblemDecomposition
 from ..electron_localization import iao_localization, meta_lowdin_localization
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.electronic_structure_solvers import FCISolver, CCSDSolver, VQESolver
-from qsdk.toolboxes.post_processing.bootstrapping import get_average_sd
 from qsdk.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
 
 
@@ -229,15 +229,15 @@ class DMETProblemDecomposition(ProblemDecomposition):
             raise RuntimeError("No chemical_potential. Have you run a simulation yet?")
 
         # Run once with saveresults=True to obtain a single set of results
-        _ = self._oneshot_loop(self.chemical_potential, saveresults=True, resample=False, n_shots=n_shots)
+        _ = self._oneshot_loop(self.chemical_potential, save_results=True, resample=False)
 
         # begin resampling
-        resampled_energies = np.zeros(n_resamples, dtype=np.float64)
+        resampled_energies = np.zeros(n_resamples, dtype=float)
         for i in range(n_resamples):
-            _ = self._oneshot_loop(self.chemical_potential, saveresults=False, resample=True, n_shots=n_shots, purify=purify)
-            resampled_energies[i] = np.real(self.dmet_energy)
+            _ = self._oneshot_loop(self.chemical_potential, save_results=False, resample=True, n_shots=n_shots, purify=purify)
+            resampled_energies[i] = self.dmet_energy.real
 
-        energy_average, energy_standard_deviation = get_average_sd(resampled_energies)
+        energy_average, energy_standard_deviation = np.mean(resampled_energies), np.std(resampled_energies, ddof=1)
 
         return energy_average, energy_standard_deviation
 
@@ -283,13 +283,13 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         return scf_fragments
 
-    def _oneshot_loop(self, chemical_potential, saveresults=False, resample=False, n_shots=None, purify=False):
+    def _oneshot_loop(self, chemical_potential, save_results=True, resample=False, n_shots=None, purify=False):
         """Perform the DMET loop. This is the cost function which is optimized
         with respect to the chemical potential.
 
         Args:
             chemical_potential (float): The chemical potential.
-            saveresults (bool): If True, optimal_var_params and frequencies for each qubit term
+            save_results (bool): If True, optimal_var_params and frequencies for each qubit term
                                 of the rdm calculation for each fragment that uses vqe is saved.
             resample (bool): If True, the saved frequencies are resampled using bootstrapping
             n_shots (int): The number of shots used for resampling,
@@ -315,11 +315,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         # Possibly add dictionary of measured frequencies for each fragment
         if resample:
-            if saveresults:
+            if save_results:
                 raise ValueError('Can not save results and resample in same run. Must run saveresults first')
             if not hasattr(self, 'fragment_freq_dict'):
-                raise AttributeError('Need to run _oneshot_loop with saveresults=True in order to resample')
-        if saveresults:
+                raise AttributeError('Need to run _oneshot_loop with save_results=True in order to resample')
+        if save_results:
             self.fragment_freq_dict = dict()
             self.fragment_optimal_var_params = dict()
 
@@ -364,11 +364,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     solver_fragment.simulate()
 
                 if purify and solver_fragment.qemist_molecule.n_electrons == 2:
-                    onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, savefrequencies=saveresults, sumspin=False)
+                    onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, save_frequencies=save_results, resample=resample, sum_spin=False)
                     onerdm, twordm = mcweeny_purify_2rdm(twordm)
                 else:
-                    onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, savefrequencies=saveresults)
-                if saveresults:
+                    onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, save_frequencies=save_results, resample=resample)
+                if save_results:
                     self.fragment_freq_dict[i] = solver_fragment.rdm_freq_dict
                     self.fragment_optimal_var_params[i] = solver_fragment.optimal_var_params
 
