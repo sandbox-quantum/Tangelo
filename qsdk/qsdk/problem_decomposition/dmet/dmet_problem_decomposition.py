@@ -223,8 +223,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
                                standard deviation
             purify (bool): Use mc_weeny_rdm_purification technique on 2-RDMs. Will only apply to fragments
                            with 2 electrons.
-            rdm_measurements (dict): A dictionary with keys being the fragment number and values...
-                                     a dictionary with keys corresponding to qubit terms in the rdm and values...
+            rdm_measurements (dict): A dictionary with keys being the DMET fragment number and corresponding values of
+                                     a dictionary with keys of qubit terms in the rdm and corresponding values of
                                      a frequencies dictionary of the measurements.
                                      Example: {0: {((0, 'X'), (1, 'Y')): {'10': 0.5, '01': 0.5},
                                                    ((1, 'Z'), (1, 'X')): {'00': 0.25, '11': 0.25, '01': 0.5}
@@ -232,7 +232,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                                                1: {((0, 'Z')): {'0000': 1}
                                                    ((0, 'X'), (1, 'Y')): {'1111': 0.5, '0101': 0.5}
                                                   }
-                                              ssss}.
+                                              }.
                                      If run _oneshot_loop with save_results=True is called:
                                      self.rdm_measurements will have the proper dictionary format with all values
                                      populated
@@ -310,9 +310,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
                            Ideally the same as used in the simulation but can be different
             purify (bool): If True, use McWeeny's purification technique to purify 2-RDM. Only called for
                            fragments with 2 electrons.
-            rdm_measurements (dict): A dictionary with keys being the fragment number and values...
-                                 a dictionary with keys corresponding to qubit terms in the rdm and values...
-                                 a frequencies dictionary of the measurements.
+            rdm_measurements (dict): A dictionary with keys being the DMET fragment number and corresponding values of
+                                     a dictionary with keys of qubit terms in the rdm and corresponding values of
+                                     a frequencies dictionary of the measurements.
                                  Example: {0: {((0, 'X'), (1, 'Y')): {'10': 0.5, '01': 0.5},
                                                ((1, 'Z'), (1, 'X')): {'00': 0.25, '11': 0.25, '01': 0.5}
                                               }
@@ -386,7 +386,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                         if i in rdm_measurements:
                             solver_fragment.rdm_freq_dict = rdm_measurements[i]
                         else:
-                            raise KeyError(f'rdm_measurements for fragment{i} are missing')
+                            raise KeyError(f'rdm_measurements for fragment {i} are missing')
                     if n_shots:
                         solver_fragment.backend.n_shots = n_shots
                     if solver_fragment.backend.n_shots is None:
