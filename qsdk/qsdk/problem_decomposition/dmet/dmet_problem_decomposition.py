@@ -1,22 +1,25 @@
 """Employ DMET as a problem decomposition technique. """
 
 from enum import Enum
+import warnings
+
 from functools import reduce
+from multiprocessing import Value
 from pyscf import gto
 import scipy
 import numpy as np
-import warnings
 
 from . import _helpers as helpers
 from ..problem_decomposition import ProblemDecomposition
 from ..electron_localization import iao_localization, meta_lowdin_localization
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.electronic_structure_solvers import FCISolver, CCSDSolver, VQESolver
+from qsdk.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
 
 
 class Localization(Enum):
     """ Enumeration of the electron localization supported by DMET."""
-    meta_lowdin= 0
+    meta_lowdin = 0
     iao = 1
 
 
@@ -99,7 +102,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             new_molecule.basis = self.molecule.basis
             new_molecule.charge = self.molecule.charge
             new_molecule.spin = self.molecule.spin
-            new_molecule.unit =  "B"
+            new_molecule.unit = "B"
             new_molecule.build()
 
             # Attribution of the expected fragment_atoms and a reordered molecule.
@@ -200,12 +203,56 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         self.chemical_potential = self.optimizer(self._oneshot_loop, self.initial_chemical_potential)
 
+        # run one more time to save results
+        _ = self._oneshot_loop(self.chemical_potential, save_results=True)
+
         if self.verbose:
             print(' \t*** DMET Cycle Done *** ')
             print(' \tDMET Energy ( a.u. ) = ' + '{:17.10f}'.format(self.dmet_energy))
             print(' \tChemical Potential   = ' + '{:17.10f}'.format(self.chemical_potential))
 
         return self.dmet_energy
+
+    def energy_error_bars(self, n_shots, n_resamples, purify=False, rdm_measurements=None):
+        """Perform bootstrapping of measured qubit terms in RDMs to obtain error bars for the
+           calculated energy. Can also perform McWeeny purification of the RDMs between resampling and
+           calculating the energy.
+        Args:
+            n_shots (int): The number of shots used to resample from qubit terms
+            n_resamples (int): The number of bootstrapping samples for the estimate of the energy and
+                               standard deviation
+            purify (bool): Use mc_weeny_rdm_purification technique on 2-RDMs. Will only apply to fragments
+                           with 2 electrons.
+            rdm_measurements (dict): A dictionary with keys being the DMET fragment number and corresponding values of
+                                     a dictionary with keys of qubit terms in the rdm and corresponding values of
+                                     a frequencies dictionary of the measurements.
+                                     Example: {0: {((0, 'X'), (1, 'Y')): {'10': 0.5, '01': 0.5},
+                                                   ((1, 'Z'), (1, 'X')): {'00': 0.25, '11': 0.25, '01': 0.5}
+                                                  }
+                                               1: {((0, 'Z')): {'0000': 1}
+                                                   ((0, 'X'), (1, 'Y')): {'1111': 0.5, '0101': 0.5}
+                                                  }
+                                              }.
+                                     If run _oneshot_loop with save_results=True is called:
+                                     self.rdm_measurements will have the proper dictionary format with all values
+                                     populated
+
+        Returns:
+            float: The bootstrapped DMET energy and standard deviation.
+        """
+
+        if self.chemical_potential is None:
+            raise RuntimeError("No chemical_potential. Have you run a simulation yet?")
+
+        # begin resampling
+        resampled_energies = np.zeros(n_resamples, dtype=float)
+        for i in range(n_resamples):
+            _ = self._oneshot_loop(self.chemical_potential, save_results=False, resample=True, n_shots=n_shots, purify=purify, rdm_measurements=rdm_measurements)
+            resampled_energies[i] = self.dmet_energy.real
+
+        energy_average, energy_standard_deviation = np.mean(resampled_energies), np.std(resampled_energies, ddof=1)
+
+        return energy_average, energy_standard_deviation
 
     def _build_scf_fragments(self, chemical_potential):
         """Building the orbitals list for each fragment. It sets the values of
@@ -232,29 +279,50 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Obtain one particle rdm for a fragment.
             norb_high, nelec_high, onerdm_high = helpers._fragment_rdm(t_list, bath_orb, e_occupied,
-                                                                        self.orbitals.number_active_electrons)
+                                                                       self.orbitals.number_active_electrons)
 
             # Obtain one particle rdm for a fragment.
             one_ele, fock, two_ele = self.orbitals.dmet_fragment_hamiltonian(bath_orb, norb_high, onerdm_high)
 
             # Construct guess orbitals for fragment SCF calculations.
             guess_orbitals = helpers._fragment_guess(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
-                                                        self.orbitals.active_fock)
+                                                     self.orbitals.active_fock)
 
             # Carry out SCF calculation for a fragment.
             mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf(t_list, two_ele, fock, nelec_high, norb_high,
-                                                            guess_orbitals, chemical_potential)
+                                                                          guess_orbitals, chemical_potential)
 
             scf_fragments.append([mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock])
 
         return scf_fragments
 
-    def _oneshot_loop(self, chemical_potential):
+    def _oneshot_loop(self, chemical_potential, save_results=False, resample=False, n_shots=None, purify=False, rdm_measurements=None):
         """Perform the DMET loop. This is the cost function which is optimized
         with respect to the chemical potential.
 
         Args:
             chemical_potential (float): The chemical potential.
+            save_results (bool): If True, the VQESolver Class (solver_fragment) for each
+                                 fragment that uses VQE is saved in self.solver_fragment_dict
+                                 with the key being its fragment number
+            resample (bool): If True, the saved frequencies are resampled using bootstrapping
+            n_shots (int): The number of shots used for resampling,
+                           Ideally the same as used in the simulation but can be different
+            purify (bool): If True, use McWeeny's purification technique to purify 2-RDM. Only called for
+                           fragments with 2 electrons.
+            rdm_measurements (dict): A dictionary with keys being the DMET fragment number and corresponding values of
+                                     a dictionary with keys of qubit terms in the rdm and corresponding values of
+                                     a frequencies dictionary of the measurements.
+                                 Example: {0: {((0, 'X'), (1, 'Y')): {'10': 0.5, '01': 0.5},
+                                               ((1, 'Z'), (1, 'X')): {'00': 0.25, '11': 0.25, '01': 0.5}
+                                              }
+                                           1: {((0, 'Z')): {'0000': 1}
+                                               ((0, 'X'), (1, 'Y')): {'1111': 0.5, '0101': 0.5}
+                                              }
+                                           }.
+                                 If run _oneshot_loop with save_results=True is called:
+                                 self.rdm_measurements will have the proper dictionary format with all values
+                                 populated
 
         Returns:
             float: The new chemical potential.
@@ -269,8 +337,22 @@ class DMETProblemDecomposition(ProblemDecomposition):
         number_of_electron = 0.0
         energy_temp = 0.0
 
-        # Carry out SCF calculation for all fragments.
-        scf_fragments = self._build_scf_fragments(chemical_potential)
+        # Possibly add dictionary of measured frequencies for each fragment
+        if resample:
+            if save_results:
+                raise ValueError('Can not save results and resample in same run. Must run saveresults first')
+            if not hasattr(self, 'solver_fragment_dict'):
+                raise AttributeError('Need to run _oneshot_loop with save_results=True in order to resample')
+            if rdm_measurements:
+                for k, v in rdm_measurements.items():
+                    self.solver_fragment_dict[k].rdm_freq_dict = v
+            scf_fragments = self.scf_fragments
+        else:
+            # Carry out SCF calculation for all fragments.
+            scf_fragments = self._build_scf_fragments(chemical_potential.real)
+        if save_results:
+            self.solver_fragment_dict = dict()
+            self.rdm_measurements = dict()
 
         # Iterate across all fragment and compute their energies.
         # The total energy is stored in energy_temp.
@@ -298,11 +380,31 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 solver_fragment.simulate(mol_frag, mf_fragment, **solver_options)
                 onerdm, twordm = solver_fragment.get_rdm()
             elif solver_fragment == 'vqe':
-                system = {"molecule": mol_frag, "mean_field": mf_fragment}
-                solver_fragment = VQESolver({**system, **solver_options})
-                solver_fragment.build()
-                solver_fragment.simulate()
-                onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params)
+                if resample:
+                    solver_fragment = self.solver_fragment_dict[i]
+                    if rdm_measurements:
+                        if i in rdm_measurements:
+                            solver_fragment.rdm_freq_dict = rdm_measurements[i]
+                        else:
+                            raise KeyError(f'rdm_measurements for fragment {i} are missing')
+                    if n_shots:
+                        solver_fragment.backend.n_shots = n_shots
+                    if solver_fragment.backend.n_shots is None:
+                        raise ValueError('n_shots must be specified in original calculation or in error calculation')
+                else:
+                    system = {"molecule": mol_frag, "mean_field": mf_fragment}
+                    solver_fragment = VQESolver({**system, **solver_options})
+                    solver_fragment.build()
+                    solver_fragment.simulate()
+
+                if purify and solver_fragment.qemist_molecule.n_electrons == 2:
+                    onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, resample=resample, sum_spin=False)
+                    onerdm, twordm = mcweeny_purify_2rdm(twordm)
+                else:
+                    onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, resample=resample)
+                if save_results:
+                    self.solver_fragment_dict[i] = solver_fragment
+                    self.rdm_measurements[i] = self.solver_fragment_dict[i].rdm_freq_dict
 
             fragment_energy, _, one_rdm = self._compute_energy(mf_fragment, onerdm, twordm,
                                                                fock_frag_copy, t_list, one_ele,
@@ -321,6 +423,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         energy_temp += self.orbitals.core_constant_energy
         self.dmet_energy = energy_temp
+
+        if save_results:
+            self.scf_fragments = scf_fragments
 
         return number_of_electron - self.orbitals.number_active_electrons
 
