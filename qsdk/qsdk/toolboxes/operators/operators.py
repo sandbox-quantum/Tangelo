@@ -15,6 +15,11 @@ class QubitOperator(openfermion.QubitOperator):
     pass
 
 
+class QubitHamiltonian(QubitOperator):
+    """Docstring. """
+    pass
+
+
 def count_qubits(qb_op):
     """ Return the number of qubits used by the qubit operator based on the highest index found in the terms."""
     if (len(qb_op.terms.keys()) == 0) or ((len(qb_op.terms.keys()) == 1) and (len(list(qb_op.terms.keys())[0]) == 0)):
