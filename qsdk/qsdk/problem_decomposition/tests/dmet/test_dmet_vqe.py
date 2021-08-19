@@ -1,4 +1,5 @@
 import unittest
+from copy import copy
 
 from pyscf import gto
 
@@ -34,7 +35,18 @@ class DMETVQETest(unittest.TestCase):
         dmet.build()
         energy = dmet.simulate()
 
+        # Test boostrapping error
+        bootstrap_energy, standard_deviation = dmet.energy_error_bars(n_shots=50000, n_resamples=10, purify=False)
+        rdm_measurements = copy(dmet.rdm_measurements)
+        be_using_measurements, sd_using_measurements = dmet.energy_error_bars(n_shots=50000,
+                                                                              n_resamples=10,
+                                                                              purify=False,
+                                                                              rdm_measurements=rdm_measurements)
+
         self.assertAlmostEqual(energy, -1.9916120594, delta=1e-3)
+        # Should pass 99.993666% of the time with 4\sigma distance
+        self.assertAlmostEqual(bootstrap_energy, -1.9916120594, delta=standard_deviation*4)
+        self.assertAlmostEqual(be_using_measurements, -1.9916120594, delta=sd_using_measurements*4)
 
     def test_h4ring_vqe_ressources(self):
         """Resources estimation on H4 ring. """
