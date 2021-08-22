@@ -17,8 +17,31 @@ class QubitOperator(openfermion.QubitOperator):
 
 class QubitHamiltonian(QubitOperator):
     """Docstring. """
-    pass
 
+    def __init__(self, n_qubits, mapping, up_then_down, *args, **kwargs):
+        super(QubitOperator, self).__init__(*args, **kwargs)
+        self.n_qubits = n_qubits
+        self.mapping = mapping
+        self.up_then_down = up_then_down
+
+    @property
+    def n_terms(self):
+        return len(self.terms)
+
+    def __add__(self, other_hamiltonian):
+        self += other_hamiltonian
+        return self
+
+    def __iadd__(self, other_hamiltonian):
+        if self.n_qubits != other_hamiltonian.n_qubits:
+            raise RuntimeError
+        elif self.mapping.upper() != other_hamiltonian.mapping.upper():
+            raise RuntimeError
+        elif self.up_then_down != other_hamiltonian.up_then_down:
+            raise RuntimeError
+
+        self = super(QubitOperator, self).__iadd__(other_hamiltonian)
+        return self
 
 def count_qubits(qb_op):
     """ Return the number of qubits used by the qubit operator based on the highest index found in the terms."""

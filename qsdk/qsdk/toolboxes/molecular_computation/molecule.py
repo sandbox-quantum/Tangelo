@@ -2,14 +2,13 @@
 
 from dataclasses import dataclass, field
 import numpy as np
-from pyscf import gto, scf
-from pyscf.gto.mole import Mole
+from pyscf import gto
 from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
 
 from qsdk.toolboxes.operators import FermionOperator
 from qsdk.electronic_structure_solvers import RHFSolver
 
-# Optional imports (for optional feature)?
+# Optional imports (for optional features)?
 import openfermion
 import openfermionpyscf
 
@@ -56,7 +55,7 @@ class Molecule:
 @dataclass
 class SecondQuantizedMolecule(Molecule):
     basis: str = "sto-3g"
-    frozen_orbitals: list or int = 0
+    frozen_orbitals: list or int = field(default=0, repr=False)
     is_open_shell: bool = False
 
     mf_energy: float = field(init=False)
@@ -75,7 +74,7 @@ class SecondQuantizedMolecule(Molecule):
 
     def __post_init__(self):
         super().__post_init__()
-        self.compute_mean_field()
+        self._compute_mean_field()
 
         # Closed-shell only?
         self.active_occupied = [i for i in range(int(np.ceil(self.n_electrons / 2)))]
@@ -84,13 +83,13 @@ class SecondQuantizedMolecule(Molecule):
         self.frozen_virtual = list()
 
         self._convert_frozen_orbitals(self.frozen_orbitals)
-        self.fermionic_hamiltonian = self.get_fermionic_hamiltonian()
+        self.fermionic_hamiltonian = self._get_fermionic_hamiltonian()
 
     @property
     def n_active_electrons(self):
-        return None
+        return 2*len(self.active_occupied)
 
-    def compute_mean_field(self):
+    def _compute_mean_field(self):
         if self.is_open_shell == False:
             molecule = Molecule(self.xyz, self.q, self.spin)
             solver = RHFSolver(molecule, self.basis)
@@ -104,7 +103,7 @@ class SecondQuantizedMolecule(Molecule):
         else:
             raise NotImplementedError
 
-    def get_fermionic_hamiltonian(self):
+    def _get_fermionic_hamiltonian(self):
         """ This method returns the fermionic hamiltonian. It written to take into account
             calls for this function is without argument, and attributes are parsed into it.
 
@@ -187,13 +186,4 @@ class SecondQuantizedMolecule(Molecule):
 
 
 if __name__ == "__main__":
-    #coords = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
-    coords = [("O", (0., 0., 0.11779)),
-              ("H", (0., 0.75545, -0.47116)),
-              ("H", (0., -0.75545, -0.47116))
-            ]
-
-    a = Molecule(coords, q=0, spin=0)
-    print(a)
-    b = SecondQuantizedMolecule(coords, q=0, spin=0, basis="sto-3g", frozen_orbitals=1)
-    print(b)
+    pass
