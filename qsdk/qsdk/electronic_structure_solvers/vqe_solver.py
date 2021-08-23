@@ -119,44 +119,47 @@ class VQESolver:
                 pen_qubit = qubitop_to_qubitham(pen_qubit, self.qubit_hamiltonian.n_qubits, self.qubit_hamiltonian.mapping, self.qubit_hamiltonian.up_then_down)
                 self.qubit_hamiltonian += pen_qubit
 
-        # Verification of system compatibility with UCC1 or UCC3 circuits.
-        if self.ansatz in [Ansatze.UCC1, Ansatze.UCC3]:
-            # Mapping should be JW because those ansatz are chemically inspired.
-            if self.qubit_mapping != "jw":
-                raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
-            # They are encoded with this convention.
-            if not self.up_then_down:
-                raise ValueError("Parameter up_then_down must be set to True for {} ansatz.".format(self.ansatz))
-            # Only HOMO-LUMO systems are relevant.
-            if count_qubits(self.qubit_hamiltonian) != 4:
-                raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
+            # Verification of system compatibility with UCC1 or UCC3 circuits.
+            if self.ansatz in [Ansatze.UCC1, Ansatze.UCC3]:
+                # Mapping should be JW because those ansatz are chemically inspired.
+                if self.qubit_mapping != "jw":
+                    raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
+                # They are encoded with this convention.
+                if not self.up_then_down:
+                    raise ValueError("Parameter up_then_down must be set to True for {} ansatz.".format(self.ansatz))
+                # Only HOMO-LUMO systems are relevant.
+                if count_qubits(self.qubit_hamiltonian) != 4:
+                    raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
-        # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
-        if type(self.ansatz) == Ansatze:
-            if self.ansatz == Ansatze.UCCSD:
-                self.ansatz = UCCSD(self.molecule.n_active_sos, self.molecule.n_active_electrons, self.molecule.spin, self.qubit_mapping, self.up_then_down)
-            elif self.ansatz == Ansatze.UCC1:
-                self.ansatz = RUCC(1)
-            elif self.ansatz == Ansatze.UCC3:
-                self.ansatz = RUCC(3)
-            elif self.ansatz == Ansatze.HEA:
-                if not self.ansatz_options:
-                    self.ansatz_options = dict()
-                self.ansatz = HEA({**self.ansatz_options, **{'n_spinorbitals': self.molecule.n_active_sos,
-                                                                'n_electrons': self.molecule.n_active_electrons,
-                                                                'qubit_mapping': self.qubit_mapping,
-                                                                'up_then_down': self.up_then_down}})
-            elif self.ansatz == Ansatze.UpCCGSD:
-                if not self.ansatz_options:
-                    self.ansatz_options = dict()
-                self.ansatz = UpCCGSD(self.molecule.n_active_sos, self.molecule.n_active_electrons, self.molecule.spin,
-                                                            {**{'qubit_mapping': self.qubit_mapping,
-                                                                'up_then_down': self.up_then_down},
-                                                                **self.ansatz_options})
-            else:
-                raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
-        elif not isinstance(self.ansatz, Ansatz):
-            raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
+            # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
+            if type(self.ansatz) == Ansatze:
+                if self.ansatz == Ansatze.UCCSD:
+                    self.ansatz = UCCSD(self.molecule.n_active_sos, self.molecule.n_active_electrons, self.molecule.spin, self.qubit_mapping, self.up_then_down)
+                elif self.ansatz == Ansatze.UCC1:
+                    self.ansatz = RUCC(1)
+                elif self.ansatz == Ansatze.UCC3:
+                    self.ansatz = RUCC(3)
+                elif self.ansatz == Ansatze.HEA:
+                    if not self.ansatz_options:
+                        self.ansatz_options = dict()
+                    self.ansatz = HEA({**self.ansatz_options, **{'n_spinorbitals': self.molecule.n_active_sos,
+                                                                    'n_electrons': self.molecule.n_active_electrons,
+                                                                    'qubit_mapping': self.qubit_mapping,
+                                                                    'up_then_down': self.up_then_down}})
+                elif self.ansatz == Ansatze.UpCCGSD:
+                    if not self.ansatz_options:
+                        self.ansatz_options = dict()
+                    self.ansatz = UpCCGSD(self.molecule.n_active_sos, self.molecule.n_active_electrons, self.molecule.spin,
+                                                                {**{'qubit_mapping': self.qubit_mapping,
+                                                                    'up_then_down': self.up_then_down},
+                                                                    **self.ansatz_options})
+                else:
+                    raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
+            elif not isinstance(self.ansatz, Ansatz):
+                raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
+        # Building with a qubit Hamiltonian.
+        elif (not isinstance(self.ansatz, Ansatz)):
+            raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
