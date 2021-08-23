@@ -57,7 +57,7 @@ class SecondQuantizedMolecule(Molecule):
     """Docstring. """
 
     basis: str = "sto-3g"
-    frozen_orbitals: list or int = field(default="frozen-core", repr=False)
+    frozen_orbitals: list or int = field(default="frozen_core", repr=False)
     is_open_shell: bool = False
 
     mf_energy: float = field(init=False)
