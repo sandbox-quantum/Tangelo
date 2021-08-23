@@ -30,27 +30,26 @@ class UCCSD(Ansatz):
     """ This class implements the UCCSD ansatz. Currently, only closed-shell UCCSD is supported.
      This implies that the mean-field is computed with the RHF reference integrals. """
 
-    def __init__(self, molecule, mapping='jw', mean_field=None, up_then_down=False):
+    def __init__(self, n_spinorbitals, n_electrons, spin=0, mapping="JW", up_then_down=False):
 
-        self.molecule = molecule
-        self.mf = mean_field
+        self.n_spinorbitals = n_spinorbitals
+        self.n_electrons = n_electrons
+        self.spin = spin
         self.mapping = mapping
         self.up_then_down = up_then_down
 
         # Later: refactor to handle various flavors of UCCSD
-        if molecule.n_qubits % 2 != 0:
+        if n_spinorbitals % 2 != 0:
             raise ValueError('The total number of spin-orbitals should be even.')
-
-        self.spin = self.molecule.multiplicity - 1
 
         # choose open-shell uccsd if spin not zero, else choose singlet ccsd
         if self.spin != 0:
-            self.n_alpha = self.molecule.n_electrons//2 + self.spin//2 + 1 * (self.molecule.n_electrons % 2)
-            self.n_beta = self.molecule.n_electrons//2 - self.spin//2
-            self.n_singles, self.n_doubles, _, _, _, _, _ = uccsd_openshell_paramsize(self.molecule.n_qubits, self.n_alpha, self.n_beta)
+            self.n_alpha = self.n_electrons//2 + self.spin//2 + 1 * (self.n_electrons % 2)
+            self.n_beta = self.n_electrons//2 - self.spin//2
+            self.n_singles, self.n_doubles, _, _, _, _, _ = uccsd_openshell_paramsize(self.n_spinorbitals, self.n_alpha, self.n_beta)
         else:
-            self.n_spatial_orbitals = self.molecule.n_qubits // 2
-            self.n_occupied = int(np.ceil(self.molecule.n_electrons / 2))
+            self.n_spatial_orbitals = self.n_spinorbitals // 2
+            self.n_occupied = int(np.ceil(self.n_electrons / 2))
             self.n_virtual = self.n_spatial_orbitals - self.n_occupied
             self.n_singles = self.n_occupied * self.n_virtual
             self.n_doubles = self.n_singles * (self.n_singles + 1) // 2
@@ -62,11 +61,11 @@ class UCCSD(Ansatz):
         # TODO: support for others
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"ones", "random", "MP2"} if self.spin == 0 else {"ones", "random"}
+        self.supported_initial_var_params = {"ones", "random"} if self.spin == 0 else {"ones", "random"}
 
         # Default initial parameters for initialization
         # TODO: support for openshell MP2 initialization
-        self.var_params_default = "MP2" if self.spin == 0 else "ones"
+        self.var_params_default = "ones" if self.spin == 0 else "ones"
         self.default_reference_state = "HF"
 
         self.var_params = None
@@ -108,8 +107,8 @@ class UCCSD(Ansatz):
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
         if self.default_reference_state == "HF":
-            return get_reference_circuit(n_spinorbitals=self.molecule.n_qubits,
-                                         n_electrons=self.molecule.n_electrons,
+            return get_reference_circuit(n_spinorbitals=self.n_spinorbitals,
+                                         n_electrons=self.n_electrons,
                                          mapping=self.mapping,
                                          up_then_down=self.up_then_down,
                                          spin=self.spin)
@@ -169,11 +168,11 @@ class UCCSD(Ansatz):
         Returns:
             qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
         """
-        fermion_op = uccsd_singlet_generator(self.var_params, self.molecule.n_qubits, self.molecule.n_electrons)
+        fermion_op = uccsd_singlet_generator(self.var_params, self.n_spinorbitals, self.n_electrons)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
                                             mapping=self.mapping,
-                                            n_spinorbitals=self.molecule.n_qubits,
-                                            n_electrons=self.molecule.n_electrons,
+                                            n_spinorbitals=self.n_spinorbitals,
+                                            n_electrons=self.n_electrons,
                                             up_then_down=self.up_then_down)
 
         # Cast all coefs to floats (rotations angles are real)
@@ -190,13 +189,13 @@ class UCCSD(Ansatz):
             qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
         """
         fermion_op = uccsd_openshell_generator(self.var_params,
-                                               self.molecule.n_qubits,
+                                               self.n_spinorbitals,
                                                self.n_alpha,
                                                self.n_beta)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
                                             mapping=self.mapping,
-                                            n_spinorbitals=self.molecule.n_qubits,
-                                            n_electrons=self.molecule.n_electrons,
+                                            n_spinorbitals=self.n_spinorbitals,
+                                            n_electrons=self.n_electrons,
                                             up_then_down=self.up_then_down)
 
         # Cast all coefs to floats (rotations angles are real)
@@ -204,32 +203,3 @@ class UCCSD(Ansatz):
             qubit_op.terms[key] = float(qubit_op.terms[key].imag)
         qubit_op.compress()
         return qubit_op
-
-    def _compute_mp2_params(self):
-        """ Computes the MP2 initial variational parameters.
-        Compute the initial variational parameters with PySCF MP2 calculation, and then reorders the elements
-        into the QEMIST convention. MP2 only has doubles (T2) amplitudes, thus the single (T1) amplitudes are set to a
-        small non-zero value and added. The ordering for QEMIST is single, double (diagonal), double (non-diagonal).
-
-        Returns:
-            list: The initial variational parameters (float64).
-        """
-
-        # If no mean-field was passed, compute it using the module to do so, for the right integrals
-        if not self.mf:
-            self.mf = prepare_mf_RHF(self.molecule.mol)
-
-        mp2_fragment = mp.MP2(self.mf, frozen=self.molecule.get_frozen_orbitals())
-        mp2_fragment.verbose = 0
-        mp2_correlation_energy, mp2_t2 = mp2_fragment.kernel()
-
-        # Get singles amplitude. Just get "up" amplitude, since "down" should be the same
-        singles = [2.e-5] * (self.n_virtual * self.n_occupied)
-        # Get singles and doubles amplitudes associated with one spatial occupied-virtual pair
-        doubles_1 = [-mp2_t2[q, q, p, p]/2. if (abs(-mp2_t2[q, q, p, p]/2.) > 1e-15) else 0.
-                     for p, q in itertools.product(range(self.n_virtual), range(self.n_occupied))]
-        # Get doubles amplitudes associated with two spatial occupied-virtual pairs
-        doubles_2 = [-mp2_t2[q, s, p, r] for (p, q), (r, s)
-                     in itertools.combinations(itertools.product(range(self.n_virtual), range(self.n_occupied)), 2)]
-
-        return singles + doubles_1 + doubles_2

@@ -33,7 +33,7 @@ class HEA(Ansatz):
         """
 
     def __init__(self, ansatz_options=None):
-        default_options = {"molecule": None, "qubit_mapping": 'jw', "mean_field": None, "up_then_down": False,
+        default_options = {"n_spinorbitals": 0, "n_electrons": 0, "qubit_mapping": 'jw', "up_then_down": False,
                            "n_layers": 2, "rot_type": 'euler', "n_qubits": None, "reference_state": 'HF'}
 
         # Overwrite default values with user-provided ones, if they correspond to a valid keyword
@@ -47,14 +47,11 @@ class HEA(Ansatz):
         for k, v in default_options.items():
             setattr(self, k, v)
 
-        if not (bool(self.molecule) ^ bool(self.n_qubits)):
-            raise ValueError(f"A molecule OR qubit number must be provided when instantiating the HEA")
+        if not (bool(self.n_spinorbitals) ^ bool(self.n_qubits)):
+            raise ValueError(f"Number or spinorbitals OR qubit number must be provided when instantiating the HEA")
 
-        if self.molecule:
-            self.n_electrons = self.molecule.n_electrons
-            self.n_spinorbitals = self.molecule.n_qubits  # This label makes no sense for some mappings but is correct
+        if not self.n_qubits:
             self.n_qubits = get_qubit_number(self.qubit_mapping, self.n_spinorbitals)
-            self.mf = self.mean_field  # necessary duplication for get_rdm calculation in vqe_solver
 
         # Each euler rotation layer has 3 variational parameters per qubit, and one non-variational entangler
         # Each real rotation layer has 1 variational parameter per qubit, and one non-variational entangler
