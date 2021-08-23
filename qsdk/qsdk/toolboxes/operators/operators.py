@@ -74,6 +74,14 @@ class QubitHamiltonian(QubitOperator):
         return qubit_op
 
 
+    def __eq__(self, other_hamiltonian):
+        is_eq = (self.n_qubits == other_hamiltonian.n_qubits)
+        is_eq *= (self.mapping.upper() == other_hamiltonian.mapping.upper())
+        is_eq *= (self.up_then_down == other_hamiltonian.up_then_down)
+        is_eq *= super(QubitOperator, self).__eq__(other_hamiltonian)
+
+        return is_eq
+
 def count_qubits(qb_op):
     """ Return the number of qubits used by the qubit operator based on the highest index found in the terms."""
     if (len(qb_op.terms.keys()) == 0) or ((len(qb_op.terms.keys()) == 1) and (len(list(qb_op.terms.keys())[0]) == 0)):
