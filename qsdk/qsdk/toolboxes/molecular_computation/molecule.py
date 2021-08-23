@@ -2,14 +2,14 @@
 
 from dataclasses import dataclass, field
 import numpy as np
-from pyscf import gto
+from pyscf import gto, scf
 
 # Optional imports (for optional features)?
 import openfermion
 import openfermionpyscf
 
+from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.operators import FermionOperator
-from qsdk.electronic_structure_solvers import RHFSolver
 
 @dataclass
 class Molecule:
@@ -57,7 +57,7 @@ class SecondQuantizedMolecule(Molecule):
     """Docstring. """
 
     basis: str = "sto-3g"
-    frozen_orbitals: list or int = field(default=0, repr=False)
+    frozen_orbitals: list or int = field(default="frozen-core", repr=False)
     is_open_shell: bool = False
 
     mf_energy: float = field(init=False)
@@ -95,16 +95,25 @@ class SecondQuantizedMolecule(Molecule):
     def n_active_sos(self):
         return 2*len(self.get_active_orbitals())
 
+    @property
+    def n_active_mos(self):
+        return len(self.get_active_orbitals())
+
     def _compute_mean_field(self):
         if self.is_open_shell == False:
             molecule = Molecule(self.xyz, self.q, self.spin)
-            solver = RHFSolver(molecule, self.basis)
 
-            self.mf_energy = solver.simulate()
-            self.mo_energies = solver.mean_field.mo_energy
-            self.mo_occ = solver.mean_field.mo_occ
+            # Pointing to ElectronicSolvers instead?
+            # First try = circular imports.
+            solver = scf.RHF(molecule.to_pyscf(self.basis))
+            solver.verbose = 0
+            solver.scf()
 
-            self.n_mos = solver.mean_field.mol.nao_nr()
+            self.mf_energy = solver.e_tot
+            self.mo_energies = solver.mo_energy
+            self.mo_occ = solver.mo_occ
+
+            self.n_mos = solver.mol.nao_nr()
             self.n_sos = 2*self.n_mos
         else:
             raise NotImplementedError
@@ -125,7 +134,8 @@ class SecondQuantizedMolecule(Molecule):
         of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True, run_mp2=False, run_cisd=False, run_ccsd=False, run_fci=False)
 
         molecular_hamiltonian = of_molecule.get_molecular_hamiltonian(occupied_indices, active_indices)
-        return openfermion.transforms.get_fermion_operator(molecular_hamiltonian)
+        #return openfermion.transforms.get_fermion_operator(molecular_hamiltonian)
+        return molecular_hamiltonian
 
     def _convert_frozen_orbitals(self, frozen_orbitals):
         """ This method converts an int or a list of frozen_orbitals into 4 categories:
@@ -139,6 +149,9 @@ class SecondQuantizedMolecule(Molecule):
             Args:
                 frozen_orbitals (int or list of int): Number of MOs or MOs indexes to freeze.
         """
+
+        if frozen_orbitals == "frozen_core":
+            frozen_orbitals = get_frozen_core(self.to_pyscf(self.basis))
 
         # First case: frozen_orbitals is an int.
         # The first n MOs are frozen.
