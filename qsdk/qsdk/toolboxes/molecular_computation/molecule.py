@@ -1,20 +1,20 @@
-"""Docstrings """
+"""Docstring. """
 
 from dataclasses import dataclass, field
 import numpy as np
 from pyscf import gto
-from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
-
-from qsdk.toolboxes.operators import FermionOperator
-from qsdk.electronic_structure_solvers import RHFSolver
 
 # Optional imports (for optional features)?
 import openfermion
 import openfermionpyscf
 
+from qsdk.toolboxes.operators import FermionOperator
+from qsdk.electronic_structure_solvers import RHFSolver
 
 @dataclass
 class Molecule:
+    """Docstring. """
+
     xyz: list
     q: int = 0
     spin: int = 0
@@ -54,6 +54,8 @@ class Molecule:
 
 @dataclass
 class SecondQuantizedMolecule(Molecule):
+    """Docstring. """
+
     basis: str = "sto-3g"
     frozen_orbitals: list or int = field(default=0, repr=False)
     is_open_shell: bool = False
@@ -88,6 +90,10 @@ class SecondQuantizedMolecule(Molecule):
     @property
     def n_active_electrons(self):
         return 2*len(self.active_occupied)
+
+    @property
+    def n_active_sos(self):
+        return 2*len(self.get_active_orbitals())
 
     def _compute_mean_field(self):
         if self.is_open_shell == False:
