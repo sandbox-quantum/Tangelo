@@ -24,7 +24,7 @@ class Molecule:
 
     def __post_init__(self):
         mol = self.to_pyscf(basis="sto-3g")
-        self.n_atoms = len(self.xyz)
+        self.n_atoms =  mol.natm
         self.n_electrons = mol.nelectron
         self.n_min_orbitals = mol.nao_nr()
 
