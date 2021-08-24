@@ -48,6 +48,7 @@ def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals
     return converted_mol
 
 
+
 @dataclass
 class Molecule:
     """ Custom datastructure to store information about a Molecule. This contains
