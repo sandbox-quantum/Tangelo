@@ -392,9 +392,6 @@ class Simulator:
                 pauli_circuit = Circuit([Gate(pauli, index) for index, pauli in term], n_qubits=n_qubits)
                 _, pauli_state = self.simulate(pauli_circuit, return_statevector=True, initial_statevector=prepared_state)
 
-                # delta = 0.
-                # for i in range(len(prepared_state)):
-                #     delta += pauli_state[i].real * prepared_state[i].real + pauli_state[i].imag * prepared_state[i].imag
                 delta = np.dot(pauli_state.real, prepared_state.real) + np.dot(pauli_state.imag, prepared_state.imag)
                 expectation_value += coef * delta
 
