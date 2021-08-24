@@ -40,8 +40,7 @@ class QubitHamiltonian(QubitOperator):
         elif self.up_then_down != other_hamiltonian.up_then_down:
             raise RuntimeError
 
-        self = super(QubitOperator, self).__iadd__(other_hamiltonian)
-        return self
+        return super(QubitOperator, self).__iadd__(other_hamiltonian)
 
     def __eq__(self, other_hamiltonian):
         is_eq = (self.n_qubits == other_hamiltonian.n_qubits)
