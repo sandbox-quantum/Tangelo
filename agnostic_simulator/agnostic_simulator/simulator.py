@@ -100,8 +100,13 @@ class Simulator:
 
         # If the unitary is the identity (no gates), no need for simulation: return all-zero state
         if source_circuit.size == 0:
-            frequencies = {'0'*source_circuit.width: 1.0}
-            statevector = np.zeros(2**source_circuit.width); statevector[0] = 1.0
+            if initial_statevector is not None:
+                statevector = initial_statevector
+                frequencies = self._statevector_to_frequencies(initial_statevector)
+            else:
+                frequencies = {'0'*source_circuit.width: 1.0}
+                statevector = np.zeros(2**source_circuit.width)
+                statevector[0] = 1.0
             return (frequencies, statevector) if return_statevector else (frequencies, None)
 
         if self._target == "qulacs":
@@ -148,7 +153,7 @@ class Simulator:
                     n_qubits = int(math.log2(len(initial_statevector)))
                     initial_state_circuit = qiskit.QuantumCircuit(n_qubits, n_qubits)
                     initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
-                    translated_circuit = initial_state_circuit + translated_circuit
+                    translated_circuit = initial_state_circuit.compose(translated_circuit)
 
             # Drawing individual shots with the qasm simulator, for noisy simulation or simulating mixed states
             if self._noise_model or source_circuit.is_mixed_state:
@@ -181,7 +186,7 @@ class Simulator:
 
             translated_circuit = translator.translate_projectq(source_circuit)
             translated_circuit = re.sub(r'(.*)llocate(.*)\n', '', translated_circuit)
-            all_zero_state = np.zeros(2 ** source_circuit.width, dtype=np.complex);  all_zero_state[0] = 1.0
+            all_zero_state = np.zeros(2 ** source_circuit.width, dtype=complex);  all_zero_state[0] = 1.0
 
             eng = MainEngine()
             if initial_statevector is not None:
@@ -268,7 +273,7 @@ class Simulator:
 
             return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
-    def get_expectation_value(self, qubit_operator, state_prep_circuit):
+    def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None):
         r"""
             Take as input a qubit operator H and a quantum circuit preparing a state |\psi>
             Return the expectation value <\psi | H | \psi>
@@ -285,6 +290,9 @@ class Simulator:
             Returns:
                 The expectation value of this operator with regards to the state preparation
         """
+        # Check if simulator supports statevector
+        if initial_statevector is not None and not self.statevector_available:
+            raise ValueError(f'Statevector not supported in {self._target}')
 
         # Check that qubit operator does not operate on qubits beyond circuit size.
         # Keep track if coefficients are real or not
@@ -299,9 +307,9 @@ class Simulator:
         if are_coefficients_real:
             if self._noise_model or not self.statevector_available \
                     or state_prep_circuit.is_mixed_state or state_prep_circuit.size == 0:
-                return self._get_expectation_value_from_frequencies(qubit_operator, state_prep_circuit)
+                return self._get_expectation_value_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
             elif self.statevector_available:
-                return self._get_expectation_value_from_statevector(qubit_operator, state_prep_circuit)
+                return self._get_expectation_value_from_statevector(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
 
         # Else, separate the operator into 2 hermitian operators, use linearity and call this function twice
         else:
@@ -310,11 +318,11 @@ class Simulator:
                 qb_op_real.terms[term], qb_op_imag.terms[term] = coef.real, coef.imag
             qb_op_real.compress()
             qb_op_imag.compress()
-            exp_real = self.get_expectation_value(qb_op_real, state_prep_circuit)
-            exp_imag = self.get_expectation_value(qb_op_imag, state_prep_circuit)
+            exp_real = self.get_expectation_value(qb_op_real, state_prep_circuit, initial_statevector=initial_statevector)
+            exp_imag = self.get_expectation_value(qb_op_imag, state_prep_circuit, initial_statevector=initial_statevector)
             return exp_real if (exp_imag == 0.) else exp_real + 1.0j * exp_imag
 
-    def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit):
+    def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit, initial_statevector=None):
         r"""
             Take as input a qubit operator H and a state preparation returning a ket |\psi>.
             Return the expectation value <\psi | H | \psi>, computed without drawing samples (statevector only)
@@ -330,7 +338,7 @@ class Simulator:
         n_qubits = state_prep_circuit.width
 
         expectation_value = 0.
-        prepared_frequencies, prepared_state = self.simulate(state_prep_circuit, return_statevector=True)
+        prepared_frequencies, prepared_state = self.simulate(state_prep_circuit, return_statevector=True, initial_statevector=initial_statevector)
 
         # Use fast built-in qulacs expectation value function if possible
         if self._target == "qulacs" and not self.n_shots:
@@ -384,9 +392,10 @@ class Simulator:
                 pauli_circuit = Circuit([Gate(pauli, index) for index, pauli in term], n_qubits=n_qubits)
                 _, pauli_state = self.simulate(pauli_circuit, return_statevector=True, initial_statevector=prepared_state)
 
-                delta = 0.
-                for i in range(len(prepared_state)):
-                    delta += pauli_state[i].real * prepared_state[i].real + pauli_state[i].imag * prepared_state[i].imag
+                # delta = 0.
+                # for i in range(len(prepared_state)):
+                #     delta += pauli_state[i].real * prepared_state[i].real + pauli_state[i].imag * prepared_state[i].imag
+                delta = np.dot(pauli_state.real, prepared_state.real) + np.dot(pauli_state.imag, prepared_state.imag)
                 expectation_value += coef * delta
 
             else:
@@ -401,7 +410,7 @@ class Simulator:
 
         return expectation_value
 
-    def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit):
+    def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None):
         r"""
             Take as input a qubit operator H and a state preparation returning a ket |\psi>.
             Return the expectation value <\psi | H | \psi> computed using the frequencies of observable states.
@@ -414,6 +423,15 @@ class Simulator:
                 The expectation value of this operator with regards to the state preparation
         """
         n_qubits = state_prep_circuit.width
+        if not self.statevector_available or state_prep_circuit.is_mixed_state:
+            initial_circuit = state_prep_circuit
+            if initial_statevector is not None:
+                raise ValueError(f'Backend {self._target} does not support statevectors')
+            else:
+                updated_statevector = initial_statevector
+        else:
+            initial_circuit = Circuit(n_qubits=n_qubits)
+            _, updated_statevector = self.simulate(state_prep_circuit, return_statevector=True, initial_statevector=initial_statevector)
 
         expectation_value = 0.
         for term, coef in qubit_operator.terms.items():
@@ -425,8 +443,8 @@ class Simulator:
                 continue
 
             basis_circuit = Circuit(measurement_basis_gates(term))
-            full_circuit = state_prep_circuit + basis_circuit if (basis_circuit.size > 0) else state_prep_circuit
-            frequencies, _ = self.simulate(full_circuit)
+            full_circuit = initial_circuit + basis_circuit if (basis_circuit.size > 0) else initial_circuit
+            frequencies, _ = self.simulate(full_circuit, initial_statevector=updated_statevector)
             expectation_term = self.get_expectation_value_from_frequencies_oneterm(term, frequencies)
             expectation_value += coef * expectation_term
 

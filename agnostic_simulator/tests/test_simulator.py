@@ -6,6 +6,7 @@
 import unittest
 import os
 import time
+from cirq.sim import state_vector
 import numpy as np
 from openfermion.ops import QubitOperator
 
@@ -140,6 +141,16 @@ class TestSimulate(unittest.TestCase):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-2)
 
+    def test_simulate_empty_circuit_from_statevector(self):
+        """
+            Test the generation of frequencies using an initial_statevector and an empty_circuit
+        """
+        simulator = Simulator(target="qulacs")
+        for i, circuit in enumerate(circuits):
+            _, statevector = simulator.simulate(circuit, return_statevector=True)
+            frequencies, _ = simulator.simulate(Circuit(n_qubits=circuit.width), initial_statevector=statevector)
+            assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
+
     def test_get_exp_value_operator_too_long(self):
         """ Ensure an error is returned if the qubit operator acts on more qubits than are present in the circuit """
         for b in backend_info:
@@ -230,7 +241,8 @@ class TestSimulate(unittest.TestCase):
             exp_r1 = simulator.get_expectation_value(op1, circuit3)
             exp_r2 = simulator.get_expectation_value(op2, circuit3)
             print(f"complex exp with {b} ::\t {exp_c} =? {exp_r1} + {exp_r2}j")
-            assert(exp_c == (exp_r1 + 1.0j * exp_r2))
+            self.assertAlmostEqual(exp_c.real, exp_r1, delta=1.e-12)
+            self.assertAlmostEqual(exp_c.imag, exp_r2, delta=1.e-12)
 
             # Edge case: all coefficients are complex but with imaginary part null: exp value must return a float
             op_c = op1 + 0.j * op1
@@ -258,6 +270,39 @@ class TestSimulate(unittest.TestCase):
             sim = Simulator(target=b)
             tstart = time.time()
             energy = sim.get_expectation_value(qubit_operator, abs_circ)
+            tstop = time.time()
+            print(f"H2 get exp value with {b:10s} returned {energy:.7f} \t Elapsed: {tstop-tstart:.3f} s.")
+
+            try:
+                self.assertAlmostEqual(energy, expected, delta=1e-5)
+            except:
+                test_fail = True
+                print(f"{self._testMethodName} : Assertion failed {b} (result = {energy:.7f}, expected = {expected})")
+        if test_fail:
+            assert False
+
+    def test_get_exp_value_from_initial_statevector_h2(self):
+        """ Get expectation value of large circuits and qubit Hamiltonians corresponding to molecules.
+            Molecule: H2 sto-3g = [("H", (0., 0., 0.)), ("H", (0., 0., 0.741377))]
+            Generate statevector first and then get_expectation value from statevector and empty circuit.
+        """
+        with open(f"{path_data}/H2_qubit_hamiltonian.txt", "r") as ham_handle:
+            string_ham = ham_handle.read()
+            qubit_operator = string_ham_to_of(string_ham)
+
+        with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
+            openqasm_circ = circ_handle.read()
+
+        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        backends = ["qulacs", "projectq", "qiskit", "cirq"]
+        expected = -1.1372704
+        test_fail = False
+
+        for b in backends:
+            sim = Simulator(target=b)
+            tstart = time.time()
+            _, statevector = sim.simulate(abs_circ, return_statevector=True)
+            energy = sim.get_expectation_value(qubit_operator, Circuit(n_qubits=abs_circ.width), initial_statevector=statevector)
             tstop = time.time()
             print(f"H2 get exp value with {b:10s} returned {energy:.7f} \t Elapsed: {tstop-tstart:.3f} s.")
 
@@ -332,6 +377,21 @@ class TestSimulate(unittest.TestCase):
         for i, circuit in enumerate(circuits):
             for j, op in enumerate(ops):
                 exp_values[i][j] = simulator._get_expectation_value_from_frequencies(op, circuit)
+        np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
+
+    def test_get_exp_value_from_frequencies_using_initial_statevector(self):
+        """ Test the method computing the expectation value from frequencies, with a given simulator
+            by generating the statevector first and sampling using an empty state_prep_circuit
+        """
+
+        simulator = Simulator(target="qulacs")
+        exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
+        for i, circuit in enumerate(circuits):
+            _, statevector = simulator.simulate(circuit, return_statevector=True)
+            for j, op in enumerate(ops):
+                exp_values[i][j] = simulator._get_expectation_value_from_frequencies(op,
+                                                                                     Circuit(n_qubits=circuit.width),
+                                                                                     initial_statevector=statevector)
         np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
 
     def test_get_exp_value_from_frequencies_qdk(self):
