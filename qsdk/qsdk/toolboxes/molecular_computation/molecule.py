@@ -11,6 +11,7 @@ import openfermionpyscf
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.operators import FermionOperator
 
+
 @dataclass
 class Molecule:
     """Docstring. """
