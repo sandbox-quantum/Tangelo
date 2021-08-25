@@ -2,9 +2,7 @@
 
 from dataclasses import dataclass, field
 import numpy as np
-from pyscf import gto, scf
-
-# Optional imports (for optional features)?
+from pyscf import gto
 import openfermion
 import openfermionpyscf
 
