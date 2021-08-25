@@ -100,25 +100,23 @@ class SecondQuantizedMolecule(Molecule):
     def n_active_mos(self):
         return len(self.get_active_orbitals())
 
+    # Consider open-shell with ROHF.
     def _compute_mean_field(self):
-        if self.is_open_shell == False:
-            molecule = Molecule(self.xyz, self.q, self.spin)
+        of_molecule = self.to_openfermion(self.basis)
+        of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True,
+                                                run_mp2=False,
+                                                run_cisd=False,
+                                                run_ccsd=False,
+                                                run_fci=False)
 
-            # Pointing to ElectronicSolvers instead?
-            # First try = circular imports.
-            solver = scf.RHF(molecule.to_pyscf(self.basis))
-            solver.verbose = 0
-            solver.scf()
+        self.mf_energy =of_molecule.hf_energy
+        self.mo_energies = of_molecule.orbital_energies
+        self.mo_occ = of_molecule._pyscf_data["scf"].mo_occ
 
-            self.mf_energy = solver.e_tot
-            self.mo_energies = solver.mo_energy
-            self.mo_occ = solver.mo_occ
+        self.n_mos = of_molecule._pyscf_data["mol"].nao_nr()
+        self.n_sos = 2*self.n_mos
 
-            self.n_mos = solver.mol.nao_nr()
-            self.n_sos = 2*self.n_mos
-        else:
-            raise NotImplementedError
-
+    # To be converted to qsdk FermionOperator to work with qubit mapping function.
     def _get_fermionic_hamiltonian(self):
         """ This method returns the fermionic hamiltonian. It written to take into account
             calls for this function is without argument, and attributes are parsed into it.
