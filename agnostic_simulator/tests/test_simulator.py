@@ -6,7 +6,6 @@
 import unittest
 import os
 import time
-from cirq.sim import state_vector
 import numpy as np
 from openfermion.ops import QubitOperator
 
@@ -240,7 +239,6 @@ class TestSimulate(unittest.TestCase):
             exp_c = simulator.get_expectation_value(op_c, circuit3)
             exp_r1 = simulator.get_expectation_value(op1, circuit3)
             exp_r2 = simulator.get_expectation_value(op2, circuit3)
-            print(f"complex exp with {b} ::\t {exp_c} =? {exp_r1} + {exp_r2}j")
             self.assertAlmostEqual(exp_c.real, exp_r1, delta=1.e-12)
             self.assertAlmostEqual(exp_c.imag, exp_r2, delta=1.e-12)
 
