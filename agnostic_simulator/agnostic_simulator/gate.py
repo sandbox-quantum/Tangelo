@@ -16,7 +16,7 @@ class Gate(dict):
         name (str): the gate name
         target (int): A positive integer denoting the index of the target qubit
         control (int): A positive integer denoting the index of the control qubit
-        parameter: A floatting-point number or symbolic expression that will resolve at runtime. Can hold anything.
+        parameter: A floating-point number or symbolic expression that will resolve at runtime. Can hold anything.
         is_variational (bool): a boolean indicating if the gate operation is variational or not
     """
 
@@ -31,15 +31,17 @@ class Gate(dict):
             raise ValueError("Qubit index must be a positive integer.")
 
         self.__dict__ = {"name": name, "target": target, "control": control,
-                          "parameter": parameter, "is_variational": is_variational}
+                         "parameter": parameter, "is_variational": is_variational}
 
     def __str__(self):
         """ Print gate information in a somewhat formatted way. Do not print empty attributes. """
 
         mystr = f"{self.name:<10}"
-        for attr in ["target", "control", "parameter"]:
+        for attr in ["target", "control"]:
             if self.__getattribute__(attr) or isinstance(self.__getattribute__(attr), int):
                 mystr += f"{attr} : {self.__getattribute__(attr)}   "
+        if self.__getattribute__("parameter") != "":
+            mystr += f"parameter : {self.__getattribute__('parameter')}"
         if self.is_variational:
             mystr += "\t (variational)"
 
