@@ -79,18 +79,17 @@ class SecondQuantizedMolecule(Molecule):
         super().__post_init__()
         self._compute_mean_field()
 
-        # Closed-shell only?
-        self.active_occupied = [i for i in range(int(np.ceil(self.n_electrons / 2)))]
-        self.active_virtual = [i for i in range(self.n_mos) if i not in self.active_occupied]
-        self.frozen_occupied = list()
-        self.frozen_virtual = list()
+        list_of_active_frozen = self._convert_frozen_orbitals(self.frozen_orbitals)
+        self.active_occupied = list_of_active_frozen[0]
+        self.frozen_occupied = list_of_active_frozen[1]
+        self.active_virtual = list_of_active_frozen[2]
+        self.frozen_virtual = list_of_active_frozen[3]
 
-        self._convert_frozen_orbitals(self.frozen_orbitals)
         self.fermionic_hamiltonian = self._get_fermionic_hamiltonian()
 
     @property
     def n_active_electrons(self):
-        return 2*len(self.active_occupied)
+        return int(sum([self.mo_occ[i] for i in self.active_occupied]))
 
     @property
     def n_active_sos(self):
@@ -155,26 +154,36 @@ class SecondQuantizedMolecule(Molecule):
         # First case: frozen_orbitals is an int.
         # The first n MOs are frozen.
         if isinstance(frozen_orbitals, int):
-            self.frozen_occupied = [i for i in range(frozen_orbitals) if i < frozen_orbitals]
-            self.frozen_virtual = [i for i in range(frozen_orbitals) if i >= frozen_orbitals]
+            frozen_orbitals = [i for i in range(frozen_orbitals)]
+            #self.frozen_occupied = [i for i in range(frozen_orbitals) if i < frozen_orbitals]
+            #self.frozen_virtual = [i for i in range(frozen_orbitals) if i >= frozen_orbitals]
         # Second case: frozen_orbitals is a list of int.
         # All MOs with indexes in this list are frozen (first MO is 0, second is 1, ...).
         elif isinstance(frozen_orbitals, list) and all(isinstance(_, int) for _ in frozen_orbitals):
-            n_occupied = int(np.ceil(self.n_electrons / 2))
-            self.frozen_occupied = [i for i in frozen_orbitals if i < n_occupied]
-            self.frozen_virtual = [i for i in frozen_orbitals if i not in self.frozen_occupied]
+            pass
+            #n_occupied = int(np.ceil(self.n_electrons / 2))
+            #self.frozen_occupied = [i for i in frozen_orbitals if i < n_occupied]
+            #self.frozen_virtual = [i for i in frozen_orbitals if i not in self.frozen_occupied]
         # Everything else raise an exception.
         else:
             raise TypeError("frozen_orbitals argument must be an (or a list of) integer(s).")
 
+        occupied = [i for i in range(self.n_mos) if self.mo_occ[i] > 0.]
+        virtual = [i for i in range(self.n_mos) if self.mo_occ[i] == 0.]
+
+        frozen_occupied = [i for i in frozen_orbitals if i in occupied]
+        frozen_virtual = [i for i in frozen_orbitals if i in virtual]
+
         # Redefined active orbitals based on frozen ones.
-        self.active_occupied = [i for i in self.active_occupied if i not in self.frozen_occupied]
-        self.active_virtual = [i for i in self.active_virtual if i not in self.frozen_virtual]
+        active_occupied = [i for i in occupied if i not in frozen_occupied]
+        active_virtual = [i for i in virtual if i not in frozen_virtual]
 
         # Exception raised here if n_occupied <= frozen_orbitals (int), because it means that there is no active electron.
         # An exception is raised also if all occupied orbitals are in the frozen_orbitals (list).
-        if (len(self.active_occupied) == 0) or (len(self.active_virtual) == 0):
+        if (len(active_occupied) == 0) or (len(active_virtual) == 0):
             raise ValueError("All electrons or virtual orbitals are frozen in the system.")
+
+        return active_occupied, frozen_occupied, active_virtual, frozen_virtual
 
     def get_frozen_orbitals(self):
         """ This method returns MOs indexes for the frozen orbitals. It was written
