@@ -9,8 +9,7 @@ def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals
 
     converted_mol = SecondQuantizedMolecule(mol.xyz, mol.q, mol.spin,
                                             basis=basis_set,
-                                            frozen_orbitals=frozen_orbitals,
-                                            is_open_shell=False)
+                                            frozen_orbitals=frozen_orbitals)
     return converted_mol
 
 def secondquantizedmolecule_to_qubithamiltonian(mol, mapping="JW", up_then_down=False):
