@@ -304,7 +304,7 @@ class VQESolver:
             qb_expect_dict = dict()
 
         # Loop over each element of Hamiltonian (non-zero value)
-        for key in self.molecule.fermionic_hamiltonian:
+        for key, _ in self.molecule.fermionic_hamiltonian.terms.items():
             # Ignore constant / empty term
             if not key:
                 continue
