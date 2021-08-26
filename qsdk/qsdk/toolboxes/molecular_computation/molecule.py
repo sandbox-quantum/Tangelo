@@ -12,14 +12,29 @@ from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.operators import FermionOperator
 
 
+def atom_string_to_list(atom_string):
+    """ Convert atom coordinate string (typically stored in text files) into a list/tuple representation
+        suitable for MolecularData """
+
+    geometry = []
+    for line in atom_string.split("\n"):
+        data = line.split()
+        if len(data) == 4:
+            atom = data[0]
+            coordinates = (float(data[1]), float(data[2]), float(data[3]))
+            geometry += [(atom, coordinates)]
+    return geometry
+
+
 @dataclass
 class Molecule:
     """ Custom datastructure to store information about a Molecule. This contains
         only physical information.
 
         Attributes:
-            xyz (array-like): Nested array-like structure with elements and coordinates
-                (ex:[ ["H", (0., 0., 0.)], ...]).
+            xyz (array-like or string): Nested array-like structure with elements
+                and coordinates (ex:[ ["H", (0., 0., 0.)], ...]). Can also be a
+                multi-line string.
             q (float): Total charge.
             spin (int): Absolute difference of alpha and beta electron number.
             n_atom (int): Self-explanatory.
@@ -31,7 +46,7 @@ class Molecule:
             coords (array of float): N x 3 coordinates matrix.
 
     """
-    xyz: list
+    xyz: list or str
     q: int = 0
     spin: int = 0
 
@@ -41,6 +56,7 @@ class Molecule:
     n_min_orbitals: int = field(init=False)
 
     def __post_init__(self):
+        self.xyz = atom_string_to_list(self.xyz) if isinstance(self.xyz, str) else self.xyz
         mol = self.to_pyscf(basis="sto-3g")
         self.n_atoms =  mol.natm
         self.n_electrons = mol.nelectron
