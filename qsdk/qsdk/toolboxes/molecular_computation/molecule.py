@@ -9,8 +9,8 @@ import openfermion
 import openfermionpyscf
 
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
-from qsdk.toolboxes.operators import FermionOperator
-
+from qsdk.toolboxes.operators import FermionOperator, convert_of_fermion_operator
+from qsdk.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
 def atom_string_to_list(atom_string):
     """ Convert atom coordinate string (typically stored in text files) into a list/tuple representation
@@ -214,8 +214,8 @@ class SecondQuantizedMolecule(Molecule):
         of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True, run_mp2=False, run_cisd=False, run_ccsd=False, run_fci=False)
 
         molecular_hamiltonian = of_molecule.get_molecular_hamiltonian(occupied_indices, active_indices)
-        #return openfermion.transforms.get_fermion_operator(molecular_hamiltonian)
-        return molecular_hamiltonian
+
+        return get_fermion_operator(molecular_hamiltonian)
 
     def _convert_frozen_orbitals(self, frozen_orbitals):
         """ This method converts an int or a list of frozen_orbitals into 4 categories:
