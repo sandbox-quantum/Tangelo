@@ -134,7 +134,7 @@ class VQESolver:
                 if not self.up_then_down:
                     raise ValueError("Parameter up_then_down must be set to True for {} ansatz.".format(self.ansatz))
                 # Only HOMO-LUMO systems are relevant.
-                if count_qubits(self.qubit_hamiltonian) != 4:
+                if self.qubit_hamiltonian.n_qubits != 4:
                     raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
