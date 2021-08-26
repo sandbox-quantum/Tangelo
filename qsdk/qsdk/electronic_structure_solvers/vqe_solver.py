@@ -287,8 +287,8 @@ class VQESolver:
         self.ansatz.update_var_params(var_params)
 
         # Initialize the RDM arrays
-        n_mol_orbitals = self.ansatz.molecule.n_orbitals
-        n_spin_orbitals = self.ansatz.molecule.n_spin_orbitals
+        n_mol_orbitals = self.molecule.n_active_mos
+        n_spin_orbitals = self.molecule.n_active_sos
         rdm1_spin = np.zeros((n_spin_orbitals,) * 2, dtype=complex)
         rdm2_spin = np.zeros((n_spin_orbitals,) * 4, dtype=complex)
 
@@ -304,7 +304,7 @@ class VQESolver:
             qb_expect_dict = dict()
 
         # Loop over each element of Hamiltonian (non-zero value)
-        for key in self.fermionic_hamiltonian:
+        for key in self.molecule.fermionic_hamiltonian:
             # Ignore constant / empty term
             if not key:
                 continue
@@ -322,8 +322,8 @@ class VQESolver:
             # Obtain qubit Hamiltonian
             qubit_hamiltonian2 = fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
                                                           mapping=self.qubit_mapping,
-                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
-                                                          n_electrons=self.qemist_molecule.n_electrons,
+                                                          n_spinorbitals=self.molecule.n_active_sos,
+                                                          n_electrons=self.molecule.n_active_electrons,
                                                           up_then_down=self.up_then_down)
             qubit_hamiltonian2.compress()
 
