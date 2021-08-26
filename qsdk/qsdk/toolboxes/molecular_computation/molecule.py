@@ -49,6 +49,20 @@ def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals
 
 
 
+def atom_string_to_list(atom_string):
+    """ Convert atom coordinate string (typically stored in text files) into a list/tuple representation
+        suitable for MolecularData """
+
+    geometry = []
+    for line in atom_string.split("\n"):
+        data = line.split()
+        if len(data) == 4:
+            atom = data[0]
+            coordinates = (float(data[1]), float(data[2]), float(data[3]))
+            geometry += [(atom, coordinates)]
+    return geometry
+
+
 @dataclass
 class Molecule:
     """ Custom datastructure to store information about a Molecule. This contains
