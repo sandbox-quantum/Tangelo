@@ -136,7 +136,7 @@ class Fragment:
             float: Energy of the fragment.
         """
 
-        if isinstance(solver, scf.hf.RHF):
+        if isinstance(solver, scf.hf.RHF) or isinstance(solver, scf.rohf.ROHF):
             energy = solver.e_tot
         elif isinstance(solver, CCSDSolver) or isinstance(solver, FCISolver) or isinstance(solver, MINDO3Solver):
             energy = solver.simulate(molecule, **options_solver)
