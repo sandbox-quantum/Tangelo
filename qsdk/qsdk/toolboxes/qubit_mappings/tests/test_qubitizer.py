@@ -1,15 +1,10 @@
 import unittest
-from pyscf import gto
 
-from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
+from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 from qsdk.toolboxes.qubit_mappings import jordan_wigner
 
 H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
-mol = gto.Mole()
-mol.atom = H2
-mol.basis = "sto-3g"
-mol.spin = 0
-mol.build()
+molecule = SecondQuantizedMolecule(H2, 0, 0, "sto-3g")
 
 
 def assert_term_dict_almost_equal(d1, d2, delta=1e-10):
@@ -32,9 +27,7 @@ class QubitizerTest(unittest.TestCase):
     def test_qubit_hamiltonian_JW_h2(self):
         """ Verify computation of the Jordan-Wigner Hamiltonian for the H2 molecule """
 
-        molecule = MolecularData(mol)
-        molecular_hamiltonian = molecule.get_molecular_hamiltonian()
-        qubit_hamiltonian = jordan_wigner(molecular_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(molecule.fermionic_hamiltonian)
 
         # Obtained with Openfermion
         reference_terms = {(): -0.0988639693354571, ((0, 'Z'),): 0.17119774903432955, ((1, 'Z'),): 0.17119774903432958,
