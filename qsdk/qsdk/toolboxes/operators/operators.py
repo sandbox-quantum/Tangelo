@@ -33,9 +33,8 @@ class QubitHamiltonian(QubitOperator):
             n_terms (int): Number of terms in this qubit Hamiltonian.
     """
 
-    def __init__(self, n_qubits, mapping, up_then_down, *args, **kwargs):
+    def __init__(self, mapping, up_then_down, *args, **kwargs):
         super(QubitOperator, self).__init__(*args, **kwargs)
-        self.n_qubits = n_qubits
         self.mapping = mapping
         self.up_then_down = up_then_down
 
@@ -51,9 +50,7 @@ class QubitHamiltonian(QubitOperator):
     def __iadd__(self, other_hamiltonian):
 
         # Raise error if attributes are not the same across Hamiltonians.
-        if self.n_qubits != other_hamiltonian.n_qubits:
-            raise RuntimeError("Number of qubits must be the same for all QubitHamiltonians.")
-        elif self.mapping.upper() != other_hamiltonian.mapping.upper():
+        if self.mapping.upper() != other_hamiltonian.mapping.upper():
             raise RuntimeError("Mapping must be the same for all QubitHamiltonians.")
         elif self.up_then_down != other_hamiltonian.up_then_down:
             raise RuntimeError("Spin ordering must be the same for all QubitHamiltonians.")
@@ -63,8 +60,7 @@ class QubitHamiltonian(QubitOperator):
     def __eq__(self, other_hamiltonian):
 
         # Additional checks for == operator.
-        is_eq = (self.n_qubits == other_hamiltonian.n_qubits)
-        is_eq *= (self.mapping.upper() == other_hamiltonian.mapping.upper())
+        is_eq = (self.mapping.upper() == other_hamiltonian.mapping.upper())
         is_eq *= (self.up_then_down == other_hamiltonian.up_then_down)
 
         is_eq *= super(QubitOperator, self).__eq__(other_hamiltonian)
