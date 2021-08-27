@@ -9,7 +9,7 @@ import openfermion
 import openfermionpyscf
 
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
-from qsdk.toolboxes.operators import FermionOperator, convert_of_fermion_operator
+from qsdk.toolboxes.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
 def atom_string_to_list(atom_string):
