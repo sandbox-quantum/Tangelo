@@ -49,8 +49,8 @@ def get_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
 
     # Getting the number of molecular orbitals. It also works with different
     # basis sets.
-    n_molecular_orb = molecule.nao_nr()
-    n_electrons = molecule.nelectron
+    n_molecular_orb = molecule.n_mos
+    n_electrons = molecule.n_electrons
 
     # Identify the HOMO and LUMO.
     n_homo = n_electrons // 2 - 1

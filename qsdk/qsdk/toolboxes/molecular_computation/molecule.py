@@ -236,6 +236,8 @@ class SecondQuantizedMolecule(Molecule):
 
         if frozen_orbitals == "frozen_core":
             frozen_orbitals = get_frozen_core(self.to_pyscf(self.basis))
+        elif frozen_orbitals is None:
+            frozen_orbitals = 0
 
         # First case: frozen_orbitals is an int.
         # The first n MOs are frozen.
