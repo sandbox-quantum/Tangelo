@@ -44,12 +44,11 @@ def secondquantizedmolecule_to_qubithamiltonian(mol, mapping="JW", up_then_down=
                                         n_electrons,
                                         up_then_down)
 
-    n_qubits = count_qubits(qubit_op)
-    qubit_ham = qubitop_to_qubitham(qubit_op, n_qubits, mapping, up_then_down)
+    qubit_ham = qubitop_to_qubitham(qubit_op, mapping, up_then_down)
 
     return qubit_ham
 
-def qubitop_to_qubitham(qubit_op, n_qubits, mapping, up_then_down):
+def qubitop_to_qubitham(qubit_op, mapping, up_then_down):
     """ Function to convert a QubitOperator into a QubitHamiltonian.
 
         Args:
@@ -62,9 +61,9 @@ def qubitop_to_qubitham(qubit_op, n_qubits, mapping, up_then_down):
         Returns:
             QubitHamiltonian: Self-explanatory.
     """
-    qubit_ham = QubitHamiltonian(n_qubits, mapping, up_then_down)
+    qubit_ham = QubitHamiltonian(mapping, up_then_down)
 
     for term, coeff in qubit_op.terms.items():
-        qubit_ham += QubitHamiltonian(n_qubits, mapping, up_then_down, term, coeff)
+        qubit_ham += QubitHamiltonian(mapping, up_then_down, term, coeff)
 
     return qubit_ham
