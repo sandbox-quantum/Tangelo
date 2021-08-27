@@ -77,7 +77,7 @@ class VQESolver:
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
                            "penalty_terms": None,
-                           "ansatz_options": None,
+                           "ansatz_options": dict(),
                            "up_then_down": False,
                            "qubit_hamiltonian": None,
                            "verbose": False}
@@ -134,25 +134,15 @@ class VQESolver:
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if type(self.ansatz) == Ansatze:
                 if self.ansatz == Ansatze.UCCSD:
-                    self.ansatz = UCCSD(self.molecule.n_active_sos, self.molecule.n_active_electrons, self.molecule.spin, self.qubit_mapping, self.up_then_down)
+                    self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down)
                 elif self.ansatz == Ansatze.UCC1:
                     self.ansatz = RUCC(1)
                 elif self.ansatz == Ansatze.UCC3:
                     self.ansatz = RUCC(3)
                 elif self.ansatz == Ansatze.HEA:
-                    if not self.ansatz_options:
-                        self.ansatz_options = dict()
-                    self.ansatz = HEA({**self.ansatz_options, **{'n_spinorbitals': self.molecule.n_active_sos,
-                                                                    'n_electrons': self.molecule.n_active_electrons,
-                                                                    'qubit_mapping': self.qubit_mapping,
-                                                                    'up_then_down': self.up_then_down}})
+                    self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == Ansatze.UpCCGSD:
-                    if not self.ansatz_options:
-                        self.ansatz_options = dict()
-                    self.ansatz = UpCCGSD(self.molecule.n_active_sos, self.molecule.n_active_electrons, self.molecule.spin,
-                                                                {**{'qubit_mapping': self.qubit_mapping,
-                                                                    'up_then_down': self.up_then_down},
-                                                                    **self.ansatz_options})
+                    self.ansatz = UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):

@@ -28,18 +28,28 @@ from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf
 
 class UCCSD(Ansatz):
     """ This class implements the UCCSD ansatz. Currently, only closed-shell UCCSD is supported.
-     This implies that the mean-field is computed with the RHF reference integrals. """
+        This implies that the mean-field is computed with the RHF reference integrals.
 
-    def __init__(self, n_spinorbitals, n_electrons, spin=0, mapping="JW", up_then_down=False):
+        Args:
+            molecule (SecondQuantizedMolecule) : The molecular system.
+            k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details
+                Default, 2
+            mapping (str) : one of the supported qubit mapping identifiers.
+                Default, 'jw'
+            up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
+                Default, False (i.e. has alternating spin up/down ordering).
+    """
 
-        self.n_spinorbitals = n_spinorbitals
-        self.n_electrons = n_electrons
-        self.spin = spin
+    def __init__(self, molecule, mapping="JW", up_then_down=False):
+
+        self.n_spinorbitals = molecule.n_active_sos
+        self.n_electrons = molecule.n_active_electrons
+        self.spin = molecule.spin
         self.mapping = mapping
         self.up_then_down = up_then_down
 
         # Later: refactor to handle various flavors of UCCSD
-        if n_spinorbitals % 2 != 0:
+        if self.n_spinorbitals % 2 != 0:
             raise ValueError('The total number of spin-orbitals should be even.')
 
         # choose open-shell uccsd if spin not zero, else choose singlet ccsd
@@ -61,11 +71,11 @@ class UCCSD(Ansatz):
         # TODO: support for others
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"ones", "random"} if self.spin == 0 else {"ones", "random"}
+        self.supported_initial_var_params = {"ones", "random", "mp2"} if self.spin == 0 else {"ones", "random"}
 
         # Default initial parameters for initialization
         # TODO: support for openshell MP2 initialization
-        self.var_params_default = "ones" if self.spin == 0 else "ones"
+        self.var_params_default = "mp2" if self.spin == 0 else "ones"
         self.default_reference_state = "HF"
 
         self.var_params = None
@@ -203,3 +213,29 @@ class UCCSD(Ansatz):
             qubit_op.terms[key] = float(qubit_op.terms[key].imag)
         qubit_op.compress()
         return qubit_op
+
+    def _compute_mp2_params(self):
+        """ Computes the MP2 initial variational parameters.
+        Compute the initial variational parameters with PySCF MP2 calculation, and then reorders the elements
+        into the QEMIST convention. MP2 only has doubles (T2) amplitudes, thus the single (T1) amplitudes are set to a
+        small non-zero value and added. The ordering for QEMIST is single, double (diagonal), double (non-diagonal).
+        Returns:
+            list: The initial variational parameters (float64).
+        """
+
+        mp2_fragment = mp.MP2(self.molecule.to_pyscf(self.molecule.basis), frozen=self.molecule.get_frozen_orbitals())
+        mp2_fragment.verbose = 0
+        _, mp2_t2 = mp2_fragment.kernel()
+
+        # Get singles amplitude. Just get "up" amplitude, since "down" should be the same
+        singles = [2.e-5] * (self.n_virtual * self.n_occupied)
+
+        # Get singles and doubles amplitudes associated with one spatial occupied-virtual pair
+        doubles_1 = [-mp2_t2[q, q, p, p]/2. if (abs(-mp2_t2[q, q, p, p]/2.) > 1e-15) else 0.
+                     for p, q in itertools.product(range(self.n_virtual), range(self.n_occupied))]
+
+        # Get doubles amplitudes associated with two spatial occupied-virtual pairs
+        doubles_2 = [-mp2_t2[q, s, p, r] for (p, q), (r, s)
+                     in itertools.combinations(itertools.product(range(self.n_virtual), range(self.n_occupied)), 2)]
+
+        return singles + doubles_1 + doubles_2

@@ -20,43 +20,31 @@ from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circ
 
 
 class UpCCGSD(Ansatz):
-    """ This class implements the UpCCGSD ansatz.
-        This implies that the mean-field is computed with the RHF or ROHF reference integrals.
+    """ This class implements the UpCCGSD ansatz. This implies that the
+        mean-field is computed with the RHF or ROHF reference integrals.
+
+        Args:
+            molecule (SecondQuantizedMolecule) : The molecular system.
+            k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details.
+                Default, 2
+            mapping (str) : one of the supported qubit mapping identifiers.
+                Default: "JW".
+            up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down.
+                Default, False (i.e. has alternating spin up/down ordering)
     """
 
-    def __init__(self, n_spinorbitals, n_electrons, spin=0, ansatz_options=dict()):
-        """ Args:
-            molecule (MolecularData) : the molecular system
-            ansatz_options (dict): With possible arguments below
-                mean-field (optional) : mean-field of molecular system
-                                    Default, None
-                qubit_mapping (str) : one of the supported qubit mapping identifiers
-                                    Default, 'jw'
-                up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
-                                    Default, False (i.e. has alternating spin up/down ordering)
-                k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details
-                                    Default, 2
-        """
-        default_options = {"qubit_mapping": 'jw', "up_then_down": False,
-                           "k": 2}
+    def __init__(self, molecule, k=2, mapping="JW", up_then_down=False):
 
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in ansatz_options.items():
-            if k in default_options:
-                default_options[k] = v
-            else:
-                raise KeyError(f"Keyword :: {k}, not available in VQESolver")
+        self.n_spinorbitals = molecule.n_active_sos
+        self.n_electrons = molecule.n_active_electrons
+        self.spin = molecule.spin
+        self.k = k
 
-        self.n_spinorbitals = n_spinorbitals
-        self.n_electrons = n_electrons
-        self.spin = spin
-
-        # Write default options
-        for k, v in default_options.items():
-            setattr(self, k, v)
+        self.qubit_mapping = mapping
+        self.up_then_down = up_then_down
 
         # Later: refactor to handle various flavors of UCCSD
-        if n_spinorbitals % 2 != 0:
+        if self.n_spinorbitals % 2 != 0:
             raise ValueError('The total number of spin-orbitals should be even.')
         self.n_spatial_orbitals = self.n_spinorbitals // 2
         self.n_doubles = self.n_spatial_orbitals * (self.n_spatial_orbitals - 1)//2

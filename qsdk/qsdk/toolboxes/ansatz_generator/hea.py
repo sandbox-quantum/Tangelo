@@ -12,46 +12,49 @@ from agnostic_simulator import Circuit
 
 
 class HEA(Ansatz):
-    """ This class implements the HEA ansatz.
+    """ This class implements the HEA ansatz. A molecule or a number of qubits +
+        a number of electrons can be passed to this class.
+
         Args:
-            ansatz_options (dict): Can provide any of the below arguments as a dictionary.
-                molecule (MolecularData) : the molecular system Default, None
-                n_qubits (integer) : the number of qubits in the ansatz; Default, None
-                Note: molecule OR n_qubits must be different from None
-                mean-field (optional) : mean-field of molecular system; Default, None
-                up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
-                                     Default, False has alternating spin up/down ordering.
-                rot_type (str): 'euler' RzRxRz on each qubit for each rotation layer
-                                'real' Ry on each qubit for each rotation layer
-                                Default, 'euler'
-                n_layers (int): The number of HEA ansatz layers to use
-                                One layer is hea_rot_type + grid of CNots
-                                Default, 2
-                reference_state (str): 'HF' for Hartree-Fock reference state,
-                                       'zero' for no reference state
-                                       Default, 'HF'
+            molecule (SecondQuantizedMolecule) : The molecular system.
+            mapping (str) : one of the supported qubit mapping identifiers.
+                Default: "JW"
+            up_then_down (bool): change basis ordering putting all spin up orbitals
+                first, followed by all spin down.
+                Default, False has alternating spin up/down ordering.
+            n_layers (int): The number of HEA ansatz layers to use. One layer is
+                hea_rot_type + grid of CNots.
+                Default: 2
+            rot_type (str): "euler": RzRxRz on each qubit for each rotation layer.
+                "real": Ry on each qubit for each rotation layer.
+                Default: "euler"
+            n_qubits (int) : The number of qubits in the ansatz.
+                Default, None.
+            n_electrons (int) : Self-explanatory.
+            reference_state (str): "HF": Hartree-Fock reference state.
+                "zero": for no reference state.
+                Default: "HF"
         """
 
-    def __init__(self, ansatz_options=None):
-        default_options = {"n_spinorbitals": 0, "n_electrons": 0, "qubit_mapping": 'jw', "up_then_down": False,
-                           "n_layers": 2, "rot_type": 'euler', "n_qubits": None, "reference_state": 'HF'}
+    def __init__(self, molecule=None, mapping="jw", up_then_down=False,
+                n_layers=2, rot_type="euler", n_qubits=None, n_electrons=None,
+                reference_state="HF"):
 
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in ansatz_options.items():
-            if k in default_options:
-                default_options[k] = v
-            else:
-                raise KeyError(f"Keyword :: {k}, not available in VQESolver")
+        if not (bool(molecule) ^ (bool(n_qubits) and bool(n_electrons))):
+            raise ValueError(f"A molecule OR qubit + electrons number must be provided when instantiating the HEA.")
 
-        # Write default options
-        for k, v in default_options.items():
-            setattr(self, k, v)
+        if n_qubits:
+            self.n_qubits = n_qubits
+            self.n_electrons = n_electrons
+        else:
+            self.n_qubits = get_qubit_number(mapping, molecule.n_active_sos)
+            self.n_electrons = molecule.n_active_electrons
 
-        if not (bool(self.n_spinorbitals) ^ bool(self.n_qubits)):
-            raise ValueError(f"Number or spinorbitals OR qubit number must be provided when instantiating the HEA")
-
-        if not self.n_qubits:
-            self.n_qubits = get_qubit_number(self.qubit_mapping, self.n_spinorbitals)
+        self.qubit_mapping = mapping
+        self.up_then_down = up_then_down
+        self.n_layers = n_layers
+        self.rot_type = rot_type
+        self.reference_state = reference_state
 
         # Each euler rotation layer has 3 variational parameters per qubit, and one non-variational entangler
         # Each real rotation layer has 1 variational parameter per qubit, and one non-variational entangler
@@ -108,11 +111,11 @@ class HEA(Ansatz):
             raise ValueError(f"{self.reference_state} not in supported reference state methods of:{self.supported_reference_state}")
 
         if self.reference_state == "HF":
-            return get_reference_circuit(n_spinorbitals=self.n_spinorbitals,
+            return get_reference_circuit(n_spinorbitals=self.n_qubits,
                                          n_electrons=self.n_electrons,
                                          mapping=self.qubit_mapping,
                                          up_then_down=self.up_then_down)
-        if self.reference_state == "zero":
+        elif self.reference_state == "zero":
             return Circuit()
 
     def build_circuit(self, var_params=None):
