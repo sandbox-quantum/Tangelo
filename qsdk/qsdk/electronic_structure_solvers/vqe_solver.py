@@ -107,7 +107,13 @@ class VQESolver:
         if self.molecule:
 
             # Compute qubit hamiltonian for the input molecular system
-            self.qubit_hamiltonian = secondquantizedmolecule_to_qubithamiltonian(self.molecule, self.qubit_mapping, self.up_then_down)
+            qubit_op = fermion_to_qubit_mapping(self.molecule.fermionic_hamiltonian,
+                                                self.qubit_mapping,
+                                                self.n_spinorbitals,
+                                                self.n_electrons,
+                                                self.up_then_down)
+
+            self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
 
             if self.penalty_terms:
                 pen_ferm = combined_penalty(self.molecule.n_active_mos, self.penalty_terms)

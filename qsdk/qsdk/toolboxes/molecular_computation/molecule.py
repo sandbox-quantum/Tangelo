@@ -295,5 +295,24 @@ class SecondQuantizedMolecule(Molecule):
         return self.active_occupied + self.active_virtual
 
 
+def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals=0):
+    """ Function to convert a Molecule into a SecondQuantizedMolecule.
+
+        Args:
+            mol (Molecule): Self-explanatory.
+            basis_set (string): String representing the basis set.
+            frozen_orbitals (int or list of int): Number of MOs or MOs indexes
+                to freeze.
+
+        Returns:
+            SecondQuantizedMolecule: Mean-field data structure for a molecule.
+    """
+
+    converted_mol = SecondQuantizedMolecule(mol.xyz, mol.q, mol.spin,
+                                            basis=basis_set,
+                                            frozen_orbitals=frozen_orbitals)
+    return converted_mol
+
+
 if __name__ == "__main__":
     pass
