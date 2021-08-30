@@ -114,7 +114,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
                 else:
                     verbose_output = f"\t\t{quantum_resources[fragment_i]}"
 
-            print(f"\t\tFragment Number : # {fragment_i + 1} \n\t\t{'-'*24}")
-            print(f"{verbose_output}\n")
+                print(f"\t\tFragment Number : # {fragment_i + 1} \n\t\t{'-'*24}")
+                print(f"{verbose_output}\n")
 
         return quantum_resources
