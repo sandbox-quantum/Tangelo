@@ -216,12 +216,15 @@ class UCCSD(Ansatz):
         return qubit_op
 
     def _compute_mp2_params(self):
-        """ Computes the MP2 initial variational parameters.
-        Compute the initial variational parameters with PySCF MP2 calculation, and then reorders the elements
-        into the QEMIST convention. MP2 only has doubles (T2) amplitudes, thus the single (T1) amplitudes are set to a
-        small non-zero value and added. The ordering for QEMIST is single, double (diagonal), double (non-diagonal).
-        Returns:
-            list: The initial variational parameters (float64).
+        """ Computes the MP2 initial variational parameters. Compute the initial
+            variational parameters with PySCF MP2 calculation, and then reorders
+            the elements into the appropriate convention. MP2 only has doubles
+            (T2) amplitudes, thus the single (T1) amplitudes are set to a small
+            non-zero value and added. The ordering is single, double (diagonal),
+            double (non-diagonal).
+
+            Returns:
+                list of float: The initial variational parameters.
         """
 
         mp2_fragment = mp.MP2(self.molecule.to_pyscf(self.molecule.basis), frozen=self.molecule.get_frozen_orbitals())
