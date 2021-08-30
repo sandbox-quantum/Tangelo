@@ -42,6 +42,7 @@ class UCCSD(Ansatz):
 
     def __init__(self, molecule, mapping="JW", up_then_down=False):
 
+        self.molecule = molecule
         self.n_spinorbitals = molecule.n_active_sos
         self.n_electrons = molecule.n_active_electrons
         self.spin = molecule.spin
@@ -71,11 +72,11 @@ class UCCSD(Ansatz):
         # TODO: support for others
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"ones", "random", "mp2"} if self.spin == 0 else {"ones", "random"}
+        self.supported_initial_var_params = {"ones", "random", "MP2"} if self.spin == 0 else {"ones", "random"}
 
         # Default initial parameters for initialization
         # TODO: support for openshell MP2 initialization
-        self.var_params_default = "mp2" if self.spin == 0 else "ones"
+        self.var_params_default = "MP2" if self.spin == 0 else "ones"
         self.default_reference_state = "HF"
 
         self.var_params = None
