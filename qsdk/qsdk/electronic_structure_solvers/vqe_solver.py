@@ -16,7 +16,7 @@ from openfermion.ops.operators.qubit_operator import QubitOperator
 
 from agnostic_simulator import Simulator, Circuit
 from agnostic_simulator.helpers.circuits.measurement_basis import measurement_basis_gates
-from qsdk.toolboxes.operators import count_qubits, FermionOperator
+from qsdk.toolboxes.operators import count_qubits, FermionOperator, qubitop_to_qubitham
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
@@ -26,7 +26,7 @@ from qsdk.toolboxes.ansatz_generator.upccgsd import UpCCGSD
 from qsdk.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from qsdk.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
-from qsdk.toolboxes.converters import secondquantizedmolecule_to_qubithamiltonian, qubitop_to_qubitham
+
 
 class Ansatze(Enum):
     """ Enumeration of the ansatz circuits supported by VQE"""
@@ -107,11 +107,11 @@ class VQESolver:
         if self.molecule:
 
             # Compute qubit hamiltonian for the input molecular system
-            qubit_op = fermion_to_qubit_mapping(self.molecule.fermionic_hamiltonian,
-                                                self.qubit_mapping,
-                                                self.n_spinorbitals,
-                                                self.n_electrons,
-                                                self.up_then_down)
+            qubit_op = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
+                                                mapping=self.qubit_mapping,
+                                                n_spinorbitals=self.molecule.n_active_sos,
+                                                n_electrons=self.molecule.n_active_electrons,
+                                                up_then_down=self.up_then_down)
 
             self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
 
@@ -134,7 +134,7 @@ class VQESolver:
                 if not self.up_then_down:
                     raise ValueError("Parameter up_then_down must be set to True for {} ansatz.".format(self.ansatz))
                 # Only HOMO-LUMO systems are relevant.
-                if self.qubit_hamiltonian.n_qubits != 4:
+                if count_qubits(self.qubit_hamiltonian) != 4:
                     raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
@@ -372,7 +372,6 @@ class VQESolver:
 
         return rdm1_spin, rdm2_spin
 
-    # TODO: Could this be done better ?
     def _default_optimizer(self, func, var_params):
         """ Function used as a default optimizer for VQE when user does not provide one. Can be used as an example
         for users who wish to provide their custom optimizer.
