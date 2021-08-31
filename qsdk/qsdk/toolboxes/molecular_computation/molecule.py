@@ -141,6 +141,8 @@ class SecondQuantizedMolecule(Molecule):
     mo_energies: list = field(init=False)
     mo_occ: list = field(init=False)
 
+    mean_field: "PySCF mean-field" = field(init=False)
+
     n_mos: int = field(init=False)
     n_sos: int = field(init=False)
 
@@ -197,6 +199,8 @@ class SecondQuantizedMolecule(Molecule):
 
         self.n_mos = of_molecule._pyscf_data["mol"].nao_nr()
         self.n_sos = 2*self.n_mos
+
+        self.mean_field = of_molecule._pyscf_data["scf"]
 
     # TODO: Conversion to qsdk FermionOperator for the qubit mapping function.
     def _get_fermionic_hamiltonian(self):
