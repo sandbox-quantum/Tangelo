@@ -56,6 +56,9 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         self.geometry = atom_string_to_list(self.geometry) if isinstance(self.geometry, str) else self.geometry
         self.distribute_atoms()
 
+        for frag in self.fragments:
+            frag.build()
+
     def distribute_atoms(self):
         """For each fragment, the atom selection is passed to the Fragment object.
         Depending on the input, the method has several behaviors.
@@ -94,3 +97,24 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         e_oniom = sum([fragment.simulate() for fragment in self.fragments])
 
         return e_oniom
+
+    def get_resources(self):
+        """ Estimate the resources required by ONIOM. Only supports fragments solved
+        with VQESolver. Resources for each fragments are outputed as a list.
+        """
+
+        quantum_resources = [None] * len(self.fragments)
+
+        for fragment_i, fragment in enumerate(self.fragments):
+            quantum_resources[fragment_i] = fragment.get_resources()
+
+            if self.verbose:
+                if not quantum_resources[fragment_i]:
+                    verbose_output = "\t\tRessources estimation not supported for classical solvers."
+                else:
+                    verbose_output = f"\t\t{quantum_resources[fragment_i]}"
+
+                print(f"\t\tFragment Number : # {fragment_i + 1} \n\t\t{'-'*24}")
+                print(f"{verbose_output}\n")
+
+        return quantum_resources
