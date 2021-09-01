@@ -1,21 +1,20 @@
 """Employ DMET as a problem decomposition technique. """
 
 from enum import Enum
-import warnings
-
 from functools import reduce
-from multiprocessing import Value
+import numpy as np
 from pyscf import gto
 import scipy
-import numpy as np
+import warnings
 
 from . import _helpers as helpers
 from ..problem_decomposition import ProblemDecomposition
 from ..electron_localization import iao_localization, meta_lowdin_localization
+from .fragment import SecondQuantizedFragment
 from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.electronic_structure_solvers import FCISolver, CCSDSolver, VQESolver
 from qsdk.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
-
+from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 
 class Localization(Enum):
     """ Enumeration of the electron localization supported by DMET."""
@@ -32,8 +31,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
     localization scheme, but it cannot be used for minimal basis set.
 
     Attributes:
-        molecule (pyscf.gto.mol): The molecular system.
-        mean-field (optional): Mean-field of molecular system.
+        molecule (SecondQuantizedMolecule): The molecular system.
         electron_localization (Localization): A type of localization scheme. Default is Meta-Lowdin.
         fragment_atoms (list): List of number of atoms in each fragment. Sum of this list
             should be the same as the number of atoms in the original system.
@@ -51,12 +49,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         default_ccsd_options = dict()
         default_fci_options = dict()
-        default_vqe_options = {"frozen_orbitals": None,
-                               "qubit_mapping": "jw",
+        default_vqe_options = {"qubit_mapping": "jw",
                                "initial_var_params": "ones",
                                "verbose": False}
 
-        default_options = {"molecule": None, "mean_field": None,
+        default_options = {"molecule": None,
                            "electron_localization": Localization.meta_lowdin,
                            "fragment_atoms": list(),
                            "fragment_solvers": "ccsd",
@@ -78,7 +75,12 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         # Raise error/warnings if input is not as expected
         if not self.molecule:
-            raise ValueError(f"A molecule object must be provided when instantiating DMETProblemDecomposition.")
+            raise ValueError(f"A SecondQuantizedMolecule object must be provided when instantiating DMETProblemDecomposition.")
+
+        # Converting our interface to pyscf.mol.gto and pyscf.scf (used by this
+        # code).
+        self.mean_field = self.molecule.mean_field
+        self.molecule = self.molecule.to_pyscf(self.molecule.basis)
 
         # If fragment_atoms is detected as a nested list of int, atoms are reordered to be
         # consistent with a list of numbers representing the number of atoms in each fragment.
@@ -158,10 +160,6 @@ class DMETProblemDecomposition(ProblemDecomposition):
         """Building the orbitals list for each fragment. It sets the values of
         self.orbitals, self.orb_list and self.orb_list2.
         """
-
-        # Build adequate mean-field (RHF for now, others in future).
-        if not self.mean_field:
-            self.mean_field = prepare_mf_RHF(self.molecule)
 
         # Locate electron with a built-in method. A custom one can be provided.
         if type(self.electron_localization) == Localization:
@@ -361,6 +359,13 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
+            # Interface with our data strcuture.
+            # We create a fake SecondQuantizedMolecule with a DMETFragment class.
+            # It has the same important attributes and methods to be used with
+            # functions of this package.
+            fake_mol = SecondQuantizedFragment(mf_fragment, mol_frag.nelectron,
+                2*len(mf_fragment.mo_energy), mol_frag.charge, mol_frag.spin)
+
             if self.verbose:
                 print("\t\tFragment Number : # ", i + 1)
                 print('\t\t------------------------')
@@ -392,7 +397,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     if solver_fragment.backend.n_shots is None:
                         raise ValueError('n_shots must be specified in original calculation or in error calculation')
                 else:
-                    system = {"molecule": mol_frag, "mean_field": mf_fragment}
+                    system = {"molecule": fake_mol}
                     solver_fragment = VQESolver({**system, **solver_options})
                     solver_fragment.build()
                     solver_fragment.simulate()
