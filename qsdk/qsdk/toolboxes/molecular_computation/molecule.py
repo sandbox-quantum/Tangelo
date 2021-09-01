@@ -4,7 +4,7 @@ functionalities.
 
 from dataclasses import dataclass, field
 import numpy as np
-from pyscf import gto
+from pyscf import gto, scf
 import openfermion
 import openfermionpyscf
 
@@ -141,7 +141,7 @@ class SecondQuantizedMolecule(Molecule):
     mo_energies: list = field(init=False)
     mo_occ: list = field(init=False)
 
-    mean_field: "PySCF mean-field" = field(init=False)
+    mean_field: scf = field(init=False)
 
     n_mos: int = field(init=False)
     n_sos: int = field(init=False)
@@ -202,7 +202,6 @@ class SecondQuantizedMolecule(Molecule):
 
         self.mean_field = of_molecule._pyscf_data["scf"]
 
-    # TODO: Conversion to qsdk FermionOperator for the qubit mapping function.
     def _get_fermionic_hamiltonian(self):
         """ This method returns the fermionic hamiltonian. It written to take into account
             calls for this function is without argument, and attributes are parsed into it.
