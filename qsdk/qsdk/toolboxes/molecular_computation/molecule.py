@@ -239,6 +239,10 @@ class SecondQuantizedMolecule(Molecule):
         """
         return self.active_occupied + self.active_virtual
 
+    @property
+    def fermionic_hamiltonian(self):
+        return self._get_fermionic_hamiltonian()
+
     def _compute_mean_field(self):
         """ Computes the mean-field for the molecule. It supports open-shell
             mean-field calculation through openfermionpyscf. Depending on the
