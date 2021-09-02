@@ -32,8 +32,8 @@ def get_frozen_core(molecule):
     return frozen_core
 
 
-def get_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
-    """Function to returns a list of orbitals frozen if the user wants to consider
+def get_orbitals_excluding_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
+    """Function that returns a list of orbitals to freeze if the user wants to consider
     only a subset from HOMO(-homo_min_n) to LUMO(+lumo_plus_n) orbitals. Users
     should be aware of degeneracies, as this function does not take this property
     into account. Also, it is only relevant for closed-shell systems.

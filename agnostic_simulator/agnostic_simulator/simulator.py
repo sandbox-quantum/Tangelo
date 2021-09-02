@@ -162,7 +162,7 @@ class Simulator:
                 meas_range = range(source_circuit.width)
                 translated_circuit.measure(meas_range, meas_range)
                 return_statevector = False
-                backend = qiskit.Aer.get_backend("qasm_simulator")
+                backend = qiskit.Aer.get_backend("aer_simulator")
 
                 qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
                 opt_level = 0 if self._noise_model else None
@@ -174,10 +174,12 @@ class Simulator:
 
             # Noiseless simulation using the statevector simulator otherwise
             else:
-                backend = qiskit.Aer.get_backend("statevector_simulator")
-                job_sim = qiskit.execute(translated_circuit, backend)
-                sim_results = job_sim.result()
-                self._current_state = sim_results.get_statevector()
+                backend = qiskit.Aer.get_backend("aer_simulator", method='statevector') 
+                save_state_circuit = qiskit.QuantumCircuit(source_circuit.width, source_circuit.width)
+                save_state_circuit.save_statevector()
+                translated_circuit = translated_circuit.compose(save_state_circuit)
+                sim_results = backend.run(translated_circuit).result()
+                self._current_state = sim_results.get_statevector(translated_circuit)
                 frequencies = self._statevector_to_frequencies(self._current_state)
 
             return (frequencies, np.array(sim_results.get_statevector())) if return_statevector else (frequencies, None)

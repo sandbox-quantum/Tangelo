@@ -91,10 +91,10 @@ class ONIOMTest(unittest.TestCase):
         # Every atom must be the same (same order too).
         # Position can be almost equals.
         for i, atom in enumerate(geom_fragment_capped):
-            self.assertEquals(atom[0], PHE_backbone_capped[i][0])
+            self.assertEqual(atom[0], PHE_backbone_capped[i][0])
 
             for dim in range(3):
-                self.assertAlmostEquals(atom[1][dim], PHE_backbone_capped[i][1][dim])
+                self.assertAlmostEqual(atom[1][dim], PHE_backbone_capped[i][1][dim])
 
     def test_energy(self):
         """Testing the oniom energy with a low accuraccy method (RHF) and an
@@ -119,7 +119,7 @@ class ONIOMTest(unittest.TestCase):
         oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
         e_oniom = oniom_solver.simulate()
 
-        self.assertAlmostEquals(e_oniom, -544.7306189, places=6)
+        self.assertAlmostEqual(e_oniom, -544.7306189, places=6)
 
     def test_vqe_cc(self):
         """Test to verifiy the implementation of VQE (with UCCSD) in ONIOM. Results
@@ -185,7 +185,7 @@ class ONIOMTest(unittest.TestCase):
         oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
         e_oniom = oniom_solver.simulate()
 
-        self.assertAlmostEquals(e_oniom, -315.23418566258914, places=6)
+        self.assertAlmostEqual(e_oniom, -315.23418566258914, places=6)
 
     def test_get_resources(self):
         """Test to verifiy the implementation of resources estimation in ONIOM. """
