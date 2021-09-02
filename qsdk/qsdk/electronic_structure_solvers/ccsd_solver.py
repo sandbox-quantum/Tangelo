@@ -53,7 +53,7 @@ class CCSDSolver(ElectronicStructureSolver):
         """
 
         # Check if CCSD calculation is performed
-        if not self.cc_fragment:
+        if self.cc_fragment is None:
             raise RuntimeError("CCSDSolver: Cannot retrieve RDM. Please run the 'simulate' method first")
 
         # Solve the lambda equation and obtain the reduced density matrix from CC calculation

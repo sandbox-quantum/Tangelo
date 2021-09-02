@@ -26,7 +26,7 @@ class FCISolver(ElectronicStructureSolver):
 
         self.ci = None
         self.norb = molecule.n_active_mos
-        self.nelec = molecule.n_electrons
+        self.nelec = molecule.n_active_electrons
         self.cisolver = fci.direct_spin0.FCI(molecule.to_pyscf(molecule.basis))
         self.cisolver.verbose = 0
         self.mean_field = molecule.mean_field
@@ -62,7 +62,7 @@ class FCISolver(ElectronicStructureSolver):
         """
 
         # Check if Full CI is performed
-        if not self.ci:
+        if self.ci is None:
             raise RuntimeError("FCISolver: Cannot retrieve RDM. Please run the 'simulate' method first")
 
         one_rdm = self.cisolver.make_rdm1(self.ci, self.norb, self.nelec)
