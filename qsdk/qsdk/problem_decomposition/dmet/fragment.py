@@ -4,6 +4,7 @@
 from dataclasses import dataclass, field
 import openfermion
 import numpy as np
+import pyscf
 from pyscf import ao2mo
 
 from qsdk.toolboxes.operators import FermionOperator
@@ -15,17 +16,20 @@ class SecondQuantizedFragment:
     """ Docstring. Mimicking SecondQuantizedMolecule.
     """
 
-    mean_field: "PySCF mean-field"
+    molecule: pyscf.gto
+    mean_field: pyscf.scf
 
     n_active_electrons: int
     n_active_sos: int
     q: int
     spin: int
 
+    basis: str = field(init=False)
     n_active_mos: int = field(init=False)
     fermionic_hamiltonian: FermionOperator = field(init=False, repr=False)
 
     def __post_init__(self):
+        self.basis = self.molecule.basis
         self.n_active_mos = self.n_active_sos // 2
         self.fermionic_hamiltonian = self._get_fermionic_hamiltonian()
 
@@ -65,3 +69,6 @@ class SecondQuantizedFragment:
         """ Docstring.
         """
         return None
+
+    def to_pyscf(self, basis=None):
+        return self.molecule

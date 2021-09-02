@@ -363,7 +363,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # We create a fake SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
-            fake_mol = SecondQuantizedFragment(mf_fragment, mol_frag.nelectron,
+            fake_mol = SecondQuantizedFragment(mol_frag, mf_fragment, mol_frag.nelectron,
                 2*len(mf_fragment.mo_energy), mol_frag.charge, mol_frag.spin)
 
             if self.verbose:
@@ -376,15 +376,15 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # FCISolver and CCSDSolver must be taken care of, but this is a PR itself.
             solver_fragment = self.fragment_solvers[i]
             solver_options = self.solvers_options[i]
-            if solver_fragment == 'fci':
-                solver_fragment = FCISolver()
-                solver_fragment.simulate(mol_frag, mf_fragment, **solver_options)
+            if solver_fragment == "fci":
+                solver_fragment = FCISolver(fake_mol, **solver_options)
+                solver_fragment.simulate()
                 onerdm, twordm = solver_fragment.get_rdm()
-            elif solver_fragment == 'ccsd':
-                solver_fragment = CCSDSolver()
-                solver_fragment.simulate(mol_frag, mf_fragment, **solver_options)
+            elif solver_fragment == "ccsd":
+                solver_fragment = CCSDSolver(fake_mol, **solver_options)
+                solver_fragment.simulate()
                 onerdm, twordm = solver_fragment.get_rdm()
-            elif solver_fragment == 'vqe':
+            elif solver_fragment == "vqe":
                 if resample:
                     solver_fragment = self.solver_fragment_dict[i]
                     if rdm_measurements:
@@ -452,13 +452,16 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, _, mol_frag, _, _, _, _ = info_fragment
 
+            fake_mol = SecondQuantizedFragment(mol_frag, mf_fragment, mol_frag.nelectron,
+                2*len(mf_fragment.mo_energy), mol_frag.charge, mol_frag.spin)
+
             # Buiding SCF fragments and quantum circuit. Resources are then
             # estimated. For classical sovlers, this functionality is not
             # implemented yet.
             solver_fragment = self.fragment_solvers[i]
             solver_options = self.solvers_options[i]
-            if solver_fragment == 'vqe':
-                system = {"molecule": mol_frag, "mean_field": mf_fragment}
+            if solver_fragment == "vqe":
+                system = {"molecule": fake_mol}
                 solver_fragment = VQESolver({**system, **solver_options})
                 solver_fragment.build()
                 vqe_ressources = solver_fragment.get_resources()
