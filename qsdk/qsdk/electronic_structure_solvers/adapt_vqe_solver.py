@@ -18,11 +18,9 @@ import warnings
 
 from qsdk.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from qsdk.electronic_structure_solvers.vqe_solver import VQESolver
-from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
-from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
-from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
+from qsdk.toolboxes.operators import qubitop_to_qubitham
 
 
 class ADAPTSolver:
@@ -30,7 +28,7 @@ class ADAPTSolver:
     defined to rank operators with respect to their influence on the total energy.
 
     Attributes:
-        molecule (pyscf.gto.Mole): The molecular system.
+        molecule (SecondQuantizedMolecule): The molecular system.
         mean-field (optional): Mean-field of the molecular system.
         tol (float): Maximum gradient allowed for a particular operator  before
             convergence.
@@ -53,10 +51,9 @@ class ADAPTSolver:
     def __init__(self, opt_dict):
 
         default_backend_options = {"target": "qulacs", "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None, "mean_field": None, "verbose": False,
+        default_options = {"molecule": None, "verbose": False,
                            "tol": 1e-3, "max_cycles": 15,
                            "pool": uccgsd_pool,
-                           "frozen_orbitals": "frozen_core",
                            "qubit_mapping": "jw",
                            "qubit_hamiltonian": None,
                            "up_then_down": False,
@@ -115,25 +112,18 @@ class ADAPTSolver:
 
         # Building molecule data with a pyscf molecule.
         if self.molecule:
-            # Build adequate mean-field.
-            if not self.mean_field:
-                self.mean_field = prepare_mf_RHF(self.molecule)
 
-            # Same default as in vanilla VQE.
-            if self.frozen_orbitals == "frozen_core":
-                self.frozen_orbitals = get_frozen_core(self.molecule)
+            self.n_spinorbitals = self.molecule.n_active_sos
+            self.n_electrons = self.molecule.n_active_electrons
 
-            # Compute qubit hamiltonian for the input molecular system.
-            self.qemist_molecule = MolecularData(self.molecule, self.mean_field, self.frozen_orbitals)
-            self.n_spinorbitals = 2 * self.qemist_molecule.n_orbitals
-            self.n_electrons = self.qemist_molecule.n_electrons
+            # Compute qubit hamiltonian for the input molecular system
+            qubit_op = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
+                                                mapping=self.qubit_mapping,
+                                                n_spinorbitals=self.n_spinorbitals,
+                                                n_electrons=self.n_electrons,
+                                                up_then_down=self.up_then_down)
 
-            self.fermionic_hamiltonian = self.qemist_molecule.get_molecular_hamiltonian()
-            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.fermionic_hamiltonian,
-                                                              mapping=self.qubit_mapping,
-                                                              n_spinorbitals=self.n_spinorbitals,
-                                                              n_electrons=self.n_electrons,
-                                                              up_then_down=self.up_then_down)
+            self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
 
         # Build / set ansatz circuit.
         ansatz_options = {"mapping": self.qubit_mapping, "up_then_down": self.up_then_down}
@@ -165,7 +155,7 @@ class ADAPTSolver:
 
         # Getting commutators to compute gradients:
         # \frac{\partial E}{\partial \theta_n} = \langle \psi | [\hat{H}, A_n] | \psi \rangle
-        self.pool_commutators = [commutator(self.qubit_hamiltonian, element) for element in self.pool_operators]
+        self.pool_commutators = [commutator(self.qubit_hamiltonian.to_qubitoperator(), element) for element in self.pool_operators]
 
     def simulate(self):
         """Performs the ADAPT cycles. Each iteration, a VQE minimization is done. """

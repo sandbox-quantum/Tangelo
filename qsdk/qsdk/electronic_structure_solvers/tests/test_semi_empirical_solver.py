@@ -1,6 +1,6 @@
 import unittest
-from pyscf import gto
 
+from qsdk.toolboxes.molecular_computation.molecule import Molecule
 from qsdk.electronic_structure_solvers.semi_empirical_solver import MINDO3Solver
 
 pyridine = """
@@ -23,20 +23,16 @@ class MINDO3SolverTest(unittest.TestCase):
     def test_energy(self):
         """ Test MINDO3Solver with pyridine. Validated with:
 
-        MINDO/3-derived geometries and energies of alkylpyridines and the related N-methylpyridinium cations
-        Jeffrey I. Seeman, John C. Schug, and Jimmy W. Viers
-        The Journal of Organic Chemistry 1983 48 (14), 2399-2407
-        DOI: 10.1021/jo00162a021
+            MINDO/3-derived geometries and energies of alkylpyridines and the related N-methylpyridinium cations
+            Jeffrey I. Seeman, John C. Schug, and Jimmy W. Viers
+            The Journal of Organic Chemistry 1983 48 (14), 2399-2407
+            DOI: 10.1021/jo00162a021
         """
 
-        mol = gto.Mole()
-        mol.atom =  pyridine
-        mol.charge = 0
-        mol.spin = 0
-        mol.build()
+        mol = Molecule(pyridine, q=0, spin=0)
 
-        solver = MINDO3Solver()
-        energy = solver.simulate(mol)
+        solver = MINDO3Solver(mol)
+        energy = solver.simulate()
 
         self.assertAlmostEqual(energy, -33.04112644117467, places=6)
 

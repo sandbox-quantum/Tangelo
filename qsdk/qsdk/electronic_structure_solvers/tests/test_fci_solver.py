@@ -1,7 +1,7 @@
 import unittest
-from pyscf import gto, scf
 
-from ..fci_solver import FCISolver
+from qsdk.electronic_structure_solvers import FCISolver
+from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 
 H2 = """
     H 0.00 0.00 0.0
@@ -14,55 +14,31 @@ Be = """Be 0.0 0.0 0.0"""
 # TODO: Can we test the get_rdm method on H2 ? How do we get our reference? Whole matrix or its properties?
 class FCISolverTest(unittest.TestCase):
 
-    def test_fci_h2_no_mf(self):
-        """ Test FCISolver against result from reference implementation, with no mean-field provided as input """
-        mol = gto.Mole()
-        mol.atom = H2
-        mol.basis = "3-21g"
-        mol.charge = 0
-        mol.spin = 0
-        mol.build()
+    def test_fci_h2(self):
+        """ Test FCISolver against result from reference implementation (H2). """
 
-        solver = FCISolver()
-        energy = solver.simulate(mol)
+        mol = SecondQuantizedMolecule(H2, basis="3-21g", frozen_orbitals=None)
+
+        solver = FCISolver(mol)
+        energy = solver.simulate()
 
         self.assertAlmostEqual(energy, -1.1478300596229851, places=8)
 
-    def test_fci_h2_with_mf(self):
-        """ Test FCISolver against result from reference implementation, with mean-field provided as input """
-        mol = gto.Mole()
-        mol.atom = H2
-        mol.basis = "3-21g"
-        mol.charge = 0
-        mol.spin = 0
-        mol.build()
+    def test_fci_be(self):
+        """ Test FCISolver against result from reference implementation (Be). """
 
-        mf = scf.RHF(mol)
-        mf.verbose = 0
-        mf.scf()
+        mol = SecondQuantizedMolecule(Be, basis="3-21g", frozen_orbitals=None)
 
-        solver = FCISolver()
-        energy = solver.simulate(mol, mf)
-
-        self.assertAlmostEqual(energy, -1.1478300596229851, places=8)
-
-    def test_fci_be_no_mf(self):
-        """ Test FCISolver against result from reference implementation, with no mean-field provided as input """
-        mol = gto.Mole()
-        mol.atom = Be
-        mol.basis = "3-21g"
-        mol.charge = 0
-        mol.spin = 0
-        mol.build()
-
-        solver = FCISolver()
-        energy = solver.simulate(mol)
+        solver = FCISolver(mol)
+        energy = solver.simulate()
 
         self.assertAlmostEqual(energy, -14.531444379108095, places=8)
 
     def test_fci_get_rdm_without_simulate(self):
         """Test that the runtime error is raised when user calls get RDM without first running a simulation."""
-        solver = FCISolver()
+
+        mol = SecondQuantizedMolecule(H2, basis="3-21g", frozen_orbitals=None)
+        solver = FCISolver(mol)
         self.assertRaises(RuntimeError, solver.get_rdm)
 
 
