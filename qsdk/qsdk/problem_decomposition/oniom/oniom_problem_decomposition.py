@@ -19,7 +19,7 @@ DOI: 10.1021/cr5004419
 # TODO: Capping with CH3 or other functional groups.
 
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
-from qsdk.toolboxes.molecular_computation.molecular_data import atom_string_to_list
+from qsdk.toolboxes.molecular_computation.molecule import atom_string_to_list
 
 
 class ONIOMProblemDecomposition(ProblemDecomposition):
