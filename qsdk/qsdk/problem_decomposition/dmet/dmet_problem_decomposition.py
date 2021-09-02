@@ -7,14 +7,13 @@ from pyscf import gto
 import scipy
 import warnings
 
-from . import _helpers as helpers
-from ..problem_decomposition import ProblemDecomposition
-from ..electron_localization import iao_localization, meta_lowdin_localization
-from .fragment import SecondQuantizedFragment
-from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
+from qsdk.problem_decomposition.dmet import _helpers as helpers
+from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
+from qsdk.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization
+from qsdk.problem_decomposition.dmet.fragment import SecondQuantizedFragment
 from qsdk.electronic_structure_solvers import FCISolver, CCSDSolver, VQESolver
 from qsdk.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+
 
 class Localization(Enum):
     """ Enumeration of the electron localization supported by DMET."""
