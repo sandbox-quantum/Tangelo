@@ -170,8 +170,6 @@ class SecondQuantizedMolecule(Molecule):
     active_virtual: list = field(init=False)
     frozen_virtual: list = field(init=False)
 
-    fermionic_hamiltonian: FermionOperator = field(init=False, repr=False)
-
     def __post_init__(self):
         super().__post_init__()
         self._compute_mean_field()
@@ -181,8 +179,6 @@ class SecondQuantizedMolecule(Molecule):
         self.frozen_occupied = list_of_active_frozen[1]
         self.active_virtual = list_of_active_frozen[2]
         self.frozen_virtual = list_of_active_frozen[3]
-
-        self.fermionic_hamiltonian = self._get_fermionic_hamiltonian()
 
     @property
     def n_active_electrons(self):
@@ -195,6 +191,10 @@ class SecondQuantizedMolecule(Molecule):
     @property
     def n_active_mos(self):
         return len(self.get_active_orbitals())
+
+    @property
+    def fermionic_hamiltonian(self):
+        return self._get_fermionic_hamiltonian()
 
     def _compute_mean_field(self):
         """ Computes the mean-field for the molecule. It supports open-shell
