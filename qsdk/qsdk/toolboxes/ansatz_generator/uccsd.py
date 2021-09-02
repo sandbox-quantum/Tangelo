@@ -81,13 +81,14 @@ class UCCSD(Ansatz):
             var_params = self.var_params_default
 
         if isinstance(var_params, str):
-            if (var_params.lower() not in self.supported_initial_var_params):
+            var_params = var_params.lower()
+            if (var_params not in self.supported_initial_var_params):
                 raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
-            if var_params.lower() == "ones":
+            if var_params == "ones":
                 initial_var_params = np.ones((self.n_var_params,), dtype=float)
-            elif var_params.lower() == "random":
+            elif var_params == "random":
                 initial_var_params = 2.e-1 * (np.random.random((self.n_var_params,)) - 0.5)
-            elif var_params.lower() == "mp2":
+            elif var_params == "mp2":
                 initial_var_params = self._compute_mp2_params()
         else:
             try:
