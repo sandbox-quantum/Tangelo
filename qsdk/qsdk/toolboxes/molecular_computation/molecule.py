@@ -12,6 +12,7 @@ from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
+
 def atom_string_to_list(atom_string):
     """ Convert atom coordinate string (typically stored in text files) into a list/tuple representation
         suitable for MolecularData """
@@ -24,6 +25,24 @@ def atom_string_to_list(atom_string):
             coordinates = (float(data[1]), float(data[2]), float(data[3]))
             geometry += [(atom, coordinates)]
     return geometry
+
+def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals=0):
+    """ Function to convert a Molecule into a SecondQuantizedMolecule.
+
+        Args:
+            mol (Molecule): Self-explanatory.
+            basis_set (string): String representing the basis set.
+            frozen_orbitals (int or list of int): Number of MOs or MOs indexes
+                to freeze.
+
+        Returns:
+            SecondQuantizedMolecule: Mean-field data structure for a molecule.
+    """
+
+    converted_mol = SecondQuantizedMolecule(mol.xyz, mol.q, mol.spin,
+                                            basis=basis_set,
+                                            frozen_orbitals=frozen_orbitals)
+    return converted_mol
 
 
 @dataclass
@@ -296,25 +315,6 @@ class SecondQuantizedMolecule(Molecule):
                 list: MOs indexes that are active (occupied + virtual).
         """
         return self.active_occupied + self.active_virtual
-
-
-def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals=0):
-    """ Function to convert a Molecule into a SecondQuantizedMolecule.
-
-        Args:
-            mol (Molecule): Self-explanatory.
-            basis_set (string): String representing the basis set.
-            frozen_orbitals (int or list of int): Number of MOs or MOs indexes
-                to freeze.
-
-        Returns:
-            SecondQuantizedMolecule: Mean-field data structure for a molecule.
-    """
-
-    converted_mol = SecondQuantizedMolecule(mol.xyz, mol.q, mol.spin,
-                                            basis=basis_set,
-                                            frozen_orbitals=frozen_orbitals)
-    return converted_mol
 
 
 if __name__ == "__main__":

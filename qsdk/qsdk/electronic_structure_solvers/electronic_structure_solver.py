@@ -12,19 +12,19 @@ class ElectronicStructureSolver(abc.ABC):
     run simulation.
     """
 
-    def __init__(self):
-        pass
-
-    @abc.abstractmethod
-    def simulate(self, molecule, mean_field=None):
+    def __init__(self, molecule):
         """ Performs the simulation for a molecule.
         The mean field is calculated automatically if not passed in by the calling code.
 
         Args:
-            molecule (pyscf.gto.Mole): The molecule on which to perform the
-                simluation.
-            mean_field (pyscf.scf.RHF): The mean filed of the molecule. Computed
-                automatically if `None` is passed in.
+            molecule (SecondQuantizedMolecule): The molecule on which to perform the
+                simulation.
+        """
+        pass
+
+    @abc.abstractmethod
+    def simulate(self):
+        """ Performs the simulation for a molecule.
         """
         pass
 
