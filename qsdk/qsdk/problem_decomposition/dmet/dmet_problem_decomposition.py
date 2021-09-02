@@ -35,7 +35,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         electron_localization (Localization): A type of localization scheme. Default is Meta-Lowdin.
         fragment_atoms (list): List of number of atoms in each fragment. Sum of this list
             should be the same as the number of atoms in the original system.
-        fargment_solvers (list or str): List of solvers for each fragment. If only a string is
+        fragment_solvers (list or str): List of solvers for each fragment. If only a string is
             detected, this solver is used for all fragments.
         optimizer (function handle): A function defining the classical optimizer and its behavior.
         initial_chemical_potential (str or array-like) : Initial value for the chemical potential.
