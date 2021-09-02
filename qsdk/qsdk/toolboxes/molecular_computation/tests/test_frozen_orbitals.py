@@ -33,11 +33,11 @@ class FrozenOrbitalsTest(unittest.TestCase):
 
         # Getting HOMO-LUMO.
         frozen_homo_lumo = get_homo_lumo(mol_h2o)
-        self.assertEquals(frozen_homo_lumo, [0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12])
+        self.assertEqual(frozen_homo_lumo, [0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12])
 
         # Active space from HOMO-2 to LUMO+4
         frozen_homo2_lumo4 = get_homo_lumo(mol_h2o, 2, 4)
-        self.assertEquals(frozen_homo2_lumo4, [0, 1, 10, 11, 12])
+        self.assertEqual(frozen_homo2_lumo4, [0, 1, 10, 11, 12])
 
 
 if __name__ == "__main__":

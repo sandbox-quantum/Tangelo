@@ -113,7 +113,7 @@ class MolecularData(openfermion.MolecularData):
         self.active_occupied = [i for i in self.active_occupied if i not in self.frozen_occupied]
         self.active_virtual = [i for i in self.active_virtual if i not in self.frozen_virtual]
 
-        # Useful for the making of the ansatz and convertion into qubits and gates.
+        # Useful for the making of the ansatz and conversion into qubits and gates.
         # Frozen things are not considered anymore.
         self.n_qubits = len(self.active_occupied + self.active_virtual) * 2
         self.n_orbitals = len(self.active_occupied + self.active_virtual)

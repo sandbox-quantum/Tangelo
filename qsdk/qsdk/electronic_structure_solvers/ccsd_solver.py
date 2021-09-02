@@ -39,7 +39,7 @@ class CCSDSolver(ElectronicStructureSolver):
             frozen_orbitals = None
 
         # Execute CCSD calculation
-        self.cc_fragment = cc.ccsd.CCSD(mean_field, frozen=frozen_orbitals)
+        self.cc_fragment = cc.CCSD(mean_field, frozen=frozen_orbitals)
         self.cc_fragment.verbose = 0
         self.cc_fragment.conv_tol = 1e-9
         self.cc_fragment.conv_tol_normt = 1e-7
