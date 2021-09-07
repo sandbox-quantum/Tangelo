@@ -10,7 +10,7 @@ import warnings
 from qsdk.problem_decomposition.dmet import _helpers as helpers
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization
-from qsdk.problem_decomposition.dmet.fragment import SecondQuantizedFragment
+from qsdk.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
 from qsdk.electronic_structure_solvers import FCISolver, CCSDSolver, VQESolver
 from qsdk.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
 
@@ -362,7 +362,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # We create a fake SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
-            fake_mol = SecondQuantizedFragment(mol_frag, mf_fragment, mol_frag.nelectron,
+            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, mol_frag.nelectron,
                 2*len(mf_fragment.mo_energy), mol_frag.charge, mol_frag.spin)
 
             if self.verbose:
@@ -376,11 +376,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
             solver_fragment = self.fragment_solvers[i]
             solver_options = self.solvers_options[i]
             if solver_fragment == "fci":
-                solver_fragment = FCISolver(fake_mol, **solver_options)
+                solver_fragment = FCISolver(dummy_mol, **solver_options)
                 solver_fragment.simulate()
                 onerdm, twordm = solver_fragment.get_rdm()
             elif solver_fragment == "ccsd":
-                solver_fragment = CCSDSolver(fake_mol, **solver_options)
+                solver_fragment = CCSDSolver(dummy_mol, **solver_options)
                 solver_fragment.simulate()
                 onerdm, twordm = solver_fragment.get_rdm()
             elif solver_fragment == "vqe":
@@ -396,7 +396,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     if solver_fragment.backend.n_shots is None:
                         raise ValueError('n_shots must be specified in original calculation or in error calculation')
                 else:
-                    system = {"molecule": fake_mol}
+                    system = {"molecule": dummy_mol}
                     solver_fragment = VQESolver({**system, **solver_options})
                     solver_fragment.build()
                     solver_fragment.simulate()
@@ -451,7 +451,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, _, mol_frag, _, _, _, _ = info_fragment
 
-            fake_mol = SecondQuantizedFragment(mol_frag, mf_fragment, mol_frag.nelectron,
+            dummy_mol = SecondQuantizedFragment(mol_frag, mf_fragment, mol_frag.nelectron,
                 2*len(mf_fragment.mo_energy), mol_frag.charge, mol_frag.spin)
 
             # Buiding SCF fragments and quantum circuit. Resources are then
@@ -460,7 +460,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             solver_fragment = self.fragment_solvers[i]
             solver_options = self.solvers_options[i]
             if solver_fragment == "vqe":
-                system = {"molecule": fake_mol}
+                system = {"molecule": dummy_mol}
                 solver_fragment = VQESolver({**system, **solver_options})
                 solver_fragment.build()
                 vqe_ressources = solver_fragment.get_resources()

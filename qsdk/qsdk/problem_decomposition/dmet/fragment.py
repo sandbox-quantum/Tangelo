@@ -1,4 +1,4 @@
-""" Module for data structure for DMET fragments. s"""
+""" Module for data structure for DMET fragments. """
 
 from dataclasses import dataclass, field
 import openfermion
@@ -11,9 +11,9 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
 
 @dataclass
-class SecondQuantizedFragment:
+class SecondQuantizedDMETFragment:
     """ Mimicking SecondQuantizedMolecule for DMET fragments. It has the minimal
-        number of attributes and methods to be parsed in electronic solvers.
+        number of attributes and methods to be parsed by electronic solvers.
     """
 
     molecule: pyscf.gto
@@ -41,17 +41,17 @@ class SecondQuantizedFragment:
                 FermionOperator: Self-explanatory.
         """
 
-        fake_of_molecule = openfermion.MolecularData([["C", (0., 0. ,0.)]], "sto-3g", self.spin+1, self.q)
+        dummy_of_molecule = openfermion.MolecularData([["C", (0., 0. ,0.)]], "sto-3g", self.spin+1, self.q)
 
         # Overwrting nuclear repulsion term.
-        fake_of_molecule.nuclear_repulsion = self.mean_field.mol.energy_nuc()
+        dummy_of_molecule.nuclear_repulsion = self.mean_field.mol.energy_nuc()
 
         canonical_orbitals = self.mean_field.mo_coeff
         h_core = self.mean_field.get_hcore()
         n_orbitals = len(self.mean_field.mo_energy)
 
         # Overwriting 1-electron integrals.
-        fake_of_molecule._one_body_integrals = canonical_orbitals.T @ h_core @ canonical_orbitals
+        dummy_of_molecule._one_body_integrals = canonical_orbitals.T @ h_core @ canonical_orbitals
 
         twoint = self.mean_field._eri
         eri = ao2mo.restore(8, twoint, n_orbitals)
@@ -59,9 +59,9 @@ class SecondQuantizedFragment:
         eri = ao2mo.restore(1, eri, n_orbitals)
 
         # Overwriting 2-electrons integrals.
-        fake_of_molecule._two_body_integrals = np.asarray(eri.transpose(0, 2, 3, 1), order='C')
+        dummy_of_molecule._two_body_integrals = np.asarray(eri.transpose(0, 2, 3, 1), order='C')
 
-        fragment_hamiltonian = fake_of_molecule.get_molecular_hamiltonian()
+        fragment_hamiltonian = dummy_of_molecule.get_molecular_hamiltonian()
 
         return get_fermion_operator(fragment_hamiltonian)
 
