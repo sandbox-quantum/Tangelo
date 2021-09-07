@@ -52,6 +52,15 @@ class UCCSDTest(unittest.TestCase):
         expected = [2e-05, 0.0363253711023451]
         self.assertAlmostEqual(np.linalg.norm(uccsd_ansatz.var_params), np.linalg.norm(expected), delta=1e-10)
 
+    def test_uccsd_set_params_mp2_H2(self):
+        """ Verify closed-shell UCCSD functionalities for H2: lower case mp2 initial parameters """
+
+        uccsd_ansatz = UCCSD(mol_h2)
+        uccsd_ansatz.set_var_params("mp2")
+
+        expected = [2e-05, 0.0363253711023451]
+        self.assertAlmostEqual(np.linalg.norm(uccsd_ansatz.var_params), np.linalg.norm(expected), delta=1e-10)
+
     def test_uccsd_set_params_MP2_H4(self):
         """ Verify closed-shell UCCSD functionalities for H4: MP2 initial parameters """
 

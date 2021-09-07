@@ -117,6 +117,7 @@ class RUCC(Ansatz):
             raise ValueError("The number of parameters for RUCC must be 1 or 3.")
 
         self.circuit = reference_state_circuit + rucc_circuit
+        self.update_var_params(self.var_params)
 
     def update_var_params(self, var_params):
         """ Shortcut: set value of variational parameters in the already-built

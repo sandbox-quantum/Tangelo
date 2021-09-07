@@ -32,7 +32,7 @@ class CCSDSolver(ElectronicStructureSolver):
                 total_energy (float): CCSD energy
         """
         # Execute CCSD calculation
-        self.cc_fragment = cc.ccsd.CCSD(self.mean_field, frozen=self.frozen)
+        self.cc_fragment = cc.CCSD(self.mean_field, frozen=self.frozen)
         self.cc_fragment.verbose = 0
         self.cc_fragment.conv_tol = 1e-9
         self.cc_fragment.conv_tol_normt = 1e-7

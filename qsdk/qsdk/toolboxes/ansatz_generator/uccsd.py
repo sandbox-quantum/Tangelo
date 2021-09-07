@@ -71,11 +71,11 @@ class UCCSD(Ansatz):
         # TODO: support for others
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"ones", "random", "MP2"} if self.spin == 0 else {"ones", "random"}
+        self.supported_initial_var_params = {"ones", "random", "mp2"} if self.spin == 0 else {"ones", "random"}
 
         # Default initial parameters for initialization
         # TODO: support for openshell MP2 initialization
-        self.var_params_default = "MP2" if self.spin == 0 else "ones"
+        self.var_params_default = "mp2" if self.spin == 0 else "ones"
         self.default_reference_state = "HF"
 
         self.var_params = None
@@ -90,13 +90,14 @@ class UCCSD(Ansatz):
             var_params = self.var_params_default
 
         if isinstance(var_params, str):
+            var_params = var_params.lower()
             if (var_params not in self.supported_initial_var_params):
                 raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
             if var_params == "ones":
                 initial_var_params = np.ones((self.n_var_params,), dtype=float)
             elif var_params == "random":
                 initial_var_params = 2.e-1 * (np.random.random((self.n_var_params,)) - 0.5)
-            elif var_params == "MP2":
+            elif var_params == "mp2":
                 initial_var_params = self._compute_mp2_params()
         else:
             try:
