@@ -451,7 +451,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, _, mol_frag, _, _, _, _ = info_fragment
 
-            dummy_mol = SecondQuantizedFragment(mol_frag, mf_fragment, mol_frag.nelectron,
+            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, mol_frag.nelectron,
                 2*len(mf_fragment.mo_energy), mol_frag.charge, mol_frag.spin)
 
             # Buiding SCF fragments and quantum circuit. Resources are then
