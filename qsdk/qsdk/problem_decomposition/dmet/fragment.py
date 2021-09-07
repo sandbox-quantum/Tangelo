@@ -1,5 +1,4 @@
-""" Docstring
-"""
+""" Module for data structure for DMET fragments. s"""
 
 from dataclasses import dataclass, field
 import openfermion
@@ -13,7 +12,8 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
 @dataclass
 class SecondQuantizedFragment:
-    """ Docstring. Mimicking SecondQuantizedMolecule.
+    """ Mimicking SecondQuantizedMolecule for DMET fragments. It has the minimal
+        number of attributes and methods to be parsed in electronic solvers.
     """
 
     molecule: pyscf.gto
@@ -66,9 +66,13 @@ class SecondQuantizedFragment:
         return get_fermion_operator(fragment_hamiltonian)
 
     def get_frozen_orbitals(self):
-        """ Docstring.
-        """
+        """ Empty method for compatibility with SecondQuantizedMolecule. """
         return None
 
     def to_pyscf(self, basis=None):
+        """ Method to output the PySCF molecule.
+
+            Returns
+                pyscf.gto.Mole: PySCF molecule.
+        """
         return self.molecule
