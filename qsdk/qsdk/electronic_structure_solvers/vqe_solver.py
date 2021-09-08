@@ -241,16 +241,24 @@ class VQESolver:
                 exp_op = spin2_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
             else:
                 raise ValueError('Only expectation values of N, Sz and S^2')
-        elif isinstance(operator, QubitOperator):
+            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=exp_op,
+                                                              mapping=self.qubit_mapping,
+                                                              n_spinorbitals=self.qemist_molecule.n_qubits,
+                                                              n_electrons=self.qemist_molecule.n_electrons,
+                                                              up_then_down=self.up_then_down)
+        elif isinstance(operator, FermionOperator):
             exp_op = operator
+            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=exp_op,
+                                                              mapping=self.qubit_mapping,
+                                                              n_spinorbitals=self.qemist_molecule.n_qubits,
+                                                              n_electrons=self.qemist_molecule.n_electrons,
+                                                              up_then_down=self.up_then_down)
+        elif isinstance(operator, QubitOperator):
+            self.qubit_hamiltonian = operator
         else:
-            raise TypeError('operator must be a of string or QubitOperator type')
+            raise TypeError('operator must be a of string, Fermionic or QubitOperator type')
 
-        self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=exp_op,
-                                                          mapping=self.qubit_mapping,
-                                                          n_spinorbitals=self.qemist_molecule.n_qubits,
-                                                          n_electrons=self.qemist_molecule.n_electrons,
-                                                          up_then_down=self.up_then_down)
+        
 
         expectation = self.energy_estimation(var_params)
 
