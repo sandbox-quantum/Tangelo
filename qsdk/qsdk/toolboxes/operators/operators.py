@@ -136,24 +136,3 @@ def qubitop_to_qubitham(qubit_op, mapping, up_then_down):
         qubit_ham += QubitHamiltonian(mapping, up_then_down, term, coeff)
 
     return qubit_ham
-
-
-def qubitop_to_qubitham(qubit_op, mapping, up_then_down):
-    """ Function to convert a QubitOperator into a QubitHamiltonian.
-
-        Args:
-            qubit_op (QubitOperator): Self-explanatory.
-            n_qubits (int): Self-explanatory.
-            mapping (string): Qubit mapping procedure.
-            up_then_down (bool): Whether or not spin ordering is all up then
-                all down.
-
-        Returns:
-            QubitHamiltonian: Self-explanatory.
-    """
-    qubit_ham = QubitHamiltonian(mapping, up_then_down)
-
-    for term, coeff in qubit_op.terms.items():
-        qubit_ham += QubitHamiltonian(mapping, up_then_down, term, coeff)
-
-    return qubit_ham
