@@ -5,21 +5,13 @@
 
 import unittest
 import os
-import qiskit
-import qulacs
-import cirq
-
-from braket.circuits import Circuit as BraketCircuit
-from braket.devices import LocalSimulator as BraketLocalSimulator
-
-from projectq.ops import *
-from projectq import MainEngine
+import numpy as np
 
 from agnostic_simulator import Gate
 from agnostic_simulator import Circuit
 import agnostic_simulator.translator as translator
 
-path_data = os.path.dirname(__file__) + '/data'
+path_data = os.path.dirname(os.path.realpath(__file__)) + '/data'
 
 gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1), Gate("Y", 0), Gate("S", 0)]
 abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=2.)])
@@ -28,13 +20,30 @@ references = [0., 0.38205142 ** 2, 0., 0.59500984 ** 2, 0., 0.38205142 ** 2, 0.,
 abs_circ_mixed = Circuit(gates) + Circuit([Gate("RX", 1, parameter=1.5), Gate("MEASURE", 0)])
 
 
+# List all succesfully found and imported packages, and the ones that are not available
+# Used to skip tests for which dependencies have not been installed
+def is_package_available(package_name):
+    try:
+        exec(f'import {package_name}')
+        print(f'{package_name}\t :: found')
+        return True
+    except:
+        print(f'{package_name}\t :: not found')
+        return False
+
+backends = ["qulacs", "qiskit", "cirq", "braket", "qsharp"]
+available_packages = {backend: is_package_available(backend) for backend in backends}
+
+
 class TestTranslation(unittest.TestCase):
 
+    @unittest.skipIf(not available_packages["qulacs"], "Test Skipped: Backend not available \n")
     def test_qulacs(self):
         """
             Compares the results of a simulation with Qulacs using a qulacs circuit directly
             VS one obtained through translation from an abstract format
         """
+        import qulacs
 
         # Generates the qulacs circuit by translating from the abstract one
         translated_circuit = translator.translate_qulacs(abs_circ)
@@ -60,15 +69,17 @@ class TestTranslation(unittest.TestCase):
         # Assert that both simulations returned the same state vector
         np.testing.assert_array_equal(state1.get_vector(), state2.get_vector())
 
+    @unittest.skipIf(not available_packages["qiskit"], "Test Skipped: Backend not available \n")
     def test_qiskit(self):
         """
             Compares the results of a simulation with Qulacs using a qulacs circuit directly
             VS one obtained through translation from an abstract format
         """
 
+        import qiskit
+
         # Generate the qiskit circuit by translating from the abstract one and print it
         translated_circuit = translator.translate_qiskit(abs_circ)
-        print(translated_circuit)
 
         # Generate the qiskit circuit directly and print it
         circ = qiskit.QuantumCircuit(3, 3)
@@ -78,7 +89,6 @@ class TestTranslation(unittest.TestCase):
         circ.y(0)
         circ.s(0)
         circ.rx(2., 1)
-        print(circ)
 
         # Simulate both circuits, assert state vectors are equal
         qiskit_simulator = qiskit.Aer.get_backend("statevector_simulator")
@@ -93,15 +103,17 @@ class TestTranslation(unittest.TestCase):
 
         np.testing.assert_array_equal(v1, v2)
 
+    @unittest.skipIf(not available_packages["cirq"], "Test Skipped: Backend not available \n")
     def test_cirq(self):
         """
             Compares the results of a simulation with cirq using a cirq circuit directly
             VS one obtained through translation from an abstract format
         """
 
+        import cirq
+
         # Generate the qiskit circuit by translating from the abstract one and print it
         translated_circuit = translator.translate_cirq(abs_circ)
-        print(f"\n Cirq Circuit \n{translated_circuit}\n")
 
         # Generate the cirq circuit directly and print it
         qubit_labels = cirq.LineQubit.range(3)
@@ -113,7 +125,6 @@ class TestTranslation(unittest.TestCase):
         circ.append(cirq.S(qubit_labels[0]))
         gate_rx = cirq.rx(2.)
         circ.append(gate_rx(qubit_labels[1]))
-        print(f"{circ}\n")
 
         # Simulate both circuits, assert state vectors are equal
         cirq_simulator = cirq.Simulator()
@@ -126,6 +137,7 @@ class TestTranslation(unittest.TestCase):
 
         np.testing.assert_array_equal(v1, v2)
 
+    @unittest.skipIf(not available_packages["qsharp"], "Test Skipped: Backend not available \n")
     def test_qdk(self):
         """ Compares the frequencies computed by the QDK/Q# shot-based simulator to the theoretical ones """
 
@@ -150,59 +162,65 @@ class TestTranslation(unittest.TestCase):
         # Compares with theoretical probabilities obtained through a statevector simulator
         np.testing.assert_almost_equal(np.array(probabilities), np.array(references), 2)
 
-    def test_projectq(self):
-        """ Compares state vector of native ProjectQ circuit against translated one """
+    # @unittest.skip("To be removed")
+    # def test_projectq(self):
+    #     """ Compares state vector of native ProjectQ circuit against translated one """
+    #     # from projectq.ops import *
+    #     # from projectq import MainEngine
+    #
+    #
+    #     translated_circuit = translator.translate_projectq(abs_circ)
+    #     instructions = translated_circuit.split("\n")
+    #
+    #     eng = MainEngine()
+    #     Qureg = eng.allocate_qureg(abs_circ.width)
+    #     for instruction in instructions[abs_circ.width:]:
+    #         exec(instruction)
+    #     eng.flush()
+    #     _, v1 = eng.backend.cheat()
+    #     All(Measure) | Qureg
+    #     eng.flush()
+    #
+    #     # # Native ProjectQ circuit
+    #     eng2 = MainEngine()
+    #     Qureg2 = eng2.allocate_qureg(3)
+    #     H | Qureg2[2]
+    #     CX | (Qureg2[0], Qureg2[1])
+    #     CX | (Qureg2[1], Qureg2[2])
+    #     Y | Qureg2[0]
+    #     S | Qureg2[0]
+    #     Rx(2.0) | Qureg2[1]
+    #     eng2.flush()
+    #     _, v2 = eng2.backend.cheat()
+    #     All(Measure) | Qureg2
+    #     eng2.flush()
+    #
+    #     # Compare statevectors
+    #     np.testing.assert_array_equal(v1, v2)
 
-        translated_circuit = translator.translate_projectq(abs_circ)
-        instructions = translated_circuit.split("\n")
+    # @unittest.skipIf(not available_packages["projectq"], "Test Skipped: Backend not available \n")
+    # def test_projectq2abs(self):
+    #     """ Compares state vector of native ProjectQ circuit against one translated to abstract and then
+    #     ran with projectQ """
+    #
+    #     # Compares original abstract circuit to the one obtained by translating to projectQ and back to abstract
+    #     projectq_circ = translator.translate_projectq(abs_circ)
+    #     abs_circ2 = translator._translate_projectq2abs(projectq_circ)
+    #     assert(abs_circ.__str__() == abs_circ2.__str__())
+    #
+    #     # Inverse test: assume input is a ProjectQ circuit such as the output of the CommandPrinter engine
+    #     with open(f"{path_data}/projectq_circuit.txt", 'r') as pq_circ_file:
+    #         pq_circ1 = pq_circ_file.read()
+    #         abs_circ1 = translator._translate_projectq2abs(pq_circ1)
+    #         pq_circ2 = translator.translate_projectq(abs_circ1)
+    #
+    #         # This package does not generate final measurements and deallocations, so that simulation can retrieve
+    #         # the statevector beforehand. We append them manually for the sake of this test.
+    #         for i in range(abs_circ1.width):
+    #             pq_circ2 += f"Deallocate | Qureg[{i}]\n"
+    #         assert(pq_circ1 == pq_circ2)
 
-        eng = MainEngine()
-        Qureg = eng.allocate_qureg(abs_circ.width)
-        for instruction in instructions[abs_circ.width:]:
-            exec(instruction)
-        eng.flush()
-        _, v1 = eng.backend.cheat()
-        All(Measure) | Qureg
-        eng.flush()
-
-        # # Native ProjectQ circuit
-        eng2 = MainEngine()
-        Qureg2 = eng2.allocate_qureg(3)
-        H | Qureg2[2]
-        CX | (Qureg2[0], Qureg2[1])
-        CX | (Qureg2[1], Qureg2[2])
-        Y | Qureg2[0]
-        S | Qureg2[0]
-        Rx(2.0) | Qureg2[1]
-        eng2.flush()
-        _, v2 = eng2.backend.cheat()
-        All(Measure) | Qureg2
-        eng2.flush()
-
-        # Compare statevectors
-        np.testing.assert_array_equal(v1, v2)
-
-    def test_projectq2abs(self):
-        """ Compares state vector of native ProjectQ circuit against one translated to abstract and then
-        ran with projectQ """
-
-        # Compares original abstract circuit to the one obtained by translating to projectQ and back to abstract
-        projectq_circ = translator.translate_projectq(abs_circ)
-        abs_circ2 = translator._translate_projectq2abs(projectq_circ)
-        assert(abs_circ.__str__() == abs_circ2.__str__())
-
-        # Inverse test: assume input is a ProjectQ circuit such as the output of the CommandPrinter engine
-        with open(f"{path_data}/projectq_circuit.txt", 'r') as pq_circ_file:
-            pq_circ1 = pq_circ_file.read()
-            abs_circ1 = translator._translate_projectq2abs(pq_circ1)
-            pq_circ2 = translator.translate_projectq(abs_circ1)
-
-            # This package does not generate final measurements and deallocations, so that simulation can retrieve
-            # the statevector beforehand. We append them manually for the sake of this test.
-            for i in range(abs_circ1.width):
-                pq_circ2 += f"Deallocate | Qureg[{i}]\n"
-            assert(pq_circ1 == pq_circ2)
-
+    @unittest.skipIf(not available_packages["qiskit"], "Test Skipped: Backend not available \n")
     def test_abs2openqasm(self):
         """
             Compares raw openQASM string as generated by Qiskit at the time this test is written, to the one
@@ -222,6 +240,7 @@ class TestTranslation(unittest.TestCase):
 
         assert(openqasm_circuit1 == openqasm_circuit2)
 
+    @unittest.skipIf(not available_packages["qiskit"], "Test Skipped: Backend not available \n")
     def test_openqasm2abs(self):
         """ Translate from abstract format to openQASM and back, compare with original. """
         openqasm_str = translator.translate_openqasm(abs_circ_mixed)
@@ -248,11 +267,14 @@ class TestTranslation(unittest.TestCase):
 
         assert(json_ionq_circ == ref_circuit)
 
+    @unittest.skipIf(not available_packages["braket"], "Test Skipped: Backend not available \n")
     def test_braket(self):
         """
             Compares the results of a simulation with Braket local simulator using a Braket circuit directly
             VS one obtained through translation from an abstract format
         """
+        from braket.circuits import Circuit as BraketCircuit
+        from braket.devices import LocalSimulator as BraketLocalSimulator
 
         # Generate the braket circuit by translating from the abstract one and print it
         translated_circuit = translator.translate_braket(abs_circ)
@@ -278,11 +300,12 @@ class TestTranslation(unittest.TestCase):
 
         np.testing.assert_array_equal(circ_result.values[0], translated_result.values[0])
 
+    @unittest.skipIf(not available_packages["qiskit"], "Test Skipped: Backend not available \n")
     def test_unsupported_gate(self):
         """ Must return an error if a gate is not supported for the target backend """
 
         circ = Circuit([Gate("Potato", 0)])
-        self.assertRaises(ValueError, translator.translate_qulacs, circ)
+        self.assertRaises(ValueError, translator.translate_qiskit, circ)
 
 
 if __name__ == "__main__":

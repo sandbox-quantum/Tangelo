@@ -21,9 +21,6 @@ setuptools.setup(
     url="https://github.com/1QB-Information-Technologies/agnostic_simulator",
     packages=setuptools.find_packages(),
     test_suite="agnostic_simulator",
-    setup_requires=['pybind11'],
-    install_requires=['pybind11', 'numpy', 'scipy', 'bitarray', 'requests', 'pandas',
-                      'qiskit-terra', 'qiskit-aer', 'qiskit-ignis', 'qiskit-ibmq-provider',
-                      'qulacs', 'projectq', 'amazon-braket-sdk', 'openfermion',
-                     ]
+    #setup_requires=['pybind11'],
+    install_requires=['pybind11', 'numpy', 'scipy', 'bitarray', 'requests', 'pandas', 'openfermion']
 )

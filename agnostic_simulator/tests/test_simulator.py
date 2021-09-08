@@ -12,6 +12,23 @@ from openfermion.ops import QubitOperator
 from agnostic_simulator import Gate, Circuit, translator, Simulator, backend_info
 from agnostic_simulator.helpers import string_ham_to_of
 
+
+# List all succesfully found and imported packages, and the ones that are not available
+# Used to skip tests for which dependencies have not been installed
+def is_package_available(package_name):
+    try:
+        exec(f'import {package_name}')
+        print(f'{package_name}\t :: found')
+        return True
+    except:
+        print(f'{package_name}\t :: not found')
+        return False
+
+
+backends = ["qulacs", "qiskit", "cirq", "braket", "qsharp"]
+available_packages = {backend: is_package_available(backend) for backend in backends}
+
+
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
 # Simple circuit for superposition, also tells us qubit ordering as well immediately from the statevector
@@ -68,6 +85,7 @@ class TestSimulate(unittest.TestCase):
         """
         self.assertRaises(ValueError, Simulator, target="qdk")
 
+    @unittest.skipIf(not available_packages["qulacs"], "Test Skipped: Backend not available \n")
     def test_simulate_qulacs(self):
         """
             Must return correct frequencies for simulation of different quantum circuits
@@ -78,6 +96,7 @@ class TestSimulate(unittest.TestCase):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
+    @unittest.skipIf(not available_packages["qiskit"], "Test Skipped: Backend not available \n")
     def test_simulate_qiskit(self):
         """
             Must return correct frequencies for simulation of different quantum circuits
@@ -88,16 +107,17 @@ class TestSimulate(unittest.TestCase):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
-    def test_simulate_projectq(self):
-        """
-            Must return correct frequencies for simulation of different quantum circuits
-            Backend: Projectq
-        """
-        simulator = Simulator(target="projectq")
-        for i, circuit in enumerate(circuits):
-            frequencies, _ = simulator.simulate(circuit)
-            assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
+    # def test_simulate_projectq(self):
+    #     """
+    #         Must return correct frequencies for simulation of different quantum circuits
+    #         Backend: Projectq
+    #     """
+    #     simulator = Simulator(target="projectq")
+    #     for i, circuit in enumerate(circuits):
+    #         frequencies, _ = simulator.simulate(circuit)
+    #         assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
+    @unittest.skipIf(not available_packages["cirq"], "Test Skipped: Backend not available \n")
     def test_simulate_cirq(self):
         """
             Must return correct frequencies for simulation of different quantum circuits
@@ -108,16 +128,7 @@ class TestSimulate(unittest.TestCase):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
-    def test_simulate_cirq(self):
-        """
-            Must return correct frequencies for simulation of different quantum circuits
-            Backend: cirq
-        """
-        simulator = Simulator(target="cirq")
-        for i, circuit in enumerate(circuits):
-            frequencies, _ = simulator.simulate(circuit)
-            assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
-
+    @unittest.skipIf(not available_packages["qsharp"], "Test Skipped: Backend not available \n")
     def test_simulate_qdk(self):
         """
             Must return correct frequencies for simulation of different quantum circuits.
@@ -129,13 +140,14 @@ class TestSimulate(unittest.TestCase):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-1)
 
+    @unittest.skipIf(not available_packages["qiskit"], "Test Skipped: Backend not available \n")
     def test_simulate_nshots_from_statevector(self):
         """
             Test the generation of samples following the distribution given by the exact frequencies obtained
             with a statevector simulator. For n_shots high enough, the resulting distribution must approximate
             the exact one.
         """
-        simulator = Simulator(target="qulacs", n_shots=10 ** 6)
+        simulator = Simulator(target="qiskit", n_shots=10 ** 6)
         for i, circuit in enumerate(circuits):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-2)
@@ -179,7 +191,7 @@ class TestSimulate(unittest.TestCase):
         empty_circuit = Circuit([], n_qubits=2)
         identity_circuit = Circuit([Gate('X', 0), Gate('X', 1)] * 2)
 
-        for b in ['qulacs', 'qiskit', 'projectq', 'cirq']:
+        for b in ['qulacs', 'qiskit', 'cirq']:
             simulator = Simulator(target=b)
             for op in [op1, op2]:
                 exp_value_empty = simulator.get_expectation_value(op, empty_circuit)
@@ -218,20 +230,20 @@ class TestSimulate(unittest.TestCase):
                 exp_values[i][j] = simulator._get_expectation_value_from_statevector(op, circuit)
         np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
 
-    def test_get_exp_value_from_statevector_projectq(self):
-        """ Use the fast projectq built-in method computing the expectation value from a statevector """
-
-        simulator = Simulator(target="projectq")
-        exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
-        for i, circuit in enumerate(circuits):
-            for j, op in enumerate(ops):
-                exp_values[i][j] = simulator._get_expectation_value_from_statevector(op, circuit)
-        np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
+    # def test_get_exp_value_from_statevector_projectq(self):
+    #     """ Use the fast projectq built-in method computing the expectation value from a statevector """
+    #
+    #     simulator = Simulator(target="projectq")
+    #     exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
+    #     for i, circuit in enumerate(circuits):
+    #         for j, op in enumerate(ops):
+    #             exp_values[i][j] = simulator._get_expectation_value_from_statevector(op, circuit)
+    #     np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
 
     def test_get_exp_value_complex(self):
         """ Get expectation value of qubit operator with complex coefficients """
 
-        for b in ["qulacs", "qiskit", "projectq", "cirq"]:
+        for b in ["qulacs", "qiskit", "cirq"]:
             simulator = Simulator(target=b)
 
             # Return complex expectation value corresponding to linear combinations of real and imaginary parts
@@ -259,8 +271,7 @@ class TestSimulate(unittest.TestCase):
             openqasm_circ = circ_handle.read()
 
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
-        backends = ["qulacs", "projectq", "qiskit", "cirq"]
-        results = dict()
+        backends = ["qulacs", "qiskit", "cirq"]
         expected = -1.1372704
         test_fail = False
 
@@ -292,7 +303,7 @@ class TestSimulate(unittest.TestCase):
             openqasm_circ = circ_handle.read()
 
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
-        backends = ["qulacs", "projectq", "qiskit", "cirq"]
+        backends = ["qulacs", "qiskit", "cirq"]
         expected = -1.1372704
         test_fail = False
 
@@ -328,8 +339,7 @@ class TestSimulate(unittest.TestCase):
             openqasm_circ = circ_handle.read()
 
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
-        backends = ["qulacs", "projectq", "qiskit", "cirq"]
-        results = dict()
+        backends = ["qulacs", "qiskit", "cirq"]
         expected = -1.9778374
         test_fail = False
 
@@ -415,10 +425,10 @@ class TestSimulate(unittest.TestCase):
         Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
         Simulating individual shots is suitable,
 
-        Some simulators are NOT good at this, by design (ProjectQ).
+        Some simulators are NOT good at this, by design
         """
 
-        backends = ["qiskit", "qulacs", "projectq", "qdk", "cirq"]
+        backends = ["qiskit", "qulacs", "qdk", "cirq"]
         results = dict()
         for b in backends:
             sim = Simulator(target=b, n_shots=10**5)
@@ -430,7 +440,7 @@ class TestSimulate(unittest.TestCase):
         Some simulators are NOT good at this, by design (ProjectQ). """
 
         reference = 0.41614683  # Exact value
-        backends = ["qiskit", "qulacs", "projectq", "qdk", "cirq"]
+        backends = ["qiskit", "qulacs", "qdk", "cirq"]
         results = dict()
         for b in backends:
             sim = Simulator(target=b, n_shots=10**5)
