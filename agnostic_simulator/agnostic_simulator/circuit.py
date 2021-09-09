@@ -102,3 +102,6 @@ class Circuit:
 
         # Keep track of the total gate count
         self._gate_counts[gate.name] = self._gate_counts.get(gate.name, 0) + 1
+
+    def serialize(self):
+        return {"type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
