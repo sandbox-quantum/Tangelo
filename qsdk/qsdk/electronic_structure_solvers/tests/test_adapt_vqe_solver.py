@@ -1,10 +1,7 @@
 import unittest
 
 from qsdk.electronic_structure_solvers import ADAPTSolver
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
-
-H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
-mol_H2 = SecondQuantizedMolecule(H2, q=0, spin=0, basis="sto-3g")
+from qsdk.molecule_library import mol_H2_sto3g
 
 
 class ADAPTSolverTest(unittest.TestCase):
@@ -12,7 +9,7 @@ class ADAPTSolverTest(unittest.TestCase):
     def test_build_adapt(self):
         """ Try instantiating ADAPTSolver with basic input. """
 
-        opt_dict = {"molecule": mol_H2, "max_cycles": 15}
+        opt_dict = {"molecule": mol_H2_sto3g, "max_cycles": 15}
         adapt_solver = ADAPTSolver(opt_dict)
         adapt_solver.build()
 
@@ -27,7 +24,7 @@ class ADAPTSolverTest(unittest.TestCase):
                 Nat Commun 10, 3007 (2019). https://doi.org/10.1038/s41467-019-10988-2
         """
 
-        opt_dict = {"molecule": mol_H2, "max_cycles": 1, "verbose": False}
+        opt_dict = {"molecule": mol_H2_sto3g, "max_cycles": 1, "verbose": False}
         adapt_solver = ADAPTSolver(opt_dict)
         adapt_solver.build()
         adapt_solver.simulate()

@@ -1,21 +1,13 @@
 import unittest
 
 from agnostic_simulator import Simulator
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit, get_vector, vector_to_circuit
 from qsdk.toolboxes.ansatz_generator.penalty_terms import number_operator_penalty, spin_operator_penalty, spin2_operator_penalty
 
 # Initiate simulator
 sim = Simulator(target="qulacs")
-
-# Build molecule objects used by the tests
-H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
-H4 = [['H', [0.7071067811865476, 0.0, 0.0]], ['H', [0.0, 0.7071067811865476, 0.0]],
-      ['H', [-1.0071067811865476, 0.0, 0.0]], ['H', [0.0, -1.0071067811865476, 0.0]]]
-
-mol_h2 = SecondQuantizedMolecule(H2, q=0, spin=0, basis="sto-3g")
-mol_h4 = SecondQuantizedMolecule(H4, q=0, spin=0, basis="sto-3g")
 
 
 class penalty_terms_Test(unittest.TestCase):
@@ -24,7 +16,7 @@ class penalty_terms_Test(unittest.TestCase):
         """ Verify that the number penalty terms return zero for all mappings given the correct number of
         electrons and mapping"""
 
-        for mol in [mol_h2, mol_h4]:
+        for mol in [mol_H2_sto3g, mol_H4_sto3g]:
             for mapping in ['jw', 'bk', 'scbk']:
                 hf_state_circuit = get_reference_circuit(n_spinorbitals=mol.n_active_sos,
                                                          n_electrons=mol.n_active_electrons,
@@ -48,7 +40,7 @@ class penalty_terms_Test(unittest.TestCase):
         """ Verify that the number penalty terms return zero for all mappings given the correct number of
         electrons and mapping"""
 
-        for mol in [mol_h2, mol_h4]:
+        for mol in [mol_H2_sto3g, mol_H4_sto3g]:
             for mapping in ['jw', 'bk', 'scbk']:
                 hf_state_circuit = get_reference_circuit(n_spinorbitals=mol.n_active_sos,
                                                          n_electrons=mol.n_active_electrons,
@@ -72,7 +64,7 @@ class penalty_terms_Test(unittest.TestCase):
         """ Verify that the number penalty terms return zero for all mappings given the correct number of
         S^2 and mapping"""
 
-        for mol in [mol_h2, mol_h4]:
+        for mol in [mol_H2_sto3g, mol_H4_sto3g]:
             for mapping in ['jw', 'bk', 'scbk']:
                 hf_state_circuit = get_reference_circuit(n_spinorbitals=mol.n_active_sos,
                                                          n_electrons=mol.n_active_electrons,
@@ -96,7 +88,7 @@ class penalty_terms_Test(unittest.TestCase):
         """ Verify that the number penalty terms return zero for all mappings given the correct number of
         S^2 and mapping"""
 
-        for mol in [mol_h2, mol_h4]:
+        for mol in [mol_H2_sto3g, mol_H4_sto3g]:
             for mapping in ['jw']:  # may add tests for other mappings later
                 vector = get_vector(n_spinorbitals=mol.n_active_sos,
                                     n_electrons=mol.n_active_electrons,
@@ -158,7 +150,7 @@ class penalty_terms_Test(unittest.TestCase):
         """ Verify that the number penalty terms return zero for all mappings given the correct number of
         S^2 and mapping"""
 
-        for mol in [mol_h2, mol_h4]:
+        for mol in [mol_H2_sto3g, mol_H4_sto3g]:
             for mapping in ['jw']:
                 vector = get_vector(n_spinorbitals=mol.n_active_sos,
                                     n_electrons=mol.n_active_electrons,

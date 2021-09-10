@@ -2,6 +2,7 @@
 functionalities.
 """
 
+import copy
 from dataclasses import dataclass, field
 import numpy as np
 from pyscf import gto, scf
@@ -173,12 +174,7 @@ class SecondQuantizedMolecule(Molecule):
     def __post_init__(self):
         super().__post_init__()
         self._compute_mean_field()
-
-        list_of_active_frozen = self._convert_frozen_orbitals(self.frozen_orbitals)
-        self.active_occupied = list_of_active_frozen[0]
-        self.frozen_occupied = list_of_active_frozen[1]
-        self.active_virtual = list_of_active_frozen[2]
-        self.frozen_virtual = list_of_active_frozen[3]
+        self.freeze_mos(self.frozen_orbitals)
 
     @property
     def n_active_electrons(self):
@@ -315,6 +311,30 @@ class SecondQuantizedMolecule(Molecule):
                 list: MOs indexes that are active (occupied + virtual).
         """
         return self.active_occupied + self.active_virtual
+
+    def freeze_mos(self, frozen_orbitals, inplace=True):
+        """ This method recomputes frozen orbitals with the provided input. """
+
+        list_of_active_frozen = self._convert_frozen_orbitals(frozen_orbitals)
+
+        if inplace:
+            self.frozen_orbitals = frozen_orbitals
+
+            self.active_occupied = list_of_active_frozen[0]
+            self.frozen_occupied = list_of_active_frozen[1]
+            self.active_virtual = list_of_active_frozen[2]
+            self.frozen_virtual = list_of_active_frozen[3]
+
+            return None
+        else:
+            copy_self = copy.copy(self)
+
+            copy_self.active_occupied = list_of_active_frozen[0]
+            copy_self.frozen_occupied = list_of_active_frozen[1]
+            copy_self.active_virtual = list_of_active_frozen[2]
+            copy_self.frozen_virtual = list_of_active_frozen[3]
+
+            return copy_self
 
 
 if __name__ == "__main__":
