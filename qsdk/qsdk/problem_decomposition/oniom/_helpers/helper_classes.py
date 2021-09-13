@@ -122,12 +122,13 @@ class Fragment:
 
             Args:
                 molecule (pyscf.gto): Molecule for this fragment (with repaired links).
-                solver (solver object): Which solver to use.
+                solver (solver object or string): Which solver to use.
 
             Returns:
                 float: Energy of the fragment.
         """
 
+        # In case of RHF solver (inside SecondQuantizedMolecule object).
         if isinstance(solver, str):
             energy = molecule.mf_energy
         # The remaining case is for VQESolver, CCSDSolver, FCISolver and
@@ -138,7 +139,7 @@ class Fragment:
         return energy
 
     def get_solver(self, molecule, solver_string, options_solver):
-        """ Get the solver object for this layer.
+        """ Get the solver object (or string for RHF) for this layer.
 
             Args:
                 molecule (pyscf.gto): Molecule for this fragment (with repaired links).
@@ -146,7 +147,7 @@ class Fragment:
                 options_solver (dict): Options for the solver.
 
             Returns:
-                Solver object.
+                Solver object or string.
         """
 
         if solver_string == "RHF":

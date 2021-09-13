@@ -2,10 +2,6 @@
 Implements the variational quantum eigensolver (VQE) algorithm to solve electronic structure calculations.
 """
 
-# DONE:
-# - Removed get_frozen_core -> to creation of SecondQuantizedMolecule
-# - Removed mean_field (no computation, not in attributes)
-# -
 
 import warnings
 import itertools
@@ -300,7 +296,7 @@ class VQESolver:
             qb_expect_dict = dict()
 
         # Loop over each element of Hamiltonian (non-zero value)
-        for key, _ in self.molecule.fermionic_hamiltonian.terms.items():
+        for key in self.molecule.fermionic_hamiltonian.terms:
             # Ignore constant / empty term
             if not key:
                 continue

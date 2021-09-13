@@ -36,9 +36,6 @@ class ADAPTSolver:
         pool (func): Function that returns a list of FermionOperator. Each element
             represents excitation/operator that has an effect of the total
             energy.
-        frozen_orbitals (list[int]): A list of indices for frozen orbitals.
-            Default is the string "frozen_core", corresponding to the output
-            of the function molecular_computation.frozen_orbitals.get_frozen_core.
         qubit_mapping (str): One of the supported qubit mapping identifiers.
         up_then_down (bool): Spin orbitals ordering.
         n_spinorbitals (int): Self-explanatory.

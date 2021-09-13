@@ -21,7 +21,7 @@ class FCISolver(ElectronicStructureSolver):
 
     def __init__(self, molecule):
 
-        if molecule.get_frozen_orbitals() is not None:
+        if molecule.frozen_mos is not None:
             raise NotImplementedError(f"Frozen orbitals are not implemented in {self.__class__.__name__}.")
 
         self.ci = None

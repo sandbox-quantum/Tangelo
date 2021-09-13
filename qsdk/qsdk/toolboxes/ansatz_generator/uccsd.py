@@ -1,4 +1,4 @@
-""" This module defines the UCCSD ansatz class. It provides a chemically inspired ansatzs
+""" This module defines the UCCSD ansatz class. It provides a chemically inspired ansatz
     and is an implementation of the classical unitary CCSD ansatz. Single and double excitation
     determinants, in accordance with the system number of electron and spin, are considered.
     For more information about this ansatz, see references below.
@@ -26,13 +26,12 @@ from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circ
 
 
 class UCCSD(Ansatz):
-    """ This class implements the UCCSD ansatz. Currently, only closed-shell UCCSD is supported.
-        This implies that the mean-field is computed with the RHF reference integrals.
+    """ This class implements the UCCSD ansatz. Currently, closed-shell and restricted
+        open-shell UCCSD are supported. This implies that the mean-field is computed
+        with the RHF or ROHF reference integrals.
 
         Args:
             molecule (SecondQuantizedMolecule) : The molecular system.
-            k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details
-                Default, 2
             mapping (str) : one of the supported qubit mapping identifiers.
                 Default, 'jw'
             up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
@@ -227,7 +226,7 @@ class UCCSD(Ansatz):
                 list of float: The initial variational parameters.
         """
 
-        mp2_fragment = mp.MP2(self.molecule.to_pyscf(self.molecule.basis), frozen=self.molecule.get_frozen_orbitals())
+        mp2_fragment = mp.MP2(self.molecule.to_pyscf(self.molecule.basis), frozen=self.molecule.frozen_mos)
         mp2_fragment.verbose = 0
         _, mp2_t2 = mp2_fragment.kernel()
 

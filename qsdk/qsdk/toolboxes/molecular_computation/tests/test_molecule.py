@@ -15,7 +15,7 @@ H2O_list = [('O', (0., 0., 0.11779)),
         ]
 
 
-class FunctionsTest(unittest.TestCase):
+class CoordsTest(unittest.TestCase):
 
     def test_atoms_string_to_list(self):
         """ Verify conversion from string to list format for atom coordinates """
