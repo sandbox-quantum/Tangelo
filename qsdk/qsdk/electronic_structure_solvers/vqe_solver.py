@@ -23,6 +23,7 @@ from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 from qsdk.toolboxes.ansatz_generator.hea import HEA
 from qsdk.toolboxes.ansatz_generator.upccgsd import UpCCGSD
+from qsdk.toolboxes.ansatz_generator.circuit import VariationalCircuitAnsatz
 from qsdk.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from qsdk.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
@@ -151,6 +152,8 @@ class VQESolver:
                     self.ansatz = UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
+            elif isinstance(self.ansatz, Circuit):
+                self.ansatz = VariationalCircuitAnsatz(self.ansatz)
             elif not isinstance(self.ansatz, Ansatz):
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
         # Building with a qubit Hamiltonian.
