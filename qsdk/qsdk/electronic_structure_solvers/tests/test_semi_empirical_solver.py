@@ -1,10 +1,6 @@
 import unittest
 
-<<<<<<< HEAD
 from qsdk.molecule_library import mol_pyridine
-=======
-from qsdk import Molecule
->>>>>>> new_interface
 from qsdk.electronic_structure_solvers.semi_empirical_solver import MINDO3Solver
 
 

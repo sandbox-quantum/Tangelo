@@ -3,11 +3,7 @@ import numpy as np
 
 from agnostic_simulator import Simulator
 from qsdk.electronic_structure_solvers.vqe_solver import Ansatze, VQESolver
-<<<<<<< HEAD
 from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_NaH_sto3g, mol_NaH_sto3g
-=======
-from qsdk import SecondQuantizedMolecule
->>>>>>> new_interface
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 

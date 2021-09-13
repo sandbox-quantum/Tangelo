@@ -1,14 +1,7 @@
 import unittest
 
 from qsdk.electronic_structure_solvers import ADAPTSolver
-<<<<<<< HEAD
 from qsdk.molecule_library import mol_H2_sto3g
-=======
-from qsdk import SecondQuantizedMolecule
-
-H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.74137727))]
-mol_H2 = SecondQuantizedMolecule(H2, q=0, spin=0, basis="sto-3g")
->>>>>>> new_interface
 
 
 class ADAPTSolverTest(unittest.TestCase):
