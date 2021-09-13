@@ -1,7 +1,7 @@
 import unittest
 
 from agnostic_simulator import Simulator
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from qsdk import SecondQuantizedMolecule
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit, get_vector, vector_to_circuit
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator

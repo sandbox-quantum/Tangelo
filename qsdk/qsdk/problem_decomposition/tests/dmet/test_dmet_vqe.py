@@ -1,7 +1,7 @@
 import unittest
 from copy import copy
 
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from qsdk import SecondQuantizedMolecule
 from qsdk.problem_decomposition.dmet.dmet_problem_decomposition import Localization, DMETProblemDecomposition
 
 H4_RING = [['H', [0.7071067811865476,   0.0,                 0.0]],

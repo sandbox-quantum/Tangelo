@@ -7,7 +7,7 @@ import numpy as np
 
 # Imports of electronic solvers and data structure
 from qsdk.electronic_structure_solvers import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from qsdk import SecondQuantizedMolecule
 
 
 class Fragment:

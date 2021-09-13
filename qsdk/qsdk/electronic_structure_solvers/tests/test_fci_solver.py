@@ -1,7 +1,7 @@
 import unittest
 
 from qsdk.electronic_structure_solvers import FCISolver
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from qsdk import SecondQuantizedMolecule
 
 H2 = """
     H 0.00 0.00 0.0

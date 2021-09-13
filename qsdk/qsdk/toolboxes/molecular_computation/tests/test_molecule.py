@@ -1,6 +1,7 @@
 import unittest
 
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule, atom_string_to_list
+from qsdk import SecondQuantizedMolecule
+from qsdk.toolboxes.molecular_computation.molecule import atom_string_to_list
 
 
 H2_list = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]

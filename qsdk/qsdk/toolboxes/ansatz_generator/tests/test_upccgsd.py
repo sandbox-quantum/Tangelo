@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from qsdk import SecondQuantizedMolecule
 from qsdk.toolboxes.qubit_mappings import jordan_wigner
 from qsdk.toolboxes.ansatz_generator.upccgsd import UpCCGSD
 
