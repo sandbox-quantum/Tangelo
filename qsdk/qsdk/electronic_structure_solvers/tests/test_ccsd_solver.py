@@ -1,7 +1,18 @@
 import unittest
 
 from qsdk.electronic_structure_solvers.ccsd_solver import CCSDSolver
+<<<<<<< HEAD
 from qsdk.molecule_library import mol_H2_321g, mol_Be_321g
+=======
+from qsdk import SecondQuantizedMolecule
+
+H2 = """
+   H 0.00 0.00 0.0
+   H 0.00 0.00 0.74137727
+   """
+
+Be = """Be 0.0 0.0 0.0"""
+>>>>>>> new_interface
 
 
 # TODO: Can we test the get_rdm method on H2 ? How do we get our reference? Whole matrix or its properties?

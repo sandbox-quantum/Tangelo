@@ -16,8 +16,8 @@ class QubitOperator(openfermion.QubitOperator):
 
 
 class QubitHamiltonian(QubitOperator):
-    """ QubitHamiltonian are QuibitOperator with an addition of several
-        attributes. The number of qubit (n_qubits), mapping procedure (mapping),
+    """ QubitHamiltonian objects are essentially openfermion.QubitOperator objects,
+        with extra attributes. The number of qubit (n_qubits), mapping procedure (mapping),
         the qubit ordering (up_then_down) are incorporated into the class.
         In addition to QubitOperator, several checks are done when performing
         arithmetic operations on QubitHamiltonians.
@@ -69,8 +69,7 @@ class QubitHamiltonian(QubitOperator):
 
     def to_qubitoperator(self):
         qubit_op = QubitOperator()
-        for term, coeff in self.terms.items():
-            qubit_op += QubitOperator(term, coeff)
+        qubit_op.terms = self.terms.copy()
 
         return qubit_op
 
@@ -131,8 +130,6 @@ def qubitop_to_qubitham(qubit_op, mapping, up_then_down):
             QubitHamiltonian: Self-explanatory.
     """
     qubit_ham = QubitHamiltonian(mapping, up_then_down)
-
-    for term, coeff in qubit_op.terms.items():
-        qubit_ham += QubitHamiltonian(mapping, up_then_down, term, coeff)
+    qubit_ham.terms = qubit_op.terms.copy()
 
     return qubit_ham

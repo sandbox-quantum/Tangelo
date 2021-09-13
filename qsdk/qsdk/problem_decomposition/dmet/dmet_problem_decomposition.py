@@ -359,7 +359,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
             # Interface with our data strcuture.
-            # We create a fake SecondQuantizedMolecule with a DMETFragment class.
+            # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
             dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, mol_frag.nelectron,

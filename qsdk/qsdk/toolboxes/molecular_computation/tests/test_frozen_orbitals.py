@@ -1,6 +1,10 @@
 import unittest
 
+<<<<<<< HEAD
 from qsdk.molecule_library import mol_H2O_321g
+=======
+from qsdk import SecondQuantizedMolecule
+>>>>>>> new_interface
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core, get_orbitals_excluding_homo_lumo
 
 

@@ -33,7 +33,7 @@ class UpCCGSD(Ansatz):
                 Default, False (i.e. has alternating spin up/down ordering)
     """
 
-    def __init__(self, molecule, k=2, mapping="JW", up_then_down=False):
+    def __init__(self, molecule, mapping="JW", up_then_down=False, k=2):
 
         self.n_spinorbitals = molecule.n_active_sos
         self.n_electrons = molecule.n_active_electrons

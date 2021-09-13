@@ -27,7 +27,8 @@ def atom_string_to_list(atom_string):
             geometry += [(atom, coordinates)]
     return geometry
 
-def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals=0):
+
+def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals=None):
     """ Function to convert a Molecule into a SecondQuantizedMolecule.
 
         Args:
@@ -136,7 +137,7 @@ class SecondQuantizedMolecule(Molecule):
             mo_occ (list of float): Molecular orbital occupancies (between 0.
                 and 2.).
             n_mos (int): Number of molecular orbitals with a given basis set.
-            n_mos (int): Number of spin-orbitals with a given basis set.
+            n_sos (int): Number of spin-orbitals with a given basis set.
             active_occupied (list of int): Occupied molecular orbital indexes
                 that are considered active.
             frozen_occupied (list of int): Occupied molecular orbital indexes
@@ -152,6 +153,8 @@ class SecondQuantizedMolecule(Molecule):
                 electrons and number of electrons in frozen orbitals.
             n_active_sos (int): Number of active spin-orbitals.
             n_active_mos (int): Number of active molecular orbitals.
+            frozen_orbitals (list or None): Frozen MOs indexes.
+            actives_orbitals (list): Active MOs indexes.
     """
     basis: str = "sto-3g"
     frozen_orbitals: list or int = field(default="frozen_core", repr=False)
@@ -182,15 +185,43 @@ class SecondQuantizedMolecule(Molecule):
 
     @property
     def n_active_sos(self):
-        return 2*len(self.get_active_orbitals())
+        return 2*len(self.active_mos)
 
     @property
     def n_active_mos(self):
-        return len(self.get_active_orbitals())
+        return len(self.active_mos)
 
     @property
     def fermionic_hamiltonian(self):
         return self._get_fermionic_hamiltonian()
+
+    @property
+    def frozen_mos(self):
+        """ This property returns MOs indexes for the frozen orbitals. It was written
+            to take into account if one of the two possibilities (occ or virt) is
+            None. In fact, list + None, None + list or None + None return an error.
+            An empty list cannot be sent because PySCF mp2 returns "IndexError: list index out of range".
+
+            Returns:
+                list: MOs indexes frozen (occupied + virtual).
+        """
+        if self.frozen_occupied and self.frozen_virtual:
+            return self.frozen_occupied + self.frozen_virtual
+        elif self.frozen_occupied:
+            return self.frozen_occupied
+        elif self.frozen_virtual:
+            return self.frozen_virtual
+        else:
+            return None
+
+    @property
+    def active_mos(self):
+        """ This property returns MOs indexes for the active orbitals.
+
+            Returns:
+                list: MOs indexes that are active (occupied + virtual).
+        """
+        return self.active_occupied + self.active_virtual
 
     def _compute_mean_field(self):
         """ Computes the mean-field for the molecule. It supports open-shell
@@ -226,7 +257,7 @@ class SecondQuantizedMolecule(Molecule):
         """
 
         occupied_indices = self.frozen_occupied
-        active_indices = self.get_active_orbitals()
+        active_indices = self.active_mos
 
         of_molecule = self.to_openfermion(self.basis)
         of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True, run_mp2=False, run_cisd=False, run_ccsd=False, run_fci=False)
@@ -263,10 +294,8 @@ class SecondQuantizedMolecule(Molecule):
             frozen_orbitals = [i for i in range(frozen_orbitals)]
         # Second case: frozen_orbitals is a list of int.
         # All MOs with indexes in this list are frozen (first MO is 0, second is 1, ...).
-        elif isinstance(frozen_orbitals, list) and all(isinstance(_, int) for _ in frozen_orbitals):
-            pass
         # Everything else raise an exception.
-        else:
+        elif not (isinstance(frozen_orbitals, list) and all(isinstance(_, int) for _ in frozen_orbitals)):
             raise TypeError("frozen_orbitals argument must be an (or a list of) integer(s).")
 
         occupied = [i for i in range(self.n_mos) if self.mo_occ[i] > 0.]
@@ -285,32 +314,6 @@ class SecondQuantizedMolecule(Molecule):
             raise ValueError("All electrons or virtual orbitals are frozen in the system.")
 
         return active_occupied, frozen_occupied, active_virtual, frozen_virtual
-
-    def get_frozen_orbitals(self):
-        """ This method returns MOs indexes for the frozen orbitals. It was written
-            to take into account if one of the two possibilities (occ or virt) is
-            None. In fact, list + None, None + list or None + None return an error.
-            An empty list cannot be sent because PySCF mp2 returns "IndexError: list index out of range".
-
-            Returns:
-                list: MOs indexes frozen (occupied + virtual).
-        """
-        if self.frozen_occupied and self.frozen_virtual:
-            return self.frozen_occupied + self.frozen_virtual
-        elif self.frozen_occupied:
-            return self.frozen_occupied
-        elif self.frozen_virtual:
-            return self.frozen_virtual
-        else:
-            return None
-
-    def get_active_orbitals(self):
-        """ This method returns MOs indexes for the active orbitals.
-
-            Returns:
-                list: MOs indexes that are active (occupied + virtual).
-        """
-        return self.active_occupied + self.active_virtual
 
     def freeze_mos(self, frozen_orbitals, inplace=True):
         """ This method recomputes frozen orbitals with the provided input. """

@@ -1,7 +1,7 @@
 """ Module to create some molecules used in the package unittest. """
 
 
-from qsdk.toolboxes.molecular_computation.molecule import Molecule, SecondQuantizedMolecule
+from qsdk import Molecule, SecondQuantizedMolecule
 
 
 # Dihydrogen.

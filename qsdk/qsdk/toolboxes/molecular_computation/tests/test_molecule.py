@@ -3,7 +3,7 @@ import unittest
 from qsdk.toolboxes.molecular_computation.molecule import atom_string_to_list
 from qsdk.molecule_library import mol_H2_sto3g, mol_H2O_sto3g
 
-class FunctionsTest(unittest.TestCase):
+class CoordsTest(unittest.TestCase):
 
     def test_atoms_string_to_list(self):
         """ Verify conversion from string to list format for atom coordinates """
