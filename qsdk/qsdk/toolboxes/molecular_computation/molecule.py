@@ -338,7 +338,3 @@ class SecondQuantizedMolecule(Molecule):
             copy_self.frozen_virtual = list_of_active_frozen[3]
 
             return copy_self
-
-
-if __name__ == "__main__":
-    pass
