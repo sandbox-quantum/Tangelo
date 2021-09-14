@@ -251,8 +251,8 @@ class VQESolver:
         if isinstance(operator, (str, FermionOperator)):
             self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=exp_op,
                                                               mapping=self.qubit_mapping,
-                                                              n_spinorbitals=self.qemist_molecule.n_qubits,
-                                                              n_electrons=self.qemist_molecule.n_electrons,
+                                                              n_spinorbitals=self.molecule.n_active_sos,
+                                                              n_electrons=self.molecule.n_active_electrons,
                                                               up_then_down=self.up_then_down)
 
         expectation = self.energy_estimation(var_params)
