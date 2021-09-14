@@ -331,6 +331,8 @@ class SecondQuantizedMolecule(Molecule):
 
             return None
         else:
+            # Shallow copy is enough to copy the same object and changing frozen
+            # orbitals (deepcopy also returns errors).
             copy_self = copy.copy(self)
 
             copy_self.active_occupied = list_of_active_frozen[0]
