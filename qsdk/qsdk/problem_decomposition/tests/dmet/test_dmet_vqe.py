@@ -1,13 +1,8 @@
 import unittest
 from copy import copy
 
-from qsdk import SecondQuantizedMolecule
+from qsdk.molecule_library import mol_H4_minao
 from qsdk.problem_decomposition.dmet.dmet_problem_decomposition import Localization, DMETProblemDecomposition
-
-H4_RING = [['H', [0.7071067811865476,   0.0,                 0.0]],
-           ['H', [0.0,                  0.7071067811865476,  0.0]],
-           ['H', [-1.0071067811865476,  0.0,                 0.0]],
-           ['H', [0.0,                 -1.0071067811865476,  0.0]]]
 
 
 class DMETVQETest(unittest.TestCase):
@@ -15,9 +10,7 @@ class DMETVQETest(unittest.TestCase):
     def test_h4ring_vqe_uccsd(self):
         """ DMET on H4 ring with fragment size one, using VQE-UCCSD """
 
-        mol = SecondQuantizedMolecule(H4_RING, basis="minao")
-
-        opt_dmet = {"molecule": mol,
+        opt_dmet = {"molecule": mol_H4_minao,
                     "fragment_atoms": [1, 1, 1, 1],
                     "fragment_solvers": ['vqe', 'ccsd', 'ccsd', 'ccsd'],
                     "electron_localization": Localization.meta_lowdin,
@@ -45,9 +38,7 @@ class DMETVQETest(unittest.TestCase):
     def test_h4ring_vqe_resources(self):
         """Resources estimation on H4 ring. """
 
-        mol = SecondQuantizedMolecule(H4_RING, basis="minao")
-
-        opt_dmet = {"molecule": mol,
+        opt_dmet = {"molecule": mol_H4_minao,
                     "fragment_atoms": [1, 1, 1, 1],
                     "fragment_solvers": ["vqe", "ccsd", "ccsd", "ccsd"],
                     "electron_localization": Localization.meta_lowdin,

@@ -2,35 +2,7 @@ import unittest
 
 from qsdk.problem_decomposition.oniom.oniom_problem_decomposition import ONIOMProblemDecomposition
 from qsdk.problem_decomposition.oniom._helpers.helper_classes import Fragment, Link
-
-H4 = [('H', (0., 0., 0.)), ('H', (0., 0., 0.75)),
-      ('H', (0., 0., 2.)), ('H', (0., 0., 2.75))]
-
-PHE = """
-N      0.7060     -1.9967     -0.0757
-C      1.1211     -0.6335     -0.4814
-C      0.6291      0.4897      0.4485
-C     -0.8603      0.6071      0.4224
-C     -1.4999      1.1390     -0.6995
-C     -2.8840      1.2600     -0.7219
-C     -3.6384      0.8545      0.3747
-C     -3.0052      0.3278      1.4949
-C     -1.6202      0.2033      1.5209
-C      2.6429     -0.5911     -0.5338
-O      3.1604     -0.2029     -1.7213
-O      3.4477     -0.8409      0.3447
-H     -0.2916     -2.0354     -0.0544
-H      1.0653     -2.2124      0.8310
-H      0.6990     -0.4698     -1.5067
-H      1.0737      1.4535      0.1289
-H      0.9896      0.3214      1.4846
-H     -0.9058      1.4624     -1.5623
-H     -3.3807      1.6765     -1.6044
-H     -4.7288      0.9516      0.3559
-H     -3.5968      0.0108      2.3601
-H     -1.1260     -0.2065      2.4095
-H      4.1118     -0.2131     -1.6830
-"""
+from qsdk.molecule_library import xyz_H4, xyz_PHE
 
 
 class ONIOMTest(unittest.TestCase):
@@ -48,7 +20,7 @@ class ONIOMTest(unittest.TestCase):
                          selected_atoms=[3.1415])
 
         with self.assertRaises(TypeError):
-            ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model]})
+            ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model]})
 
     def test_not_implemented_solver(self):
         # Definition of simple fragments to test the error raising.
@@ -58,7 +30,7 @@ class ONIOMTest(unittest.TestCase):
                          selected_atoms=[0, 1])
 
         with self.assertRaises(NotImplementedError):
-            oniom_solver = ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model]})
+            oniom_solver = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model]})
 
     def test_capping_broken_link(self):
         """Testing the positon of a new H atom when a bond is broken. """
@@ -71,7 +43,7 @@ class ONIOMTest(unittest.TestCase):
                          selected_atoms=[0, 1, 9, 10, 11, 12, 13, 14, 22],
                          broken_links=link)
 
-        oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
+        oniom_solver = ONIOMProblemDecomposition({"geometry": xyz_PHE, "fragments": [system, model]})
 
         # Retrieving fragment geometry with an H atom replacing a broken bond.
         geom_fragment_capped = oniom_solver.fragments[1].geometry
@@ -116,7 +88,7 @@ class ONIOMTest(unittest.TestCase):
                          selected_atoms=[0, 1, 9, 10, 11, 12, 13, 14, 22],
                          broken_links=link)
 
-        oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
+        oniom_solver = ONIOMProblemDecomposition({"geometry": xyz_PHE, "fragments": [system, model]})
         e_oniom = oniom_solver.simulate()
 
         self.assertAlmostEqual(e_oniom, -544.730619, places=4)
@@ -142,7 +114,7 @@ class ONIOMTest(unittest.TestCase):
                                solver_high="VQE",
                                options_high=options_both,
                                selected_atoms=[2, 3])
-        oniom_model_vqe = ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model_vqe_1, model_vqe_2]})
+        oniom_model_vqe = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model_vqe_1, model_vqe_2]})
 
         # Comparing VQE-UCCSD to CCSD.
         system = Fragment(solver_low="RHF", options_low=options_both)
@@ -156,7 +128,7 @@ class ONIOMTest(unittest.TestCase):
                               solver_high="CCSD",
                               options_high=options_both,
                               selected_atoms=[2, 3])
-        oniom_model_cc = ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model_cc_1, model_cc_2]})
+        oniom_model_cc = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model_cc_1, model_cc_2]})
 
         e_oniom_vqe = oniom_model_vqe.simulate()
         e_oniom_cc = oniom_model_cc.simulate()
@@ -182,7 +154,7 @@ class ONIOMTest(unittest.TestCase):
                          selected_atoms=[0, 1, 9, 10, 11, 12, 13, 14, 22],
                          broken_links=link)
 
-        oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
+        oniom_solver = ONIOMProblemDecomposition({"geometry": xyz_PHE, "fragments": [system, model]})
         e_oniom = oniom_solver.simulate()
 
         self.assertAlmostEqual(e_oniom, -315.234186, places=4)
@@ -205,7 +177,7 @@ class ONIOMTest(unittest.TestCase):
                                solver_high="VQE",
                                options_high=options_both,
                                selected_atoms=[2, 3])
-        oniom_model_vqe = ONIOMProblemDecomposition({"geometry": H4, "fragments": [system, model_vqe_1, model_vqe_2]})
+        oniom_model_vqe = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model_vqe_1, model_vqe_2]})
 
         vqe_resources = {"qubit_hamiltonian_terms": 15,
                          "circuit_width": 4,

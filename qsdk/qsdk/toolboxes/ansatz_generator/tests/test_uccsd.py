@@ -1,20 +1,11 @@
 import unittest
 import numpy as np
 
-from qsdk import SecondQuantizedMolecule
+from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g
 from qsdk.toolboxes.qubit_mappings import jordan_wigner
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 
 from agnostic_simulator import Simulator
-
-# Build molecule objects used by the tests
-H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
-H4 = [['H', [0.7071067811865476, 0.0, 0.0]], ['H', [0.0, 0.7071067811865476, 0.0]],
-      ['H', [-1.0071067811865476, 0.0, 0.0]], ['H', [0.0, -1.0071067811865476, 0.0]]]
-
-mol_h2 = SecondQuantizedMolecule(H2, q=0, spin=0, basis="sto-3g")
-mol_h4 = SecondQuantizedMolecule(H4, q=0, spin=0, basis="sto-3g")
-mol_h4_open = SecondQuantizedMolecule(H4, q=1, spin=1, basis="sto-3g")
 
 
 class UCCSDTest(unittest.TestCase):
@@ -23,7 +14,7 @@ class UCCSDTest(unittest.TestCase):
         """ Verify behavior of set_var_params for different inputs (keyword, list, numpy array).
         MP2 have their own tests """
 
-        uccsd_ansatz = UCCSD(mol_h2)
+        uccsd_ansatz = UCCSD(mol_H2_sto3g)
 
         two_ones = np.ones((2,))
 
@@ -39,14 +30,14 @@ class UCCSDTest(unittest.TestCase):
     def test_uccsd_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """
 
-        uccsd_ansatz = UCCSD(mol_h2)
+        uccsd_ansatz = UCCSD(mol_H2_sto3g)
 
         self.assertRaises(ValueError, uccsd_ansatz.set_var_params, np.array([1., 1., 1., 1.]))
 
     def test_uccsd_set_params_MP2_H2(self):
         """ Verify closed-shell UCCSD functionalities for H2: MP2 initial parameters """
 
-        uccsd_ansatz = UCCSD(mol_h2)
+        uccsd_ansatz = UCCSD(mol_H2_sto3g)
         uccsd_ansatz.set_var_params("MP2")
 
         expected = [2e-05, 0.0363253711023451]
@@ -55,7 +46,7 @@ class UCCSDTest(unittest.TestCase):
     def test_uccsd_set_params_mp2_H2(self):
         """ Verify closed-shell UCCSD functionalities for H2: lower case mp2 initial parameters """
 
-        uccsd_ansatz = UCCSD(mol_h2)
+        uccsd_ansatz = UCCSD(mol_H2_sto3g)
         uccsd_ansatz.set_var_params("mp2")
 
         expected = [2e-05, 0.0363253711023451]
@@ -64,7 +55,7 @@ class UCCSDTest(unittest.TestCase):
     def test_uccsd_set_params_MP2_H4(self):
         """ Verify closed-shell UCCSD functionalities for H4: MP2 initial parameters """
 
-        uccsd_ansatz = UCCSD(mol_h4)
+        uccsd_ansatz = UCCSD(mol_H4_sto3g)
         uccsd_ansatz.set_var_params("MP2")
 
         expected = [2e-05, 2e-05, 2e-05, 2e-05, 0.03894901872789466, 0.07985689676283764, 0.02019977190077326,
@@ -76,11 +67,11 @@ class UCCSDTest(unittest.TestCase):
         """ Verify closed-shell UCCSD functionalities for H2 """
 
         # Build circuit
-        uccsd_ansatz = UCCSD(mol_h2)
+        uccsd_ansatz = UCCSD(mol_H2_sto3g)
         uccsd_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = jordan_wigner(mol_h2.fermionic_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H2_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
         sim = Simulator(target="qulacs")
@@ -98,11 +89,11 @@ class UCCSDTest(unittest.TestCase):
                        5.78169071e-02,  2.46873743e-03, -1.05736505e-01, -4.22089003e-02]
 
         # Build circuit
-        uccsd_ansatz = UCCSD(mol_h4_open)
+        uccsd_ansatz = UCCSD(mol_H4_cation_sto3g)
         uccsd_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = jordan_wigner(mol_h4_open.fermionic_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H4_cation_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
         sim = Simulator(target="qulacs")
@@ -118,11 +109,11 @@ class UCCSDTest(unittest.TestCase):
                       -1.83407761e-01, -1.03261491e-01, 1.34258277e-02, -3.78096407e-02]
 
         # Build circuit
-        uccsd_ansatz = UCCSD(mol_h4)
+        uccsd_ansatz = UCCSD(mol_H4_sto3g)
         uccsd_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = jordan_wigner(mol_h4.fermionic_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H4_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
         sim = Simulator(target="qulacs")

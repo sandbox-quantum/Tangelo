@@ -2,6 +2,8 @@
 functionalities.
 """
 
+
+import copy
 from dataclasses import dataclass, field
 import numpy as np
 from pyscf import gto, scf
@@ -176,12 +178,7 @@ class SecondQuantizedMolecule(Molecule):
     def __post_init__(self):
         super().__post_init__()
         self._compute_mean_field()
-
-        list_of_active_frozen = self._convert_frozen_orbitals(self.frozen_orbitals)
-        self.active_occupied = list_of_active_frozen[0]
-        self.frozen_occupied = list_of_active_frozen[1]
-        self.active_virtual = list_of_active_frozen[2]
-        self.frozen_virtual = list_of_active_frozen[3]
+        self.freeze_mos(self.frozen_orbitals)
 
     @property
     def n_active_electrons(self):
@@ -295,7 +292,7 @@ class SecondQuantizedMolecule(Molecule):
         # First case: frozen_orbitals is an int.
         # The first n MOs are frozen.
         if isinstance(frozen_orbitals, int):
-            frozen_orbitals = [i for i in range(frozen_orbitals)]
+            frozen_orbitals = list(range(frozen_orbitals))
         # Second case: frozen_orbitals is a list of int.
         # All MOs with indexes in this list are frozen (first MO is 0, second is 1, ...).
         # Everything else raise an exception.
@@ -318,3 +315,29 @@ class SecondQuantizedMolecule(Molecule):
             raise ValueError("All electrons or virtual orbitals are frozen in the system.")
 
         return active_occupied, frozen_occupied, active_virtual, frozen_virtual
+
+    def freeze_mos(self, frozen_orbitals, inplace=True):
+        """ This method recomputes frozen orbitals with the provided input. """
+
+        list_of_active_frozen = self._convert_frozen_orbitals(frozen_orbitals)
+
+        if inplace:
+            self.frozen_orbitals = frozen_orbitals
+
+            self.active_occupied = list_of_active_frozen[0]
+            self.frozen_occupied = list_of_active_frozen[1]
+            self.active_virtual = list_of_active_frozen[2]
+            self.frozen_virtual = list_of_active_frozen[3]
+
+            return None
+        else:
+            # Shallow copy is enough to copy the same object and changing frozen
+            # orbitals (deepcopy also returns errors).
+            copy_self = copy.copy(self)
+
+            copy_self.active_occupied = list_of_active_frozen[0]
+            copy_self.frozen_occupied = list_of_active_frozen[1]
+            copy_self.active_virtual = list_of_active_frozen[2]
+            copy_self.frozen_virtual = list_of_active_frozen[3]
+
+            return copy_self

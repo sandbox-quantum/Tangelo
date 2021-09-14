@@ -1,21 +1,11 @@
 import unittest
 import numpy as np
 
-from qsdk import SecondQuantizedMolecule
+from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g
 from qsdk.toolboxes.qubit_mappings import jordan_wigner
 from qsdk.toolboxes.ansatz_generator.upccgsd import UpCCGSD
 
 from agnostic_simulator import Simulator
-
-
-# Build molecule objects used by the tests
-H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
-H4 = [['H', [0.7071067811865476, 0.0, 0.0]], ['H', [0.0, 0.7071067811865476, 0.0]],
-      ['H', [-1.0071067811865476, 0.0, 0.0]], ['H', [0.0, -1.0071067811865476, 0.0]]]
-
-mol_h2 = SecondQuantizedMolecule(H2, q=0, spin=0, basis="sto-3g")
-mol_h4 = SecondQuantizedMolecule(H4, q=0, spin=0, basis="sto-3g")
-mol_h4_open = SecondQuantizedMolecule(H4, q=1, spin=1, basis="sto-3g")
 
 
 class UpCCGSDTest(unittest.TestCase):
@@ -24,7 +14,7 @@ class UpCCGSDTest(unittest.TestCase):
         """ Verify behavior of set_var_params for different inputs (keyword, list, numpy array).
         """
 
-        upccgsd_ansatz = UpCCGSD(mol_h2)
+        upccgsd_ansatz = UpCCGSD(mol_H2_sto3g)
 
         six_ones = np.ones((6,))
 
@@ -40,7 +30,7 @@ class UpCCGSDTest(unittest.TestCase):
     def test_upccgsd_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """
 
-        upccgsd_ansatz = UpCCGSD(mol_h2)
+        upccgsd_ansatz = UpCCGSD(mol_H2_sto3g)
 
         self.assertRaises(ValueError, upccgsd_ansatz.set_var_params, np.array([1., 1., 1., 1.]))
 
@@ -48,11 +38,11 @@ class UpCCGSDTest(unittest.TestCase):
         """ Verify closed-shell UpCCGSD functionalities for H2 """
 
         # Build circuit
-        upccgsd_ansatz = UpCCGSD(mol_h2)
+        upccgsd_ansatz = UpCCGSD(mol_H2_sto3g)
         upccgsd_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = jordan_wigner(mol_h2.fermionic_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H2_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
         sim = Simulator(target="qulacs")
@@ -72,11 +62,11 @@ class UpCCGSDTest(unittest.TestCase):
                        0.20131878,  0.09890588,  0.10563459, -0.22983007,  0.13578206, -0.02017009]
 
         # Build circuit
-        upccgsd_ansatz = UpCCGSD(mol_h4_open)
+        upccgsd_ansatz = UpCCGSD(mol_H4_cation_sto3g)
         upccgsd_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = jordan_wigner(mol_h4_open.fermionic_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H4_cation_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
         sim = Simulator(target="qulacs")
@@ -98,11 +88,11 @@ class UpCCGSDTest(unittest.TestCase):
                        2.73552144e-02,  6.02186436e-01, -8.58400153e-02, -1.17667425e-01]
 
         # Build circuit
-        upccgsd_ansatz = UpCCGSD(mol_h4)
+        upccgsd_ansatz = UpCCGSD(mol_H4_sto3g)
         upccgsd_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = jordan_wigner(mol_h4.fermionic_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H4_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
         sim = Simulator(target="qulacs")
