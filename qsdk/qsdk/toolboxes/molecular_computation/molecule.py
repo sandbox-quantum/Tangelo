@@ -295,7 +295,7 @@ class SecondQuantizedMolecule(Molecule):
         # First case: frozen_orbitals is an int.
         # The first n MOs are frozen.
         if isinstance(frozen_orbitals, int):
-            frozen_orbitals = [i for i in range(frozen_orbitals)]
+            frozen_orbitals = list(range(frozen_orbitals))
         # Second case: frozen_orbitals is a list of int.
         # All MOs with indexes in this list are frozen (first MO is 0, second is 1, ...).
         # Everything else raise an exception.
