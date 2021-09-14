@@ -19,13 +19,11 @@ circuit = Circuit(lst_gates)
 class VariationalCircuitTest(unittest.TestCase):
 
     def test_init(self):
-        """ Docstring
-        """
+        """ Test initialization of the ansatz class. """
         VariationalCircuitAnsatz(circuit)
 
     def test_set_var_params(self):
-        """ Docstring
-        """
+        """ Test setting variational parameters. """
         circuit_ansatz = VariationalCircuitAnsatz(circuit)
 
         single_ones = np.array([1.])

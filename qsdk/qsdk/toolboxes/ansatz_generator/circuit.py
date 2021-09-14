@@ -9,7 +9,11 @@ from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 
 
 class VariationalCircuitAnsatz(Ansatz):
-    """ Docstring.
+    """ This class takes an abstract and convert it to an Ansatz. This enables
+        users to provide VQESolver a custom circuit already built.
+
+        Args:
+            abstract_circuit (Circuit) : Circuit with variational gates.
     """
 
     def __init__(self, abstract_circuit):
@@ -26,7 +30,7 @@ class VariationalCircuitAnsatz(Ansatz):
         self.var_params_default = "random"
 
     def set_var_params(self, var_params=None):
-        """ Set initial variational parameter values. Defaults to zeros. """
+        """ Set initial variational parameter values. Defaults to random. """
 
         if var_params is None:
             var_params = self.var_params_default
@@ -63,11 +67,13 @@ class VariationalCircuitAnsatz(Ansatz):
             self.circuit._variational_gates[param_index].parameter = var_params[param_index]
 
     def prepare_reference_state(self):
-        """ Method not needed as it is expected to be in the circuit provided. """
+        """ Method not needed as it is expected to already be in the circuit
+            provided.
+        """
         pass
 
     def build_circuit(self, var_params=None):
-        """ Construct the variational circuit to be used as our ansatz. """
+        """ Update parameters of the already-built circuit. """
 
         self.set_var_params(var_params)
         self.update_var_params(self.var_params)
