@@ -318,8 +318,3 @@ class SecondQuantizedMolecule(Molecule):
             raise ValueError("All electrons or virtual orbitals are frozen in the system.")
 
         return active_occupied, frozen_occupied, active_virtual, frozen_virtual
-
-
-
-if __name__ == "__main__":
-    pass
