@@ -65,7 +65,7 @@ class ONIOMTest(unittest.TestCase):
 
         system = Fragment(solver_low="RHF")
 
-        link = [Link(1, 2, 0.709, 'H')]
+        link = [Link(1, 2, 0.709, "H")]
         model = Fragment(solver_low="RHF",
                          solver_high="CCSD",
                          selected_atoms=[0, 1, 9, 10, 11, 12, 13, 14, 22],
@@ -108,7 +108,7 @@ class ONIOMTest(unittest.TestCase):
 
         system = Fragment(solver_low="RHF", options_low=options_low)
 
-        link = [Link(1, 2, 0.709, 'H')]
+        link = [Link(1, 2, 0.709, "H")]
         model = Fragment(solver_low="RHF",
                          options_low=options_low,
                          solver_high="CCSD",
@@ -119,7 +119,7 @@ class ONIOMTest(unittest.TestCase):
         oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
         e_oniom = oniom_solver.simulate()
 
-        self.assertAlmostEqual(e_oniom, -544.7306189, places=6)
+        self.assertAlmostEqual(e_oniom, -544.730619, places=4)
 
     def test_vqe_cc(self):
         """Test to verifiy the implementation of VQE (with UCCSD) in ONIOM. Results
@@ -175,7 +175,7 @@ class ONIOMTest(unittest.TestCase):
 
         system = Fragment(solver_low="MINDO3")
 
-        link = [Link(1, 2, 0.709, 'H')]
+        link = [Link(1, 2, 0.709, "H")]
         model = Fragment(solver_low="MINDO3",
                          solver_high="CCSD",
                          options_high=options_high,
@@ -185,7 +185,7 @@ class ONIOMTest(unittest.TestCase):
         oniom_solver = ONIOMProblemDecomposition({"geometry": PHE, "fragments": [system, model]})
         e_oniom = oniom_solver.simulate()
 
-        self.assertAlmostEqual(e_oniom, -315.23418566258914, places=6)
+        self.assertAlmostEqual(e_oniom, -315.234186, places=4)
 
     def test_get_resources(self):
         """Test to verifiy the implementation of resources estimation in ONIOM. """

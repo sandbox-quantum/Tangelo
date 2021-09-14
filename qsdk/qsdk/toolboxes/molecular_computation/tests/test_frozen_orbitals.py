@@ -1,19 +1,14 @@
 import unittest
-from pyscf import gto
-from pyscf.gto.mole import Mole
 
+from qsdk import SecondQuantizedMolecule
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core, get_orbitals_excluding_homo_lumo
 
-H2O_list = [('O', (0., 0., 0.11779)),
-            ('H', (0., 0.75545, -0.47116)),
-            ('H', (0., -0.75545, -0.47116))
+H2O = [('O', (0., 0., 0.11779)),
+        ('H', (0., 0.75545, -0.47116)),
+        ('H', (0., -0.75545, -0.47116))
         ]
 
-mol_h2o = gto.Mole()
-mol_h2o.atom = H2O_list
-mol_h2o.basis = "3-21g"
-mol_h2o.spin = 0
-mol_h2o.build()
+mol_h2o = SecondQuantizedMolecule(H2O, 0, 0, "3-21g")
 
 
 class FrozenOrbitalsTest(unittest.TestCase):

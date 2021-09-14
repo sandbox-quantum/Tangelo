@@ -2,9 +2,7 @@ import unittest
 import math
 
 from qsdk.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
-from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
-from qsdk.toolboxes.molecular_computation.integral_calculation import prepare_mf_RHF
-from qsdk.toolboxes.operators import QubitOperator, FermionOperator
+from qsdk.toolboxes.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 
 f_op = FermionOperator("2^ 3^ 0 1") - FermionOperator("0^ 1^ 2 3")
