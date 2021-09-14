@@ -48,21 +48,6 @@ def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals
     return converted_mol
 
 
-
-def atom_string_to_list(atom_string):
-    """ Convert atom coordinate string (typically stored in text files) into a list/tuple representation
-        suitable for MolecularData """
-
-    geometry = []
-    for line in atom_string.split("\n"):
-        data = line.split()
-        if len(data) == 4:
-            atom = data[0]
-            coordinates = (float(data[1]), float(data[2]), float(data[3]))
-            geometry += [(atom, coordinates)]
-    return geometry
-
-
 @dataclass
 class Molecule:
     """ Custom datastructure to store information about a Molecule. This contains
@@ -238,10 +223,6 @@ class SecondQuantizedMolecule(Molecule):
                 list: MOs indexes that are active (occupied + virtual).
         """
         return self.active_occupied + self.active_virtual
-
-    @property
-    def fermionic_hamiltonian(self):
-        return self._get_fermionic_hamiltonian()
 
     def _compute_mean_field(self):
         """ Computes the mean-field for the molecule. It supports open-shell
