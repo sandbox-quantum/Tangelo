@@ -1,6 +1,6 @@
 import unittest
 
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from qsdk import SecondQuantizedMolecule
 from qsdk.toolboxes.qubit_mappings import jordan_wigner
 
 H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]

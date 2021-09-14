@@ -7,7 +7,7 @@ import numpy as np
 
 # Imports of electronic solvers and data structure
 from qsdk.electronic_structure_solvers import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from qsdk import SecondQuantizedMolecule
 
 
 class Fragment:
@@ -69,9 +69,9 @@ class Fragment:
         # We begin by defining the molecule.
         if self.mol_low is None:
             self.mol_low = self.get_mol(self.options_low["basis"], self.options_low.get("frozen_orbitals", None))
-            # Basis is only relevant when making the pyscf molecule. After this,
-            # it is discarded (not needed for electronic solver because they retrieved
-            # it from the molecule object).
+            # Basis is only relevant when computing the mean-field. After this,
+            # it is discarded (not needed for electronic solver because they
+            # retrieved it from the molecule object).
             self.options_low = {i:self.options_low[i] for i in self.options_low if i not in ["basis", "frozen_orbitals"]}
 
         self.solver_low = self.get_solver(self.mol_low, self.solver_low, self.options_low)
@@ -112,7 +112,7 @@ class Fragment:
         """ Get the molecule object for this fragment (with a specified basis).
 
             Returns:
-                pyscf.gto.Mole: Molecule object.
+                SecondQuantizedMolecule: Molecule object.
         """
 
         return SecondQuantizedMolecule(self.geometry, self.charge, self.spin, basis, frozen_orbitals=frozen)
@@ -121,13 +121,14 @@ class Fragment:
         """ Get the energy for a specific solver.
 
             Args:
-                molecule (pyscf.gto): Molecule for this fragment (with repaired links).
-                solver (solver object): Which solver to use.
+                molecule (SecondQuantizedMolecule): Molecule for this fragment (with repaired links).
+                solver (solver object or string): Which solver to use.
 
             Returns:
                 float: Energy of the fragment.
         """
 
+        # In case of RHF solver (inside SecondQuantizedMolecule object).
         if isinstance(solver, str):
             energy = molecule.mf_energy
         # The remaining case is for VQESolver, CCSDSolver, FCISolver and
@@ -138,15 +139,15 @@ class Fragment:
         return energy
 
     def get_solver(self, molecule, solver_string, options_solver):
-        """ Get the solver object for this layer.
+        """ Get the solver object (or string for RHF) for this layer.
 
             Args:
-                molecule (pyscf.gto): Molecule for this fragment (with repaired links).
+                molecule (SecondQuantizedMolecule): Molecule for this fragment (with repaired links).
                 solver_string (str): Which solver to use.
                 options_solver (dict): Options for the solver.
 
             Returns:
-                Solver object.
+                Solver object or string.
         """
 
         if solver_string == "RHF":

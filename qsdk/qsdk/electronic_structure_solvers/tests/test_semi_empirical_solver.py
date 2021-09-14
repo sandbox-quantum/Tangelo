@@ -1,6 +1,6 @@
 import unittest
 
-from qsdk.toolboxes.molecular_computation.molecule import Molecule
+from qsdk import Molecule
 from qsdk.electronic_structure_solvers.semi_empirical_solver import MINDO3Solver
 
 pyridine = """

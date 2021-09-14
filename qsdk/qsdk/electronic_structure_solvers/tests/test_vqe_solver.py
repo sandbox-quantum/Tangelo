@@ -3,7 +3,7 @@ import numpy as np
 
 from agnostic_simulator import Simulator
 from qsdk.electronic_structure_solvers.vqe_solver import Ansatze, VQESolver
-from qsdk.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from qsdk import SecondQuantizedMolecule
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 

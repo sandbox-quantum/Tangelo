@@ -2,7 +2,7 @@
 
 from pyscf import cc
 
-from qsdk.electronic_structure_solvers.electronic_structure_solver import ElectronicStructureSolver
+from qsdk.electronic_structure_solvers import ElectronicStructureSolver
 
 
 class CCSDSolver(ElectronicStructureSolver):
@@ -23,7 +23,7 @@ class CCSDSolver(ElectronicStructureSolver):
         self.cc_fragment = None
 
         self.mean_field = molecule.mean_field
-        self.frozen = molecule.get_frozen_orbitals()
+        self.frozen = molecule.frozen_mos
 
     def simulate(self):
         """Perform the simulation (energy calculation) for the molecule.

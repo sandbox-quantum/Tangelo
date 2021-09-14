@@ -27,11 +27,13 @@ class SecondQuantizedDMETFragment:
     basis: str = field(init=False)
     n_active_mos: int = field(init=False)
     fermionic_hamiltonian: FermionOperator = field(init=False, repr=False)
+    frozen_mos: None = field(init=False)
 
     def __post_init__(self):
         self.basis = self.molecule.basis
         self.n_active_mos = self.n_active_sos // 2
         self.fermionic_hamiltonian = self._get_fermionic_hamiltonian()
+        self.frozen_mos = None
 
     def _get_fermionic_hamiltonian(self):
         """ This method returns the fermionic hamiltonian. It written to take into account
@@ -59,15 +61,11 @@ class SecondQuantizedDMETFragment:
         eri = ao2mo.restore(1, eri, n_orbitals)
 
         # Overwriting 2-electrons integrals.
-        dummy_of_molecule._two_body_integrals = np.asarray(eri.transpose(0, 2, 3, 1), order='C')
+        dummy_of_molecule._two_body_integrals = np.asarray(eri.transpose(0, 2, 3, 1), order="C")
 
         fragment_hamiltonian = dummy_of_molecule.get_molecular_hamiltonian()
 
         return get_fermion_operator(fragment_hamiltonian)
-
-    def get_frozen_orbitals(self):
-        """ Empty method for compatibility with SecondQuantizedMolecule. """
-        return None
 
     def to_pyscf(self, basis=None):
         """ Method to output the PySCF molecule.
