@@ -19,6 +19,7 @@ from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.ansatz_generator.rucc import RUCC
 from qsdk.toolboxes.ansatz_generator.hea import HEA
 from qsdk.toolboxes.ansatz_generator.upccgsd import UpCCGSD
+from qsdk.toolboxes.ansatz_generator.variational_circuit import VariationalCircuitAnsatz
 from qsdk.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from qsdk.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
@@ -98,6 +99,9 @@ class VQESolver:
 
     def build(self):
         """Build the underlying objects required to run the VQE algorithm afterwards. """
+
+        if isinstance(self.ansatz, Circuit):
+            self.ansatz = VariationalCircuitAnsatz(self.ansatz)
 
         # Building VQE with a molecule as input.
         if self.molecule:
