@@ -9,8 +9,8 @@ from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 
 
 class VariationalCircuitAnsatz(Ansatz):
-    """ This class takes an abstract circuit and convert it to an Ansatz. This
-        enables users to provide a custom circuit already built.
+    """ This class takes an arbitrary circuit and convert it to an Ansatz. This
+        enables users to provide a custom pre-built circuit.
 
         Args:
             abstract_circuit (Circuit) : Circuit with variational gates.
@@ -67,13 +67,11 @@ class VariationalCircuitAnsatz(Ansatz):
             self.circuit._variational_gates[param_index].parameter = var_params[param_index]
 
     def prepare_reference_state(self):
-        """ Method not needed as it is expected to already be in the circuit
-            provided.
-        """
+        """ Method not needed as it is expected to be in the circuit provided. """
         pass
 
     def build_circuit(self, var_params=None):
-        """ Update parameters of the already-built circuit. """
+        """ Update parameters of the pre-built circuit. """
 
         self.set_var_params(var_params)
         self.update_var_params(self.var_params)
