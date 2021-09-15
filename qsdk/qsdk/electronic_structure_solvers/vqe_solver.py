@@ -100,6 +100,9 @@ class VQESolver:
     def build(self):
         """Build the underlying objects required to run the VQE algorithm afterwards. """
 
+        if isinstance(self.ansatz, Circuit):
+            self.ansatz = VariationalCircuitAnsatz(self.ansatz)
+
         # Building VQE with a molecule as input.
         if self.molecule:
 
@@ -148,8 +151,6 @@ class VQESolver:
                     self.ansatz = UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
-            elif isinstance(self.ansatz, Circuit):
-                self.ansatz = VariationalCircuitAnsatz(self.ansatz)
             elif not isinstance(self.ansatz, Ansatz):
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
         # Building with a qubit Hamiltonian.
