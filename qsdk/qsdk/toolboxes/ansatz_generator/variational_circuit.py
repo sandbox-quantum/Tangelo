@@ -9,8 +9,8 @@ from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 
 
 class VariationalCircuitAnsatz(Ansatz):
-    """ This class takes an abstract and convert it to an Ansatz. This enables
-        users to provide VQESolver a custom circuit already built.
+    """ This class takes an abstract circuit and convert it to an Ansatz. This
+        enables users to provide a custom circuit already built.
 
         Args:
             abstract_circuit (Circuit) : Circuit with variational gates.

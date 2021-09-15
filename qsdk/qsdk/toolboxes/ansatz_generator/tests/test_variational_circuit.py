@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 
 from agnostic_simulator import Gate, Circuit
-from qsdk.toolboxes.ansatz_generator.circuit import VariationalCircuitAnsatz
+from qsdk.toolboxes.ansatz_generator.variational_circuit import VariationalCircuitAnsatz
 
 
 # UCC1 hard coding circuit. Simple example not relying on import Ansatz.
