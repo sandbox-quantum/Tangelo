@@ -1,17 +1,15 @@
 """
-    Python wrappers around Honeywell REST API, to facilitate job submission, result retrieval and post-processing
+    Python wrappers facilitating quantum experiment submission, monitoring and post-processing, through QEMIST Cloud.
 
-    Using Honeywell services require logins to their portal: https://um.qapi.honeywell.com/index.html
-    Users are expected to set the environment variables HONEYWELL_EMAIL, HONEYWELL_PASSWORD with their credentials
-
-    The portal above provides access to a dashboard, which is better suited for job monitoring experiments.
+    Users are expected to set the environment variables QEMIST_AUTH_TOKEN and QEMIST_PROJECT_ID with values
+    retrieved from their QEMIST Cloud dashboard.
 """
 
 from qemist_client import util
 
 
 def job_submit(circuit, n_shots, backend):
-    """ Runs the circuit on quantum hardware.
+    """ Job submission to run a circuit on quantum hardware.
 
     Args:
         circuit: a quantum circuit in the abstract format
@@ -19,7 +17,7 @@ def job_submit(circuit, n_shots, backend):
         backend (str): the identifier string for the desired backend
 
     Returns:
-        int: A problem handle that can be used to retrieve the result or cancel the problem.
+        job_id (int): A problem handle / job ID that can be used to retrieve the result or cancel the problem.
     """
 
     # Serialize circuit data
@@ -36,40 +34,46 @@ def job_submit(circuit, n_shots, backend):
 
 
 def job_status(qemist_cloud_job_id):
-    """ Returns the current status of the problem """
+    """ Returns the current status of the problem, as a string.
+     Possible values: ready, in_progress, complete, cancelled.
+
+        Args:
+            qemist_cloud_job_id (int): problem handle / job identifier
+
+        Returns:
+            status (str): current status of the problem, as a string
+    """
     return util.get_problem_status(qemist_cloud_job_id)
 
 
 def job_cancel(qemist_cloud_job_id):
-    """ Cancels the most recently dispatched problem and its subproblems.
+    """ Cancels the job matching the input job id, if done in time before it starts.
+    Returns a list of cancelled problems and number of subproblems, if any.
 
-    Only queued problems can be cancelled, running ones cannot.  If problem
-    has no subproblems and is already running, it will continue running to
-    completion. A problem that has subproblems will terminate all queued
-    subproblems, then will terminate when all running subproblems complete.
+        Args:
+            qemist_cloud_job_id (int): problem handle / job identifier
 
-    Returns:
-        list: Cancelled problems and number of subproblems.
-
-    Raises:
-        NoSimulationRun: If `simulate` has not been called.
+        Returns:
+            res (dict): cancelled problems / subproblems
     """
 
     res = util.cancel_problems(qemist_cloud_job_id)
-    # If res is coming out as an error code, raise error
+    # TODO: If res is coming out as an error code, qSDK should raise an error
 
     return res
 
 
 def job_result(qemist_cloud_job_id):
-    """ Blocks until the result of the simulation is available.
+    """ Blocks until the job results are available.
+    Returns a tuple containing the histogram of frequency, and also the more in-depth raw data from
+    the cloud services provider as a nested dictionary
 
-    Returns:
-        dict: A dictionary containing the results of the
-              latest simulation run by the solver.
+        Args:
+            qemist_cloud_job_id (int): problem handle / job identifier
 
-    Raises:
-        NoSimulationRun: If `simulate` has not been called.
+        Returns:
+            freqs (dict): histogram of measurement frequencies
+            raw_data (dict): cloud provider raw data coming out as as nested dictionary
     """
 
     try:
@@ -93,6 +97,41 @@ def job_result(qemist_cloud_job_id):
         raise
 
     # Once a result is available, retrieve it
-    result = util.get_quantum_results(problem_handle=qemist_cloud_job_id)[qemist_cloud_job_id]
+    output = util.get_quantum_results(problem_handle=qemist_cloud_job_id)[qemist_cloud_job_id]
 
-    return result
+    # Amazon Braket: parsing of output
+    freqs = output['result']['results']['measurement_probabilities']
+    raw_data = output
+
+    return freqs, raw_data
+
+
+def job_estimate(circuit, n_shots):
+    """
+        Return an estimate of the cost of running an experiment. Some service providers care about
+        the complexity / structure of the input quantum circuit, some do not.
+
+        Some backends, such as simulators in the cloud, may charge per the minute,
+        which is difficult to estimate, and may be misleading. They are currently not included.
+
+        Braket prices: https://aws.amazon.com/braket/pricing/
+        Azure Quantum prices: TBD
+
+    Args:
+        circuit (Circuit): the abstract circuit to be run on the target device.
+        n_shots (int): number of shots in the expriment.
+
+    Returns:
+        A dictionary of floating-point values (prices) in USD.
+
+    """
+
+    # Compute prices for each available backend (see provider formulas)
+    price_estimate = dict()
+    price_estimate['braket_ionq'] = 0.3 + 0.01 * n_shots
+    price_estimate['braket_rigetti'] = 0.3 + 0.00035 * n_shots
+
+    # Round up to a cent for readability
+    price_estimate = {k: round(v, 2) for k, v in price_estimate.items()}
+
+    return price_estimate
