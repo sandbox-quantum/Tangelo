@@ -145,6 +145,7 @@ class ADAPTSolver:
         if self.pool_args is None:
             if self.pool == uccgsd_pool:
                 self.pool_args = (self.n_spinorbitals,)
+                self.pool_type = 'fermion'
             else:
                 raise KeyError('pool_args must be defined if using own pool function')
                 # Check if pool function returns a QubitOperator or FermionOperator
