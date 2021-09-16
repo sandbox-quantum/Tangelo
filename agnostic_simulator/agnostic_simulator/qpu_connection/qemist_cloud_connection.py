@@ -68,7 +68,7 @@ def job_cancel(qemist_cloud_job_id):
 
 def job_result(qemist_cloud_job_id):
     """ Blocks until the job results are available.
-    Returns a tuple containing the histogram of frequency, and also the more in-depth raw data from
+    Returns a tuple containing the histogram of frequencies, and also the more in-depth raw data from
     the cloud services provider as a nested dictionary
 
         Args:
@@ -111,11 +111,11 @@ def job_result(qemist_cloud_job_id):
 
 def job_estimate(circuit, n_shots):
     """
-        Return an estimate of the cost of running an experiment. Some service providers care about
+        Returns an estimate of the cost of running an experiment. Some service providers care about
         the complexity / structure of the input quantum circuit, some do not.
 
-        Some backends, such as simulators in the cloud, may charge per the minute,
-        which is difficult to estimate, and may be misleading. They are currently not included.
+        Some backends may charge per minute (such as simulators), which is difficult to estimate
+        and may be misleading. They are currently not included.
 
         Braket prices: https://aws.amazon.com/braket/pricing/
         Azure Quantum prices: TBD
