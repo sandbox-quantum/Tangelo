@@ -1,8 +1,7 @@
 import unittest
 import numpy as np
-from pyscf import gto
 
-from qsdk.toolboxes.molecular_computation.molecular_data import MolecularData
+from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g
 from qsdk.toolboxes.qubit_mappings import jordan_wigner
 from qsdk.toolboxes.ansatz_generator.hea import HEA
 
@@ -11,31 +10,13 @@ from agnostic_simulator import Simulator
 # Initiate simulator
 sim = Simulator(target="qulacs")
 
-# Build molecule objects used by the tests
-H2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
-H4 = [['H', [0.7071067811865476, 0.0, 0.0]], ['H', [0.0, 0.7071067811865476, 0.0]],
-      ['H', [-1.0071067811865476, 0.0, 0.0]], ['H', [0.0, -1.0071067811865476, 0.0]]]
-
-mol_h2 = gto.Mole()
-mol_h2.atom = H2
-mol_h2.basis = "sto-3g"
-mol_h2.spin = 0
-mol_h2.build()
-
-mol_h4 = gto.Mole()
-mol_h4.atom = H4
-mol_h4.basis = "sto-3g"
-mol_h4.spin = 0
-mol_h4.build()
-
 
 class HEATest(unittest.TestCase):
 
     def test_hea_set_var_params(self):
         """ Verify behavior of set_var_params for different inputs (keyword, list, numpy array)."""
 
-        molecule = MolecularData(mol_h2)
-        hea_ansatz = HEA({'molecule': molecule})
+        hea_ansatz = HEA(molecule=mol_H2_sto3g)
 
         hea_ansatz.set_var_params("ones")
         np.testing.assert_array_almost_equal(hea_ansatz.var_params, np.ones(4 * 3 * 3), decimal=6)
@@ -48,23 +29,20 @@ class HEATest(unittest.TestCase):
 
     def test_hea_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """
-        molecule = MolecularData(mol_h2)
-        hea_ansatz = HEA({'molecule': molecule})
+
+        hea_ansatz = HEA(molecule=mol_H2_sto3g)
 
         self.assertRaises(ValueError, hea_ansatz.set_var_params, np.ones(4 * 3 * 3 + 1))
 
     def test_hea_H2(self):
         """ Verify closed-shell HEA functionalities for H2 """
 
-        molecule = MolecularData(mol_h2)
-
         # Build circuit
-        hea_ansatz = HEA({'molecule': molecule})
+        hea_ansatz = HEA(molecule=mol_H2_sto3g)
         hea_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        molecular_hamiltonian = molecule.get_molecular_hamiltonian()
-        qubit_hamiltonian = jordan_wigner(molecular_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H2_sto3g.fermionic_hamiltonian)
 
         params = [ 1.96262489e+00, -9.83505909e-01, -1.92659544e+00,  3.68638855e+00,
                    4.71410736e+00,  4.78247991e+00,  4.71258582e+00, -4.79077006e+00,
@@ -84,7 +62,6 @@ class HEATest(unittest.TestCase):
     def test_hea_H4(self):
         """ Verify closed-shell HEA functionalities for H4 """
 
-        molecule = MolecularData(mol_h4)
         var_params = [-2.34142720e-04,  6.28472420e+00,  4.67668267e+00, -3.14063369e+00,
                       -1.53697174e+00, -6.22546556e+00, -3.11351342e+00,  3.14158366e+00,
                       -1.57812617e+00,  3.14254101e+00, -6.29656957e+00, -8.93646210e+00,
@@ -93,12 +70,11 @@ class HEATest(unittest.TestCase):
                       -1.57734737e+00, -3.63191375e+00, -3.15706332e+00, -1.73625091e+00]
 
         # Build circuit with Ry rotationas instead of RZ*RX*RZ rotations
-        hea_ansatz = HEA({'molecule': molecule, 'rot_type': 'real'})
+        hea_ansatz = HEA(molecule=mol_H4_sto3g, rot_type="real")
         hea_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        molecular_hamiltonian = molecule.get_molecular_hamiltonian()
-        qubit_hamiltonian = jordan_wigner(molecular_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H4_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
         hea_ansatz.update_var_params(var_params)

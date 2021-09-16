@@ -1,19 +1,7 @@
 import unittest
-from pyscf import gto
-from pyscf.gto.mole import Mole
 
+from qsdk.molecule_library import mol_H2O_321g
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core, get_orbitals_excluding_homo_lumo
-
-H2O_list = [('O', (0., 0., 0.11779)),
-            ('H', (0., 0.75545, -0.47116)),
-            ('H', (0., -0.75545, -0.47116))
-        ]
-
-mol_h2o = gto.Mole()
-mol_h2o.atom = H2O_list
-mol_h2o.basis = "3-21g"
-mol_h2o.spin = 0
-mol_h2o.build()
 
 
 class FrozenOrbitalsTest(unittest.TestCase):
@@ -23,7 +11,7 @@ class FrozenOrbitalsTest(unittest.TestCase):
         chemical intuition.
         """
 
-        frozen_h2o = get_frozen_core(mol_h2o)
+        frozen_h2o = get_frozen_core(mol_H2O_321g)
         self.assertEqual(frozen_h2o, 1)
 
     def test_get_homo_lumo(self):
@@ -32,11 +20,11 @@ class FrozenOrbitalsTest(unittest.TestCase):
         """
 
         # Getting HOMO-LUMO.
-        frozen_homo_lumo = get_orbitals_excluding_homo_lumo(mol_h2o)
+        frozen_homo_lumo = get_orbitals_excluding_homo_lumo(mol_H2O_321g)
         self.assertEqual(frozen_homo_lumo, [0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12])
 
         # Active space from HOMO-2 to LUMO+4
-        frozen_homo2_lumo4 = get_orbitals_excluding_homo_lumo(mol_h2o, 2, 4)
+        frozen_homo2_lumo4 = get_orbitals_excluding_homo_lumo(mol_H2O_321g, 2, 4)
         self.assertEqual(frozen_homo2_lumo4, [0, 1, 10, 11, 12])
 
 
