@@ -5,7 +5,10 @@
     retrieved from their QEMIST Cloud dashboard.
 """
 
-from qemist_client import util
+try:
+    from qemist_client import util
+except ModuleNotFoundError:
+    print("qemist_client python package not found (optional dependency for hardware experiment submission)")
 
 
 def job_submit(circuit, n_shots, backend):
