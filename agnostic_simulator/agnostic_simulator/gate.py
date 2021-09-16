@@ -46,3 +46,8 @@ class Gate(dict):
             mystr += "\t (variational)"
 
         return mystr
+
+    def serialize(self):
+        return {"type": "Gate",
+                "params": {"name": self.name, "target": self.target,
+                           "control": self.control, "parameter": self.parameter}}
