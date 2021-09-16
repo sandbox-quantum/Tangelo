@@ -212,33 +212,39 @@ class VQESolver:
 
         return energy
 
-    def operator_expectation(self, operator, var_params=None):
+    def operator_expectation(self, operator, var_params=None, n_active_electrons=None, n_active_sos=None):
         """Obtains the operator expectation value of a given operator
            Args:
-                operator (str or QubitOperator): The operator to find the expectation value of
+                operator (str or QubitOperator or FermionOperator): The operator to find the expectation value of
                     str availability:
                         N : Particle number
                         Sz: Spin in z-direction
                         S^2: Spin quantum number s(s+1)
                 var_params (str or numpy.array): variational parameters to use for VQE expectation value
                                                  evaluation
+                n_active_electrons (int): The number of active electrons. Only required when operator is of type
+                                          FermionOperator and mapping used is scbk and vqe_solver was initiated
+                                          using a QubitHamiltonian
+                n_active_sos (int): Number of active spin orbitals. Only required when operator is of type
+                                    FermionOperator and mapping used is scbk and vqe_solver was initiated using a
+                                    QubitHamiltonian
            Returns:
                 expectation (float): operator expectation value computed by VQE using the ansatz and
                                      input variational parameters
            """
         if var_params is None:
-            var_params = self.optimal_var_params
+            var_params = self.ansatz.var_params
 
         # Save our current target hamiltonian
         tmp_hamiltonian = self.qubit_hamiltonian
 
         if isinstance(operator, str):
             if operator == 'N':
-                exp_op = number_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
+                exp_op = number_operator(self.molecule.n_active_mos, up_then_down=False)
             elif operator == 'Sz':
-                exp_op = spinz_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
+                exp_op = spinz_operator(self.molecule.n_active_mos, up_then_down=False)
             elif operator == 'S^2':
-                exp_op = spin2_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
+                exp_op = spin2_operator(self.molecule.n_active_mos, up_then_down=False)
             else:
                 raise ValueError('Only expectation values of N, Sz and S^2')
         elif isinstance(operator, FermionOperator):
@@ -249,11 +255,17 @@ class VQESolver:
             raise TypeError('operator must be a of string, FermionOperator or QubitOperator type')
 
         if isinstance(operator, (str, FermionOperator)):
+            if n_active_electrons is None and self.qubit_hamiltonian.mapping == 'scbk':
+                if self.molecule:
+                    n_active_electrons = self.molecule.n_active_electrons
+                    n_active_sos = self.molecule.n_active_sos
+                else:
+                    raise KeyError('Must supply n_active_electrons and n_active_sos with a FermionOperator and scbk mapping')
             self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=exp_op,
-                                                              mapping=self.qubit_mapping,
-                                                              n_spinorbitals=self.molecule.n_active_sos,
-                                                              n_electrons=self.molecule.n_active_electrons,
-                                                              up_then_down=self.up_then_down)
+                                                              mapping=self.qubit_hamiltonian.mapping,
+                                                              n_spinorbitals=n_active_sos,
+                                                              n_electrons=n_active_electrons,
+                                                              up_then_down=self.qubit_hamiltonian.up_then_down)
 
         expectation = self.energy_estimation(var_params)
 

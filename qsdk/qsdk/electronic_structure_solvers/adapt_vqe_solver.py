@@ -38,6 +38,7 @@ class ADAPTSolver:
         pool (func): Function that returns a list of FermionOperator. Each element
             represents excitation/operator that has an effect of the total
             energy.
+        pool_args (tuple) : The arguments for the pool function given as a tuple.
         qubit_mapping (str): One of the supported qubit mapping identifiers.
         up_then_down (bool): Spin orbitals ordering.
         n_spinorbitals (int): Self-explanatory.
@@ -148,8 +149,8 @@ class ADAPTSolver:
                 self.pool_type = 'fermion'
             else:
                 raise KeyError('pool_args must be defined if using own pool function')
-                # Check if pool function returns a QubitOperator or FermionOperator
         if self.pool != uccgsd_pool:
+            # Check if pool function returns a QubitOperator or FermionOperator
             pool_item = self.pool(*self.pool_args)[0]
             if isinstance(pool_item, (QubitOperator, ofQubitOperator)):
                 self.pool_type = 'qubit'

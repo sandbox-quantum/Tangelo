@@ -77,6 +77,30 @@ class VQESolverTest(unittest.TestCase):
         energy = vqe_solver.energy_estimation([5.86665842e-06, 5.65317429e-02])
         self.assertAlmostEqual(energy, -1.137270422018, places=6)
 
+    def test_operator_expectation_vqe(self):
+        """ A test of the operator_expectation function, using optimal parameters and exact simulator """
+
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw'}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        # Test using var_params input and Qubit Hamiltonian
+        energy = vqe_solver.operator_expectation(vqe_solver.qubit_hamiltonian, var_params=[5.86665842e-06, 5.65317429e-02])
+        self.assertAlmostEqual(energy, -1.137270422018, places=6)
+
+        # Test using updated var_params and Fermion Hamiltonian
+        vqe_solver.ansatz.update_var_params([5.86665842e-06, 5.65317429e-02])
+        energy = vqe_solver.operator_expectation(mol_H2_sto3g.fermionic_hamiltonian)
+        self.assertAlmostEqual(energy, -1.137270422018, places=6)
+
+        # Test the three in place operators
+        n_electrons = vqe_solver.operator_expectation('N')
+        self.assertAlmostEqual(n_electrons, 2, places=6)
+        spin_z = vqe_solver.operator_expectation('Sz')
+        self.assertAlmostEqual(spin_z, 0, places=6)
+        spin2 = vqe_solver.operator_expectation('S^2')
+        self.assertAlmostEqual(spin2, 0, places=6)
+
     def test_simulate_h2(self):
         """ Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
 
