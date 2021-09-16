@@ -17,7 +17,7 @@
 import numpy as np
 import copy
 
-from qsdk.toolboxes.operators import FermionOperator
+from qsdk.toolboxes.operators import FermionOperator, QubitOperator
 from openfermion.transforms import bravyi_kitaev_tree, reorder
 from openfermion.utils import count_qubits
 from openfermion.utils import up_then_down as up_then_down_order
@@ -43,7 +43,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
                 molecule if some orbitals have been frozen).
             up_then_down (bool): specify if the spin-orbital basis is already ordered putting
                 all spin up before all spin down states.
-        
+
         Returns:
             qubit_operator (QubitOperator): The qubit operator corresponding to
                 the supplied fermionic operator, with
@@ -106,10 +106,13 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
     qubit_operator = edit_operator_for_spin(qubit_operator,
                                                   n_spinorbitals/2,
                                                   parity_middle_orb)
-    
-    #We remove the N/2-th and N-th qubit from the register.                                           
+
+    #We remove the N/2-th and N-th qubit from the register.
     to_prune = (n_spinorbitals//2 - 1, n_spinorbitals - 1)
     qubit_operator = prune_unused_indices(qubit_operator, prune_indices=to_prune, n_qubits=n_spinorbitals)
+
+    converted_qubit_op = QubitOperator()
+    converted_qubit_op.terms = qubit_operator.terms.copy()
 
     return qubit_operator
 
@@ -119,12 +122,12 @@ def edit_operator_for_spin(qubit_operator, spin_orbital, orbital_parity):
     For qubits to be tapered out, the action of Z-operators in operator
     terms are reduced to the associated eigenvalues. This simply corresponds
     to multiplying term coefficients by the related eigenvalue +/-1.
-    
+
     Args:
         qubit_operator (QubitOperator): input operator
         spin_orbital (int): index of qubit encoding (spin/occupation) parity
         orbital_parity (int): plus/minus one, parity of eigenvalue
-    
+
     Returns:
         qubit_operator (QubitOperator): updated operator, with relevant coefficients
             multiplied by +/-1.
@@ -158,12 +161,12 @@ def edit_operator_for_spin(qubit_operator, spin_orbital, orbital_parity):
 
 def prune_unused_indices(qubit_operator, prune_indices, n_qubits):
     """
-    Rewritten from openfermion implementation. This uses the number of 
-    qubits, rather than the operator itself to specify the number of 
+    Rewritten from openfermion implementation. This uses the number of
+    qubits, rather than the operator itself to specify the number of
     qubits relevant to the problem. This is especially important for, e.g.
     terms in the ansatz which may not individually pertain to all qubits in
     the problem.
-    
+
     Remove indices that do not appear in any terms.
 
     Indices will be renumbered such that if an index i does not appear in
@@ -206,7 +209,7 @@ def check_operator(fermion_operator, num_orbitals=None, up_then_down=False):
 
     Args:
         fermion_operator (FermionOperator): input fermionic operator
-        num_orbitals (int): specify number of orbitals (number of modes / 2), 
+        num_orbitals (int): specify number of orbitals (number of modes / 2),
             required for up then down ordering
         up_then_down (bool): True if all spin up before all spin down, otherwise
             alternates
@@ -214,7 +217,7 @@ def check_operator(fermion_operator, num_orbitals=None, up_then_down=False):
     if up_then_down and (num_orbitals is None):
         raise ValueError('Up then down spin ordering requires number of modes specified.')
     for term in fermion_operator.terms:
-        number_change = 0        
+        number_change = 0
         spin_change = 0
         for index, action in term:
             number_change += 2*action - 1
@@ -227,4 +230,3 @@ def check_operator(fermion_operator, num_orbitals=None, up_then_down=False):
             raise ValueError('Invalid operator: input fermion operator does not conserve occupation parity.')
         if spin_change % 2 != 0:
             raise ValueError('Invalid operator: input fermion operator does not conserve spin parity.')
-
