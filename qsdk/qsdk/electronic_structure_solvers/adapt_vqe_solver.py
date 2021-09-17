@@ -150,27 +150,23 @@ class ADAPTSolver:
         if self.pool_args is None:
             if self.pool == uccgsd_pool:
                 self.pool_args = (self.n_spinorbitals,)
-                self.pool_type = 'fermion'
             else:
                 raise KeyError('pool_args must be defined if using own pool function')
-        if self.pool != uccgsd_pool:
-            # Check if pool function returns a QubitOperator or FermionOperator
-            pool_item = self.pool(*self.pool_args)[0]
-            if isinstance(pool_item, QubitOperator):
-                self.pool_type = 'qubit'
-            elif isinstance(pool_item, (FermionOperator, ofFermionOperator)):
-                self.pool_type = 'fermion'
-            else:
-                raise ValueError('pool function must return either QubitOperator or FermionOperator')
-        if self.pool_type == 'fermion':
-            self.fermionic_operators = self.pool(*self.pool_args)
+        # Check if pool function returns a QubitOperator or FermionOperator and populate variables
+        pool_list = self.pool(*self.pool_args)
+        if isinstance(pool_list[0], QubitOperator):
+            self.pool_type = 'qubit'
+            self.pool_operators = pool_list
+        elif isinstance(pool_list[0], (FermionOperator, ofFermionOperator)):
+            self.pool_type = 'fermion'
+            self.fermionic_operators = pool_list
             self.pool_operators = [fermion_to_qubit_mapping(fermion_operator=fi,
                                                             mapping=self.qubit_mapping,
                                                             n_spinorbitals=self.n_spinorbitals,
                                                             n_electrons=self.n_electrons,
                                                             up_then_down=self.up_then_down) for fi in self.fermionic_operators]
         else:
-            self.pool_operators = self.pool(*self.pool_args)
+            raise ValueError('pool function must return either QubitOperator or FermionOperator')
 
         # Cast all coefs to floats (rotations angles are real).
         for qubit_op in self.pool_operators:
