@@ -20,46 +20,33 @@ from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circ
 
 
 class UpCCGSD(Ansatz):
-    """ This class implements the UpCCGSD ansatz.
-        This implies that the mean-field is computed with the RHF or ROHF reference integrals.
+    """ This class implements the UpCCGSD ansatz. This implies that the
+        mean-field is computed with the RHF or ROHF reference integrals.
+
+        Args:
+            molecule (SecondQuantizedMolecule) : The molecular system.
+            k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details.
+                Default, 2
+            mapping (str) : one of the supported qubit mapping identifiers.
+                Default: "JW".
+            up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down.
+                Default, False (i.e. has alternating spin up/down ordering)
     """
 
-    def __init__(self, molecule, ansatz_options=dict()):
-        """ Args:
-            molecule (MolecularData) : the molecular system
-            ansatz_options (dict): With possible arguments below
-                mean-field (optional) : mean-field of molecular system
-                                    Default, None
-                qubit_mapping (str) : one of the supported qubit mapping identifiers
-                                    Default, 'jw'
-                up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
-                                    Default, False (i.e. has alternating spin up/down ordering)
-                k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details
-                                    Default, 2
-        """
-        default_options = {"qubit_mapping": 'jw', "mean_field": None, "up_then_down": False,
-                           "k": 2}
+    def __init__(self, molecule, mapping="JW", up_then_down=False, k=2):
 
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in ansatz_options.items():
-            if k in default_options:
-                default_options[k] = v
-            else:
-                raise KeyError(f"Keyword :: {k}, not available in VQESolver")
+        self.n_spinorbitals = molecule.n_active_sos
+        self.n_electrons = molecule.n_active_electrons
+        self.spin = molecule.spin
+        self.k = k
 
-        self.molecule = molecule
-        # Write default options
-        for k, v in default_options.items():
-            setattr(self, k, v)
-
-        self.mf = self.mean_field  # necessary label duplication for get_rdm in vqe_solver
+        self.qubit_mapping = mapping
+        self.up_then_down = up_then_down
 
         # Later: refactor to handle various flavors of UCCSD
-        if molecule.n_qubits % 2 != 0:
+        if self.n_spinorbitals % 2 != 0:
             raise ValueError('The total number of spin-orbitals should be even.')
-        self.n_spatial_orbitals = self.molecule.n_qubits // 2
-        self.n_spin_orbitals = self.molecule.n_qubits
-        self.spin = self.molecule.multiplicity - 1
+        self.n_spatial_orbitals = self.n_spinorbitals // 2
         self.n_doubles = self.n_spatial_orbitals * (self.n_spatial_orbitals - 1)//2
         self.n_singles = 2*self.n_doubles
         self.n_var_params_per_step = self.n_doubles + self.n_singles
@@ -112,8 +99,8 @@ class UpCCGSD(Ansatz):
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
         if self.default_reference_state == "HF":
-            return get_reference_circuit(n_spinorbitals=self.molecule.n_qubits,
-                                         n_electrons=self.molecule.n_electrons,
+            return get_reference_circuit(n_spinorbitals=self.n_spinorbitals,
+                                         n_electrons=self.n_electrons,
                                          mapping=self.qubit_mapping,
                                          up_then_down=self.up_then_down,
                                          spin=self.spin)
@@ -193,8 +180,8 @@ class UpCCGSD(Ansatz):
         fermion_op = get_upccgsd(self.n_spatial_orbitals, current_k_params)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
                                             mapping=self.qubit_mapping,
-                                            n_spinorbitals=self.molecule.n_qubits,
-                                            n_electrons=self.molecule.n_electrons,
+                                            n_spinorbitals=self.n_spinorbitals,
+                                            n_electrons=self.n_electrons,
                                             up_then_down=self.up_then_down)
 
         # Cast all coefs to floats (rotations angles are real)
