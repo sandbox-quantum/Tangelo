@@ -222,8 +222,8 @@ class VQESolver:
                         S^2: Spin quantum number s(s+1)
                 var_params (str or numpy.array): variational parameters to use for VQE expectation value
                                                  evaluation
-                n_active_mos (int): The number of active_mos (int). Only required when using a str input and 
-                                    VQESolver is initiated with a QubitHamiltonian (as is the case in AdaptVQE)
+                n_active_mos (int): The number of active_mos (int). Only required when using a str input and
+                                    VQESolver is initiated with a QubitHamiltonian
                 n_active_electrons (int): The number of active electrons. Only required when operator is of type
                                           FermionOperator and mapping used is scbk and vqe_solver was initiated
                                           using a QubitHamiltonian
