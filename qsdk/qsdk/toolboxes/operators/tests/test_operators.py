@@ -43,11 +43,11 @@ class QubitHamiltonianTest(unittest.TestCase):
 
         qubit_ham = QubitHamiltonian("JW", True, term="X0 Y1 Z2")
 
-        self.assertRaises(RuntimeError, qubit_ham.__add__,
-            QubitHamiltonian("BK", True, term="Z0 X1 Y2"))
+        with self.assertRaises(RuntimeError):
+            qubit_ham + QubitHamiltonian("BK", True, term="Z0 X1 Y2")
 
-        self.assertRaises(RuntimeError, qubit_ham.__add__,
-            QubitHamiltonian("JW", False, term="Z0 X1 Y2"))
+        with self.assertRaises(RuntimeError):
+            qubit_ham + QubitHamiltonian("JW", False, term="Z0 X1 Y2")
 
     def test_to_qubit_operator(self):
         """ Test exportation of QubitHamiltonian to QubitOperator. """
