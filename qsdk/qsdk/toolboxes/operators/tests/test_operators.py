@@ -38,7 +38,7 @@ class QubitHamiltonianTest(unittest.TestCase):
 
     def test_instantiate_QubitHamiltonian(self):
         """ Test error raising when 2 incompatible QubitHamiltonian are
-            sum up together.
+            summed up together.
         """
 
         qubit_ham = QubitHamiltonian("JW", True, term="X0 Y1 Z2")

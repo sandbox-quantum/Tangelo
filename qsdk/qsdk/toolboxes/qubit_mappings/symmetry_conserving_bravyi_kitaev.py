@@ -114,7 +114,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
     converted_qubit_op = QubitOperator()
     converted_qubit_op.terms = qubit_operator.terms.copy()
 
-    return qubit_operator
+    return converted_qubit_op
 
 
 def edit_operator_for_spin(qubit_operator, spin_orbital, orbital_parity):

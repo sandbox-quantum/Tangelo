@@ -39,4 +39,4 @@ def bravyi_kitaev(fermion_operator, n_qubits):
     converted_qubit_op = QubitOperator()
     converted_qubit_op.terms = qubit_operator.terms.copy()
 
-    return qubit_operator
+    return converted_qubit_op
