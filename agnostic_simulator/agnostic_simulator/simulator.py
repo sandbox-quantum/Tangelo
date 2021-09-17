@@ -422,7 +422,7 @@ class Simulator:
                 The expectation value of this operator with regards to the state preparation
         """
         n_qubits = state_prep_circuit.width
-        if not self.statevector_available or state_prep_circuit.is_mixed_state:
+        if not self.statevector_available or state_prep_circuit.is_mixed_state or self._noise_model:
             initial_circuit = state_prep_circuit
             if initial_statevector is not None:
                 raise ValueError(f'Backend {self._target} does not support statevectors')
