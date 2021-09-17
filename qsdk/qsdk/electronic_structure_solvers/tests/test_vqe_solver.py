@@ -80,7 +80,7 @@ class VQESolverTest(unittest.TestCase):
     def test_operator_expectation_vqe(self):
         """ A test of the operator_expectation function, using optimal parameters and exact simulator """
 
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw'}
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": 'jw'}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
