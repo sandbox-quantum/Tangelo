@@ -25,7 +25,7 @@ from qsdk.toolboxes.post_processing.bootstrapping import get_resampled_frequenci
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
 
 
-class Ansatze(Enum):
+class BuiltInAnsatze(Enum):
     """ Enumeration of the ansatz circuits supported by VQE"""
     UCCSD = 0
     UCC1 = 1
@@ -69,7 +69,7 @@ class VQESolver:
 
         default_backend_options = {"target": "qulacs", "n_shots": None, "noise_model": None}
         default_options = {"molecule": None,
-                           "qubit_mapping": "jw", "ansatz": Ansatze.UCCSD,
+                           "qubit_mapping": "jw", "ansatz": BuiltInAnsatze.UCCSD,
                            "optimizer": self._default_optimizer,
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
@@ -95,7 +95,7 @@ class VQESolver:
 
         self.optimal_energy = None
         self.optimal_var_params = None
-        self.builtin_ansatze = set(Ansatze)
+        self.builtin_ansatze = set(BuiltInAnsatze)
 
     def build(self):
         """Build the underlying objects required to run the VQE algorithm afterwards. """
@@ -126,7 +126,7 @@ class VQESolver:
                 self.qubit_hamiltonian += pen_qubit
 
             # Verification of system compatibility with UCC1 or UCC3 circuits.
-            if self.ansatz in [Ansatze.UCC1, Ansatze.UCC3]:
+            if self.ansatz in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3]:
                 # Mapping should be JW because those ansatz are chemically inspired.
                 if self.qubit_mapping.upper() != "JW":
                     raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
@@ -138,16 +138,16 @@ class VQESolver:
                     raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
-            if type(self.ansatz) == Ansatze:
-                if self.ansatz == Ansatze.UCCSD:
+            if type(self.ansatz) == BuiltInAnsatze:
+                if self.ansatz == BuiltInAnsatze.UCCSD:
                     self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down)
-                elif self.ansatz == Ansatze.UCC1:
+                elif self.ansatz == BuiltInAnsatze.UCC1:
                     self.ansatz = RUCC(1)
-                elif self.ansatz == Ansatze.UCC3:
+                elif self.ansatz == BuiltInAnsatze.UCC3:
                     self.ansatz = RUCC(3)
-                elif self.ansatz == Ansatze.HEA:
+                elif self.ansatz == BuiltInAnsatze.HEA:
                     self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == Ansatze.UpCCGSD:
+                elif self.ansatz == BuiltInAnsatze.UpCCGSD:
                     self.ansatz = UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")

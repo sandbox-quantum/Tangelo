@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 
 from agnostic_simulator import Simulator
-from qsdk.electronic_structure_solvers.vqe_solver import Ansatze, VQESolver
+from qsdk.electronic_structure_solvers import BuiltInAnsatze, VQESolver
 from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_NaH_sto3g, mol_NaH_sto3g
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -56,7 +56,7 @@ class VQESolverTest(unittest.TestCase):
         mappings = ["jw", "bk", "scbk"]
         expected_values = [(15, 4), (15, 4), (5, 2)]
 
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": "jw",
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": [0.1, 0.1]}
         for index, mi in enumerate(mappings):
             vqe_options["qubit_mapping"] = mi
@@ -70,7 +70,7 @@ class VQESolverTest(unittest.TestCase):
     def test_energy_estimation_vqe(self):
         """ A single VQE energy evaluation for H2, using optimal parameters and exact simulator """
 
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw'}
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": 'jw'}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -104,7 +104,7 @@ class VQESolverTest(unittest.TestCase):
     def test_simulate_h2(self):
         """ Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
 
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw',
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": 'jw',
                        "initial_var_params": [0.1, 0.1], "verbose": True}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
@@ -116,7 +116,7 @@ class VQESolverTest(unittest.TestCase):
         """ Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact qiskit simulator """
 
         backend_options = {"target": "qiskit", "n_shots": None, "noise_model": None}
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": "jw",
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": [6.28531447e-06, 5.65431626e-02], "verbose": True,
                        "backend_options": backend_options}
         vqe_solver = VQESolver(vqe_options)
@@ -127,7 +127,7 @@ class VQESolverTest(unittest.TestCase):
 
     def test_simulate_h4(self):
         """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
-        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": "jw",
+        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": "MP2", "verbose": False}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
@@ -137,7 +137,7 @@ class VQESolverTest(unittest.TestCase):
 
     def test_simulate_h4_open(self):
         """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
-        vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": "jw",
+        vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": "random", "verbose": False}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
@@ -147,7 +147,7 @@ class VQESolverTest(unittest.TestCase):
 
     def test_optimal_circuit_h4(self):
         """ Run VQE on H4 molecule, save optimal circuit. Verify it yields optimal energy """
-        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": "jw",
+        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": "MP2", "verbose": False}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
@@ -160,7 +160,7 @@ class VQESolverTest(unittest.TestCase):
     def test_get_rdm_h2(self):
         """ Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized parameters, exact simulator (H2) """
 
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": "jw"}
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -178,7 +178,7 @@ class VQESolverTest(unittest.TestCase):
     def test_get_rdm_h4(self):
         """ Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized parameters, exact simulator (H4) """
 
-        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": 'jw'}
+        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": 'jw'}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -204,7 +204,7 @@ class VQESolverTest(unittest.TestCase):
             result = minimize(func, var_params, method="COBYLA", options={"disp": True, "maxiter": 100})
             return result.fun, result.x
 
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "qubit_mapping": "jw",
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": "ones", "verbose": False,
                        "optimizer": cobyla_oneshot_optimizer}
         vqe_solver = VQESolver(vqe_options)
@@ -216,7 +216,7 @@ class VQESolverTest(unittest.TestCase):
     def test_mapping_BK(self):
         """Test that BK mapping recovers the expected result,
         to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
                        "qubit_mapping": "bk"}
 
         vqe_solver = VQESolver(vqe_options)
@@ -229,7 +229,7 @@ class VQESolverTest(unittest.TestCase):
     def test_mapping_scBK(self):
         """Test that scBK mapping recovers the expected result,
         to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
                        "qubit_mapping": "scbk"}
 
         vqe_solver = VQESolver(vqe_options)
@@ -242,7 +242,7 @@ class VQESolverTest(unittest.TestCase):
     def test_spin_reorder_equivalence(self):
         """Test that re-ordered spin input (all up followed by all down)
         return the same optimized energy result for both JW and BK mappings."""
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": Ansatze.UCCSD, "initial_var_params": "MP2", "up_then_down": True,
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "initial_var_params": "MP2", "up_then_down": True,
                        "verbose": False, "qubit_mapping": "jw"}
 
         vqe_solver_jw = VQESolver(vqe_options)
@@ -264,7 +264,7 @@ class VQESolverTest(unittest.TestCase):
         """
         mol_H4_sto3g_frozen = mol_H4_sto3g.freeze_mos([0, 3], inplace=False)
 
-        vqe_options = {"molecule": mol_H4_sto3g_frozen, "ansatz": Ansatze.UCCSD, "qubit_mapping": "jw",
+        vqe_options = {"molecule": mol_H4_sto3g_frozen, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": "MP2", "verbose": False}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
@@ -279,14 +279,14 @@ class VQESolverTest(unittest.TestCase):
 
         mol_NaH_sto3g_2mos = mol_NaH_sto3g.freeze_mos([i for i in range(9) if i not in [5, 9]], inplace=False)
 
-        vqe_options = {"molecule": mol_NaH_sto3g_2mos, "ansatz": Ansatze.UCC1, "qubit_mapping": 'jw',
+        vqe_options = {"molecule": mol_NaH_sto3g_2mos, "ansatz": BuiltInAnsatze.UCC1, "qubit_mapping": 'jw',
                        "initial_var_params": "zeros", "up_then_down": True, "verbose": False}
 
         vqe_solver_ucc1 = VQESolver(vqe_options)
         vqe_solver_ucc1.build()
         energy_ucc1 = vqe_solver_ucc1.simulate()
 
-        vqe_options["ansatz"] = Ansatze.UCC3
+        vqe_options["ansatz"] = BuiltInAnsatze.UCC3
         vqe_solver_ucc3 = VQESolver(vqe_options)
         vqe_solver_ucc3.build()
         energy_ucc3 = vqe_solver_ucc3.simulate()
@@ -299,7 +299,7 @@ class VQESolverTest(unittest.TestCase):
             mapped into a HOMO-LUMO problem.
         """
 
-        vqe_options = {"molecule": mol_NaH_sto3g, "ansatz": Ansatze.UCC1, "qubit_mapping": "jw",
+        vqe_options = {"molecule": mol_NaH_sto3g, "ansatz": BuiltInAnsatze.UCC1, "qubit_mapping": "jw",
                        "initial_var_params": "zeros", "up_then_down": True, "verbose": False}
 
         with self.assertRaises(ValueError):
@@ -307,7 +307,7 @@ class VQESolverTest(unittest.TestCase):
             vqe_solver_ucc1.build()
 
         with self.assertRaises(ValueError):
-            vqe_options["ansatz"] = Ansatze.UCC3
+            vqe_options["ansatz"] = BuiltInAnsatze.UCC3
             vqe_solver_ucc3 = VQESolver(vqe_options)
             vqe_solver_ucc3.build()
 
@@ -316,7 +316,7 @@ class VQESolverTest(unittest.TestCase):
 
         mol_NaH_sto3g_2mos = mol_NaH_sto3g.freeze_mos([i for i in range(9) if i not in [5, 9]], inplace=False)
 
-        vqe_options = {"molecule": mol_NaH_sto3g_2mos, "ansatz": Ansatze.UCC1, "qubit_mapping": "bk",
+        vqe_options = {"molecule": mol_NaH_sto3g_2mos, "ansatz": BuiltInAnsatze.UCC1, "qubit_mapping": "bk",
                        "initial_var_params": "zeros", "up_then_down": True}
 
         with self.assertRaises(ValueError):
@@ -324,7 +324,7 @@ class VQESolverTest(unittest.TestCase):
             vqe_solver_ucc1.build()
 
         with self.assertRaises(ValueError):
-            vqe_options["ansatz"] = Ansatze.UCC3
+            vqe_options["ansatz"] = BuiltInAnsatze.UCC3
             vqe_solver_ucc3 = VQESolver(vqe_options)
             vqe_solver_ucc3.build()
 
@@ -363,7 +363,7 @@ class VQESolverTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             VQESolver(options).build()
 
-        options["ansatz"] = Ansatze.UCCSD
+        options["ansatz"] = BuiltInAnsatze.UCCSD
 
         with self.assertRaises(TypeError):
             VQESolver(options).build()

@@ -121,7 +121,6 @@ def qubitop_to_qubitham(qubit_op, mapping, up_then_down):
 
         Args:
             qubit_op (QubitOperator): Self-explanatory.
-            n_qubits (int): Self-explanatory.
             mapping (string): Qubit mapping procedure.
             up_then_down (bool): Whether or not spin ordering is all up then
                 all down.
