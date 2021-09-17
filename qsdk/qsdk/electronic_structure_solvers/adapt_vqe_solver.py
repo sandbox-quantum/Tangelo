@@ -13,7 +13,7 @@ Ref:
 
 import math
 from openfermion import commutator
-from openfermion import QubitOperator as ofQubitOperator, FermionOperator as ofFermionOperator
+from openfermion import FermionOperator as ofFermionOperator
 from qsdk.toolboxes.operators.operators import FermionOperator, QubitOperator
 from scipy.optimize import minimize
 import warnings
@@ -141,6 +141,10 @@ class ADAPTSolver:
         self.vqe_solver = VQESolver(self.vqe_options)
         self.vqe_solver.build()
 
+        # If applicable, give vqe_solver access to molecule object
+        if self.molecule:
+            self.vqe_solver.molecule = self.molecule
+
         # Getting the pool of operators for the ansatz. If more functionalities
         # are added, this part must be modified and generalized.
         if self.pool_args is None:
@@ -152,7 +156,7 @@ class ADAPTSolver:
         if self.pool != uccgsd_pool:
             # Check if pool function returns a QubitOperator or FermionOperator
             pool_item = self.pool(*self.pool_args)[0]
-            if isinstance(pool_item, (QubitOperator, ofQubitOperator)):
+            if isinstance(pool_item, QubitOperator):
                 self.pool_type = 'qubit'
             elif isinstance(pool_item, (FermionOperator, ofFermionOperator)):
                 self.pool_type = 'fermion'

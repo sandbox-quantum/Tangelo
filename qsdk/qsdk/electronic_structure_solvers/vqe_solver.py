@@ -212,7 +212,7 @@ class VQESolver:
 
         return energy
 
-    def operator_expectation(self, operator, var_params=None, n_active_electrons=None, n_active_sos=None):
+    def operator_expectation(self, operator, var_params=None, n_active_mos=None, n_active_electrons=None, n_active_sos=None):
         """Obtains the operator expectation value of a given operator
            Args:
                 operator (str or QubitOperator or FermionOperator): The operator to find the expectation value of
@@ -222,6 +222,8 @@ class VQESolver:
                         S^2: Spin quantum number s(s+1)
                 var_params (str or numpy.array): variational parameters to use for VQE expectation value
                                                  evaluation
+                n_active_mos (int): The number of active_mos (int). Only required when using a str input and 
+                                    VQESolver is initiated with a QubitHamiltonian (as is the case in AdaptVQE)
                 n_active_electrons (int): The number of active electrons. Only required when operator is of type
                                           FermionOperator and mapping used is scbk and vqe_solver was initiated
                                           using a QubitHamiltonian
@@ -239,12 +241,17 @@ class VQESolver:
         tmp_hamiltonian = self.qubit_hamiltonian
 
         if isinstance(operator, str):
+            if n_active_mos is None:
+                if self.molecule:
+                    n_active_mos = self.molecule.n_active_mos
+                else:
+                    raise KeyError('Must supply n_active_mos when a QubitHamiltonian has initialized VQESolver and requesting the expectation of "N", "Sz", or "S^2"')
             if operator == 'N':
-                exp_op = number_operator(self.molecule.n_active_mos, up_then_down=False)
+                exp_op = number_operator(n_active_mos, up_then_down=False)
             elif operator == 'Sz':
-                exp_op = spinz_operator(self.molecule.n_active_mos, up_then_down=False)
+                exp_op = spinz_operator(n_active_mos, up_then_down=False)
             elif operator == 'S^2':
-                exp_op = spin2_operator(self.molecule.n_active_mos, up_then_down=False)
+                exp_op = spin2_operator(n_active_mos, up_then_down=False)
             else:
                 raise ValueError('Only expectation values of N, Sz and S^2')
         elif isinstance(operator, FermionOperator):
@@ -255,7 +262,7 @@ class VQESolver:
             raise TypeError('operator must be a of string, FermionOperator or QubitOperator type')
 
         if isinstance(operator, (str, FermionOperator)):
-            if n_active_electrons is None and self.qubit_hamiltonian.mapping == 'scbk':
+            if (n_active_electrons is None or n_active_sos is None) and self.qubit_hamiltonian.mapping == 'scbk':
                 if self.molecule:
                     n_active_electrons = self.molecule.n_active_electrons
                     n_active_sos = self.molecule.n_active_sos
