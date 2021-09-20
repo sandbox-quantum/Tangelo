@@ -1,4 +1,4 @@
-""" Module to create some molecules used in the package unittest. """
+"""Module to create some molecules used in the package unittest."""
 
 
 from qsdk import Molecule, SecondQuantizedMolecule
