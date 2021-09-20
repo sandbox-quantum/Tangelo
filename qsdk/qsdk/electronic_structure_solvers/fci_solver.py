@@ -1,6 +1,6 @@
 """ Define electronic structure solver employing the full configuration interaction (CI) method """
 
-from pyscf import ao2mo, fci
+from pyscf import ao2mo, fci, mcscf
 
 from qsdk.electronic_structure_solvers.electronic_structure_solver import ElectronicStructureSolver
 
@@ -21,13 +21,33 @@ class FCISolver(ElectronicStructureSolver):
 
     def __init__(self, molecule):
 
-        if molecule.frozen_mos is not None:
-            raise NotImplementedError(f"Frozen orbitals are not implemented in {self.__class__.__name__}.")
-
         self.ci = None
         self.norb = molecule.n_active_mos
         self.nelec = molecule.n_active_electrons
-        self.cisolver = fci.direct_spin0.FCI(molecule.to_pyscf(molecule.basis))
+        self.spin = molecule.spin
+        self.n_alpha = self.nelec//2 + self.spin//2 + (self.nelec % 2)
+        self.n_beta = self.nelec//2 - self.spin//2
+
+        # Need to use a CAS method if frozen orbitals are defined
+        if molecule.frozen_mos is not None:
+            # Generate CAS space with given frozen_mos, then use pyscf functionality to
+            # obtain effective Hamiltonian with frozen orbtials excluded from the CI space.
+            self.cas = True
+            self.cassolver = mcscf.CASSCF(molecule.mean_field,
+                                          molecule.n_active_mos,
+                                          (self.n_alpha, self.n_beta),
+                                          frozen=molecule.frozen_orbitals)
+            self.h1e_cas, self.ecore = self.cassolver.get_h1eff()
+            self.h2e_cas = self.cassolver.get_h2eff()
+            # Initialize the FCI solver that will use the effective Hamiltonian generated from CAS
+            self.cisolver = fci.direct_spin1.FCI()
+        else:
+            self.cas = False
+            if self.spin == 0:
+                self.cisolver = fci.direct_spin0.FCI(molecule.to_pyscf(molecule.basis))
+            else:
+                self.cisolver = fci.direct_spin1.FCI()
+
         self.cisolver.verbose = 0
         self.mean_field = molecule.mean_field
 
@@ -38,17 +58,27 @@ class FCISolver(ElectronicStructureSolver):
                 energy (float): Total FCI energy.
         """
 
-        h1 = self.mean_field.mo_coeff.T @ self.mean_field.get_hcore() @ self.mean_field.mo_coeff
+        if self.cas:  # Use previously generated effective Hamiltonian to obtain FCI solution
+            energy, self.ci = self.cisolver.kernel(self.h1e_cas,
+                                                   self.h2e_cas,
+                                                   self.norb,
+                                                   (self.n_alpha, self.n_beta),
+                                                   ecore=self.ecore)
+        else:  # Generate full Hamiltonian and obtain FCI solution.
+            h1 = self.mean_field.mo_coeff.T @ self.mean_field.get_hcore() @ self.mean_field.mo_coeff
 
-        twoint = self.mean_field._eri
+            twoint = self.mean_field._eri
 
-        eri = ao2mo.restore(8, twoint, self.norb)
-        eri = ao2mo.incore.full(eri, self.mean_field.mo_coeff)
-        eri = ao2mo.restore(1, eri, self.norb)
+            eri = ao2mo.restore(8, twoint, self.norb)
+            eri = ao2mo.incore.full(eri, self.mean_field.mo_coeff)
+            eri = ao2mo.restore(1, eri, self.norb)
 
-        ecore = self.mean_field.energy_nuc()
+            ecore = self.mean_field.energy_nuc()
 
-        energy, self.ci = self.cisolver.kernel(h1, eri, h1.shape[1], self.nelec, ecore=ecore)
+            if self.spin == 0:
+                energy, self.ci = self.cisolver.kernel(h1, eri, h1.shape[1], self.nelec, ecore=ecore)
+            else:
+                energy, self.ci = self.cisolver.kernel(h1, eri, h1.shape[1], (self.n_alpha, self.n_beta), ecore=ecore)
 
         return energy
 
@@ -65,7 +95,13 @@ class FCISolver(ElectronicStructureSolver):
         if self.ci is None:
             raise RuntimeError("FCISolver: Cannot retrieve RDM. Please run the 'simulate' method first")
 
-        one_rdm = self.cisolver.make_rdm1(self.ci, self.norb, self.nelec)
-        two_rdm = self.cisolver.make_rdm2(self.ci, self.norb, self.nelec)
+        if self.cas:
+            one_rdm, two_rdm = self.cisolver.make_rdm12(self.ci, self.norb, (self.n_alpha, self.n_beta))
+        else:
+            if self.spin == 0:
+                one_rdm = self.cisolver.make_rdm1(self.ci, self.norb, self.nelec)
+                two_rdm = self.cisolver.make_rdm2(self.ci, self.norb, self.nelec)
+            else:
+                one_rdm, two_rdm = self.cisolver.make_rdm12(self.ci, self.norb, (self.n_alpha, self.n_beta))
 
         return one_rdm, two_rdm
