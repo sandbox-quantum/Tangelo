@@ -21,11 +21,6 @@ import numpy as np
 from scipy import stats
 from bitarray import bitarray
 from openfermion.ops import QubitOperator
-# import qulacs
-# import qiskit
-# import cirq
-# from projectq import MainEngine
-# from projectq.ops import *
 
 from agnostic_simulator import Gate, Circuit
 from agnostic_simulator.helpers.circuits.measurement_basis import measurement_basis_gates
@@ -37,7 +32,6 @@ backend_info = dict()
 backend_info["qiskit"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
 backend_info["qulacs"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
 backend_info["cirq"] = {"statevector_available": True, "statevector_order": "lsq_first", "noisy_simulation": True}
-#backend_info["projectq"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": False}
 backend_info["qdk"] = {"statevector_available": False, "statevector_order": None, "noisy_simulation": False}
 
 
