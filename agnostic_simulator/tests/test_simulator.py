@@ -12,6 +12,10 @@ from openfermion.ops import QubitOperator
 from agnostic_simulator import Gate, Circuit, translator, Simulator
 from agnostic_simulator.helpers import string_ham_to_of
 
+# TODO: Fix the import to utils once agnostic simulator has become backendbuddy: it will be natural.
+import sys
+this_file_dir = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(this_file_dir)
 from utils import installed_simulator, installed_sv_simulator, installed_backends
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'

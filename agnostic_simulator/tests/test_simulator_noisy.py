@@ -7,6 +7,10 @@ import unittest
 from agnostic_simulator import Gate, Circuit, Simulator, backend_info
 from agnostic_simulator.noisy_simulation import NoiseModel, get_qiskit_noise_dict
 
+# TODO: Fix the import to utils once agnostic simulator has become backendbuddy: it will be natural.
+import os, sys
+this_file_dir = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(this_file_dir)
 from utils import installed_backends
 
 # Noisy simulation: circuits, noise models, references
