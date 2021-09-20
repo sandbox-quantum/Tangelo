@@ -10,8 +10,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Module to create and manipulate unitary coupled cluster operators for 
-   open shell systems. This requires the number of alpha and beta electrons 
+"""Module to create and manipulate unitary coupled cluster operators for
+   open shell systems. This requires the number of alpha and beta electrons
    to be specified.
 """
 
@@ -34,7 +34,7 @@ def uccsd_openshell_paramsize(n_spinorbitals, n_alpha_electrons, n_beta_electron
         number of double alpha-alpha, beta-beta and alpha-beta amplitudes
     """
     if n_spinorbitals % 2 != 0:
-        raise ValueError('The total number of spin-orbitals should be even.')
+        raise ValueError("The total number of spin-orbitals should be even.")
 
     # Compute the number of occupied and virtual alpha and beta orbitals
     n_orb_a_b = n_spinorbitals // 2
@@ -91,7 +91,7 @@ def uccsd_openshell_generator(packed_amplitudes, n_spinorbitals, n_alpha_electro
             builds the open-shell UCCSD wavefunction.
     """
     if n_spinorbitals % 2 != 0:
-        raise ValueError('The total number of spin-orbitals should be even.')
+        raise ValueError("The total number of spin-orbitals should be even.")
 
     # Compute the number of occupied and virtual alpha and beta orbitals
     n_orb_a_b = n_spinorbitals // 2
@@ -326,7 +326,7 @@ def uccsd_openshell_get_packed_amplitudes(alpha_double_amplitudes, beta_double_a
     """
 
     if n_spinorbitals % 2 != 0:
-        raise ValueError('The total number of spin-orbitals should be even.')
+        raise ValueError("The total number of spin-orbitals should be even.")
 
     # Compute the number of occupied and virtual alpha and beta orbitals
     n_orb_a_b = n_spinorbitals // 2

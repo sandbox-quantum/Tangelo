@@ -5,11 +5,11 @@ Hartree-Fock initial state have been removed.
 
 This must be used on a 2 levels system (2 MOs, 4 SOs) to be physically relevant.
 
-Reference for those circuit.
-McCaskey, A.J., Parks, Z.P., Jakowski, J. et al.
-Quantum chemistry as a benchmark for near-term quantum computers.
-npj Quantum Inf 5, 99 (2019).
-https://doi.org/10.1038/s41534-019-0209-0
+Reference for those circuits.
+    - McCaskey, A.J., Parks, Z.P., Jakowski, J. et al.
+        Quantum chemistry as a benchmark for near-term quantum computers.
+        npj Quantum Inf 5, 99 (2019).
+        https://doi.org/10.1038/s41534-019-0209-0
 """
 
 import numpy as np
@@ -48,9 +48,11 @@ class RUCC(Ansatz):
         self.circuit = None
 
     def set_var_params(self, var_params=None):
-        """ Set values for variational parameters, such as zeros, random numbers, MP2 (...), providing some
-        keywords for users, and also supporting direct user input (list or numpy array)
-        Return the parameters so that workflows such as VQE can retrieve these values. """
+        """Set values for variational parameters, such as zeros, random numbers
+        providing some keywords for users, and also supporting direct user input
+        (list or numpy array). Return the parameters so that workflows such as
+        VQE can retrieve these values.
+        """
 
         if var_params is None:
             var_params = self.var_params_default
@@ -120,7 +122,7 @@ class RUCC(Ansatz):
         self.update_var_params(self.var_params)
 
     def update_var_params(self, var_params):
-        """ Shortcut: set value of variational parameters in the already-built
+        """Shortcut: set value of variational parameters in the already-built
         ansatz circuit member. The circuit does not need to be rebuilt every
         time if only the variational parameters change.
 
@@ -136,9 +138,9 @@ class RUCC(Ansatz):
             self.circuit._variational_gates[param_index].parameter = var_params[param_index]
 
     def _ucc1(self):
-        """This class implements the reduced-UCC ansatz UCC1.
-        UCC1 is equivalent to the UCCD ansatz, but terms that act in the same
-        manner of the HF state are removed.
+        """This class implements the reduced-UCC ansatz UCC1. UCC1 is equivalent
+        to the UCCD ansatz, but terms that act in the same manner of the HF
+        state are removed.
 
         Returns:
             agnostic_simulator.Circuit: UCC1 quantum circuit.
@@ -164,9 +166,9 @@ class RUCC(Ansatz):
         return Circuit(lst_gates)
 
     def _ucc3(self):
-        """This class implements the reduced-UCC ansatz UCC3.
-        UCC3 is equivalent to the UCCSD ansatz, but terms that act in the same
-        manner of the HF state are removed.
+        """This class implements the reduced-UCC ansatz UCC3. UCC3 is equivalent
+        to the UCCSD ansatz, but terms that act in the same manner of the HF
+        state are removed.
 
         Returns:
             agnostic_simulator.Circuit: UCC3 quantum circuit.

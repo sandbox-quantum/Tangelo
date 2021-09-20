@@ -1,14 +1,17 @@
-""" This module defines the UCCSD ansatz class. It provides a chemically inspired ansatz
-    and is an implementation of the classical unitary CCSD ansatz. Single and double excitation
-    determinants, in accordance with the system number of electron and spin, are considered.
-    For more information about this ansatz, see references below.
+"""This module defines the UCCSD ansatz class. It provides a chemically inspired
+ansatz and is an implementation of the classical unitary CCSD ansatz. Single and
+double excitation determinants, in accordance with the system number of electron
+and spin, are considered. For more information about this ansatz, see references
+below.
 
-    Refs:
-        * P.Kl. Barkoutsos, J.F. Gonthier, I. Sokolov, N. Moll, G. Salis, A. Fuhrer, M. Ganzhorn,
-          D.J. Egger, M. Troyer, A. Mezzacapo, S. Filipp, and I. Tavernelli, Phys. Rev. A 98, 022322 (2018).
-        * I.O. Sokolov, P.Kl. Barkoutsos, P.J. Ollitrault, D. Greenberg, J. Rice, M. Pistoia,
-          and I. Tavernelli, J. Chem. Phys. 152, 124107 (2020).
-        * Y. Shen, X. Zhang, S. Zhang, J.N. Zhang, M.H. Yung, and K. Kim, Physical Review A 95, 020501 (2017).
+Refs:
+    - P.Kl. Barkoutsos, J.F. Gonthier, I. Sokolov, N. Moll, G. Salis, A. Fuhrer,
+        M. Ganzhorn, D.J. Egger, M. Troyer, A. Mezzacapo, S. Filipp, and
+        I. Tavernelli. Phys. Rev. A 98, 022322 (2018).
+    - I.O. Sokolov, P.Kl. Barkoutsos, P.J. Ollitrault, D. Greenberg, J. Rice,
+        M. Pistoia, and I. Tavernelli. J. Chem. Phys. 152, 124107 (2020).
+    - Y. Shen, X. Zhang, S. Zhang, J.N. Zhang, M.H. Yung, and K. Kim.
+        Physical Review A 95, 020501 (2017).
 """
 
 import itertools
@@ -26,16 +29,17 @@ from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circ
 
 
 class UCCSD(Ansatz):
-    """ This class implements the UCCSD ansatz. Currently, closed-shell and restricted
-        open-shell UCCSD are supported. This implies that the mean-field is computed
-        with the RHF or ROHF reference integrals.
+    """This class implements the UCCSD ansatz. Currently, closed-shell and
+    restricted open-shell UCCSD are supported. This implies that the mean-field
+    is computed with the RHF or ROHF reference integrals.
 
-        Args:
-            molecule (SecondQuantizedMolecule) : The molecular system.
-            mapping (str) : one of the supported qubit mapping identifiers.
-                Default, 'jw'
-            up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
-                Default, False (i.e. has alternating spin up/down ordering).
+    Args:
+        molecule (SecondQuantizedMolecule) : The molecular system.
+        mapping (str) : one of the supported qubit mapping identifiers. Default,
+            "jw".
+        up_then_down (bool): change basis ordering putting all spin up orbitals
+            first, followed by all spin down. Default, False (i.e. has
+            alternating spin up/down ordering).
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False):
@@ -49,7 +53,7 @@ class UCCSD(Ansatz):
 
         # Later: refactor to handle various flavors of UCCSD
         if self.n_spinorbitals % 2 != 0:
-            raise ValueError('The total number of spin-orbitals should be even.')
+            raise ValueError("The total number of spin-orbitals should be even.")
 
         # choose open-shell uccsd if spin not zero, else choose singlet ccsd
         if self.spin != 0:
@@ -81,9 +85,11 @@ class UCCSD(Ansatz):
         self.circuit = None
 
     def set_var_params(self, var_params=None):
-        """ Set values for variational parameters, such as zeros, random numbers, MP2 (...), providing some
-        keywords for users, and also supporting direct user input (list or numpy array)
-        Return the parameters so that workflows such as VQE can retrieve these values. """
+        """Set values for variational parameters, such as zeros, random numbers,
+        MP2 (...), providing some keywords for users, and also supporting direct
+        user input (list or numpy array). Return the parameters so that
+        workflows such as VQE can retrieve these values.
+        """
 
         if var_params is None:
             var_params = self.var_params_default
@@ -108,9 +114,10 @@ class UCCSD(Ansatz):
         return initial_var_params
 
     def prepare_reference_state(self):
-        """ Returns circuit preparing the reference state of the ansatz (e.g prepare reference wavefunction with HF,
-        multi-reference state, etc). These preparations must be consistent with the transform used to obtain the
-        qubit operator.
+        """Returns circuit preparing the reference state of the ansatz (e.g
+        prepare reference wavefunction with HF, multi-reference state, etc).
+        These preparations must be consistent with the transform used to obtain
+        the qubit operator.
         """
 
         if self.default_reference_state not in self.supported_reference_state:
@@ -124,8 +131,10 @@ class UCCSD(Ansatz):
                                          spin=self.spin)
 
     def build_circuit(self, var_params=None):
-        """ Build and return the quantum circuit implementing the state preparation ansatz
-         (with currently specified initial_state and var_params) """
+        """Build and return the quantum circuit implementing the state
+        preparation ansatz (with currently specified initial_state and
+        var_params).
+        """
 
         if var_params is not None:
             self.set_var_params(var_params)
@@ -155,8 +164,10 @@ class UCCSD(Ansatz):
             self.circuit = uccsd_circuit
 
     def update_var_params(self, var_params):
-        """ Shortcut: set value of variational parameters in the already-built ansatz circuit member.
-            Preferable to rebuilt your circuit from scratch, which can be an involved process. """
+        """Shortcut: set value of variational parameters in the already-built
+        ansatz circuit member. Preferable to rebuilt your circuit from scratch,
+        which can be an involved process.
+        """
 
         self.set_var_params(var_params)
 
@@ -172,11 +183,12 @@ class UCCSD(Ansatz):
                 self.circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
 
     def _get_singlet_qubit_operator(self):
-        """Construct UCCSD FermionOperator for current variational parameters, and translate to QubitOperator
-        via relevant qubit mapping.
+        """Construct UCCSD FermionOperator for current variational parameters,
+        and translate to QubitOperator via relevant qubit mapping.
 
         Returns:
-            qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
+            qubit_op (QubitOperator): qubit-encoded elements of the UCCSD
+                ansatz.
         """
         fermion_op = uccsd_singlet_generator(self.var_params, self.n_spinorbitals, self.n_electrons)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
@@ -192,11 +204,12 @@ class UCCSD(Ansatz):
         return qubit_op
 
     def _get_openshell_qubit_operator(self):
-        """Construct open-shell UCCSD FermionOperator for current variational parameters, and translate to QubitOperator
-        via relevant qubit mapping.
+        """Construct open-shell UCCSD FermionOperator for current variational
+        parameters, and translate to QubitOperator via relevant qubit mapping.
 
         Returns:
-            qubit_op (QubitOperator): qubit-encoded elements of the UCCSD ansatz.
+            qubit_op (QubitOperator): qubit-encoded elements of the UCCSD
+                ansatz.
         """
         fermion_op = uccsd_openshell_generator(self.var_params,
                                                self.n_spinorbitals,
@@ -215,15 +228,15 @@ class UCCSD(Ansatz):
         return qubit_op
 
     def _compute_mp2_params(self):
-        """ Computes the MP2 initial variational parameters. Compute the initial
-            variational parameters with PySCF MP2 calculation, and then reorders
-            the elements into the appropriate convention. MP2 only has doubles
-            (T2) amplitudes, thus the single (T1) amplitudes are set to a small
-            non-zero value and added. The ordering is single, double (diagonal),
-            double (non-diagonal).
+        """Computes the MP2 initial variational parameters. Compute the initial
+        variational parameters with PySCF MP2 calculation, and then reorders the
+        elements into the appropriate convention. MP2 only has doubles (T2)
+        amplitudes, thus the single (T1) amplitudes are set to a small non-zero
+        value and added. The ordering is single, double (diagonal), double
+        (non-diagonal).
 
-            Returns:
-                list of float: The initial variational parameters.
+        Returns:
+            list of float: The initial variational parameters.
         """
 
         mp2_fragment = mp.MP2(self.molecule.to_pyscf(self.molecule.basis), frozen=self.molecule.frozen_mos)

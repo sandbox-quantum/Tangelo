@@ -1,4 +1,4 @@
-"""This module defines the adaptive ansatz class. """
+"""This module defines the adaptive ansatz class."""
 
 import math
 
@@ -11,9 +11,9 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 
 class ADAPTAnsatz(Ansatz):
     """Adaptive ansatz used with ADAPT-VQE. This Ansatz class has methods to
-    take a (or many) QubitOperator, transform it (them) into a circuit and append
-    it (them). The number of variational parameters corresponds to the number of
-    terms added to the Ansatz.
+    take a (or many) QubitOperator, transform it (them) into a circuit and
+    append it (them). The number of variational parameters corresponds to the
+    number of terms added to the Ansatz.
 
     Attributes:
         n_spinorbitals (int): Number of spin orbitals in a given basis.
@@ -67,7 +67,7 @@ class ADAPTAnsatz(Ansatz):
         return len(self._n_terms_operators)
 
     def set_var_params(self, var_params=None):
-        """Set initial variational parameter values. Defaults to zeros. """
+        """Set initial variational parameter values. Defaults to zeros."""
 
         if var_params is None:
             var_params = [0.]*self.n_var_params
@@ -78,7 +78,7 @@ class ADAPTAnsatz(Ansatz):
         return var_params
 
     def update_var_params(self, var_params):
-        """Update variational parameters (done repeatedly during VQE). """
+        """Update variational parameters (done repeatedly during VQE)."""
 
         for var_index in range(self.n_var_params):
             length_op = self._n_terms_operators[var_index]
@@ -89,7 +89,7 @@ class ADAPTAnsatz(Ansatz):
                 self.circuit._variational_gates[param_index+param_subindex].parameter = prefactor*var_params[var_index]
 
     def prepare_reference_state(self):
-        """Prepare a circuit generating the HF reference state. """
+        """Prepare a circuit generating the HF reference state."""
 
         return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.mapping, up_then_down=self.up_then_down)
 
@@ -123,8 +123,8 @@ class ADAPTAnsatz(Ansatz):
         """Add a new operator to our circuit.
 
         Args:
-            pauli_operator (QubitOperator): Operator to convert into a circuit and
-                append it to the present circuit.
+            pauli_operator (QubitOperator): Operator to convert into a circuit
+                and append it to the present circuit.
             ferm_operator (FermionicOperator): Same operator in fermionic form.
         """
 

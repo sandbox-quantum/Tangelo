@@ -1,7 +1,6 @@
-""" This module defines an ansatz class to wrap up a custom agnostic_simulator
-    circuit.
+"""This module defines an ansatz class to wrap up a custom agnostic_simulator
+circuit.
 """
-
 
 import numpy as np
 
@@ -9,11 +8,11 @@ from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
 
 
 class VariationalCircuitAnsatz(Ansatz):
-    """ This class takes an arbitrary circuit and convert it to an Ansatz. This
-        enables users to provide a custom pre-built circuit.
+    """This class takes an arbitrary circuit and convert it to an Ansatz. This
+    enables users to provide a custom pre-built circuit.
 
-        Args:
-            abstract_circuit (Circuit) : Circuit with variational gates.
+    Args:
+        abstract_circuit (Circuit) : Circuit with variational gates.
     """
 
     def __init__(self, abstract_circuit):
@@ -30,7 +29,7 @@ class VariationalCircuitAnsatz(Ansatz):
         self.var_params_default = "random"
 
     def set_var_params(self, var_params=None):
-        """ Set initial variational parameter values. Defaults to random. """
+        """Set initial variational parameter values. Defaults to random."""
 
         if var_params is None:
             var_params = self.var_params_default
@@ -58,7 +57,7 @@ class VariationalCircuitAnsatz(Ansatz):
         return var_params
 
     def update_var_params(self, var_params):
-        """ Update variational parameters (done repeatedly during VQE). """
+        """Update variational parameters (done repeatedly during VQE)."""
 
         self.set_var_params(var_params)
         var_params = self.var_params
@@ -67,11 +66,11 @@ class VariationalCircuitAnsatz(Ansatz):
             self.circuit._variational_gates[param_index].parameter = var_params[param_index]
 
     def prepare_reference_state(self):
-        """ Method not needed as it is expected to be in the circuit provided. """
+        """Method not needed as it is expected to be in the circuit provided."""
         pass
 
     def build_circuit(self, var_params=None):
-        """ Update parameters of the pre-built circuit. """
+        """Update parameters of the pre-built circuit."""
 
         self.set_var_params(var_params)
         self.update_var_params(self.var_params)

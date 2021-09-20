@@ -1,4 +1,5 @@
-r""" This module defines the fermionic operators that can be used to generate the UpCCGSD ansatz
+r"""This module defines the fermionic operators that can be used to generate
+the UpCCGSD ansatz.
 """
 
 from qsdk.toolboxes.ansatz_generator._general_unitary_cc import get_spin_ordered
