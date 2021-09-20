@@ -27,11 +27,19 @@ class FCISolver(ElectronicStructureSolver):
         self.spin = molecule.spin
         self.n_alpha = self.nelec//2 + self.spin//2 + (self.nelec % 2)
         self.n_beta = self.nelec//2 - self.spin//2
+
+        # Need to use a CAS method if frozen orbitals are defined
         if molecule.frozen_mos is not None:
+            # Generate CAS space with given frozen_mos, then use pyscf functionality to
+            # obtain effective Hamiltonian with frozen orbtials excluded from the CI space.
             self.cas = True
-            self.cassolver = mcscf.CASSCF(molecule.mean_field, molecule.n_active_mos, (self.n_alpha, self.n_beta), frozen=molecule.frozen_orbitals)
+            self.cassolver = mcscf.CASSCF(molecule.mean_field,
+                                          molecule.n_active_mos,
+                                          (self.n_alpha, self.n_beta),
+                                          frozen=molecule.frozen_orbitals)
             self.h1e_cas, self.ecore = self.cassolver.get_h1eff()
             self.h2e_cas = self.cassolver.get_h2eff()
+            # Initialize the FCI solver that will use the effective Hamiltonian generated from CAS
             self.cisolver = fci.direct_spin1.FCI()
         else:
             self.cas = False
@@ -49,9 +57,13 @@ class FCISolver(ElectronicStructureSolver):
                 energy (float): Total FCI energy.
         """
 
-        if self.cas:
-            energy, self.ci = self.cisolver.kernel(self.h1e_cas, self.h2e_cas, self.norb, (self.n_alpha, self.n_beta), ecore=self.ecore)
-        else:
+        if self.cas:  # Use previously generated effective Hamiltonian to obtain FCI solution
+            energy, self.ci = self.cisolver.kernel(self.h1e_cas,
+                                                   self.h2e_cas,
+                                                   self.norb,
+                                                   (self.n_alpha, self.n_beta),
+                                                   ecore=self.ecore)
+        else:  # Generate full Hamiltonian and obtain FCI solution.
             h1 = self.mean_field.mo_coeff.T @ self.mean_field.get_hcore() @ self.mean_field.mo_coeff
 
             twoint = self.mean_field._eri
