@@ -8,11 +8,11 @@ from qsdk.problem_decomposition.dmet.dmet_problem_decomposition import Localizat
 class DMETVQETest(unittest.TestCase):
 
     def test_h4ring_vqe_uccsd(self):
-        """ DMET on H4 ring with fragment size one, using VQE-UCCSD """
+        """DMET on H4 ring with fragment size one, using VQE-UCCSD."""
 
         opt_dmet = {"molecule": mol_H4_minao,
                     "fragment_atoms": [1, 1, 1, 1],
-                    "fragment_solvers": ['vqe', 'ccsd', 'ccsd', 'ccsd'],
+                    "fragment_solvers": ["vqe", "ccsd", "ccsd", "ccsd"],
                     "electron_localization": Localization.meta_lowdin,
                     "verbose": False
                     }
@@ -36,7 +36,7 @@ class DMETVQETest(unittest.TestCase):
         self.assertAlmostEqual(be_using_measurements, -1.9916120594, delta=sd_using_measurements*4)
 
     def test_h4ring_vqe_resources(self):
-        """Resources estimation on H4 ring. """
+        """Resources estimation on H4 ring."""
 
         opt_dmet = {"molecule": mol_H4_minao,
                     "fragment_atoms": [1, 1, 1, 1],

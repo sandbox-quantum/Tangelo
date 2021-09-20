@@ -8,8 +8,8 @@ from qsdk.molecule_library import xyz_H4, xyz_PHE
 class ONIOMTest(unittest.TestCase):
 
     def test_selected_atom(self):
-        """Test selection of atoms. If it is not a list of int or an int, an error
-        should be raised.
+        """Test selection of atoms. If it is not a list of int or an int, an
+        error should be raised.
         """
 
         # Definition of simple fragments to test the error raising.
@@ -33,7 +33,7 @@ class ONIOMTest(unittest.TestCase):
             oniom_solver = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model]})
 
     def test_capping_broken_link(self):
-        """Testing the positon of a new H atom when a bond is broken. """
+        """Testing the positon of a new H atom when a bond is broken."""
 
         system = Fragment(solver_low="RHF")
 
@@ -49,16 +49,16 @@ class ONIOMTest(unittest.TestCase):
         geom_fragment_capped = oniom_solver.fragments[1].geometry
 
         # Those position have been verified with a molecular visualization software.
-        PHE_backbone_capped = [('N', (0.706, -1.9967, -0.0757)),
-                               ('C', (1.1211, -0.6335, -0.4814)),
-                               ('C', (2.6429, -0.5911, -0.5338)),
-                               ('O', (3.1604, -0.2029, -1.7213)),
-                               ('O', (3.4477, -0.8409, 0.3447)),
-                               ('H', (-0.2916, -2.0354, -0.0544)),
-                               ('H', (1.0653, -2.2124, 0.831)),
-                               ('H', (0.699, -0.4698, -1.5067)),
-                               ('H', (4.1118, -0.2131, -1.683)),
-                               ('H', (0.772272, 0.1628488, 0.1778991))]
+        PHE_backbone_capped = [("N", (0.706, -1.9967, -0.0757)),
+                               ("C", (1.1211, -0.6335, -0.4814)),
+                               ("C", (2.6429, -0.5911, -0.5338)),
+                               ("O", (3.1604, -0.2029, -1.7213)),
+                               ("O", (3.4477, -0.8409, 0.3447)),
+                               ("H", (-0.2916, -2.0354, -0.0544)),
+                               ("H", (1.0653, -2.2124, 0.831)),
+                               ("H", (0.699, -0.4698, -1.5067)),
+                               ("H", (4.1118, -0.2131, -1.683)),
+                               ("H", (0.772272, 0.1628488, 0.1778991))]
 
         # Every atom must be the same (same order too).
         # Position can be almost equals.
@@ -70,9 +70,8 @@ class ONIOMTest(unittest.TestCase):
 
     def test_energy(self):
         """Testing the oniom energy with a low accuraccy method (RHF) and an
-        higher one (CCSD) for PHE molecule. The important fragment is
-        chosen to be the backbone. The side chain is computed at the RHF
-        level.
+        higher one (CCSD) for PHE molecule. The important fragment is chosen to
+        be the backbone. The side chain is computed at the RHF level.
         """
 
         options_low = {"basis": "sto-3g"}
@@ -94,8 +93,8 @@ class ONIOMTest(unittest.TestCase):
         self.assertAlmostEqual(e_oniom, -544.730619, places=4)
 
     def test_vqe_cc(self):
-        """Test to verifiy the implementation of VQE (with UCCSD) in ONIOM. Results
-        between VQE-UCCSD and CCSD should be the same.
+        """Test to verifiy the implementation of VQE (with UCCSD) in ONIOM.
+        Results between VQE-UCCSD and CCSD should be the same.
         """
 
         options_both = {"basis": "sto-3g"}
@@ -160,7 +159,8 @@ class ONIOMTest(unittest.TestCase):
         self.assertAlmostEqual(e_oniom, -315.234186, places=4)
 
     def test_get_resources(self):
-        """Test to verifiy the implementation of resources estimation in ONIOM. """
+        """Test to verifiy the implementation of resources estimation in ONIOM.
+        """
 
         options_both = {"basis": "sto-3g"}
 

@@ -1,4 +1,4 @@
-""" Test the functions in the main loop of DMET calculation """
+"""Test the functions in the main loop of DMET calculation."""
 
 import unittest
 import os
@@ -14,8 +14,9 @@ from qsdk.problem_decomposition.electron_localization import iao_localization
 
 path_file = os.path.dirname(__file__)
 
+
 class TestDMETloop(unittest.TestCase):
-    """ Generate the localized orbitals employing IAOs """
+    """Generate the localized orbitals employing IAOs."""
 
     def test_dmet_functions(self):
 
@@ -47,7 +48,8 @@ class TestDMETloop(unittest.TestCase):
             C 8.66428 -1.63508  4.12154
             H 9.06449 -2.27473  3.32841
             H 9.02896 -2.01514  5.08095
-            H 9.06273 -0.62500  3.98256"""
+            H 9.06273 -0.62500  3.98256
+        """
 
         mol.basis = "3-21g"
         mol.charge = 0
@@ -62,9 +64,9 @@ class TestDMETloop(unittest.TestCase):
 
         # Test the construction of one particle RDM from low-level calculation
         onerdm_low = dmet_low_rdm(dmet_orbs.active_fock, dmet_orbs.number_active_electrons)
-        onerdm_low_ref = np.loadtxt('{}/data/test_dmet_oneshot_loop_low_rdm.txt'.format(path_file))
+        onerdm_low_ref = np.loadtxt("{}/data/test_dmet_oneshot_loop_low_rdm.txt".format(path_file))
         for index, value_ref in np.ndenumerate(onerdm_low_ref):
-            self.assertAlmostEqual(value_ref, onerdm_low[index], msg=f'Low-level RDM error at index {str(index)}',
+            self.assertAlmostEqual(value_ref, onerdm_low[index], msg=f"Low-level RDM error at index {str(index)}",
                                    delta=1e-6)
 
         # Test the construction of bath orbitals
@@ -77,9 +79,9 @@ class TestDMETloop(unittest.TestCase):
         norb_high, nelec_high, onerdm_high = dmet_fragment_rdm(t_list, bath_orb, e_occupied, dmet_orbs.number_active_electrons)
         self.assertEqual(norb_high, 23, "The number of orbitals for a fragment does not agree")
         self.assertEqual(nelec_high, 16, "The number of electrons for a fragment does not agree")
-        onerdm_high_ref = np.loadtxt('{}/data/test_dmet_oneshot_loop_core_rdm.txt'.format(path_file))
+        onerdm_high_ref = np.loadtxt("{}/data/test_dmet_oneshot_loop_core_rdm.txt".format(path_file))
         for index, value_ref in np.ndenumerate(onerdm_high_ref):
-            self.assertAlmostEqual(value_ref, onerdm_high[index], msg='One RDM for fragment error at index ' + str(index), delta=1e-6)
+            self.assertAlmostEqual(value_ref, onerdm_high[index], msg="One RDM for fragment error at index " + str(index), delta=1e-6)
 
         # Test the construction of the Hamiltonian for the fragment
         one_ele, fock, two_ele = dmet_orbs.dmet_fragment_hamiltonian(bath_orb, norb_high, onerdm_high)

@@ -1,9 +1,7 @@
 """Bath orbital construction for DMET calculation.
 
-The construction of the bath orbitals 
-(the orbitals which include the environment effect 
- from the surrounding part)
-is done here.
+The construction of the bath orbitals (the orbitals which include the
+environment effect from the surrounding part) is done here.
 """
 
 import numpy as np
@@ -12,10 +10,13 @@ def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low):
     """ Construct the bath orbitals for DMET fragment calculation.
 
     Args:
-        mol (pyscf.gto.Mole): The molecule to simulate (The full molecular system).
+        mol (pyscf.gto.Mole): The molecule to simulate (The full molecular
+            system).
         t_list (list): Number of [0] fragment & [1] bath orbitals (int).
-        temp_list (list): [0] Minimum and [1] maximum number for the active orbitals (int).
-        onerdm_low (numpy.array): One-particle RDM from the low-level calculation (float64).
+        temp_list (list): [0] Minimum and [1] maximum number for the active
+            orbitals (int).
+        onerdm_low (numpy.array): One-particle RDM from the low-level
+            calculation (float64).
 
     Returns:
         bath_orb (numpy.array): The bath orbitals (float64).
@@ -40,9 +41,12 @@ def dmet_onerdm_embed(mol, temp_list, onerdm_before):
     """ Extract the one particle RDM of the active space.
 
     Args:
-        mol (pyscf.gto.Mole): The molecule to simulate (The full molecular system).
-        temp_list (list): [0] Minimum and [1] maximum number for the active orbitals (int).
-        onerdm_before (numpy.array): One-particle RDM from the low-level calculation (float64).
+        mol (pyscf.gto.Mole): The molecule to simulate (The full molecular
+            system).
+        temp_list (list): [0] Minimum and [1] maximum number for the active
+            orbitals (int).
+        onerdm_before (numpy.array): One-particle RDM from the low-level
+            calculation (float64).
 
     Returns:
         onerdm_temp3 (numpy.array): Extracted one-particle RDM (float64).
@@ -67,7 +71,7 @@ def dmet_onerdm_embed(mol, temp_list, onerdm_before):
         onerdm_temp2 = onerdm_temp3[temp_list[1]: , : ]
         onerdm_temp3 = np.vstack((onerdm_temp, onerdm_temp2))
 
-    return onerdm_temp3        
+    return onerdm_temp3
 
 def dmet_bath_orb_sort(t_list, e_before, c_before):
     """ Sort the bath orbitals with the eigenvalues (orbital energies).
@@ -75,7 +79,8 @@ def dmet_bath_orb_sort(t_list, e_before, c_before):
     Args:
         t_list (list): Number of [0] fragment & [1] bath orbitals (int).
         e_before (numpy.array): Orbitals energies before sorting (float64).
-        c_before (numpy.array): Coefficients of the orbitals before sorting (float64).
+        c_before (numpy.array): Coefficients of the orbitals before sorting
+            (float64).
 
     Returns:
         e_new (numpy.array): Sorted orbital energies (float64).
@@ -95,18 +100,22 @@ def dmet_bath_orb_sort(t_list, e_before, c_before):
     # Sort the bath orbitals with its energies
     e_new = e_before[new_index]
     c_new = c_before[ : , new_index]
-    
-    return e_new, c_new      
+
+    return e_new, c_new
 
 def dmet_add_to_bath_orb( mol, t_list, temp_list, e_before, c_before ):
     """ Add the frozen core part to the bath orbitals.
 
     Args:
-        mol (pyscf.gto.Mole): The molecule to simulate (The full molecular system).
+        mol (pyscf.gto.Mole): The molecule to simulate (The full molecular
+            system).
         t_list (list): Number of [0] fragment & [1] bath orbitals (int).
-        temp_list (list): [0] Minimum and [1] maximum number for the active orbitals (int).
-        e_before (numpy.array): Orbital energy before addition of frozen core (float64).
-        c_before (numpy.array): Coefficients of the orbitals before addition of frozen core (float64).
+        temp_list (list): [0] Minimum and [1] maximum number for the active
+            orbitals (int).
+        e_before (numpy.array): Orbital energy before addition of frozen core
+            (float64).
+        c_before (numpy.array): Coefficients of the orbitals before addition of
+            frozen core (float64).
 
     Returns:
         c_before (numpy.array): Constructed bath orbitals (float64).
@@ -128,13 +137,12 @@ def dmet_add_to_bath_orb( mol, t_list, temp_list, e_before, c_before ):
 
     # Add the core part in the orbitals
     for orb in range(0, t_list[0]):
-        c_before = np.insert(c_before, orb, 0.0, axis=1) 
+        c_before = np.insert(c_before, orb, 0.0, axis=1)
     i_temp = 0
     for orb_total in range( 0, norbital_total ):
         if ((orb_total >= temp_list[0]) and (orb_total < temp_list[1])):
-            c_before = np.insert(c_before, orb_total, 0.0, axis=0) 
+            c_before = np.insert(c_before, orb_total, 0.0, axis=0)
             c_before[orb_total, i_temp] = 1.0
             i_temp += 1
-    
-    return c_before, e_occupied_core_orbitals
 
+    return c_before, e_occupied_core_orbitals
