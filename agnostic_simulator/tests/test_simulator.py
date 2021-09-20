@@ -9,7 +9,7 @@ import time
 import numpy as np
 from openfermion.ops import QubitOperator
 
-from agnostic_simulator import Gate, Circuit, translator, Simulator, backend_info
+from agnostic_simulator import Gate, Circuit, translator, Simulator
 from agnostic_simulator.helpers import string_ham_to_of
 
 
