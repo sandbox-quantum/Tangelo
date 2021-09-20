@@ -14,17 +14,12 @@
 """
 
 import os
-import re
+import math
+from collections import Counter
+
 import numpy as np
 from scipy import stats
 from bitarray import bitarray
-from collections import Counter
-
-import qulacs
-import qiskit
-import cirq
-from projectq import MainEngine
-from projectq.ops import *
 from openfermion.ops import QubitOperator
 
 from agnostic_simulator import Gate, Circuit
@@ -37,7 +32,6 @@ backend_info = dict()
 backend_info["qiskit"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
 backend_info["qulacs"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
 backend_info["cirq"] = {"statevector_available": True, "statevector_order": "lsq_first", "noisy_simulation": True}
-backend_info["projectq"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": False}
 backend_info["qdk"] = {"statevector_available": False, "statevector_order": None, "noisy_simulation": False}
 
 
@@ -110,6 +104,7 @@ class Simulator:
             return (frequencies, statevector) if return_statevector else (frequencies, None)
 
         if self._target == "qulacs":
+            import qulacs
 
             translated_circuit = translator.translate_qulacs(source_circuit, self._noise_model)
 
@@ -143,6 +138,8 @@ class Simulator:
             return (frequencies, None)
 
         elif self._target == "qiskit":
+            import qiskit
+
             translated_circuit = translator.translate_qiskit(source_circuit)
 
             # If requested, set initial state
@@ -184,45 +181,6 @@ class Simulator:
 
             return (frequencies, np.array(sim_results.get_statevector())) if return_statevector else (frequencies, None)
 
-        elif self._target == "projectq":
-
-            translated_circuit = translator.translate_projectq(source_circuit)
-            translated_circuit = re.sub(r'(.*)llocate(.*)\n', '', translated_circuit)
-            all_zero_state = np.zeros(2 ** source_circuit.width, dtype=complex);  all_zero_state[0] = 1.0
-
-            eng = MainEngine()
-            if initial_statevector is not None:
-                Qureg = eng.allocate_qureg(int(math.log2(len(initial_statevector))))
-                eng.flush()
-                eng.backend.set_wavefunction(initial_statevector, Qureg)
-            else:
-                Qureg = eng.allocate_qureg(source_circuit.width)
-            eng.flush()
-
-            samples = list()
-            shots = self.n_shots if source_circuit.is_mixed_state else 1
-            for i in range(shots):
-                exec(translated_circuit)
-                eng.flush()
-
-                if source_circuit.is_mixed_state:
-                    All(Measure) | Qureg
-                    eng.flush()
-                    sample = ''.join([str(int(q)) for q in Qureg])
-                    samples.append(sample)
-                    initial_state = initial_statevector if initial_statevector else all_zero_state
-                    eng.backend.set_wavefunction(initial_state, Qureg)
-                else:
-                    self._current_state = eng.backend.cheat()[1]
-                    statevector = eng.backend.cheat()[1]
-                    All(Measure) | Qureg
-                    eng.flush()
-                    frequencies = self._statevector_to_frequencies(self._current_state)
-                    return (frequencies, np.array(statevector)) if return_statevector else (frequencies, None)
-
-            frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
-            return (frequencies, None)
-
         elif self._target == "qdk":
 
             translated_circuit = translator.translate_qsharp(source_circuit)
@@ -244,6 +202,7 @@ class Simulator:
             return (frequencies, None)
 
         elif self._target == "cirq":
+            import cirq
 
             translated_circuit = translator.translate_cirq(source_circuit, self._noise_model)
 
@@ -344,6 +303,8 @@ class Simulator:
 
         # Use fast built-in qulacs expectation value function if possible
         if self._target == "qulacs" and not self.n_shots:
+            import qulacs
+
             op = qulacs.quantum_operator.create_quantum_operator_from_openfermion_text(qubit_operator.__repr__())
             if op.get_qubit_count() == n_qubits:
                 return op.get_expectation_value(self._current_state).real
@@ -353,26 +314,17 @@ class Simulator:
                     operator.add_operator(op.get_term(i))
                 return operator.get_expectation_value(self._current_state).real
 
-        # Use fast built-in projectq expectation value function if possible
-        if self._target == "projectq" and not self.n_shots:
-            eng = MainEngine()
-            Qureg = eng.allocate_qureg(n_qubits)
-            eng.flush()
-            eng.backend.set_wavefunction(prepared_state, Qureg)
-            eng.flush()
-            exp_value = eng.backend.get_expectation_value(qubit_operator, Qureg)
-            All(Measure) | Qureg
-            eng.flush()
-            return exp_value
-
         # Use cirq built-in expectation_from_state_vector/epectation_from_density_matrix
         # noise model would require
         if self._target == "cirq" and not self.n_shots:
+            import cirq
+
+            GATE_CIRQ = translator.translate_circ.get_circ_gates()
             qubit_labels = cirq.LineQubit.range(n_qubits)
             qubit_map = {q: i for i, q in enumerate(qubit_labels)}
             paulisum = 0.*cirq.PauliString(cirq.I(qubit_labels[0]))
             for term, coef in qubit_operator.terms.items():
-                pauli_list = [translator.GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
+                pauli_list = [GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
                 paulisum += cirq.PauliString(pauli_list, coefficient=coef)
             if self._noise_model:
                 exp_value = paulisum.expectation_from_density_matrix(prepared_state, qubit_map)
