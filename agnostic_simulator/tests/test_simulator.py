@@ -81,14 +81,6 @@ def assert_freq_dict_almost_equal(d1, d2, atol):
 
 class TestSimulateAllBackends(unittest.TestCase):
 
-    def test_simulate(self):
-        """ Must return correct frequencies for simulation of different quantum circuits """
-        for b in installed_packages:
-            simulator = Simulator(target=b)
-            for i, circuit in enumerate(circuits):
-                frequencies, _ = simulator.simulate(circuit)
-                assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
-
     def test_get_exp_value_operator_too_long(self):
         """ Ensure an error is returned if the qubit operator acts on more qubits than are present in the circuit """
         for b in installed_packages:
@@ -110,33 +102,6 @@ class TestSimulateAllBackends(unittest.TestCase):
             const_op.terms = {(): 777.}
             exp_value = simulator._get_expectation_value_from_frequencies(const_op, circuit1)
             self.assertTrue(exp_value == 777.)
-
-    def test_get_exp_value_from_frequencies(self):
-        """ Test the method computing the expectation value from frequencies, with a given simulator """
-
-        for b in installed_packages:
-            simulator = Simulator(target=b)
-            exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
-            for i, circuit in enumerate(circuits):
-                for j, op in enumerate(ops):
-                    exp_values[i][j] = simulator._get_expectation_value_from_frequencies(op, circuit)
-            np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
-
-    def test_get_exp_value_from_frequencies_using_initial_statevector(self):
-        """ Test the method computing the expectation value from frequencies, with a given simulator
-            by generating the statevector first and sampling using an empty state_prep_circuit
-        """
-
-        for b in installed_packages:
-            simulator = Simulator(target=b)
-            exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
-            for i, circuit in enumerate(circuits):
-                _, statevector = simulator.simulate(circuit, return_statevector=True)
-                for j, op in enumerate(ops):
-                    exp_values[i][j] = simulator._get_expectation_value_from_frequencies(op,
-                                                                                         Circuit(n_qubits=circuit.width),
-                                                                                         initial_statevector=statevector)
-            np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
 
     def test_simulate_mixed_state(self):
         """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
@@ -165,6 +130,14 @@ class TestSimulateAllBackends(unittest.TestCase):
 
 
 class TestSimulateStatevector(unittest.TestCase):
+
+    def test_simulate_statevector(self):
+        """ Must return correct frequencies for simulation of different quantum circuits with statevector """
+        for b in statevector_backends:
+            simulator = Simulator(target=b)
+            for i, circuit in enumerate(circuits):
+                frequencies, _ = simulator.simulate(circuit)
+                assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
     def test_simulate_nshots_from_statevector(self):
         """
@@ -196,6 +169,22 @@ class TestSimulateStatevector(unittest.TestCase):
             for i, circuit in enumerate(circuits):
                 for j, op in enumerate(ops):
                     exp_values[i][j] = simulator._get_expectation_value_from_statevector(op, circuit)
+            np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
+
+    def test_get_exp_value_from_frequencies_using_initial_statevector(self):
+        """ Test the method computing the expectation value from frequencies, with a given simulator
+            by generating the statevector first and sampling using an empty state_prep_circuit
+        """
+
+        for b in statevector_backends:
+            simulator = Simulator(target=b)
+            exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
+            for i, circuit in enumerate(circuits):
+                _, statevector = simulator.simulate(circuit, return_statevector=True)
+                for j, op in enumerate(ops):
+                    exp_values[i][j] = simulator._get_expectation_value_from_frequencies(op,
+                                                                                         Circuit(n_qubits=circuit.width),
+                                                                                         initial_statevector=statevector)
             np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
 
     def test_get_exp_value_from_statevector_h2(self):
@@ -348,6 +337,17 @@ class TestSimulateStatevector(unittest.TestCase):
             exp_c = simulator.get_expectation_value(op_c, circuit3)
             assert (type(exp_c) in {float, np.float64} and exp_c == exp_r1)
 
+    def test_get_exp_value_from_frequencies(self):
+        """ Test the method computing the expectation value from frequencies, with a given simulator """
+
+        for b in statevector_backends:
+            simulator = Simulator(target=b)
+            exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
+            for i, circuit in enumerate(circuits):
+                for j, op in enumerate(ops):
+                    exp_values[i][j] = simulator._get_expectation_value_from_frequencies(op, circuit)
+            np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
+
 
 class TestSimulateMisc(unittest.TestCase):
 
@@ -357,6 +357,14 @@ class TestSimulateMisc(unittest.TestCase):
             also does not provide a number of shots for the simulation.
         """
         self.assertRaises(ValueError, Simulator, target="qdk")
+
+    @unittest.skipIf("qdk" not in installed_packages, "Test Skipped: Backend not available \n")
+    def test_simulate_qdk(self):
+        """ Must return correct frequencies for simulation of different quantum circuits with qdk """
+        simulator = Simulator(target="qdk")
+        for i, circuit in enumerate(circuits):
+            frequencies, _ = simulator.simulate(circuit)
+            assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
     @unittest.skipIf("qdk" not in installed_packages, "Test Skipped: Backend not available \n")
     def test_get_exp_value_from_frequencies_qdk(self):
