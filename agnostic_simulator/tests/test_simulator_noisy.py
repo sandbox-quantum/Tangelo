@@ -4,6 +4,8 @@
 
 import unittest
 
+from openfermion.ops import QubitOperator
+
 from agnostic_simulator import Gate, Circuit, Simulator, backend_info
 from agnostic_simulator.noisy_simulation import NoiseModel, get_qiskit_noise_dict
 
@@ -164,6 +166,44 @@ class TestSimulate(unittest.TestCase):
         s_nmc = Simulator(target='cirq', n_shots=10**6, noise_model=nmc)
         res_cumul, _ = s_nmc.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
+
+    def test_get_expectation_value_noisy(self):
+        """Test of the get_expectation_value function with a noisy simulator"""
+        # Test Hamiltonian.
+        H = QubitOperator()
+        H.terms = {(): -14.41806525945003, ((0, 'Z'),): 0.0809953994342687,
+                   ((1, 'Z'),): 0.0809953994342687, ((0, 'Z'), (1, 'Z')): 0.0077184273651725865,
+                   ((0, 'X'), (1, 'X')): 0.0758664717894615}
+
+        # Hard coding of test circuit.
+        circuit = Circuit()
+        circuit.add_gate(Gate("RX", 0, parameter=3.141595416808))
+        circuit.add_gate(Gate("RX", 1,  parameter=3.141588753134))
+        circuit.add_gate(Gate("H", 0))
+        circuit.add_gate(Gate("RX", 1, parameter=1.570796326795))
+        circuit.add_gate(Gate("CNOT", 1, 0))
+        circuit.add_gate(Gate("RZ", 1, parameter=0.43912793, is_variational=True))
+        circuit.add_gate(Gate("CNOT", 1, 0))
+        circuit.add_gate(Gate("RX", 1, parameter=10.995574287564))
+        circuit.add_gate(Gate("H", 0))
+
+        # No Noise model.
+        nmp_no_noise = NoiseModel()
+        noise = 0.00
+        nmp_no_noise.add_quantum_error("CNOT", "pauli", [noise, noise, noise])
+        sim_no_noise = Simulator("qulacs", n_shots=10**6, noise_model=nmp_no_noise)
+        
+        # Small Noise model
+        nmp_small_noise = NoiseModel()
+        noise = 0.01
+        nmp_small_noise.add_quantum_error("CNOT", "pauli", [noise, noise, noise])
+        sim_small_noise = Simulator("qulacs", n_shots=10**6, noise_model=nmp_small_noise)
+
+        energy_no_noise = sim_no_noise.get_expectation_value(H, circuit)
+        energy_small_noise = sim_small_noise.get_expectation_value(H, circuit)
+
+        self.assertAlmostEqual(energy_no_noise, -14.58922316, delta=1e-2)
+        self.assertAlmostEqual(energy_small_noise, -14.58922316, delta=1e-1)
 
 
 if __name__ == "__main__":
