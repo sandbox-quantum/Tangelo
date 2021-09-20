@@ -1,7 +1,6 @@
+"""Implements the variational quantum eigensolver (VQE) algorithm to solve
+electronic structure calculations.
 """
-Implements the variational quantum eigensolver (VQE) algorithm to solve electronic structure calculations.
-"""
-
 
 import warnings
 import itertools
@@ -26,7 +25,7 @@ from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator,
 
 
 class BuiltInAnsatze(Enum):
-    """ Enumeration of the ansatz circuits supported by VQE"""
+    """Enumeration of the ansatz circuits supported by VQE."""
     UCCSD = 0
     UCC1 = 1
     UCC3 = 2
@@ -35,34 +34,38 @@ class BuiltInAnsatze(Enum):
 
 
 class VQESolver:
-    r""" Solve the electronic structure problem for a molecular system by using the
-    variational quantum eigensolver (VQE) algorithm.
+    r"""Solve the electronic structure problem for a molecular system by using
+    the variational quantum eigensolver (VQE) algorithm.
 
-    This algorithm evaluates the energy of a molecular system by performing classical optimization
-    over a parametrized ansatz circuit.
+    This algorithm evaluates the energy of a molecular system by performing
+    classical optimization over a parametrized ansatz circuit.
 
-    Users must first set the desired options of the VQESolver object through the __init__ method, and call the "build"
-    method to build the underlying objects (mean-field, hardware backend, ansatz...).
-    They are then able to call any of the energy_estimation, simulate, or get_rdm methods.
-    In particular, simulate runs the VQE algorithm, returning the optimal energy found by the classical optimizer.
+    Users must first set the desired options of the VQESolver object through the
+    __init__ method, and call the "build" method to build the underlying objects
+    (mean-field, hardware backend, ansatz...). They are then able to call any of
+    the energy_estimation, simulate, or get_rdm methods. In particular, simulate
+    runs the VQE algorithm, returning the optimal energy found by the classical
+    optimizer.
 
     Attributes:
-        molecule (SecondQuantizedMolecule) : the molecular system
-        mean-field (optional) : mean-field of molecular system
-        frozen_orbitals (list[int]): a list of indices for frozen orbitals.
-            Default is the string "frozen_core", corresponding to the output
-            of the function molecular_computation.frozen_orbitals.get_frozen_core.
-        qubit_mapping (str) : one of the supported qubit mapping identifiers
-        ansatz (Ansatze) : one of the supported ansatze
-        optimizer (function handle): a function defining the classical optimizer and its behavior
-        initial_var_params (str or array-like) : initial value for the classical optimizer
-        backend_options (dict) : parameters to build the Simulator class (see documentation of agnostic_simulator)
-        up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
-            Default, False has alternating spin up/down ordering.
-        verbose (bool) : Flag for verbosity of VQE
-        penalty_terms (dict) : parameters for penalty terms to append to target qubit Hamiltonian
-            (see penaly_terms for more details)
-        ansatz_options (dict) : parameters for the given ansatz (see given ansatz file for details)
+        molecule (SecondQuantizedMolecule) : the molecular system.
+        qubit_mapping (str) : one of the supported qubit mapping identifiers.
+        ansatz (Ansatze) : one of the supported ansatze.
+        optimizer (function handle): a function defining the classical optimizer
+            and its behavior.
+        initial_var_params (str or array-like) : initial value for the classical
+            optimizer.
+        backend_options (dict) : parameters to build the Simulator class (see
+            documentation of agnostic_simulator).
+        penalty_terms (dict): parameters for penalty terms to append to target
+            qubit Hamiltonian (see penaly_terms for more details).
+        ansatz_options (dict): parameters for the given ansatz (see given ansatz
+            file for details).
+        up_then_down (bool): change basis ordering putting all spin up orbitals
+            first, followed by all spin down. Default, False has alternating
+                spin up/down ordering.
+        qubit_hamiltonian (QubitOperator-like): Self-explanatory.
+        verbose (bool): Flag for VQE verbosity.
     """
 
     def __init__(self, opt_dict):
@@ -98,7 +101,9 @@ class VQESolver:
         self.builtin_ansatze = set(BuiltInAnsatze)
 
     def build(self):
-        """Build the underlying objects required to run the VQE algorithm afterwards. """
+        """Build the underlying objects required to run the VQE algorithm
+        afterwards.
+        """
 
         if isinstance(self.ansatz, Circuit):
             self.ansatz = VariationalCircuitAnsatz(self.ansatz)
@@ -166,8 +171,9 @@ class VQESolver:
                                  noise_model=self.backend_options["noise_model"])
 
     def simulate(self):
-        """ Run the VQE algorithm, using the ansatz, classical optimizer, initial parameters and
-         hardware backend built in the build method """
+        """Run the VQE algorithm, using the ansatz, classical optimizer, initial
+        parameters and hardware backend built in the build method.
+        """
         if not (self.ansatz and self.backend):
             raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")
         optimal_energy, optimal_var_params = self.optimizer(self.energy_estimation, self.initial_var_params)
@@ -179,28 +185,34 @@ class VQESolver:
         return self.optimal_energy
 
     def get_resources(self):
-        """ Estimate the resources required by VQE, with the current ansatz. This assumes "build" has been run,
-         as it requires the ansatz circuit and the qubit Hamiltonian. Return information that pertains to the user,
-          for the purpose of running an experiment on a classical simulator or a quantum device """
+        """Estimate the resources required by VQE, with the current ansatz. This
+        assumes "build" has been run, as it requires the ansatz circuit and the
+        qubit Hamiltonian. Return information that pertains to the user, for the
+        purpose of running an experiment on a classical simulator or a quantum
+        device.
+        """
 
         resources = dict()
         resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms)
         resources["circuit_width"] = self.ansatz.circuit.width
         resources["circuit_gates"] = self.ansatz.circuit.size
         # For now, only CNOTs supported.
-        resources["circuit_2qubit_gates"] = self.ansatz.circuit.counts.get('CNOT', 0)
+        resources["circuit_2qubit_gates"] = self.ansatz.circuit.counts.get("CNOT", 0)
         resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
         resources["vqe_variational_parameters"] = len(self.initial_var_params)
         return resources
 
     def energy_estimation(self, var_params):
-        """ Estimate energy using the given ansatz, qubit hamiltonian and compute backend.
-         Keeps track of optimal energy and variational parameters along the way
+        """Estimate energy using the given ansatz, qubit hamiltonian and compute
+        backend. Keeps track of optimal energy and variational parameters along
+        the way.
 
         Args:
-             var_params (numpy.array or str): variational parameters to use for VQE energy evaluation
+             var_params (numpy.array or str): variational parameters to use for
+                VQE energy evaluation.
         Returns:
-             energy (float): energy computed by VQE using the ansatz and input variational parameters
+             energy (float): energy computed by VQE using the ansatz and input
+                variational parameters.
         """
 
         # Update variational parameters, compute energy using the hardware backend
@@ -213,19 +225,21 @@ class VQESolver:
         return energy
 
     def operator_expectation(self, operator, var_params=None):
-        """Obtains the operator expectation value of a given operator
+        """Obtains the operator expectation value of a given operator.
+
            Args:
-                operator (str or QubitOperator): The operator to find the expectation value of
-                    str availability:
-                        N : Particle number
-                        Sz: Spin in z-direction
-                        S^2: Spin quantum number s(s+1)
-                var_params (str or numpy.array): variational parameters to use for VQE expectation value
-                                                 evaluation
+                operator (str or QubitOperator): The operator to find the
+                    expectation value of str availability:
+                    - N : Particle number
+                    - Sz: Spin in z-direction
+                    - S^2: Spin quantum number s(s+1)
+                var_params (str or numpy.array): variational parameters to use
+                    for VQE expectation value evaluation.
+
            Returns:
-                expectation (float): operator expectation value computed by VQE using the ansatz and
-                                     input variational parameters
-           """
+                expectation (float): operator expectation value computed by VQE
+                    using the ansatz and input variational parameters.
+        """
         if var_params is None:
             var_params = self.optimal_var_params
 
@@ -233,18 +247,18 @@ class VQESolver:
         tmp_hamiltonian = self.qubit_hamiltonian
 
         if isinstance(operator, str):
-            if operator == 'N':
+            if operator == "N":
                 exp_op = number_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
-            elif operator == 'Sz':
+            elif operator == "Sz":
                 exp_op = spinz_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
-            elif operator == 'S^2':
+            elif operator == "S^2":
                 exp_op = spin2_operator(self.qemist_molecule.n_orbitals, up_then_down=False)
             else:
-                raise ValueError('Only expectation values of N, Sz and S^2')
+                raise ValueError("Only expectation values of N, Sz and S^2")
         elif isinstance(operator, QubitOperator):
             exp_op = operator
         else:
-            raise TypeError('operator must be a of string or QubitOperator type')
+            raise TypeError("operator must be a of string or QubitOperator type")
 
         self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=exp_op,
                                                           mapping=self.qubit_mapping,
@@ -260,25 +274,29 @@ class VQESolver:
         return expectation
 
     def get_rdm(self, var_params, resample=False, sum_spin=True):
-        """ Compute the 1- and 2- RDM matrices using the VQE energy evaluation. This method allows
-        to combine the DMET problem decomposition technique with the VQE as an electronic structure solver.
-         The RDMs are computed by using each fermionic Hamiltonian term, transforming them and computing
-         the elements one-by-one.
-         Note that the Hamiltonian coefficients will not be multiplied as in the energy evaluation.
-         The first element of the Hamiltonian is the nuclear repulsion energy term,
-         not the Hamiltonian term.
+        """Compute the 1- and 2- RDM matrices using the VQE energy evaluation.
+        This method allows to combine the DMET problem decomposition technique
+        with the VQE as an electronic structure solver. The RDMs are computed by
+        using each fermionic Hamiltonian term, transforming them and computing
+        the elements one-by-one. Note that the Hamiltonian coefficients will not
+        be multiplied as in the energy evaluation. The first element of the
+        Hamiltonian is the nuclear repulsion energy term, not the Hamiltonian
+        term.
 
-         Args:
-             var_params (numpy.array or list): variational parameters to use for rdm calculation
-             resample (bool): Whether to resample saved frequencies. get_rdm with savefrequencies=True must
-                              be called or a dictionary for each qubit terms' frequencies must be set to
-                              self.rdm_freq_dict
-             sum_spin (bool): If True, the spin-summed 1-RDM and 2-RDM will be returned. If False, the full
-                             1-RDM and 2-RDM will be returned.
-         Returns:
-             (numpy.array, numpy.array): One & two-particle spin summed RDMs if sumspin=True or the
-                                         full One & two-Particle RDMs if sumspin=False.
-         """
+        Args:
+            var_params (numpy.array or list): variational parameters to use for
+                rdm calculation
+            resample (bool): Whether to resample saved frequencies. get_rdm with
+                savefrequencies=True must be called or a dictionary for each
+                qubit terms' frequencies must be set to self.rdm_freq_dict
+            sum_spin (bool): If True, the spin-summed 1-RDM and 2-RDM will be
+                returned. If False, the full 1-RDM and 2-RDM will be returned.
+
+        Returns:
+            (numpy.array, numpy.array): One & two-particle spin summed RDMs if
+                sumspin=True or the full One & two-Particle RDMs if
+                sumspin=False.
+        """
 
         self.ansatz.update_var_params(var_params)
 
@@ -290,11 +308,11 @@ class VQESolver:
 
         # If resampling is requested, check that a previous savefrequencies run has been called
         if resample:
-            if hasattr(self, 'rdm_freq_dict'):
+            if hasattr(self, "rdm_freq_dict"):
                 qb_freq_dict = self.rdm_freq_dict
                 resampled_expect_dict = dict()
             else:
-                raise AttributeError('need to run RDM calculation with savefrequencies=True')
+                raise AttributeError("Need to run RDM calculation with savefrequencies=True")
         else:
             qb_freq_dict = dict()
             qb_expect_dict = dict()
@@ -330,7 +348,7 @@ class VQESolver:
                 if qb_term:
                     if qb_term not in qb_freq_dict:
                         if resample:
-                            warnings.warn(f'Warning: rerunning circuit for missing qubit term {qb_term}')
+                            warnings.warn(f"Warning: rerunning circuit for missing qubit term {qb_term}")
                         basis_circuit = Circuit(measurement_basis_gates(qb_term))
                         full_circuit = self.ansatz.circuit + basis_circuit
                         qb_freq_dict[qb_term], _ = self.backend.simulate(full_circuit)
@@ -373,23 +391,27 @@ class VQESolver:
         return rdm1_spin, rdm2_spin
 
     def _default_optimizer(self, func, var_params):
-        """ Function used as a default optimizer for VQE when user does not provide one. Can be used as an example
-        for users who wish to provide their custom optimizer.
+        """Function used as a default optimizer for VQE when user does not
+        provide one. Can be used as an example for users who wish to provide
+        their custom optimizer.
 
-        Should set the attributes "optimal_var_params" and "optimal_energy" to ensure the outcome of VQE is
-        captured at the end of classical optimization, and can be accessed in a standard way.
+        Should set the attributes "optimal_var_params" and "optimal_energy" to
+        ensure the outcome of VQE is captured at the end of classical
+        optimization, and can be accessed in a standard way.
 
         Args:
-            func (function handle): The function that performs energy estimation.
-                This function takes var_params as input and returns a float.
+            func (function handle): The function that performs energy
+                estimation. This function takes var_params as input and returns
+                a float.
             var_params (list): The variational parameters (float64).
+
         Returns:
-            The optimal energy found by the optimizer
+            The optimal energy found by the optimizer.
         """
 
         from scipy.optimize import minimize
-        result = minimize(func, var_params, method='SLSQP',
-                          options={'disp': True, 'maxiter': 2000, 'eps': 1e-5, 'ftol': 1e-5})
+        result = minimize(func, var_params, method="SLSQP",
+                          options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
 
         if self.verbose:
             print(f"\t\tOptimal VQE energy: {self.optimal_energy}")
