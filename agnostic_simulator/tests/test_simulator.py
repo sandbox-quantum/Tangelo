@@ -360,11 +360,15 @@ class TestSimulateMisc(unittest.TestCase):
 
     @unittest.skipIf("qdk" not in installed_packages, "Test Skipped: Backend not available \n")
     def test_simulate_qdk(self):
-        """ Must return correct frequencies for simulation of different quantum circuits with qdk """
-        simulator = Simulator(target="qdk")
+        """
+            Must return correct frequencies for simulation of different quantum circuits.
+            The accuracy is correlated to the number of shots taken in the simulation.
+            Backend: qdk.
+        """
+        simulator = Simulator(target="qdk", n_shots=10**4)
         for i, circuit in enumerate(circuits):
             frequencies, _ = simulator.simulate(circuit)
-            assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
+            assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-1)
 
     @unittest.skipIf("qdk" not in installed_packages, "Test Skipped: Backend not available \n")
     def test_get_exp_value_from_frequencies_qdk(self):
