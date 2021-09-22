@@ -9,6 +9,12 @@ from openfermion.ops import QubitOperator
 from agnostic_simulator import Gate, Circuit, Simulator, backend_info
 from agnostic_simulator.noisy_simulation import NoiseModel, get_qiskit_noise_dict
 
+# TODO: Fix the import to utils once agnostic simulator has become backendbuddy: it will be natural.
+import os, sys
+this_file_dir = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(this_file_dir)
+from utils import installed_backends
+
 # Noisy simulation: circuits, noise models, references
 cn1 = Circuit([Gate('X', target=0)])
 cn2 = Circuit([Gate('CNOT', target=1, control=0)])
@@ -73,11 +79,13 @@ class TestSimulate(unittest.TestCase):
         self.assertRaises(ValueError, nm.add_quantum_error, 'X', 'depol', [0.3, 0.2, 0.1])
 
     # TODO: replace the noise channel name by one supported by agnostic simulator, but not with qiskit backend later
+    @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_unsupported_noise_channel_qiskit(self):
         """ Ensures an error is returned if user attempts to user an unsupported noise channel, for qiskit """
         nm = NoiseModel()
         self.assertRaises(ValueError, nm.add_quantum_error, 'X', 'dummy', 0.3)
 
+    @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_qiskit_noise_dictionary_rotations(self):
         """ Generate noise dictionary using qiskit gates as keys. Map rotation gates to U-gates with no redundancy
          Ensure results as expected."""
@@ -92,6 +100,7 @@ class TestSimulate(unittest.TestCase):
             assert(g in qnd)
             assert(qnd[g] == [(nt, np)])
 
+    @unittest.skipIf("qulacs" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_noisy_simulation_qulacs(self):
         """
             Test noisy simulation through qulacs.
@@ -117,6 +126,7 @@ class TestSimulate(unittest.TestCase):
         res_cumul, _ = s_nmc.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
+    @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_noisy_simulation_qiskit(self):
         """
             Test noisy simulation through qiskit.
@@ -142,6 +152,7 @@ class TestSimulate(unittest.TestCase):
         res_cumul, _ = s_nmp.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
+    @unittest.skipIf("cirq" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_noisy_simulation_cirq(self):
         """
             Test noisy simulation through cirq.

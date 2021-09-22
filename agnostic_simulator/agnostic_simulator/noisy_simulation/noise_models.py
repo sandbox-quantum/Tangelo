@@ -6,8 +6,6 @@
     Only works for simulators supporting noisy simulation.
 """
 
-from qiskit.providers.aer.noise import NoiseModel as QiskitNoiseModel
-from qiskit.providers.aer.noise.errors import depolarizing_error, pauli_error
 
 from agnostic_simulator import ONE_QUBIT_GATES
 
@@ -82,6 +80,9 @@ def get_qiskit_noise_dict(noise_model):
 
 def get_qiskit_noise_model(noise_model):
     """ Takes a NoiseModel object as input, returns an equivalent Qiskit Noise Model, compatible with QASM simulator """
+
+    from qiskit.providers.aer.noise import NoiseModel as QiskitNoiseModel
+    from qiskit.providers.aer.noise.errors import depolarizing_error, pauli_error
 
     qnd = get_qiskit_noise_dict(noise_model)
     qnm = QiskitNoiseModel()
