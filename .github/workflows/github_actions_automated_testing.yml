@@ -24,7 +24,7 @@ jobs:
         pip install pytest-cov 
         pip install jupyter
 
-    - name: Install backends except qsharp (see next section)
+    - name: Install backends except qsharp/qdk
       run: |
         pip install qiskit
         pip install qulacs
@@ -32,7 +32,7 @@ jobs:
         pip install cirq
         pip install projectq
 
-    - name: Microsoft qsharp
+    - name: Install Microsoft qsharp/qdk
       run: |
         wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
         sudo dpkg -i packages-microsoft-prod.deb
@@ -42,20 +42,9 @@ jobs:
         dotnet tool install -g Microsoft.Quantum.IQSharp
         $(which dotnet-iqsharp) install --user
         pip install qsharp
-      
-    - name: agnostic_simulator install
-      run: |
-        cd agnostic_simulator
-        python setup.py install
-    
-    - name: agnostic_simulator tests
-      run: |
-        cd agnostic_simulator
-        pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
 
     - name: qsdk install
       run: |
-        pip install pyscf
         cd qsdk
         python setup.py install
       if: always()

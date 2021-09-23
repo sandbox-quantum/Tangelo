@@ -2,7 +2,7 @@
 
 import math
 
-from agnostic_simulator import Circuit
+from qsdk.backendbuddy import Circuit
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from qsdk.toolboxes.ansatz_generator.ansatz_utils import pauliword_to_circuit
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz

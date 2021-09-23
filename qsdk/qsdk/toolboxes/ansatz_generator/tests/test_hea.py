@@ -5,10 +5,10 @@ from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g
 from qsdk.toolboxes.qubit_mappings import jordan_wigner
 from qsdk.toolboxes.ansatz_generator.hea import HEA
 
-from agnostic_simulator import Simulator
+from qsdk.backendbuddy import Simulator
 
 # Initiate simulator
-sim = Simulator(target="qulacs")
+sim = Simulator()
 
 
 class HEATest(unittest.TestCase):

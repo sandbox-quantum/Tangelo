@@ -1,4 +1,4 @@
-""" This module defines an ansatz class to wrap up a custom agnostic_simulator
+""" This module defines an ansatz class to wrap up a custom qsdk.backendbuddy
     circuit.
 """
 

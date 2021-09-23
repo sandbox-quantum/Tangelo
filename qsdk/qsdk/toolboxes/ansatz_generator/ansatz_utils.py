@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-from agnostic_simulator import Circuit, Gate
+from qsdk.backendbuddy import Circuit, Gate
 
 
 def pauli_op_to_gate(index, op, inverse=False):

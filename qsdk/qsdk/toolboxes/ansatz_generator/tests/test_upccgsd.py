@@ -5,7 +5,7 @@ from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3
 from qsdk.toolboxes.qubit_mappings import jordan_wigner
 from qsdk.toolboxes.ansatz_generator.upccgsd import UpCCGSD
 
-from agnostic_simulator import Simulator
+from qsdk.backendbuddy import Simulator
 
 
 class UpCCGSDTest(unittest.TestCase):
@@ -45,7 +45,7 @@ class UpCCGSDTest(unittest.TestCase):
         qubit_hamiltonian = jordan_wigner(mol_H2_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator(target="qulacs")
+        sim = Simulator()
         upccgsd_ansatz.update_var_params([0.03518165, -0.02986551,  0.02897598, -0.03632711,
                                           0.03044071,  0.08252277])
         energy = sim.get_expectation_value(qubit_hamiltonian, upccgsd_ansatz.circuit)
@@ -69,7 +69,7 @@ class UpCCGSDTest(unittest.TestCase):
         qubit_hamiltonian = jordan_wigner(mol_H4_cation_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator(target="qulacs")
+        sim = Simulator()
         upccgsd_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, upccgsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.6412047312, delta=1e-6)
@@ -95,7 +95,7 @@ class UpCCGSDTest(unittest.TestCase):
         qubit_hamiltonian = jordan_wigner(mol_H4_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator(target="qulacs")
+        sim = Simulator()
         upccgsd_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, upccgsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.968345618, delta=1e-6)

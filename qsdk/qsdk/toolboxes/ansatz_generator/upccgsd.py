@@ -10,7 +10,7 @@
 
 import numpy as np
 
-from agnostic_simulator import Circuit
+from qsdk.backendbuddy import Circuit
 
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit

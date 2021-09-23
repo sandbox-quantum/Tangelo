@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from agnostic_simulator import Gate, Circuit
+from qsdk.backendbuddy import Gate, Circuit
 from qsdk.toolboxes.ansatz_generator.variational_circuit import VariationalCircuitAnsatz
 
 

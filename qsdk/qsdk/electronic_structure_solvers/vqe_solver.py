@@ -10,8 +10,8 @@ from enum import Enum
 import numpy as np
 from openfermion.ops.operators.qubit_operator import QubitOperator
 
-from agnostic_simulator import Simulator, Circuit
-from agnostic_simulator.helpers.circuits.measurement_basis import measurement_basis_gates
+from qsdk.backendbuddy import Simulator, Circuit
+from qsdk.backendbuddy.helpers.circuits.measurement_basis import measurement_basis_gates
 from qsdk.toolboxes.operators import count_qubits, FermionOperator, qubitop_to_qubitham
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator.ansatz import Ansatz
@@ -56,7 +56,7 @@ class VQESolver:
         ansatz (Ansatze) : one of the supported ansatze
         optimizer (function handle): a function defining the classical optimizer and its behavior
         initial_var_params (str or array-like) : initial value for the classical optimizer
-        backend_options (dict) : parameters to build the Simulator class (see documentation of agnostic_simulator)
+        backend_options (dict) : parameters to build the Simulator class (see documentation of qsdk.backendbuddy)
         up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down
             Default, False has alternating spin up/down ordering.
         verbose (bool) : Flag for verbosity of VQE
@@ -67,7 +67,7 @@ class VQESolver:
 
     def __init__(self, opt_dict):
 
-        default_backend_options = {"target": "qulacs", "n_shots": None, "noise_model": None}
+        default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
         default_options = {"molecule": None,
                            "qubit_mapping": "jw", "ansatz": BuiltInAnsatze.UCCSD,
                            "optimizer": self._default_optimizer,

@@ -14,7 +14,7 @@ https://doi.org/10.1038/s41534-019-0209-0
 
 import numpy as np
 
-from agnostic_simulator import Circuit, Gate
+from qsdk.backendbuddy import Circuit, Gate
 
 from .ansatz import Ansatz
 
@@ -79,7 +79,7 @@ class RUCC(Ansatz):
         This method outputs |1010>.
 
         Returns:
-            agnostic_simulator.Circuit: |1010> initial state.
+            qsdk.backendbuddy.Circuit: |1010> initial state.
         """
 
         if self.reference_state_initialization not in self.supported_reference_state:
@@ -141,7 +141,7 @@ class RUCC(Ansatz):
         manner of the HF state are removed.
 
         Returns:
-            agnostic_simulator.Circuit: UCC1 quantum circuit.
+            qsdk.backendbuddy.Circuit: UCC1 quantum circuit.
         """
 
         # Initialization of an empty list.
@@ -169,7 +169,7 @@ class RUCC(Ansatz):
         manner of the HF state are removed.
 
         Returns:
-            agnostic_simulator.Circuit: UCC3 quantum circuit.
+            qsdk.backendbuddy.Circuit: UCC3 quantum circuit.
         """
 
         # Initialization of an empty list.

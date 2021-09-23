@@ -1,6 +1,6 @@
 """Module to create Hardware Efficient Ansatze (HEA) circuit with n_layers"""
 
-from agnostic_simulator import Circuit, Gate
+from qsdk.backendbuddy import Circuit, Gate
 
 
 def RotationCircuit(n_qubits, rot_type='euler'):

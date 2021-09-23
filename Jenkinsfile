@@ -1,1 +1,0 @@
-qsdk/Jenkinsfile

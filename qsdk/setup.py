@@ -1,4 +1,10 @@
 import setuptools
+import sys
+import subprocess
+
+
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 
 with open('README.md', 'r') as f:
@@ -8,8 +14,10 @@ __title__ = "1QBit's quantum SDK for quantum chemistry"
 __copyright__ = "1QBit Inc"
 __version__ = "0.1.0"
 __status__ = "beta"
-__authors__ = ["Valentin Senicourt, Alexandre Fleury, Ryan Day"]
+__authors__ = ["Valentin Senicourt, Alexandre Fleury, Ryan Day, James Brown"]
 
+install('h5py==2.9.0')
+install('pyscf')
 
 setuptools.setup(
     name="qSDK",
@@ -17,9 +25,8 @@ setuptools.setup(
     description="1QBit's quantum SDK for quantum chemistry",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/1QB-Information-Technologies/QEMIST_qSDK",
+    url="https://github.com/quantumsimulation/QEMIST_qSDK",
     packages=setuptools.find_packages(),
     test_suite="qsdk",
-    setup_requires=['agnostic_simulator'],
-    install_requires=['h5py==2.9.0', 'pyscf', 'openfermion', 'openfermionpyscf']
+    install_requires=['bitarray', 'openfermion', 'openfermionpyscf']
 )
