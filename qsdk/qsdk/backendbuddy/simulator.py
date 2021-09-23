@@ -50,7 +50,6 @@ class Simulator:
         """
         self._source = "abstract"
         self._target = target if target else default_simulator
-        print("\n ========", self._target, "\n")
         self._current_state = None
         self._noise_model = noise_model
 
