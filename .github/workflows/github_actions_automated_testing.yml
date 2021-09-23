@@ -23,7 +23,15 @@ jobs:
         pip install pytest
         pip install pytest-cov 
         pip install jupyter
-        
+
+    - name: Install backends except qsharp (see next section)
+      run: |
+        pip install qiskit
+        pip install qulacs
+        pip install amazon-braket-sdk
+        pip install cirq
+        pip install projectq
+
     - name: Microsoft qsharp
       run: |
         wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
