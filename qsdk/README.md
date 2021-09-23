@@ -57,23 +57,14 @@ You can then install qSDK by using the setuptools with the `setup.py` file prese
 python setup.py install
 ```
 
-For all information or trouble regarding `agnostic_simulator`, we recommend you check the code and documentation available in its 
-dedicated folder. A few tips below:
-
-> :warning: If you are using MacOS, your C/C++ compiler may be Clang, which does not support compilation of OpenMP
-> multithreaded code. As a consequence, you may encounters errors, or see noticeable degradation in performance for some
-> of the dependencies of this package. We recommend you install a suitable alternative (for example, the GNU gcc compiler)
-> and then set the CC variable environment to the path to that compiler, before running the setup.py script. The following
-> command can be used to do so (you can find the path to your compiler using the `which` Linux command)
-> ``` export CC=<path/to/your/gcc>; python setup.py install ```
+A few tips below that may be relevant to you:
 
 > :warning: During this setup, you may encounter errors, as sometimes the Python package dependencies are installed in 
 > an order that does not seem to work out. Frequently, installing the package triggering the error by itself before reattempting
 > the command that failed seemed to solve these issues (often observed with `pybind11` and `pyscf`).
 
-If you do not wish to use the code in `qSDK` or `agnostic_simulator` as python modules but want to manipulate and 
-access this code directly, you can also remove them from your environment (through the `uninstall` command of pip or conda), 
-and simply add the path to the root directory of `qSDK` to the beginning of your `PYTHONPATH` environment variable.
+If you are a developer and would like to modify and change code in `qSDK`, you can add the `qsdk` folder that contains 
+the source code of this package and add it to your `$PYTHONPATH` environment variable instead of installing it with pip. 
 
 ### 2.c Using Docker
 
@@ -87,7 +78,8 @@ You can then use `docker run` to instantiate a container, and `docker exec` to s
 The `backendbuddy` submodule enables users to target various backends. In particular, it supports quantum circuit 
 simulators such as `qulacs`, `qiskit`, `cirq` or `qdk`. We leave it to the user to install the package of their choice.
 Depending on your OS and environment, some of these packages may be more challenging to install. In particular, we
-recommend `qulacs` for its performance and `qiskit` for providing the utilities for the QASM format.
+recommend `qulacs` for its performance and `qiskit` for providing a braod range of functionalities and utilities to 
+support the OpenQASM format.
 
 Most packages can be installed through pip in a straightforward way:
 ```
@@ -111,3 +103,5 @@ python -m unittest
 
 This section allows for keeping track of useful environment variables the user could set, in order to adjust the behavior
 of their code.
+
+TODO: Performance variables (OpenMP num threads, and GPU on/off switch for qulacs etc)
