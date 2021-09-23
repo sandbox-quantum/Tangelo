@@ -47,7 +47,7 @@ class ADAPTSolver:
 
     def __init__(self, opt_dict):
 
-        default_backend_options = {"target": "qulacs", "n_shots": None, "noise_model": None}
+        default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
         default_options = {"molecule": None, "verbose": False,
                            "tol": 1e-3, "max_cycles": 15,
                            "pool": uccgsd_pool,
@@ -198,7 +198,7 @@ class ADAPTSolver:
 
         Args:
             pool_commutators (QubitOperator): Commutator [H, operator] for each generator.
-            circuit (agnostic_simulator.Circuit): Circuit for measuring each commutator.
+            circuit (qsdk.backendbuddy.Circuit): Circuit for measuring each commutator.
             backend (angostic_simulator.Simulator): Backend to measure expectation values.
             tolerance (float): Minimum value for gradient to be considered.
 

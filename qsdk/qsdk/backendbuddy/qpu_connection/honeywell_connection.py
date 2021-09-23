@@ -15,7 +15,7 @@ import pprint
 import requests as rq
 from collections import Counter
 
-from agnostic_simulator.qpu_connection.qpu_connection import QpuConnection
+from qsdk.backendbuddy.qpu_connection.qpu_connection import QpuConnection
 
 
 class HoneywellConnection(QpuConnection):
@@ -135,7 +135,7 @@ class HoneywellConnection(QpuConnection):
             job_status = self.job_get_info(job_id)
             if job_status['status'] == 'completed' and 'results' in job_status:
                 return job_status['results']
-                # TODO: if we know the qubit order, we can return result in standard agnostic_simulator format later
+                # TODO: if we know the qubit order, we can return result in standard backendbuddy format later
                 #  return job_status['results'] if raw else dict(Counter(job_status['results']['c']))
                 #  binary string keys of dictionary may need to be reversed.
             elif job_status['status'] in {'queued', 'running'}:

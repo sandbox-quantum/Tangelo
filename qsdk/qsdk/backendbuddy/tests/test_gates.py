@@ -1,5 +1,5 @@
 import unittest
-from agnostic_simulator import Gate
+from qsdk.backendbuddy import Gate
 
 
 class TestGates(unittest.TestCase):

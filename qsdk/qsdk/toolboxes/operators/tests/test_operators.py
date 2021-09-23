@@ -9,10 +9,10 @@ class OperatorsUtilitiesTest(unittest.TestCase):
         """ Test count_qubits function. """
 
         n_qubits_3 = count_qubits(QubitHamiltonian("JW", True, term="X0 Y1 Z2"))
-        self.assertEquals(n_qubits_3, 3)
+        self.assertEqual(n_qubits_3, 3)
 
         n_qubits_5 = count_qubits(QubitHamiltonian("JW", True, term="X0 Y1 Z4"))
-        self.assertEquals(n_qubits_5, 5)
+        self.assertEqual(n_qubits_5, 5)
 
     def test_qubitop_to_qubitham(self):
         """ Test qubitop_to_qubitham function. """
@@ -20,7 +20,7 @@ class OperatorsUtilitiesTest(unittest.TestCase):
         qubit_ham = qubitop_to_qubitham(0.5*QubitOperator("X0 Y1 Z2"), "BK", False)
 
         reference_attributes = {"terms": {((0, 'X'), (1, 'Y'), (2, 'Z')): 0.5},
-            "mapping": "BK", "up_then_down": False}
+                                "mapping": "BK", "up_then_down": False}
 
         self.assertDictEqual(qubit_ham.__dict__, reference_attributes)
 
@@ -32,7 +32,7 @@ class QubitHamiltonianTest(unittest.TestCase):
 
         qubit_ham = 0.5 * QubitHamiltonian("BK", False, term="X0 Y1 Z2")
         reference_attributes = {"terms": {((0, 'X'), (1, 'Y'), (2, 'Z')): 0.5},
-            "mapping": "BK", "up_then_down": False}
+                                "mapping": "BK", "up_then_down": False}
 
         self.assertDictEqual(qubit_ham.__dict__, reference_attributes)
 
@@ -54,7 +54,7 @@ class QubitHamiltonianTest(unittest.TestCase):
 
         qubit_ham = 1. * QubitHamiltonian("JW", True, term="X0 Y1 Z2")
 
-        self.assertEquals(qubit_ham.to_qubitoperator(),
+        self.assertEqual(qubit_ham.to_qubitoperator(),
             QubitOperator(term="X0 Y1 Z2", coefficient=1.))
 
 

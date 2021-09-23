@@ -22,9 +22,10 @@ from scipy import stats
 from bitarray import bitarray
 from openfermion.ops import QubitOperator
 
-from agnostic_simulator import Gate, Circuit
-from agnostic_simulator.helpers.circuits.measurement_basis import measurement_basis_gates
-import agnostic_simulator.translator as translator
+from qsdk.helpers.utils import default_simulator
+from qsdk.backendbuddy import Gate, Circuit
+from qsdk.backendbuddy.helpers.circuits.measurement_basis import measurement_basis_gates
+import qsdk.backendbuddy.translator as translator
 
 
 # Data-structure showing what functionalities are supported by the backend, in this package
@@ -37,17 +38,19 @@ backend_info["qdk"] = {"statevector_available": False, "statevector_order": None
 
 class Simulator:
 
-    def __init__(self, target="qulacs", n_shots=None, noise_model=None):
+    def __init__(self, target=default_simulator, n_shots=None, noise_model=None):
         """
             Instantiate Simulator object.
 
             Args:
-                target (str): One of the available target backends (quantum or classical)
+                target (str): One of the available target backends (quantum or classical).
+                    The default simulator is qulacs if found in user's environment, otherwise cirq.
                 n_shots (int): Number of shots if using a shot-based simulator
                 noise_model: A noise model object assumed to be in the format expected from the target backend
         """
         self._source = "abstract"
-        self._target = target
+        self._target = target if target else default_simulator
+        print("\n ========", self._target, "\n")
         self._current_state = None
         self._noise_model = noise_model
 
@@ -154,7 +157,7 @@ class Simulator:
 
             # Drawing individual shots with the qasm simulator, for noisy simulation or simulating mixed states
             if self._noise_model or source_circuit.is_mixed_state:
-                from agnostic_simulator.noisy_simulation.noise_models import get_qiskit_noise_model
+                from qsdk.backendbuddy.noisy_simulation.noise_models import get_qiskit_noise_model
 
                 meas_range = range(source_circuit.width)
                 translated_circuit.measure(meas_range, meas_range)

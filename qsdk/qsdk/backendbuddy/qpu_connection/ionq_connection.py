@@ -16,7 +16,7 @@ import pprint
 import pandas as pd
 import requests as rq
 
-from agnostic_simulator.qpu_connection.qpu_connection import QpuConnection
+from qsdk.backendbuddy.qpu_connection.qpu_connection import QpuConnection
 
 
 class IonQConnection(QpuConnection):

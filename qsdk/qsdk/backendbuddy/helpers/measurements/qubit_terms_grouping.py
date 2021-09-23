@@ -45,7 +45,7 @@ def exp_value_from_measurement_bases(sub_ops, histograms):
     """
 
     # To avoid circular imports
-    from agnostic_simulator import Simulator
+    from qsdk.backendbuddy import Simulator
 
     # Warning if dicts dont have exact set of keys
     if set(sub_ops) != set(histograms):

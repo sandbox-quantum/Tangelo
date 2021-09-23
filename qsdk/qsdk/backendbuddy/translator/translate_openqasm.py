@@ -9,7 +9,7 @@
 
 import re
 from math import pi
-from agnostic_simulator import Gate, Circuit
+from qsdk.backendbuddy import Gate, Circuit
 
 
 def get_openqasm_gates():

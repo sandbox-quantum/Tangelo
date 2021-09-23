@@ -1,6 +1,6 @@
 """
-    This file provides information about what is currently installed in the user's environment, for the purpose
-    of running / skipping tests.
+    This file provides information about what the backends currently installed in the user's environment,
+    for the purpose of running / skipping tests, and setting a default simulator.
 """
 
 
@@ -27,3 +27,6 @@ packages["qdk"] = "qsharp"
 installed_backends = {p_id for p_id, p_name in packages.items() if is_package_installed(p_name)}
 installed_simulator = installed_backends & all_backends_simulator
 installed_sv_simulator = installed_backends & sv_backends_simulator
+
+# Check if qulacs installed (best performance for tests). If not, defaults to cirq (always installed with openfermion)
+default_simulator = "qulacs" if "qulacs" in installed_sv_simulator else "cirq"

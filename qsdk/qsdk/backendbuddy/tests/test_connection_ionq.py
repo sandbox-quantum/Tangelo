@@ -8,8 +8,8 @@ import os
 import pprint
 import time
 
-from agnostic_simulator import Gate, Circuit, translator
-from agnostic_simulator.qpu_connection import IonQConnection
+from qsdk.backendbuddy import Gate, Circuit, translator
+from qsdk.backendbuddy.qpu_connection import IonQConnection
 
 circ1 = Circuit([Gate("H", 0), Gate("CNOT", target=1, control=0)])
 json_circ1 = translator.translate_json_ionq(circ1)

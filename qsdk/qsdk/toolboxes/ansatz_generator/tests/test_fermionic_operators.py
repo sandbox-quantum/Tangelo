@@ -1,13 +1,13 @@
 import unittest
 
-from agnostic_simulator import Simulator
+from qsdk.backendbuddy import Simulator
 from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit, get_vector, vector_to_circuit
 from qsdk.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
 
 # Initiate simulator
-sim = Simulator(target="qulacs")
+sim = Simulator()
 
 
 class fermionic_operators_Test(unittest.TestCase):

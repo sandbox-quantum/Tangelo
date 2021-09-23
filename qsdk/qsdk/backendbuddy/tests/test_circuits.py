@@ -6,7 +6,7 @@
 import unittest
 import copy
 from collections import Counter
-from agnostic_simulator import Gate, Circuit
+from qsdk.backendbuddy import Gate, Circuit
 
 # Create several abstract circuits with different features
 mygates = list()

@@ -1,8 +1,8 @@
 import unittest
 import os
 
-from agnostic_simulator import translator, Simulator, Circuit
-from agnostic_simulator.helpers import string_ham_to_of, measurement_basis_gates, \
+from qsdk.backendbuddy import translator, Simulator, Circuit
+from qsdk.backendbuddy.helpers import string_ham_to_of, measurement_basis_gates, \
     qubitwise_commutativity_of, exp_value_from_measurement_bases
 
 
@@ -33,7 +33,7 @@ class TermsGroupingTest(unittest.TestCase):
 
         # Only simulate and measure the wavefunction in the required bases (simulator or QPU), store in dict.
         histograms = dict()
-        sim = Simulator(target="qulacs")
+        sim = Simulator()
         for basis, sub_op in grouped_ops.items():
             full_circuit = abs_circ + Circuit(measurement_basis_gates(basis))
             histograms[basis], _ = sim.simulate(full_circuit)
@@ -63,7 +63,7 @@ class TermsGroupingTest(unittest.TestCase):
 
         # Only simulate and measure the wavefunction in the required bases (simulator or QPU), store in dict.
         histograms = dict()
-        sim = Simulator(target="qulacs")
+        sim = Simulator()
         for basis, sub_op in grouped_ops.items():
             full_circuit = abs_circ + Circuit(measurement_basis_gates(basis))
             histograms[basis], _ = sim.simulate(full_circuit)

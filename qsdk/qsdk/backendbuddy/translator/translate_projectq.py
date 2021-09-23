@@ -7,7 +7,7 @@
 """
 
 import re
-from agnostic_simulator import Gate, Circuit
+from qsdk.backendbuddy import Gate, Circuit
 
 
 def get_projectq_gates():

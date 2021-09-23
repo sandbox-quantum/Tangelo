@@ -1,7 +1,7 @@
 """ helper function: pauli word rotations """
 
 import numpy as np
-from agnostic_simulator import Gate
+from qsdk.backendbuddy import Gate
 
 
 def measurement_basis_gates(term):

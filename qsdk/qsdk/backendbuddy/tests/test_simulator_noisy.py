@@ -6,14 +6,9 @@ import unittest
 
 from openfermion.ops import QubitOperator
 
-from agnostic_simulator import Gate, Circuit, Simulator, backend_info
-from agnostic_simulator.noisy_simulation import NoiseModel, get_qiskit_noise_dict
-
-# TODO: Fix the import to utils once agnostic simulator has become backendbuddy: it will be natural.
-import os, sys
-this_file_dir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(this_file_dir)
-from utils import installed_backends
+from qsdk.backendbuddy import Gate, Circuit, Simulator, backend_info
+from qsdk.backendbuddy.noisy_simulation import NoiseModel, get_qiskit_noise_dict
+from qsdk.helpers.utils import default_simulator, installed_backends
 
 # Noisy simulation: circuits, noise models, references
 cn1 = Circuit([Gate('X', target=0)])
@@ -202,13 +197,13 @@ class TestSimulate(unittest.TestCase):
         nmp_no_noise = NoiseModel()
         noise = 0.00
         nmp_no_noise.add_quantum_error("CNOT", "pauli", [noise, noise, noise])
-        sim_no_noise = Simulator("qulacs", n_shots=10**6, noise_model=nmp_no_noise)
+        sim_no_noise = Simulator(target=default_simulator, n_shots=10**6, noise_model=nmp_no_noise)
         
         # Small Noise model
         nmp_small_noise = NoiseModel()
         noise = 0.01
         nmp_small_noise.add_quantum_error("CNOT", "pauli", [noise, noise, noise])
-        sim_small_noise = Simulator("qulacs", n_shots=10**6, noise_model=nmp_small_noise)
+        sim_small_noise = Simulator(target=default_simulator, n_shots=10**6, noise_model=nmp_small_noise)
 
         energy_no_noise = sim_no_noise.get_expectation_value(H, circuit)
         energy_small_noise = sim_small_noise.get_expectation_value(H, circuit)

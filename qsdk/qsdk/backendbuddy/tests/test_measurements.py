@@ -1,8 +1,9 @@
 import unittest
 import os
 
-from agnostic_simulator import translator, Simulator, Circuit
-from agnostic_simulator.helpers import string_ham_to_of, measurement_basis_gates, get_measurement_estimate
+from qsdk.helpers.utils import default_simulator
+from qsdk.backendbuddy import translator, Simulator, Circuit
+from qsdk.backendbuddy.helpers import string_ham_to_of, measurement_basis_gates, get_measurement_estimate
 from openfermion import QubitOperator
 
 path_data = os.path.dirname(__file__) + '/data'
@@ -56,7 +57,7 @@ class MeasurementsTest(unittest.TestCase):
         qb_ham = string_ham_to_of(qb_hamstring)
 
         # Get exact expectation value using a simulator
-        sim_exact = Simulator(target="qulacs")
+        sim_exact = Simulator()
         freqs_exact, _ = sim_exact.simulate(abs_circ)
         exp_val_exact = sim_exact.get_expectation_value(qb_ham, abs_circ)
 
@@ -68,7 +69,7 @@ class MeasurementsTest(unittest.TestCase):
         n_repeat = 50
         for i in range(n_repeat):
             exp_val = 0.
-            sim = Simulator(target="qulacs", n_shots=1)
+            sim = Simulator(target=default_simulator, n_shots=1)
             for m_basis, coef in qb_ham.terms.items():
                 term_circ = abs_circ + Circuit(measurement_basis_gates(m_basis))
                 sim.n_shots = mes_dict[m_basis]

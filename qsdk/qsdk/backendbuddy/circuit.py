@@ -5,7 +5,7 @@
 """
 
 from typing import List
-from agnostic_simulator import Gate
+from qsdk.backendbuddy import Gate
 
 
 class Circuit:

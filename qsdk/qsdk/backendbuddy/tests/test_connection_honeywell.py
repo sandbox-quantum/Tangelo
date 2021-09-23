@@ -6,8 +6,8 @@
 import unittest
 import os
 
-from agnostic_simulator import Gate, Circuit, translate_openqasm
-from agnostic_simulator.qpu_connection import HoneywellConnection
+from qsdk.backendbuddy import Gate, Circuit, translate_openqasm
+from qsdk.backendbuddy.qpu_connection import HoneywellConnection
 
 
 circ1 = Circuit([Gate("H", 0), Gate("CNOT", target=1, control=0)])

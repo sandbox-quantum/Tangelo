@@ -7,15 +7,9 @@ import unittest
 import os
 import numpy as np
 
-from agnostic_simulator import Gate
-from agnostic_simulator import Circuit
-import agnostic_simulator.translator as translator
-
-# TODO: Fix the import to utils once agnostic simulator has become backendbuddy: it will be natural.
-import sys
-this_file_dir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(this_file_dir)
-from utils import installed_backends
+from qsdk.backendbuddy import Gate, Circuit
+import qsdk.backendbuddy.translator as translator
+from qsdk.helpers.utils import installed_backends
 
 path_data = os.path.dirname(os.path.realpath(__file__)) + '/data'
 

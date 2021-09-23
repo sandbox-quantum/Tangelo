@@ -8,7 +8,7 @@ from .ansatz import Ansatz
 from ._hea_circuit import HEACircuit
 from qsdk.toolboxes.qubit_mappings.mapping_transform import get_qubit_number
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
-from agnostic_simulator import Circuit
+from qsdk.backendbuddy import Circuit
 
 
 class HEA(Ansatz):
