@@ -90,6 +90,13 @@ pip install cirq
 
 For installing Microsoft's `qdk` or any issue regarding the above packages, please check their respective documentation.
 
+# TODO : Verify with James what variable is needed here, in case we did manage to install qulacs on MacOS
+> :warning: If you are using MacOS, your C/C++ compiler may be Clang (even though it masquerades as `gcc`), which does 
+> not support compilation of OpenMP multithreaded code. As a consequence, you may encounters errors, or see noticeable 
+> degradation in performance for some of the dependencies of this package. 
+> We recommend you install a suitable alternative (for example, the GNU gcc compilers, using `brew`)
+ > and then export the CC variable environment (or whatever variable is used in their installation script) to the path to 
+> that compiler, before running the setup.py script.
 
 ## Tests
 
