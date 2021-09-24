@@ -10,8 +10,8 @@ def run_notebook_as_test(notebook_path):
         script_path = os.path.splitext(notebook_path)[0] + '.py'
         subprocess.run(['chmod', '+x', script_path])
         subprocess.run([script_path], check=True)
-    except Exception as e:
-        raise RuntimeError
+    except Exception as err:
+        raise RuntimeError(err.args)
 
 
 class TestNotebooks(unittest.TestCase):
