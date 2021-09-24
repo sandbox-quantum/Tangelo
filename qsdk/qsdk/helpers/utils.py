@@ -7,16 +7,16 @@
 def is_package_installed(package_name):
     try:
         exec(f'import {package_name}')
-        print(f'{package_name:16s} :: found')
+        # DEBUG print(f'{package_name:16s} :: found')
         return True
     except ModuleNotFoundError:
-        print(f'{package_name:16s} :: not found')
+        # DEBUG print(f'{package_name:16s} :: not found')
         return False
 
 
 # List all backends and statevector ones supported by Simulator class
 all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq", "qdk"}
-all_backends_simulator = {"qulacs", "qiskit", "cirq", "qsdk"}
+all_backends_simulator = {"qulacs", "qiskit", "cirq", "qdk"}
 sv_backends_simulator = {"qulacs", "qiskit", "cirq"}
 
 # Dictionary mapping package names to their identifier in this module
