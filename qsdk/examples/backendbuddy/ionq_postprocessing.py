@@ -2,16 +2,16 @@
     Example of how to process IonQ QPU results to compute some expectation values.
     This example assumes that a QPU experiment was run on a IonQ device and that a histogram of results was returned.
 
-    The histogram is first translated in standard format, and agnostic simulator is then used to compute an
+    The histogram is first translated in standard format, and backendbuddy is then used to compute an
     expectation values using these frequencies.
 
     If you wish to compute theoretical value using a simulator, please write your circuit in abstract format and
     instantiate the Simulator class with a backend such as Qiskit, ProjectQ or qulacs, and just call the
-    "get_expectation_value" method. There is 0 benefit in using the IonQ simulator, it does exactly the same.
+    "get_expectation_value" method. There is zero benefit in using the IonQ simulator, it does exactly the same.
 """
 
-from agnostic_simulator import Simulator
-from agnostic_simulator.helpers import pauli_string_to_of
+from qsdk.backendbuddy import Simulator
+from qsdk.backendbuddy.helpers import pauli_string_to_of
 
 # Example of IonQ QPU results written in a Python-friendly format
 # The dictionary below contains 5 histograms corresponding to 5 different experiments, each for a different basis
