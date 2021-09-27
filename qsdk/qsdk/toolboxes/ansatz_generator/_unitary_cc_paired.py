@@ -1,4 +1,4 @@
-r"""This module defines the fermionic operators that can be used to generate
+"""This module defines the fermionic operators that can be used to generate
 the UpCCGSD ansatz.
 """
 

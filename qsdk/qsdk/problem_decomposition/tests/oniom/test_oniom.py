@@ -159,8 +159,7 @@ class ONIOMTest(unittest.TestCase):
         self.assertAlmostEqual(e_oniom, -315.234186, places=4)
 
     def test_get_resources(self):
-        """Test to verifiy the implementation of resources estimation in ONIOM.
-        """
+        """Test to verifiy the implementation of resources estimation in ONIOM."""
 
         options_both = {"basis": "sto-3g"}
 

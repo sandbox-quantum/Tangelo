@@ -48,13 +48,13 @@ def dmet_fragment_constructor(mol, atom_list, number_fragment):
     jorb = 0
 
     # Calculate the number of orbitals for each atom
-    for i in atom_list2 :
+    for i in atom_list2:
         itemp = 0
         isum2 += i
         for total_basis in mol.spheric_labels():
             item = total_basis.split()
             item0 = int(item[0])
-            if ( ( item0 >= isum ) and ( item0 <= isum2 ) ):
+            if (isum <= item0 <= isum2):
                itemp+=1
         isum += i
         jorb += itemp

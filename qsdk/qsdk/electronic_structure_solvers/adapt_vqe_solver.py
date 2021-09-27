@@ -207,7 +207,7 @@ class ADAPTSolver:
                 generator.
             circuit (agnostic_simulator.Circuit): Circuit for measuring each
                 commutator.
-            backend (angostic_simulator.Simulator): Backend to measure
+            backend (agnostic_simulator.Simulator): Backend to measure
                 expectation values.
             tolerance (float): Minimum value for gradient to be considered.
 
