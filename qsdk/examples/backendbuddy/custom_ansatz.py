@@ -21,7 +21,7 @@
     change significantly or "grow" (such as ADAPT-VQE).
 """
 
-from agnostic_simulator import Gate, Circuit
+from qsdk.backendbuddy import Gate, Circuit
 
 
 class MyAnsatzCircuit(Circuit):

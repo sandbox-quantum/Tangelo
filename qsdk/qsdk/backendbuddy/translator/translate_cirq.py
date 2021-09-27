@@ -7,7 +7,7 @@
 """
 
 
-def get_circ_gates():
+def get_cirq_gates():
     """
     Map gate name of the abstract format to the equivalent methods of the cirq class
     API and supported gates: https://quantumai.google/cirq/gates
@@ -41,7 +41,7 @@ def translate_cirq(source_circuit, noise_model=None):
     """
     import cirq
 
-    GATE_CIRQ = get_circ_gates()
+    GATE_CIRQ = get_cirq_gates()
     target_circuit = cirq.Circuit()
     # cirq by definition uses labels for qubits, this is one way to automatically generate
     # labels. Could also use GridQubit for square lattice or NamedQubit to name qubits

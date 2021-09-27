@@ -321,7 +321,7 @@ class Simulator:
         if self._target == "cirq" and not self.n_shots:
             import cirq
 
-            GATE_CIRQ = translator.translate_circ.get_circ_gates()
+            GATE_CIRQ = translator.get_cirq_gates()
             qubit_labels = cirq.LineQubit.range(n_qubits)
             qubit_map = {q: i for i, q in enumerate(qubit_labels)}
             paulisum = 0.*cirq.PauliString(cirq.I(qubit_labels[0]))

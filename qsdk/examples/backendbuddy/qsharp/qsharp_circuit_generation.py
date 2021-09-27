@@ -9,9 +9,9 @@ Below, an example with a simple "base" circuit of two CNOTS and a parameterized 
 Q# code needs to be written to file, as it needs to be compiled before execution, regardless of the compute backend.
 """
 
-from agnostic_simulator import Gate, Circuit
-from agnostic_simulator.translator import translate_qsharp
-from agnostic_simulator.helper_circuits import measurement_basis_gates, pauli_string_to_of
+from qsdk.backendbuddy import Gate, Circuit
+from qsdk.backendbuddy.translator import translate_qsharp
+from qsdk.backendbuddy.helper_circuits import measurement_basis_gates, pauli_string_to_of
 
 
 def theta_sweep(theta, m_basis):
