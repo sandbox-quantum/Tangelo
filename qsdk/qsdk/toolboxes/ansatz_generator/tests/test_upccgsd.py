@@ -11,7 +11,8 @@ from agnostic_simulator import Simulator
 class UpCCGSDTest(unittest.TestCase):
 
     def test_upccgsd_set_var_params(self):
-        """ Verify behavior of set_var_params for different inputs (keyword, list, numpy array).
+        """Verify behavior of set_var_params for different inputs (keyword,
+        list, numpy array).
         """
 
         upccgsd_ansatz = UpCCGSD(mol_H2_sto3g)
@@ -28,14 +29,16 @@ class UpCCGSDTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(upccgsd_ansatz.var_params, six_ones, decimal=6)
 
     def test_upccgsd_incorrect_number_var_params(self):
-        """ Return an error if user provide incorrect number of variational parameters """
+        """Return an error if user provide incorrect number of variational
+        parameters.
+        """
 
         upccgsd_ansatz = UpCCGSD(mol_H2_sto3g)
 
         self.assertRaises(ValueError, upccgsd_ansatz.set_var_params, np.array([1., 1., 1., 1.]))
 
     def test_upccgsd_H2(self):
-        """ Verify closed-shell UpCCGSD functionalities for H2 """
+        """Verify closed-shell UpCCGSD functionalities for H2."""
 
         # Build circuit
         upccgsd_ansatz = UpCCGSD(mol_H2_sto3g)
@@ -52,7 +55,7 @@ class UpCCGSDTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.1372658, delta=1e-6)
 
     def test_upccgsd_H4_open(self):
-        """ Verify open-shell UpCCGSD functionalities for H4 """
+        """Verify open-shell UpCCGSD functionalities for H4."""
 
         var_params = [-0.0291763,   0.36927821,  0.14654907, -0.13845063,  0.14387348, -0.00903457,
                       -0.56843484,  0.01223853,  0.13649942,  0.83225887,  0.20236275,  0.02682977,
@@ -75,7 +78,7 @@ class UpCCGSDTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.6412047312, delta=1e-6)
 
     def test_upccgsd_H4(self):
-        """ Verify closed-shell UpCCGSD functionalities for H4 """
+        """Verify closed-shell UpCCGSD functionalities for H4."""
 
         var_params = [ 3.79061344e-02, -4.30067212e-02,  3.02230152e-02,  3.42936301e-03,
                       -6.09234584e-04, -3.14370905e-02, -4.86666676e-02,  5.16834522e-02,

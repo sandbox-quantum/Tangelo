@@ -1,4 +1,5 @@
-""" Class performing electronic structure calculation employing the CCSD method """
+"""Class performing electronic structure calculation employing the CCSD method.
+"""
 
 from pyscf import cc
 
@@ -6,17 +7,16 @@ from qsdk.electronic_structure_solvers import ElectronicStructureSolver
 
 
 class CCSDSolver(ElectronicStructureSolver):
-    """ Uses the CCSD method to solve the electronic structure problem, through pyscf
+    """Uses the CCSD method to solve the electronic structure problem, through
+    pyscf.
 
-        Args:
-            molecule (SecondQuantizedMolecule): The molecule to simulate.
-            frozen_orbitals (int or list of int): Frozen orbitals (int -> first
-                n, list -> indexes are frozen).
+    Args:
+        molecule (SecondQuantizedMolecule): The molecule to simulate.
 
-        Attributes:
-            cc_fragment (pyscf.cc.CCSD): The coupled-cluster object.
-            mean_field (pyscf.scf.RHF): The mean field of the molecule.
-            frozen (list or int): Frozen molecular orbitals.
+    Attributes:
+        cc_fragment (pyscf.cc.CCSD): The coupled-cluster object.
+        mean_field (pyscf.scf.RHF): The mean field of the molecule.
+        frozen (list or int): Frozen molecular orbitals.
     """
 
     def __init__(self, molecule):
@@ -43,11 +43,12 @@ class CCSDSolver(ElectronicStructureSolver):
         return total_energy
 
     def get_rdm(self):
-        """ Calculate the 1- and 2-particle reduced density matrices. The CCSD lambda equation will be solved for
-            calculating the RDMs.
+        """Calculate the 1- and 2-particle reduced density matrices. The CCSD
+        lambda equation will be solved for calculating the RDMs.
 
             Returns:
-                one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle RDMs
+                one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle
+                    RDMs
             Raises:
                 RuntimeError: If no simulation has been run.
         """

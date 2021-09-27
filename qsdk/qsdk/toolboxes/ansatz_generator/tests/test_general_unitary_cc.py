@@ -8,7 +8,8 @@ class UCCGSDTest(unittest.TestCase):
 
     def test_spin_order(self):
         """Test that spin-ordering is implemented correctly, for both
-        openfermion and qiskit orderings"""
+        openfermion and qiskit orderings.
+        """
         n_orbitals = 6
         p, q, r, s = 0, 1, 2, 3
         qiskit = np.array([0, 1, 2, 3]), 6 + np.array([0, 1, 2, 3])
@@ -16,13 +17,13 @@ class UCCGSDTest(unittest.TestCase):
         up_q, dn_q = get_spin_ordered(n_orbitals, p, q, r, s, up_down=True)
         up_f, dn_f = get_spin_ordered(n_orbitals, p, q, r, s, up_down=False)
 
-        self.assertEqual(np.linalg.norm(up_q - qiskit[0]), 0.0, msg='Spin Up Qiskit-Ordering Fails')
-        self.assertEqual(np.linalg.norm(dn_q - qiskit[1]), 0.0, msg='Spin Down Qiskit-Ordering Fails')
-        self.assertEqual(np.linalg.norm(up_f - fermion[0]), 0.0, msg='Spin Up openfermion-Ordering Fails')
-        self.assertEqual(np.linalg.norm(dn_f - fermion[1]), 0.0, msg='Spin Down openfermion-Ordering Fails')
+        self.assertEqual(np.linalg.norm(up_q - qiskit[0]), 0.0, msg="Spin Up Qiskit-Ordering Fails")
+        self.assertEqual(np.linalg.norm(dn_q - qiskit[1]), 0.0, msg="Spin Down Qiskit-Ordering Fails")
+        self.assertEqual(np.linalg.norm(up_f - fermion[0]), 0.0, msg="Spin Up openfermion-Ordering Fails")
+        self.assertEqual(np.linalg.norm(dn_f - fermion[1]), 0.0, msg="Spin Down openfermion-Ordering Fails")
 
     def count_doubles_groups(self, n_orbs, up_down=False):
-        """General test for number of doubles groups found by generator"""
+        """General test for number of doubles groups found by generator."""
         selection = np.linspace(0, n_orbs - 1, n_orbs, dtype=int)
         groups = np.zeros(5)
         for pp, qq, rr, ss in itertools.product(selection, repeat=4):
@@ -66,8 +67,9 @@ class UCCGSDTest(unittest.TestCase):
         self.assertEqual(len(get_singles(10)), get_singles_number(10), msg="5 orbs: Invalid Number of singles")
 
     def test_coeff_pass(self):
-        """Test that errors are handled correctly when an invalid number of coefficients are passed.
-        Also tests that good input returns good output."""
+        """Test that errors are handled correctly when an invalid number of
+        coefficients are passed. Also tests that good input returns good output.
+        """
         n_qubits = 4
 
         # Get expected number of single- and double-coefficients

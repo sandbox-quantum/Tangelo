@@ -7,8 +7,9 @@ accordingly, and optimizing the variational parameters using VQE.
 
 Ref:
     Grimsley, H.R., Economou, S.E., Barnes, E. et al.
-    An adaptive variational algorithm for exact molecular simulations on a quantum computer.
-    Nat Commun 10, 3007 (2019). https://doi.org/10.1038/s41467-019-10988-2
+    An adaptive variational algorithm for exact molecular simulations on a
+    quantum computer.
+    Nat Commun 10, 3007 (2019). https://doi.org/10.1038/s41467-019-10988-2.
 """
 
 import math
@@ -26,20 +27,22 @@ from qsdk.toolboxes.operators import qubitop_to_qubitham
 
 
 class ADAPTSolver:
-    """ADAPT VQE class. This is an iterative algorithm that uses VQE. Methods are
-    defined to rank operators with respect to their influence on the total energy.
+    """ADAPT VQE class. This is an iterative algorithm that uses VQE. Methods
+    are defined to rank operators with respect to their influence on the total
+    energy.
 
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
-        mean-field (optional): Mean-field of the molecular system.
         tol (float): Maximum gradient allowed for a particular operator  before
             convergence.
         max_cycles (int): Maximum number of iterations for ADAPT.
-        pool (func): Function that returns a list of FermionOperator. Each element
-            represents excitation/operator that has an effect of the total
-            energy.
-        pool_args (tuple) : The arguments for the pool function given as a tuple.
+        pool (func): Function that returns a list of FermionOperator. Each
+            element represents excitation/operator that has an effect of the
+            total energy.
+        pool_args (tuple) : The arguments for the pool function given as a
+            tuple.
         qubit_mapping (str): One of the supported qubit mapping identifiers.
+        qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         up_then_down (bool): Spin orbitals ordering.
         n_spinorbitals (int): Self-explanatory.
         n_electrons (int): Self-explanatory.
@@ -51,7 +54,7 @@ class ADAPTSolver:
     def __init__(self, opt_dict):
 
         default_backend_options = {"target": "qulacs", "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None, "verbose": False,
+        default_options = {"molecule": None,
                            "tol": 1e-3, "max_cycles": 15,
                            "pool": uccgsd_pool,
                            "pool_args": None,
@@ -110,7 +113,9 @@ class ADAPTSolver:
         return self.ansatz.ferm_operators
 
     def build(self):
-        """Builds the underlying objects required to run the ADAPT-VQE algorithm. """
+        """Builds the underlying objects required to run the ADAPT-VQE
+        algorithm.
+        """
 
         # Building molecule data with a pyscf molecule.
         if self.molecule:
@@ -178,7 +183,9 @@ class ADAPTSolver:
         self.pool_commutators = [commutator(self.qubit_hamiltonian.to_qubitoperator(), element) for element in self.pool_operators]
 
     def simulate(self):
-        """Performs the ADAPT cycles. Each iteration, a VQE minimization is done. """
+        """Performs the ADAPT cycles. Each iteration, a VQE minimization is
+        done.
+        """
 
         params = self.vqe_solver.ansatz.var_params
 
@@ -223,9 +230,12 @@ class ADAPTSolver:
         """Rank pool of operators with a specific circuit.
 
         Args:
-            pool_commutators (QubitOperator): Commutator [H, operator] for each generator.
-            circuit (agnostic_simulator.Circuit): Circuit for measuring each commutator.
-            backend (angostic_simulator.Simulator): Backend to measure expectation values.
+            pool_commutators (QubitOperator): Commutator [H, operator] for each
+                generator.
+            circuit (agnostic_simulator.Circuit): Circuit for measuring each
+                commutator.
+            backend (agnostic_simulator.Simulator): Backend to measure
+                expectation values.
             tolerance (float): Minimum value for gradient to be considered.
 
         Returns:
@@ -237,20 +247,20 @@ class ADAPTSolver:
         max_partial = max(gradient)
 
         if self.verbose:
-            print(f'LARGEST PARTIAL DERIVATIVE: {max_partial :4E} \t[{gradient.index(max_partial)}]')
+            print(f"LARGEST PARTIAL DERIVATIVE: {max_partial :4E} \t[{gradient.index(max_partial)}]")
 
         return gradient.index(max_partial) if max_partial >= tolerance else -1
 
     def get_resources(self):
-        """Returns resources currently used in underlying VQE. """
+        """Returns resources currently used in underlying VQE."""
 
         return self.vqe_solver.get_resources()
 
     def LBFGSB_optimizer(self, func, var_params):
-        """Default optimizer for ADAPT-VQE. """
+        """Default optimizer for ADAPT-VQE."""
 
         result = minimize(func, var_params, method="L-BFGS-B",
-                          options={"disp": False, "maxiter": 100, 'gtol': 1e-10, 'iprint': -1})
+            options={"disp": False, "maxiter": 100, "gtol": 1e-10, "iprint": -1})
 
         self.optimal_var_params = result.x
         self.optimal_energy = result.fun

@@ -4,14 +4,17 @@ from collections import Counter
 
 
 def get_resampled_frequencies(freq_dict, ncount):
-    """
-    From a frequencies dictionary, makes a set of samples consistent with those frequencies and
-    resample from that set to obtain a new frequencies dictionary consistent with ncount measurements.
+    """From a frequencies dictionary, makes a set of samples consistent with
+    those frequencies and resample from that set to obtain a new frequencies
+    dictionary consistent with ncount measurements.
+
     Args:
-        freq_dict (array): dictionary of measurement/sample frequencies
-        ncount (int): number of shots/samples to generate resampled frequencies
+        freq_dict (array): dictionary of measurement/sample frequencies.
+        ncount (int): number of shots/samples to generate resampled frequencies.
+
     Returns
-        frequencies (dict): new frequencies dictionary with resampled distribution
+        frequencies (dict): new frequencies dictionary with resampled
+            distribution.
     """
 
     length_dict = len(freq_dict.keys())
@@ -22,11 +25,11 @@ def get_resampled_frequencies(freq_dict, ncount):
     for i, (k, v) in enumerate(freq_dict.items()):
         xk[i] = int(k, 2)
         pk[i] = v
-    distr = stats.rv_discrete(name='distr', values=(xk, pk))
+    distr = stats.rv_discrete(name="distr", values=(xk, pk))
 
     # Obtain output bitstring string format
     n_qubits = len(list(freq_dict.keys())[0])
-    format_specifier = '0'+str(n_qubits)+'b'
+    format_specifier = "0"+str(n_qubits)+"b"
 
     # Generate samples from distribution. Cut in chunks to ensure samples fit in memory, gradually accumulate
     chunk_size = 10**7

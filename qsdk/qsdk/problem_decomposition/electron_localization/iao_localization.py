@@ -1,14 +1,13 @@
 """Perform IAO localization.
 
-The orbital localization of the canonical orbitals
-using Intrinsic Atomic Orbitals (IAO) localization is done here.
-`pyscf.lo` is used.
+The orbital localization of the canonical orbitals using Intrinsic Atomic
+Orbitals (IAO) localization is done here. `pyscf.lo` is used.
 
-Note that minimal basis cannot be used for IAO because
-the idea of IAO is to map on minao minimal basis set.
+Note that minimal basis cannot be used for IAO because the idea of IAO is to map
+on minao minimal basis set.
 
 For details, refer to:
-G. Knizia, JCTC 9, 4834-4843 (2013).
+    - G. Knizia, JCTC 9, 4834-4843 (2013).
 """
 
 from pyscf import gto
@@ -17,6 +16,7 @@ from functools import reduce
 from pyscf.lo import orth
 import numpy as np
 import scipy
+
 
 def iao_localization(mol, mf):
     """Localize the orbitals using IAO localization.
@@ -51,7 +51,8 @@ def _iao_occupied_orbitals(mol, mf):
         mf (pyscf.scf.RHF): The mean field of the molecule.
 
     Returns:
-        iao_active (numpy.array): The localized orbitals for the occupied space (float64).
+        iao_active (numpy.array): The localized orbitals for the occupied space
+            (float64).
     """
 
     #   Get MO coefficient of occupied MOs
@@ -61,13 +62,13 @@ def _iao_occupied_orbitals(mol, mf):
     min_mol = iao.reference_mol(mol)
 
     #   Calculate the overlaps for total basis
-    s1 = mol.intor_symmetric('int1e_ovlp')
+    s1 = mol.intor_symmetric("int1e_ovlp")
 
     #   ... for minao basis
-    s2 = min_mol.intor_symmetric('int1e_ovlp')
+    s2 = min_mol.intor_symmetric("int1e_ovlp")
 
     #   ... between the two basis (and transpose)
-    s12 = gto.mole.intor_cross('int1e_ovlp', mol, min_mol)
+    s12 = gto.mole.intor_cross("int1e_ovlp", mol, min_mol)
     s21 = s12.T
 
     #   Calculate P_12 = S_1^-1 * S_12 using Cholesky decomposition
@@ -107,7 +108,7 @@ def _iao_complementary_orbitals(mol, iao_ref):
     norbital_total = mol.nao_nr()
 
     #   Calculate the Overlaps for total basis
-    s1 = mol.intor_symmetric('int1e_ovlp')
+    s1 = mol.intor_symmetric("int1e_ovlp")
 
     #   Construct the complementary space AO
     number_iaos = iao_ref.shape[1]
@@ -210,7 +211,7 @@ def _iao_atoms(mol, iao1, iao2):
 
     # Calclate the integrals for assignment
     number_orbitals = mol.nao_nr()
-    r_int1e = mol.intor('cint1e_r_sph', 3)
+    r_int1e = mol.intor("cint1e_r_sph", 3)
     iao_combine = np.hstack((iao1, iao2))
 
     # Calculate atom center for each orbital
@@ -232,7 +233,7 @@ def _iao_atoms(mol, iao1, iao2):
     iao_combine = iao_combine[ : , orb_list]
 
     # Orthogonalize the orbitals
-    s1 = mol.intor_symmetric('int1e_ovlp')
+    s1 = mol.intor_symmetric("int1e_ovlp")
     iao_combine = np.dot(iao_combine, orth.lowdin(reduce(np.dot, (iao_combine.T, s1, iao_combine))))
 
     return iao_combine
@@ -269,7 +270,7 @@ def _dmet_atom_list(mol, orbitals):
 
 
 def _dmet_orb_list(mol, atom_list):
-    """Rearrange the orbital label
+    """Rearrange the orbital labels.
 
     Args:
         mol (pyscf.gto.Mole): The molecule to simulate.

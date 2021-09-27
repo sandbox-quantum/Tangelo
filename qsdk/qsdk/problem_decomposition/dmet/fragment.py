@@ -1,4 +1,4 @@
-""" Module for data structure for DMET fragments. """
+"""Module for data structure for DMET fragments."""
 
 from dataclasses import dataclass, field
 import openfermion
@@ -12,8 +12,8 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
 @dataclass
 class SecondQuantizedDMETFragment:
-    """ Mimicking SecondQuantizedMolecule for DMET fragments. It has the minimal
-        number of attributes and methods to be parsed by electronic solvers.
+    """Mimicking SecondQuantizedMolecule for DMET fragments. It has the minimal
+    number of attributes and methods to be parsed by electronic solvers.
     """
 
     molecule: pyscf.gto
@@ -36,11 +36,12 @@ class SecondQuantizedDMETFragment:
         self.frozen_mos = None
 
     def _get_fermionic_hamiltonian(self):
-        """ This method returns the fermionic hamiltonian. It written to take into account
-            calls for this function is without argument, and attributes are parsed into it.
+        """This method returns the fermionic hamiltonian. It written to take
+        into account calls for this function is without argument, and attributes
+        are parsed into it.
 
-            Returns:
-                FermionOperator: Self-explanatory.
+        Returns:
+            FermionOperator: Self-explanatory.
         """
 
         dummy_of_molecule = openfermion.MolecularData([["C", (0., 0. ,0.)]], "sto-3g", self.spin+1, self.q)
@@ -68,9 +69,9 @@ class SecondQuantizedDMETFragment:
         return get_fermion_operator(fragment_hamiltonian)
 
     def to_pyscf(self, basis=None):
-        """ Method to output the PySCF molecule.
+        """Method to output the PySCF molecule.
 
-            Returns
-                pyscf.gto.Mole: PySCF molecule.
+        Returns
+            pyscf.gto.Mole: PySCF molecule.
         """
         return self.molecule

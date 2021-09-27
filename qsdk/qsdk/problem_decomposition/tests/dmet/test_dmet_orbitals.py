@@ -1,4 +1,4 @@
-""" Test the construction of localized orbitals for DMET calculation """
+"""Test the construction of localized orbitals for DMET calculation."""
 
 import unittest
 import os
@@ -11,7 +11,7 @@ from qsdk.problem_decomposition.electron_localization import iao_localization
 path_file = os.path.dirname(__file__)
 
 class TestDMETorbitals(unittest.TestCase):
-    """ Generate the localized orbitals employing IAOs """
+    """Generate the localized orbitals employing IAOs."""
 
     def test_orbital_construction(self):
 
@@ -43,7 +43,8 @@ class TestDMETorbitals(unittest.TestCase):
             C 8.66428 -1.63508  4.12154
             H 9.06449 -2.27473  3.32841
             H 9.02896 -2.01514  5.08095
-            H 9.06273 -0.62500  3.98256"""
+            H 9.06273 -0.62500  3.98256
+        """
 
         mol.basis = "3-21g"
         mol.charge = 0
@@ -54,11 +55,11 @@ class TestDMETorbitals(unittest.TestCase):
         mf.scf()
 
         dmet_orbs = dmet_orbitals(mol, mf, range(mol.nao_nr()), iao_localization)
-        dmet_orbitals_ref = np.loadtxt('{}/data/test_dmet_orbitals.txt'.format(path_file))
+        dmet_orbitals_ref = np.loadtxt("{}/data/test_dmet_orbitals.txt".format(path_file))
 
         # Test the construction of IAOs
         for index, value_ref in np.ndenumerate(dmet_orbitals_ref):
-            self.assertAlmostEqual(value_ref, dmet_orbs.localized_mo[index], msg='DMET orbs error at index ' + str(index), delta=1e-6)
+            self.assertAlmostEqual(value_ref, dmet_orbs.localized_mo[index], msg="DMET orbs error at index " + str(index), delta=1e-6)
 
 
 if __name__ == "__main__":

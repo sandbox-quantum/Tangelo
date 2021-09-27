@@ -1,6 +1,6 @@
-"""
-This module defines functions to get suggestions for freezing orbitals. Those functions take a pyscf.gto object
-and return an integer or a list of orbital indices for freezing orbitals.
+"""This module defines functions to get suggestions for freezing orbitals. Those
+functions take a pyscf.gto object and return an integer or a list of orbital
+indexes for freezing orbitals.
 """
 
 
@@ -33,10 +33,11 @@ def get_frozen_core(molecule):
 
 
 def get_orbitals_excluding_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
-    """Function that returns a list of orbitals to freeze if the user wants to consider
-    only a subset from HOMO(-homo_min_n) to LUMO(+lumo_plus_n) orbitals. Users
-    should be aware of degeneracies, as this function does not take this property
-    into account. Also, it is only relevant for closed-shell systems.
+    """Function that returns a list of orbitals to freeze if the user wants to
+    consider only a subset from HOMO(-homo_min_n) to LUMO(+lumo_plus_n)
+    orbitals. Users should be aware of degeneracies, as this function does not
+    take this property into account. Also, it is only relevant for closed-shell
+    systems.
 
     Args:
         molecule (pyscf.gto): Molecule to be evaluated.
@@ -44,7 +45,8 @@ def get_orbitals_excluding_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
         lumo_plus_n (int): Ending point at LUMO + lumo_plus_n.
 
     Returns:
-        frozen_orbitals (list of int): Frozen orbitals not detected in the active space.
+        frozen_orbitals (list of int): Frozen orbitals not detected in the
+            active space.
     """
 
     # Getting the number of molecular orbitals. It also works with different

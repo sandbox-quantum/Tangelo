@@ -1,12 +1,11 @@
 """Construct localized orbitals for DMET calculation
 
-The construction of the localized orbitals from the orbitals 
-obtained from the full system mean-field calculation is done here.
+The construction of the localized orbitals from the orbitals obtained from the
+full system mean-field calculation is done here.
 
-Localization schemes based on Intrisic atomic orbitals (IAO)
-(dmet_iao.py), Lowdin, meta-Lowdin, and Boys can be selected.
-The latter three rely on external PySCF program.
-However, using Boys localization is not recommended.
+Localization schemes based on Intrisic atomic orbitals (IAO) (dmet_iao.py),
+Lowdin, meta-Lowdin, and Boys can be selected. The latter three rely on external
+PySCF program. However, using Boys localization is not recommended.
 """
 
 from pyscf import scf, ao2mo
@@ -16,20 +15,26 @@ from functools import reduce
 class dmet_orbitals:
     """ Localize the SCF orbitals and calculate the integrals
 
-    This class handles the information from the calculation 
-    of the entire molecular system
+    This class handles the information from the calculation of the entire
+    molecular system
 
     Attributes:
         mol_full (pyscf.gto.Mole): The molecule to simulate (The full molecule).
-        mf_full (pyscf.scf.RHF): The mean-field of the molecule (The full molecule).
-        low_scf_energy (float64): The mean-field total energy of the full molecule.
-        low_scf_fock (numpy.array): The Fock matrix for the full molecule (float64).
-        dmet_active_orbitals (list): Label for active orbitals. "1" is active, and "0" is inactive (int).
+        mf_full (pyscf.scf.RHF): The mean-field of the molecule (The full
+            molecule).
+        low_scf_energy (float64): The mean-field total energy of the full
+            molecule.
+        low_scf_fock (numpy.array): The Fock matrix for the full molecule
+            (float64).
+        dmet_active_orbitals (list): Label for active orbitals. "1" is active,
+            and "0" is inactive (int).
         number_active_orbitals (int): Number of active orbitals.
         number_active_electrons (int): Number of active electrons.
         localized_mo (numpy.array): The localized molecular orbitals (float64).
-        core_constant_energy (float64): Constant core energy (Constant value which does not change in DMET).
-        active_oneint (numpy.array): One-electron integral in localized MO basis (float64).
+        core_constant_energy (float64): Constant core energy (Constant value
+            which does not change in DMET).
+        active_oneint (numpy.array): One-electron integral in localized MO basis
+            (float64).
         active_fock (numpy.array): Fock matrix in localized MO basis (float64).
     """
 
@@ -39,10 +44,12 @@ class dmet_orbitals:
         Localize the orbitals, get energies and integrals for the entire system
         in localized MO basis.
 
-        Args: 
+        Args:
             mol (pyscf.gto.Mole): The molecule to simulate (The full molecule).
-            mf (pyscf.scf.RHF): The mean field of the molecule (The full molecule).
-            active_space (list): The active space in DMET calculation. All orbitals in the initial SCF calculation (int).
+            mf (pyscf.scf.RHF): The mean field of the molecule (The full
+                molecule).
+            active_space (list): The active space in DMET calculation. All
+                orbitals in the initial SCF calculation (int).
             localization_function (string): Localization scheme.
         """
 
@@ -54,7 +61,7 @@ class dmet_orbitals:
         self.low_scf_energy = mf.e_tot
         low_scf_dm = reduce(np.dot, (mf.mo_coeff, np.diag(mf.mo_occ), mf.mo_coeff.T))
         low_scf_twoint = scf.hf.get_veff(mf.mol, low_scf_dm, 0, 0, 1)
-        self.low_scf_fock = mf.mol.intor('cint1e_kin_sph') + mf.mol.intor('cint1e_nuc_sph') + low_scf_twoint
+        self.low_scf_fock = mf.mol.intor("cint1e_kin_sph") + mf.mol.intor("cint1e_nuc_sph") + low_scf_twoint
 
         # Define the active space if possible
         self.dmet_active_orbitals = np.zeros([mf.mol.nao_nr()], dtype=int)
@@ -73,7 +80,7 @@ class dmet_orbitals:
         core_oneint = self.low_scf_fock - low_scf_twoint + core_twoint
 
         # Define the energies and matrix elements based on the localized orbitals
-        self.core_constant_energy = mf.mol.energy_nuc() + np.einsum('ij,ij->', core_oneint - 0.5*core_twoint, core_ao_dm)
+        self.core_constant_energy = mf.mol.energy_nuc() + np.einsum("ij,ij->", core_oneint - 0.5*core_twoint, core_ao_dm)
         self.active_oneint = reduce(np.dot, (self.localized_mo.T, core_oneint, self.localized_mo))
         self.active_fock = reduce(np.dot, (self.localized_mo.T, self.low_scf_fock, self.localized_mo))
 
@@ -83,12 +90,16 @@ class dmet_orbitals:
         Args:
             bath_orb (numpy.array): The bath orbitals (float64).
             norb_high (int): Number of orbitals in the fragment calculation.
-            onerdm_core (numpy.array): The core part of the one-particle RDM (float64).
+            onerdm_core (numpy.array): The core part of the one-particle RDM
+                (float64).
 
         Returns:
-            frag_oneint (numpy.array): One-electron integrals for fragment calculation (float64).
-            frag_fock (numpy.array): The fock matrix for fragment calculation (float64).
-            frag_twoint (numpy.array): Two-electron integrals for fragment calculation (float64).
+            frag_oneint (numpy.array): One-electron integrals for fragment
+                calculation (float64).
+            frag_fock (numpy.array): The fock matrix for fragment calculation
+                (float64).
+            frag_twoint (numpy.array): Two-electron integrals for fragment
+                calculation (float64).
         """
 
         # Calculate one-electron integrals
@@ -106,4 +117,3 @@ class dmet_orbitals:
                                                 norb_high,  norb_high,  norb_high,  norb_high)
 
         return frag_oneint, frag_fock, frag_twoint
-

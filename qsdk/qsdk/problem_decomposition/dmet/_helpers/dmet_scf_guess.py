@@ -1,7 +1,7 @@
 """Constructing guess orbitals in DMET calculation
 
-Construction of the guess orbitals for fragment 
-SCF calculation in DMET calculation is done here.
+Construction of the guess orbitals for fragment SCF calculation in DMET
+calculation is done here.
 """
 
 import scipy
@@ -16,8 +16,10 @@ def dmet_fragment_guess(t_list, bath_orb, chemical_potential, norb_high, number_
         bath_orb (numpy.array): The bath orbitals (float64).
         chemical_potential (float64): The chemical potential.
         norb_high (int): The number of orbitals in the fragment calculation.
-        number_active_electron (int): The number of electrons in the fragment calculation.
-        active_fock (numpy.array): The fock matrix from the low-level calculation (float64).
+        number_active_electron (int): The number of electrons in the fragment
+            calculation.
+        active_fock (numpy.array): The fock matrix from the low-level
+            calculation (float64).
 
     Returns:
         frag_guess (numpy.array): The guess orbitals (float64).
@@ -36,6 +38,5 @@ def dmet_fragment_guess(t_list, bath_orb, chemical_potential, norb_high, number_
 
     # Extract the eigenvectors of the occupied orbitals as the guess orbitals
     frag_guess = np.dot(eigenvectors[ :, : int(number_active_electron/2)], eigenvectors[ :, : int(number_active_electron/2)].T) * 2
-    
-    return frag_guess
 
+    return frag_guess

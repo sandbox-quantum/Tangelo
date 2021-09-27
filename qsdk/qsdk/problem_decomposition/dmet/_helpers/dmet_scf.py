@@ -1,7 +1,6 @@
 """Perform fragment SCF calculation.
 
-The fragment SCF calculation for DMET calculation
-is done here.
+The fragment SCF calculation for DMET calculation is done here.
 """
 
 from pyscf import gto, scf, ao2mo
@@ -13,17 +12,22 @@ def dmet_fragment_scf(t_list, two_ele, fock, number_electrons, number_orbitals, 
 
     Args:
         t_list (list): Number of [0] fragment & [1] bath orbitals (int).
-        two_ele (numpy.array): Two-electron integrals for fragment calculation (float64).
+        two_ele (numpy.array): Two-electron integrals for fragment calculation
+            (float64).
         fock (numpy.array): The fock matrix for fragment calculation (float64).
         number_electrons (int): Number of electrons for fragment calculation.
         number_orbitals (int): Number of orbitals for fragment calculation.
-        guess_orbitals (numpy.array): Guess orbitals for SCF calculation (float64).
+        guess_orbitals (numpy.array): Guess orbitals for SCF calculation
+            (float64).
         chemical_potential (float64): The chemical potential.
 
     Returns:
-        mf_frag (pyscf.scf.RHF): The mean field of the molecule (Fragment calculation).
-        fock_frag_copy (numpy.array): The fock matrix with chemical potential subtracted (float64).
-        mol_frag (pyscf.gto.Mole): The molecule to simulate (Fragment calculation).
+        mf_frag (pyscf.scf.RHF): The mean field of the molecule (Fragment
+            calculation).
+        fock_frag_copy (numpy.array): The fock matrix with chemical potential
+            subtracted (float64).
+        mol_frag (pyscf.gto.Mole): The molecule to simulate (Fragment
+            calculation).
     """
 
     # Deep copy the fock matrix
@@ -37,7 +41,7 @@ def dmet_fragment_scf(t_list, two_ele, fock, number_electrons, number_orbitals, 
     # Determine the molecular space (set molecule object of pyscf)
     mol_frag = gto.Mole()
     mol_frag.build(verbose=0)
-    mol_frag.atom.append(('C', (0, 0, 0)))
+    mol_frag.atom.append(("C", (0, 0, 0)))
     mol_frag.nelectron = number_electrons
     mol_frag.incore_anyway = True
 
@@ -59,6 +63,5 @@ def dmet_fragment_scf(t_list, two_ele, fock, number_electrons, number_orbitals, 
         mf_frag = scf.RHF(mol_frag).newton()
         energy = mf_frag.kernel(dm0 = dm_frag)
         dm_frag = reduce(np.dot, (mf_frag.mo_coeff, np.diag(mf_frag.mo_occ), mf_frag.mo_coeff.T))
-    
-    return mf_frag, fock_frag_copy, mol_frag
 
+    return mf_frag, fock_frag_copy, mol_frag

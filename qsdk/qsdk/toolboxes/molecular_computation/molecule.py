@@ -1,7 +1,6 @@
-""" Module containing datastructures for interfacing with this package
+"""Module containing datastructures for interfacing with this package
 functionalities.
 """
-
 
 import copy
 from dataclasses import dataclass, field
@@ -11,13 +10,13 @@ import openfermion
 import openfermionpyscf
 
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
-from qsdk.toolboxes.operators import FermionOperator
 from qsdk.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
 
 def atom_string_to_list(atom_string):
-    """ Convert atom coordinate string (typically stored in text files) into a list/tuple representation
-        suitable for MolecularData """
+    """Convert atom coordinate string (typically stored in text files) into a
+    list/tuple representation suitable for openfermion.MolecularData.
+    """
 
     geometry = []
     for line in atom_string.split("\n"):
@@ -30,16 +29,16 @@ def atom_string_to_list(atom_string):
 
 
 def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals=None):
-    """ Function to convert a Molecule into a SecondQuantizedMolecule.
+    """Function to convert a Molecule into a SecondQuantizedMolecule.
 
-        Args:
-            mol (Molecule): Self-explanatory.
-            basis_set (string): String representing the basis set.
-            frozen_orbitals (int or list of int): Number of MOs or MOs indexes
-                to freeze.
+    Args:
+        mol (Molecule): Self-explanatory.
+        basis_set (string): String representing the basis set.
+        frozen_orbitals (int or list of int): Number of MOs or MOs indexes to
+            freeze.
 
-        Returns:
-            SecondQuantizedMolecule: Mean-field data structure for a molecule.
+    Returns:
+        SecondQuantizedMolecule: Mean-field data structure for a molecule.
     """
 
     converted_mol = SecondQuantizedMolecule(mol.xyz, mol.q, mol.spin,
@@ -50,23 +49,22 @@ def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals
 
 @dataclass
 class Molecule:
-    """ Custom datastructure to store information about a Molecule. This contains
-        only physical information.
+    """Custom datastructure to store information about a Molecule. This contains
+    only physical information.
 
-        Attributes:
-            xyz (array-like or string): Nested array-like structure with elements
-                and coordinates (ex:[ ["H", (0., 0., 0.)], ...]). Can also be a
-                multi-line string.
-            q (float): Total charge.
-            spin (int): Absolute difference of alpha and beta electron number.
-            n_atom (int): Self-explanatory.
-            n_electrons (int): Self-explanatory.
-            n_min_orbitals (int): Number of orbitals with a minimal basis set.
+    Attributes:
+        xyz (array-like or string): Nested array-like structure with elements
+            and coordinates (ex:[ ["H", (0., 0., 0.)], ...]). Can also be a
+            multi-line string.
+        q (float): Total charge.
+        spin (int): Absolute difference between alpha and beta electron number.
+        n_atom (int): Self-explanatory.
+        n_electrons (int): Self-explanatory.
+        n_min_orbitals (int): Number of orbitals with a minimal basis set.
 
-        Properties:
-            elements (list): List of all elements in the molecule.
-            coords (array of float): N x 3 coordinates matrix.
-
+    Properties:
+        elements (list): List of all elements in the molecule.
+        coords (array of float): N x 3 coordinates matrix.
     """
     xyz: list or str
     q: int = 0
@@ -93,13 +91,13 @@ class Molecule:
         return np.array([self.xyz[i][1] for i in range(self.n_atoms)])
 
     def to_pyscf(self, basis="sto-3g"):
-        """ Method to return a pyscf.gto.Mole object.
+        """Method to return a pyscf.gto.Mole object.
 
-            Args:
-                basis (string): Basis set.
+        Args:
+            basis (string): Basis set.
 
-            Returns:
-                pyscf.gto.Mole: PySCF compatible object.
+        Returns:
+            pyscf.gto.Mole: PySCF compatible object.
         """
 
         mol = gto.Mole()
@@ -126,36 +124,41 @@ class Molecule:
 
 @dataclass
 class SecondQuantizedMolecule(Molecule):
-    """ Custom datastructure to store information about a mean field derived
-        from a molecule. This class inherits from Molecule and add a number of
-        attributes defined by the second quantization.
+    """Custom datastructure to store information about a mean field derived
+    from a molecule. This class inherits from Molecule and add a number of
+    attributes defined by the second quantization.
 
-        Attributes:
-            basis (string): Basis set.
-            mf_energy (float): Mean-field energy (RHF or ROHF energy depending
-                on the spin).
-            mo_energies (list of float): Molecular orbital energies.
-            mo_occ (list of float): Molecular orbital occupancies (between 0.
-                and 2.).
-            n_mos (int): Number of molecular orbitals with a given basis set.
-            n_sos (int): Number of spin-orbitals with a given basis set.
-            active_occupied (list of int): Occupied molecular orbital indexes
-                that are considered active.
-            frozen_occupied (list of int): Occupied molecular orbital indexes
-                that are considered frozen.
-            active_virtual (list of int): Virtual molecular orbital indexes
-                that are considered active.
-            frozen_virtual (list of int): Virtual molecular orbital indexes
-                that are considered frozen.
-            fermionic_hamiltonian (FermionOperator): Self-explanatory.
+    Attributes:
+        basis (string): Basis set.
+        mf_energy (float): Mean-field energy (RHF or ROHF energy depending
+            on the spin).
+        mo_energies (list of float): Molecular orbital energies.
+        mo_occ (list of float): Molecular orbital occupancies (between 0.
+            and 2.).
+        mean_field (pyscf.scf): Mean-field object (used by CCSD and FCI).
+        n_mos (int): Number of molecular orbitals with a given basis set.
+        n_sos (int): Number of spin-orbitals with a given basis set.
+        active_occupied (list of int): Occupied molecular orbital indexes
+            that are considered active.
+        frozen_occupied (list of int): Occupied molecular orbital indexes
+            that are considered frozen.
+        active_virtual (list of int): Virtual molecular orbital indexes
+            that are considered active.
+        frozen_virtual (list of int): Virtual molecular orbital indexes
+            that are considered frozen.
+        fermionic_hamiltonian (FermionOperator): Self-explanatory.
 
-        Properties:
-            n_active_electrons (int): Difference between number of total
-                electrons and number of electrons in frozen orbitals.
-            n_active_sos (int): Number of active spin-orbitals.
-            n_active_mos (int): Number of active molecular orbitals.
-            frozen_orbitals (list or None): Frozen MOs indexes.
-            actives_orbitals (list): Active MOs indexes.
+    Methods:
+        freeze_mos: Change frozen orbitals attributes. It can be done inplace
+            or not.
+
+    Properties:
+        n_active_electrons (int): Difference between number of total
+            electrons and number of electrons in frozen orbitals.
+        n_active_sos (int): Number of active spin-orbitals.
+        n_active_mos (int): Number of active molecular orbitals.
+        frozen_mos (list or None): Frozen MOs indexes.
+        actives_mos (list): Active MOs indexes.
     """
     basis: str = "sto-3g"
     frozen_orbitals: list or int = field(default="frozen_core", repr=False)
@@ -198,13 +201,14 @@ class SecondQuantizedMolecule(Molecule):
 
     @property
     def frozen_mos(self):
-        """ This property returns MOs indexes for the frozen orbitals. It was written
-            to take into account if one of the two possibilities (occ or virt) is
-            None. In fact, list + None, None + list or None + None return an error.
-            An empty list cannot be sent because PySCF mp2 returns "IndexError: list index out of range".
+        """This property returns MOs indexes for the frozen orbitals. It was
+        written to take into account if one of the two possibilities (occ or
+        virt) is None. In fact, list + None, None + list or None + None return
+        an error. An empty list cannot be sent because PySCF mp2 returns
+        "IndexError: list index out of range".
 
-            Returns:
-                list: MOs indexes frozen (occupied + virtual).
+        Returns:
+            list: MOs indexes frozen (occupied + virtual).
         """
         if self.frozen_occupied and self.frozen_virtual:
             return self.frozen_occupied + self.frozen_virtual
@@ -217,21 +221,21 @@ class SecondQuantizedMolecule(Molecule):
 
     @property
     def active_mos(self):
-        """ This property returns MOs indexes for the active orbitals.
+        """This property returns MOs indexes for the active orbitals.
 
-            Returns:
-                list: MOs indexes that are active (occupied + virtual).
+        Returns:
+            list: MOs indexes that are active (occupied + virtual).
         """
         return self.active_occupied + self.active_virtual
 
     def _compute_mean_field(self):
-        """ Computes the mean-field for the molecule. It supports open-shell
-            mean-field calculation through openfermionpyscf. Depending on the
-            molecule spin, it does a restricted or a restriction open-shell
-            Hartree-Fock calculation.
+        """Computes the mean-field for the molecule. It supports open-shell
+        mean-field calculation through openfermionpyscf. Depending on the
+        molecule spin, it does a restricted or a restriction open-shell
+        Hartree-Fock calculation.
 
-            It is also used for defining attributes related to the mean-field
-            (mf_energy, mo_energies, mo_occ, n_mos and n_sos).
+        It is also used for defining attributes related to the mean-field
+        (mf_energy, mo_energies, mo_occ, n_mos and n_sos).
         """
         of_molecule = self.to_openfermion(self.basis)
         of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True,
@@ -250,11 +254,12 @@ class SecondQuantizedMolecule(Molecule):
         self.mean_field = of_molecule._pyscf_data["scf"]
 
     def _get_fermionic_hamiltonian(self):
-        """ This method returns the fermionic hamiltonian. It written to take into account
-            calls for this function is without argument, and attributes are parsed into it.
+        """This method returns the fermionic hamiltonian. It written to take
+        into account calls for this function is without argument, and attributes
+        are parsed into it.
 
-            Returns:
-                FermionOperator: Self-explanatory.
+        Returns:
+            FermionOperator: Self-explanatory.
         """
 
         occupied_indices = self.frozen_occupied
@@ -268,20 +273,22 @@ class SecondQuantizedMolecule(Molecule):
         return get_fermion_operator(molecular_hamiltonian)
 
     def _convert_frozen_orbitals(self, frozen_orbitals):
-        """ This method converts an int or a list of frozen_orbitals into 4 categories:
-                - Active and occupied MOs;
-                - Active and virtual MOs;
-                - Frozen and occupied MOs;
-                - Frozen and virtual MOs.
-            Each of them are list with MOs indexes (first one is 0).
-            Note that they are MOs, not spin-orbitals (MOs * 2).
+        """This method converts an int or a list of frozen_orbitals into four
+        categories:
+        - Active and occupied MOs;
+        - Active and virtual MOs;
+        - Frozen and occupied MOs;
+        - Frozen and virtual MOs.
+        Each of them are list with MOs indexes (first one is 0). Note that they
+        are MOs labelled, not spin-orbitals (MOs * 2) indexes.
 
-            Args:
-                frozen_orbitals (int or list of int): Number of MOs or MOs indexes to freeze.
+        Args:
+            frozen_orbitals (int or list of int): Number of MOs or MOs indexes
+                to freeze.
 
-            Returns:
-                list: Nested list of active occupied, frozen occupied,
-                    active virtual and frozen virtual orbital indexes.
+        Returns:
+            list: Nested list of active occupied, frozen occupied, active
+                virtual and frozen virtual orbital indexes.
         """
 
         if frozen_orbitals == "frozen_core":
@@ -317,7 +324,7 @@ class SecondQuantizedMolecule(Molecule):
         return active_occupied, frozen_occupied, active_virtual, frozen_virtual
 
     def freeze_mos(self, frozen_orbitals, inplace=True):
-        """ This method recomputes frozen orbitals with the provided input. """
+        """This method recomputes frozen orbitals with the provided input."""
 
         list_of_active_frozen = self._convert_frozen_orbitals(frozen_orbitals)
 

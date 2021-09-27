@@ -1,36 +1,40 @@
-""" This module defines various kinds of operators used in vqe.
-    It can later be broken down in several modules if needed. """
+"""This module defines various kinds of operators used in vqe. It can later be
+broken down in several modules if needed.
+"""
 
 # Later on, if needed, we can extract the code for the operators themselves to remove the dependencies and customize
 import openfermion
 
 
 class FermionOperator(openfermion.FermionOperator):
-    """ Currently, this class is coming from openfermion. Can be later on be replaced by our own implementation. """
+    """Currently, this class is coming from openfermion. Can be later on be
+    replaced by our own implementation.
+    """
     pass
 
 
 class QubitOperator(openfermion.QubitOperator):
-    """ Currently, this class is coming from openfermion. Can be later on be replaced by our own implementation. """
+    """Currently, this class is coming from openfermion. Can be later on be
+    replaced by our own implementation.
+    """
     pass
 
 
 class QubitHamiltonian(QubitOperator):
-    """ QubitHamiltonian objects are essentially openfermion.QubitOperator objects,
-        with extra attributes. The number of qubit (n_qubits), mapping procedure (mapping),
-        the qubit ordering (up_then_down) are incorporated into the class.
-        In addition to QubitOperator, several checks are done when performing
-        arithmetic operations on QubitHamiltonians.
+    """QubitHamiltonian objects are essentially openfermion.QubitOperator
+    objects, with extra attributes. The number of qubit (n_qubits), mapping
+    procedure (mapping), the qubit ordering (up_then_down) are incorporated into
+    the class. In addition to QubitOperator, several checks are done when
+    performing arithmetic operations on QubitHamiltonians.
 
-        Attributes:
-            n_qubits (int): Self-explanatory.
-            mapping (string): Mapping procedure for fermionic to qubit encoding
-                (ex: "JW", "BK", etc.).
-            up_then_down (bool): Whether or not spin ordering is all up then
-                all down.
+    Attributes:
+        mapping (string): Mapping procedure for fermionic to qubit encoding
+            (ex: "JW", "BK", etc.).
+        up_then_down (bool): Whether or not spin ordering is all up then
+            all down.
 
-        Properties:
-            n_terms (int): Number of terms in this qubit Hamiltonian.
+    Properties:
+        n_terms (int): Number of terms in this qubit Hamiltonian.
     """
 
     def __init__(self, mapping, up_then_down, *args, **kwargs):
@@ -75,7 +79,9 @@ class QubitHamiltonian(QubitOperator):
 
 
 def count_qubits(qb_op):
-    """ Return the number of qubits used by the qubit operator based on the highest index found in the terms."""
+    """Return the number of qubits used by the qubit operator based on the
+    highest index found in the terms.
+    """
     if (len(qb_op.terms.keys()) == 0) or ((len(qb_op.terms.keys()) == 1) and (len(list(qb_op.terms.keys())[0]) == 0)):
         return 0
     else:
@@ -83,8 +89,13 @@ def count_qubits(qb_op):
 
 
 def normal_ordered(fe_op):
-    """ Input: a Fermionic operator of class toolboxes.operators.FermionicOperator or openfermion.FermionicOperator
-        Return: normal ordered toolboxes.operators.FermionicOperator"""
+    """ Input: a Fermionic operator of class
+    toolboxes.operators.FermionicOperator or openfermion.FermionicOperator for
+    reordering.
+
+    Returns:
+        toolboxes.operators.FermionicOperator: Normal ordered operator.
+    """
 
     # Obtain normal ordered fermionic operator as list of terms
     norm_ord_terms = openfermion.transforms.normal_ordered(fe_op).terms
@@ -97,8 +108,13 @@ def normal_ordered(fe_op):
 
 
 def squared_normal_ordered(all_terms):
-    """ Input: a list of terms to generate toolboxes.operators.FermionOperator or openfermion.FermionOperator
-        Return: squared (i.e. fe_op*fe_op) and normal ordered toolboxes.operators.FermionOperator"""
+    """Input: a list of terms to generate toolboxes.operators.FermionOperator
+    or openfermion.FermionOperator
+
+    Returns:
+        toolboxes.operators.FermionOperator: squared (i.e. fe_op*fe_op) and
+            normal ordered.
+    """
 
     # Obtain normal ordered fermionic operator as list of terms
     fe_op = list_to_fermionoperator(all_terms)
@@ -107,8 +123,11 @@ def squared_normal_ordered(all_terms):
 
 
 def list_to_fermionoperator(all_terms):
-    """ Input: a list of terms to generate FermionOperator
-        Return: a toolboxes.operators.FermionOperator"""
+    """Input: a list of terms to generate FermionOperator
+
+    Returns:
+        toolboxes.operators.FermionOperator: Single merged operator.
+    """
 
     fe_op = FermionOperator()
     for item in all_terms:
@@ -117,16 +136,16 @@ def list_to_fermionoperator(all_terms):
 
 
 def qubitop_to_qubitham(qubit_op, mapping, up_then_down):
-    """ Function to convert a QubitOperator into a QubitHamiltonian.
+    """Function to convert a QubitOperator into a QubitHamiltonian.
 
-        Args:
-            qubit_op (QubitOperator): Self-explanatory.
-            mapping (string): Qubit mapping procedure.
-            up_then_down (bool): Whether or not spin ordering is all up then
-                all down.
+    Args:
+        qubit_op (QubitOperator): Self-explanatory.
+        mapping (string): Qubit mapping procedure.
+        up_then_down (bool): Whether or not spin ordering is all up then
+            all down.
 
-        Returns:
-            QubitHamiltonian: Self-explanatory.
+    Returns:
+        QubitHamiltonian: Self-explanatory.
     """
     qubit_ham = QubitHamiltonian(mapping, up_then_down)
     qubit_ham.terms = qubit_op.terms.copy()
