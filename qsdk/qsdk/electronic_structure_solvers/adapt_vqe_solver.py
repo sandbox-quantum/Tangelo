@@ -14,6 +14,8 @@ Ref:
 
 import math
 from openfermion import commutator
+from openfermion import FermionOperator as ofFermionOperator
+from qsdk.toolboxes.operators.operators import FermionOperator, QubitOperator
 from scipy.optimize import minimize
 import warnings
 
@@ -37,6 +39,8 @@ class ADAPTSolver:
         pool (func): Function that returns a list of FermionOperator. Each
             element represents excitation/operator that has an effect of the
             total energy.
+        pool_args (tuple) : The arguments for the pool function given as a
+            tuple.
         qubit_mapping (str): One of the supported qubit mapping identifiers.
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         up_then_down (bool): Spin orbitals ordering.
@@ -53,6 +57,8 @@ class ADAPTSolver:
         default_options = {"molecule": None,
                            "tol": 1e-3, "max_cycles": 15,
                            "pool": uccgsd_pool,
+                           "pool_args": None,
+                           "frozen_orbitals": "frozen_core",
                            "qubit_mapping": "jw",
                            "qubit_hamiltonian": None,
                            "up_then_down": False,
@@ -140,14 +146,32 @@ class ADAPTSolver:
         self.vqe_solver = VQESolver(self.vqe_options)
         self.vqe_solver.build()
 
+        # If applicable, give vqe_solver access to molecule object
+        if self.molecule:
+            self.vqe_solver.molecule = self.molecule
+
         # Getting the pool of operators for the ansatz. If more functionalities
         # are added, this part must be modified and generalized.
-        self.fermionic_operators = self.pool(self.n_spinorbitals)
-        self.pool_operators = [fermion_to_qubit_mapping(fermion_operator=fi,
-                                                        mapping=self.qubit_mapping,
-                                                        n_spinorbitals=self.n_spinorbitals,
-                                                        n_electrons=self.n_electrons,
-                                                        up_then_down=self.up_then_down) for fi in self.fermionic_operators]
+        if self.pool_args is None:
+            if self.pool == uccgsd_pool:
+                self.pool_args = (self.n_spinorbitals,)
+            else:
+                raise KeyError('pool_args must be defined if using own pool function')
+        # Check if pool function returns a QubitOperator or FermionOperator and populate variables
+        pool_list = self.pool(*self.pool_args)
+        if isinstance(pool_list[0], QubitOperator):
+            self.pool_type = 'qubit'
+            self.pool_operators = pool_list
+        elif isinstance(pool_list[0], (FermionOperator, ofFermionOperator)):
+            self.pool_type = 'fermion'
+            self.fermionic_operators = pool_list
+            self.pool_operators = [fermion_to_qubit_mapping(fermion_operator=fi,
+                                                            mapping=self.qubit_mapping,
+                                                            n_spinorbitals=self.n_spinorbitals,
+                                                            n_electrons=self.n_electrons,
+                                                            up_then_down=self.up_then_down) for fi in self.fermionic_operators]
+        else:
+            raise ValueError('pool function must return either QubitOperator or FermionOperator')
 
         # Cast all coefs to floats (rotations angles are real).
         for qubit_op in self.pool_operators:
@@ -172,7 +196,7 @@ class ADAPTSolver:
             print(f"Iteration {self.iteration} of ADAPT-VQE.")
 
             pool_select = self.rank_pool(self.pool_commutators, self.vqe_solver.ansatz.circuit,
-                                    backend=self.vqe_solver.backend, tolerance=self.tol)
+                                         backend=self.vqe_solver.backend, tolerance=self.tol)
 
             # If pool selection returns an operator that changes the energy by
             # more than self.tol. Else, the loop is complete and the energy is
@@ -182,7 +206,10 @@ class ADAPTSolver:
                 # Adding a new operator + initializing its parameters to 0.
                 # Previous parameters are kept as they were.
                 params += [0.]
-                self.vqe_solver.ansatz.add_operator(self.pool_operators[pool_select], self.fermionic_operators[pool_select])
+                if self.pool_type == 'fermion':
+                    self.vqe_solver.ansatz.add_operator(self.pool_operators[pool_select], self.fermionic_operators[pool_select])
+                else:
+                    self.vqe_solver.ansatz.add_operator(self.pool_operators[pool_select])
                 self.vqe_solver.initial_var_params = params
 
                 # Performs a VQE simulation and append the energy to a list.
