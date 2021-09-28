@@ -6,7 +6,7 @@ Small Molecules and Quantum Magnets" https://arxiv.org/abs/1704.05018.
 import numpy as np
 
 from .ansatz import Ansatz
-from ._hea_circuit import HEACircuit
+from ._hea_circuit import construct_hea_circuit
 from qsdk.toolboxes.qubit_mappings.mapping_transform import get_qubit_number
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from agnostic_simulator import Circuit
@@ -124,7 +124,7 @@ class HEA(Ansatz):
 
         reference_state_circuit = self.prepare_reference_state()
 
-        hea_circuit = HEACircuit(self.n_qubits, self.n_layers, self.rot_type)
+        hea_circuit = construct_hea_circuit(self.n_qubits, self.n_layers, self.rot_type)
 
         if reference_state_circuit.size != 0:
             self.circuit = reference_state_circuit + hea_circuit
