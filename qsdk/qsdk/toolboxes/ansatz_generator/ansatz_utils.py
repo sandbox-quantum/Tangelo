@@ -1,6 +1,6 @@
-"""
-    Provide useful functions, corresponding to common patterns in quantum chemistry circuits (CNOT ladders,
-    Pauli-word to circuit translation ...) to facilitate the assembly of ansatz quantum circuits
+"""Provide useful functions, corresponding to common patterns in quantum
+chemistry circuits (CNOT ladders, Pauli-word to circuit translation ...) to
+facilitate the assembly of ansatz quantum circuits.
 """
 
 import numpy as np
@@ -8,19 +8,19 @@ from qsdk.backendbuddy import Circuit, Gate
 
 
 def pauli_op_to_gate(index, op, inverse=False):
-    """ Return the change-of-basis gates required to map pauli words to quantum circuit as per Whitfield 2010
-        https://arxiv.org/pdf/1001.3855.pdf
+    """Return the change-of-basis gates required to map pauli words to quantum
+    circuit as per Whitfield 2010 (https://arxiv.org/pdf/1001.3855.pdf).
     """
-    if op == 'X':
+    if op == "X":
         return Gate("H", index)
-    elif op == 'Y':
+    elif op == "Y":
         angle = 0.5*np.pi
         return Gate("RX", index, parameter=angle) if not inverse else Gate("RX", index, parameter=-angle+4*np.pi)
 
 
 def pauliword_to_circuit(pauli_word, coef, variational=True):
-    """ Generates a quantum circuit corresponding to the pauli word, as described in Whitfield 2010
-        https://arxiv.org/pdf/1001.3855.pdf
+    """Generates a quantum circuit corresponding to the pauli word, as described
+    in Whitfield 2010 (https://arxiv.org/pdf/1001.3855.pdf).
     """
     gates = []
 

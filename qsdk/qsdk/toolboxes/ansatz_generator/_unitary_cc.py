@@ -118,7 +118,7 @@ def uccsd_singlet_paramsize(n_qubits, n_electrons):
         reference.
     """
     if n_qubits % 2 != 0:
-        raise ValueError('The total number of spin-orbitals should be even.')
+        raise ValueError("The total number of spin-orbitals should be even.")
 
     # Since the total spin S^2 is conserved, we work with spatial orbitals
     n_spatial_orbitals = n_qubits // 2
@@ -234,7 +234,7 @@ def uccsd_singlet_generator(packed_amplitudes, n_qubits, n_electrons,
             builds the UCCSD wavefunction.
     """
     if n_qubits % 2 != 0:
-        raise ValueError('The total number of spin-orbitals should be even.')
+        raise ValueError("The total number of spin-orbitals should be even.")
 
     n_spatial_orbitals = n_qubits // 2
     n_occupied = int(numpy.ceil(n_electrons / 2))

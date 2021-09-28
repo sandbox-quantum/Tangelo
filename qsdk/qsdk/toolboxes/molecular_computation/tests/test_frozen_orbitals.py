@@ -7,15 +7,15 @@ from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 class FrozenOrbitalsTest(unittest.TestCase):
 
     def test_get_frozen_core(self):
-        """ Verify if the frozen orbital suggestions are consistent with
-        chemical intuition.
+        """Verify if the frozen orbital suggestions are consistent with chemical
+        intuition.
         """
 
         frozen_h2o = get_frozen_core(mol_H2O_321g)
         self.assertEqual(frozen_h2o, 1)
 
     def test_get_homo_lumo(self):
-        """ Verify if the HOMO-LUMO suggestions are consistent with the provided
+        """Verify if the HOMO-LUMO suggestions are consistent with the provided
         parameters.
         """
 

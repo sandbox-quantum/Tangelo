@@ -13,13 +13,13 @@ qu_op.terms = {term: math.copysign(1.0, coeff.imag) for term, coeff in qu_op.ter
 class ADAPTAnsatzTest(unittest.TestCase):
 
     def test_adaptansatz_init(self):
-        """Verify behavior of ADAPTAnsatz class. """
+        """Verify behavior of ADAPTAnsatz class."""
 
         ansatz = ADAPTAnsatz(n_spinorbitals=4, n_electrons=2)
         ansatz.build_circuit()
 
     def test_adaptansatz_adding(self):
-        """Verify operator addition behavior of ADAPTAnsatz class. """
+        """Verify operator addition behavior of ADAPTAnsatz class."""
 
         ansatz = ADAPTAnsatz(n_spinorbitals=4, n_electrons=2)
         ansatz.build_circuit()
@@ -30,7 +30,7 @@ class ADAPTAnsatzTest(unittest.TestCase):
         self.assertEqual(ansatz._n_terms_operators, [8])
 
     def test_adaptansatz_set_var_params(self):
-        """Verify variational parameter tuning behavior of ADAPTAnsatz class. """
+        """Verify variational parameter tuning behavior of ADAPTAnsatz class."""
 
         ansatz = ADAPTAnsatz(n_spinorbitals=4, n_electrons=2)
         ansatz.build_circuit()

@@ -14,7 +14,9 @@ sim = Simulator()
 class HEATest(unittest.TestCase):
 
     def test_hea_set_var_params(self):
-        """ Verify behavior of set_var_params for different inputs (keyword, list, numpy array)."""
+        """Verify behavior of set_var_params for different inputs (keyword,
+        list, numpy array).
+        """
 
         hea_ansatz = HEA(molecule=mol_H2_sto3g)
 
@@ -28,14 +30,16 @@ class HEATest(unittest.TestCase):
         np.testing.assert_array_almost_equal(hea_ansatz.var_params, np.zeros(4 * 3 * 3), decimal=6)
 
     def test_hea_incorrect_number_var_params(self):
-        """ Return an error if user provide incorrect number of variational parameters """
+        """Return an error if user provide incorrect number of variational
+        parameters.
+        """
 
         hea_ansatz = HEA(molecule=mol_H2_sto3g)
 
         self.assertRaises(ValueError, hea_ansatz.set_var_params, np.ones(4 * 3 * 3 + 1))
 
     def test_hea_H2(self):
-        """ Verify closed-shell HEA functionalities for H2 """
+        """Verify closed-shell HEA functionalities for H2."""
 
         # Build circuit
         hea_ansatz = HEA(molecule=mol_H2_sto3g)
@@ -60,7 +64,7 @@ class HEATest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.1372661564779496, delta=1e-6)
 
     def test_hea_H4(self):
-        """ Verify closed-shell HEA functionalities for H4 """
+        """Verify closed-shell HEA functionalities for H4."""
 
         var_params = [-2.34142720e-04,  6.28472420e+00,  4.67668267e+00, -3.14063369e+00,
                       -1.53697174e+00, -6.22546556e+00, -3.11351342e+00,  3.14158366e+00,

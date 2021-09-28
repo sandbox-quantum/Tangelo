@@ -1,11 +1,13 @@
-""" This module defines the k-UpCCGSD ansatz class. It provides a chemically inspired ansatz
-    and is an implementation of the classical unitary CCGSD ansatz. Generalized Single and pairwise
-    double excitation determinants, in accordance with the system number of electron and spin, are considered.
-    For more information about this ansatz, see references below.
+"""This module defines the k-UpCCGSD ansatz class. It provides a chemically
+inspired ansatz and is an implementation of the classical unitary CCGSD ansatz.
+Generalized Single and pairwise double excitation determinants, in accordance
+with the system number of electron and spin, are considered. For more
+information about this ansatz, see references below.
 
-    Refs:
-        * Joonho Lee, William J. Huggins, Martin Head-Gordon, and K. Birgitta, "Generalized Unitary
-          Couple Cluster Wavefunctions for Quantum Computation" arxiv:1810.02327
+Refs:
+    - Joonho Lee, William J. Huggins, Martin Head-Gordon, and K. Birgitta.
+        "Generalized Unitary Couple Cluster Wavefunctions for Quantum
+        Computation" arxiv:1810.02327.
 """
 
 import numpy as np
@@ -20,17 +22,18 @@ from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circ
 
 
 class UpCCGSD(Ansatz):
-    """ This class implements the UpCCGSD ansatz. This implies that the
-        mean-field is computed with the RHF or ROHF reference integrals.
+    """This class implements the UpCCGSD ansatz. This implies that the
+    mean-field is computed with the RHF or ROHF reference integrals.
 
-        Args:
-            molecule (SecondQuantizedMolecule) : The molecular system.
-            k : parameters for the number of times UpCCGSD is repeated see (arxiv:1810.02327) for details.
-                Default, 2
-            mapping (str) : one of the supported qubit mapping identifiers.
-                Default: "JW".
-            up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down.
-                Default, False (i.e. has alternating spin up/down ordering)
+    Args:
+        molecule (SecondQuantizedMolecule) : The molecular system.
+        k : parameters for the number of times UpCCGSD is repeated see
+            (arxiv:1810.02327) for details. Default, 2.
+        mapping (str) : one of the supported qubit mapping identifiers. Default:
+            "JW".
+        up_then_down (bool): change basis ordering putting all spin up orbitals
+            first, followed by all spin down. Default, False (i.e. has
+            alternating spin up/down ordering).
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, k=2):
@@ -45,7 +48,7 @@ class UpCCGSD(Ansatz):
 
         # Later: refactor to handle various flavors of UCCSD
         if self.n_spinorbitals % 2 != 0:
-            raise ValueError('The total number of spin-orbitals should be even.')
+            raise ValueError("The total number of spin-orbitals should be even.")
         self.n_spatial_orbitals = self.n_spinorbitals // 2
         self.n_doubles = self.n_spatial_orbitals * (self.n_spatial_orbitals - 1)//2
         self.n_singles = 2*self.n_doubles
@@ -56,7 +59,7 @@ class UpCCGSD(Ansatz):
         # TODO: support for others
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.var_params_default = 'ones'
+        self.var_params_default = "ones"
         self.supported_initial_var_params = {"ones", "random"}
 
         # Default initial parameters for initialization
@@ -66,9 +69,11 @@ class UpCCGSD(Ansatz):
         self.circuit = None
 
     def set_var_params(self, var_params=None):
-        """ Set values for variational parameters, such as zeros, random numbers, providing some
-        keywords for users, and also supporting direct user input (list or numpy array)
-        Return the parameters so that workflows such as VQE can retrieve these values. """
+        """Set values for variational parameters, such as zeros, random numbers,
+        providing some keywords for users, and also supporting direct user input
+        (list or numpy array). Return the parameters so that workflows such as
+        VQE can retrieve these values.
+        """
 
         if var_params is None:
             var_params = self.var_params_default
@@ -90,9 +95,10 @@ class UpCCGSD(Ansatz):
         return initial_var_params
 
     def prepare_reference_state(self):
-        """ Returns circuit preparing the reference state of the ansatz (e.g prepare reference wavefunction with HF,
-        multi-reference state, etc). These preparations must be consistent with the transform used to obtain the
-        qubit operator.
+        """Returns circuit preparing the reference state of the ansatz (e.g
+        prepare reference wavefunction with HF, multi-reference state, etc).
+        These preparations must be consistent with the transform used to obtain
+        the qubit operator.
         """
 
         if self.default_reference_state not in self.supported_reference_state:
@@ -106,8 +112,10 @@ class UpCCGSD(Ansatz):
                                          spin=self.spin)
 
     def build_circuit(self, var_params=None):
-        """ Build and return the quantum circuit implementing the state preparation ansatz
-         (with currently specified initial_state and var_params) """
+        """Build and return the quantum circuit implementing the state
+        preparation ansatz (with currently specified initial_state and
+        var_params).
+        """
 
         if var_params is not None:
             self.set_var_params(var_params)
@@ -149,8 +157,10 @@ class UpCCGSD(Ansatz):
             self.circuit = upccgsd_circuit
 
     def update_var_params(self, var_params):
-        """ Shortcut: set value of variational parameters in the already-built ansatz circuit member.
-            Preferable to rebuilt your circuit from scratch, which can be an involved process. """
+        """Shortcut: set value of variational parameters in the already-built
+        ansatz circuit member. Preferable to rebuilt your circuit from scratch,
+        which can be an involved process.
+        """
 
         self.set_var_params(var_params)
 
@@ -169,11 +179,12 @@ class UpCCGSD(Ansatz):
                     self.circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
 
     def _get_qubit_operator(self, current_k):
-        """Construct UpCCGSD FermionOperator for current_k variational parameters, and translate to QubitOperator
-        via relevant qubit mapping.
+        """Construct UpCCGSD FermionOperator for current_k variational
+        parameters, and translate to QubitOperator via relevant qubit mapping.
 
         Returns:
-            qubit_op (QubitOperator): qubit-encoded elements of the UpCCGSD ansatz for current_k.
+            qubit_op (QubitOperator): qubit-encoded elements of the UpCCGSD
+                ansatz for current_k.
         """
         current_k_params = self.var_params[current_k*self.n_var_params_per_step:(current_k+1)*self.n_var_params_per_step]
 

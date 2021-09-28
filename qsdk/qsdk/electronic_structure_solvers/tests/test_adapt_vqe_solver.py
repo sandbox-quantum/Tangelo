@@ -7,21 +7,22 @@ from qsdk.molecule_library import mol_H2_sto3g
 class ADAPTSolverTest(unittest.TestCase):
 
     def test_build_adapt(self):
-        """ Try instantiating ADAPTSolver with basic input. """
+        """Try instantiating ADAPTSolver with basic input."""
 
         opt_dict = {"molecule": mol_H2_sto3g, "max_cycles": 15}
         adapt_solver = ADAPTSolver(opt_dict)
         adapt_solver.build()
 
     def test_single_cycle_adapt(self):
-        """ Try instantiating ADAPTSolver with basic input. The fermionic term
-            ordering has been taken from the reference below (original paper for
-            ADAPT-VQE).
+        """Try instantiating ADAPTSolver with basic input. The fermionic term
+        ordering has been taken from the reference below (original paper for
+        ADAPT-VQE).
 
-            Ref
-                Grimsley, H.R., Economou, S.E., Barnes, E. et al.
-                An adaptive variational algorithm for exact molecular simulations on a quantum computer.
-                Nat Commun 10, 3007 (2019). https://doi.org/10.1038/s41467-019-10988-2
+        Reference:
+            - Grimsley, H.R., Economou, S.E., Barnes, E. et al.
+            An adaptive variational algorithm for exact molecular simulations on
+            a quantum computer. Nat Commun 10, 3007 (2019).
+            https://doi.org/10.1038/s41467-019-10988-2
         """
 
         opt_dict = {"molecule": mol_H2_sto3g, "max_cycles": 1, "verbose": False}

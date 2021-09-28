@@ -1,7 +1,6 @@
 """Construct one-particle RDM for DMET calculation.
 
-Construction of the one-particle reduced density matrix (RDM) 
-is done here.
+Construction of the one-particle reduced density matrix (RDM) is done here.
 """
 
 import numpy as np
@@ -10,12 +9,14 @@ from functools import reduce
 def dmet_low_rdm(active_fock, number_active_electrons):
     """Construct the one-particle RDM from low-level calculation.
 
-    Args: 
-        active_fock (numpy.array): Fock matrix from low-level calculation (float64).
+    Args:
+        active_fock (numpy.array): Fock matrix from low-level calculation
+            (float64).
         number_active_electrons (int): Number of electrons in the entire system.
 
     Returns:
-        onerdm (numpy.array): One-particle RDM of the low-level calculation (float64).
+        onerdm (numpy.array): One-particle RDM of the low-level calculation
+            (float64).
     """
 
     # Extract the occupied part of the one-particle RDM
@@ -31,16 +32,18 @@ def dmet_low_rdm(active_fock, number_active_electrons):
 def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
     """Construct the one-particle RDM for the core orbitals.
 
-    Args: 
+    Args:
         t_list (list): Number of [0] fragment & [1] bath orbitals (int).
         bath_orb (numpy.array): The bath orbitals (float64).
-        core_occupied (numpy.array): Core occupied part of the MO coefficients (float64).
+        core_occupied (numpy.array): Core occupied part of the MO coefficients
+            (float64).
         number_active_electrons (int): Number of electrons in the entire system.
 
     Returns:
         number_orbitals (int): Number of orbitals for fragment calculation.
         number_electrons (int): Number of electrons for fragment calulation.
-        core_occupied_onerdm (numpy.array): Core part of the one-particle RDM (float64).
+        core_occupied_onerdm (numpy.array): Core part of the one-particle RDM
+            (float64).
     """
 
     # Obtain number of active orbitals
@@ -59,6 +62,5 @@ def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
 
     # Obtain the one particle RDM for the fragment (core)
     core_occupied_onerdm = reduce(np.dot, (bath_orb, np.diag(core_occupied), bath_orb.T))
-    
-    return number_orbitals, number_electrons, core_occupied_onerdm
 
+    return number_orbitals, number_electrons, core_occupied_onerdm

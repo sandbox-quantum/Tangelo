@@ -11,8 +11,9 @@ from qsdk.backendbuddy import Simulator
 class UCCSDTest(unittest.TestCase):
 
     def test_uccsd_set_var_params(self):
-        """ Verify behavior of set_var_params for different inputs (keyword, list, numpy array).
-        MP2 have their own tests """
+        """Verify behavior of set_var_params for different inputs (keyword, list, numpy array).
+        MP2 have their own tests.
+        """
 
         uccsd_ansatz = UCCSD(mol_H2_sto3g)
 
@@ -28,14 +29,18 @@ class UCCSDTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(uccsd_ansatz.var_params, two_ones, decimal=6)
 
     def test_uccsd_incorrect_number_var_params(self):
-        """ Return an error if user provide incorrect number of variational parameters """
+        """Return an error if user provide incorrect number of variational
+        parameters.
+        """
 
         uccsd_ansatz = UCCSD(mol_H2_sto3g)
 
         self.assertRaises(ValueError, uccsd_ansatz.set_var_params, np.array([1., 1., 1., 1.]))
 
     def test_uccsd_set_params_MP2_H2(self):
-        """ Verify closed-shell UCCSD functionalities for H2: MP2 initial parameters """
+        """Verify closed-shell UCCSD functionalities for H2: MP2 initial
+        parameters.
+        """
 
         uccsd_ansatz = UCCSD(mol_H2_sto3g)
         uccsd_ansatz.set_var_params("MP2")
@@ -44,7 +49,9 @@ class UCCSDTest(unittest.TestCase):
         self.assertAlmostEqual(np.linalg.norm(uccsd_ansatz.var_params), np.linalg.norm(expected), delta=1e-10)
 
     def test_uccsd_set_params_mp2_H2(self):
-        """ Verify closed-shell UCCSD functionalities for H2: lower case mp2 initial parameters """
+        """Verify closed-shell UCCSD functionalities for H2: lower case mp2
+        initial parameters.
+        """
 
         uccsd_ansatz = UCCSD(mol_H2_sto3g)
         uccsd_ansatz.set_var_params("mp2")
@@ -53,7 +60,7 @@ class UCCSDTest(unittest.TestCase):
         self.assertAlmostEqual(np.linalg.norm(uccsd_ansatz.var_params), np.linalg.norm(expected), delta=1e-10)
 
     def test_uccsd_set_params_MP2_H4(self):
-        """ Verify closed-shell UCCSD functionalities for H4: MP2 initial parameters """
+        """Verify closed-shell UCCSD functionalities for H4: MP2 initial parameters """
 
         uccsd_ansatz = UCCSD(mol_H4_sto3g)
         uccsd_ansatz.set_var_params("MP2")
@@ -64,7 +71,7 @@ class UCCSDTest(unittest.TestCase):
         self.assertAlmostEqual(np.linalg.norm(uccsd_ansatz.var_params), np.linalg.norm(expected), delta=1e-10)
 
     def test_uccsd_H2(self):
-        """ Verify closed-shell UCCSD functionalities for H2 """
+        """Verify closed-shell UCCSD functionalities for H2."""
 
         # Build circuit
         uccsd_ansatz = UCCSD(mol_H2_sto3g)
@@ -80,7 +87,7 @@ class UCCSDTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.137270174551959, delta=1e-6)
 
     def test_uccsd_H4_open(self):
-        """ Verify open-shell UCCSD functionalities for H4 """
+        """Verify open-shell UCCSD functionalities for H4."""
 
         var_params = [-3.68699814e-03,  1.96987010e-02, -1.12573056e-03,  1.31279980e-04,
                       -4.78466616e-02, -8.56400635e-05,  1.60914422e-03, -2.92334744e-02,
@@ -102,7 +109,7 @@ class UCCSDTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.639461490, delta=1e-6)
 
     def test_uccsd_H4(self):
-        """ Verify closed-shell UCCSD functionalities for H4. """
+        """Verify closed-shell UCCSD functionalities for H4."""
 
         var_params = [-3.96898484e-04, 4.59786847e-05, 3.95285013e-05, 1.85885610e-04, 1.05759154e-02,
                       3.47363359e-01, 3.42657596e-02, 1.45006203e-02, 7.43941871e-02, 7.57255601e-03,

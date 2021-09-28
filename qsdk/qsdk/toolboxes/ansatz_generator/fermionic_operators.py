@@ -1,24 +1,29 @@
-r""" This module defines the fermionic operators that can be used to obtain expectation values
-    of commonly used quantum numbers. The available operators are
-    1) N: number of electrons
-    2) Sz: The spin z-projection Sz|\psi>=m_s|\psi>
-    3) S^2: The spin quantum number S^2|\psi>=s(s+1)|\psi> associated with spin angular momentum
-    which allows one to decide whether the state has the correct properties."""
+r"""This module defines the fermionic operators that can be used to obtain
+expectation values of commonly used quantum numbers. The available operators are
+1) N: number of electrons
+2) Sz: The spin z-projection Sz|\psi>=m_s|\psi>
+3) S^2: The spin quantum number S^2|\psi>=s(s+1)|\psi> associated with spin
+angular momentum which allows one to decide whether the state has the correct
+properties.
+"""
 
 from qsdk.toolboxes.ansatz_generator._general_unitary_cc import get_spin_ordered
 from qsdk.toolboxes.operators import normal_ordered, list_to_fermionoperator
 
 
 def number_operator(n_orbs, up_then_down=False):
-    r"""Function to generate the normal ordered number operator as a FermionicOperator
+    r"""Function to generate the normal ordered number operator as a
+    FermionicOperator.
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
-            spin-orbitals divided by 2)
-        up_then_down: The ordering of the spin orbitals. qiskit (True) openfermion (False)
+            spin-orbitals divided by 2).
+        up_then_down: The ordering of the spin orbitals. qiskit (True)
+            openfermion (False).
 
     Returns:
-        num_op (FermionicOperator): The number operator penalty \hat{N}"""
+        num_op (FermionicOperator): The number operator penalty \hat{N}.
+    """
 
     all_terms = number_operator_list(n_orbs, up_then_down)
     num_op = list_to_fermionoperator(all_terms)
@@ -27,15 +32,17 @@ def number_operator(n_orbs, up_then_down=False):
 
 
 def number_operator_list(n_orbs, up_then_down=False):
-    r"""Function to generate the normal ordered number operator as a list
+    r"""Function to generate the normal ordered number operator as a list.
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
-            spin-orbitals divided by 2)
-        up_then_down (bool): The ordering of the spin orbitals. qiskit (True) openfermion (False)
+            spin-orbitals divided by 2).
+        up_then_down (bool): The ordering of the spin orbitals. qiskit (True)
+            openfermion (False).
 
     Returns:
-        all_terms (list): The number operator penalty \hat{N}"""
+        all_terms (list): The number operator penalty \hat{N}.
+    """
 
     all_terms = list()
     for i in range(n_orbs):
@@ -45,15 +52,17 @@ def number_operator_list(n_orbs, up_then_down=False):
 
 
 def spinz_operator(n_orbs, up_then_down=False):
-    r"""Function to generate the normal ordered Sz operator
+    r"""Function to generate the normal ordered Sz operator.
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
-            spin-orbitals divided by 2)
-        up_then_down (bool): The ordering of the spin orbitals. qiskit (True) openfermion (False)
+            spin-orbitals divided by 2).
+        up_then_down (bool): The ordering of the spin orbitals. qiskit (True)
+            openfermion (False).
 
     Returns:
-        spin_op (FermionicOperator): The Sz operator \hat{Sz}"""
+        spin_op (FermionicOperator): The Sz operator \hat{Sz}.
+    """
 
     all_terms = spinz_operator_list(n_orbs, up_then_down)
     spinz_op = list_to_fermionoperator(all_terms)
@@ -62,15 +71,17 @@ def spinz_operator(n_orbs, up_then_down=False):
 
 
 def spinz_operator_list(n_orbs, up_then_down=False):
-    r"""Function to generate the normal ordered Sz operator as a list
+    r"""Function to generate the normal ordered Sz operator as a list.
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
-            spin-orbitals divided by 2)
-        up_then_down (bool): The ordering of the spin orbitals. qiskit (True) openfermion (False)
+            spin-orbitals divided by 2).
+        up_then_down (bool): The ordering of the spin orbitals. qiskit (True)
+            openfermion (False).
 
     Returns:
-        all_terms (list): The Sz operator \hat{Sz}"""
+        all_terms (list): The Sz operator \hat{Sz}.
+    """
 
     all_terms = list()
     for i in range(n_orbs):
@@ -80,15 +91,18 @@ def spinz_operator_list(n_orbs, up_then_down=False):
 
 
 def spin2_operator(n_orbs, up_then_down=False):
-    r"""Function to generate the normal ordered S^2 operator as a FermionicOperator
+    r"""Function to generate the normal ordered S^2 operator as a
+    FermionicOperator.
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
-            spin-orbitals divided by 2)
-        up_then_down (bool): The ordering of the spin orbitals. qiskit (True) openfermion (False)
+            spin-orbitals divided by 2).
+        up_then_down (bool): The ordering of the spin orbitals. qiskit (True)
+            openfermion (False).
 
     Returns:
-        spin2_op (FermionicOperator): The S^2 operator \hat{S}^2"""
+        spin2_op (FermionicOperator): The S^2 operator \hat{S}^2.
+    """
 
     all_terms = spin2_operator_list(n_orbs, up_then_down)
     spin2_op = list_to_fermionoperator(all_terms)
@@ -97,15 +111,18 @@ def spin2_operator(n_orbs, up_then_down=False):
 
 
 def spin2_operator_list(n_orbs, up_then_down=False):
-    r"""Function to generate the normal ordered S^2 operator as a FermionicOperator
+    r"""Function to generate the normal ordered S^2 operator as a
+    FermionicOperator.
 
     Args:
         n_orbs (int): number of orbitals in the fermion basis (this is number of
-            spin-orbitals divided by 2)
-        up_then_down (bool): The ordering of the spin orbitals. qiskit (True) openfermion (False)
+            spin-orbitals divided by 2).
+        up_then_down (bool): The ordering of the spin orbitals. qiskit (True)
+            openfermion (False).
 
     Returns:
-        all_terms (list): The S^2 operator \hat{S}^2"""
+        all_terms (list): The S^2 operator \hat{S}^2.
+    """
 
     all_terms = list()
     for i in range(n_orbs):

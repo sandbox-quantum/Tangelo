@@ -1,39 +1,37 @@
-""" This module defines the hardware efficient ansatz class, for use in applying VQE as first defined in
-    "Hardware-efficient Variational Quantum Eigensolver for Small Molecules and Quantum Magnets"
-    https://arxiv.org/abs/1704.05018 """
+"""This module defines the hardware efficient ansatz class, for use in applying
+VQE as first defined in "Hardware-efficient Variational Quantum Eigensolver for
+Small Molecules and Quantum Magnets" https://arxiv.org/abs/1704.05018.
+"""
 
 import numpy as np
 
 from .ansatz import Ansatz
-from ._hea_circuit import HEACircuit
+from ._hea_circuit import construct_hea_circuit
 from qsdk.toolboxes.qubit_mappings.mapping_transform import get_qubit_number
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from qsdk.backendbuddy import Circuit
 
 
 class HEA(Ansatz):
-    """ This class implements the HEA ansatz. A molecule or a number of qubits +
-        a number of electrons can be passed to this class.
+    """This class implements the HEA ansatz. A molecule or a number of qubits +
+    a number of electrons can be passed to this class.
 
-        Args:
-            molecule (SecondQuantizedMolecule) : The molecular system.
-            mapping (str) : one of the supported qubit mapping identifiers.
-                Default: "JW"
-            up_then_down (bool): change basis ordering putting all spin up orbitals
-                first, followed by all spin down.
-                Default, False has alternating spin up/down ordering.
-            n_layers (int): The number of HEA ansatz layers to use. One layer is
-                hea_rot_type + grid of CNots.
-                Default: 2
-            rot_type (str): "euler": RzRxRz on each qubit for each rotation layer.
-                "real": Ry on each qubit for each rotation layer.
-                Default: "euler"
-            n_qubits (int) : The number of qubits in the ansatz.
-                Default, None.
-            n_electrons (int) : Self-explanatory.
-            reference_state (str): "HF": Hartree-Fock reference state.
-                "zero": for no reference state.
-                Default: "HF"
+    Args:
+        molecule (SecondQuantizedMolecule) : The molecular system.
+        mapping (str) : one of the supported qubit mapping identifiers. Default:
+            "JW"
+        up_then_down (bool): change basis ordering putting all spin up orbitals
+            first, followed by all spin down. Default, False has alternating
+            spin up/down ordering.
+        n_layers (int): The number of HEA ansatz layers to use. One layer is
+            hea_rot_type + grid of CNots. Default: 2.
+        rot_type (str): "euler": RzRxRz on each qubit for each rotation layer.
+            "real": Ry on each qubit for each rotation layer. Default: "euler".
+        n_qubits (int) : The number of qubits in the ansatz.
+            Default, None.
+        n_electrons (int) : Self-explanatory.
+        reference_state (str): "HF": Hartree-Fock reference state. "zero": for
+            no reference state. Default: "HF".
         """
 
     def __init__(self, molecule=None, mapping="jw", up_then_down=False,
@@ -59,12 +57,12 @@ class HEA(Ansatz):
         # Each euler rotation layer has 3 variational parameters per qubit, and one non-variational entangler
         # Each real rotation layer has 1 variational parameter per qubit, and one non-variational entangler
         # There is an additional rotation layer with no entangler.
-        if self.rot_type == 'euler':
+        if self.rot_type == "euler":
             self.n_var_params = self.n_qubits * 3 * (self.n_layers + 1)
-        elif self.rot_type == 'real':
+        elif self.rot_type == "real":
             self.n_var_params = self.n_qubits * 1 * (self.n_layers + 1)
         else:
-            raise ValueError("Supported rot_type is 'euler' and 'real'")
+            raise ValueError("Supported rot_type is 'euler'' and 'real'")
 
         # Supported reference state initialization
         # TODO: support for others
@@ -79,9 +77,11 @@ class HEA(Ansatz):
         self.circuit = None
 
     def set_var_params(self, var_params=None):
-        """ Set values for variational parameters, such as zeros, random numbers, MP2 (...), providing some
-        keywords for users, and also supporting direct user input (list or numpy array)
-        Return the parameters so that workflows such as VQE can retrieve these values. """
+        """Set values for variational parameters, such as zeros, random numbers,
+        MP2 (...), providing some keywords for users, and also supporting direct
+        user input (list or numpy array). Return the parameters so that
+        workflows such as VQE can retrieve these values.
+        """
 
         if var_params is None:
             var_params = self.var_params_default
@@ -124,7 +124,7 @@ class HEA(Ansatz):
 
         reference_state_circuit = self.prepare_reference_state()
 
-        hea_circuit = HEACircuit(self.n_qubits, self.n_layers, self.rot_type)
+        hea_circuit = construct_hea_circuit(self.n_qubits, self.n_layers, self.rot_type)
 
         if reference_state_circuit.size != 0:
             self.circuit = reference_state_circuit + hea_circuit
@@ -135,7 +135,7 @@ class HEA(Ansatz):
         return self.circuit
 
     def update_var_params(self, var_params):
-        """Update variational parameters (done repeatedly during VQE)"""
+        """Update variational parameters (done repeatedly during VQE)."""
         self.set_var_params(var_params)
         var_params = self.var_params
 

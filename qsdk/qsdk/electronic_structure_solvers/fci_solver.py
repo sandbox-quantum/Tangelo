@@ -1,4 +1,6 @@
-""" Define electronic structure solver employing the full configuration interaction (CI) method """
+"""Define electronic structure solver employing the full configuration
+interaction (CI) method.
+"""
 
 from pyscf import ao2mo, fci, mcscf
 
@@ -6,17 +8,18 @@ from qsdk.electronic_structure_solvers.electronic_structure_solver import Electr
 
 
 class FCISolver(ElectronicStructureSolver):
-    """ Uses the Full CI method to solve the electronic structure problem, through pyscf.
+    """ Uses the Full CI method to solve the electronic structure problem,
+    through pyscf.
 
-        Args:
-            molecule (SecondQuantizedMolecule): The molecule to simulate.
+    Args:
+        molecule (SecondQuantizedMolecule): The molecule to simulate.
 
-        Attributes:
-            ci (numpy.array): The CI wavefunction (float64).
-            norb (int): The number of molecular orbitals.
-            nelec (int): The number of electrons.
-            cisolver (pyscf.fci.direct_spin0.FCI): The Full CI object.
-            mean_field (pyscf.scf): Mean field object.
+    Attributes:
+        ci (numpy.array): The CI wavefunction (float64).
+        norb (int): The number of molecular orbitals.
+        nelec (int): The number of electrons.
+        cisolver (pyscf.fci.direct_spin0.FCI): The Full CI object.
+        mean_field (pyscf.scf): Mean field object.
     """
 
     def __init__(self, molecule):
@@ -52,10 +55,10 @@ class FCISolver(ElectronicStructureSolver):
         self.mean_field = molecule.mean_field
 
     def simulate(self):
-        """ Perform the simulation (energy calculation) for the molecule.
+        """Perform the simulation (energy calculation) for the molecule.
 
-            Returns:
-                energy (float): Total FCI energy.
+        Returns:
+            energy (float): Total FCI energy.
         """
 
         if self.cas:  # Use previously generated effective Hamiltonian to obtain FCI solution
@@ -83,12 +86,14 @@ class FCISolver(ElectronicStructureSolver):
         return energy
 
     def get_rdm(self):
-        """ Compute the Full CI 1- and 2-particle reduced density matrices.
+        """Compute the Full CI 1- and 2-particle reduced density matrices.
 
-            Returns:
-                one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle RDMs
-            Raises:
-                RuntimeError: If method "simulate" hasn't been run.
+        Returns:
+            one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle
+                RDMs.
+
+        Raises:
+            RuntimeError: If method "simulate" hasn't been run.
         """
 
         # Check if Full CI is performed

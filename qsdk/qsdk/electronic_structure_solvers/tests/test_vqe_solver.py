@@ -9,7 +9,7 @@ from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_map
 
 
 def matricize_2rdm(two_rdm, n_orbitals):
-    """ Turns the two_rdm tensor into a matrix for test purposes """
+    """Turns the two_rdm tensor into a matrix for test purposes."""
 
     l = 0
     sq = n_orbitals * n_orbitals
@@ -33,26 +33,27 @@ def matricize_2rdm(two_rdm, n_orbitals):
 class VQESolverTest(unittest.TestCase):
 
     def test_instantiation_vqe(self):
-        """ Try instantiating VQESolver with basic input """
+        """Try instantiating VQESolver with basic input."""
 
         options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw"}
         VQESolver(options)
 
     def test_instantiation_vqe_incorrect_keyword(self):
-        """ Instantiating with an incorrect keyword should return an error """
+        """Instantiating with an incorrect keyword should return an error """
 
         options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw", "dummy": True}
         self.assertRaises(KeyError, VQESolver, options)
 
     def test_instantiation_vqe_missing_molecule(self):
-        """ Instantiating with no molecule should return an error """
+        """Instantiating with no molecule should return an error."""
 
         options = {"qubit_mapping": "jw"}
         self.assertRaises(ValueError, VQESolver, options)
 
     def test_get_resources_h2_mappings(self):
-        """ Resource estimation, with UCCSD ansatz, given initial parameters.
-        Each of JW, BK, and scBK mappings are checked."""
+        """Resource estimation, with UCCSD ansatz, given initial parameters.
+        Each of JW, BK, and scBK mappings are checked.
+        """
         mappings = ["jw", "bk", "scbk"]
         expected_values = [(15, 4), (15, 4), (5, 2)]
 
@@ -68,19 +69,47 @@ class VQESolverTest(unittest.TestCase):
             self.assertEqual(resources["circuit_width"], expected_values[index][1])
 
     def test_energy_estimation_vqe(self):
-        """ A single VQE energy evaluation for H2, using optimal parameters and exact simulator """
+        """A single VQE energy evaluation for H2, using optimal parameters and
+        exact simulator.
+        """
 
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": 'jw'}
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
         energy = vqe_solver.energy_estimation([5.86665842e-06, 5.65317429e-02])
         self.assertAlmostEqual(energy, -1.137270422018, places=6)
 
-    def test_simulate_h2(self):
-        """ Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
+    def test_operator_expectation_vqe(self):
+        """ A test of the operator_expectation function, using optimal parameters and exact simulator """
 
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": 'jw',
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": 'jw'}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        # Test using var_params input and Qubit Hamiltonian
+        energy = vqe_solver.operator_expectation(vqe_solver.qubit_hamiltonian, var_params=[5.86665842e-06, 5.65317429e-02])
+        self.assertAlmostEqual(energy, -1.137270422018, places=6)
+
+        # Test using updated var_params and Fermion Hamiltonian
+        vqe_solver.ansatz.update_var_params([5.86665842e-06, 5.65317429e-02])
+        energy = vqe_solver.operator_expectation(mol_H2_sto3g.fermionic_hamiltonian)
+        self.assertAlmostEqual(energy, -1.137270422018, places=6)
+
+        # Test the three in place operators
+        n_electrons = vqe_solver.operator_expectation('N')
+        self.assertAlmostEqual(n_electrons, 2, places=6)
+        spin_z = vqe_solver.operator_expectation('Sz')
+        self.assertAlmostEqual(spin_z, 0, places=6)
+        spin2 = vqe_solver.operator_expectation('S^2')
+        self.assertAlmostEqual(spin2, 0, places=6)
+
+    def test_simulate_h2(self):
+        """Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial
+        parameters, exact simulator.
+        """
+
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": [0.1, 0.1], "verbose": True}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
@@ -89,7 +118,9 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
 
     def test_simulate_h2_qiskit(self):
-        """ Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact qiskit simulator """
+        """Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial
+        parameters, exact qiskit simulator.
+        """
 
         backend_options = {"target": "qiskit", "n_shots": None, "noise_model": None}
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
@@ -102,7 +133,9 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.13727042117, delta=1e-6)
 
     def test_simulate_h4(self):
-        """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
+        """Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial
+        parameters, exact simulator.
+        """
         vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": "MP2", "verbose": False}
         vqe_solver = VQESolver(vqe_options)
@@ -112,7 +145,7 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.9778312978826869, delta=1e-4)
 
     def test_simulate_h4_open(self):
-        """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
+        """Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
         vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": "random", "verbose": False}
         vqe_solver = VQESolver(vqe_options)
@@ -122,7 +155,9 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.6394, delta=1e-3)
 
     def test_optimal_circuit_h4(self):
-        """ Run VQE on H4 molecule, save optimal circuit. Verify it yields optimal energy """
+        """Run VQE on H4 molecule, save optimal circuit. Verify it yields
+        optimal energy.
+        """
         vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": "MP2", "verbose": False}
         vqe_solver = VQESolver(vqe_options)
@@ -134,7 +169,9 @@ class VQESolverTest(unittest.TestCase):
                                delta=1e-10)
 
     def test_get_rdm_h2(self):
-        """ Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized parameters, exact simulator (H2) """
+        """Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized
+        parameters, exact simulator (H2).
+        """
 
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
@@ -152,9 +189,11 @@ class VQESolverTest(unittest.TestCase):
                                msg="Trace of two_rdm does not match n_elec * (n_elec-1)", delta=1e-6)
 
     def test_get_rdm_h4(self):
-        """ Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized parameters, exact simulator (H4) """
+        """Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized
+        parameters, exact simulator (H4).
+        """
 
-        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": 'jw'}
+        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -172,7 +211,7 @@ class VQESolverTest(unittest.TestCase):
                                msg="Trace of two_rdm does not match n_elec * (n_elec-1)", delta=1e-6)
 
     def test_custom_vqe(self):
-        """ VQE with custom optimizer and non-optimal variational parameters """
+        """VQE with custom optimizer and non-optimal variational parameters."""
 
         # Define and assign custom optimizer: cobyla
         def cobyla_oneshot_optimizer(func, var_params):
@@ -190,8 +229,9 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.137270422018, places=6)
 
     def test_mapping_BK(self):
-        """Test that BK mapping recovers the expected result,
-        to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
+        """Test that BK mapping recovers the expected result, to within 1e-6 Ha,
+        for the example of H2 and MP2 initial guess.
+        """
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
                        "qubit_mapping": "bk"}
 
@@ -203,8 +243,9 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, energy_target, places=5)
 
     def test_mapping_scBK(self):
-        """Test that scBK mapping recovers the expected result,
-        to within 1e-6 Ha, for the example of H2 and MP2 initial guess"""
+        """Test that scBK mapping recovers the expected result, to within
+        1e-6 Ha, for the example of H2 and MP2 initial guess.
+        """
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
                        "qubit_mapping": "scbk"}
 
@@ -216,8 +257,9 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, energy_target, places=5)
 
     def test_spin_reorder_equivalence(self):
-        """Test that re-ordered spin input (all up followed by all down)
-        return the same optimized energy result for both JW and BK mappings."""
+        """Test that re-ordered spin input (all up followed by all down) returns
+        the same optimized energy result for both JW and BK mappings.
+        """
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "initial_var_params": "MP2", "up_then_down": True,
                        "verbose": False, "qubit_mapping": "jw"}
 
@@ -235,8 +277,9 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy_bk, energy_target, places=5)
 
     def test_simulate_h4_frozen_orbitals(self):
-        """ Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator.
-            First (occupied) and last (virtual) orbitals are frozen.
+        """Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial
+        parameters, exact simulator. First (occupied) and last (virtual)
+        orbitals are frozen.
         """
         mol_H4_sto3g_frozen = mol_H4_sto3g.freeze_mos([0, 3], inplace=False)
 
@@ -249,13 +292,13 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.8943598012229799, delta=1e-5)
 
     def test_simulate_nah_rucc(self):
-        """ Run VQE on NaH molecule, with UCC1 and UCC3 ansatze, JW qubit mapping.
-            The computation is mapped to a HOMO-LUMO problem.
+        """Run VQE on NaH molecule, with UCC1 and UCC3 ansatze, JW qubit
+        mapping. The computation is mapped to a HOMO-LUMO problem.
         """
 
         mol_NaH_sto3g_2mos = mol_NaH_sto3g.freeze_mos([i for i in range(9) if i not in [5, 9]], inplace=False)
 
-        vqe_options = {"molecule": mol_NaH_sto3g_2mos, "ansatz": BuiltInAnsatze.UCC1, "qubit_mapping": 'jw',
+        vqe_options = {"molecule": mol_NaH_sto3g_2mos, "ansatz": BuiltInAnsatze.UCC1, "qubit_mapping": "jw",
                        "initial_var_params": "zeros", "up_then_down": True, "verbose": False}
 
         vqe_solver_ucc1 = VQESolver(vqe_options)
@@ -271,8 +314,8 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy_ucc3, -160.30345935884606, delta=1e-6)
 
     def test_toomany_orbitals_rucc(self):
-        """ Test the case where there is too many orbitals in the system to be
-            mapped into a HOMO-LUMO problem.
+        """Test the case where there is too many orbitals in the system to be
+        mapped into a HOMO-LUMO problem.
         """
 
         vqe_options = {"molecule": mol_NaH_sto3g, "ansatz": BuiltInAnsatze.UCC1, "qubit_mapping": "jw",
@@ -288,7 +331,7 @@ class VQESolverTest(unittest.TestCase):
             vqe_solver_ucc3.build()
 
     def test_wrong_mapping_rucc(self):
-        """ Test the case where another mapping process (not JW) is selected."""
+        """Test the case where another mapping process (not JW) is selected."""
 
         mol_NaH_sto3g_2mos = mol_NaH_sto3g.freeze_mos([i for i in range(9) if i not in [5, 9]], inplace=False)
 
@@ -305,7 +348,7 @@ class VQESolverTest(unittest.TestCase):
             vqe_solver_ucc3.build()
 
     def test_qubit_qhamiltonian_input(self):
-        """Test the case where a qubit Hamiltonian is used to construct VQE. """
+        """Test the case where a qubit Hamiltonian is used to construct VQE."""
 
         qubit_hamiltonian = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, mapping="jw")
 
@@ -314,8 +357,8 @@ class VQESolverTest(unittest.TestCase):
         VQESolver(options)
 
     def test_qubit_qhamiltonian_input_conflicts(self):
-        """ Test the case where a molecule and a qubit Hamiltonian are passed
-        as inputs.
+        """Test the case where a molecule and a qubit Hamiltonian are passed as
+        inputs.
         """
 
         qubit_hamiltonian = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, mapping="jw")

@@ -19,11 +19,11 @@ circuit = Circuit(lst_gates)
 class VariationalCircuitTest(unittest.TestCase):
 
     def test_init(self):
-        """ Test initialization of the ansatz class. """
+        """Test initialization of the ansatz class."""
         VariationalCircuitAnsatz(circuit)
 
     def test_set_var_params(self):
-        """ Test setting variational parameters. """
+        """Test setting variational parameters."""
         circuit_ansatz = VariationalCircuitAnsatz(circuit)
 
         single_ones = np.array([1.])
@@ -38,7 +38,7 @@ class VariationalCircuitTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(circuit_ansatz.var_params,  single_ones, decimal=6)
 
     def test_uccsd_incorrect_number_var_params(self):
-        """ Returns an error if user provide incorrect number of variational parameters. """
+        """Returns an error if user provide incorrect number of variational parameters."""
 
         circuit_ansatz = VariationalCircuitAnsatz(circuit)
         self.assertRaises(ValueError, circuit_ansatz.set_var_params, np.array([1., 1.]))

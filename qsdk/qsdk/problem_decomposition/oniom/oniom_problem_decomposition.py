@@ -1,6 +1,7 @@
-"""Our own n-layered Integrated molecular Orbital and Molecular mechanics (ONIOM) solver.
-User specifies either the number (if beginning from start of list), or the indices, of
-atoms which are to be identified as the model system(s), from the larger molecular system.
+"""Our own n-layered Integrated molecular Orbital and Molecular mechanics
+(ONIOM) solver. User specifies either the number (if beginning from start of
+list), or the indices, of atoms which are to be identified as the model
+system(s), from the larger molecular system.
 
 Main model class for running oniom-calculations. This is analogous to the
 scf.RHF, etc. methods, requiring however a bit more information. User supplies
@@ -8,12 +9,11 @@ an atomic-geometry, and specifies the system, as well as necessary models,
 of increasing sophistication.
 
 Reference:
-The ONIOM Method and Its Applications
-Lung Wa Chung, W. M. C. Sameera, Romain Ramozzi, Alister J. Page, Miho Hatanaka,
-Galina P. Petrova, Travis V. Harris, Xin Li, Zhuofeng Ke, Fengyi Liu, Hai-Bei Li,
-Lina Ding, and Keiji Morokuma
-Chemical Reviews 2015 115 (12), 5678-5796.
-DOI: 10.1021/cr5004419
+    - The ONIOM Method and Its Applications. Lung Wa Chung, W. M. C. Sameera,
+    Romain Ramozzi, Alister J. Page, Miho Hatanaka, Galina P. Petrova,
+    Travis V. Harris, Xin Li, Zhuofeng Ke, Fengyi Liu, Hai-Bei Li, Lina Ding
+    and Keiji Morokuma
+    Chemical Reviews 2015 115 (12), 5678-5796. DOI: 10.1021/cr5004419.
 """
 # TODO: Supporting many (3+) layers of different accuracy.
 # TODO: Capping with CH3 or other functional groups.
@@ -26,13 +26,13 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
     def __init__(self, opt_dict):
         """Main class for the ONIOM hybrid solver. It defines layers with
-        with different electronic solvers.
+        different electronic solvers.
 
         Attributes:
-            geometry (strin or list): XYZ atomic coords (in "str float float\n..." or
-                [[str, (float, float, float)], ...] format).
-            fragments (list of Fragment): Specification of different system-subgroups and
-                their solvers.
+            geometry (strin or list): XYZ atomic coords (in "str float float..."
+                or [[str, (float, float, float)], ...] format).
+            fragments (list of Fragment): Specification of different
+                system-subgroups and their solvers.
             verbose (bolean): Verbose flag.
         """
 
@@ -60,8 +60,8 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
             frag.build()
 
     def distribute_atoms(self):
-        """For each fragment, the atom selection is passed to the Fragment object.
-        Depending on the input, the method has several behaviors.
+        """For each fragment, the atom selection is passed to the Fragment
+        object. Depending on the input, the method has several behaviors.
         """
 
         for fragment in self.fragments:
@@ -99,8 +99,9 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         return e_oniom
 
     def get_resources(self):
-        """ Estimate the resources required by ONIOM. Only supports fragments solved
-        with VQESolver. Resources for each fragments are outputed as a list.
+        """Estimate the resources required by ONIOM. Only supports fragments
+        solved with VQESolver. Resources for each fragments are outputed as a
+        list.
         """
 
         quantum_resources = [None] * len(self.fragments)

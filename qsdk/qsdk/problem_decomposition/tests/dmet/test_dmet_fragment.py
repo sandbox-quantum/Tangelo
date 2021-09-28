@@ -1,4 +1,5 @@
-""" Test the construction of orbital list (from atom list) for DMET calculation """
+"""Test the construction of orbital list (from atom list) for DMET calculation.
+"""
 
 import unittest
 from pyscf import gto
@@ -7,7 +8,7 @@ from qsdk.problem_decomposition.dmet._helpers.dmet_fragment import dmet_fragment
 
 
 class TestFragments(unittest.TestCase):
-    """ Generate the orbital list """
+    """Generate the orbital list."""
 
     def test_orbital_list_construction(self):
 
@@ -39,7 +40,8 @@ class TestFragments(unittest.TestCase):
             C 8.66428 -1.63508  4.12154
             H 9.06449 -2.27473  3.32841
             H 9.02896 -2.01514  5.08095
-            H 9.06273 -0.62500  3.98256"""
+            H 9.06273 -0.62500  3.98256
+        """
 
         mol.basis = "3-21g"
         mol.charge = 0

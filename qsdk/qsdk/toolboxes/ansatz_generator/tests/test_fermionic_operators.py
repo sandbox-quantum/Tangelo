@@ -13,11 +13,12 @@ sim = Simulator()
 class fermionic_operators_Test(unittest.TestCase):
 
     def test_number_operator_hf_ref(self):
-        """ Verify that the number penalty terms return zero for all mappings given the correct number of
-        electrons and mapping"""
+        """Verify that the number penalty terms return zero for all mappings
+        given the correct number of electrons and mapping.
+        """
 
         for mol in [mol_H2_sto3g, mol_H4_sto3g]:
-            for mapping in ['jw', 'bk', 'scbk']:
+            for mapping in ["jw", "bk", "scbk"]:
                 hf_state_circuit = get_reference_circuit(n_spinorbitals=mol.n_active_sos,
                                                          n_electrons=mol.n_active_electrons,
                                                          mapping=mapping,
@@ -34,11 +35,12 @@ class fermionic_operators_Test(unittest.TestCase):
                 self.assertAlmostEqual(numval, mol.n_active_electrons, delta=1e-6)
 
     def test_spinz_operator_hf_ref(self):
-        """ Verify that the number penalty terms return zero for all mappings given the correct number of
-        electrons and mapping"""
+        """Verify that the number penalty terms return zero for all mappings
+        given the correct number of electrons and mapping.
+        """
 
         for mol in [mol_H2_sto3g, mol_H4_sto3g]:
-            for mapping in ['jw', 'bk', 'scbk']:
+            for mapping in ["jw", "bk", "scbk"]:
                 hf_state_circuit = get_reference_circuit(n_spinorbitals=mol.n_active_sos,
                                                          n_electrons=mol.n_active_electrons,
                                                          mapping=mapping,
@@ -55,11 +57,12 @@ class fermionic_operators_Test(unittest.TestCase):
                 self.assertAlmostEqual(spinzval, 0.0, delta=1e-6)
 
     def test_spin2_penalty_terms_hf_ref(self):
-        """ Verify that the number penalty terms return zero for all mappings given the correct number of
-        S^2 and mapping"""
+        """Verify that the number penalty terms return zero for all mappings
+        given the correct number of S^2 and mapping.
+        """
 
         for mol in [mol_H2_sto3g, mol_H4_sto3g]:
-            for mapping in ['jw', 'bk', 'scbk']:
+            for mapping in ["jw", "bk", "scbk"]:
                 hf_state_circuit = get_reference_circuit(n_spinorbitals=mol.n_active_sos,
                                                          n_electrons=mol.n_active_electrons,
                                                          mapping=mapping,
@@ -76,11 +79,12 @@ class fermionic_operators_Test(unittest.TestCase):
                 self.assertAlmostEqual(spin2val, 0.0, delta=1e-6)
 
     def test_doublet(self):
-        """ Verify that the number penalty terms return zero for all mappings given the correct number of
-        S^2 and mapping"""
+        """Verify that the number penalty terms return zero for all mappings
+        given the correct number of S^2 and mapping.
+        """
 
         for mol in [mol_H2_sto3g, mol_H4_sto3g]:
-            for mapping in ['jw']:  # may add tests for other mappings later
+            for mapping in ["jw"]:  # may add tests for other mappings later
                 vector = get_vector(n_spinorbitals=mol.n_active_sos,
                                     n_electrons=mol.n_active_electrons,
                                     mapping=mapping,
@@ -129,11 +133,12 @@ class fermionic_operators_Test(unittest.TestCase):
                 self.assertAlmostEqual(spin2val, 0.5 * (0.5 + 1), delta=1e-6)
 
     def test_triplet(self):
-        """ Verify that the number penalty terms return zero for all mappings given the correct number of
-        S^2 and mapping"""
+        """Verify that the number penalty terms return zero for all mappings
+        given the correct number of S^2 and mapping.
+        """
 
         for mol in [mol_H2_sto3g, mol_H4_sto3g]:
-            for mapping in ['jw']:
+            for mapping in ["jw"]:
                 vector = get_vector(n_spinorbitals=mol.n_active_sos,
                                     n_electrons=mol.n_active_electrons,
                                     mapping=mapping,
