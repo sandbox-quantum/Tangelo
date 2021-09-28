@@ -160,6 +160,23 @@ class DMETProblemDecomposition(ProblemDecomposition):
         self.orb_list2 = None
         self.onerdm_low = None
 
+    @property
+    def quantum_fragments_data(self):
+        """This aims to return a dictionary with all necessary components to
+        run a quantum experiment for a (or more) DMET fragment(s).
+        """
+
+        if not self.solver_fragment_dict:
+            raise RuntimeError("Simulate method must be called before to get the results.")
+
+        hamiltonian_circuit = dict()
+
+        for fragment_i, vqe_object in self.solver_fragment_dict.items():
+            hamiltonian_circuit[fragment_i] = (vqe_object.molecule,
+                vqe_object.qubit_hamiltonian, vqe_object.optimal_circuit)
+
+        return hamiltonian_circuit
+
     def build(self):
         """Building the orbitals list for each fragment. It sets the values of
         self.orbitals, self.orb_list and self.orb_list2.
