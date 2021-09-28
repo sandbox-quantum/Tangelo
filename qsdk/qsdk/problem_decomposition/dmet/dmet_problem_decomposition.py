@@ -410,7 +410,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     solver_fragment.build()
                     solver_fragment.simulate()
 
-                if purify and solver_fragment.qemist_molecule.n_electrons == 2:
+                if purify and solver_fragment.molecule.n_active_electrons == 2:
                     onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, resample=resample, sum_spin=False)
                     onerdm, twordm = mcweeny_purify_2rdm(twordm)
                 else:
