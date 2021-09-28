@@ -127,7 +127,7 @@ class VQESolver:
                                                      n_spinorbitals=self.molecule.n_active_sos,
                                                      n_electrons=self.molecule.n_active_electrons,
                                                      up_then_down=self.up_then_down)
-                pen_qubit = qubitop_to_qubitham(pen_qubit, self.qubit_hamiltonian.n_qubits, self.qubit_hamiltonian.mapping, self.qubit_hamiltonian.up_then_down)
+                pen_qubit = qubitop_to_qubitham(pen_qubit, self.qubit_hamiltonian.mapping, self.qubit_hamiltonian.up_then_down)
                 self.qubit_hamiltonian += pen_qubit
 
             # Verification of system compatibility with UCC1 or UCC3 circuits.
