@@ -45,18 +45,17 @@ jobs:
 
     - name: qsdk install
       run: |
-        cd qsdk
         python setup.py install
       if: always()
 
     - name: qsdk tests
       run: |
-        cd qsdk/qsdk
+        cd qsdk
         pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
       if: always()
 
     - name: qsdk notebooks as tests
       run: |
-        cd qsdk/examples
+        cd examples
         pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html test_notebooks.py
       if: always()
