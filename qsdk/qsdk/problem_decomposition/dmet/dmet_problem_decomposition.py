@@ -169,13 +169,15 @@ class DMETProblemDecomposition(ProblemDecomposition):
         if not self.solver_fragment_dict:
             raise RuntimeError("Simulate method must be called before to get the results.")
 
-        hamiltonian_circuit = dict()
+        quantum_data = dict()
 
+        # Construction of a dict with SecondQuantizedDMETFragment, qubit
+        # hamiltonian and quantum circuit.
         for fragment_i, vqe_object in self.solver_fragment_dict.items():
-            hamiltonian_circuit[fragment_i] = (vqe_object.molecule,
+            quantum_data[fragment_i] = (vqe_object.molecule,
                 vqe_object.qubit_hamiltonian, vqe_object.optimal_circuit)
 
-        return hamiltonian_circuit
+        return quantum_data
 
     def build(self):
         """Building the orbitals list for each fragment. It sets the values of
