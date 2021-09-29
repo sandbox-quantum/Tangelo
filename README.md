@@ -6,9 +6,7 @@ This quantum SDK provides tools developed for quantum chemistry simulation on bo
 The package provides access to some problem decomposition techniques, electronic structure solvers, as well as the
 various toolboxes containing the functionalities necessary to pre-built workflows, and maybe your own.
 Users can target a variety of compute backends (QPUs and simulators) available on their local machine or 
-through cloud services, using the `backendbuddy` module.
-
-
+through cloud services, using the `backendbuddy` submodule.
 
 
 ## Contents of the repository
@@ -16,9 +14,9 @@ through cloud services, using the `backendbuddy` module.
 This folder contains the following files and subfolders:
 
 - **qsdk** :
-Code implementing various functionalities and algorithms to research and perform quantum chemistry experiments on
-  gate-model quantum computers or simulators. The various features are exposed in toolboxes, and can be assembled to
-  form workflows: electronic structure solvers.
+Code implementing various functionalities and algorithms to research and perform quantum chemistry experiments on 
+gate-model quantum computers or simulators. The various features are exposed in toolboxes, and can be assembled to 
+form simple or complex workflows encapsulating pre-processing, quantum execution and post-processing.
 
 - **docs** :
 Source code documentation and user documentation (Sphinx)
@@ -29,7 +27,7 @@ Examples and tutorials to learn how to use the different functionalities of the 
 
 ## Install
 
-### 1.Prerequisites
+### 1. Prerequisites
 
 You need to have Python3 installed (Python 2 is not supported anymore as of Jan 1st 2020, and has been officially 
 replaced by Python 3) in your environment. We recommend you use Python virtual environments (`virtualenv`) in order to 
@@ -44,11 +42,11 @@ straightforward way to install these. These will have a big impact on the execut
 > installed in your environment. Installation instructions may differ depending on your operating system, but are generally
 > a one-liner using your distribution's package manager.
 
-### 2.a Using pip
+### 2a. Using pip
 
 TODO: once this package is available on pypy, mention it here, give the command.
 
-### 2.b From source, using setuptools
+### 2b. From source, using setuptools
 
 This package can be installed by first cloning this repository with `git clone`.
 You can then install qSDK by using the setuptools with the `setup.py` file present in this very directory:
@@ -63,9 +61,12 @@ A few tips below that may be relevant to you:
 > the command that failed seemed to solve these issues (often observed with `pybind11` and `pyscf`).
 
 If you are a developer and would like to modify and change code in `qSDK`, you can add the `qsdk` folder that contains 
-the source code of this package and add it to your `$PYTHONPATH` environment variable instead of installing it with pip. 
+the source code of this package and add it to your `PYTHONPATH` environment variable instead of installing it with pip:
+```
+export PYTHONPATH=<path_to_this_folder>:$PYTHONPATH
+```
 
-### 2.c Using Docker
+### 2c. Using Docker
 
 ```
 docker build . -t qsdk_docker_image"
