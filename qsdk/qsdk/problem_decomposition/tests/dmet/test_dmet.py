@@ -1,7 +1,10 @@
 import unittest
+import numpy as np
 
-from qsdk.molecule_library import mol_H4_doublecation_minao, mol_H4_doublecation_321g, mol_H10_321g
+from qsdk.molecule_library import mol_H4_doublecation_minao, mol_H4_doublecation_321g, mol_H10_321g, mol_H10_minao
+from qsdk.problem_decomposition import dmet
 from qsdk.problem_decomposition.dmet.dmet_problem_decomposition import Localization, DMETProblemDecomposition
+from qsdk.electronic_structure_solvers import VQESolver, vqe_solver
 
 
 class DMETProblemDecompositionTest(unittest.TestCase):
@@ -162,6 +165,50 @@ class DMETProblemDecompositionTest(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             DMETProblemDecomposition(opt_dmet)
+
+    def test_retrieving_quantum_data(self):
+        """Test if getting back a fragment gives the same RDMs."""
+
+        opt_dmet = {"molecule": mol_H10_minao,
+                    "fragment_atoms": [1]*10,
+                    "fragment_solvers": ["vqe"] + ["ccsd"]*9,
+                    "electron_localization": Localization.meta_lowdin,
+                    "verbose": True,
+                    "solvers_options": [{"qubit_mapping": "scBK",
+                                         "initial_var_params": "ones",
+                                         "up_then_down": True,
+                                         "verbose": False}] + [{}]*9,
+                    }
+
+        dmet_solver = DMETProblemDecomposition(opt_dmet)
+        dmet_solver.build()
+
+        # One shot loop with the optimal chemical potential.
+        dmet_solver.n_iter = 0
+        dmet_solver._oneshot_loop(-0.0000105903, save_results=True)
+
+        ref_onerdm = [[1.99836090e+00, 6.91189485e-04],
+                      [6.91189485e-04, 1.63910482e-03]]
+        ref_twordm = [[[[ 1.99836064e+00,  7.11566876e-04],
+                        [ 7.11566876e-04,  2.53371393e-07]],
+                        [[ 7.11566876e-04, -5.72277575e-02],
+                        [ 2.53371393e-07, -2.03773912e-05]]],
+                        [[[ 7.11566876e-04,  2.53371393e-07],
+                        [-5.72277575e-02, -2.03773912e-05]],
+                        [[ 2.53371393e-07, -2.03773912e-05],
+                        [-2.03773912e-05,  1.63885145e-03]]]]
+
+        fragment, q_H, q_circuit = dmet_solver.quantum_fragments_data[0]
+
+        vqe_solver = VQESolver({"molecule": fragment, "ansatz": q_circuit,
+                                "qubit_mapping": "scBK"})
+        vqe_solver.build()
+        vqe_solver.simulate()
+
+        onerdm, twordm = vqe_solver.get_rdm(vqe_solver.optimal_var_params)
+
+        np.testing.assert_array_almost_equal(ref_onerdm, onerdm)
+        np.testing.assert_array_almost_equal(ref_twordm, twordm)
 
 
 if __name__ == "__main__":

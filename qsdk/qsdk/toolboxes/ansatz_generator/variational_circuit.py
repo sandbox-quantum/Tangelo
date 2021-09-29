@@ -26,7 +26,7 @@ class VariationalCircuitAnsatz(Ansatz):
         self.supported_initial_var_params = {"ones", "random", "zeros"}
 
         # Default initial parameters for initialization
-        self.var_params_default = "random"
+        self.var_params_default = [gate.parameter for gate in self.circuit._variational_gates]
 
     def set_var_params(self, var_params=None):
         """Set initial variational parameter values. Defaults to random."""
