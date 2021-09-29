@@ -12,7 +12,7 @@ with open('README.md', 'r') as f:
 
 __title__ = "1QBit's quantum SDK for quantum chemistry"
 __copyright__ = "1QBit Inc"
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __status__ = "beta"
 __authors__ = ["Valentin Senicourt, Alexandre Fleury, Ryan Day, James Brown"]
 
@@ -22,7 +22,7 @@ install('pyscf')
 setuptools.setup(
     name="qSDK",
     version=__version__,
-    description="1QBit's quantum SDK for quantum chemistry",
+    description="1QBit's quantum SDK for quantum chemistry on quantum computers and simulators",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/quantumsimulation/QEMIST_qSDK",
