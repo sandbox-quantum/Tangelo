@@ -3,7 +3,7 @@
 from agnostic_simulator import Circuit, Gate
 
 
-def RotationCircuit(n_qubits, rot_type="euler"):
+def rotation_circuit(n_qubits, rot_type="euler"):
     """Construct a circuit applying an Euler Z-X-Z rotation to each qubit."""
     if rot_type == "euler":
         gateslist = [Gate("RZ", target=target, is_variational=True) for target in range(n_qubits)]
@@ -16,7 +16,7 @@ def RotationCircuit(n_qubits, rot_type="euler"):
     return Circuit(gateslist)
 
 
-def EntanglerCircuit(n_qubits):
+def entangler_circuit(n_qubits):
     """Construct a circuit applying two columns of staggered CNOT gates to all
     qubits and their neighbours.
     """
@@ -27,12 +27,12 @@ def EntanglerCircuit(n_qubits):
     return Circuit(gateslist)
 
 
-def HEACircuit(n_qubits, n_layers, rot_type="euler"):
+def construct_hea_circuit(n_qubits, n_layers, rot_type="euler"):
     """Construct a circuit consisting of alternating sequence of Euler rotations
     and entanglers.
     """
-    circuit = RotationCircuit(n_qubits, rot_type)
+    circuit = rotation_circuit(n_qubits, rot_type)
     for ii in range(n_layers):
-        circuit += EntanglerCircuit(n_qubits)
-        circuit += RotationCircuit(n_qubits, rot_type)
+        circuit += entangler_circuit(n_qubits)
+        circuit += rotation_circuit(n_qubits, rot_type)
     return circuit

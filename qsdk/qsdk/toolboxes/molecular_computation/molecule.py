@@ -342,6 +342,8 @@ class SecondQuantizedMolecule(Molecule):
             # orbitals (deepcopy also returns errors).
             copy_self = copy.copy(self)
 
+            copy_self.frozen_orbitals = frozen_orbitals
+
             copy_self.active_occupied = list_of_active_frozen[0]
             copy_self.frozen_occupied = list_of_active_frozen[1]
             copy_self.active_virtual = list_of_active_frozen[2]
