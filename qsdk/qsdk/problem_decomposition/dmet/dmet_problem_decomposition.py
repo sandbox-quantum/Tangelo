@@ -388,8 +388,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, mol_frag.nelectron,
-                2*len(mf_fragment.mo_energy), mol_frag.charge, mol_frag.spin)
+            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele)
 
             if self.verbose:
                 print("\t\tFragment Number : # ", i + 1)
@@ -476,10 +475,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
         for i, info_fragment in enumerate(scf_fragments):
 
             # Unpacking the information for the selected fragment.
-            mf_fragment, _, mol_frag, _, _, _, _ = info_fragment
+            mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, mol_frag.nelectron,
-                2*len(mf_fragment.mo_energy), mol_frag.charge, mol_frag.spin)
+            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele)
 
             # Buiding SCF fragments and quantum circuit. Resources are then
             # estimated. For classical sovlers, this functionality is not
