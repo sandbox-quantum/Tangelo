@@ -167,7 +167,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         """
 
         if not self.solver_fragment_dict:
-            raise RuntimeError("Simulate method must be called before to get the results.")
+            raise RuntimeError("Simulate method must be called beforehand.")
 
         quantum_data = dict()
 
