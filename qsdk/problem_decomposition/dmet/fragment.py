@@ -44,7 +44,7 @@ class SecondQuantizedDMETFragment:
             FermionOperator: Self-explanatory.
         """
 
-        dummy_of_molecule = openfermion.MolecularData([["C", (0., 0. ,0.)]], "sto-3g", self.spin+1, self.q)
+        dummy_of_molecule = openfermion.MolecularData([["C", (0., 0., 0.)]], "sto-3g", self.spin+1, self.q)
 
         # Overwrting nuclear repulsion term.
         dummy_of_molecule.nuclear_repulsion = self.mean_field.mol.energy_nuc()

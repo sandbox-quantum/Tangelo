@@ -149,7 +149,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         """
 
         opt_dmet = {"molecule": mol_H4_doublecation_321g,
-                    "fragment_atoms": [[0,0], [1], [2], [3]],
+                    "fragment_atoms": [[0, 0], [1], [2], [3]],
                     "fragment_solvers": "ccsd",
                     "electron_localization": Localization.iao,
                     "verbose": False

@@ -1,0 +1,6 @@
+[pycodestyle]
+count = False
+exclude = *build*,*translate_openqasm.py,*translate_projectq.py
+ignore = E123,E126,E127,E128,E201,E226,E241,W503,W504,E741 
+max-line-length = 160
+statistics = True

@@ -74,7 +74,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
         raise ValueError("Number of electrons should be an integer.")
     if n_spinorbitals < count_qubits(fermion_operator):
         raise ValueError("Number of spin-orbitals is too small for FermionOperator input.")
-    #Check that the input operator is suitable for application of scBK
+    # Check that the input operator is suitable for application of scBK
     check_operator(fermion_operator, num_orbitals=(n_spinorbitals//2), up_then_down=up_then_down)
 
     # If necessary, arrange spins up then down, then BK map to qubit Hamiltonian.
@@ -106,7 +106,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
                                                   n_spinorbitals/2,
                                                   parity_middle_orb)
 
-    #We remove the N/2-th and N-th qubit from the register.
+    # We remove the N/2-th and N-th qubit from the register.
     to_prune = (n_spinorbitals//2 - 1, n_spinorbitals - 1)
     qubit_operator = prune_unused_indices(qubit_operator, prune_indices=to_prune, n_qubits=n_spinorbitals)
 

@@ -192,7 +192,7 @@ class TestSimulateStatevector(unittest.TestCase):
 
             try:
                 self.assertAlmostEqual(energy, expected, delta=1e-5)
-            except:
+            except Exception:
                 test_fail = True
                 print(f"{self._testMethodName} : Assertion failed {b} (result = {energy:.7f}, expected = {expected})")
         if test_fail:
@@ -225,7 +225,7 @@ class TestSimulateStatevector(unittest.TestCase):
 
             try:
                 self.assertAlmostEqual(energy, expected, delta=1e-5)
-            except:
+            except Exception:
                 test_fail = True
                 print(f"{self._testMethodName} : Assertion failed {b} (result = {energy:.7f}, expected = {expected})")
         if test_fail:
@@ -259,7 +259,7 @@ class TestSimulateStatevector(unittest.TestCase):
 
             try:
                 self.assertAlmostEqual(energy, expected, delta=1e-5)
-            except:
+            except Exception:
                 test_fail = True
                 print(f"{self._testMethodName} : Assertion failed {b} (result = {energy:.7f}, expected = {expected})")
         if test_fail:

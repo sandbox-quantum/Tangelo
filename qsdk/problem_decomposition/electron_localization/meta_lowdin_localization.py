@@ -9,6 +9,7 @@ For details, refer to:
 
 from pyscf.lo import orth
 
+
 def meta_lowdin_localization(mol, mf):
     """Localize the orbitals using Meta-Löwdin localization.
 

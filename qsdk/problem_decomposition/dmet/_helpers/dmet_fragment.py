@@ -4,6 +4,7 @@ Construct the orbital list, showing how much orbitals to be included for each
 fragment, from the atom list, showing how many atoms included in each fragment.
 """
 
+
 def dmet_fragment_constructor(mol, atom_list, number_fragment):
     """Construct orbital list.
 
@@ -24,19 +25,19 @@ def dmet_fragment_constructor(mol, atom_list, number_fragment):
     """
 
     # Make a new atom list based on how many fragments for DMET calculation
-    if number_fragment == 0 :
+    if number_fragment == 0:
         atom_list2 = atom_list
     else:
         # Calculate the number of DMET calculations
-        number_new_fragment = int(len(atom_list)/(number_fragment+1)) # number of DMET calulation per loop
+        number_new_fragment = int(len(atom_list)/(number_fragment+1))  # number of DMET calulation per loop
         atom_list2 = []
 
         # Define the number of atoms per DMET calculation
-        for i in range( number_new_fragment ):
+        for i in range(number_new_fragment):
             num = 0
-            for j in range( number_fragment + 1 ):
+            for j in range(number_fragment + 1):
                 k = (number_fragment+1)*i+j
-                num += atom_list[ k ]
+                num += atom_list[k]
             atom_list2.append(num)
 
     # Initialize the list of the number of orbitals
@@ -55,11 +56,11 @@ def dmet_fragment_constructor(mol, atom_list, number_fragment):
             item = total_basis.split()
             item0 = int(item[0])
             if (isum <= item0 <= isum2):
-               itemp+=1
+                itemp += 1
         isum += i
         jorb += itemp
         orb_list.append(itemp)
-        orb_list2.append([iorb,jorb])
+        orb_list2.append([iorb, jorb])
         iorb += itemp
 
     return orb_list, orb_list2, atom_list2

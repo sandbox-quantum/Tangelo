@@ -12,6 +12,7 @@ from pyscf import scf, ao2mo
 import numpy as np
 from functools import reduce
 
+
 class dmet_orbitals:
     """ Localize the SCF orbitals and calculate the integrals
 
@@ -67,7 +68,7 @@ class dmet_orbitals:
         self.dmet_active_orbitals = np.zeros([mf.mol.nao_nr()], dtype=int)
         self.dmet_active_orbitals[active_space] = 1
         self.number_active_orbitals = np.sum(self.dmet_active_orbitals)
-        self.number_active_electrons = int(np.rint(mf.mol.nelectron - np.sum(mf.mo_occ[self.dmet_active_orbitals==0])))
+        self.number_active_electrons = int(np.rint(mf.mol.nelectron - np.sum(mf.mo_occ[self.dmet_active_orbitals == 0])))
 
         # Localize the orbitals (IAO)
         self.localized_mo = localization_function(mol, mf)
@@ -103,17 +104,17 @@ class dmet_orbitals:
         """
 
         # Calculate one-electron integrals
-        frag_oneint = reduce(np.dot, (bath_orb[ : , : norb_high].T, self.active_oneint, bath_orb[ : , : norb_high]))
+        frag_oneint = reduce(np.dot, (bath_orb[:, :norb_high].T, self.active_oneint, bath_orb[:, :norb_high]))
 
         # Calculate the fock matrix
         density_matrix = reduce(np.dot, (self.localized_mo, onerdm_core, self.localized_mo.T))
         two_int = scf.hf.get_veff(self.mol_full, density_matrix, 0, 0, 1)
         new_fock = self.active_oneint + reduce(np.dot, ((self.localized_mo.T, two_int, self.localized_mo)))
-        frag_fock = reduce(np.dot, (bath_orb[ : , : norb_high ].T, new_fock, bath_orb[ : , : norb_high]))
+        frag_fock = reduce(np.dot, (bath_orb[:, :norb_high].T, new_fock, bath_orb[:, : norb_high]))
 
         # Calculate the two-electron integrals
-        coefficients = np.dot(self.localized_mo, bath_orb[ : , : norb_high])
-        frag_twoint = ao2mo.outcore.full_iofree(self.mol_full, coefficients, compact=False).reshape( \
+        coefficients = np.dot(self.localized_mo, bath_orb[:, : norb_high])
+        frag_twoint = ao2mo.outcore.full_iofree(self.mol_full, coefficients, compact=False).reshape(
                                                 norb_high,  norb_high,  norb_high,  norb_high)
 
         return frag_oneint, frag_fock, frag_twoint

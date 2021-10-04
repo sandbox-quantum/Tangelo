@@ -59,3 +59,12 @@ jobs:
         cd examples
         pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html test_notebooks.py
       if: always()
+
+    - name: Install pycodestyle
+      run: |
+        pip install pycodestyle
+
+    - name: pycodestyle tests
+      run: |
+        pycodestyle --config=dev_tools/pycodestyle qsdk
+      if: always()

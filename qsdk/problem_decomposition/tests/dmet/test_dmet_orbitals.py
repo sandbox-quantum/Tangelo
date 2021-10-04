@@ -10,6 +10,7 @@ from qsdk.problem_decomposition.electron_localization import iao_localization
 
 path_file = os.path.dirname(__file__)
 
+
 class TestDMETorbitals(unittest.TestCase):
     """Generate the localized orbitals employing IAOs."""
 

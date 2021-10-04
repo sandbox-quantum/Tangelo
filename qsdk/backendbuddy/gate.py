@@ -22,7 +22,7 @@ class Gate(dict):
 
     # TODO: extend control to a list to support gates such as the Toffoli gate etc in the future
     # TODO: extend target to a list to support gates such as U2, U3 etc in the future
-    def __init__(self, name: str, target: int, control: int=None, parameter="", is_variational: bool=False):
+    def __init__(self, name: str, target: int, control: int = None, parameter="", is_variational: bool = False):
         """ This gate class is basically a dictionary with extra methods. """
 
         if not (isinstance(target, int) and target >= 0):
