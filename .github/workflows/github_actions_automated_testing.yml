@@ -67,5 +67,5 @@ jobs:
     - name: pycodestyle tests
       run: |
         cd dev_tools
-        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html test_conformance.py
       if: always()
