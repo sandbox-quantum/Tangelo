@@ -1,7 +1,7 @@
 import unittest
 
 from qsdk.molecule_library import mol_pyridine
-from qsdk.electronic_structure_solvers.semi_empirical_solver import MINDO3Solver
+from qsdk.algorithms.classical.semi_empirical_solver import MINDO3Solver
 
 
 class MINDO3SolverTest(unittest.TestCase):

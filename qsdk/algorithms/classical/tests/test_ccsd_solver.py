@@ -1,6 +1,6 @@
 import unittest
 
-from qsdk.electronic_structure_solvers.ccsd_solver import CCSDSolver
+from qsdk.algorithms.classical.ccsd_solver import CCSDSolver
 from qsdk.molecule_library import mol_H2_321g, mol_Be_321g
 
 
