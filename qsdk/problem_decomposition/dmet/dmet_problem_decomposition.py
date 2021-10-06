@@ -11,7 +11,7 @@ from qsdk.problem_decomposition.dmet import _helpers as helpers
 from qsdk.problem_decomposition.problem_decomposition import ProblemDecomposition
 from qsdk.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization
 from qsdk.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
-from qsdk.electronic_structure_solvers import FCISolver, CCSDSolver, VQESolver
+from qsdk.algorithms import FCISolver, CCSDSolver, VQESolver
 from qsdk.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
 
 

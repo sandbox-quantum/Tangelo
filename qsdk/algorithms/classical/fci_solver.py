@@ -4,7 +4,7 @@ interaction (CI) method.
 
 from pyscf import ao2mo, fci, mcscf
 
-from qsdk.electronic_structure_solvers.electronic_structure_solver import ElectronicStructureSolver
+from qsdk.algorithms.electronic_structure_solver import ElectronicStructureSolver
 
 
 class FCISolver(ElectronicStructureSolver):

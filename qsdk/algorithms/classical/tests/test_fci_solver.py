@@ -1,6 +1,6 @@
 import unittest
 
-from qsdk.electronic_structure_solvers import FCISolver
+from qsdk.algorithms import FCISolver
 from qsdk.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_cation_sto3g
 
 

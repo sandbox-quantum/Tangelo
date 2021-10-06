@@ -20,7 +20,7 @@ from scipy.optimize import minimize
 import warnings
 
 from qsdk.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
-from qsdk.electronic_structure_solvers.vqe_solver import VQESolver
+from qsdk.algorithms import VQESolver
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
 from qsdk.toolboxes.operators import qubitop_to_qubitham

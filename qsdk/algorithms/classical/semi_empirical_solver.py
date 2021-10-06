@@ -18,7 +18,7 @@ Here are the semi-empirical method(s) implemented:
 
 from pyscf.semiempirical import mindo3
 
-from qsdk.electronic_structure_solvers.electronic_structure_solver import ElectronicStructureSolver
+from qsdk.algorithms.electronic_structure_solver import ElectronicStructureSolver
 
 
 class MINDO3Solver(ElectronicStructureSolver):
