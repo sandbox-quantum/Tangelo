@@ -84,7 +84,7 @@ class Gate(dict):
         if len(all_involved_qubits) != len(set(all_involved_qubits)):
             raise ValueError(f"There are duplicate qubits in the target/control qubits")
 
-        self.__dict__ = {"name": name, "target": target, "control": control,
+        self.__dict__ = {"name": name, "target": target0, "target1": target1, "control": control,
                          "parameter": parameter, "is_variational": is_variational}
 
     def __str__(self):
@@ -93,7 +93,7 @@ class Gate(dict):
         """
 
         mystr = f"{self.name:<10}"
-        for attr in ["target", "control"]:
+        for attr in ["target", "target1", "control"]:
             if self.__getattribute__(attr) or isinstance(self.__getattribute__(attr), int):
                 mystr += f"{attr} : {self.__getattribute__(attr)}   "
         if self.__getattribute__("parameter") != "":
@@ -133,5 +133,5 @@ class Gate(dict):
 
     def serialize(self):
         return {"type": "Gate",
-                "params": {"name": self.name, "target": self.target,
+                "params": {"name": self.name, "target": self.target, "target1": self.target1,
                            "control": self.control, "parameter": self.parameter}}
