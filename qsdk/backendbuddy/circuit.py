@@ -124,6 +124,9 @@ class Circuit:
         # Track qubit indices
         self._qubit_indices.add(gate.target)
         check_index_valid(gate.target)
+        if isinstance(gate.target1, int):
+            self._qubit_indices.add(gate.target1)
+            check_index_valid(gate.target1)
         if isinstance(gate.control, int):
             self._qubit_indices.add(gate.control)
             check_index_valid(gate.control)

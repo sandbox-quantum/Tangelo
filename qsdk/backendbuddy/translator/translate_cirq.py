@@ -21,7 +21,7 @@ necessary to account for:
 - how the order and conventions for some of the inputs to the gate operations
     may also differ.
 """
-
+from numpy import pi
 
 def get_cirq_gates():
     """Map gate name of the abstract format to the equivalent methods of the
@@ -34,12 +34,22 @@ def get_cirq_gates():
     GATE_CIRQ["X"] = cirq.X
     GATE_CIRQ["Y"] = cirq.Y
     GATE_CIRQ["Z"] = cirq.Z
+    GATE_CIRQ["CX"] = cirq.X
+    GATE_CIRQ["CY"] = cirq.Y
+    GATE_CIRQ["CZ"] = cirq.Z
     GATE_CIRQ["S"] = cirq.S
     GATE_CIRQ["T"] = cirq.T
     GATE_CIRQ["RX"] = cirq.rx
     GATE_CIRQ["RY"] = cirq.ry
     GATE_CIRQ["RZ"] = cirq.rz
     GATE_CIRQ["CNOT"] = cirq.CNOT
+    GATE_CIRQ["CRZ"] = cirq.rz
+    GATE_CIRQ["CRX"] = cirq.rx
+    GATE_CIRQ["CRY"] = cirq.ry
+    GATE_CIRQ["PHASE"] = cirq.ZPowGate
+    GATE_CIRQ["CPHASE"] = cirq.ZPowGate
+    GATE_CIRQ["SWAP"] = cirq.SWAP
+    GATE_CIRQ["CSWAP"] = cirq.SWAP
     GATE_CIRQ["MEASURE"] = cirq.measure
     return GATE_CIRQ
 
@@ -71,6 +81,9 @@ def translate_cirq(source_circuit, noise_model=None):
     for gate in source_circuit._gates:
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
             target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target]))
+        elif gate.name in {"CX", "CY", "CZ"}:
+            next_gate = GATE_CIRQ[gate.name].controlled()
+            target_circuit.append(next_gate(qubit_list[gate.control], qubit_list[gate.target]))
         elif gate.name in {"RX", "RY", "RZ"}:
             next_gate = GATE_CIRQ[gate.name](gate.parameter)
             target_circuit.append(next_gate(qubit_list[gate.target]))
@@ -78,6 +91,20 @@ def translate_cirq(source_circuit, noise_model=None):
             target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.control], qubit_list[gate.target]))
         elif gate.name in {"MEASURE"}:
             target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target]))
+        elif gate.name in {"CRZ", "CRX", "CRY"}:
+            next_gate = GATE_CIRQ[gate.name](gate.parameter).controlled()
+            target_circuit.append(next_gate(qubit_list[gate.control], qubit_list[gate.target]))
+        elif gate.name in {"PHASE"}:
+            next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/pi)
+            target_circuit.append(next_gate(qubit_list[gate.target]))
+        elif gate.name in {"CPHASE"}:
+            next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/pi).controlled()
+            target_circuit.append(next_gate(qubit_list[gate.control], qubit_list[gate.target]))
+        elif gate.name in {"SWAP"}:
+            target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target], qubit_list[gate.target1]))
+        elif gate.name in {"CSWAP"}:
+            next_gate = GATE_CIRQ[gate.name].controlled()
+            target_circuit.append(next_gate(qubit_list[gate.control], qubit_list[gate.target], qubit_list[gate.target1]))
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend cirq")
 

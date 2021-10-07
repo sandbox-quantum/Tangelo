@@ -17,6 +17,8 @@ gate operation, without tying it to a particular backend or an underlying
 mathematical operation.
 """
 
+from typing import Union
+
 ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ"}
 TWO_QUBIT_GATES = {"CNOT"}
 
@@ -39,15 +41,29 @@ class Gate(dict):
 
     # TODO: extend control to a list to support gates such as the Toffoli gate etc in the future
     # TODO: extend target to a list to support gates such as U2, U3 etc in the future
-    def __init__(self, name: str, target: int, control: int=None, parameter="", is_variational: bool=False):
+    def __init__(self, name: str, target: Union[int, list], control: int = None, parameter="", is_variational: bool=False):
         """ This gate class is basically a dictionary with extra methods. """
 
-        if not (isinstance(target, int) and target >= 0):
-            raise ValueError("Qubit index must be a positive integer.")
+        if not isinstance(target, (int, list)):
+            raise ValueError("Qubit index must be int or list of ints.")
+        else:
+            if isinstance(target, int):
+                if target < 0:
+                    raise ValueError("Qubit index must be a positive integer")
+                target0 = target
+                target1 = None
+            elif isinstance(target, list) and len(target) == 2:
+                if target[0] >= 0 and target[1] >= 0:
+                    target0 = target[0]
+                    target1 = target[1]
+                else:
+                    raise ValueError("Qubit indices must both be positive integers")
+            else:
+                raise ValueError("Only two target indices are supported")
         if control and (not (isinstance(control, int) and control >= 0)):
             raise ValueError("Qubit index must be a positive integer.")
 
-        self.__dict__ = {"name": name, "target": target, "control": control,
+        self.__dict__ = {"name": name, "target": target0, "target1": target1, "control": control,
                          "parameter": parameter, "is_variational": is_variational}
 
     def __str__(self):
@@ -56,7 +72,7 @@ class Gate(dict):
         """
 
         mystr = f"{self.name:<10}"
-        for attr in ["target", "control"]:
+        for attr in ["target", "target1", "control"]:
             if self.__getattribute__(attr) or isinstance(self.__getattribute__(attr), int):
                 mystr += f"{attr} : {self.__getattribute__(attr)}   "
         if self.__getattribute__("parameter") != "":
@@ -68,5 +84,5 @@ class Gate(dict):
 
     def serialize(self):
         return {"type": "Gate",
-                "params": {"name": self.name, "target": self.target,
+                "params": {"name": self.name, "target": self.target, "target1": self.target1,
                            "control": self.control, "parameter": self.parameter}}
