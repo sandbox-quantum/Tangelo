@@ -6,7 +6,7 @@ which bonds are broken and how to fix them) as well as the solver(s) to use.
 import numpy as np
 
 # Imports of electronic solvers and data structure
-from qsdk.electronic_structure_solvers import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
+from qsdk.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
 from qsdk import SecondQuantizedMolecule
 
 
