@@ -6,10 +6,22 @@ from qsdk.backendbuddy import translator, Simulator, Circuit
 from qsdk.backendbuddy.helpers import string_ham_to_of, measurement_basis_gates, get_measurement_estimate
 from openfermion import QubitOperator
 
-path_data = os.path.dirname(__file__) + '/data'
+path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
 op1 = 1. * QubitOperator('X1 Y0')
 op2 = 0.01 * QubitOperator('Z0 X1')
+
+
+def assert_integer_dict_almost_equal(d1, d2, atol):
+    """ Utility function to check whether two integer dictionaries are almost equal, for arbitrary tolerance """
+    if d1.keys() != d2.keys():
+        raise AssertionError("Dictionary keys differ. Frequency dictionaries are not almost equal.\n"
+                             f"d1 keys: {d1.keys()} \nd2 keys: {d2.keys()}")
+    else:
+        for k in d1.keys():
+            if abs(d1[k] - d2[k]) > atol:
+                raise AssertionError(f"Dictionary entries beyond tolerance {atol}: \n{d1} \n{d2}")
+    return True
 
 
 class MeasurementsTest(unittest.TestCase):
@@ -34,13 +46,13 @@ class MeasurementsTest(unittest.TestCase):
         # Adjust digits
         mes7 = get_measurement_estimate(op1, digits=2)
 
-        assert(mes1 == {((0, 'Y'), (1, 'X')): 100000000})
-        assert(mes2 == {((0, 'Z'), (1, 'X')): 10000})
-        assert(mes3 == {((0, 'Z'), (1, 'X')): 10000, ((0, 'Y'), (1, 'X')): 1000000})
-        assert(mes4 == {((0, 'Y'), (1, 'X')): 36000000})
-        assert(mes5 == {((0, 'Y'), (1, 'X')): 0})
-        assert(mes6 == {((0, 'Y'), (1, 'X')): 100})
-        assert(mes7 == {((0, 'Y'), (1, 'X')): 1000000})
+        assert_integer_dict_almost_equal(mes1 , {((0, 'Y'), (1, 'X')): 100000000}, 1)
+        assert_integer_dict_almost_equal(mes2 , {((0, 'Z'), (1, 'X')): 10000}, 1)
+        assert_integer_dict_almost_equal(mes3 , {((0, 'Z'), (1, 'X')): 10000, ((0, 'Y'), (1, 'X')): 1000000}, 1)
+        assert_integer_dict_almost_equal(mes4 , {((0, 'Y'), (1, 'X')): 36000000}, 1)
+        assert_integer_dict_almost_equal(mes5 , {((0, 'Y'), (1, 'X')): 0}, 1)
+        assert_integer_dict_almost_equal(mes6 , {((0, 'Y'), (1, 'X')): 100}, 1)
+        assert_integer_dict_almost_equal(mes7 , {((0, 'Y'), (1, 'X')): 1000000}, 1)
 
     def test_measurement_uniform_H2(self):
         """ Test on UCCSD H2 usecase that uniform measurement estimation method guarantees on average the level

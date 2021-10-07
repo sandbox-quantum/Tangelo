@@ -6,7 +6,7 @@ from qsdk.backendbuddy.helpers import string_ham_to_of, measurement_basis_gates,
     qubitwise_commutativity_of, exp_value_from_measurement_bases
 
 
-path_data = os.path.dirname(__file__) + '/data'
+path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
 
 class TermsGroupingTest(unittest.TestCase):

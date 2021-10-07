@@ -4,7 +4,7 @@ import numpy as np
 
 from qsdk.toolboxes.post_processing import mcweeny_purify_2rdm
 
-path_data = os.path.dirname(__file__) + "/data"
+path_data = os.path.dirname(os.path.abspath(__file__)) + "/data"
 
 
 class McWeenyPurificationTest(unittest.TestCase):
