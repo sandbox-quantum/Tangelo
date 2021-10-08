@@ -1,0 +1,877 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.toolboxes.ansatz_generator package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-toolboxes-ansatz-generator-package">
+<h1>qsdk.toolboxes.ansatz_generator package<a class="headerlink" href="#qsdk-toolboxes-ansatz-generator-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html">qsdk.toolboxes.ansatz_generator.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#module-qsdk.toolboxes.ansatz_generator.tests.test_adapt_ansatz">qsdk.toolboxes.ansatz_generator.tests.test_adapt_ansatz module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#module-qsdk.toolboxes.ansatz_generator.tests.test_fermionic_operators">qsdk.toolboxes.ansatz_generator.tests.test_fermionic_operators module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#module-qsdk.toolboxes.ansatz_generator.tests.test_general_unitary_cc">qsdk.toolboxes.ansatz_generator.tests.test_general_unitary_cc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#module-qsdk.toolboxes.ansatz_generator.tests.test_hea">qsdk.toolboxes.ansatz_generator.tests.test_hea module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#module-qsdk.toolboxes.ansatz_generator.tests.test_penalty_terms">qsdk.toolboxes.ansatz_generator.tests.test_penalty_terms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#module-qsdk.toolboxes.ansatz_generator.tests.test_rucc">qsdk.toolboxes.ansatz_generator.tests.test_rucc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#module-qsdk.toolboxes.ansatz_generator.tests.test_uccsd">qsdk.toolboxes.ansatz_generator.tests.test_uccsd module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#module-qsdk.toolboxes.ansatz_generator.tests.test_upccgsd">qsdk.toolboxes.ansatz_generator.tests.test_upccgsd module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#module-qsdk.toolboxes.ansatz_generator.tests.test_variational_circuit">qsdk.toolboxes.ansatz_generator.tests.test_variational_circuit module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.ansatz_generator.tests.html#module-qsdk.toolboxes.ansatz_generator.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator.adapt_ansatz">
+<span id="qsdk-toolboxes-ansatz-generator-adapt-ansatz-module"></span><h2>qsdk.toolboxes.ansatz_generator.adapt_ansatz module<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator.adapt_ansatz" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the adaptive ansatz class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.adapt_ansatz.</span></span><span class="sig-name descname"><span class="pre">ADAPTAnsatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ansatz_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz" title="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">qsdk.toolboxes.ansatz_generator.ansatz.Ansatz</span></code></a></p>
+<p>Adaptive ansatz used with ADAPT-VQE. This Ansatz class has methods to
+take a (or many) QubitOperator, transform it (them) into a circuit and
+append it (them). The number of variational parameters corresponds to the
+number of terms added to the Ansatz.</p>
+<dl>
+<dt>Attributes:</dt><dd><p>n_spinorbitals (int): Number of spin orbitals in a given basis.
+n_electrons (int): Number of electrons.
+operators (list of QubitOperator): List of operators to consider at the</p>
+<blockquote>
+<div><p>construction step. Can be useful for restarting computation.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>ferm_operators (list of FermionOperator): Same as operators, but in</dt><dd><p>fermionic form. Not necessarily for running the ansatz, but it is
+convenient for analyzing results.</p>
+</dd>
+</dl>
+<p>mapping (string): Qubit encoding.
+up_then_down (bool): Ordering convention.
+var_params (list of float): Variational parameters.
+circuit (Circuit): Quantum circuit defined by a list of Gates.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.add_operator">
+<span class="sig-name descname"><span class="pre">add_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pauli_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ferm_operator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.add_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new operator to our circuit.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>pauli_operator (QubitOperator): Operator to convert into a circuit</dt><dd><p>and append it to the present circuit.</p>
+</dd>
+</dl>
+<p>ferm_operator (FermionicOperator): Same operator in fermionic form.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.build_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the variational circuit to be used as our ansatz.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.n_var_params">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">n_var_params</span></span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.n_var_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.prepare_reference_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare a circuit generating the HF reference state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.set_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set initial variational parameter values. Defaults to zeros.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.update_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update variational parameters (done repeatedly during VQE).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator.ansatz">
+<span id="qsdk-toolboxes-ansatz-generator-ansatz-module"></span><h2>qsdk.toolboxes.ansatz_generator.ansatz module<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator.ansatz" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the ansatz abstract class, providing the foundation to
+implement variational ansatz circuits.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.ansatz.</span></span><span class="sig-name descname"><span class="pre">Ansatz</span></span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Base class for all Ansatz. Derived/children classes wirtten by users and
+developers must implement the following abstract methods.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz.build_circuit">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz.build_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build and return the quantum circuit implementing the ansatz.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz.prepare_reference_state">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz.prepare_reference_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return circuit preparing the desired reference wavefunction (HF,
+multi-reference state…).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz.set_var_params">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz.set_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize variational parameters as zeros, random numbers, MP2, or
+any insightful values. Impacts the convergence of variational
+algorithms.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz.update_var_params">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz.update_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update value of variational parameters in the already-built ansatz
+circuit member.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator.ansatz_utils">
+<span id="qsdk-toolboxes-ansatz-generator-ansatz-utils-module"></span><h2>qsdk.toolboxes.ansatz_generator.ansatz_utils module<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator.ansatz_utils" title="Permalink to this headline">¶</a></h2>
+<p>Provide useful functions, corresponding to common patterns in quantum
+chemistry circuits (CNOT ladders, Pauli-word to circuit translation …) to
+facilitate the assembly of ansatz quantum circuits.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.ansatz_utils.pauli_op_to_gate">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">pauli_op_to_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.ansatz_utils.pauli_op_to_gate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the change-of-basis gates required to map pauli words to quantum
+circuit as per Whitfield 2010 (<a class="reference external" href="https://arxiv.org/pdf/1001.3855.pdf">https://arxiv.org/pdf/1001.3855.pdf</a>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.ansatz_utils.pauliword_to_circuit">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">pauliword_to_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pauli_word</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variational</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.ansatz_utils.pauliword_to_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a quantum circuit corresponding to the pauli word, as described
+in Whitfield 2010 (<a class="reference external" href="https://arxiv.org/pdf/1001.3855.pdf">https://arxiv.org/pdf/1001.3855.pdf</a>).</p>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator.fermionic_operators">
+<span id="qsdk-toolboxes-ansatz-generator-fermionic-operators-module"></span><h2>qsdk.toolboxes.ansatz_generator.fermionic_operators module<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator.fermionic_operators" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the fermionic operators that can be used to obtain
+expectation values of commonly used quantum numbers. The available operators are
+1) N: number of electrons
+2) Sz: The spin z-projection Sz|psi&gt;=m_s|psi&gt;
+3) S^2: The spin quantum number S^2|psi&gt;=s(s+1)|psi&gt; associated with spin
+angular momentum which allows one to decide whether the state has the correct
+properties.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.fermionic_operators.number_operator">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">number_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.fermionic_operators.number_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate the normal ordered number operator as a
+FermionicOperator.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n_orbs (int): number of orbitals in the fermion basis (this is number of</dt><dd><p>spin-orbitals divided by 2).</p>
+</dd>
+<dt>up_then_down: The ordering of the spin orbitals. qiskit (True)</dt><dd><p>openfermion (False).</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>num_op (FermionicOperator): The number operator penalty hat{N}.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.fermionic_operators.number_operator_list">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">number_operator_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.fermionic_operators.number_operator_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate the normal ordered number operator as a list.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n_orbs (int): number of orbitals in the fermion basis (this is number of</dt><dd><p>spin-orbitals divided by 2).</p>
+</dd>
+<dt>up_then_down (bool): The ordering of the spin orbitals. qiskit (True)</dt><dd><p>openfermion (False).</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>all_terms (list): The number operator penalty hat{N}.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.fermionic_operators.spin2_operator">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">spin2_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.fermionic_operators.spin2_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate the normal ordered S^2 operator as a
+FermionicOperator.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n_orbs (int): number of orbitals in the fermion basis (this is number of</dt><dd><p>spin-orbitals divided by 2).</p>
+</dd>
+<dt>up_then_down (bool): The ordering of the spin orbitals. qiskit (True)</dt><dd><p>openfermion (False).</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>spin2_op (FermionicOperator): The S^2 operator hat{S}^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.fermionic_operators.spin2_operator_list">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">spin2_operator_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.fermionic_operators.spin2_operator_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate the normal ordered S^2 operator as a
+FermionicOperator.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n_orbs (int): number of orbitals in the fermion basis (this is number of</dt><dd><p>spin-orbitals divided by 2).</p>
+</dd>
+<dt>up_then_down (bool): The ordering of the spin orbitals. qiskit (True)</dt><dd><p>openfermion (False).</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>all_terms (list): The S^2 operator hat{S}^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.fermionic_operators.spinz_operator">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">spinz_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.fermionic_operators.spinz_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate the normal ordered Sz operator.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n_orbs (int): number of orbitals in the fermion basis (this is number of</dt><dd><p>spin-orbitals divided by 2).</p>
+</dd>
+<dt>up_then_down (bool): The ordering of the spin orbitals. qiskit (True)</dt><dd><p>openfermion (False).</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>spin_op (FermionicOperator): The Sz operator hat{Sz}.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.fermionic_operators.spinz_operator_list">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">spinz_operator_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.fermionic_operators.spinz_operator_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate the normal ordered Sz operator as a list.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n_orbs (int): number of orbitals in the fermion basis (this is number of</dt><dd><p>spin-orbitals divided by 2).</p>
+</dd>
+<dt>up_then_down (bool): The ordering of the spin orbitals. qiskit (True)</dt><dd><p>openfermion (False).</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>all_terms (list): The Sz operator hat{Sz}.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator.hea">
+<span id="qsdk-toolboxes-ansatz-generator-hea-module"></span><h2>qsdk.toolboxes.ansatz_generator.hea module<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator.hea" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the hardware efficient ansatz class, for use in applying
+VQE as first defined in “Hardware-efficient Variational Quantum Eigensolver for
+Small Molecules and Quantum Magnets” <a class="reference external" href="https://arxiv.org/abs/1704.05018">https://arxiv.org/abs/1704.05018</a>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.hea.HEA">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.hea.</span></span><span class="sig-name descname"><span class="pre">HEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'euler'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HF'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.hea.HEA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz" title="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">qsdk.toolboxes.ansatz_generator.ansatz.Ansatz</span></code></a></p>
+<p>This class implements the HEA ansatz. A molecule or a number of qubits +
+a number of electrons can be passed to this class.</p>
+<dl>
+<dt>Args:</dt><dd><p>molecule (SecondQuantizedMolecule) : The molecular system.
+mapping (str) : one of the supported qubit mapping identifiers. Default:</p>
+<blockquote>
+<div><p>“JW”</p>
+</div></blockquote>
+<dl class="simple">
+<dt>up_then_down (bool): change basis ordering putting all spin up orbitals</dt><dd><p>first, followed by all spin down. Default, False has alternating
+spin up/down ordering.</p>
+</dd>
+<dt>n_layers (int): The number of HEA ansatz layers to use. One layer is</dt><dd><p>hea_rot_type + grid of CNots. Default: 2.</p>
+</dd>
+<dt>rot_type (str): “euler”: RzRxRz on each qubit for each rotation layer.</dt><dd><p>“real”: Ry on each qubit for each rotation layer. Default: “euler”.</p>
+</dd>
+<dt>n_qubits (int)<span class="classifier">The number of qubits in the ansatz.</span></dt><dd><p>Default, None.</p>
+</dd>
+</dl>
+<p>n_electrons (int) : Self-explanatory.
+reference_state (str): “HF”: Hartree-Fock reference state. “zero”: for</p>
+<blockquote>
+<div><p>no reference state. Default: “HF”.</p>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.hea.HEA.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.hea.HEA.build_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the variational circuit to be used as our ansatz.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.hea.HEA.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.hea.HEA.prepare_reference_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare a circuit generating the HF reference state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.hea.HEA.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.hea.HEA.set_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set values for variational parameters, such as zeros, random numbers,
+MP2 (…), providing some keywords for users, and also supporting direct
+user input (list or numpy array). Return the parameters so that
+workflows such as VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.hea.HEA.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.hea.HEA.update_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update variational parameters (done repeatedly during VQE).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator.penalty_terms">
+<span id="qsdk-toolboxes-ansatz-generator-penalty-terms-module"></span><h2>qsdk.toolboxes.ansatz_generator.penalty_terms module<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator.penalty_terms" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the penatly terms that can be added to the target
+fermionic Hamiltonian, providing the ability to restrict the Hilbert space of
+solutions using VQE. For example usages see</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Illa G. Ryabinkin, Scott N. Genin, Artur F. Izmaylov. “Constrained</dt><dd><p>variational quantum eigensolver: Quantum computer search engine in the
+Fock space” <a class="reference external" href="https://arxiv.org/abs/1806.00461">https://arxiv.org/abs/1806.00461</a>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Gabriel Greene-Diniz, David Munoz Ramo. “Generalized unitary coupled</dt><dd><p>cluster excitations for multireference molecular states optimized by the
+Variational Quantum Eigensolver” <a class="reference external" href="https://arxiv.org/abs/1910.05168">https://arxiv.org/abs/1910.05168</a>.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.penalty_terms.combined_penalty">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.penalty_terms.</span></span><span class="sig-name descname"><span class="pre">combined_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_penalty_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.penalty_terms.combined_penalty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate the sum of all available penalty terms, currently
+implemented are
+- “N”: number operator with eigenvalue (number of particles).
+- “Sz”: Sz|s,m_s&gt; = ms|s,m_s&gt;.
+- “S^2”: S^2|s,m_s&gt; = s(s+1)|s,m_s&gt;.</p>
+<dl>
+<dt>Args:</dt><dd><dl>
+<dt>n_orbs (int): number of active orbitals in the fermion basis (this is</dt><dd><p>number of spin-orbitals divided by 2).</p>
+</dd>
+<dt>opt_penalty_terms (dict): The options for each penalty “N”, “Sz”, “S^2”</dt><dd><p>as
+- “N” (array or list[float]):</p>
+<blockquote>
+<div><p>[Prefactor, Value] Prefactor * (hat{N} - Value)^2</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>“Sz” (array or list[float]):</dt><dd><p>[Prefactor, Value] Prefactor * (hat{Sz} - Value)^2</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>“S^2” (array or list[float]):</dt><dd><p>[Prefactor, Value] Prefactor * (hat{S}^2 - Value)^2</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>up_then_down: The ordering of the spin orbitals.</dt><dd><p>qiskit (True) openfermion (False)
+If later transforming to qubits, one should generally let the qubit
+mapping handle this.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>pen_ferm (FermionicOperator): The combined n_electron+sz+s^2 penalty</dt><dd><p>terms.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.penalty_terms.number_operator_penalty">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.penalty_terms.</span></span><span class="sig-name descname"><span class="pre">number_operator_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.penalty_terms.number_operator_penalty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate the normal ordered number operator penalty term as
+a FermionicOperator.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n_orbs (int): number of orbitals in the fermion basis (this is number of</dt><dd><p>spin-orbitals divided by 2).</p>
+</dd>
+</dl>
+<p>n_electrons (int): number of electrons.
+mu (float): Positive number in front of penalty term.
+up_then_down (bool): The ordering of the spin orbitals.</p>
+<blockquote>
+<div><p>qiskit (True) openfermion (False)
+If later transforming to qubits, one should generally let the qubit
+mapping handle the ordering.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>(FermionicOperator): The number operator penalty term</dt><dd><p>mu*(hat{N}-n_electrons)^2.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.penalty_terms.spin2_operator_penalty">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.penalty_terms.</span></span><span class="sig-name descname"><span class="pre">spin2_operator_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.penalty_terms.spin2_operator_penalty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate the normal ordered S^2 operator penalty term,
+operator form taken from
+<a class="reference external" href="https://pubs.rsc.org/en/content/articlepdf/2019/cp/c9cp02546d">https://pubs.rsc.org/en/content/articlepdf/2019/cp/c9cp02546d</a>.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n_orbs (int): number of orbitals in the fermion basis (this is number of</dt><dd><p>spin-orbitals divided by 2).</p>
+</dd>
+<dt>s2 (int): the desired S^2 quantum number to penalize for.</dt><dd><p>singlet: s2=0*(0+1)=0, doublet: s2=(1/2)*(1/2+1)=3/4, triplet,
+s2=1*(1+1)=2 …</p>
+</dd>
+</dl>
+<p>mu (float): Positive number in front of penalty term.
+up_then_down: The ordering of the spin orbitals.</p>
+<blockquote>
+<div><p>qiskit (True) openfermion (False)
+If later transforming to qubits, one should generally let the qubit
+mapping handle the ordering.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>(FermionicOperator): The S^2 operator penalty term mu*(hat{S}^2-s2)^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.penalty_terms.spin_operator_penalty">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.penalty_terms.</span></span><span class="sig-name descname"><span class="pre">spin_operator_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.penalty_terms.spin_operator_penalty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate the normal ordered Sz operator penalty term.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n_orbs (int): number of orbitals in the fermion basis (this is number of</dt><dd><p>spin-orbitals divided by 2).</p>
+</dd>
+</dl>
+<p>sz (int): the desired Sz quantum number to penalize for.
+mu (float): Positive number in front of penalty term.
+up_then_down: The ordering of the spin orbitals.</p>
+<blockquote>
+<div><p>qiskit (True) openfermion (False)
+If later transforming to qubits, one should generally let the qubit
+mapping handle the ordering.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>(FermionicOperator): The Sz operator penalty term mu*(hat{Sz}-sz)^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator.rucc">
+<span id="qsdk-toolboxes-ansatz-generator-rucc-module"></span><h2>qsdk.toolboxes.ansatz_generator.rucc module<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator.rucc" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the reduced UCCs ansatz class (RUCC, refering to both
+UCC1 and UCC3), providing the foundation to implement variational ansatz
+circuits. They are UCCD and UCCSD ansatz, but terms acting in the same way on an
+Hartree-Fock initial state have been removed.</p>
+<p>This must be used on a 2 levels system (2 MOs, 4 SOs) to be physically relevant.</p>
+<dl class="simple">
+<dt>Reference for those circuits.</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>McCaskey, A.J., Parks, Z.P., Jakowski, J. et al.</dt><dd><p>Quantum chemistry as a benchmark for near-term quantum computers.
+npj Quantum Inf 5, 99 (2019).
+<a class="reference external" href="https://doi.org/10.1038/s41534-019-0209-0">https://doi.org/10.1038/s41534-019-0209-0</a></p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.rucc.RUCC">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.rucc.</span></span><span class="sig-name descname"><span class="pre">RUCC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.rucc.RUCC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz" title="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">qsdk.toolboxes.ansatz_generator.ansatz.Ansatz</span></code></a></p>
+<p>This class implements the reduced-UCC ansatz, i.e. UCC1=UCCD and
+UCC3=UCCSD. Currently, only closed-shell is supported. This implies that the
+mean-field is computed with the RHF reference integrals.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>n_var_params (int): Number of variational parameters, must be 1 or 3.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.rucc.RUCC.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.rucc.RUCC.build_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build and return the quantum circuit implementing the state
+preparation ansatz (with currently specified initial_state and
+var_params).</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>var_params (array-like): Initial variational parameters. Must be</dt><dd><p>consistent with the chosen UCC (1 or 3).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.rucc.RUCC.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.rucc.RUCC.prepare_reference_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g.
+prepare reference wavefunction with HF, multi-reference state, etc).
+This method outputs <a href="#id1"><span class="problematic" id="id2">|</span></a>1010&gt;.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>qsdk.backendbuddy.Circuit: <a href="#id3"><span class="problematic" id="id4">|</span></a>1010&gt; initial state.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.rucc.RUCC.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.rucc.RUCC.set_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set values for variational parameters, such as zeros, random numbers
+providing some keywords for users, and also supporting direct user input
+(list or numpy array). Return the parameters so that workflows such as
+VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.rucc.RUCC.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.rucc.RUCC.update_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortcut: set value of variational parameters in the already-built
+ansatz circuit member. The circuit does not need to be rebuilt every
+time if only the variational parameters change.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>var_params (array-like): Variational parameters to parse into the</dt><dd><p>circuit.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator.uccsd">
+<span id="qsdk-toolboxes-ansatz-generator-uccsd-module"></span><h2>qsdk.toolboxes.ansatz_generator.uccsd module<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator.uccsd" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the UCCSD ansatz class. It provides a chemically inspired
+ansatz and is an implementation of the classical unitary CCSD ansatz. Single and
+double excitation determinants, in accordance with the system number of electron
+and spin, are considered. For more information about this ansatz, see references
+below.</p>
+<dl>
+<dt>Refs:</dt><dd><ul>
+<li><dl class="simple">
+<dt>P.Kl. Barkoutsos, J.F. Gonthier, I. Sokolov, N. Moll, G. Salis, A. Fuhrer,</dt><dd><p>M. Ganzhorn, D.J. Egger, M. Troyer, A. Mezzacapo, S. Filipp, and
+I. Tavernelli. Phys. Rev. A 98, 022322 (2018).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>I.O. Sokolov, P.Kl. Barkoutsos, P.J. Ollitrault, D. Greenberg, J. Rice,</dt><dd><ol class="upperalpha simple" start="13">
+<li><p>Pistoia, and I. Tavernelli. J. Chem. Phys. 152, 124107 (2020).</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><ol class="upperalpha simple" start="25">
+<li><p>Shen, X. Zhang, S. Zhang, J.N. Zhang, M.H. Yung, and K. Kim.</p></li>
+</ol>
+<blockquote>
+<div><p>Physical Review A 95, 020501 (2017).</p>
+</div></blockquote>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.uccsd.UCCSD">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.uccsd.</span></span><span class="sig-name descname"><span class="pre">UCCSD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'JW'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.uccsd.UCCSD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz" title="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">qsdk.toolboxes.ansatz_generator.ansatz.Ansatz</span></code></a></p>
+<p>This class implements the UCCSD ansatz. Currently, closed-shell and
+restricted open-shell UCCSD are supported. This implies that the mean-field
+is computed with the RHF or ROHF reference integrals.</p>
+<dl>
+<dt>Args:</dt><dd><p>molecule (SecondQuantizedMolecule) : The molecular system.
+mapping (str) : one of the supported qubit mapping identifiers. Default,</p>
+<blockquote>
+<div><p>“jw”.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>up_then_down (bool): change basis ordering putting all spin up orbitals</dt><dd><p>first, followed by all spin down. Default, False (i.e. has
+alternating spin up/down ordering).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.uccsd.UCCSD.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.uccsd.UCCSD.build_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build and return the quantum circuit implementing the state
+preparation ansatz (with currently specified initial_state and
+var_params).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.uccsd.UCCSD.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.uccsd.UCCSD.prepare_reference_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g
+prepare reference wavefunction with HF, multi-reference state, etc).
+These preparations must be consistent with the transform used to obtain
+the qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.uccsd.UCCSD.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.uccsd.UCCSD.set_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set values for variational parameters, such as zeros, random numbers,
+MP2 (…), providing some keywords for users, and also supporting direct
+user input (list or numpy array). Return the parameters so that
+workflows such as VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.uccsd.UCCSD.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.uccsd.UCCSD.update_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortcut: set value of variational parameters in the already-built
+ansatz circuit member. Preferable to rebuilt your circuit from scratch,
+which can be an involved process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator.upccgsd">
+<span id="qsdk-toolboxes-ansatz-generator-upccgsd-module"></span><h2>qsdk.toolboxes.ansatz_generator.upccgsd module<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator.upccgsd" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the k-UpCCGSD ansatz class. It provides a chemically
+inspired ansatz and is an implementation of the classical unitary CCGSD ansatz.
+Generalized Single and pairwise double excitation determinants, in accordance
+with the system number of electron and spin, are considered. For more
+information about this ansatz, see references below.</p>
+<dl class="simple">
+<dt>Refs:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>Joonho Lee, William J. Huggins, Martin Head-Gordon, and K. Birgitta.</dt><dd><p>“Generalized Unitary Couple Cluster Wavefunctions for Quantum
+Computation” arxiv:1810.02327.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.upccgsd.UpCCGSD">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.upccgsd.</span></span><span class="sig-name descname"><span class="pre">UpCCGSD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'JW'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.upccgsd.UpCCGSD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz" title="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">qsdk.toolboxes.ansatz_generator.ansatz.Ansatz</span></code></a></p>
+<p>This class implements the UpCCGSD ansatz. This implies that the
+mean-field is computed with the RHF or ROHF reference integrals.</p>
+<dl>
+<dt>Args:</dt><dd><p>molecule (SecondQuantizedMolecule) : The molecular system.
+k : parameters for the number of times UpCCGSD is repeated see</p>
+<blockquote>
+<div><p>(arxiv:1810.02327) for details. Default, 2.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>mapping (str)<span class="classifier">one of the supported qubit mapping identifiers. Default:</span></dt><dd><p>“JW”.</p>
+</dd>
+<dt>up_then_down (bool): change basis ordering putting all spin up orbitals</dt><dd><p>first, followed by all spin down. Default, False (i.e. has
+alternating spin up/down ordering).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.upccgsd.UpCCGSD.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.upccgsd.UpCCGSD.build_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build and return the quantum circuit implementing the state
+preparation ansatz (with currently specified initial_state and
+var_params).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.upccgsd.UpCCGSD.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.upccgsd.UpCCGSD.prepare_reference_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g
+prepare reference wavefunction with HF, multi-reference state, etc).
+These preparations must be consistent with the transform used to obtain
+the qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.upccgsd.UpCCGSD.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.upccgsd.UpCCGSD.set_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set values for variational parameters, such as zeros, random numbers,
+providing some keywords for users, and also supporting direct user input
+(list or numpy array). Return the parameters so that workflows such as
+VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.upccgsd.UpCCGSD.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.upccgsd.UpCCGSD.update_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortcut: set value of variational parameters in the already-built
+ansatz circuit member. Preferable to rebuilt your circuit from scratch,
+which can be an involved process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator.variational_circuit">
+<span id="qsdk-toolboxes-ansatz-generator-variational-circuit-module"></span><h2>qsdk.toolboxes.ansatz_generator.variational_circuit module<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator.variational_circuit" title="Permalink to this headline">¶</a></h2>
+<p>This module defines an ansatz class to wrap up a custom qsdk.backendbuddy
+circuit.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.ansatz_generator.variational_circuit.</span></span><span class="sig-name descname"><span class="pre">VariationalCircuitAnsatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abstract_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qsdk.toolboxes.ansatz_generator.ansatz.Ansatz" title="qsdk.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">qsdk.toolboxes.ansatz_generator.ansatz.Ansatz</span></code></a></p>
+<p>This class takes an arbitrary circuit and convert it to an Ansatz. This
+enables users to provide a custom pre-built circuit.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>abstract_circuit (Circuit) : Circuit with variational gates.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.build_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update parameters of the pre-built circuit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.prepare_reference_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method not needed as it is expected to be in the circuit provided.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.set_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set initial variational parameter values. Defaults to random.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.update_var_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update variational parameters (done repeatedly during VQE).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.ansatz_generator">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.toolboxes.ansatz_generator" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.toolboxes.ansatz_generator.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

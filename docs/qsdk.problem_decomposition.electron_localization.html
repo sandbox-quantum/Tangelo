@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.problem_decomposition.electron_localization package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-problem-decomposition-electron-localization-package">
+<h1>qsdk.problem_decomposition.electron_localization package<a class="headerlink" href="#qsdk-problem-decomposition-electron-localization-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.problem_decomposition.electron_localization.iao_localization">
+<span id="qsdk-problem-decomposition-electron-localization-iao-localization-module"></span><h2>qsdk.problem_decomposition.electron_localization.iao_localization module<a class="headerlink" href="#module-qsdk.problem_decomposition.electron_localization.iao_localization" title="Permalink to this headline">¶</a></h2>
+<p>Perform IAO localization.</p>
+<p>The orbital localization of the canonical orbitals using Intrinsic Atomic
+Orbitals (IAO) localization is done here. <cite>pyscf.lo</cite> is used.</p>
+<p>Note that minimal basis cannot be used for IAO because the idea of IAO is to map
+on minao minimal basis set.</p>
+<dl class="simple">
+<dt>For details, refer to:</dt><dd><ul class="simple">
+<li><ol class="upperalpha simple" start="7">
+<li><p>Knizia, JCTC 9, 4834-4843 (2013).</p></li>
+</ol>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.electron_localization.iao_localization.iao_localization">
+<span class="sig-prename descclassname"><span class="pre">qsdk.problem_decomposition.electron_localization.iao_localization.</span></span><span class="sig-name descname"><span class="pre">iao_localization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.electron_localization.iao_localization.iao_localization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Localize the orbitals using IAO localization.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>mol (pyscf.gto.Mole): The molecule to simulate.
+mf (pyscf.scf.RHF): The mean field of the molecule.</p>
+</dd>
+<dt>Returns:</dt><dd><p>numpy.array: The localized orbitals (float64).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.problem_decomposition.electron_localization.meta_lowdin_localization">
+<span id="qsdk-problem-decomposition-electron-localization-meta-lowdin-localization-module"></span><h2>qsdk.problem_decomposition.electron_localization.meta_lowdin_localization module<a class="headerlink" href="#module-qsdk.problem_decomposition.electron_localization.meta_lowdin_localization" title="Permalink to this headline">¶</a></h2>
+<p>Perform Meta-Löwdin localization.</p>
+<p>The orbital localization of the canonical orbitals  using Meta-Löwdin
+localization is done here. <cite>pyscf.lo</cite> is used.</p>
+<dl class="simple">
+<dt>For details, refer to:</dt><dd><ul class="simple">
+<li><ol class="upperalpha simple" start="17">
+<li><p>Sun et al., JCTC 10, 3784-3790 (2014).</p></li>
+</ol>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.electron_localization.meta_lowdin_localization.meta_lowdin_localization">
+<span class="sig-prename descclassname"><span class="pre">qsdk.problem_decomposition.electron_localization.meta_lowdin_localization.</span></span><span class="sig-name descname"><span class="pre">meta_lowdin_localization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.electron_localization.meta_lowdin_localization.meta_lowdin_localization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Localize the orbitals using Meta-Löwdin localization.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>mol (pyscf.gto.Mole): The molecule to simulate.
+mf (pyscf.scf.RHF): The mean field of the molecule.</p>
+</dd>
+<dt>Returns:</dt><dd><p>numpy.array: The localized orbitals (float64).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.problem_decomposition.electron_localization">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.problem_decomposition.electron_localization" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.problem_decomposition.electron_localization.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

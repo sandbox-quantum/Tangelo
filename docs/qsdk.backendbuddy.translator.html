@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.backendbuddy.translator package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-backendbuddy-translator-package">
+<h1>qsdk.backendbuddy.translator package<a class="headerlink" href="#qsdk-backendbuddy-translator-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.backendbuddy.translator.qdk_template">
+<span id="qsdk-backendbuddy-translator-qdk-template-module"></span><h2>qsdk.backendbuddy.translator.qdk_template module<a class="headerlink" href="#module-qsdk.backendbuddy.translator.qdk_template" title="Permalink to this headline">¶</a></h2>
+<p>This python module stores template Q# strings that can be used to have Q# code files ready
+to be shared with collaborators, submitted to a remote compute backend through Microsoft services
+or compiled by the local QDK simulator.</p>
+</section>
+<section id="module-qsdk.backendbuddy.translator.translate_braket">
+<span id="qsdk-backendbuddy-translator-translate-braket-module"></span><h2>qsdk.backendbuddy.translator.translate_braket module<a class="headerlink" href="#module-qsdk.backendbuddy.translator.translate_braket" title="Permalink to this headline">¶</a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract format and Braket format</p>
+<p>In order to produce an equivalent circuit for the target backend, it is necessary to account for:
+- how the gate names differ between the source backend to the target backend
+- how the order and conventions for some of the inputs to the gate operations may also differ</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_braket.get_braket_gates">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_braket.</span></span><span class="sig-name descname"><span class="pre">get_braket_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_braket.get_braket_gates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent methods of the braket.circuits.Circuit class
+API and supported gates: <a class="reference external" href="https://amazon-braket-sdk-python.readthedocs.io/en/latest/_apidoc/braket.circuits.circuit.html">https://amazon-braket-sdk-python.readthedocs.io/en/latest/_apidoc/braket.circuits.circuit.html</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_braket.translate_braket">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_braket.</span></span><span class="sig-name descname"><span class="pre">translate_braket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_braket.translate_braket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take in an abstract circuit, return a quantum circuit object as defined in the Python Braket SDK</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>source_circuit: quantum circuit in the abstract format</p>
+</dd>
+<dt>Returns:</dt><dd><p>target_circuit (braket.circuits.Circuit): quantum circuit in Python Braket SDK format</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.translator.translate_cirq">
+<span id="qsdk-backendbuddy-translator-translate-cirq-module"></span><h2>qsdk.backendbuddy.translator.translate_cirq module<a class="headerlink" href="#module-qsdk.backendbuddy.translator.translate_cirq" title="Permalink to this headline">¶</a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract format and circ format</p>
+<p>In order to produce an equivalent circuit for the target backend, it is necessary to account for:
+- how the gate names differ between the source backend to the target backend
+- how the order and conventions for some of the inputs to the gate operations may also differ</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_cirq.get_cirq_gates">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_cirq.</span></span><span class="sig-name descname"><span class="pre">get_cirq_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_cirq.get_cirq_gates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent methods of the cirq class
+API and supported gates: <a class="reference external" href="https://quantumai.google/cirq/gates">https://quantumai.google/cirq/gates</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_cirq.translate_cirq">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_cirq.</span></span><span class="sig-name descname"><span class="pre">translate_cirq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_cirq.translate_cirq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take in an abstract circuit, return an equivalent cirq QuantumCircuit instance</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>source_circuit: quantum circuit in the abstract format</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>target_circuit: a corresponding cirq Circuit. Right now, the</dt><dd><p>structure is of LineQubit. It is possible in the
+future that we may support NamedQubit or GridQubit</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.translator.translate_json_ionq">
+<span id="qsdk-backendbuddy-translator-translate-json-ionq-module"></span><h2>qsdk.backendbuddy.translator.translate_json_ionq module<a class="headerlink" href="#module-qsdk.backendbuddy.translator.translate_json_ionq" title="Permalink to this headline">¶</a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract format and ionq format</p>
+<p>In order to produce an equivalent circuit for the target backend, it is necessary to account for:
+- how the gate names differ between the source backend to the target backend
+- how the order and conventions for some of the inputs to the gate operations may also differ</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_json_ionq.get_ionq_gates">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_json_ionq.</span></span><span class="sig-name descname"><span class="pre">get_ionq_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_json_ionq.get_ionq_gates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent gate name used in the json IonQ format
+For more information:   <a class="reference external" href="https://dewdrop.ionq.co/">https://dewdrop.ionq.co/</a>    <a class="reference external" href="https://docs.ionq.co">https://docs.ionq.co</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_json_ionq.translate_json_ionq">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_json_ionq.</span></span><span class="sig-name descname"><span class="pre">translate_json_ionq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_json_ionq.translate_json_ionq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take in an abstract circuit, return a dictionary following the IonQ JSON format as described below
+<a class="reference external" href="https://dewdrop.ionq.co/#json-specification">https://dewdrop.ionq.co/#json-specification</a></p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>source_circuit: quantum circuit in the abstract format</p>
+</dd>
+<dt>Returns:</dt><dd><p>json_ionq_circ (dict): representation of the quantum circuit following the IonQ JSON format</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.translator.translate_openqasm">
+<span id="qsdk-backendbuddy-translator-translate-openqasm-module"></span><h2>qsdk.backendbuddy.translator.translate_openqasm module<a class="headerlink" href="#module-qsdk.backendbuddy.translator.translate_openqasm" title="Permalink to this headline">¶</a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract format and
+a subset of the openqasm format (the format generated by IBM openqasm functionalities in qiskit)</p>
+<p>In order to produce an equivalent circuit for the target backend, it is necessary to account for:
+- how the gate names differ between the source backend to the target backend
+- how the order and conventions for some of the inputs to the gate operations may also differ</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_openqasm.get_openqasm_gates">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_openqasm.</span></span><span class="sig-name descname"><span class="pre">get_openqasm_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_openqasm.get_openqasm_gates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent gate name used in openqasm
+OpenQASM is a general format that allows users to express a quantum program, define conditional operations
+manipulating quantum and qubit registers, as well as defining new quantum unitaries.
+We however make the choice here to support well-known gate operations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_openqasm.translate_openqasm">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_openqasm.</span></span><span class="sig-name descname"><span class="pre">translate_openqasm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_openqasm.translate_openqasm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take in an abstract circuit, return a OpenQASM 2.0 string using IBM Qiskit (they are the reference for OpenQASM)</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>source_circuit: quantum circuit in the abstract format</p>
+</dd>
+<dt>Returns:</dt><dd><p>openqasm_string(str): the corresponding OpenQASM program, as per IBM Qiskit</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.translator.translate_projectq">
+<span id="qsdk-backendbuddy-translator-translate-projectq-module"></span><h2>qsdk.backendbuddy.translator.translate_projectq module<a class="headerlink" href="#module-qsdk.backendbuddy.translator.translate_projectq" title="Permalink to this headline">¶</a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract format and projectq format</p>
+<p>In order to produce an equivalent circuit for the target backend, it is necessary to account for:
+- how the gate names differ between the source backend to the target backend
+- how the order and conventions for some of the inputs to the gate operations may also differ</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_projectq.get_projectq_gates">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_projectq.</span></span><span class="sig-name descname"><span class="pre">get_projectq_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_projectq.get_projectq_gates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent gate name used in projectq
+API and supported gates: <a class="reference external" href="https://projectq.readthedocs.io/en/latest/projectq.ops.html">https://projectq.readthedocs.io/en/latest/projectq.ops.html</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_projectq.translate_projectq">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_projectq.</span></span><span class="sig-name descname"><span class="pre">translate_projectq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_projectq.translate_projectq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take in an abstract circuit, return a string containing equivalent projectq instructions</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>source_circuit: quantum circuit in the abstract format</p>
+</dd>
+<dt>Returns:</dt><dd><p>projectq_circuit(str): the corresponding projectq instructions (allocation , gates, deallocation)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.translator.translate_qdk">
+<span id="qsdk-backendbuddy-translator-translate-qdk-module"></span><h2>qsdk.backendbuddy.translator.translate_qdk module<a class="headerlink" href="#module-qsdk.backendbuddy.translator.translate_qdk" title="Permalink to this headline">¶</a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract format and qdk/qsharp format</p>
+<p>In order to produce an equivalent circuit for the target backend, it is necessary to account for:
+- how the gate names differ between the source backend to the target backend
+- how the order and conventions for some of the inputs to the gate operations may also differ</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_qdk.get_qdk_gates">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_qdk.</span></span><span class="sig-name descname"><span class="pre">get_qdk_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_qdk.get_qdk_gates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent gate name used in Q# operations
+API and supported gates: <a class="reference external" href="https://docs.microsoft.com/en-us/qsharp/api/qsharp/microsoft.quantum.intrinsic">https://docs.microsoft.com/en-us/qsharp/api/qsharp/microsoft.quantum.intrinsic</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_qdk.translate_qsharp">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_qdk.</span></span><span class="sig-name descname"><span class="pre">translate_qsharp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MyQsharpOperation'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_qdk.translate_qsharp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take in an abstract circuit, generate the corresponding Q# operation (state prep + measurement) string,
+in the appropriate Q# template. The Q# output can be written to file and will be compiled at runtime.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>source_circuit: quantum circuit in the abstract format
+operation (str), optional: name of the Q# operation</p>
+</dd>
+<dt>Returns:</dt><dd><p>The Q# code (operation + template). This needs to be written into a .qs file, and compiled at runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.translator.translate_qiskit">
+<span id="qsdk-backendbuddy-translator-translate-qiskit-module"></span><h2>qsdk.backendbuddy.translator.translate_qiskit module<a class="headerlink" href="#module-qsdk.backendbuddy.translator.translate_qiskit" title="Permalink to this headline">¶</a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract format and qiskit format</p>
+<p>In order to produce an equivalent circuit for the target backend, it is necessary to account for:
+- how the gate names differ between the source backend to the target backend
+- how the order and conventions for some of the inputs to the gate operations may also differ</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_qiskit.get_qiskit_gates">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_qiskit.</span></span><span class="sig-name descname"><span class="pre">get_qiskit_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_qiskit.get_qiskit_gates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent add_gate method of Qiskit’s QuantumCircuit class
+API and supported gates: <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html">https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_qiskit.translate_qiskit">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_qiskit.</span></span><span class="sig-name descname"><span class="pre">translate_qiskit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_qiskit.translate_qiskit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take in an abstract circuit, return an equivalent qiskit QuantumCircuit instance</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>source_circuit: quantum circuit in the abstract format</p>
+</dd>
+<dt>Returns:</dt><dd><p>qiskit.QuantumCircuit: the corresponding qiskit quantum circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.translator.translate_qulacs">
+<span id="qsdk-backendbuddy-translator-translate-qulacs-module"></span><h2>qsdk.backendbuddy.translator.translate_qulacs module<a class="headerlink" href="#module-qsdk.backendbuddy.translator.translate_qulacs" title="Permalink to this headline">¶</a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract format and qulacs format</p>
+<p>In order to produce an equivalent circuit for the target backend, it is necessary to account for:
+- how the gate names differ between the source backend to the target backend
+- how the order and conventions for some of the inputs to the gate operations may also differ</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_qulacs.get_qulacs_gates">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_qulacs.</span></span><span class="sig-name descname"><span class="pre">get_qulacs_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_qulacs.get_qulacs_gates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent add_gate method of Qulacs’s QuantumCircuit class
+API and supported gates: <a class="reference external" href="http://qulacs.org/class_quantum_circuit.html">http://qulacs.org/class_quantum_circuit.html</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.translator.translate_qulacs.translate_qulacs">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.translator.translate_qulacs.</span></span><span class="sig-name descname"><span class="pre">translate_qulacs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.translator.translate_qulacs.translate_qulacs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take in an abstract circuit, return an equivalent qulacs QuantumCircuit instance
+If provided with a noise model, will add noisy gates at translation. Not very useful to look at, as qulacs
+does not provide much information about the noisy gates added when printing the “noisy circuit”.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>source_circuit: quantum circuit in the abstract format
+noise_model: A NoiseModel object from this package, located in the noisy_simulation subpackage</p>
+</dd>
+<dt>Returns:</dt><dd><p>qulacs.QuantumCircuit: the corresponding qulacs quantum circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.translator">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.backendbuddy.translator" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.backendbuddy.translator.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

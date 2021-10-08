@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.problem_decomposition.tests.dmet package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-problem-decomposition-tests-dmet-package">
+<h1>qsdk.problem_decomposition.tests.dmet package<a class="headerlink" href="#qsdk-problem-decomposition-tests-dmet-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.problem_decomposition.tests.dmet.test_dmet">
+<span id="qsdk-problem-decomposition-tests-dmet-test-dmet-module"></span><h2>qsdk.problem_decomposition.tests.dmet.test_dmet module<a class="headerlink" href="#module-qsdk.problem_decomposition.tests.dmet.test_dmet" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.problem_decomposition.tests.dmet.test_dmet.</span></span><span class="sig-name descname"><span class="pre">DMETProblemDecompositionTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_fragment_ids">
+<span class="sig-name descname"><span class="pre">test_fragment_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_fragment_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests if a nested list of atom ids is provided.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_fragment_ids_exceptions">
+<span class="sig-name descname"><span class="pre">test_fragment_ids_exceptions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_fragment_ids_exceptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests exceptions if a bad nested list of atom ids is provided. Two
+cases: if an atom id is higher than the number of atoms and if an id is
+detected twice (or more).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_h10ring_ml_fci">
+<span class="sig-name descname"><span class="pre">test_h10ring_ml_fci</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_h10ring_ml_fci" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests the result from DMET against a value from a reference
+implementation with meta-lowdin localization and FCI solution to
+fragments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_h4ring_ml_ccsd_minao">
+<span class="sig-name descname"><span class="pre">test_h4ring_ml_ccsd_minao</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_h4ring_ml_ccsd_minao" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests the result from DMET against a value from a reference
+implementation with meta-lowdin localization and CCSD solution to
+fragments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_h4ring_ml_default_minao">
+<span class="sig-name descname"><span class="pre">test_h4ring_ml_default_minao</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_h4ring_ml_default_minao" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests the result from DMET against a value from a reference
+implementation with meta-lowdin localization and default solver
+(currently CCSD) for fragments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_h4ring_ml_fci_minao">
+<span class="sig-name descname"><span class="pre">test_h4ring_ml_fci_minao</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_h4ring_ml_fci_minao" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests the result from DMET against a value from a reference
+implementation with meta-lowdin localization and FCI solution to
+fragments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_incorrect_number_atoms">
+<span class="sig-name descname"><span class="pre">test_incorrect_number_atoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_incorrect_number_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests if the program raises the error when the number of fragment
+sites is not equal to the number of atoms in the molecule.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_incorrect_number_solvers">
+<span class="sig-name descname"><span class="pre">test_incorrect_number_solvers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_incorrect_number_solvers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests if the program raises the error when the number of fragment
+sites is not equal to the number of solvers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_solver_mix">
+<span class="sig-name descname"><span class="pre">test_solver_mix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet.DMETProblemDecompositionTest.test_solver_mix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests that solving with multiple solvers works.</p>
+<p>With this simple system, we can assume that both CCSD and FCI can reach
+chemical accuracy.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.problem_decomposition.tests.dmet.test_dmet_fragment">
+<span id="qsdk-problem-decomposition-tests-dmet-test-dmet-fragment-module"></span><h2>qsdk.problem_decomposition.tests.dmet.test_dmet_fragment module<a class="headerlink" href="#module-qsdk.problem_decomposition.tests.dmet.test_dmet_fragment" title="Permalink to this headline">¶</a></h2>
+<p>Test the construction of orbital list (from atom list) for DMET calculation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet_fragment.TestFragments">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.problem_decomposition.tests.dmet.test_dmet_fragment.</span></span><span class="sig-name descname"><span class="pre">TestFragments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet_fragment.TestFragments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Generate the orbital list.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet_fragment.TestFragments.test_orbital_list_construction">
+<span class="sig-name descname"><span class="pre">test_orbital_list_construction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet_fragment.TestFragments.test_orbital_list_construction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.problem_decomposition.tests.dmet.test_dmet_oneshot_loop">
+<span id="qsdk-problem-decomposition-tests-dmet-test-dmet-oneshot-loop-module"></span><h2>qsdk.problem_decomposition.tests.dmet.test_dmet_oneshot_loop module<a class="headerlink" href="#module-qsdk.problem_decomposition.tests.dmet.test_dmet_oneshot_loop" title="Permalink to this headline">¶</a></h2>
+<p>Test the functions in the main loop of DMET calculation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet_oneshot_loop.TestDMETloop">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.problem_decomposition.tests.dmet.test_dmet_oneshot_loop.</span></span><span class="sig-name descname"><span class="pre">TestDMETloop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet_oneshot_loop.TestDMETloop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Generate the localized orbitals employing IAOs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet_oneshot_loop.TestDMETloop.test_dmet_functions">
+<span class="sig-name descname"><span class="pre">test_dmet_functions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet_oneshot_loop.TestDMETloop.test_dmet_functions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.problem_decomposition.tests.dmet.test_dmet_orbitals">
+<span id="qsdk-problem-decomposition-tests-dmet-test-dmet-orbitals-module"></span><h2>qsdk.problem_decomposition.tests.dmet.test_dmet_orbitals module<a class="headerlink" href="#module-qsdk.problem_decomposition.tests.dmet.test_dmet_orbitals" title="Permalink to this headline">¶</a></h2>
+<p>Test the construction of localized orbitals for DMET calculation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet_orbitals.TestDMETorbitals">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.problem_decomposition.tests.dmet.test_dmet_orbitals.</span></span><span class="sig-name descname"><span class="pre">TestDMETorbitals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet_orbitals.TestDMETorbitals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Generate the localized orbitals employing IAOs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet_orbitals.TestDMETorbitals.test_orbital_construction">
+<span class="sig-name descname"><span class="pre">test_orbital_construction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet_orbitals.TestDMETorbitals.test_orbital_construction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.problem_decomposition.tests.dmet.test_dmet_vqe">
+<span id="qsdk-problem-decomposition-tests-dmet-test-dmet-vqe-module"></span><h2>qsdk.problem_decomposition.tests.dmet.test_dmet_vqe module<a class="headerlink" href="#module-qsdk.problem_decomposition.tests.dmet.test_dmet_vqe" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet_vqe.DMETVQETest">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.problem_decomposition.tests.dmet.test_dmet_vqe.</span></span><span class="sig-name descname"><span class="pre">DMETVQETest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet_vqe.DMETVQETest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet_vqe.DMETVQETest.test_h4ring_vqe_resources">
+<span class="sig-name descname"><span class="pre">test_h4ring_vqe_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet_vqe.DMETVQETest.test_h4ring_vqe_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resources estimation on H4 ring.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.problem_decomposition.tests.dmet.test_dmet_vqe.DMETVQETest.test_h4ring_vqe_uccsd">
+<span class="sig-name descname"><span class="pre">test_h4ring_vqe_uccsd</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.problem_decomposition.tests.dmet.test_dmet_vqe.DMETVQETest.test_h4ring_vqe_uccsd" title="Permalink to this definition">¶</a></dt>
+<dd><p>DMET on H4 ring with fragment size one, using VQE-UCCSD.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.problem_decomposition.tests.dmet">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.problem_decomposition.tests.dmet" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.problem_decomposition.tests.dmet.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

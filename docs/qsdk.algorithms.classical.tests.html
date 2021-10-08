@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.algorithms.classical.tests package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-algorithms-classical-tests-package">
+<h1>qsdk.algorithms.classical.tests package<a class="headerlink" href="#qsdk-algorithms-classical-tests-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.algorithms.classical.tests.test_ccsd_solver">
+<span id="qsdk-algorithms-classical-tests-test-ccsd-solver-module"></span><h2>qsdk.algorithms.classical.tests.test_ccsd_solver module<a class="headerlink" href="#module-qsdk.algorithms.classical.tests.test_ccsd_solver" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.algorithms.classical.tests.test_ccsd_solver.</span></span><span class="sig-name descname"><span class="pre">CCSDSolverTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest.test_ccsd_be">
+<span class="sig-name descname"><span class="pre">test_ccsd_be</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest.test_ccsd_be" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CCSDSolver against result from reference implementation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest.test_ccsd_be_as_two_levels">
+<span class="sig-name descname"><span class="pre">test_ccsd_be_as_two_levels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest.test_ccsd_be_as_two_levels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CCSDSolver against result from reference implementation, with
+no mean-field provided as input. This atom is reduced to an HOMO-LUMO
+problem.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest.test_ccsd_be_frozen_core">
+<span class="sig-name descname"><span class="pre">test_ccsd_be_frozen_core</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest.test_ccsd_be_frozen_core" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CCSDSolver against result from reference implementation, with
+no mean-field provided as input. Frozen core is considered.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest.test_ccsd_get_rdm_without_simulate">
+<span class="sig-name descname"><span class="pre">test_ccsd_get_rdm_without_simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest.test_ccsd_get_rdm_without_simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that the runtime error is raised when user calls get RDM without
+first running a simulation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest.test_ccsd_h2">
+<span class="sig-name descname"><span class="pre">test_ccsd_h2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_ccsd_solver.CCSDSolverTest.test_ccsd_h2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CCSDSolver against result from reference implementation.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.algorithms.classical.tests.test_fci_solver">
+<span id="qsdk-algorithms-classical-tests-test-fci-solver-module"></span><h2>qsdk.algorithms.classical.tests.test_fci_solver module<a class="headerlink" href="#module-qsdk.algorithms.classical.tests.test_fci_solver" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.algorithms.classical.tests.test_fci_solver.</span></span><span class="sig-name descname"><span class="pre">FCISolverTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest.test_fci_be">
+<span class="sig-name descname"><span class="pre">test_fci_be</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest.test_fci_be" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test FCISolver against result from reference implementation (Be).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest.test_fci_be_frozen_core">
+<span class="sig-name descname"><span class="pre">test_fci_be_frozen_core</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest.test_fci_be_frozen_core" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test FCISolver against result from reference implementation, with no mean-field provided as input.
+Frozen core is considered.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest.test_fci_get_rdm_without_simulate">
+<span class="sig-name descname"><span class="pre">test_fci_get_rdm_without_simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest.test_fci_get_rdm_without_simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that the runtime error is raised when user calls get RDM without
+first running a simulation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest.test_fci_h2">
+<span class="sig-name descname"><span class="pre">test_fci_h2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest.test_fci_h2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test FCISolver against result from reference implementation (H2).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest.test_fci_openshell">
+<span class="sig-name descname"><span class="pre">test_fci_openshell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_fci_solver.FCISolverTest.test_fci_openshell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that the fci implementation for an openshell molecule is working properly</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.algorithms.classical.tests.test_semi_empirical_solver">
+<span id="qsdk-algorithms-classical-tests-test-semi-empirical-solver-module"></span><h2>qsdk.algorithms.classical.tests.test_semi_empirical_solver module<a class="headerlink" href="#module-qsdk.algorithms.classical.tests.test_semi_empirical_solver" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_semi_empirical_solver.MINDO3SolverTest">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.algorithms.classical.tests.test_semi_empirical_solver.</span></span><span class="sig-name descname"><span class="pre">MINDO3SolverTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_semi_empirical_solver.MINDO3SolverTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.classical.tests.test_semi_empirical_solver.MINDO3SolverTest.test_energy">
+<span class="sig-name descname"><span class="pre">test_energy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.classical.tests.test_semi_empirical_solver.MINDO3SolverTest.test_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test MINDO3Solver with pyridine. Validated with:
+- MINDO/3-derived geometries and energies of alkylpyridines and the
+related N-methylpyridinium cations. Jeffrey I. Seeman,
+John C. Schug, and Jimmy W. Viers
+The Journal of Organic Chemistry 1983 48 (14), 2399-2407
+DOI: 10.1021/jo00162a021.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.algorithms.classical.tests">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.algorithms.classical.tests" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.algorithms.classical.tests.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

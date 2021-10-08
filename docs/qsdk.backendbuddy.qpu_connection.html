@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.backendbuddy.qpu_connection package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-backendbuddy-qpu-connection-package">
+<h1>qsdk.backendbuddy.qpu_connection package<a class="headerlink" href="#qsdk-backendbuddy-qpu-connection-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.backendbuddy.qpu_connection.honeywell_connection">
+<span id="qsdk-backendbuddy-qpu-connection-honeywell-connection-module"></span><h2>qsdk.backendbuddy.qpu_connection.honeywell_connection module<a class="headerlink" href="#module-qsdk.backendbuddy.qpu_connection.honeywell_connection" title="Permalink to this headline">¶</a></h2>
+<p>Python wrappers around Honeywell REST API, to facilitate job submission, result retrieval and post-processing</p>
+<p>Using Honeywell services require logins to their portal: <a class="reference external" href="https://um.qapi.honeywell.com/index.html">https://um.qapi.honeywell.com/index.html</a>
+Users are expected to set the environment variables HONEYWELL_EMAIL, HONEYWELL_PASSWORD with their credentials</p>
+<p>The portal above provides access to a dashboard, which is better suited for job monitoring experiments.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.qpu_connection.honeywell_connection.</span></span><span class="sig-name descname"><span class="pre">HoneywellConnection</span></span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection" title="qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection</span></code></a></p>
+<p>Wrapper about the Honeywell REST API, to facilitate job submission and automated post-processing of results</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.get_devices">
+<span class="sig-name descname"><span class="pre">get_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.get_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary of available devices to the user, as well as some useful information about them</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.header">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">header</span></span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce the header for REST requests</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.job_cancel">
+<span class="sig-name descname"><span class="pre">job_cancel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.job_cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blocking call querying the REST API at a given frequency, until job results are available.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>job_id (str): alphanumeric character string representing the job id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.job_get_info">
+<span class="sig-name descname"><span class="pre">job_get_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.job_get_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the job corresponding to the input job id</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>job_id (str): alphanumeric character string representing the job id</p>
+</dd>
+<dt>Returns:</dt><dd><p>job_status (dict): status response from the Honeywell REST API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.job_get_results">
+<span class="sig-name descname"><span class="pre">job_get_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.job_get_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blocking call querying the REST API at a given frequency, until job results are available.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>job_id (str): alphanumeric character string representing the job id</p>
+</dd>
+<dt>Returns:</dt><dd><p>job_status (dict): status response from the Honeywell REST API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.job_submit">
+<span class="sig-name descname"><span class="pre">job_submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">machine_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qasm_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">job_specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.honeywell_connection.HoneywellConnection.job_submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit job, return job ID.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>machine_name (str): name of the target device
+qasm_circuit (str): openqasm 2.0 string representing the quantum circuit
+n_shots (int): number of shots
+job_name (str): name to make the job more identifiable
+<a href="#id1"><span class="problematic" id="id2">**</span></a>job_specs: extra arguments such as <cite>max_cost</cite> or <cite>options</cite> in the code below</p>
+</dd>
+<dt>Returns:</dt><dd><p>job_id (str): alphanumeric character string representing the job id</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.qpu_connection.ionq_connection">
+<span id="qsdk-backendbuddy-qpu-connection-ionq-connection-module"></span><h2>qsdk.backendbuddy.qpu_connection.ionq_connection module<a class="headerlink" href="#module-qsdk.backendbuddy.qpu_connection.ionq_connection" title="Permalink to this headline">¶</a></h2>
+<p>Python wrappers around IonQ REST API, to facilitate job submission, result retrieval and post-processing</p>
+<p>Using IonQ services requires an API key.
+Users are expected to set the environment variable IONQ_APIKEY with the value of this token.</p>
+<p>Please check IonQ documentations to ensure what features and acceptable values exist:
+<a class="reference external" href="https://dewdrop.ionq.co/">https://dewdrop.ionq.co/</a>
+<a class="reference external" href="https://docs.ionq.co">https://docs.ionq.co</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.qpu_connection.ionq_connection.</span></span><span class="sig-name descname"><span class="pre">IonQConnection</span></span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection" title="qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection</span></code></a></p>
+<p>Wrapper about the IonQ REST API, to facilitate job submission and automated post-processing of results</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.header">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">header</span></span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce the header for REST requests</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.job_cancel">
+<span class="sig-name descname"><span class="pre">job_cancel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.job_cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cancel / delete a job from IonQ servers.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>job_id (str): string representing the job id</p>
+</dd>
+<dt>Returns:</dt><dd><p>job_status (dict): status response from the REST API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.job_get_history">
+<span class="sig-name descname"><span class="pre">job_get_history</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.job_get_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the job corresponding to the input job id</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>job_id (str): alphanumeric character string representing the job id</p>
+</dd>
+<dt>Returns:</dt><dd><p>job_status (dict): status response from the REST API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.job_get_info">
+<span class="sig-name descname"><span class="pre">job_get_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.job_get_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the job corresponding to the input job id</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>job_id (str): string representing the job id</p>
+</dd>
+<dt>Returns:</dt><dd><p>job_status (dict): status response from the REST API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.job_get_results">
+<span class="sig-name descname"><span class="pre">job_get_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.job_get_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blocking call querying the REST API at a given frequency, until job results are available.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>job_id (str): string representing the job id</p>
+</dd>
+<dt>Returns:</dt><dd><p>job_status (dict): status response from the REST API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.job_submit">
+<span class="sig-name descname"><span class="pre">job_submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ionq_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">job_specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.ionq_connection.IonQConnection.job_submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit job, return job ID.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>target_backend (str): name of target device. See IonQ documentation for possible values.</dt><dd><p>Current acceptable values are ‘simulator’ and ‘qpu’</p>
+</dd>
+</dl>
+<p>ionq_circuit (str): Circuit in a compatible format (json format recommended)
+n_shots (int): number of shots (ignored if target_backend is set to <cite>simulator</cite>
+job_name (str): name to make the job more identifiable
+<a href="#id3"><span class="problematic" id="id4">**</span></a>job_specs: extra arguments such as <cite>lang</cite> in the code below; <cite>metadata</cite> is not currently supported.</p>
+</dd>
+<dt>Returns:</dt><dd><p>job_id (str): string representing the job id</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.qpu_connection.qemist_cloud_connection">
+<span id="qsdk-backendbuddy-qpu-connection-qemist-cloud-connection-module"></span><h2>qsdk.backendbuddy.qpu_connection.qemist_cloud_connection module<a class="headerlink" href="#module-qsdk.backendbuddy.qpu_connection.qemist_cloud_connection" title="Permalink to this headline">¶</a></h2>
+<p>Python wrappers facilitating quantum experiment submission, monitoring and post-processing, through QEMIST Cloud.</p>
+<p>Users are expected to set the environment variables QEMIST_AUTH_TOKEN and QEMIST_PROJECT_ID with values
+retrieved from their QEMIST Cloud dashboard.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.job_cancel">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.</span></span><span class="sig-name descname"><span class="pre">job_cancel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qemist_cloud_job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.job_cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cancels the job matching the input job id, if done in time before it starts.
+Returns a list of cancelled problems and number of subproblems, if any.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>qemist_cloud_job_id (int): problem handle / job identifier</p>
+</dd>
+<dt>Returns:</dt><dd><p>res (dict): cancelled problems / subproblems</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.job_estimate">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.</span></span><span class="sig-name descname"><span class="pre">job_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.job_estimate" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Returns an estimate of the cost of running an experiment. Some service providers care about
+the complexity / structure of the input quantum circuit, some do not.</p>
+<p>Some backends may charge per minute (such as simulators), which is difficult to estimate
+and may be misleading. They are currently not included.</p>
+<p>Braket prices: <a class="reference external" href="https://aws.amazon.com/braket/pricing/">https://aws.amazon.com/braket/pricing/</a>
+Azure Quantum prices: TBD</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Args:</dt><dd><p>circuit (Circuit): the abstract circuit to be run on the target device.
+n_shots (int): number of shots in the expriment.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A dictionary of floating-point values (prices) in USD.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.job_result">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.</span></span><span class="sig-name descname"><span class="pre">job_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qemist_cloud_job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.job_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blocks until the job results are available.
+Returns a tuple containing the histogram of frequencies, and also the more in-depth raw data from
+the cloud services provider as a nested dictionary</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>qemist_cloud_job_id (int): problem handle / job identifier</p>
+</dd>
+<dt>Returns:</dt><dd><p>freqs (dict): histogram of measurement frequencies
+raw_data (dict): cloud provider raw data coming out as as nested dictionary</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.job_status">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.</span></span><span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qemist_cloud_job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.job_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current status of the problem, as a string.
+Possible values: ready, in_progress, complete, cancelled.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>qemist_cloud_job_id (int): problem handle / job identifier</p>
+</dd>
+<dt>Returns:</dt><dd><p>status (str): current status of the problem, as a string</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.job_submit">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.</span></span><span class="sig-name descname"><span class="pre">job_submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.qemist_cloud_connection.job_submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Job submission to run a circuit on quantum hardware.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>circuit: a quantum circuit in the abstract format
+n_shots (int): the number of shots
+backend (str): the identifier string for the desired backend</p>
+</dd>
+<dt>Returns:</dt><dd><p>job_id (int): A problem handle / job ID that can be used to retrieve the result or cancel the problem.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.qpu_connection.qpu_connection">
+<span id="qsdk-backendbuddy-qpu-connection-qpu-connection-module"></span><h2>qsdk.backendbuddy.qpu_connection.qpu_connection module<a class="headerlink" href="#module-qsdk.backendbuddy.qpu_connection.qpu_connection" title="Permalink to this headline">¶</a></h2>
+<p>Abstract parent class encapsulating basic features of compute services for quantum circuit simulation</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.qpu_connection.qpu_connection.</span></span><span class="sig-name descname"><span class="pre">QpuConnection</span></span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Abstract class encapsulating login/authentication setup and job submission and management</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection.job_cancel">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">job_cancel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection.job_cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to cancel a previously submitted job, through its job id</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection.job_get_info">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">job_get_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection.job_get_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about a previously submitted job, through its job id</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection.job_get_results">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">job_get_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection.job_get_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the results of previously submitted job, through its job id</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection.job_submit">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">job_submit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.qpu_connection.qpu_connection.QpuConnection.job_submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit a job to the compute services</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.qpu_connection">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.backendbuddy.qpu_connection" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.backendbuddy.qpu_connection.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

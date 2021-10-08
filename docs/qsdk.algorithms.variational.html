@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.algorithms.variational package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-algorithms-variational-package">
+<h1>qsdk.algorithms.variational package<a class="headerlink" href="#qsdk-algorithms-variational-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="qsdk.algorithms.variational.tests.html">qsdk.algorithms.variational.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.algorithms.variational.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.algorithms.variational.tests.html#module-qsdk.algorithms.variational.tests.test_adapt_vqe_solver">qsdk.algorithms.variational.tests.test_adapt_vqe_solver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.algorithms.variational.tests.html#module-qsdk.algorithms.variational.tests.test_vqe_solver">qsdk.algorithms.variational.tests.test_vqe_solver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.algorithms.variational.tests.html#module-qsdk.algorithms.variational.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.algorithms.variational.adapt_vqe_solver">
+<span id="qsdk-algorithms-variational-adapt-vqe-solver-module"></span><h2>qsdk.algorithms.variational.adapt_vqe_solver module<a class="headerlink" href="#module-qsdk.algorithms.variational.adapt_vqe_solver" title="Permalink to this headline">¶</a></h2>
+<p>Module that defines the ADAPT-VQE algorithm framework. ADAPT-VQE is a
+variational  approach that builds an ansatz iteratively, until a convergence
+criteria or a maximum number of cycles is reached. Each iteration (“cycle”)
+of ADAPT consists in drawing an operator from a pre-defined operator pool,
+selecting the one that impacts the energy the most, growing the ansatz circuit
+accordingly, and optimizing the variational parameters using VQE.</p>
+<dl class="simple">
+<dt>Ref:</dt><dd><p>Grimsley, H.R., Economou, S.E., Barnes, E. et al.
+An adaptive variational algorithm for exact molecular simulations on a
+quantum computer.
+Nat Commun 10, 3007 (2019). <a class="reference external" href="https://doi.org/10.1038/s41467-019-10988-2">https://doi.org/10.1038/s41467-019-10988-2</a>.</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.algorithms.variational.adapt_vqe_solver.</span></span><span class="sig-name descname"><span class="pre">ADAPTSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>ADAPT VQE class. This is an iterative algorithm that uses VQE. Methods
+are defined to rank operators with respect to their influence on the total
+energy.</p>
+<dl>
+<dt>Attributes:</dt><dd><p>molecule (SecondQuantizedMolecule): The molecular system.
+tol (float): Maximum gradient allowed for a particular operator  before</p>
+<blockquote>
+<div><p>convergence.</p>
+</div></blockquote>
+<p>max_cycles (int): Maximum number of iterations for ADAPT.
+pool (func): Function that returns a list of FermionOperator. Each</p>
+<blockquote>
+<div><p>element represents excitation/operator that has an effect of the
+total energy.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>pool_args (tuple)<span class="classifier">The arguments for the pool function given as a</span></dt><dd><p>tuple.</p>
+</dd>
+</dl>
+<p>qubit_mapping (str): One of the supported qubit mapping identifiers.
+qubit_hamiltonian (QubitOperator-like): Self-explanatory.
+up_then_down (bool): Spin orbitals ordering.
+n_spinorbitals (int): Self-explanatory.
+n_electrons (int): Self-explanatory.
+optimizer (func): Optimization function for VQE minimization.
+backend_options (dict): Backend options for the underlying VQE object.
+verbose (bool): Flag for verbosity of VQE.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.LBFGSB_optimizer">
+<span class="sig-name descname"><span class="pre">LBFGSB_optimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.LBFGSB_optimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default optimizer for ADAPT-VQE.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the underlying objects required to run the ADAPT-VQE
+algorithm.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.ferm_operators">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">ferm_operators</span></span><a class="headerlink" href="#qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.ferm_operators" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.get_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns resources currently used in underlying VQE.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.operators">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">operators</span></span><a class="headerlink" href="#qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.operators" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.rank_pool">
+<span class="sig-name descname"><span class="pre">rank_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool_commutators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.rank_pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rank pool of operators with a specific circuit.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>pool_commutators (QubitOperator): Commutator [H, operator] for each</dt><dd><p>generator.</p>
+</dd>
+<dt>circuit (agnostic_simulator.Circuit): Circuit for measuring each</dt><dd><p>commutator.</p>
+</dd>
+<dt>backend (qsdk.backendbuddy.Simulator): Backend to measure</dt><dd><p>expectation values.</p>
+</dd>
+</dl>
+<p>tolerance (float): Minimum value for gradient to be considered.</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>int: Index of the operators with the highest gradient. If it is not</dt><dd><p>bigger than tolerance, returns -1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.adapt_vqe_solver.ADAPTSolver.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the ADAPT cycles. Each iteration, a VQE minimization is
+done.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.algorithms.variational.vqe_solver">
+<span id="qsdk-algorithms-variational-vqe-solver-module"></span><h2>qsdk.algorithms.variational.vqe_solver module<a class="headerlink" href="#module-qsdk.algorithms.variational.vqe_solver" title="Permalink to this headline">¶</a></h2>
+<p>Implements the variational quantum eigensolver (VQE) algorithm to solve
+electronic structure calculations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.algorithms.variational.vqe_solver.</span></span><span class="sig-name descname"><span class="pre">BuiltInAnsatze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Enumeration of the ansatz circuits supported by VQE.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze.HEA">
+<span class="sig-name descname"><span class="pre">HEA</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze.HEA" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze.UCC1">
+<span class="sig-name descname"><span class="pre">UCC1</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze.UCC1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze.UCC3">
+<span class="sig-name descname"><span class="pre">UCC3</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze.UCC3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze.UCCSD">
+<span class="sig-name descname"><span class="pre">UCCSD</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze.UCCSD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze.UpCCGSD">
+<span class="sig-name descname"><span class="pre">UpCCGSD</span></span><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.BuiltInAnsatze.UpCCGSD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.VQESolver">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.algorithms.variational.vqe_solver.</span></span><span class="sig-name descname"><span class="pre">VQESolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.VQESolver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Solve the electronic structure problem for a molecular system by using
+the variational quantum eigensolver (VQE) algorithm.</p>
+<p>This algorithm evaluates the energy of a molecular system by performing
+classical optimization over a parametrized ansatz circuit.</p>
+<p>Users must first set the desired options of the VQESolver object through the
+__init__ method, and call the “build” method to build the underlying objects
+(mean-field, hardware backend, ansatz…). They are then able to call any of
+the energy_estimation, simulate, or get_rdm methods. In particular, simulate
+runs the VQE algorithm, returning the optimal energy found by the classical
+optimizer.</p>
+<dl>
+<dt>Attributes:</dt><dd><p>molecule (SecondQuantizedMolecule) : the molecular system.
+qubit_mapping (str) : one of the supported qubit mapping identifiers.
+ansatz (Ansatze) : one of the supported ansatze.
+optimizer (function handle): a function defining the classical optimizer</p>
+<blockquote>
+<div><p>and its behavior.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>initial_var_params (str or array-like)<span class="classifier">initial value for the classical</span></dt><dd><p>optimizer.</p>
+</dd>
+<dt>backend_options (dict)<span class="classifier">parameters to build the qsdk.backendbuddy Simulator</span></dt><dd><p>class.</p>
+</dd>
+<dt>penalty_terms (dict): parameters for penalty terms to append to target</dt><dd><p>qubit Hamiltonian (see penaly_terms for more details).</p>
+</dd>
+<dt>ansatz_options (dict): parameters for the given ansatz (see given ansatz</dt><dd><p>file for details).</p>
+</dd>
+<dt>up_then_down (bool): change basis ordering putting all spin up orbitals</dt><dd><dl class="simple">
+<dt>first, followed by all spin down. Default, False has alternating</dt><dd><p>spin up/down ordering.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>qubit_hamiltonian (QubitOperator-like): Self-explanatory.
+verbose (bool): Flag for VQE verbosity.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.VQESolver.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.VQESolver.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the underlying objects required to run the VQE algorithm
+afterwards.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.VQESolver.energy_estimation">
+<span class="sig-name descname"><span class="pre">energy_estimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.VQESolver.energy_estimation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate energy using the given ansatz, qubit hamiltonian and compute
+backend. Keeps track of optimal energy and variational parameters along
+the way.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>var_params (numpy.array or str): variational parameters to use for</dt><dd><p>VQE energy evaluation.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>energy (float): energy computed by VQE using the ansatz and input</dt><dd><p>variational parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.VQESolver.get_rdm">
+<span class="sig-name descname"><span class="pre">get_rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sum_spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.VQESolver.get_rdm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the 1- and 2- RDM matrices using the VQE energy evaluation.
+This method allows to combine the DMET problem decomposition technique
+with the VQE as an electronic structure solver. The RDMs are computed by
+using each fermionic Hamiltonian term, transforming them and computing
+the elements one-by-one. Note that the Hamiltonian coefficients will not
+be multiplied as in the energy evaluation. The first element of the
+Hamiltonian is the nuclear repulsion energy term, not the Hamiltonian
+term.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>var_params (numpy.array or list): variational parameters to use for</dt><dd><p>rdm calculation</p>
+</dd>
+<dt>resample (bool): Whether to resample saved frequencies. get_rdm with</dt><dd><p>savefrequencies=True must be called or a dictionary for each
+qubit terms’ frequencies must be set to self.rdm_freq_dict</p>
+</dd>
+<dt>sum_spin (bool): If True, the spin-summed 1-RDM and 2-RDM will be</dt><dd><p>returned. If False, the full 1-RDM and 2-RDM will be returned.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>(numpy.array, numpy.array): One &amp; two-particle spin summed RDMs if</dt><dd><p>sumspin=True or the full One &amp; two-Particle RDMs if
+sumspin=False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.VQESolver.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.VQESolver.get_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate the resources required by VQE, with the current ansatz. This
+assumes “build” has been run, as it requires the ansatz circuit and the
+qubit Hamiltonian. Return information that pertains to the user, for the
+purpose of running an experiment on a classical simulator or a quantum
+device.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.VQESolver.operator_expectation">
+<span class="sig-name descname"><span class="pre">operator_expectation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_active_mos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_active_electrons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_active_sos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.VQESolver.operator_expectation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtains the operator expectation value of a given operator.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>operator (str or QubitOperator): The operator to find the</dt><dd><p>expectation value of str availability:
+- N : Particle number
+- Sz: Spin in z-direction
+- S^2: Spin quantum number s(s+1)</p>
+</dd>
+<dt>var_params (str or numpy.array): variational parameters to use</dt><dd><p>for VQE expectation value evaluation.</p>
+</dd>
+<dt>n_active_mos (int): The number of active_mos (int). Only</dt><dd><p>required when using a str input and VQESolver is initiated
+with a QubitHamiltonian.</p>
+</dd>
+<dt>n_active_electrons (int): The number of active electrons. Only</dt><dd><p>required when operator is of type FermionOperator and
+mapping used is scbk and vqe_solver was initiated using a
+QubitHamiltonian.</p>
+</dd>
+<dt>n_active_sos (int): Number of active spin orbitals. Only</dt><dd><p>required when operator is of type FermionOperator and
+mapping used is scbk and vqe_solver was initiated using a
+QubitHamiltonian.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>expectation (float): operator expectation value computed by VQE</dt><dd><p>using the ansatz and input variational parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.algorithms.variational.vqe_solver.VQESolver.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.algorithms.variational.vqe_solver.VQESolver.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the VQE algorithm, using the ansatz, classical optimizer, initial
+parameters and hardware backend built in the build method.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.algorithms.variational">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.algorithms.variational" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.algorithms.variational.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

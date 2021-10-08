@@ -1,0 +1,440 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.toolboxes.molecular_computation package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-toolboxes-molecular-computation-package">
+<h1>qsdk.toolboxes.molecular_computation package<a class="headerlink" href="#qsdk-toolboxes-molecular-computation-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="qsdk.toolboxes.molecular_computation.tests.html">qsdk.toolboxes.molecular_computation.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.molecular_computation.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.molecular_computation.tests.html#module-qsdk.toolboxes.molecular_computation.tests.test_frozen_orbitals">qsdk.toolboxes.molecular_computation.tests.test_frozen_orbitals module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.molecular_computation.tests.html#module-qsdk.toolboxes.molecular_computation.tests.test_molecule">qsdk.toolboxes.molecular_computation.tests.test_molecule module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.molecular_computation.tests.html#module-qsdk.toolboxes.molecular_computation.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.toolboxes.molecular_computation.frozen_orbitals">
+<span id="qsdk-toolboxes-molecular-computation-frozen-orbitals-module"></span><h2>qsdk.toolboxes.molecular_computation.frozen_orbitals module<a class="headerlink" href="#module-qsdk.toolboxes.molecular_computation.frozen_orbitals" title="Permalink to this headline">¶</a></h2>
+<p>This module defines functions to get suggestions for freezing orbitals. Those
+functions take a pyscf.gto object and return an integer or a list of orbital
+indexes for freezing orbitals.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.frozen_orbitals.get_frozen_core">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.molecular_computation.frozen_orbitals.</span></span><span class="sig-name descname"><span class="pre">get_frozen_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.frozen_orbitals.get_frozen_core" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to compute the number of frozen orbitals. This function is only
+for the core (occupied orbitals).</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>molecule (pyscf.gto): Molecule to be evaluated.</p>
+</dd>
+<dt>Returns:</dt><dd><p>frozen_core (int): First N molecular orbitals to freeze.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.frozen_orbitals.get_orbitals_excluding_homo_lumo">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.molecular_computation.frozen_orbitals.</span></span><span class="sig-name descname"><span class="pre">get_orbitals_excluding_homo_lumo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">homo_minus_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lumo_plus_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.frozen_orbitals.get_orbitals_excluding_homo_lumo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that returns a list of orbitals to freeze if the user wants to
+consider only a subset from HOMO(-homo_min_n) to LUMO(+lumo_plus_n)
+orbitals. Users should be aware of degeneracies, as this function does not
+take this property into account. Also, it is only relevant for closed-shell
+systems.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>molecule (pyscf.gto): Molecule to be evaluated.
+homo_minus_n (int): Starting point at HOMO - homo_minus_n.
+lumo_plus_n (int): Ending point at LUMO + lumo_plus_n.</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>frozen_orbitals (list of int): Frozen orbitals not detected in the</dt><dd><p>active space.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.molecular_computation.molecule">
+<span id="qsdk-toolboxes-molecular-computation-molecule-module"></span><h2>qsdk.toolboxes.molecular_computation.molecule module<a class="headerlink" href="#module-qsdk.toolboxes.molecular_computation.molecule" title="Permalink to this headline">¶</a></h2>
+<p>Module containing datastructures for interfacing with this package
+functionalities.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.molecular_computation.molecule.</span></span><span class="sig-name descname"><span class="pre">Molecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyz</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Custom datastructure to store information about a Molecule. This contains
+only physical information.</p>
+<dl>
+<dt>Attributes:</dt><dd><dl class="simple">
+<dt>xyz (array-like or string): Nested array-like structure with elements</dt><dd><p>and coordinates (ex:[ [“H”, (0., 0., 0.)], …]). Can also be a
+multi-line string.</p>
+</dd>
+</dl>
+<p>q (float): Total charge.
+spin (int): Absolute difference between alpha and beta electron number.
+n_atom (int): Self-explanatory.
+n_electrons (int): Self-explanatory.
+n_min_orbitals (int): Number of orbitals with a minimal basis set.</p>
+</dd>
+<dt>Properties:</dt><dd><p>elements (list): List of all elements in the molecule.
+coords (array of float): N x 3 coordinates matrix.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule.coords">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">coords</span></span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule.coords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule.elements">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">elements</span></span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule.elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule.n_atoms">
+<span class="sig-name descname"><span class="pre">n_atoms</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule.n_atoms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule.n_electrons">
+<span class="sig-name descname"><span class="pre">n_electrons</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule.n_electrons" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule.n_min_orbitals">
+<span class="sig-name descname"><span class="pre">n_min_orbitals</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule.n_min_orbitals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule.spin">
+<span class="sig-name descname"><span class="pre">spin</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule.spin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule.to_openfermion">
+<span class="sig-name descname"><span class="pre">to_openfermion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sto-3g'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule.to_openfermion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to return a openfermion.MolecularData object.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>basis (string): Basis set.</p>
+</dd>
+<dt>Returns:</dt><dd><p>openfermion.MolecularData: Openfermion compatible object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule.to_pyscf">
+<span class="sig-name descname"><span class="pre">to_pyscf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sto-3g'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule.to_pyscf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to return a pyscf.gto.Mole object.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>basis (string): Basis set.</p>
+</dd>
+<dt>Returns:</dt><dd><p>pyscf.gto.Mole: PySCF compatible object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.Molecule.xyz">
+<span class="sig-name descname"><span class="pre">xyz</span></span><em class="property"><span class="pre">:</span> <span class="pre">list</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule.xyz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.molecular_computation.molecule.</span></span><span class="sig-name descname"><span class="pre">SecondQuantizedMolecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyz</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'sto-3g'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frozen_orbitals</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'frozen_core'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qsdk.toolboxes.molecular_computation.molecule.Molecule" title="qsdk.toolboxes.molecular_computation.molecule.Molecule"><code class="xref py py-class docutils literal notranslate"><span class="pre">qsdk.toolboxes.molecular_computation.molecule.Molecule</span></code></a></p>
+<p>Custom datastructure to store information about a mean field derived
+from a molecule. This class inherits from Molecule and add a number of
+attributes defined by the second quantization.</p>
+<dl>
+<dt>Attributes:</dt><dd><p>basis (string): Basis set.
+mf_energy (float): Mean-field energy (RHF or ROHF energy depending</p>
+<blockquote>
+<div><p>on the spin).</p>
+</div></blockquote>
+<p>mo_energies (list of float): Molecular orbital energies.
+mo_occ (list of float): Molecular orbital occupancies (between 0.</p>
+<blockquote>
+<div><p>and 2.).</p>
+</div></blockquote>
+<p>mean_field (pyscf.scf): Mean-field object (used by CCSD and FCI).
+n_mos (int): Number of molecular orbitals with a given basis set.
+n_sos (int): Number of spin-orbitals with a given basis set.
+active_occupied (list of int): Occupied molecular orbital indexes</p>
+<blockquote>
+<div><p>that are considered active.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>frozen_occupied (list of int): Occupied molecular orbital indexes</dt><dd><p>that are considered frozen.</p>
+</dd>
+<dt>active_virtual (list of int): Virtual molecular orbital indexes</dt><dd><p>that are considered active.</p>
+</dd>
+<dt>frozen_virtual (list of int): Virtual molecular orbital indexes</dt><dd><p>that are considered frozen.</p>
+</dd>
+</dl>
+<p>fermionic_hamiltonian (FermionOperator): Self-explanatory.</p>
+</dd>
+<dt>Methods:</dt><dd><dl class="simple">
+<dt>freeze_mos: Change frozen orbitals attributes. It can be done inplace</dt><dd><p>or not.</p>
+</dd>
+</dl>
+</dd>
+<dt>Properties:</dt><dd><dl class="simple">
+<dt>n_active_electrons (int): Difference between number of total</dt><dd><p>electrons and number of electrons in frozen orbitals.</p>
+</dd>
+</dl>
+<p>n_active_sos (int): Number of active spin-orbitals.
+n_active_mos (int): Number of active molecular orbitals.
+frozen_mos (list or None): Frozen MOs indexes.
+actives_mos (list): Active MOs indexes.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_mos">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">active_mos</span></span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_mos" title="Permalink to this definition">¶</a></dt>
+<dd><p>This property returns MOs indexes for the active orbitals.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list: MOs indexes that are active (occupied + virtual).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_occupied">
+<span class="sig-name descname"><span class="pre">active_occupied</span></span><em class="property"><span class="pre">:</span> <span class="pre">list</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_occupied" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_virtual">
+<span class="sig-name descname"><span class="pre">active_virtual</span></span><em class="property"><span class="pre">:</span> <span class="pre">list</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_virtual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.basis">
+<span class="sig-name descname"><span class="pre">basis</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'sto-3g'</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.basis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.fermionic_hamiltonian">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">fermionic_hamiltonian</span></span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.fermionic_hamiltonian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.freeze_mos">
+<span class="sig-name descname"><span class="pre">freeze_mos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frozen_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.freeze_mos" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method recomputes frozen orbitals with the provided input.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_mos">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">frozen_mos</span></span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_mos" title="Permalink to this definition">¶</a></dt>
+<dd><p>This property returns MOs indexes for the frozen orbitals. It was
+written to take into account if one of the two possibilities (occ or
+virt) is None. In fact, list + None, None + list or None + None return
+an error. An empty list cannot be sent because PySCF mp2 returns
+“IndexError: list index out of range”.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list: MOs indexes frozen (occupied + virtual).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_occupied">
+<span class="sig-name descname"><span class="pre">frozen_occupied</span></span><em class="property"><span class="pre">:</span> <span class="pre">list</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_occupied" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_orbitals">
+<span class="sig-name descname"><span class="pre">frozen_orbitals</span></span><em class="property"><span class="pre">:</span> <span class="pre">list</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'frozen_core'</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_orbitals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_virtual">
+<span class="sig-name descname"><span class="pre">frozen_virtual</span></span><em class="property"><span class="pre">:</span> <span class="pre">list</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_virtual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mean_field">
+<span class="sig-name descname"><span class="pre">mean_field</span></span><em class="property"><span class="pre">:</span> <span class="pre">&lt;module</span> <span class="pre">'pyscf.scf'</span> <span class="pre">from</span> <span class="pre">'/home/alex/VirtEnvs/qsdk/lib/python3.8/site-packages/pyscf/scf/__init__.py'&gt;</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mean_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mf_energy">
+<span class="sig-name descname"><span class="pre">mf_energy</span></span><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mf_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mo_energies">
+<span class="sig-name descname"><span class="pre">mo_energies</span></span><em class="property"><span class="pre">:</span> <span class="pre">list</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mo_energies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mo_occ">
+<span class="sig-name descname"><span class="pre">mo_occ</span></span><em class="property"><span class="pre">:</span> <span class="pre">list</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mo_occ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_electrons">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">n_active_electrons</span></span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_electrons" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_mos">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">n_active_mos</span></span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_mos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_sos">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">n_active_sos</span></span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_sos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_mos">
+<span class="sig-name descname"><span class="pre">n_mos</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_mos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_sos">
+<span class="sig-name descname"><span class="pre">n_sos</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_sos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.atom_string_to_list">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.molecular_computation.molecule.</span></span><span class="sig-name descname"><span class="pre">atom_string_to_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.atom_string_to_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert atom coordinate string (typically stored in text files) into a
+list/tuple representation suitable for openfermion.MolecularData.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.molecular_computation.molecule.molecule_to_secondquantizedmolecule">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.molecular_computation.molecule.</span></span><span class="sig-name descname"><span class="pre">molecule_to_secondquantizedmolecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sto-3g'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frozen_orbitals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.molecular_computation.molecule.molecule_to_secondquantizedmolecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to convert a Molecule into a SecondQuantizedMolecule.</p>
+<dl>
+<dt>Args:</dt><dd><p>mol (Molecule): Self-explanatory.
+basis_set (string): String representing the basis set.
+frozen_orbitals (int or list of int): Number of MOs or MOs indexes to</p>
+<blockquote>
+<div><p>freeze.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>SecondQuantizedMolecule: Mean-field data structure for a molecule.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.molecular_computation">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.toolboxes.molecular_computation" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.toolboxes.molecular_computation.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

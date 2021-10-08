@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.toolboxes.measurements package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-toolboxes-measurements-package">
+<h1>qsdk.toolboxes.measurements package<a class="headerlink" href="#qsdk-toolboxes-measurements-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="qsdk.toolboxes.measurements.tests.html">qsdk.toolboxes.measurements.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.measurements.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.measurements.tests.html#module-qsdk.toolboxes.measurements.tests.test_measurements">qsdk.toolboxes.measurements.tests.test_measurements module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.measurements.tests.html#module-qsdk.toolboxes.measurements.tests.test_qubit_terms_grouping">qsdk.toolboxes.measurements.tests.test_qubit_terms_grouping module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.measurements.tests.html#module-qsdk.toolboxes.measurements.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.toolboxes.measurements.estimate_measurements">
+<span id="qsdk-toolboxes-measurements-estimate-measurements-module"></span><h2>qsdk.toolboxes.measurements.estimate_measurements module<a class="headerlink" href="#module-qsdk.toolboxes.measurements.estimate_measurements" title="Permalink to this headline">¶</a></h2>
+<p>This file provides functions allowing users to estimate the number of measurements that are needed to
+approximate the expectation values of some qubit operators up to a given accuracy.</p>
+<p>The functions range from simple general heuristics to more complex approaches that may leverage our knowledge
+of the quantum state.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.measurements.estimate_measurements.get_measurement_estimate">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.measurements.estimate_measurements.</span></span><span class="sig-name descname"><span class="pre">get_measurement_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qb_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.measurements.estimate_measurements.get_measurement_estimate" title="Permalink to this definition">¶</a></dt>
+<dd><dl>
+<dt>Given a qubit operator and a level of accuracy, computes the number of measurements required by each term</dt><dd><p>of the qubit operator to reach the accuracy provided by the user when computing expectation values, returns it
+as a dictionary mapping measurement basis to number of measurements.</p>
+<p>“uniform” method makes no assumption about the underlying probability distribution resulting from the quantum
+state preparation circuit. The rule of thumb is “Multiply number of samples by 100 for each digit of accuracy”.</p>
+</dd>
+<dt>Args:</dt><dd><p>qb_op: qubit operator
+digits (integer): number of digits of accuracy desired on expectation value</p>
+</dd>
+<dt>Returns:</dt><dd><p>measurements (dict): Dictionary mapping terms / measurement bases to their number of measurements</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.measurements.qubit_terms_grouping">
+<span id="qsdk-toolboxes-measurements-qubit-terms-grouping-module"></span><h2>qsdk.toolboxes.measurements.qubit_terms_grouping module<a class="headerlink" href="#module-qsdk.toolboxes.measurements.qubit_terms_grouping" title="Permalink to this headline">¶</a></h2>
+<p>This file provides access to different approaches aiming at reducing the number of measurements required
+to compute the expectation value of a qubit (Pauli) operator. They attempt to identify the minimal amount of
+measurement bases / terms required to deduce the expectation values associated to the other terms present in the
+Pauli operator.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.measurements.qubit_terms_grouping.exp_value_from_measurement_bases">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.measurements.qubit_terms_grouping.</span></span><span class="sig-name descname"><span class="pre">exp_value_from_measurement_bases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">histograms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.measurements.qubit_terms_grouping.exp_value_from_measurement_bases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the expectation value of the sum of all suboperators corresponding to the different measurement bases
+in the input dictionary. This is how one would go about computing the expectation value of an operator
+while trying to send a limited amount of tasks to a quantum computer, thereby lowering the cost in terms of
+number of measurements needed.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>sub_ops (dict): Maps measurement bases to suboperators whose exp. value can be computed from it
+histograms (dict): Maps measurement bases to histograms corresponding to that quantum circuit</p>
+</dd>
+<dt>Returns:</dt><dd><p>exp_value (float or complex): Expectation value of the sum of all suboperators</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.measurements.qubit_terms_grouping.group_qwc">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.measurements.qubit_terms_grouping.</span></span><span class="sig-name descname"><span class="pre">group_qwc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qb_ham</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.measurements.qubit_terms_grouping.group_qwc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around Openfermion functionality that takes as input a QubitOperator and yields a collection of
+mesurement bases defining a partition of groups of sub-operators with terms that are diagonal in the same tensor
+product basis. Each sub-operator can be measured using the same qubit post-rotations in expectation estimation.
+This uses the idea of qubitwise commutativity (qwc).</p>
+<p>The resulting dictionary maps the measurement basis (key) to the list of qubit operators whose expectation
+value can be computed using the corresponding circuit. The size of this dictionary determines how many
+quantum circuits need to be executed in order to provide the expectation value of the input qubit operator.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>operator (QubitOperator): the operator that will be split into sub-operators (tensor product basis sets).
+seed (int): default None. Random seed used to initialize the numpy.RandomState pseudo-RNG.</p>
+</dd>
+<dt>Returns:</dt><dd><p>sub_operators (dict): a dictionary where each key defines a tensor product basis,
+and each corresponding value is a QubitOperator with terms that are all diagonal in that basis.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.measurements">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.toolboxes.measurements" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.toolboxes.measurements.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

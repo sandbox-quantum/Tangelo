@@ -1,0 +1,524 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.toolboxes.qubit_mappings package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-toolboxes-qubit-mappings-package">
+<h1>qsdk.toolboxes.qubit_mappings package<a class="headerlink" href="#qsdk-toolboxes-qubit-mappings-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="qsdk.toolboxes.qubit_mappings.tests.html">qsdk.toolboxes.qubit_mappings.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.qubit_mappings.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.qubit_mappings.tests.html#module-qsdk.toolboxes.qubit_mappings.tests.test_bravyi_kitaev">qsdk.toolboxes.qubit_mappings.tests.test_bravyi_kitaev module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.qubit_mappings.tests.html#module-qsdk.toolboxes.qubit_mappings.tests.test_mapping_transform">qsdk.toolboxes.qubit_mappings.tests.test_mapping_transform module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.qubit_mappings.tests.html#module-qsdk.toolboxes.qubit_mappings.tests.test_qubitizer">qsdk.toolboxes.qubit_mappings.tests.test_qubitizer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.qubit_mappings.tests.html#module-qsdk.toolboxes.qubit_mappings.tests.test_statevector_mapping">qsdk.toolboxes.qubit_mappings.tests.test_statevector_mapping module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qsdk.toolboxes.qubit_mappings.tests.html#module-qsdk.toolboxes.qubit_mappings.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.toolboxes.qubit_mappings.bravyi_kitaev">
+<span id="qsdk-toolboxes-qubit-mappings-bravyi-kitaev-module"></span><h2>qsdk.toolboxes.qubit_mappings.bravyi_kitaev module<a class="headerlink" href="#module-qsdk.toolboxes.qubit_mappings.bravyi_kitaev" title="Permalink to this headline">¶</a></h2>
+<p>Tools for performing Bravyi-Kitaev Transformation, as prescribed via the
+Fenwick Tree mapping. This implementation accommodates mapping of qubit
+registers where the number of qubits is not a power of two.</p>
+<p>NB: this is a minimal implementation, just wrapping around current openfermion
+code (v 1.0.1). This wrapper enables future refactoring to utilize our own
+implementation, as needed.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.bravyi_kitaev.bravyi_kitaev">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.bravyi_kitaev.</span></span><span class="sig-name descname"><span class="pre">bravyi_kitaev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.bravyi_kitaev.bravyi_kitaev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute transformation of FermionOperator to QubitOperator using the
+Bravyi-Kitaev transformation. Important note: there are several
+implementations of “Bravyi Kitaev” transformation, in both the literature,
+and historical versions of openfermion. This function executes the
+transformaton defined in arXiv:quant-ph/0003137. Different versions are not
+necessarily the same, and result in undesirable performance. This method is
+a simple wrapper around openfermion’s bravyi_kitaev, but we are forcing the
+user to pass n_qubits to avoid unexpected behaviour.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>fermion_operator (FermionOperator): input fermionic operator to be</dt><dd><p>transformed.</p>
+</dd>
+</dl>
+<p>n_qubits (int): number of qubits associated with the operator.</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>qubit_operator (QubitOperator): output bravyi-kitaev encoded qubit</dt><dd><p>operator.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.qubit_mappings.jordan_wigner">
+<span id="qsdk-toolboxes-qubit-mappings-jordan-wigner-module"></span><h2>qsdk.toolboxes.qubit_mappings.jordan_wigner module<a class="headerlink" href="#module-qsdk.toolboxes.qubit_mappings.jordan_wigner" title="Permalink to this headline">¶</a></h2>
+<p>Jordan-Wigner transform on fermionic operators.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.jordan_wigner.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the Jordan-Wigner transform to a FermionOperator,
+InteractionOperator, or DiagonalCoulombHamiltonian to convert to a
+QubitOperator.</p>
+<p>Operators are mapped as follows:
+a_j^dagger -&gt; Z_0 .. Z_{j-1} (X_j - iY_j) / 2
+a_j -&gt; Z_0 .. Z_{j-1} (X_j + iY_j) / 2</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>transformed_operator: An instance of the QubitOperator class.</p>
+</dd>
+<dt>Warning:</dt><dd><p>The runtime of this method is exponential in the maximum locality of the
+original FermionOperator.</p>
+</dd>
+<dt>Raises:</dt><dd><p>TypeError: Operator must be a FermionOperator,
+DiagonalCoulombHamiltonian, or InteractionOperator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_diagonal_coulomb_hamiltonian">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.jordan_wigner.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner_diagonal_coulomb_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_diagonal_coulomb_hamiltonian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_fermion_operator">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.jordan_wigner.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner_fermion_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_fermion_operator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_interaction_op">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.jordan_wigner.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner_interaction_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_interaction_op" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output InteractionOperator as QubitOperator class under JW transform.</p>
+<p>One could accomplish this very easily by first mapping to fermions and then
+mapping to qubits. We skip the middle step for the sake of speed.</p>
+<p>This only works for real InteractionOperators (no complex numbers).</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>qubit_operator: An instance of the QubitOperator class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_majorana_operator">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.jordan_wigner.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner_majorana_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_majorana_operator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_one_body">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.jordan_wigner.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner_one_body</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_one_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map the term a^dagger_p a_q + h.c. to QubitOperator.</p>
+<p>Note that the diagonal terms are divided by a factor of 2
+because they are equal to their own Hermitian conjugate.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_two_body">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.jordan_wigner.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner_two_body</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner_two_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map the term a^dagger_p a^dagger_q a_r a_s + h.c. to QubitOperator.</p>
+<p>Note that the diagonal terms are divided by a factor of two because they are
+equal to their own Hermitian conjugate.</p>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.qubit_mappings.mapping_transform">
+<span id="qsdk-toolboxes-qubit-mappings-mapping-transform-module"></span><h2>qsdk.toolboxes.qubit_mappings.mapping_transform module<a class="headerlink" href="#module-qsdk.toolboxes.qubit_mappings.mapping_transform" title="Permalink to this headline">¶</a></h2>
+<p>This module provides a common point for mapping operators and
+statevectors from Fermionic to Qubit encodings via any of:
+- Jordan-Wigner
+- Bravyi-Kitaev (Fenwick Tree implementation)
+- symmetry-conserving Bravyi-Kitaev (2-qubit reduction via Z2 taper)</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.mapping_transform.fermion_to_qubit_mapping">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.mapping_transform.</span></span><span class="sig-name descname"><span class="pre">fermion_to_qubit_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.mapping_transform.fermion_to_qubit_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform mapping of fermionic operator to qubit operator. This function is
+mostly a wrapper around standard openfermion code, with some important
+distinctions. We strictly enforce the specification of n_qubits for
+Bravyi-Kitaev type transformations, and n_electrons for scBK. In the absence
+of this information, these methods can return unexpected results if the
+input operator does not specifically address the highest-orbital/qubit
+index.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>fermion_operator (FermionOperator): operator to translate to qubit</dt><dd><p>representation.</p>
+</dd>
+<dt>mapping (string): options are – “JW” (Jordan Wigner), “BK”</dt><dd><p>(Bravyi Kitaev), “scBK” (symmetry-conserving Bravyi Kitaev).</p>
+</dd>
+<dt>n_spinorbitals (int): number of spin-orbitals for problem. Not required</dt><dd><p>for Jordan-Wigner.</p>
+</dd>
+<dt>n_electrons (int): number of occupied electron modes in problem.</dt><dd><p>Required for symmetry conserving Bravyi-Kitaev only.</p>
+</dd>
+<dt>up_then_down (bool): flag to change basis ordering, putting all spin up</dt><dd><p>then all spin down.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>qubit_operator (QubitOperator): input operator, encoded in the qubit</dt><dd><p>space.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.mapping_transform.get_fermion_operator">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.mapping_transform.</span></span><span class="sig-name descname"><span class="pre">get_fermion_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.mapping_transform.get_fermion_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast operator to FermionOperator datatype. Input is of SymbolicOperator
+type, but term words must be valid input for FermionOperator, as for example
+for InteractionOperator.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>operator (SymbolicOperator): input operator to be cast.</p>
+</dd>
+<dt>Returns:</dt><dd><p>fermion_operator (FermionOperator).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.mapping_transform.get_qubit_number">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.mapping_transform.</span></span><span class="sig-name descname"><span class="pre">get_qubit_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.mapping_transform.get_qubit_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of qubits for a specified number of spin orbitals, after
+passing through the qubit mapping. Symmetry-conserving Bravyi-Kitaev reduces
+the qubit number by 2.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>mapping (string): qubit-mapping, JW, BK or SCBK.
+n_spinorbitals (int): number of spin-orbitals for molecule.</p>
+</dd>
+<dt>Returns:</dt><dd><p>(int): number of qubits.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.mapping_transform.make_up_then_down">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.mapping_transform.</span></span><span class="sig-name descname"><span class="pre">make_up_then_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.mapping_transform.make_up_then_down" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Re-order the orbital indexing to force all spin up, followed by all spin</dt><dd><p>down. The default ordering alternates between spin up and down.</p>
+</dd>
+<dt>Args:</dt><dd><p>fermion_operator (FermionOperator): input operator.
+n_spinorbitals (int): number of spin-orbitals in register.</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>new_operator (FermionOperator): operator with all spin up followed by</dt><dd><p>all spin down.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.qubit_mappings.statevector_mapping">
+<span id="qsdk-toolboxes-qubit-mappings-statevector-mapping-module"></span><h2>qsdk.toolboxes.qubit_mappings.statevector_mapping module<a class="headerlink" href="#module-qsdk.toolboxes.qubit_mappings.statevector_mapping" title="Permalink to this headline">¶</a></h2>
+<p>Tools to define a reference state under a specified qubit-mapping, and
+translate into a Circuit.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.statevector_mapping.do_bk_transform">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">do_bk_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.statevector_mapping.do_bk_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply Bravyi-Kitaev transformation to fermion occupation vector.
+Currently, simple wrapper on openfermion tools.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>vector (numpy array of int): fermion occupation vector.</p>
+</dd>
+<dt>Returns:</dt><dd><p>vector_bk (numpy array of int): qubit-encoded occupation vector.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.statevector_mapping.do_scbk_transform">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">do_scbk_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.statevector_mapping.do_scbk_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiate qubit vector for symmetry-conserving Bravyi-Kitaev
+transformation. Based on implementation by Yukio Kawashima in DMET project.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>n_spinorbitals (int): number of qubits in register.
+n_electrons (int): number of fermions occupied</p>
+</dd>
+<dt>Returns:</dt><dd><p>vector (numpy array of int): qubit-encoded occupation vector.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.statevector_mapping.get_reference_circuit">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">get_reference_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.statevector_mapping.get_reference_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the Hartree-Fock state preparation circuit for the designated
+mapping.</p>
+<dl>
+<dt>Args:</dt><dd><p>n_spinorbitals (int): number of qubits in register.
+n_electrons (int): number of electrons in system.
+mapping (string): specify mapping, see mapping_transform.py for options</p>
+<blockquote>
+<div><p>“JW” (Jordan Wigner), or “BK” (Bravyi Kitaev), or “SCBK”
+(symmetry-conserving Bravyi Kitaev).</p>
+</div></blockquote>
+<dl class="simple">
+<dt>up_then_down (boolean): if True, all up, then all down, if False,</dt><dd><p>alternating spin up/down.</p>
+</dd>
+</dl>
+<p>spin (int): 2*S = n_alpha - n_beta.</p>
+</dd>
+<dt>Returns:</dt><dd><p>circuit (Circuit): instance of qsdk.backendbuddy Circuit class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.statevector_mapping.get_vector">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">get_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.statevector_mapping.get_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get integer vector corresponding to Hartree Fock reference state.
+Reference state will occupy up to the n_electron-th molecular orbital.
+Depending on convention, basis is ordered alternating spin-up/spin-down
+(updown = False), or all up, then all down (updown = True).</p>
+<dl>
+<dt>Args:</dt><dd><p>n_spinorbitals (int): number of spin-orbitals in register.
+n_electrons (int): number of electrons in system.
+mapping (string): specify mapping, see mapping_transform.py for options</p>
+<blockquote>
+<div><p>“JW” (Jordan Wigner), or “BK” (Bravyi Kitaev), or “SCBK”
+(symmetry-conserving Bravyi Kitaev).</p>
+</div></blockquote>
+<dl class="simple">
+<dt>up_then_down (boolean): if True, all up, then all down, if False,</dt><dd><p>alternating spin up/down.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>vector (numpy array of int): binary integer array indicating occupation</dt><dd><p>of each spin-orbital.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.statevector_mapping.vector_to_circuit">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">vector_to_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.statevector_mapping.vector_to_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translate occupation vector into a circuit. Each occupied state
+corresponds to an X-gate on the associated qubit index.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>vector (numpy array of int): occupation vector.</p>
+</dd>
+<dt>Returns:</dt><dd><p>circuit (Circuit): instance of qsdk.backendbuddy Circuit class</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev">
+<span id="qsdk-toolboxes-qubit-mappings-symmetry-conserving-bravyi-kitaev-module"></span><h2>qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev module<a class="headerlink" href="#module-qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev" title="Permalink to this headline">¶</a></h2>
+<p>Module to remove two qubits from the problem space using conservation of
+electron number and conservation of electron spin. As described in
+arXiv:1701.08213 and Phys. Rev. X 6, 031007.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.check_operator">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.</span></span><span class="sig-name descname"><span class="pre">check_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_orbitals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.check_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the input fermion operator is suitable for application of
+symmetry-consering BK qubit reduction. Excitation must: preserve parity of
+fermion occupation, and parity of spin expectation value. This assumes
+alternating spin-up/spin-down ordering of input operator.</p>
+<dl>
+<dt>Args:</dt><dd><p>fermion_operator (FermionOperator): input fermionic operator.
+num_orbitals (int): specify number of orbitals (number of modes / 2),</p>
+<blockquote>
+<div><p>required for up then down ordering.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>up_then_down (bool): True if all spin up before all spin down, otherwise</dt><dd><p>alternates.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.edit_operator_for_spin">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.</span></span><span class="sig-name descname"><span class="pre">edit_operator_for_spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_orbital</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_parity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.edit_operator_for_spin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the Z terms acting on the orbital from the operator. For qubits
+to be tapered out, the action of Z-operators in operator terms are reduced
+to the associated eigenvalues. This simply corresponds to multiplying term
+coefficients by the related eigenvalue +/-1.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>qubit_operator (QubitOperator): input operator.
+spin_orbital (int): index of qubit encoding (spin/occupation) parity.
+orbital_parity (int): plus/minus one, parity of eigenvalue.</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>qubit_operator (QubitOperator): updated operator, with relevant</dt><dd><p>coefficients multiplied by +/-1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.prune_unused_indices">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.</span></span><span class="sig-name descname"><span class="pre">prune_unused_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.prune_unused_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rewritten from openfermion implementation. This uses the number of qubits,
+rather than the operator itself to specify the number of qubits relevant to
+the problem. This is especially important for, e.g. terms in the ansatz
+which may not individually pertain to all qubits in the problem.</p>
+<p>Remove indices that do not appear in any terms.</p>
+<p>Indices will be renumbered such that if an index i does not appear in any
+terms, then the next largest index that appears in at least one term will be
+renumbered to i.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>qubit_operator (QubitOperator): input operator.
+prune_indices (tuple of int): indices to be removed from qubit register.
+n_qubits (int): number of qubits in register.</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>new_operator (QubitOperator): output operator, with designated qubit</dt><dd><p>indices excised.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.symmetry_conserving_bravyi_kitaev">
+<span class="sig-prename descclassname"><span class="pre">qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.</span></span><span class="sig-name descname"><span class="pre">symmetry_conserving_bravyi_kitaev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.symmetry_conserving_bravyi_kitaev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the QubitOperator for the FermionOperator supplied, with two
+qubits removed using conservation of (parity) of electron spin and number,
+as described in arXiv:1701.08213.  This function has been modified from its
+analogous implementation in openfermion in order to circumvent failures when
+passing a fermion_operator which does not explicitly reference the highest
+index qubit in the register.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>fermion_operator (FermionOperator): fermionic operator to transform to</dt><dd><p>QubitOperator.</p>
+</dd>
+<dt>n_spinorbitals (int): The number of active spin-orbitals being</dt><dd><p>considered for the system.</p>
+</dd>
+<dt>n_electrons (int): The number of active fermions being considered for</dt><dd><p>the system (note, this is less than the number of electrons in a
+molecule if some orbitals have been frozen).</p>
+</dd>
+<dt>up_then_down (bool): specify if the spin-orbital basis is already</dt><dd><p>ordered putting all spin up before all spin down states.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>qubit_operator (QubitOperator): The qubit operator corresponding to the</dt><dd><p>supplied fermionic operator, with two qubits removed using spin
+symmetries.</p>
+</dd>
+</dl>
+</dd>
+<dt>WARNING:</dt><dd><p>Reorders orbitals from the default even-odd ordering to all spin-up
+orbitals, then all spin-down orbitals.</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError if fermion_hamiltonian isn”t of the type FermionOperator, or
+active_orbitals isn”t an integer, or active_fermions isn”t an integer.</p>
+</dd>
+<dt>Notes: This function reorders the spin orbitals as all spin-up, then all</dt><dd><p>spin-down. It uses the OpenFermion bravyi_kitaev_tree mapping, rather
+than the bravyi-kitaev mapping. Caution advised when using with a
+Fermi-Hubbard Hamiltonian; this technique correctly reduces the
+Hamiltonian only for the lowest energy even and odd fermion number
+states, not states with an arbitrary number of fermions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.toolboxes.qubit_mappings">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.toolboxes.qubit_mappings" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.toolboxes.qubit_mappings.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

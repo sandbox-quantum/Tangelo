@@ -1,0 +1,621 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>qsdk.backendbuddy.tests package &#8212; qSDK 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="qsdk-backendbuddy-tests-package">
+<h1>qsdk.backendbuddy.tests package<a class="headerlink" href="#qsdk-backendbuddy-tests-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-qsdk.backendbuddy.tests.test_circuits">
+<span id="qsdk-backendbuddy-tests-test-circuits-module"></span><h2>qsdk.backendbuddy.tests.test_circuits module<a class="headerlink" href="#module-qsdk.backendbuddy.tests.test_circuits" title="Permalink to this headline">¶</a></h2>
+<p>A test class to check that the circuit class is working properly, and processing the information
+of the gate objects it holds is as expected.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_circuits.TestCircuits">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_circuits.</span></span><span class="sig-name descname"><span class="pre">TestCircuits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_circuits.TestCircuits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_add_circuits">
+<span class="sig-name descname"><span class="pre">test_add_circuits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_add_circuits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the concatenation of two circuit objects</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_fixed_sized_circuit_above">
+<span class="sig-name descname"><span class="pre">test_fixed_sized_circuit_above</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_fixed_sized_circuit_above" title="Permalink to this definition">¶</a></dt>
+<dd><p>If circuit is instantiated with fixed width, the code must throw if qubit indices are not consistent</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_fixed_sized_circuit_below">
+<span class="sig-name descname"><span class="pre">test_fixed_sized_circuit_below</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_fixed_sized_circuit_below" title="Permalink to this definition">¶</a></dt>
+<dd><p>If circuit is instantiated with fixed width, then the width property must be consistent, regardless
+of what gate instructions have been passed</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_gate_counts">
+<span class="sig-name descname"><span class="pre">test_gate_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_gate_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that all gates have been counted</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_init">
+<span class="sig-name descname"><span class="pre">test_init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests that constructing a circuit consisting of several instructions works through either passing
+a list of gates directly , or by using the add_gate method repeatedly on an existing circuit. Simply test
+that the number of gates is what was expected</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_is_variational">
+<span class="sig-name descname"><span class="pre">test_is_variational</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_is_variational" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that the circuit is labeled as variational as soon as one variational gate is present</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_width">
+<span class="sig-name descname"><span class="pre">test_width</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_circuits.TestCircuits.test_width" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure the width attribute of the circuit object (number of qubits) matches the gate operations
+present in the circuit.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.tests.test_connection_honeywell">
+<span id="qsdk-backendbuddy-tests-test-connection-honeywell-module"></span><h2>qsdk.backendbuddy.tests.test_connection_honeywell module<a class="headerlink" href="#module-qsdk.backendbuddy.tests.test_connection_honeywell" title="Permalink to this headline">¶</a></h2>
+<p>A test class to check that features related to the Honeywell API are behaving as expected.
+Tests requiring actual interactions with the services have been skipped.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_honeywell.TestHoneywellConnection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_connection_honeywell.</span></span><span class="sig-name descname"><span class="pre">TestHoneywellConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_honeywell.TestHoneywellConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_honeywell.TestHoneywellConnection.test_init">
+<span class="sig-name descname"><span class="pre">test_init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_honeywell.TestHoneywellConnection.test_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the user has set environment variables HONEYWELL_EMAIL and HONEYWELL_PASSWORD to the correct login
+information, this test should succeed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_honeywell.TestHoneywellConnection.test_init_fail">
+<span class="sig-name descname"><span class="pre">test_init_fail</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_honeywell.TestHoneywellConnection.test_init_fail" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the user has not set environment variables HONEYWELL_EMAIL and HONEYWELL_PASSWORD to the correct login
+information, this should fail and return an EnvironmentError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_honeywell.TestHoneywellConnection.test_submit_job">
+<span class="sig-name descname"><span class="pre">test_submit_job</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_honeywell.TestHoneywellConnection.test_submit_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit a valid job to a API validation backend (if available) and retrieve results</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_honeywell.TestHoneywellConnection.test_submit_job_incorrect_circuit">
+<span class="sig-name descname"><span class="pre">test_submit_job_incorrect_circuit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_honeywell.TestHoneywellConnection.test_submit_job_incorrect_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit an incorrect job to a API validation backend (if available) and retrieve results</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.tests.test_connection_ionq">
+<span id="qsdk-backendbuddy-tests-test-connection-ionq-module"></span><h2>qsdk.backendbuddy.tests.test_connection_ionq module<a class="headerlink" href="#module-qsdk.backendbuddy.tests.test_connection_ionq" title="Permalink to this headline">¶</a></h2>
+<p>A test class to check that features related to the Honeywell API are behaving as expected.
+Tests requiring actual interactions with the services have been skipped.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_connection_ionq.</span></span><span class="sig-name descname"><span class="pre">TestIonQConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection.test_delete_job">
+<span class="sig-name descname"><span class="pre">test_delete_job</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection.test_delete_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit a job and then cancel/delete it, regardless of its status. Check job history before and after.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection.test_init">
+<span class="sig-name descname"><span class="pre">test_init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection.test_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>If user has set environment variables IONQ_APIKEY to the correct value, this should succeed.
+Implicitly makes a call to IonQConnection.job_get_history in order to validate the apiKey.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection.test_init_fail">
+<span class="sig-name descname"><span class="pre">test_init_fail</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection.test_init_fail" title="Permalink to this definition">¶</a></dt>
+<dd><p>If user has not set environment variables IONQ_APIKEY to the correct value, this should
+return a RuntimeError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection.test_submit_job_simulator">
+<span class="sig-name descname"><span class="pre">test_submit_job_simulator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection.test_submit_job_simulator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit a valid job to a API validation backend (simulator) and retrieve results</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection.test_submit_job_simulator_fail">
+<span class="sig-name descname"><span class="pre">test_submit_job_simulator_fail</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_ionq.TestIonQConnection.test_submit_job_simulator_fail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit invalid job, watch the World burn</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_connection_ionq.assert_freq_dict_almost_equal">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_connection_ionq.</span></span><span class="sig-name descname"><span class="pre">assert_freq_dict_almost_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_connection_ionq.assert_freq_dict_almost_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance</p>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.tests.test_gates">
+<span id="qsdk-backendbuddy-tests-test-gates-module"></span><h2>qsdk.backendbuddy.tests.test_gates module<a class="headerlink" href="#module-qsdk.backendbuddy.tests.test_gates" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_gates.TestGates">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_gates.</span></span><span class="sig-name descname"><span class="pre">TestGates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_gates.TestGates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>A test class to check that the circuit class is working properly, and processing the information
+of the gate objects it holds as expected.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_gates.TestGates.test_incorrect_gate">
+<span class="sig-name descname"><span class="pre">test_incorrect_gate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_gates.TestGates.test_incorrect_gate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test to catch a gate with inputs that do not make sense</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_gates.TestGates.test_some_gates">
+<span class="sig-name descname"><span class="pre">test_some_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_gates.TestGates.test_some_gates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that some basic gates can be invoked with a few different parameters, and that this information
+is printed as expected by the built-in __str__ method</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.tests.test_simulator">
+<span id="qsdk-backendbuddy-tests-test-simulator-module"></span><h2>qsdk.backendbuddy.tests.test_simulator module<a class="headerlink" href="#module-qsdk.backendbuddy.tests.test_simulator" title="Permalink to this headline">¶</a></h2>
+<p>A test class to check that the simulator class functionalities are behaving as expected for the different
+backends and input possible.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_simulator.</span></span><span class="sig-name descname"><span class="pre">TestSimulateAllBackends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends.test_get_exp_value_constant_operator">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_constant_operator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends.test_get_exp_value_constant_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>The expectation of the identity term must be 1.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends.test_get_exp_value_empty_operator">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_empty_operator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends.test_get_exp_value_empty_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>If qubit operator is empty, the expectation value is 0 and no computation occurs</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends.test_get_exp_value_mixed_state">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_mixed_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends.test_get_exp_value_mixed_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test expectation value for mixed-state simulation. Computation done by drawing individual shots.
+Some simulators are NOT good at this, by design (ProjectQ).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends.test_get_exp_value_operator_too_long">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_operator_too_long</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends.test_get_exp_value_operator_too_long" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure an error is returned if the qubit operator acts on more qubits than are present in the circuit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends.test_simulate_mixed_state">
+<span class="sig-name descname"><span class="pre">test_simulate_mixed_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateAllBackends.test_simulate_mixed_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
+Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
+Simulating individual shots is suitable.</p>
+<p>Some simulators are NOT good at this, by design</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateMisc">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_simulator.</span></span><span class="sig-name descname"><span class="pre">TestSimulateMisc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateMisc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateMisc.test_get_exp_value_from_frequencies_oneterm">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_from_frequencies_oneterm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateMisc.test_get_exp_value_from_frequencies_oneterm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test static method computing the expectation value of one term, when the results of a simulation
+are being provided as input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateMisc.test_get_exp_value_from_frequencies_qdk">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_from_frequencies_qdk</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateMisc.test_get_exp_value_from_frequencies_qdk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test specific to QDK to ensure results are not impacted by code specific to frequency computation
+as well as the recompilation of the Q# file used in successive simulations</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateMisc.test_n_shots_needed">
+<span class="sig-name descname"><span class="pre">test_n_shots_needed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateMisc.test_n_shots_needed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raise an error if user chooses a target backend that does not provide access to a statevector and
+also does not provide a number of shots for the simulation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateMisc.test_simulate_qdk">
+<span class="sig-name descname"><span class="pre">test_simulate_qdk</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateMisc.test_simulate_qdk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Must return correct frequencies for simulation of different quantum circuits.
+The accuracy is correlated to the number of shots taken in the simulation.
+Backend: qdk.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_simulator.</span></span><span class="sig-name descname"><span class="pre">TestSimulateStatevector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_complex">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_complex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_complex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get expectation value of qubit operator with complex coefficients</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_empty_circuit">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_empty_circuit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_empty_circuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the circuit is empty and we have a non-zero number of qubits, frequencies just only show all-<a href="#id1"><span class="problematic" id="id2">|</span></a>0&gt; state
+observed and compute the expectation value using these frequencies</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_frequencies">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_from_frequencies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_frequencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the method computing the expectation value from frequencies, with a given simulator</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_frequencies_using_initial_statevector">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_from_frequencies_using_initial_statevector</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_frequencies_using_initial_statevector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the method computing the expectation value from frequencies, with a given simulator
+by generating the statevector first and sampling using an empty state_prep_circuit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_initial_statevector_h2">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_from_initial_statevector_h2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_initial_statevector_h2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get expectation value of large circuits and qubit Hamiltonians corresponding to molecules.
+Molecule: H2 sto-3g = [(“H”, (0., 0., 0.)), (“H”, (0., 0., 0.741377))]
+Generate statevector first and then get_expectation value from statevector and empty circuit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_statevector">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_from_statevector</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_statevector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expectation value from the statevector for each statevector backend</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_statevector_h2">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_from_statevector_h2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_statevector_h2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get expectation value of large circuits and qubit Hamiltonians corresponding to molecules.
+Molecule: H2 sto-3g = [(“H”, (0., 0., 0.)), (“H”, (0., 0., 0.741377))]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_statevector_h4">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_from_statevector_h4</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_statevector_h4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get expectation value of large circuits and qubit Hamiltonians corresponding to molecules.
+Molecule: H4 sto-3g
+H4 = [[‘H’, [0.7071067811865476,   0.0,                 0.0]],</p>
+<blockquote>
+<div><p>[‘H’, [0.0,                  0.7071067811865476,  0.0]],
+[‘H’, [-1.0071067811865476,  0.0,                 0.0]],
+[‘H’, [0.0,                 -1.0071067811865476,  0.0]]]</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_statevector_with_shots_h2">
+<span class="sig-name descname"><span class="pre">test_get_exp_value_from_statevector_with_shots_h2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_get_exp_value_from_statevector_with_shots_h2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get expectation value of large circuits and qubit Hamiltonians corresponding to molecules.
+Molecule: H2 sto-3g = [(“H”, (0., 0., 0.)), (“H”, (0., 0., 0.741377))]
+The result is computed using samples (“shots”) drawn form a statevector simulator here. This is the kind
+of results we could expect from a noiseless QPU.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_simulate_empty_circuit_from_statevector">
+<span class="sig-name descname"><span class="pre">test_simulate_empty_circuit_from_statevector</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_simulate_empty_circuit_from_statevector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the generation of frequencies using an initial_statevector and an empty_circuit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_simulate_nshots_from_statevector">
+<span class="sig-name descname"><span class="pre">test_simulate_nshots_from_statevector</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_simulate_nshots_from_statevector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the generation of samples following the distribution given by the exact frequencies obtained
+with a statevector simulator. For n_shots high enough, the resulting distribution must approximate
+the exact one.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_simulate_statevector">
+<span class="sig-name descname"><span class="pre">test_simulate_statevector</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.TestSimulateStatevector.test_simulate_statevector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Must return correct frequencies for simulation of different quantum circuits with statevector</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator.assert_freq_dict_almost_equal">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_simulator.</span></span><span class="sig-name descname"><span class="pre">assert_freq_dict_almost_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator.assert_freq_dict_almost_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance</p>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.tests.test_simulator_noisy">
+<span id="qsdk-backendbuddy-tests-test-simulator-noisy-module"></span><h2>qsdk.backendbuddy.tests.test_simulator_noisy module<a class="headerlink" href="#module-qsdk.backendbuddy.tests.test_simulator_noisy" title="Permalink to this headline">¶</a></h2>
+<p>A test class to check that the features related to noisy simulation are working as expected.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_simulator_noisy.</span></span><span class="sig-name descname"><span class="pre">TestSimulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_cannot_cumulate_same_noise_same_gate">
+<span class="sig-name descname"><span class="pre">test_cannot_cumulate_same_noise_same_gate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_cannot_cumulate_same_noise_same_gate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures an error is returned if user attempts to cumulate the same type of noise on the same gate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_get_expectation_value_noisy">
+<span class="sig-name descname"><span class="pre">test_get_expectation_value_noisy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_get_expectation_value_noisy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test of the get_expectation_value function with a noisy simulator</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_incorrect_arguments">
+<span class="sig-name descname"><span class="pre">test_incorrect_arguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_incorrect_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures an error is returned if noise parameters are incorrect</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_noisy_simulation_cirq">
+<span class="sig-name descname"><span class="pre">test_noisy_simulation_cirq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_noisy_simulation_cirq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test noisy simulation through cirq.
+Currently tested: pauli noise, depolarization noise (1 and 2 qubit gates)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_noisy_simulation_not_supported">
+<span class="sig-name descname"><span class="pre">test_noisy_simulation_not_supported</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_noisy_simulation_not_supported" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures that an error is returned if user attempts to run noisy simulation on a backend that does
+not support it as part of this package.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_noisy_simulation_qiskit">
+<span class="sig-name descname"><span class="pre">test_noisy_simulation_qiskit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_noisy_simulation_qiskit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test noisy simulation through qiskit.
+Currently tested: pauli noise, depolarization noise (1 and 2 qubit gates)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_noisy_simulation_qulacs">
+<span class="sig-name descname"><span class="pre">test_noisy_simulation_qulacs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_noisy_simulation_qulacs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test noisy simulation through qulacs.
+Currently tested: pauli noise, depolarization noise (1 and 2 qubit gates)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_qiskit_noise_dictionary_rotations">
+<span class="sig-name descname"><span class="pre">test_qiskit_noise_dictionary_rotations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_qiskit_noise_dictionary_rotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate noise dictionary using qiskit gates as keys. Map rotation gates to U-gates with no redundancy
+Ensure results as expected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_unsupported_noise_channel">
+<span class="sig-name descname"><span class="pre">test_unsupported_noise_channel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_unsupported_noise_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures an error is returned if user attempts to user an unsupported noise channel</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_unsupported_noise_channel_qiskit">
+<span class="sig-name descname"><span class="pre">test_unsupported_noise_channel_qiskit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.TestSimulate.test_unsupported_noise_channel_qiskit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures an error is returned if user attempts to user an unsupported noise channel, for qiskit</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_simulator_noisy.assert_freq_dict_almost_equal">
+<span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_simulator_noisy.</span></span><span class="sig-name descname"><span class="pre">assert_freq_dict_almost_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_simulator_noisy.assert_freq_dict_almost_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance</p>
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.tests.test_translator">
+<span id="qsdk-backendbuddy-tests-test-translator-module"></span><h2>qsdk.backendbuddy.tests.test_translator module<a class="headerlink" href="#module-qsdk.backendbuddy.tests.test_translator" title="Permalink to this headline">¶</a></h2>
+<p>A test class to check that the translation process yields a circuit identical to the native one for the
+different backends supported</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">qsdk.backendbuddy.tests.test_translator.</span></span><span class="sig-name descname"><span class="pre">TestTranslation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_abs2openqasm">
+<span class="sig-name descname"><span class="pre">test_abs2openqasm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_abs2openqasm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares raw openQASM string as generated by Qiskit at the time this test is written, to the one
+this package generates using translate_qiskit and the Qiskit built-in QASM translation</p>
+<p>This test failing implies that either Qiskit QASM output has changed or that translate_qiskit fails
+(the latter has its own tests)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_braket">
+<span class="sig-name descname"><span class="pre">test_braket</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_braket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the results of a simulation with Braket local simulator using a Braket circuit directly
+VS one obtained through translation from an abstract format</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_cirq">
+<span class="sig-name descname"><span class="pre">test_cirq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_cirq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the results of a simulation with cirq using a cirq circuit directly
+VS one obtained through translation from an abstract format</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_json_ionq">
+<span class="sig-name descname"><span class="pre">test_json_ionq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_json_ionq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translate abstract format to IonQ JSON format</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_openqasm2abs">
+<span class="sig-name descname"><span class="pre">test_openqasm2abs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_openqasm2abs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translate from abstract format to openQASM and back, compare with original.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_projectq">
+<span class="sig-name descname"><span class="pre">test_projectq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_projectq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares state vector of native ProjectQ circuit against translated one</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_projectq2abs">
+<span class="sig-name descname"><span class="pre">test_projectq2abs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_projectq2abs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares state vector of native ProjectQ circuit against one translated to abstract and then
+ran with projectQ</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_qdk">
+<span class="sig-name descname"><span class="pre">test_qdk</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_qdk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the frequencies computed by the QDK/Q# shot-based simulator to the theoretical ones</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_qiskit">
+<span class="sig-name descname"><span class="pre">test_qiskit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_qiskit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the results of a simulation with Qulacs using a qulacs circuit directly
+VS one obtained through translation from an abstract format</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_qulacs">
+<span class="sig-name descname"><span class="pre">test_qulacs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_qulacs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the results of a simulation with Qulacs using a qulacs circuit directly
+VS one obtained through translation from an abstract format</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qsdk.backendbuddy.tests.test_translator.TestTranslation.test_unsupported_gate">
+<span class="sig-name descname"><span class="pre">test_unsupported_gate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qsdk.backendbuddy.tests.test_translator.TestTranslation.test_unsupported_gate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Must return an error if a gate is not supported for the target backend</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-qsdk.backendbuddy.tests">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qsdk.backendbuddy.tests" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">qSDK</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Valentin, Ryan, Alexandre, James.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/qsdk.backendbuddy.tests.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
