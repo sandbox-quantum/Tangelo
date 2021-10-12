@@ -10,6 +10,9 @@ Welcome to qSDK's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   dummy_test
+   modules
+
 
 Indices and tables
 ==================
