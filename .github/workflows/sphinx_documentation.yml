@@ -1,3 +1,14 @@
+name: Pull Request Docs Check
+on: [pull_request]
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: ammaraskar/sphinx-action@master
+      with:
+        docs-folder: "docs/"
+
 name: Pages
 on: [push]
 jobs:
@@ -15,3 +26,6 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: gh-pages
+
+
+
