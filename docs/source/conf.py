@@ -13,13 +13,14 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+import datetime
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'qSDK'
-copyright = '2021, Valentin, Ryan, Alexandre, James'
-author = 'Valentin, Ryan, Alexandre, James'
+copyright = f"{datetime.datetime.now().year}, 1QBit"
+author = 'Valentin Senicourt, Alexandre Fleury, Ryan Day, James Brown'
 
 # The full version, including alpha/beta/rc tags
 release = '0.2.0'
@@ -38,7 +39,8 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints', 'qdk_template.*', '**test**']
+source_suffix = ['.rst', '.md']
 
 
 # -- Options for HTML output -------------------------------------------------
