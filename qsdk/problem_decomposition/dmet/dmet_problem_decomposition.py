@@ -435,7 +435,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 print("")
 
         energy_temp += self.orbitals.core_constant_energy
-        self.dmet_energy = energy_temp
+        self.dmet_energy = energy_temp.real
 
         if save_results:
             self.scf_fragments = scf_fragments
