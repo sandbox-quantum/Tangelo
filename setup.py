@@ -1,7 +1,7 @@
 import setuptools
 import sys
 import subprocess
-
+import datetime
 
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
@@ -11,7 +11,7 @@ with open('README.md', 'r') as f:
     long_description = f.read()
 
 __title__ = "1QBit's quantum SDK for quantum chemistry"
-__copyright__ = "1QBit Inc"
+__copyright__ = f"{datetime.datetime.now().year}, 1QBit Inc"
 __version__ = "0.2.0"
 __status__ = "beta"
 __authors__ = ["Valentin Senicourt, Alexandre Fleury, Ryan Day, James Brown"]
