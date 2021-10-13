@@ -452,7 +452,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         scf_fragments = self._build_scf_fragments(self.initial_chemical_potential)
 
         # Store ressources for each fragments.
-        resources_fragments = dict()#[None for _ in range(len(scf_fragments))]
+        resources_fragments = dict()
 
         # Iterate across all fragment and compute their energies.
         # The total energy is stored in energy_temp.
@@ -475,12 +475,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 solver_fragment.build()
                 vqe_ressources = solver_fragment.get_resources()
                 resources_fragments[i] = vqe_ressources
-                verbose_output = "\t\t{}".format(vqe_ressources)
 
                 if self.verbose:
                     print("\t\tFragment Number : # ", i + 1)
                     print("\t\t------------------------")
-                    print(verbose_output + "\n")
+                    print(f"\t\t{vqe_ressources}\n")
 
         return resources_fragments
 
