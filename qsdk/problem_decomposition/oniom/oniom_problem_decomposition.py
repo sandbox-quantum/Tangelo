@@ -118,18 +118,16 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         list.
         """
 
-        quantum_resources = [None] * len(self.fragments)
+        quantum_resources = dict()
 
         for fragment_i, fragment in enumerate(self.fragments):
-            quantum_resources[fragment_i] = fragment.get_resources()
+            quantum_resources_fragment = fragment.get_resources()
 
-            if self.verbose:
-                if not quantum_resources[fragment_i]:
-                    verbose_output = "\t\tRessources estimation not supported for classical solvers."
-                else:
-                    verbose_output = f"\t\t{quantum_resources[fragment_i]}"
+            if quantum_resources_fragment:
+                quantum_resources[fragment_i] = quantum_resources_fragment
 
-                print(f"\t\tFragment Number : # {fragment_i + 1} \n\t\t{'-'*24}")
-                print(f"{verbose_output}\n")
+                if self.verbose:
+                    print(f"\t\tFragment Number : # {fragment_i + 1} \n\t\t{'-'*24}")
+                    print(f"\t\t{quantum_resources[fragment_i]}\n")
 
         return quantum_resources

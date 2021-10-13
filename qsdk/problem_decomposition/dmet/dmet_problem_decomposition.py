@@ -449,7 +449,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 print("")
 
         energy_temp += self.orbitals.core_constant_energy
-        self.dmet_energy = energy_temp
+        self.dmet_energy = energy_temp.real
 
         if save_results:
             self.scf_fragments = scf_fragments
@@ -465,8 +465,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # Carry out SCF calculation for all fragments.
         scf_fragments = self._build_scf_fragments(self.initial_chemical_potential)
 
-        # Store ressources for each fragments.
-        resources_fragments = [None for _ in range(len(scf_fragments))]
+        # Store resources for each fragments.
+        resources_fragments = dict()
 
         # Iterate across all fragment and compute their energies.
         # The total energy is stored in energy_temp.
@@ -487,16 +487,13 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 system = {"molecule": dummy_mol}
                 solver_fragment = VQESolver({**system, **solver_options})
                 solver_fragment.build()
-                vqe_ressources = solver_fragment.get_resources()
-                resources_fragments[i] = vqe_ressources
-                verbose_output = "\t\t{}".format(vqe_ressources)
-            else:
-                verbose_output = "\t\tRessources estimation not supported for {} solver.".format(self.fragment_solvers[i])
+                vqe_resources = solver_fragment.get_resources()
+                resources_fragments[i] = vqe_resources
 
-            if self.verbose:
-                print("\t\tFragment Number : # ", i + 1)
-                print("\t\t------------------------")
-                print(verbose_output + "\n")
+                if self.verbose:
+                    print("\t\tFragment Number : # ", i + 1)
+                    print("\t\t------------------------")
+                    print(f"\t\t{vqe_resources}\n")
 
         return resources_fragments
 
