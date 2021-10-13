@@ -13,8 +13,8 @@ op1 = 1. * QubitOperator('X1 Y0')
 op2 = 0.01 * QubitOperator('Z0 X1')
 
 
-def assert_integer_dict_almost_equal(d1, d2, atol):
-    """ Utility function to check whether two integer dictionaries are almost equal, for arbitrary tolerance """
+def assert_dict_almost_equal(d1, d2, atol):
+    """ Utility function to check whether two dictionaries are almost equal, for arbitrary tolerance """
     if d1.keys() != d2.keys():
         raise AssertionError("Dictionary keys differ. Frequency dictionaries are not almost equal.\n"
                              f"d1 keys: {d1.keys()} \nd2 keys: {d2.keys()}")
@@ -47,13 +47,13 @@ class MeasurementsTest(unittest.TestCase):
         # Adjust digits
         mes7 = get_measurement_estimate(op1, digits=2)
 
-        assert_integer_dict_almost_equal(mes1 , {((0, 'Y'), (1, 'X')): 100000000}, 1)
-        assert_integer_dict_almost_equal(mes2 , {((0, 'Z'), (1, 'X')): 10000}, 1)
-        assert_integer_dict_almost_equal(mes3 , {((0, 'Z'), (1, 'X')): 10000, ((0, 'Y'), (1, 'X')): 1000000}, 1)
-        assert_integer_dict_almost_equal(mes4 , {((0, 'Y'), (1, 'X')): 36000000}, 1)
-        assert_integer_dict_almost_equal(mes5 , {((0, 'Y'), (1, 'X')): 0}, 1)
-        assert_integer_dict_almost_equal(mes6 , {((0, 'Y'), (1, 'X')): 100}, 1)
-        assert_integer_dict_almost_equal(mes7 , {((0, 'Y'), (1, 'X')): 1000000}, 1)
+        assert_dict_almost_equal(mes1, {((0, 'Y'), (1, 'X')): 100000000}, 1)
+        assert_dict_almost_equal(mes2, {((0, 'Z'), (1, 'X')): 10000}, 1)
+        assert_dict_almost_equal(mes3, {((0, 'Z'), (1, 'X')): 10000, ((0, 'Y'), (1, 'X')): 1000000}, 1)
+        assert_dict_almost_equal(mes4, {((0, 'Y'), (1, 'X')): 36000000}, 1)
+        assert_dict_almost_equal(mes5, {((0, 'Y'), (1, 'X')): 0}, 1)
+        assert_dict_almost_equal(mes6, {((0, 'Y'), (1, 'X')): 100}, 1)
+        assert_dict_almost_equal(mes7, {((0, 'Y'), (1, 'X')): 1000000}, 1)
 
     def test_measurement_uniform_H2(self):
         """ Test on UCCSD H2 usecase that uniform measurement estimation method guarantees on average the level
