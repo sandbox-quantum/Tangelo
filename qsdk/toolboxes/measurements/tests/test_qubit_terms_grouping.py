@@ -19,7 +19,7 @@ from qsdk.backendbuddy import translator, Simulator, Circuit
 from qsdk.helpers import string_ham_to_of, measurement_basis_gates
 from qsdk.toolboxes.measurements import group_qwc, exp_value_from_measurement_bases
 
-path_data = os.path.dirname(__file__) + '/data'
+path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
 
 class TermsGroupingTest(unittest.TestCase):

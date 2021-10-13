@@ -26,7 +26,7 @@ from qsdk.problem_decomposition.dmet._helpers.dmet_scf_guess import dmet_fragmen
 from qsdk.problem_decomposition.dmet._helpers.dmet_scf import dmet_fragment_scf
 from qsdk.problem_decomposition.electron_localization import iao_localization
 
-path_file = os.path.dirname(__file__)
+path_file = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestDMETloop(unittest.TestCase):

@@ -90,15 +90,17 @@ class TestTranslation(unittest.TestCase):
         circ.rx(2., 1)
 
         # Simulate both circuits, assert state vectors are equal
-        qiskit_simulator = qiskit.Aer.get_backend("statevector_simulator")
+        qiskit_simulator = qiskit.Aer.get_backend("aer_simulator", method='statevector') 
+        save_state_circuit = qiskit.QuantumCircuit(abs_circ.width, abs_circ.width)
+        save_state_circuit.save_statevector()
+        translated_circuit = translated_circuit.compose(save_state_circuit)
+        circ = circ.compose(save_state_circuit)
 
-        job_sim = qiskit.execute(translated_circuit, qiskit_simulator)
-        sim_results = job_sim.result()
-        v1 = sim_results.get_statevector()
+        sim_results = qiskit_simulator.run(translated_circuit).result()
+        v1 = sim_results.get_statevector(translated_circuit)
 
-        job_sim = qiskit.execute(circ, qiskit_simulator)
-        sim_results = job_sim.result()
-        v2 = sim_results.get_statevector()
+        sim_results = qiskit_simulator.run(circ).result()
+        v2 = sim_results.get_statevector(circ)
 
         np.testing.assert_array_equal(v1, v2)
 
