@@ -3,7 +3,7 @@
 
 from pyscf import cc
 
-from qsdk.electronic_structure_solvers import ElectronicStructureSolver
+from qsdk.algorithms.electronic_structure_solver import ElectronicStructureSolver
 
 
 class CCSDSolver(ElectronicStructureSolver):

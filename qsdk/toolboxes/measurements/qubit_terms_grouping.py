@@ -7,13 +7,15 @@
 
 import warnings
 from openfermion.measurements import group_into_tensor_product_basis_sets
+from qsdk.backendbuddy import Simulator
 
 
-def qubitwise_commutativity_of(qb_ham, seed=None):
+def group_qwc(qb_ham, seed=None):
     """
         Wrapper around Openfermion functionality that takes as input a QubitOperator and yields a collection of
         mesurement bases defining a partition of groups of sub-operators with terms that are diagonal in the same tensor
         product basis. Each sub-operator can be measured using the same qubit post-rotations in expectation estimation.
+        This uses the idea of qubitwise commutativity (qwc).
 
         The resulting dictionary maps the measurement basis (key) to the list of qubit operators whose expectation
         value can be computed using the corresponding circuit. The size of this dictionary determines how many
@@ -43,9 +45,6 @@ def exp_value_from_measurement_bases(sub_ops, histograms):
         Returns:
             exp_value (float or complex): Expectation value of the sum of all suboperators
     """
-
-    # To avoid circular imports
-    from qsdk.backendbuddy import Simulator
 
     # Warning if dicts dont have exact set of keys
     if set(sub_ops) != set(histograms):

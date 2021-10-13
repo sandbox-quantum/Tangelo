@@ -1,6 +1,6 @@
 import unittest
 
-from qsdk.electronic_structure_solvers import ADAPTSolver
+from qsdk.algorithms import ADAPTSolver
 from qsdk.molecule_library import mol_H2_sto3g
 
 

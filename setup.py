@@ -16,7 +16,7 @@ __version__ = "0.2.0"
 __status__ = "beta"
 __authors__ = ["Valentin Senicourt, Alexandre Fleury, Ryan Day, James Brown"]
 
-install('h5py==2.9.0')
+install('h5py==3.2.0')
 install('pyscf')
 
 setuptools.setup(
@@ -28,5 +28,6 @@ setuptools.setup(
     url="https://github.com/quantumsimulation/QEMIST_qSDK",
     packages=setuptools.find_packages(),
     test_suite="qsdk",
-    install_requires=['bitarray', 'openfermion', 'openfermionpyscf']
+    setup_requires=['h5py==3.2.0'],
+    install_requires=['h5py==3.2.0', 'bitarray', 'openfermion', 'openfermionpyscf']
 )

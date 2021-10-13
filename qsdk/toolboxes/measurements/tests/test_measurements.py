@@ -3,8 +3,9 @@ import os
 
 from qsdk.helpers.utils import default_simulator
 from qsdk.backendbuddy import translator, Simulator, Circuit
-from qsdk.backendbuddy.helpers import string_ham_to_of, measurement_basis_gates, get_measurement_estimate
-from openfermion import QubitOperator
+from qsdk.backendbuddy.helpers import string_ham_to_of, measurement_basis_gates
+from qsdk.toolboxes.operators import QubitOperator
+from qsdk.toolboxes.measurements import get_measurement_estimate
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 

@@ -2,9 +2,8 @@ import unittest
 import os
 
 from qsdk.backendbuddy import translator, Simulator, Circuit
-from qsdk.backendbuddy.helpers import string_ham_to_of, measurement_basis_gates, \
-    qubitwise_commutativity_of, exp_value_from_measurement_bases
-
+from qsdk.helpers import string_ham_to_of, measurement_basis_gates
+from qsdk.toolboxes.measurements import group_qwc, exp_value_from_measurement_bases
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
@@ -24,7 +23,7 @@ class TermsGroupingTest(unittest.TestCase):
         qb_ham = string_ham_to_of(qb_hamstring)
 
         # Group Hamiltonian terms using qubitwise commutativity
-        grouped_ops = qubitwise_commutativity_of(qb_ham, seed=0)
+        grouped_ops = group_qwc(qb_ham, seed=0)
 
         # Load an optimized quantum circuit (UCCSD) to compute something meaningful in this test
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as f:
@@ -54,7 +53,7 @@ class TermsGroupingTest(unittest.TestCase):
         qb_ham = string_ham_to_of(qb_hamstring)
 
         # Group Hamiltonian terms using qubitwise commutativity
-        grouped_ops = qubitwise_commutativity_of(qb_ham, seed=0)
+        grouped_ops = group_qwc(qb_ham, seed=0)
 
         # Load an optimized quantum circuit (UCCSD) to compute something meaningful in this test
         with open(f"{path_data}/H4_UCCSD.qasm", "r") as f:
