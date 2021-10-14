@@ -14,6 +14,7 @@
 
 """Module that defines the quantum imaginary time algorithm
 """
+from copy import copy
 
 import math
 from openfermion import FermionOperator as ofFermionOperator
@@ -29,15 +30,14 @@ from qsdk.backendbuddy import Circuit, Simulator
 
 
 class QITESolver:
-    """ADAPT VQE class. This is an iterative algorithm that uses VQE. Methods
-    are defined to rank operators with respect to their influence on the total
-    energy.
+    """QITE class. This is an iterative algorithm that obtains a unitary operator
+    that approximates the imaginary time evolution of an initial state.
 
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
-        tol (float): Maximum gradient allowed for a particular operator  before
-            convergence.
-        max_cycles (int): Maximum number of iterations for ADAPT.
+        dt (float): The imaginary time step size
+        min_de (float): Maximum energy change allowed before convergence.
+        max_cycles (int): Maximum number of iterations of QITE.
         pool (func): Function that returns a list of FermionOperator. Each
             element represents excitation/operator that has an effect of the
             total energy.
@@ -99,9 +99,7 @@ class QITESolver:
         self.final_circuit = None
         self.final_statevector = None
 
-        # Quantum circuit simulation backend options
-        self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
-                                 noise_model=self.backend_options["noise_model"])
+        self.backend = None
 
     def prepare_reference_state(self):
         """Returns circuit preparing the reference state of the ansatz (e.g
@@ -163,6 +161,7 @@ class QITESolver:
             for term, coeff in qubit_op.terms.items():
                 qubit_op.terms[term] = math.copysign(1., coeff.imag)
 
+        # Only select terms with odd number of Y gates
         reduced_pool_terms = list()
         for qubit_op in self.full_pool_operators:
             for term in qubit_op.terms.keys():
@@ -173,17 +172,23 @@ class QITESolver:
                 if count_y % 2 == 1 and term not in reduced_pool_terms:
                     reduced_pool_terms.append(term)
 
+        # Generated list of pool_operators and full pool operator.
         self.pool_operators = [QubitOperator(term) for term in reduced_pool_terms]
         self.pool_qubit_op = QubitOperator()
         for pool_term in self.pool_operators:
             self.pool_qubit_op += pool_term
 
-        # Getting commutators to compute gradients:
-        # \frac{\partial E}{\partial \theta_n} = \langle \psi | [\hat{H}, A_n] | \psi \rangle
+        # Obtain all qubit terms that need to be measured
         self.pool_h = [element*self.qubit_hamiltonian.to_qubitoperator() for element in self.pool_operators]
         self.pool_pool = [[element1*element2 for element2 in self.pool_operators] for element1 in self.pool_operators]
+
+        # Obtain initial state preparation circuit
         self.circuit_list.append(self.prepare_reference_state())
-        self.final_circuit = self.circuit_list[0]
+        self.final_circuit = copy(self.circuit_list[0])
+
+        # Quantum circuit simulation backend options
+        self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
+                                 noise_model=self.backend_options["noise_model"])
 
     def simulate(self):
         """Performs the QITE cycles. Each iteration, a linear system is
@@ -198,6 +203,7 @@ class QITESolver:
             self.iteration += 1
             print(f"Iteration {self.iteration} of QITE.")
 
+            self.update_statevector(self.backend, self.circuit_list[self.iteration - 1])
             suv, bu = self.calculate_matrices(self.backend, self.final_energy)
 
             new_energy = self.energy_expectation(self.backend)
@@ -217,6 +223,17 @@ class QITESolver:
 
         return self.energies[-1]
 
+    def update_statevector(self, backend: Simulator, next_circuit: Circuit):
+        r"""Update self.final_statevector by propagating with next_circuit using backend
+
+        Args:
+            backend (Simulator): the backend to use for the statevector update
+            next_circuit (Circuit): The circuit to apply to the statevector
+        """
+        _, self.final_statevector = backend.simulate(next_circuit,
+                                                     return_statevector=True,
+                                                     initial_statevector=self.final_statevector)
+
     def calculate_matrices(self, backend: Simulator, new_energy: float):
         r"""Calculated matrix elements for imaginary time evolution.
 
@@ -229,11 +246,11 @@ class QITESolver:
             bu (array float): The expecation values <\psi| pu^+ H |\psi>
         """
 
-        _, self.final_statevector = backend.simulate(self.final_circuit, return_statevector=True)
+        empty_circuit = Circuit(n_qubits=self.final_circuit.width)
 
-        ndeltab = np.sqrt(1-2*self.dt*new_energy)
+        ndeltab = np.sqrt(1 - 2 * self.dt * new_energy)
         bu = [backend.get_expectation_value(element,
-                                            Circuit(n_qubits=self.final_circuit.width),
+                                            empty_circuit,
                                             initial_statevector=self.final_statevector)/ndeltab for element in self.pool_h]
         bu = -1j*np.array(bu)
         pool_size = len(self.pool_h)
@@ -242,7 +259,7 @@ class QITESolver:
             suv[u, u] = 0
             for v in range(u+1, pool_size):
                 suv[u, v] = backend.get_expectation_value(self.pool_pool[u][v],
-                                                          Circuit(n_qubits=self.final_circuit.width),
+                                                          empty_circuit,
                                                           initial_statevector=self.final_statevector)
                 suv[v, u] = suv[u, v]
 
