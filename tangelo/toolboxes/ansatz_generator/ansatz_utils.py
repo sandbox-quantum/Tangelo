@@ -18,10 +18,8 @@ facilitate the assembly of ansatz quantum circuits.
 """
 
 from copy import deepcopy
-from multiprocessing import Value
 
 import numpy as np
-from numpy.lib.arraysetops import isin
 from openfermion.ops import FermionOperator as ofFermionOperator
 from openfermion.ops import InteractionOperator as ofInteractionOperator
 from openfermion.ops import QubitOperator as ofQubitOperator
@@ -101,10 +99,11 @@ def circuit_for_exponentiated_qubit_operator(qubit_op, time=1., variational=Fals
     exp_pauli_word_gates = list()
     for i, (pauli_word, coef) in enumerate(pauli_words):
         if (len(pauli_word) > 0):  # identity terms do not contribute to evolution outside of a phase
-            exp_pauli_word_gates += pauliword_to_circuit(pauli_word,
-                                                         np.real(coef)*evolve_time[i],
-                                                         variational=variational,
-                                                         control=control)
+            if abs(np.real(coef)*evolve_time[i]) > 1.e-10:
+                exp_pauli_word_gates += pauliword_to_circuit(pauli_word,
+                                                             np.real(coef)*evolve_time[i],
+                                                             variational=variational,
+                                                             control=control)
         else:
             if control is None:
                 phase *= np.exp(-1j * coef * evolve_time[i])
@@ -117,7 +116,8 @@ def circuit_for_exponentiated_qubit_operator(qubit_op, time=1., variational=Fals
     return Circuit(exp_pauli_word_gates), phase
 
 
-def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variational=False, mapping_options=dict(), control=None):
+def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variational=False,
+               mapping_options=dict(), control=None):
     """Generate the circuit that represents time evolution of a qubit operator.
     This circuit is generated as a trotterization of a qubit operator which is either the input
     or mapped from the given fermion operator.
@@ -137,7 +137,7 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
     Returns:
         Circuit corresponding to time evolution of the operator
     """
-    if isinstance(operator, FermionOperator) or isinstance(operator, ofFermionOperator) or isinstance(operator, ofInteractionOperator):
+    if isinstance(operator, (FermionOperator, ofFermionOperator, ofInteractionOperator)):
         options = {"up_then_down": False,
                    "qubit_mapping": "jw",
                    "n_spinorbitals": None,
@@ -173,7 +173,7 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
                                                                   variational=variational,
                                                                   control=control)
 
-    elif isinstance(operator, QubitOperator) or isinstance(operator, ofQubitOperator):
+    elif isinstance(operator, (QubitOperator, ofQubitOperator)):
         qubit_op = deepcopy(operator)
         if isinstance(time, float):
             evolve_time = time / num_trotter_steps
@@ -259,9 +259,9 @@ def controlled_pauliwords(qubit_op, control=None, n_qubits=None):
 
 def derangement_circuit(qubit_list, control=None, n_qubits=None):
     """returns the derangement circuit for multiple copies of a state
-    
+
     Args:
-        qubit_list (list of list(int)): Each item in the list is a list of qubit registers for 
+        qubit_list (list of list(int)): Each item in the list is a list of qubit registers for
                                         each copy. The list of qubit registers must be the same.
         control (int): The control register to be measured.
         n_qubits (int): The number of qubits in the circuit.
