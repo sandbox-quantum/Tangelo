@@ -14,7 +14,7 @@
 
 import unittest
 
-from qsdk.algorithms import ADAPTSolver
+from qsdk.algorithms.variational import ADAPTSolver
 from qsdk.molecule_library import mol_H2_sto3g
 
 

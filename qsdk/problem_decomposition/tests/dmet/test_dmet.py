@@ -18,8 +18,7 @@ import numpy as np
 from qsdk.molecule_library import mol_H4_doublecation_minao, mol_H4_doublecation_321g, mol_H10_321g, mol_H10_minao
 from qsdk.problem_decomposition import dmet
 from qsdk.problem_decomposition.dmet.dmet_problem_decomposition import Localization, DMETProblemDecomposition
-from qsdk.electronic_structure_solvers import VQESolver, vqe_solver
-
+from qsdk.algorithms.variational import VQESolver
 
 class DMETProblemDecompositionTest(unittest.TestCase):
 
