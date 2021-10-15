@@ -33,10 +33,18 @@ class SecondQuantizedDMETFragment:
     molecule: pyscf.gto
     mean_field: pyscf.scf
 
-    n_active_electrons: int
-    n_active_sos: int
-    q: int
-    spin: int
+    # Fragment data computed by the DMET backend code. Useful when computing the
+    # energy (converting embedded problem to full system energy).
+    fock: np.array
+    fock_frag_copy: np.array
+    t_list: list
+    one_ele: np.array
+    two_ele: np.array
+
+    n_active_electrons: int = field(init=False)
+    n_active_sos: int = field(init=False)
+    q: int = field(init=False)
+    spin: int = field(init=False)
 
     basis: str = field(init=False)
     n_active_mos: int = field(init=False)
@@ -44,8 +52,14 @@ class SecondQuantizedDMETFragment:
     frozen_mos: None = field(init=False)
 
     def __post_init__(self):
+        self.n_active_electrons = self.molecule.nelectron
+        self.q = self.molecule.charge
+        self.spin = self.molecule.spin
+
         self.basis = self.molecule.basis
-        self.n_active_mos = self.n_active_sos // 2
+        self.n_active_mos = len(self.mean_field.mo_energy)
+        self.n_active_sos = 2*self.n_active_mos
+
         self.fermionic_hamiltonian = self._get_fermionic_hamiltonian()
         self.frozen_mos = None
 

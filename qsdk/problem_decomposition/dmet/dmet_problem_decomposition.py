@@ -174,6 +174,25 @@ class DMETProblemDecomposition(ProblemDecomposition):
         self.orb_list2 = None
         self.onerdm_low = None
 
+    @property
+    def quantum_fragments_data(self):
+        """This aims to return a dictionary with all necessary components to
+        run a quantum experiment for a (or more) DMET fragment(s).
+        """
+
+        if not self.solver_fragment_dict:
+            raise RuntimeError("Simulate method must be called beforehand.")
+
+        quantum_data = dict()
+
+        # Construction of a dict with SecondQuantizedDMETFragment, qubit
+        # hamiltonian and quantum circuit.
+        for fragment_i, vqe_object in self.solver_fragment_dict.items():
+            quantum_data[fragment_i] = (vqe_object.molecule,
+                vqe_object.qubit_hamiltonian, vqe_object.optimal_circuit)
+
+        return quantum_data
+
     def build(self):
         """Building the orbitals list for each fragment. It sets the values of
         self.orbitals, self.orb_list and self.orb_list2.
@@ -385,8 +404,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, mol_frag.nelectron,
-                2*len(mf_fragment.mo_energy), mol_frag.charge, mol_frag.spin)
+            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele)
 
             if self.verbose:
                 print("\t\tFragment Number : # ", i + 1)
@@ -473,10 +491,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
         for i, info_fragment in enumerate(scf_fragments):
 
             # Unpacking the information for the selected fragment.
-            mf_fragment, _, mol_frag, _, _, _, _ = info_fragment
+            mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, mol_frag.nelectron,
-                2*len(mf_fragment.mo_energy), mol_frag.charge, mol_frag.spin)
+            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele)
 
             # Buiding SCF fragments and quantum circuit. Resources are then
             # estimated. For classical sovlers, this functionality is not
