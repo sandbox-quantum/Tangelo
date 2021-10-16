@@ -24,7 +24,7 @@ setuptools.setup(
     version=__version__,
     description="1QBit's quantum SDK for quantum chemistry on quantum computers and simulators",
     long_description=long_description,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     url="https://github.com/quantumsimulation/QEMIST_qSDK",
     packages=setuptools.find_packages(),
     test_suite="qsdk",
