@@ -33,16 +33,16 @@ jobs:
         pip install cirq
         pip install projectq
 
-    - name: Install Microsoft qsharp/qdk
-      run: |
-        wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-        sudo dpkg -i packages-microsoft-prod.deb
-        rm packages-microsoft-prod.deb
-        sudo apt-get update; sudo apt-get install -y apt-transport-https && sudo apt-get update
-        sudo apt-get install -y dotnet-sdk-5.0
-        dotnet tool install -g Microsoft.Quantum.IQSharp
-        $(which dotnet-iqsharp) install --user
-        pip install qsharp
+#    - name: Install Microsoft qsharp/qdk
+#      run: |
+#        wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+#        sudo dpkg -i packages-microsoft-prod.deb
+#        rm packages-microsoft-prod.deb
+#        sudo apt-get update; sudo apt-get install -y apt-transport-https && sudo apt-get update
+#        sudo apt-get install -y dotnet-sdk-5.0
+#        dotnet tool install -g Microsoft.Quantum.IQSharp
+#        $(which dotnet-iqsharp) install --user
+#        pip install qsharp
 
     - name: qsdk install
       run: |
@@ -50,11 +50,12 @@ jobs:
       if: always()
 
     - name: sphinx_doc_build
-      uses: ammaraskar/sphinx-action@master
-      with:
-        docs-folder: "docs/"
-        pre-build-command: "pip install -r docs/sphinx_requirements.txt; sudo apt-get install -y latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended pandoc dvipng"
-        build-command: "make html"
+      cd docs; pip install -r sphinx_requirements.txt; sudo apt-get install -y latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended pandoc dvipng; make html"
+#      uses: ammaraskar/sphinx-action@master
+#      with:
+#        docs-folder: "docs/"
+#        pre-build-command: "pip install -r docs/sphinx_requirements.txt; sudo apt-get install -y latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended pandoc dvipng"
+#        build-command: "make html"
       if: always()
 
     - name: qsdk tests
