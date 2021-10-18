@@ -49,8 +49,7 @@ jobs:
       if: always()
 
     - name: sphinx_doc_build
-    - uses: actions/checkout@v1
-    - uses: ammaraskar/sphinx-action@master
+      uses: ammaraskar/sphinx-action@master
       with:
         docs-folder: "docs/"
         pre-build-command: "pip install -r sphinx_requirements.txt && apt-get update -y && apt-get install -y latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended pandoc dvipng"
