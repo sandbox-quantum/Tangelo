@@ -49,10 +49,11 @@ jobs:
         python setup.py install
       if: always()
 
-    - name: sphinx_doc_buildc
+    - name: sphinx_doc_build
       run: |
-        chmod +x dev_tools/build_sphinx_docs.sh
-        source dev_tools/build_sphinx_docs.sh
+        cd dev_tools
+        chmod +x build_sphinx_docs.sh
+        source build_sphinx_docs.sh
 #        cd docs
 #        pip install -r sphinx_requirements.txt
 #        sudo apt-get install -y latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended pandoc dvipng
