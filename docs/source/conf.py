@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'qsdk'
-copyright = '2021, Valentin senicourt, Alexandre Fleury, Ryan Day, James Brown'
+copyright = '2021 1QBit'
 author = 'Valentin senicourt, Alexandre Fleury, Ryan Day, James Brown'
 
 # The full version, including alpha/beta/rc tags
