@@ -118,7 +118,7 @@ def circuit_for_exponentiated_qubit_operator(qubit_op, time=1., variational=Fals
 
 def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variational=False,
                mapping_options=dict(), control=None):
-    """Generate the circuit that represents time evolution of a qubit operator.
+    """Generate the circuit that represents time evolution of an operator.
     This circuit is generated as a trotterization of a qubit operator which is either the input
     or mapped from the given fermion operator.
     Args:
@@ -202,6 +202,14 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
 
 
 def qft_rotations(gate_list, qubit_list, prefac=1):
+    '''Returns the list of gates required for a quantum fourier transform.
+
+    Args:
+        gate_list (list): List of Gate elements
+        qubit_list (list): List of integers for which the qft operations are performed
+
+    Returns:
+        list: List of gates for rotation portion of qft circuit'''
     n = len(qubit_list)
     if n == 0:
         return gate_list
@@ -214,6 +222,13 @@ def qft_rotations(gate_list, qubit_list, prefac=1):
 
 
 def swap_registers(gate_list, qubit_list):
+    '''Function to swap register order.
+    Args:
+        gate_list (list): List of Gate
+        qubit_list (list): List of integers for the locations of the qubits
+
+    Result:
+        list: The operations that swap the register order'''
     n = len(qubit_list)
     for qubit_index in range(n//2):
         gate_list += [Gate("SWAP", target=[qubit_list[qubit_index], qubit_list[n - qubit_index - 1]])]
@@ -221,7 +236,17 @@ def swap_registers(gate_list, qubit_list):
 
 
 def qft_circuit(qubits, n_qubits_in_circuit=None, inverse=False):
-    """Returns the qft or iqft circuit given a list of qubits to act on"""
+    """Returns the QFT or iQFT circuit given a list of qubits to act on.
+
+    Args:
+        qubits (int or list): The list of qubits to apply the QFT circuit to. If an integer.
+            the operation is applied to the [0,...,qubits-1] qubits
+        n_qubits_in_circuit: Argument to initialize a Circuit with the desired number of qubits.
+        inverse (bool): If True, the inverse QFT is applied. If False, QFT is applied
+
+        Returns:
+            Circuit: The circuit that applies QFT or iQFT to qubits
+        """
     if isinstance(qubits, int):
         qubit_list = [i for i in range(qubits)]
     elif isinstance(qubits, list):
@@ -244,8 +269,17 @@ def qft_circuit(qubits, n_qubits_in_circuit=None, inverse=False):
     return Circuit(qft_gates, n_qubits=n_qubits_in_circuit)
 
 
-def controlled_pauliwords(qubit_op, control=None, n_qubits=None):
-    """Takes a qubit operator and returns controlled-pauliword circuits for each term as a list"""
+def controlled_pauliwords(qubit_op, control, n_qubits=None):
+    """Takes a qubit operator and returns controlled-pauliword circuits for each term as a list.
+
+    Args:
+        qubit_op (QubitOperator): The qubit operator with pauliwords to generate circuits for
+        control (int): The index of the control qubit
+        n_qubits (int): When generating each Circuit, create with n_qubits size
+
+    Returns:
+        list: List of controlled-pauliword Circuit for each pauliword in the qubit_op
+    """
     pauli_words = qubit_op.terms.items()
 
     pauliword_circuits = list()
@@ -311,9 +345,12 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=False):
 
     Args:
         qubit_list (list of list(int)): Each item in the list is a list of qubit registers for
-                                        each copy. The list of qubit registers must be the same.
+                                        each copy. The length of each list of qubit registers
+                                        must be the same.
         control (int): The control register to be measured.
         n_qubits (int): The number of qubits in the circuit.
+        decomp (bool): If True, uses the decomposed controlled-swap into 1- and 2-qubit gates.
+                       If False, implements the full 3-qubit operator.
     Returns:
         derangement_circuit (Circuit)
     """

@@ -23,6 +23,7 @@ necessary to account for:
 """
 from numpy import pi
 
+
 def get_cirq_gates():
     """Map gate name of the abstract format to the equivalent methods of the
     cirq class API and supported gates: https://quantumai.google/cirq/gates.
