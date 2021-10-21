@@ -15,7 +15,7 @@ from qsdk.toolboxes.ansatz_generator.ansatz_utils import trotterize, qft_circuit
 from qsdk.toolboxes.ansatz_generator.ansatz_utils import derangement_circuit, controlled_pauliwords
 
 # Initiate simulator, use cirq as it uses lsq_first like openfermion
-sim = Simulator(target="cirq")
+sims = [Simulator(target="cirq"), Simulator(target="qulacs"), Simulator(target="qiskit")]
 
 fermion_operator = mol_H4_sto3g._get_fermionic_hamiltonian()
 
@@ -45,7 +45,7 @@ class ansatz_utils_Test(unittest.TestCase):
                                                       n_electrons=mol_H4_sto3g.n_active_electrons,
                                                       mapping=mapping,
                                                       up_then_down=True)
-            _, refwave = sim.simulate(reference_circuit, return_statevector=True)
+            _, refwave = sims[0].simulate(reference_circuit, return_statevector=True)
 
             qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=fermion_operator,
                                                          mapping=mapping,
@@ -66,7 +66,7 @@ class ansatz_utils_Test(unittest.TestCase):
                                          num_trotter_steps=1,
                                          time=time,
                                          mapping_options=options)
-            _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
+            _, wavefunc = sims[0].simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
             wavefunc *= phase
             overlap = np.dot(np.conj(evolve_exact), wavefunc)
             self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
@@ -80,7 +80,7 @@ class ansatz_utils_Test(unittest.TestCase):
                                                       n_electrons=mol_H4_sto3g.n_active_electrons,
                                                       mapping=mapping,
                                                       up_then_down=True)
-            _, refwave = sim.simulate(reference_circuit, return_statevector=True)
+            _, refwave = sims[0].simulate(reference_circuit, return_statevector=True)
 
             qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=fermion_operator,
                                                          mapping=mapping,
@@ -96,7 +96,7 @@ class ansatz_utils_Test(unittest.TestCase):
                                          trotter_order=1,
                                          num_trotter_steps=1,
                                          time=time)
-            _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
+            _, wavefunc = sims[0].simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
             wavefunc *= phase
             overlap = np.dot(np.conj(evolve_exact), wavefunc)
             self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
@@ -111,7 +111,7 @@ class ansatz_utils_Test(unittest.TestCase):
                                                   n_electrons=mol_H4_sto3g.n_active_electrons,
                                                   mapping=mapping,
                                                   up_then_down=True)
-        _, refwave = sim.simulate(reference_circuit, return_statevector=True)
+        _, refwave = sims[0].simulate(reference_circuit, return_statevector=True)
 
         qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=fermion_operator,
                                                      mapping=mapping,
@@ -129,7 +129,7 @@ class ansatz_utils_Test(unittest.TestCase):
                                          trotter_order=trotter_order,
                                          num_trotter_steps=1,
                                          time=time)
-            _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
+            _, wavefunc = sims[0].simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
             wavefunc *= phase
             overlap = np.dot(np.conj(evolve_exact), wavefunc)
             self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
@@ -140,7 +140,7 @@ class ansatz_utils_Test(unittest.TestCase):
                                          trotter_order=1,
                                          num_trotter_steps=num_trotter_steps,
                                          time=time)
-            _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
+            _, wavefunc = sims[0].simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
             wavefunc *= phase
             overlap = np.dot(np.conj(evolve_exact), wavefunc)
             self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
@@ -161,7 +161,7 @@ class ansatz_utils_Test(unittest.TestCase):
 
         # Build referenc circuit and obtain reference wavefunction
         reference_circuit = Circuit([Gate('X', 0), Gate('X', 3)], n_qubits=4)
-        _, refwave = sim.simulate(reference_circuit, return_statevector=True)
+        _, refwave = sims[0].simulate(reference_circuit, return_statevector=True)
 
         evolve_exact = refwave
         total_fermion_operator = FermionOperator()
@@ -179,7 +179,7 @@ class ansatz_utils_Test(unittest.TestCase):
                                      trotter_order=1,
                                      num_trotter_steps=1,
                                      time=time)
-        _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
+        _, wavefunc = sims[0].simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
         wavefunc *= phase
 
         overlap = np.dot(np.conj(evolve_exact), wavefunc)
@@ -199,7 +199,7 @@ class ansatz_utils_Test(unittest.TestCase):
 
         # Generate initial wavefunction
         reference_circuit = Circuit([Gate('X', 0), Gate('X', 3)], n_qubits=4)
-        _, refwave = sim.simulate(reference_circuit, return_statevector=True)
+        _, refwave = sims[0].simulate(reference_circuit, return_statevector=True)
 
         # Exactly evolve for each time step
         evolve_exact = refwave
@@ -215,7 +215,7 @@ class ansatz_utils_Test(unittest.TestCase):
                                      trotter_order=1,
                                      num_trotter_steps=1,
                                      time=time)
-        _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
+        _, wavefunc = sims[0].simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
         wavefunc *= phase
 
         overlap = np.dot(np.conj(evolve_exact), wavefunc)
@@ -236,9 +236,10 @@ class ansatz_utils_Test(unittest.TestCase):
         pe_circuit += Circuit(controlled_unitaries, n_qubits=n_qubits)
         iqft = qft_circuit(qubit_list, n_qubits_in_circuit=n_qubits, inverse=True)
         pe_circuit += iqft
-        freqs, _ = sim.simulate(pe_circuit)
-        target_freq_dict = {'1000': 0.5, '1001': 0.5}  # 1 * 1/2 + 0 * 1/4 + 0 * 1/8
-        assert_freq_dict_almost_equal(target_freq_dict, freqs, atol=1.e-7)
+        for sim in sims:
+            freqs, _ = sim.simulate(pe_circuit)
+            target_freq_dict = {'1000': 0.5, '1001': 0.5}  # 1 * 1/2 + 0 * 1/4 + 0 * 1/8
+            assert_freq_dict_almost_equal(target_freq_dict, freqs, atol=1.e-7)
 
     def test_controlled_time_evolution_by_phase_estimation(self):
         """ Verify that the time evolution is correct for a QubitOperator input with different times
@@ -276,14 +277,15 @@ class ansatz_utils_Test(unittest.TestCase):
                 pe_circuit += u_circuit[0]
         iqft = qft_circuit(qubit_list, n_qubits_in_circuit=n_qubits, inverse=True)
         pe_circuit += iqft
-        freqs, _ = sim.simulate(pe_circuit, initial_statevector=ground_wave)
-        trace_freq = dict()
-        for key, value in freqs.items():
-            if key[-4:] in trace_freq:
-                trace_freq[key[-4:]] += value
-            else:
-                trace_freq[key[-4:]] = value
-        self.assertAlmostEqual(trace_freq['0100'], 1.0, delta=2)
+        for sim in sims:
+            freqs, _ = sim.simulate(pe_circuit, initial_statevector=ground_wave)
+            trace_freq = dict()
+            for key, value in freqs.items():
+                if key[-4:] in trace_freq:
+                    trace_freq[key[-4:]] += value
+                else:
+                    trace_freq[key[-4:]] = value
+            self.assertAlmostEqual(trace_freq['0100'], 1.0, delta=2)
 
     def test_controlled_swap(self):
         cswap = Circuit([Gate('CSWAP', target=[1, 2], control=0)], n_qubits=3)
@@ -291,14 +293,16 @@ class ansatz_utils_Test(unittest.TestCase):
         # initialize in '110', returns '101'
         init_gates = [Gate('X', target=0), Gate('X', target=1)]
         circuit = Circuit(init_gates, n_qubits=3) + cswap
-        freqs, _ = sim.simulate(circuit, return_statevector=True)
-        assert_freq_dict_almost_equal({'101': 1.0}, freqs, atol=1.e-7)
+        for sim in sims:
+            freqs, _ = sim.simulate(circuit, return_statevector=True)
+            assert_freq_dict_almost_equal({'101': 1.0}, freqs, atol=1.e-7)
 
         # initialize in '010' returns '010'
         init_gates = [Gate('X', target=1)]
         circuit = Circuit(init_gates, n_qubits=3) + cswap
-        freqs, _ = sim.simulate(circuit, return_statevector=True)
-        assert_freq_dict_almost_equal({'010': 1.0}, freqs, atol=1.e-7)
+        for sim in sims:
+            freqs, _ = sim.simulate(circuit, return_statevector=True)
+            assert_freq_dict_almost_equal({'010': 1.0}, freqs, atol=1.e-7)
 
     def test_derangement_circuit_by_estimating_pauli_string(self):
         """ Verify that tr(rho^3 pa) for a pauliword pa is correct.
@@ -331,7 +335,7 @@ class ansatz_utils_Test(unittest.TestCase):
         rho3_pa_circuit += Circuit([Gate('H', target=12)], n_qubits=n_qubits)
 
         exp_op = QubitOperator('Z8', 1)
-        measured = sim.get_expectation_value(exp_op, rho3_pa_circuit, initial_statevector=full_start_vec)
+        measured = sims[0].get_expectation_value(exp_op, rho3_pa_circuit, initial_statevector=full_start_vec)
         self.assertAlmostEqual(measured, exact, places=6)
 
 
