@@ -197,7 +197,8 @@ class Simulator:
 
             # Noiseless simulation using the statevector simulator otherwise
             else:
-                backend = qiskit.BasicAer.get_backend('statevector_simulator')
+                backend = qiskit.Aer.get_backend('aer_simulator', method='statevector')
+                translated_circuit.save_statevector()
                 sim_results = backend.run(qiskit.transpile(translated_circuit, backend)).result()
                 self._current_state = sim_results.get_statevector(translated_circuit)
                 frequencies = self._statevector_to_frequencies(self._current_state)
