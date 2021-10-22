@@ -334,7 +334,7 @@ class ansatz_utils_Test(unittest.TestCase):
         rho3_pa_circuit += derange_circuit + cpas[0]
         rho3_pa_circuit += Circuit([Gate('H', target=12)], n_qubits=n_qubits)
 
-        exp_op = QubitOperator('Z8', 1)
+        exp_op = QubitOperator('Z12', 1)
         measured = sims[0].get_expectation_value(exp_op, rho3_pa_circuit, initial_statevector=full_start_vec)
         self.assertAlmostEqual(measured, exact, places=6)
 
