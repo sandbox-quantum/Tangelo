@@ -141,10 +141,7 @@ class Circuit:
         Returns:
             Circuit: the inverted circuit
         '''
-        gate_list = []
-        for gate in reversed(self._gates):
-            new_gate = copy(gate)
-            if new_gate.parameter:
-                new_gate.parameter = -1 * new_gate.parameter
-            gate_list.append(new_gate)
+        gate_list = list(reversed(self._gates.copy()))
+        for gate in gate_list:
+            gate.parameter = -gate.parameter if gate.parameter else ""
         return Circuit(gate_list)
