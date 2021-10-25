@@ -48,8 +48,9 @@ def translate_cirq(source_circuit, noise_model=None):
 
         Args:
             source_circuit: quantum circuit in the abstract format
+
         Returns:
-            target_circuit: a corresponding cirq Circuit. Right now, the
+            cirq.Circuit: a corresponding cirq Circuit. Right now, the
                             structure is of LineQubit. It is possible in the
                             future that we may support NamedQubit or GridQubit
     """

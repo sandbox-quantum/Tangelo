@@ -23,8 +23,9 @@ def measurement_basis_gates(term):
 
         Args:
             term: Openfermion-style term. Essentially a list of (int, str) tuples.
+
         Returns:
-            A list containing the rotation gates.
+            list of Gate: A list containing the rotation gates.
     """
     gates = []
     for qubit_index, pauli in term:

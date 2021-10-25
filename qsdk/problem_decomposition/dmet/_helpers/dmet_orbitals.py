@@ -108,12 +108,11 @@ class dmet_orbitals:
                 (float64).
 
         Returns:
-            frag_oneint (numpy.array): One-electron integrals for fragment
-                calculation (float64).
-            frag_fock (numpy.array): The fock matrix for fragment calculation
+            numpy.array: One-electron integrals for fragment calculation
                 (float64).
-            frag_twoint (numpy.array): Two-electron integrals for fragment
-                calculation (float64).
+            numpy.array: The fock matrix for fragment calculation (float64).
+            numpy.array: Two-electron integrals for fragment calculation
+                (float64).
         """
 
         # Calculate one-electron integrals

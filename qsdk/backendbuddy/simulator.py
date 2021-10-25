@@ -97,7 +97,7 @@ class Simulator:
                 initial_statevector(list/array) : A valid statevector in the format supported by the target backend
 
             Returns:
-                A tuple containing a dictionary mapping multi-qubit states to their corresponding frequency, and
+                (dict, numpy.array): A tuple containing a dictionary mapping multi-qubit states to their corresponding frequency, and
                 the statevector, if available for the target backend and requested by the user (if not, set to None).
         """
 
@@ -187,7 +187,7 @@ class Simulator:
 
             # Noiseless simulation using the statevector simulator otherwise
             else:
-                backend = qiskit.Aer.get_backend("aer_simulator", method='statevector') 
+                backend = qiskit.Aer.get_backend("aer_simulator", method='statevector')
                 save_state_circuit = qiskit.QuantumCircuit(source_circuit.width, source_circuit.width)
                 save_state_circuit.save_statevector()
                 translated_circuit = translated_circuit.compose(save_state_circuit)
@@ -265,7 +265,7 @@ class Simulator:
                 state_prep_circuit: an abstract circuit used for state preparation
 
             Returns:
-                The expectation value of this operator with regards to the state preparation
+                complex: The expectation value of this operator with regards to the state preparation
         """
         # Check if simulator supports statevector
         if initial_statevector is not None and not self.statevector_available:
@@ -310,7 +310,7 @@ class Simulator:
                 state_prep_circuit: an abstract circuit used for state preparation (only pure states)
 
             Returns:
-                The expectation value of this operator with regards to the state preparation
+                complex: The expectation value of this operator with regards to the state preparation
         """
         n_qubits = state_prep_circuit.width
 
@@ -387,7 +387,7 @@ class Simulator:
                 state_prep_circuit: an abstract circuit used for state preparation
 
             Returns:
-                The expectation value of this operator with regards to the state preparation
+                complex: The expectation value of this operator with regards to the state preparation
         """
         n_qubits = state_prep_circuit.width
         if not self.statevector_available or state_prep_circuit.is_mixed_state or self._noise_model:
@@ -427,7 +427,7 @@ class Simulator:
                 frequencies(dict): histogram of frequencies of measurements (assumed to be in lsq-first format)
 
             Returns:
-                The expectation value of this operator with regards to the state preparation
+                complex: The expectation value of this operator with regards to the state preparation
         """
 
         if not frequencies.keys():
@@ -459,7 +459,7 @@ class Simulator:
                 statevector(list or ndarray(complex)): an iterable 1D data-structure containing the amplitudes
 
             Returns:
-                A dictionary whose keys are bitstrings representing the multi-qubit states with the least significant
+                dict: A dictionary whose keys are bitstrings representing the multi-qubit states with the least significant
                 qubit first (e.g '100' means qubit 0 in state |1>, and qubit 1 and 2 in state |0>), and the associated
                 value is the corresponding frequency. Unless threshold=0., this dictionary will be sparse.
         """

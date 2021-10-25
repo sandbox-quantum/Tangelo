@@ -56,7 +56,7 @@ class MINDO3Solver(ElectronicStructureSolver):
         """Perform the simulation (energy calculation) for the molecule.
 
         Returns:
-            total_energy (float): RMINDO3 energy.
+            float: RMINDO3 energy.
         """
 
         solver = mindo3.RMINDO3(self.molecule.to_pyscf()).run(verbose=0)

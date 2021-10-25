@@ -53,7 +53,7 @@ class ElectronicStructureSolver(abc.ABC):
 
         Returns:
             (numpy.array, numpy.array): The one- and two-particle RDMs
-            (float64).
+                (float64).
 
         Raises:
             RuntimeError: If no simulation has been run.

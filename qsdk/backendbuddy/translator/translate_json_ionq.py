@@ -39,8 +39,9 @@ def translate_json_ionq(source_circuit):
 
         Args:
             source_circuit: quantum circuit in the abstract format
+
         Returns:
-            json_ionq_circ (dict): representation of the quantum circuit following the IonQ JSON format
+            dict: representation of the quantum circuit following the IonQ JSON format
     """
 
     GATE_JSON_IONQ = get_ionq_gates()

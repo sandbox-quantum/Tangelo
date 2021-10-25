@@ -38,9 +38,10 @@ def group_qwc(qb_ham, seed=None):
         Args:
             operator (QubitOperator): the operator that will be split into sub-operators (tensor product basis sets).
             seed (int): default None. Random seed used to initialize the numpy.RandomState pseudo-RNG.
+
         Returns:
-            sub_operators (dict): a dictionary where each key defines a tensor product basis,
-            and each corresponding value is a QubitOperator with terms that are all diagonal in that basis.
+            dict: a dictionary where each key defines a tensor product basis, and each corresponding value is a
+                QubitOperator with terms that are all diagonal in that basis.
     """
 
     return group_into_tensor_product_basis_sets(qb_ham, seed)
@@ -56,8 +57,9 @@ def exp_value_from_measurement_bases(sub_ops, histograms):
         Args:
             sub_ops (dict): Maps measurement bases to suboperators whose exp. value can be computed from it
             histograms (dict): Maps measurement bases to histograms corresponding to that quantum circuit
+
         Returns:
-            exp_value (float or complex): Expectation value of the sum of all suboperators
+            float or complex: Expectation value of the sum of all suboperators
     """
 
     # Warning if dicts dont have exact set of keys

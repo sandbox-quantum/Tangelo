@@ -258,7 +258,7 @@ class SecondQuantizedMolecule(Molecule):
                                                 run_ccsd=False,
                                                 run_fci=False)
 
-        self.mf_energy =of_molecule.hf_energy
+        self.mf_energy = of_molecule.hf_energy
         self.mo_energies = of_molecule.orbital_energies
         self.mo_occ = of_molecule._pyscf_data["scf"].mo_occ
 

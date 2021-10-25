@@ -36,7 +36,7 @@ def dmet_fragment_guess(t_list, bath_orb, chemical_potential, norb_high, number_
             calculation (float64).
 
     Returns:
-        frag_guess (numpy.array): The guess orbitals (float64).
+        numpy.array: The guess orbitals (float64).
     """
 
     # Construct the fock matrix of the fragment (subtract the chemical potential for consistency)

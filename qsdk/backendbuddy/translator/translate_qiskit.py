@@ -49,6 +49,7 @@ def translate_qiskit(source_circuit):
 
         Args:
             source_circuit: quantum circuit in the abstract format
+
         Returns:
             qiskit.QuantumCircuit: the corresponding qiskit quantum circuit
     """

@@ -50,8 +50,9 @@ def translate_braket(source_circuit):
 
         Args:
             source_circuit: quantum circuit in the abstract format
+
         Returns:
-            target_circuit (braket.circuits.Circuit): quantum circuit in Python Braket SDK format
+            braket.circuits.Circuit: quantum circuit in Python Braket SDK format
     """
 
     from braket.circuits import Circuit as BraketCircuit

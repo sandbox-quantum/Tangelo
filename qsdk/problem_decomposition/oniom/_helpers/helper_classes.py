@@ -168,7 +168,7 @@ class Fragment:
             options_solver (dict): Options for the solver.
 
         Returns:
-            Solver object or string.
+            ElectronicStructureSolver: Solver object or string.
         """
 
         if solver_string == "RHF":
@@ -235,7 +235,8 @@ class Link:
                 [[str,tuple(float,float,float)],...].
 
         Returns:
-            Atomic species, and position of replacement atom.
+            str: Atomic species.
+            (float, float, float): Position of replacement atom.
         """
 
         staying = np.array(geometry[self.staying][1])

@@ -34,8 +34,9 @@ def get_measurement_estimate(qb_op, digits=3, method="uniform"):
     Args:
         qb_op: qubit operator
         digits (integer): number of digits of accuracy desired on expectation value
+
     Returns:
-        measurements (dict): Dictionary mapping terms / measurement bases to their number of measurements
+        dict: Dictionary mapping terms / measurement bases to their number of measurements
     """
 
     available_methods = {'uniform'}

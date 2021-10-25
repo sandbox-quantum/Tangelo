@@ -49,8 +49,9 @@ def translate_openqasm(source_circuit):
 
         Args:
             source_circuit: quantum circuit in the abstract format
+
         Returns:
-            openqasm_string(str): the corresponding OpenQASM program, as per IBM Qiskit
+            str: the corresponding OpenQASM program, as per IBM Qiskit
     """
     from .translate_qiskit import translate_qiskit
 
@@ -67,8 +68,9 @@ def _translate_openqasm2abs(openqasm_str):
 
         Args:
             openqasm_string(str): an OpenQASM program, as a string, as defined by IBM Qiskit
+
         Returns:
-            abs_circ: corresponding quantum circuit in the abstract format
+            Circuit: corresponding quantum circuit in the abstract format
     """
 
     def parse_param(s):

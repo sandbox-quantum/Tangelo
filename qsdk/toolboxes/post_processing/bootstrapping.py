@@ -27,8 +27,7 @@ def get_resampled_frequencies(freq_dict, ncount):
         ncount (int): number of shots/samples to generate resampled frequencies.
 
     Returns
-        frequencies (dict): new frequencies dictionary with resampled
-            distribution.
+        dict: new frequencies dictionary with resampled distribution.
     """
 
     length_dict = len(freq_dict.keys())

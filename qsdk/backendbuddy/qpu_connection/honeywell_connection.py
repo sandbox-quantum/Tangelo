@@ -94,8 +94,9 @@ class HoneywellConnection(QpuConnection):
             n_shots (int): number of shots
             job_name (str): name to make the job more identifiable
             **job_specs: extra arguments such as `max_cost` or `options` in the code below
+
         Returns:
-            job_id (str): alphanumeric character string representing the job id
+            str: alphanumeric character string representing the job id
         """
 
         # Honeywell does not support openqasm comments: remove them before submission
@@ -123,8 +124,9 @@ class HoneywellConnection(QpuConnection):
 
         Args:
             job_id (str): alphanumeric character string representing the job id
+
         Returns:
-            job_status (dict): status response from the Honeywell REST API
+            dict: status response from the Honeywell REST API
         """
 
         option = "?websocket=true"
@@ -140,8 +142,9 @@ class HoneywellConnection(QpuConnection):
 
         Args:
             job_id (str): alphanumeric character string representing the job id
+
         Returns:
-            job_status (dict): status response from the Honeywell REST API
+            dict: status response from the Honeywell REST API
         """
 
         # The only way to retrieve the results, see if a job submission was incorrect, etc, is to look at the job info
@@ -161,7 +164,7 @@ class HoneywellConnection(QpuConnection):
         """ Blocking call querying the REST API at a given frequency, until job results are available.
 
         Args:
-            job_id (str): alphanumeric character string representing the job id
+            str: alphanumeric character string representing the job id
         """
         job_cancel = rq.post(self.endpoint+"/job/"+job_id+"/cancel", headers=self.header, data={})
         job_cancel = json.loads(job_cancel.text)

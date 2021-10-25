@@ -45,8 +45,9 @@ def translate_projectq(source_circuit):
 
         Args:
             source_circuit: quantum circuit in the abstract format
+
         Returns:
-            projectq_circuit(str): the corresponding projectq instructions (allocation , gates, deallocation)
+            str: the corresponding projectq instructions (allocation , gates, deallocation)
     """
 
     GATE_PROJECTQ = get_projectq_gates()
@@ -77,8 +78,9 @@ def _translate_projectq2abs(projectq_str):
 
         Args:
             projectq_str(str): ProjectQ program, as a string (Allocate, Deallocate, gate operations...)
+
         Returns:
-            abs_circ: corresponding quantum circuit in the abstract format
+            Circuit: corresponding quantum circuit in the abstract format
     """
 
     # Get dictionary of gate mapping, as the reverse dictionary of abs -> projectq translation

@@ -51,6 +51,7 @@ def translate_qulacs(source_circuit, noise_model=None):
         Args:
             source_circuit: quantum circuit in the abstract format
             noise_model: A NoiseModel object from this package, located in the noisy_simulation subpackage
+
         Returns:
             qulacs.QuantumCircuit: the corresponding qulacs quantum circuit
     """

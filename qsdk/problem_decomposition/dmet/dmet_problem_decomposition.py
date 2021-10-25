@@ -573,7 +573,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             var_params (list): The variational parameters (float).
 
         Returns:
-            The optimal chemical potential found by the optimizer.
+            complex: The optimal chemical potential found by the optimizer.
         """
 
         result = scipy.optimize.newton(func, var_params, tol=1e-5)

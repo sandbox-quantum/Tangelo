@@ -86,8 +86,9 @@ class IonQConnection(QpuConnection):
             n_shots (int): number of shots (ignored if target_backend is set to `simulator`
             job_name (str): name to make the job more identifiable
             **job_specs: extra arguments such as `lang` in the code below; `metadata` is not currently supported.
+
         Returns:
-            job_id (str): string representing the job id
+            str: string representing the job id
         """
 
         payload = {"target": target_backend,
@@ -109,8 +110,9 @@ class IonQConnection(QpuConnection):
 
         Args:
             job_id (str): alphanumeric character string representing the job id
+
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API
         """
 
         job_history = rq.get(self.endpoint + '/jobs', headers=self.header)
@@ -124,8 +126,9 @@ class IonQConnection(QpuConnection):
 
         Args:
             job_id (str): string representing the job id
+
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API
         """
 
         job_status = rq.get(self.endpoint + "/jobs/" + job_id, headers=self.header)
@@ -139,8 +142,9 @@ class IonQConnection(QpuConnection):
 
         Args:
             job_id (str): string representing the job id
+
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API
         """
 
         while True:
@@ -157,8 +161,9 @@ class IonQConnection(QpuConnection):
 
         Args:
             job_id (str): string representing the job id
+
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API
         """
         job_cancel = rq.delete(self.endpoint+"/jobs/"+job_id, headers=self.header)
         job_cancel = json.loads(job_cancel.text)

@@ -44,8 +44,9 @@ def translate_qsharp(source_circuit, operation="MyQsharpOperation"):
         Args:
             source_circuit: quantum circuit in the abstract format
             operation (str), optional: name of the Q# operation
+
         Returns:
-            The Q# code (operation + template). This needs to be written into a .qs file, and compiled at runtime
+            str: The Q# code (operation + template). This needs to be written into a .qs file, and compiled at runtime
     """
 
     GATE_QDK = get_qdk_gates()

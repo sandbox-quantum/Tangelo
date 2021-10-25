@@ -34,7 +34,7 @@ def job_submit(circuit, n_shots, backend):
         backend (str): the identifier string for the desired backend
 
     Returns:
-        job_id (int): A problem handle / job ID that can be used to retrieve the result or cancel the problem.
+        int: A problem handle / job ID that can be used to retrieve the result or cancel the problem.
     """
 
     # Serialize circuit data
@@ -58,7 +58,7 @@ def job_status(qemist_cloud_job_id):
             qemist_cloud_job_id (int): problem handle / job identifier
 
         Returns:
-            status (str): current status of the problem, as a string
+            str: current status of the problem, as a string
     """
     return util.get_problem_status(qemist_cloud_job_id)
 
@@ -71,7 +71,7 @@ def job_cancel(qemist_cloud_job_id):
             qemist_cloud_job_id (int): problem handle / job identifier
 
         Returns:
-            res (dict): cancelled problems / subproblems
+            dict: cancelled problems / subproblems
     """
 
     res = util.cancel_problems(qemist_cloud_job_id)
@@ -89,8 +89,8 @@ def job_result(qemist_cloud_job_id):
             qemist_cloud_job_id (int): problem handle / job identifier
 
         Returns:
-            freqs (dict): histogram of measurement frequencies
-            raw_data (dict): cloud provider raw data coming out as as nested dictionary
+            (dict, dict): histogram of measurement frequencies and a cloud
+                provider raw data coming out as as nested dictionary.
     """
 
     try:
@@ -139,8 +139,7 @@ def job_estimate(circuit, n_shots):
         n_shots (int): number of shots in the expriment.
 
     Returns:
-        A dictionary of floating-point values (prices) in USD.
-
+        dict: A dictionary of floating-point values (prices) in USD.
     """
 
     # Compute prices for each available backend (see provider formulas)

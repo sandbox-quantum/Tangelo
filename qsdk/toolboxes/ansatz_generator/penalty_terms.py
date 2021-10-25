@@ -42,7 +42,7 @@ def number_operator_penalty(n_orbs, n_electrons, mu=1, up_then_down=False):
             mapping handle the ordering.
 
     Returns:
-        (FermionicOperator): The number operator penalty term
+        FermionicOperator: The number operator penalty term
             mu*(\hat{N}-n_electrons)^2.
     """
 
@@ -65,7 +65,7 @@ def spin_operator_penalty(n_orbs, sz, mu=1, up_then_down=False):
             mapping handle the ordering.
 
     Returns:
-        (FermionicOperator): The Sz operator penalty term mu*(\hat{Sz}-sz)^2.
+        FermionicOperator: The Sz operator penalty term mu*(\hat{Sz}-sz)^2.
     """
 
     all_terms = [[(), -sz]] + spinz_operator_list(n_orbs, up_then_down)
@@ -91,7 +91,7 @@ def spin2_operator_penalty(n_orbs, s2, mu=1, up_then_down=False):
             mapping handle the ordering.
 
     Returns:
-        (FermionicOperator): The S^2 operator penalty term mu*(\hat{S}^2-s2)^2.
+        FermionicOperator: The S^2 operator penalty term mu*(\hat{S}^2-s2)^2.
     """
 
     all_terms = [[(), -s2]] + spin2_operator_list(n_orbs, up_then_down)
@@ -123,7 +123,7 @@ def combined_penalty(n_orbs, opt_penalty_terms=None, up_then_down=False):
             mapping handle this.
 
     Returns:
-        pen_ferm (FermionicOperator): The combined n_electron+sz+s^2 penalty
+        FermionicOperator: The combined n_electron+sz+s^2 penalty
             terms.
     """
 
