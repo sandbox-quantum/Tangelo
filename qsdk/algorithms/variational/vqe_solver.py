@@ -453,11 +453,15 @@ class VQESolver:
 
         with HiddenPrints():
             result = minimize(func, var_params, method="SLSQP",
-                            options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
+                options={"disp": True, "maxiter": 2000, "eps": 1e-5,
+                "ftol": 1e-5})
 
         if self.verbose:
-            print(f"\t\tOptimal VQE energy: {self.optimal_energy}")
-            print(f"\t\tOptimal VQE variational parameters: {self.optimal_var_params}")
-            print(f"\t\tNumber of Function Evaluations : {result.nfev}")
+            print(f"VQESolver optimization results:")
+            print(f"\tOptimal VQE energy: {result.fun}")
+            print(f"\tOptimal VQE variational parameters: {result.x}")
+            print(f"\tNumber of Iterations : {result.nit}")
+            print(f"\tNumber of Function Evaluations : {result.nfev}")
+            print(f"\tNumber of Gradient Evaluations : {result.njev}")
 
         return result.fun, result.x
