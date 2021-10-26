@@ -43,6 +43,25 @@ class TestGates(unittest.TestCase):
         for gate in [H_gate, CNOT_gate, RX_gate, RZ_gate, CCCX_gate]:
             print(gate)
 
+    def test_some_gates_inverse(self):
+        """ Test that some basic gates can be inverted with a few different parameters, and fails when non-invertable
+        parameters are passed"""
+
+        # Create a Hadamard gate acting on qubit 2
+        H_gate = Gate("H", 2)
+        H_gate_inverse = Gate("H", 2)
+        self.assertEqual(H_gate.inverse().__str__(), H_gate_inverse.__str__())
+
+        # Create a parameterized rotation on qubit 1 with angle 2 radians
+        RX_gate = Gate("RX", 1, parameter=2.)
+        RX_gate_inverse = Gate("RX", 1, parameter=-2.)
+        self.assertEqual(RX_gate.inverse().__str__(), RX_gate_inverse.__str__())
+
+        # Create a parameterized rotation on qubit 1 , with an undefined angle, that will be variational
+        RZ_gate = Gate("RZ", 1, parameter="an expression", is_variational=True)
+        with self.assertRaises(AttributeError):
+            RZ_gate.inverse()
+
     def test_incorrect_gate(self):
         """ Test to catch a gate with inputs that do not make sense """
 

@@ -136,12 +136,12 @@ class Circuit:
     def inverse(self):
         '''Return the inverse (adjoint) of a circuit
 
-        This is performed by reversing the Gate order and flipping the sign of the parameters of each Gate.
+        This is performed by reversing the Gate order and applying the inverse to each Gate.
 
         Returns:
             Circuit: the inverted circuit
         '''
-        gate_list = list(reversed(self._gates.copy()))
-        for gate in gate_list:
-            gate.parameter = -gate.parameter if gate.parameter else ""
+        gate_list = list()
+        for gate in reversed(self._gates):
+            gate_list.append(gate.inverse())
         return Circuit(gate_list)

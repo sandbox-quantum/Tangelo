@@ -104,3 +104,23 @@ class Gate(dict):
         return {"type": "Gate",
                 "params": {"name": self.name, "target": self.target,
                            "control": self.control, "parameter": self.parameter}}
+
+    def inverse(self):
+        """Returns the inverse (adjoint) of a gate.
+
+        Return:
+            Gate: the inverse of the gate.
+        """
+        if self.name not in INVERTABLE_GATES:
+            raise AttributeError(f"{self.gate} is not an invertable gate")
+        if self.parameter == "":
+            new_parameter = ""
+        elif isinstance(self.parameter, (float, int)):
+            new_parameter = -self.parameter
+        else:
+            raise AttributeError(f"{self.name} is not an invertable gate when parameter is {self.parameter}")
+        return Gate(name=self.name,
+                    target=self.target,
+                    control=self.control,
+                    parameter=new_parameter,
+                    is_variational=self.is_variational)
