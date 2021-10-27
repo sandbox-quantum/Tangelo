@@ -20,7 +20,11 @@ import warnings
 import copy
 from dataclasses import dataclass, field
 import numpy as np
-from pyscf import gto, scf
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore")
+    from pyscf import gto, scf
+
 import openfermion
 import openfermionpyscf
 
