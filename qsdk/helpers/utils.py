@@ -34,9 +34,7 @@ class HiddenPrints:
 
 def is_package_installed(package_name):
     try:
-        # Hiding prints removes the Preparing Q# envrionement...
-        with HiddenPrints():
-            exec(f"import {package_name}")
+        exec(f"import {package_name}")
         # DEBUG print(f'{package_name:16s} :: found')
         return True
     except ModuleNotFoundError:
