@@ -103,7 +103,8 @@ class FCISolver(ElectronicStructureSolver):
         """Compute the Full CI 1- and 2-particle reduced density matrices.
 
         Returns:
-            (numpy.array, numpy.array): One & two-particle RDMs.
+            numpy.array: One-particle RDM.
+            numpy.array: Two-particle RDM.
 
         Raises:
             RuntimeError: If method "simulate" hasn't been run.

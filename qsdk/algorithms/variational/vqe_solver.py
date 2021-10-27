@@ -446,8 +446,8 @@ class VQESolver:
             var_params (list): The variational parameters (float64).
 
         Returns:
-            (float, list of floats): The optimal energy and optimal parameters
-                found by the optimizer.
+            float: The optimal energy found by the optimizer.
+            list of floats: Optimal parameters
         """
 
         from scipy.optimize import minimize

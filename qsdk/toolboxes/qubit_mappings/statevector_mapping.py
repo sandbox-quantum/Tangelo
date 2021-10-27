@@ -92,7 +92,7 @@ def do_scbk_transform(n_spinorbitals, n_electrons):
 
     Args:
         n_spinorbitals (int): number of qubits in register.
-        n_electrons (int): number of fermions occupied
+        n_electrons (int): number of fermions occupied.
 
     Returns:
         numpy array of int: qubit-encoded occupation vector.
@@ -113,7 +113,7 @@ def vector_to_circuit(vector):
         vector (numpy array of int): occupation vector.
 
     Returns:
-        Circuit: instance of qsdk.backendbuddy Circuit class
+        Circuit: instance of qsdk.backendbuddy Circuit class.
     """
 
     n_qubits = len(vector)
@@ -142,7 +142,7 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
         spin (int): 2*S = n_alpha - n_beta.
 
     Returns:
-        Circuit: instance of qsdk.backendbuddy Circuit class
+        Circuit: instance of qsdk.backendbuddy Circuit class.
     """
     vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down, spin=spin)
     circuit = vector_to_circuit(vector)

@@ -56,7 +56,7 @@ def get_fermion_operator(operator):
         operator (SymbolicOperator): input operator to be cast.
 
     Returns:
-        FermionOperator.
+        FermionOperator: Self-explanatory.
     """
     if not isinstance(operator, Iterable):
         raise TypeError("Input must be iterable suitable for casting to FermionOperator type.")

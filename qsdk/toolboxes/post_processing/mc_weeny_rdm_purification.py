@@ -32,8 +32,9 @@ def mcweeny_purify_2rdm(rdm2_spin, conv=1.0e-07):
             purification.
 
     Returns:
-        (numpy.array, numpy.array): One- and two-particle RDMs in spatial
-            orbital basis (in chemistry notation).
+        numpy.array: One-particle RDM in spatial orbital basis.
+        numpy.array: Two-particle RDM in spatial orbital basis (in chemistry
+            notation).
     """
 
     n_spinorbitals = rdm2_spin.shape[0]

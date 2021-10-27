@@ -124,13 +124,13 @@ class Molecule:
         return mol
 
     def to_openfermion(self, basis="sto-3g"):
-        """ Method to return a openfermion.MolecularData object.
+        """Method to return a openfermion.MolecularData object.
 
-            Args:
-                basis (string): Basis set.
+        Args:
+            basis (string): Basis set.
 
-            Returns:
-                openfermion.MolecularData: Openfermion compatible object.
+        Returns:
+            openfermion.MolecularData: Openfermion compatible object.
         """
 
         return openfermion.MolecularData(self.xyz, basis, self.spin+1, self.q)

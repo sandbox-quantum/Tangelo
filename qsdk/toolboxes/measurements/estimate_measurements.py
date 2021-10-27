@@ -12,31 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    This file provides functions allowing users to estimate the number of measurements that are needed to
-    approximate the expectation values of some qubit operators up to a given accuracy.
+"""This file provides functions allowing users to estimate the number of
+measurements that are needed to approximate the expectation values of some qubit
+operators up to a given accuracy.
 
-    The functions range from simple general heuristics to more complex approaches that may leverage our knowledge
-    of the quantum state.
+The functions range from simple general heuristics to more complex approaches
+that may leverage our knowledge of the quantum state.
 """
 
 import math
 
 
 def get_measurement_estimate(qb_op, digits=3, method="uniform"):
-    """ Given a qubit operator and a level of accuracy, computes the number of measurements required by each term
-     of the qubit operator to reach the accuracy provided by the user when computing expectation values, returns it
-     as a dictionary mapping measurement basis to number of measurements.
+    """Given a qubit operator and a level of accuracy, computes the number of
+    measurements required by each term of the qubit operator to reach the
+    accuracy provided by the user when computing expectation values, returns it
+    as a dictionary mapping measurement basis to number of measurements.
 
-     "uniform" method makes no assumption about the underlying probability distribution resulting from the quantum
-     state preparation circuit. The rule of thumb is "Multiply number of samples by 100 for each digit of accuracy".
+    "uniform" method makes no assumption about the underlying probability
+    distribution resulting from the quantum state preparation circuit. The rule
+    of thumb is "Multiply number of samples by 100 for each digit of accuracy".
 
     Args:
-        qb_op: qubit operator
-        digits (integer): number of digits of accuracy desired on expectation value
+        qb_op: qubit operator.
+        digits (integer): number of digits of accuracy desired on expectation
+            value.
 
     Returns:
-        dict: Dictionary mapping terms / measurement bases to their number of measurements
+        dict: Dictionary mapping terms / measurement bases to their number of
+            measurements.
     """
 
     available_methods = {'uniform'}

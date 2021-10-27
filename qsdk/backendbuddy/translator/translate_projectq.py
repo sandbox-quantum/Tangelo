@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Functions helping with quantum circuit format conversion between abstract format and projectq format
+"""Functions helping with quantum circuit format conversion between abstract
+format and projectq format
 
-    In order to produce an equivalent circuit for the target backend, it is necessary to account for:
-    - how the gate names differ between the source backend to the target backend
-    - how the order and conventions for some of the inputs to the gate operations may also differ
+In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations
+    may also differ.
 """
 
 import re
@@ -25,9 +27,9 @@ from qsdk.backendbuddy import Gate, Circuit
 
 
 def get_projectq_gates():
-    """
-        Map gate name of the abstract format to the equivalent gate name used in projectq
-        API and supported gates: https://projectq.readthedocs.io/en/latest/projectq.ops.html
+    """Map gate name of the abstract format to the equivalent gate name used in
+    projectq API and supported gates:
+    https://projectq.readthedocs.io/en/latest/projectq.ops.html
     """
 
     GATE_PROJECTQ = dict()
@@ -41,13 +43,15 @@ def get_projectq_gates():
 
 
 def translate_projectq(source_circuit):
-    """ Take in an abstract circuit, return a string containing equivalent projectq instructions
+    """Take in an abstract circuit, return a string containing equivalent
+    projectq instructions.
 
-        Args:
-            source_circuit: quantum circuit in the abstract format
+    Args:
+        source_circuit: quantum circuit in the abstract format.
 
-        Returns:
-            str: the corresponding projectq instructions (allocation , gates, deallocation)
+    Returns:
+        str: the corresponding projectq instructions (allocation , gates,
+            deallocation).
     """
 
     GATE_PROJECTQ = get_projectq_gates()
@@ -70,17 +74,18 @@ def translate_projectq(source_circuit):
 
 
 def _translate_projectq2abs(projectq_str):
-    """
-        Convenience function to help people move away from their ProjectQ workflow.
-        Take ProjectQ instructions, expressed as a string, similar to one from the ProjectQ `CommandPrinter` engine.
-        Will bundle all qubit allocation (resp. deallocation) at the beginning (resp. end) of the circuit.
-        Example available in the `examples` folder.
+    """Convenience function to help people move away from their ProjectQ
+    workflow. Take ProjectQ instructions, expressed as a string, similar to one
+    from the ProjectQ `CommandPrinter` engine. Will bundle all qubit allocation
+    (resp. deallocation) at the beginning (resp. end) of the circuit. Example
+    available in the `examples` folder.
 
-        Args:
-            projectq_str(str): ProjectQ program, as a string (Allocate, Deallocate, gate operations...)
+    Args:
+        projectq_str(str): ProjectQ program, as a string (Allocate, Deallocate,
+            gate operations...).
 
-        Returns:
-            Circuit: corresponding quantum circuit in the abstract format
+    Returns:
+        Circuit: corresponding quantum circuit in the abstract format.
     """
 
     # Get dictionary of gate mapping, as the reverse dictionary of abs -> projectq translation

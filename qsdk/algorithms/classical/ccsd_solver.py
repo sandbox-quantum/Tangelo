@@ -61,7 +61,8 @@ class CCSDSolver(ElectronicStructureSolver):
         lambda equation will be solved for calculating the RDMs.
 
         Returns:
-            (numpy.array, numpy.array): One & two-particle RDMs.
+            numpy.array: One-particle RDM.
+            numpy.array: Two-particle RDM.
 
         Raises:
             RuntimeError: If no simulation has been run.

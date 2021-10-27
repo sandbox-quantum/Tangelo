@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Functions helping with quantum circuit format conversion between abstract format and qulacs format
+"""Functions helping with quantum circuit format conversion between abstract
+format and qulacs format.
 
-    In order to produce an equivalent circuit for the target backend, it is necessary to account for:
-    - how the gate names differ between the source backend to the target backend
-    - how the order and conventions for some of the inputs to the gate operations may also differ
+In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations
+    may also differ.
 """
 
 
 def get_qulacs_gates():
-    """
-        Map gate name of the abstract format to the equivalent add_gate method of Qulacs's QuantumCircuit class
-        API and supported gates: http://qulacs.org/class_quantum_circuit.html
+    """Map gate name of the abstract format to the equivalent add_gate method of
+    Qulacs's QuantumCircuit class API and supported gates:
+    http://qulacs.org/class_quantum_circuit.html
     """
     import qulacs
 
@@ -44,16 +46,18 @@ def get_qulacs_gates():
 
 
 def translate_qulacs(source_circuit, noise_model=None):
-    """ Take in an abstract circuit, return an equivalent qulacs QuantumCircuit instance
-        If provided with a noise model, will add noisy gates at translation. Not very useful to look at, as qulacs
-        does not provide much information about the noisy gates added when printing the "noisy circuit".
+    """Take in an abstract circuit, return an equivalent qulacs QuantumCircuit
+    instance. If provided with a noise model, will add noisy gates at
+    translation. Not very useful to look at, as qulacs does not provide much
+    information about the noisy gates added when printing the "noisy circuit".
 
-        Args:
-            source_circuit: quantum circuit in the abstract format
-            noise_model: A NoiseModel object from this package, located in the noisy_simulation subpackage
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+        noise_model: A NoiseModel object from this package, located in the
+            noisy_simulation subpackage.
 
-        Returns:
-            qulacs.QuantumCircuit: the corresponding qulacs quantum circuit
+    Returns:
+        qulacs.QuantumCircuit: the corresponding qulacs quantum circuit.
     """
 
     import qulacs

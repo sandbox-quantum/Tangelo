@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Functions helping with quantum circuit format conversion between abstract format and qdk/qsharp format
+"""Functions helping with quantum circuit format conversion between abstract
+format and qdk/qsharp format.
 
-    In order to produce an equivalent circuit for the target backend, it is necessary to account for:
-    - how the gate names differ between the source backend to the target backend
-    - how the order and conventions for some of the inputs to the gate operations may also differ
+In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations
+    may also differ.
 """
 
 
 def get_qdk_gates():
-    """
-        Map gate name of the abstract format to the equivalent gate name used in Q# operations
-        API and supported gates: https://docs.microsoft.com/en-us/qsharp/api/qsharp/microsoft.quantum.intrinsic
+    """Map gate name of the abstract format to the equivalent gate name used in
+    Q# operations API and supported gates:
+    https://docs.microsoft.com/en-us/qsharp/api/qsharp/microsoft.quantum.intrinsic
     """
 
     GATE_QDK = dict()
@@ -38,15 +40,17 @@ def get_qdk_gates():
 
 
 def translate_qsharp(source_circuit, operation="MyQsharpOperation"):
-    """ Take in an abstract circuit, generate the corresponding Q# operation (state prep + measurement) string,
-        in the appropriate Q# template. The Q# output can be written to file and will be compiled at runtime.
+    """Take in an abstract circuit, generate the corresponding Q# operation
+    (state prep + measurement) string, in the appropriate Q# template. The Q#
+    output can be written to file and will be compiled at runtime.
 
-        Args:
-            source_circuit: quantum circuit in the abstract format
-            operation (str), optional: name of the Q# operation
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+        operation (str), optional: name of the Q# operation.
 
-        Returns:
-            str: The Q# code (operation + template). This needs to be written into a .qs file, and compiled at runtime
+    Returns:
+        str: The Q# code (operation + template). This needs to be written into a
+            .qs file, and compiled at runtime.
     """
 
     GATE_QDK = get_qdk_gates()

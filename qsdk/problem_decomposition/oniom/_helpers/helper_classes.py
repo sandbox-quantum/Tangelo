@@ -81,8 +81,7 @@ class Fragment:
         self.e_fragment = None
 
     def build(self):
-        """Get the solver objects for this layer. Also defined molecule objects.
-        """
+        """Get the solver objects for this layer. Also defined molecule objects."""
 
         # Low accuracy solver.
         # We begin by defining the molecule.
@@ -236,7 +235,7 @@ class Link:
 
         Returns:
             str: Atomic species.
-            (float, float, float): Position of replacement atom.
+            tuple: Position (x, y, z) of replacement atom.
         """
 
         staying = np.array(geometry[self.staying][1])

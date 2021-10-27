@@ -188,9 +188,7 @@ def _iao_complementary_space(iao_ref, s, number_inactive):
 
     Args:
         iao_ref (numpy.array): IAO in occupied space.
-        (float64)
         s (numpy.array): The overlap matrix.
-        (float64)
         number_inactive (int): The number of inactive orbitals.
 
     Returns:

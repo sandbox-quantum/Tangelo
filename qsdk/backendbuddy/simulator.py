@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Simulator class, wrapping around the various simulators and abstracting their differences from the user.
-    Able to run noiseless and noisy simulations, leveraging the capabilities of different backends, quantum or
-    classical.
+"""Simulator class, wrapping around the various simulators and abstracting their
+differences from the user. Able to run noiseless and noisy simulations,
+leveraging the capabilities of different backends, quantum or classical.
 
-    If the user provides a noise model, then a noisy simulation is run with n_shots shots.
-    If the user only provides n_shots, a noiseless simulation is run, drawing the desired amount of shots.
-    If the target backend has access to the statevector representing the quantum state, we leverage any kind of
-    emulation available to reduce runtime (directly generating shot values from final statevector etc)
-    If the quantum circuit contains a MEASURE instruction, it is assumed to simulate a mixed-state and the simulation
-    will be carried by simulating individual shots (e.g a number of shots is required).
+If the user provides a noise model, then a noisy simulation is run with n_shots
+shots. If the user only provides n_shots, a noiseless simulation is run, drawing
+the desired amount of shots. If the target backend has access to the statevector
+representing the quantum state, we leverage any kind of emulation available to
+reduce runtime (directly generating shot values from final statevector etc) If
+the quantum circuit contains a MEASURE instruction, it is assumed to simulate a
+mixed-state and the simulation will be carried by simulating individual shots
+(e.g a number of shots is required).
 
-    Some backends may only support a subset of the above. This information is contained in a separate data-structure
+Some backends may only support a subset of the above. This information is
+contained in a separate data-structure.
 """
 
 import os
@@ -53,14 +55,15 @@ backend_info["qdk"] = {"statevector_available": False, "statevector_order": None
 class Simulator:
 
     def __init__(self, target=default_simulator, n_shots=None, noise_model=None):
-        """
-            Instantiate Simulator object.
+        """Instantiate Simulator object.
 
-            Args:
-                target (str): One of the available target backends (quantum or classical).
-                    The default simulator is qulacs if found in user's environment, otherwise cirq.
-                n_shots (int): Number of shots if using a shot-based simulator
-                noise_model: A noise model object assumed to be in the format expected from the target backend
+        Args:
+            target (str): One of the available target backends (quantum or
+                classical). The default simulator is qulacs if found in user's
+                environment, otherwise cirq.
+            n_shots (int): Number of shots if using a shot-based simulator.
+            noise_model: A noise model object assumed to be in the format
+                expected from the target backend.
         """
         self._source = "abstract"
         self._target = target if target else default_simulator
@@ -84,21 +87,27 @@ class Simulator:
             raise ValueError("A number of shots needs to be specified.")
 
     def simulate(self, source_circuit, return_statevector=False, initial_statevector=None):
-        """
-            Perform state preparation corresponding to the input circuit on the target backend, return the
-            frequencies of the different observables, and either the statevector or None depending on
-            the availability of the statevector and if return_statevector is set to True.
-            For the statevector backends supporting it, an initial statevector can be provided to initialize the
-            quantum state without simulating all the eauivalent gates.
+        """Perform state preparation corresponding to the input circuit on the
+        target backend, return the frequencies of the different observables, and
+        either the statevector or None depending on the availability of the
+        statevector and if return_statevector is set to True. For the
+        statevector backends supporting it, an initial statevector can be
+        provided to initialize the quantum state without simulating all the
+        equivalent gates.
 
-            Args:
-                source_circuit: a circuit in the abstract format to be translated for the target backend
-                return_statevector(bool): option to return the statevector as well, if available
-                initial_statevector(list/array) : A valid statevector in the format supported by the target backend
+        Args:
+            source_circuit: a circuit in the abstract format to be translated
+                for the target backend.
+            return_statevector(bool): option to return the statevector as well,
+                if available.
+            initial_statevector(list/array) : A valid statevector in the format
+                supported by the target backend.
 
-            Returns:
-                (dict, numpy.array): A tuple containing a dictionary mapping multi-qubit states to their corresponding frequency, and
-                the statevector, if available for the target backend and requested by the user (if not, set to None).
+        Returns:
+            dict: A dictionary mapping multi-qubit states to their corresponding
+                frequency.
+            numpy.array: The statevector, if available for the target backend
+                and requested by the user (if not, set to None).
         """
 
         if source_circuit.is_mixed_state and not self.n_shots:
@@ -251,21 +260,24 @@ class Simulator:
             return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
     def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None):
-        r"""
-            Take as input a qubit operator H and a quantum circuit preparing a state |\psi>
-            Return the expectation value <\psi | H | \psi>
+        r"""Take as input a qubit operator H and a quantum circuit preparing a
+        state |\psi>. Return the expectation value <\psi | H | \psi>.
 
-            In the case of a noiseless simulation, if the target backend exposes the statevector
-            then it is used directly to compute expectation values, or draw samples if required.
-            In the case of a noisy simulator, or if the statevector is not available on the target backend, individual
-            shots must be run and the workflow is akin to what we would expect from an actual QPU.
+        In the case of a noiseless simulation, if the target backend exposes the
+        statevector then it is used directly to compute expectation values, or
+        draw samples if required. In the case of a noisy simulator, or if the
+        statevector is not available on the target backend, individual shots
+        must be run and the workflow is akin to what we would expect from an
+        actual QPU.
 
-            Args:
-                qubit_operator(openfermion-style QubitOperator class): a qubit operator
-                state_prep_circuit: an abstract circuit used for state preparation
+        Args:
+            qubit_operator(openfermion-style QubitOperator class): a qubit
+                operator.
+            state_prep_circuit: an abstract circuit used for state preparation.
 
-            Returns:
-                complex: The expectation value of this operator with regards to the state preparation
+        Returns:
+            complex: The expectation value of this operator with regards to the
+                state preparation.
         """
         # Check if simulator supports statevector
         if initial_statevector is not None and not self.statevector_available:
@@ -300,17 +312,20 @@ class Simulator:
             return exp_real if (exp_imag == 0.) else exp_real + 1.0j * exp_imag
 
     def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit, initial_statevector=None):
-        r"""
-            Take as input a qubit operator H and a state preparation returning a ket |\psi>.
-            Return the expectation value <\psi | H | \psi>, computed without drawing samples (statevector only)
-            Users should not be calling this function directly, please call "get_expectation_value" instead.
+        r"""Take as input a qubit operator H and a state preparation returning a
+        ket |\psi>. Return the expectation value <\psi | H | \psi>, computed
+        without drawing samples (statevector only). Users should not be calling
+        this function directly, please call "get_expectation_value" instead.
 
-            Args:
-                qubit_operator(openfermion-style QubitOperator class): a qubit operator
-                state_prep_circuit: an abstract circuit used for state preparation (only pure states)
+        Args:
+            qubit_operator(openfermion-style QubitOperator class): a qubit
+                operator.
+            state_prep_circuit: an abstract circuit used for state preparation
+                (only pure states).
 
-            Returns:
-                complex: The expectation value of this operator with regards to the state preparation
+        Returns:
+            complex: The expectation value of this operator with regards to the
+                state preparation.
         """
         n_qubits = state_prep_circuit.width
 
@@ -378,16 +393,18 @@ class Simulator:
         return expectation_value
 
     def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None):
-        r"""
-            Take as input a qubit operator H and a state preparation returning a ket |\psi>.
-            Return the expectation value <\psi | H | \psi> computed using the frequencies of observable states.
+        r"""Take as input a qubit operator H and a state preparation returning a
+        ket |\psi>. Return the expectation value <\psi | H | \psi> computed
+        using the frequencies of observable states.
 
-            Args:
-                qubit_operator(openfermion-style QubitOperator class): a qubit operator
-                state_prep_circuit: an abstract circuit used for state preparation
+        Args:
+            qubit_operator(openfermion-style QubitOperator class): a qubit
+                operator.
+            state_prep_circuit: an abstract circuit used for state preparation.
 
-            Returns:
-                complex: The expectation value of this operator with regards to the state preparation
+        Returns:
+            complex: The expectation value of this operator with regards to the
+                state preparation.
         """
         n_qubits = state_prep_circuit.width
         if not self.statevector_available or state_prep_circuit.is_mixed_state or self._noise_model:
@@ -419,15 +436,18 @@ class Simulator:
 
     @staticmethod
     def get_expectation_value_from_frequencies_oneterm(term, frequencies):
-        """
-            Return the expectation value of a single-term qubit-operator, given the result of a state-preparation
+        """Return the expectation value of a single-term qubit-operator, given
+        the result of a state-preparation.
 
-            Args:
-                term(openfermion-style QubitOperator object): a qubit operator, with only a single term
-                frequencies(dict): histogram of frequencies of measurements (assumed to be in lsq-first format)
+        Args:
+            term(openfermion-style QubitOperator object): a qubit operator, with
+                only a single term.
+            frequencies(dict): histogram of frequencies of measurements (assumed
+                to be in lsq-first format).
 
-            Returns:
-                complex: The expectation value of this operator with regards to the state preparation
+        Returns:
+            complex: The expectation value of this operator with regards to the
+                state preparation.
         """
 
         if not frequencies.keys():
@@ -450,18 +470,22 @@ class Simulator:
         return expectation_term
 
     def _statevector_to_frequencies(self, statevector):
-        """
-            For a given statevector representing the quantum state of a qubit register, returns a sparse histogram
-            of the probabilities in the least-significant-qubit (lsq) -first order.
-            e.g the string '100' means qubit 0 measured in basis state |1>, and qubit 1 & 2 both measured in state |0>
+        """For a given statevector representing the quantum state of a qubit
+        register, returns a sparse histogram of the probabilities in the
+        least-significant-qubit (lsq) -first order. e.g the string '100' means
+        qubit 0 measured in basis state |1>, and qubit 1 & 2 both measured in
+        state |0>.
 
-            Args:
-                statevector(list or ndarray(complex)): an iterable 1D data-structure containing the amplitudes
+        Args:
+            statevector(list or ndarray(complex)): an iterable 1D data-structure
+                containing the amplitudes.
 
-            Returns:
-                dict: A dictionary whose keys are bitstrings representing the multi-qubit states with the least significant
-                qubit first (e.g '100' means qubit 0 in state |1>, and qubit 1 and 2 in state |0>), and the associated
-                value is the corresponding frequency. Unless threshold=0., this dictionary will be sparse.
+        Returns:
+            dict: A dictionary whose keys are bitstrings representing the
+                multi-qubit states with the least significant qubit first (e.g
+                '100' means qubit 0 in state |1>, and qubit 1 and 2 in state
+                |0>), and the associated value is the corresponding frequency.
+                Unless threshold=0., this dictionary will be sparse.
         """
 
         n_qubits = int(math.log2(len(statevector)))
@@ -495,13 +519,17 @@ class Simulator:
             return freqs_shots
 
     def __int_to_binstr(self, i, n_qubits):
-        """ Convert an integer into a bit string of size n_qubits, in the order specified for the state vector """
+        """Convert an integer into a bit string of size n_qubits, in the order
+        specified for the state vector.
+        """
         bs = bin(i).split('b')[-1]
         state_binstr = "0" * (n_qubits - len(bs)) + bs
         return state_binstr[::-1] if (self.statevector_order == "msq_first") else state_binstr
 
     def __int_to_binstr_lsq(self, i, n_qubits):
-        """ Convert an integer into a bit string of size n_qubits, in the least-significant qubit order"""
+        """Convert an integer into a bit string of size n_qubits, in the
+        least-significant qubit order.
+        """
         bs = bin(i).split('b')[-1]
         state_binstr = "0" * (n_qubits - len(bs)) + bs
         return state_binstr[::-1]

@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Python wrappers facilitating quantum experiment submission, monitoring and post-processing, through QEMIST Cloud.
+"""Python wrappers facilitating quantum experiment submission, monitoring and
+post-processing, through QEMIST Cloud.
 
-    Users are expected to set the environment variables QEMIST_AUTH_TOKEN and QEMIST_PROJECT_ID with values
-    retrieved from their QEMIST Cloud dashboard.
+Users are expected to set the environment variables QEMIST_AUTH_TOKEN and
+QEMIST_PROJECT_ID with values retrieved from their QEMIST Cloud dashboard.
 """
 
 try:
@@ -26,15 +26,16 @@ except ModuleNotFoundError:
 
 
 def job_submit(circuit, n_shots, backend):
-    """ Job submission to run a circuit on quantum hardware.
+    """Job submission to run a circuit on quantum hardware.
 
     Args:
-        circuit: a quantum circuit in the abstract format
-        n_shots (int): the number of shots
-        backend (str): the identifier string for the desired backend
+        circuit: a quantum circuit in the abstract format.
+        n_shots (int): the number of shots.
+        backend (str): the identifier string for the desired backend.
 
     Returns:
-        int: A problem handle / job ID that can be used to retrieve the result or cancel the problem.
+        int: A problem handle / job ID that can be used to retrieve the result
+            or cancel the problem.
     """
 
     # Serialize circuit data
@@ -51,27 +52,28 @@ def job_submit(circuit, n_shots, backend):
 
 
 def job_status(qemist_cloud_job_id):
-    """ Returns the current status of the problem, as a string.
-     Possible values: ready, in_progress, complete, cancelled.
+    """Returns the current status of the problem, as a string. Possible values:
+    ready, in_progress, complete, cancelled.
 
-        Args:
-            qemist_cloud_job_id (int): problem handle / job identifier
+    Args:
+        qemist_cloud_job_id (int): problem handle / job identifier.
 
-        Returns:
-            str: current status of the problem, as a string
+    Returns:
+        str: current status of the problem, as a string.
     """
     return util.get_problem_status(qemist_cloud_job_id)
 
 
 def job_cancel(qemist_cloud_job_id):
-    """ Cancels the job matching the input job id, if done in time before it starts.
-    Returns a list of cancelled problems and number of subproblems, if any.
+    """Cancels the job matching the input job id, if done in time before it
+    starts. Returns a list of cancelled problems and number of subproblems, if
+    any.
 
-        Args:
-            qemist_cloud_job_id (int): problem handle / job identifier
+    Args:
+        qemist_cloud_job_id (int): problem handle / job identifier.
 
-        Returns:
-            dict: cancelled problems / subproblems
+    Returns:
+        dict: cancelled problems / subproblems.
     """
 
     res = util.cancel_problems(qemist_cloud_job_id)
@@ -81,16 +83,16 @@ def job_cancel(qemist_cloud_job_id):
 
 
 def job_result(qemist_cloud_job_id):
-    """ Blocks until the job results are available.
-    Returns a tuple containing the histogram of frequencies, and also the more in-depth raw data from
-    the cloud services provider as a nested dictionary
+    """Blocks until the job results are available. Returns a tuple containing
+    the histogram of frequencies, and also the more in-depth raw data from the
+    cloud services provider as a nested dictionary
 
-        Args:
-            qemist_cloud_job_id (int): problem handle / job identifier
+    Args:
+        qemist_cloud_job_id (int): problem handle / job identifier.
 
-        Returns:
-            (dict, dict): histogram of measurement frequencies and a cloud
-                provider raw data coming out as as nested dictionary.
+    Returns:
+        dict: Histogram of measurement frequencies.
+        dict): The cloud provider raw data.
     """
 
     try:
@@ -124,15 +126,15 @@ def job_result(qemist_cloud_job_id):
 
 
 def job_estimate(circuit, n_shots):
-    """
-        Returns an estimate of the cost of running an experiment. Some service providers care about
-        the complexity / structure of the input quantum circuit, some do not.
+    """Returns an estimate of the cost of running an experiment. Some service
+    providers care about the complexity / structure of the input quantum
+    circuit, some do not.
 
-        Some backends may charge per minute (such as simulators), which is difficult to estimate
-        and may be misleading. They are currently not included.
+    Some backends may charge per minute (such as simulators), which is difficult
+    to estimate and may be misleading. They are currently not included.
 
-        Braket prices: https://aws.amazon.com/braket/pricing/
-        Azure Quantum prices: TBD
+    Braket prices: https://aws.amazon.com/braket/pricing/
+    Azure Quantum prices: TBD
 
     Args:
         circuit (Circuit): the abstract circuit to be run on the target device.

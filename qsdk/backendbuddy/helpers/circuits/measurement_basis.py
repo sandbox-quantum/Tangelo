@@ -12,20 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" helper function: pauli word rotations """
+"""Helper function: pauli word rotations."""
 
 import numpy as np
 from qsdk.backendbuddy import Gate
 
 
 def measurement_basis_gates(term):
-    """ Generate the rotation gates to perform change of basis before measurement
+    """Generate the rotation gates to perform change of basis before
+    measurement.
 
-        Args:
-            term: Openfermion-style term. Essentially a list of (int, str) tuples.
+    Args:
+        term: Openfermion-style term. Essentially a list of (int, str) tuples.
 
-        Returns:
-            list of Gate: A list containing the rotation gates.
+    Returns:
+        list of Gate: A list containing the rotation gates.
     """
     gates = []
     for qubit_index, pauli in term:
@@ -41,13 +42,16 @@ def measurement_basis_gates(term):
 
 
 def pauli_string_to_of(pauli_string):
-    """ Converts a string of I,X,Y,Z Pauli operators to an Openfermion-style representation """
+    """ Converts a string of I,X,Y,Z Pauli operators to an Openfermion-style
+    representation.
+    """
     return [(i, p) for i, p in enumerate(pauli_string) if p != 'I']
 
 
 def pauli_of_to_string(pauli_op, n_qubits):
     """ Converts an Openfermion-style Pauli word to a string representation.
-    The user must specify the total number of qubits. """
+    The user must specify the total number of qubits.
+    """
     p_string = ['I'] * n_qubits
     for i, p in pauli_op:
         p_string[i] = p

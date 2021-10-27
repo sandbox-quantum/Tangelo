@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Generic noise model representation and backend-specific translation function.
-    The Simulator class is responsible for taking in the generic noise model at runtime and applying it accordingly
-    to the target compute backend.
+"""Generic noise model representation and backend-specific translation function.
+The Simulator class is responsible for taking in the generic noise model at
+runtime and applying it accordingly to the target compute backend.
 
-    Only works for simulators supporting noisy simulation.
+Only works for simulators supporting noisy simulation.
 """
 
 
@@ -34,15 +33,15 @@ __MAPPING_GATES_QISKIT["CNOT"] = ["cx"]
 
 
 class NoiseModel:
-    """
-        A class representing a noise model. Not specific to any compute backend.
-        The object holds a dictionary mapping each noisy gate to a list of noise that should be applied every time it is
-        encountered in a circuit.
+    """A class representing a noise model. Not specific to any compute backend.
+    The object holds a dictionary mapping each noisy gate to a list of noise
+    that should be applied every time it is encountered in a circuit.
 
-        Pauli noise expects a list of 3 probabilities corresponding to X,Y,Z pauli noises (I is deduced from the sum)
-        Depolarization noise is a special case of Pauli noise, where the 3 probabilities are equal: a float is enough.
-        Please check the notebook tutorial in the example section more a more in-depth description of the different
-        noise channels.
+    Pauli noise expects a list of 3 probabilities corresponding to X,Y,Z pauli
+    noises (I is deduced from the sum) Depolarization noise is a special case of
+    Pauli noise, where the 3 probabilities are equal: a float is enough. Please
+    check the notebook tutorial in the example section more a more in-depth
+    description of the different noise channels.
     """
 
     def __init__(self):
@@ -52,7 +51,9 @@ class NoiseModel:
         return str(self._quantum_errors)
 
     def add_quantum_error(self, abs_gate, noise_type, noise_params):
-        """ Adds the desired noise to the gate specified by user. Checks if inputs makes sense."""
+        """Adds the desired noise to the gate specified by user. Checks if
+        inputs makes sense.
+        """
 
         if noise_type not in SUPPORTED_NOISE_MODELS:
             raise ValueError(f"Error model not supported :{noise_type}\nCurrently supported:{SUPPORTED_NOISE_MODELS}")
@@ -75,8 +76,10 @@ class NoiseModel:
 
 
 def get_qiskit_noise_dict(noise_model):
-    """ Takes in generic noise model, converts to a dictionary whose keys are the qiskit basis gates supported
-    by the qasm simulator, to the noises, ensuring there are no redundancy / duplicates on the U-gates in particular."""
+    """Takes in generic noise model, converts to a dictionary whose keys are
+    the qiskit basis gates supported by the qasm simulator, to the noises,
+    ensuring there are no redundancy / duplicates on the U-gates in particular.
+    """
 
     qnd = dict()
     for gate, noises in noise_model._quantum_errors.items():
@@ -93,7 +96,9 @@ def get_qiskit_noise_dict(noise_model):
 
 
 def get_qiskit_noise_model(noise_model):
-    """ Takes a NoiseModel object as input, returns an equivalent Qiskit Noise Model, compatible with QASM simulator """
+    """Takes a NoiseModel object as input, returns an equivalent Qiskit Noise
+    Model, compatible with QASM simulator.
+    """
 
     from qiskit.providers.aer.noise import NoiseModel as QiskitNoiseModel
     from qiskit.providers.aer.noise.errors import depolarizing_error, pauli_error
