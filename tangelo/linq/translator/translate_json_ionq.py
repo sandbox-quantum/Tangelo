@@ -21,6 +21,7 @@ necessary to account for:
 - how the order and conventions for some of the inputs to the gate operations
     may also differ.
 """
+from math import pi
 
 
 def get_ionq_gates():
@@ -31,7 +32,7 @@ def get_ionq_gates():
     """
 
     GATE_JSON_IONQ = dict()
-    for name in {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "CNOT"}:
+    for name in {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "CNOT", "PHASE"}:
         GATE_JSON_IONQ[name] = name.lower()
     return GATE_JSON_IONQ
 
@@ -57,6 +58,17 @@ def translate_json_ionq(source_circuit):
             json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0]})
         elif gate.name in {"RX", "RY", "RZ"}:
             json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'rotation': gate.parameter})
+        elif gate.name in {"PHASE"}:
+            if abs(gate.parameter - pi / 2) < 1.e-7:
+                json_gates.append({'gate': 's', 'target': gate.target[0]})
+            elif abs(gate.parameter + pi / 2) < 1.e-7:
+                json_gates.append({'gate': 'si', 'target': gate.target[0]})
+            elif abs(gate.parameter - pi / 4) < 1.e-7:
+                json_gates.append({'gate': 't', 'target': gate.target[0]})
+            elif abs(gate.parameter + pi / 4) < 1.e-7:
+                json_gates.append({'gate': 'ti', 'target': gate.target[0]})
+            else:
+                raise ValueError(f"Only phases of pi/2, -pi/2, pi/4, -pi/4 are support with JSON IonQ translation")
         elif gate.name in {"CNOT"}:
             json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'control': gate.control[0]})
         else:

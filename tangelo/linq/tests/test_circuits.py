@@ -19,6 +19,7 @@
 
 import unittest
 import copy
+from math import pi
 from collections import Counter
 from tangelo.linq import Gate, Circuit
 
@@ -109,6 +110,10 @@ class TestCircuits(unittest.TestCase):
         mygates_inverse.append(Gate("H", 2))
         circuit1_inverse = Circuit(mygates_inverse)
         self.assertTrue(circuit1.inverse().__str__(), circuit1_inverse.__str__())
+
+        ts_circuit = Circuit([Gate("T", 0), Gate("S", 1)])
+        ts_circuit_inverse = Circuit([Gate("PHASE", 0, parameter=-pi/4), Gate("PHASE", 0, parameter=-pi/2)])
+        self.assertTrue(ts_circuit.inverse().__str__(), ts_circuit_inverse.__str__())
 
 
 if __name__ == "__main__":

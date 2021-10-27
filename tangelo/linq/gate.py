@@ -16,6 +16,7 @@
 gate operation, without tying it to a particular backend or an underlying
 mathematical operation.
 """
+from math import pi
 
 from typing import Union
 
@@ -117,6 +118,14 @@ class Gate(dict):
             new_parameter = ""
         elif isinstance(self.parameter, (float, int)):
             new_parameter = -self.parameter
+        elif self.name == "T" or self.name == "S":
+            new_parameter = -pi / 2 if self.name == "T" else -pi / 4
+            return Gate(name="PHASE",
+                        target=self.target,
+                        control=self.control,
+                        parameter=new_parameter,
+                        is_variational=self.is_variational)
+
         else:
             raise AttributeError(f"{self.name} is not an invertable gate when parameter is {self.parameter}")
         return Gate(name=self.name,
