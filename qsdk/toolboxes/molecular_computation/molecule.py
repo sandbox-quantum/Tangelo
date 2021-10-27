@@ -16,15 +16,10 @@
 functionalities.
 """
 
-import warnings
 import copy
 from dataclasses import dataclass, field
 import numpy as np
-
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore")
-    from pyscf import gto, scf
-
+from pyscf import gto, scf
 import openfermion
 import openfermionpyscf
 
@@ -118,14 +113,13 @@ class Molecule:
         Returns:
             pyscf.gto.Mole: PySCF compatible object.
         """
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore")
-            mol = gto.Mole()
-            mol.atom = self.xyz
-            mol.basis = basis
-            mol.charge = self.q
-            mol.spin = self.spin
-            mol.build()
+
+        mol = gto.Mole()
+        mol.atom = self.xyz
+        mol.basis = basis
+        mol.charge = self.q
+        mol.spin = self.spin
+        mol.build()
 
         return mol
 
@@ -258,13 +252,8 @@ class SecondQuantizedMolecule(Molecule):
         (mf_energy, mo_energies, mo_occ, n_mos and n_sos).
         """
         of_molecule = self.to_openfermion(self.basis)
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore")
-            of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True,
-                                                     run_mp2=False,
-                                                     run_cisd=False,
-                                                     run_ccsd=False,
-                                                     run_fci=False)
+        of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True,
+            run_mp2=False, run_cisd=False, run_ccsd=False, run_fci=False)
 
         self.mf_energy =of_molecule.hf_energy
         self.mo_energies = of_molecule.orbital_energies
@@ -288,9 +277,8 @@ class SecondQuantizedMolecule(Molecule):
         active_indices = self.active_mos
 
         of_molecule = self.to_openfermion(self.basis)
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore")
-            of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True, run_mp2=False, run_cisd=False, run_ccsd=False, run_fci=False)
+        of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True,
+            run_mp2=False, run_cisd=False, run_ccsd=False, run_fci=False)
 
         molecular_hamiltonian = of_molecule.get_molecular_hamiltonian(occupied_indices, active_indices)
 
