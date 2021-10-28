@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 import numpy as np
 from pyscf import gto, scf
 import openfermion
-import openfermionpyscf
+from openfermionpyscf import run_pyscf
 
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
@@ -252,8 +252,8 @@ class SecondQuantizedMolecule(Molecule):
         (mf_energy, mo_energies, mo_occ, n_mos and n_sos).
         """
         of_molecule = self.to_openfermion(self.basis)
-        of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True,
-            run_mp2=False, run_cisd=False, run_ccsd=False, run_fci=False)
+        of_molecule = run_pyscf(of_molecule, run_scf=True, run_mp2=False,
+                                run_cisd=False, run_ccsd=False, run_fci=False)
 
         self.mf_energy =of_molecule.hf_energy
         self.mo_energies = of_molecule.orbital_energies
@@ -277,8 +277,8 @@ class SecondQuantizedMolecule(Molecule):
         active_indices = self.active_mos
 
         of_molecule = self.to_openfermion(self.basis)
-        of_molecule = openfermionpyscf.run_pyscf(of_molecule, run_scf=True,
-            run_mp2=False, run_cisd=False, run_ccsd=False, run_fci=False)
+        of_molecule = run_pyscf(of_molecule, run_scf=True, run_mp2=False,
+                                run_cisd=False, run_ccsd=False, run_fci=False)
 
         molecular_hamiltonian = of_molecule.get_molecular_hamiltonian(occupied_indices, active_indices)
 
