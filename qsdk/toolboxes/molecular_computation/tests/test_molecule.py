@@ -15,6 +15,7 @@
 import unittest
 
 from qsdk import SecondQuantizedMolecule
+from qsdk.molecule_library import mol_H2_sto3g
 from qsdk.toolboxes.molecular_computation.molecule import atom_string_to_list
 
 
@@ -122,6 +123,26 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         molecule = SecondQuantizedMolecule(H2O_list, frozen_orbitals=1)
         shift = molecule.fermionic_hamiltonian.constant
         self.assertAlmostEqual(shift, -51.47120372466002, delta=1e-6)
+
+    def test_energy_from_rdms(self):
+        """Verify energy computation from RDMs."""
+
+        rdm1 = [[ 1.97453997e+00, -7.05987336e-17],
+                [-7.05987336e-17,  2.54600303e-02]]
+
+        rdm2 = [
+            [[[ 1.97453997e+00, -7.96423130e-17],
+              [-7.96423130e-17,  3.21234218e-33]],
+             [[-7.96423130e-17, -2.24213843e-01],
+              [ 0.00000000e+00,  9.04357944e-18]]],
+            [[[-7.96423130e-17,  0.00000000e+00],
+              [-2.24213843e-01,  9.04357944e-18]],
+             [[ 3.21234218e-33,  9.04357944e-18],
+              [ 9.04357944e-18,  2.54600303e-02]]]
+            ]
+
+        e_rdms = mol_H2_sto3g.energy_from_rdms(rdm1, rdm2)
+        self.assertAlmostEqual(e_rdms, -1.1372701, delta=1e-5)
 
 
 if __name__ == "__main__":
