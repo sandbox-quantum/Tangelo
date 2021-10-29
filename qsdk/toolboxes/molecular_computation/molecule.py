@@ -29,8 +29,6 @@ from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
 
-from openfermion.ops.representations.interaction_operator import get_active_space_integrals
-
 def atom_string_to_list(atom_string):
     """Convert atom coordinate string (typically stored in text files) into a
     list/tuple representation suitable for openfermion.MolecularData.
