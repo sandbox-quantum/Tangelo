@@ -24,6 +24,7 @@ jobs:
         pip install pytest
         pip install pytest-cov 
         pip install jupyter
+        pip install wheel
 
     - name: Install backends except qsharp/qdk
       run: |
