@@ -132,26 +132,30 @@ class Simulator:
             if initial_statevector is not None:
                 state.load(initial_statevector)
 
-            samples = list()
-            shots = self.n_shots if (source_circuit.is_mixed_state or self._noise_model) else 1
-            for i in range(shots):
-
-                translated_circuit.update_quantum_state(state)
-                if source_circuit.is_mixed_state or self._noise_model:
+            if (source_circuit.is_mixed_state or self._noise_model):
+                samples = list()
+                for i in range(self.n_shots):
+                    translated_circuit.update_quantum_state(state)
                     samples.append(state.sampling(1)[0])
-                    if initial_statevector:
+                    if initial_statevector is not None:
                         state.load(initial_statevector)
                     else:
                         state.set_zero_state()
-                else:
-                    self._current_state = state
-                    python_statevector = state.get_vector()
-                    frequencies = self._statevector_to_frequencies(python_statevector)
-                    return (frequencies, np.array(python_statevector)) if return_statevector else (frequencies, None)
+                python_statevector = None
+            elif self.n_shots is not None:
+                translated_circuit.update_quantum_state(state)
+                python_statevector = np.array(state.get_vector()) if return_statevector else None
+                samples = state.sampling(self.n_shots)
+            else:
+                translated_circuit.update_quantum_state(state)
+                self._current_state = state
+                python_statevector = state.get_vector()
+                frequencies = self._statevector_to_frequencies(python_statevector)
+                return (frequencies, np.array(python_statevector)) if return_statevector else (frequencies, None)
 
             frequencies = {self.__int_to_binstr(k, source_circuit.width): v / self.n_shots
                            for k, v in Counter(samples).items()}
-            return (frequencies, None)
+            return (frequencies, python_statevector)
 
         elif self._target == "qiskit":
             import qiskit
