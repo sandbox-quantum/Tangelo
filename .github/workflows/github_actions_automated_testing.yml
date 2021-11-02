@@ -1,6 +1,6 @@
 name: automated_testing
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build:
@@ -12,15 +12,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
         
-    - name: Install pip, pytest, jupyter
+    - name: Install pip, wheel, pytest, jupyter
       run: |
         python -m pip install --upgrade pip
+        pip install wheel
         pip install pytest
         pip install pytest-cov 
         pip install jupyter
@@ -46,14 +46,7 @@ jobs:
 
     - name: qsdk install
       run: |
-        python setup.py install
-      if: always()
-
-    - name: sphinx_doc_build
-      run: |
-        cd dev_tools
-        chmod +x build_sphinx_docs.sh
-        source build_sphinx_docs.sh
+        python -m pip install .
       if: always()
 
     - name: qsdk tests
@@ -67,3 +60,5 @@ jobs:
         cd examples
         pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html test_notebooks.py
       if: always()
+
+

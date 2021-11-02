@@ -36,7 +36,7 @@ root directory:
 
 .. code-block::
 
-   python setup.py install
+   python -m pip install .
 
 If the installation of a dependency fails and the reason is not obvious, we suggest installing that dependency
 separately with ``pip``\ , before trying again.
