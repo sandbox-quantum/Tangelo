@@ -98,7 +98,7 @@ class MeasurementsTest(unittest.TestCase):
             exp_val = 0.
             sim = Simulator(target=default_simulator, n_shots=1)
             for m_basis, coef in qb_ham.terms.items():
-                if (m_basis):
+                if m_basis:
                     term_circ = abs_circ + Circuit(measurement_basis_gates(m_basis))
                     sim.n_shots = mes_dict[m_basis]
                     freqs, _ = sim.simulate(term_circ)
