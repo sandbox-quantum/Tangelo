@@ -80,7 +80,7 @@ class ADAPTSolver:
                            "n_electrons": None,
                            "optimizer": self.LBFGSB_optimizer,
                            "backend_options": default_backend_options,
-                           "verbose": True}
+                           "verbose": False}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -207,7 +207,8 @@ class ADAPTSolver:
         # all operator gradients are less than self.tol.
         while self.iteration < self.max_cycles:
             self.iteration += 1
-            print(f"Iteration {self.iteration} of ADAPT-VQE.")
+            if self.verbose:
+                print(f"Iteration {self.iteration} of ADAPT-VQE.")
 
             pool_select = self.rank_pool(self.pool_commutators, self.vqe_solver.ansatz.circuit,
                                          backend=self.vqe_solver.backend, tolerance=self.tol)
@@ -274,7 +275,7 @@ class ADAPTSolver:
         """Default optimizer for ADAPT-VQE."""
 
         result = minimize(func, var_params, method="L-BFGS-B",
-            options={"disp": False, "maxiter": 100, "gtol": 1e-10, "iprint": -1})
+                          options={"disp": False, "maxiter": 100, "gtol": 1e-10, "iprint": -1})
 
         self.optimal_var_params = result.x
         self.optimal_energy = result.fun
@@ -286,8 +287,11 @@ class ADAPTSolver:
             self.optimal_circuit = self.vqe_solver.ansatz.circuit
 
         if self.verbose:
-            print(f"\t\tOptimal VQE energy: {self.optimal_energy}")
-            print(f"\t\tOptimal VQE variational parameters: {self.optimal_var_params}")
-            print(f"\t\tNumber of Function Evaluations : {result.nfev}")
+            print(f"VQESolver optimization results:")
+            print(f"\tOptimal VQE energy: {result.fun}")
+            print(f"\tOptimal VQE variational parameters: {result.x}")
+            print(f"\tNumber of Iterations : {result.nit}")
+            print(f"\tNumber of Function Evaluations : {result.nfev}")
+            print(f"\tNumber of Gradient Evaluations : {result.njev}")
 
         return result.fun, result.x

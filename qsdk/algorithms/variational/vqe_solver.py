@@ -23,6 +23,7 @@ from enum import Enum
 import numpy as np
 from openfermion.ops.operators.qubit_operator import QubitOperator
 
+from qsdk.helpers.utils import HiddenPrints
 from qsdk.backendbuddy import Simulator, Circuit
 from qsdk.backendbuddy.helpers.circuits.measurement_basis import measurement_basis_gates
 from qsdk.toolboxes.operators import count_qubits, FermionOperator, qubitop_to_qubitham
@@ -451,12 +452,17 @@ class VQESolver:
         """
 
         from scipy.optimize import minimize
-        result = minimize(func, var_params, method="SLSQP",
-                          options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
+
+        with HiddenPrints():
+            result = minimize(func, var_params, method="SLSQP",
+                              options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
 
         if self.verbose:
-            print(f"\t\tOptimal VQE energy: {self.optimal_energy}")
-            print(f"\t\tOptimal VQE variational parameters: {self.optimal_var_params}")
-            print(f"\t\tNumber of Function Evaluations : {result.nfev}")
+            print(f"VQESolver optimization results:")
+            print(f"\tOptimal VQE energy: {result.fun}")
+            print(f"\tOptimal VQE variational parameters: {result.x}")
+            print(f"\tNumber of Iterations : {result.nit}")
+            print(f"\tNumber of Function Evaluations : {result.nfev}")
+            print(f"\tNumber of Gradient Evaluations : {result.njev}")
 
         return result.fun, result.x

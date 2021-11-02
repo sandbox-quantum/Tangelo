@@ -237,6 +237,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             raise RuntimeError("No fragment built. Have you called DMET.build ?")
 
         self.chemical_potential = self.optimizer(self._oneshot_loop, self.initial_chemical_potential)
+        self.chemical_potential = self.chemical_potential.real
 
         # run one more time to save results
         _ = self._oneshot_loop(self.chemical_potential, save_results=True)

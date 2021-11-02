@@ -251,7 +251,7 @@ class UCCSD(Ansatz):
             list of float: The initial variational parameters.
         """
 
-        mp2_fragment = mp.MP2(self.molecule.to_pyscf(self.molecule.basis), frozen=self.molecule.frozen_mos)
+        mp2_fragment = mp.MP2(self.molecule.mean_field, frozen=self.molecule.frozen_mos)
         mp2_fragment.verbose = 0
         _, mp2_t2 = mp2_fragment.kernel()
 
