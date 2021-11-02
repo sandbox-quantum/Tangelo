@@ -19,9 +19,10 @@ functionalities.
 import copy
 from dataclasses import dataclass, field
 import numpy as np
-from pyscf import gto, scf
+from pyscf import gto, scf, ao2mo
 import openfermion
 import openfermionpyscf
+from openfermion.ops.representations.interaction_operator import get_active_space_integrals
 
 from qsdk.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from qsdk.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
@@ -364,3 +365,48 @@ class SecondQuantizedMolecule(Molecule):
             copy_self.frozen_virtual = list_of_active_frozen[3]
 
             return copy_self
+
+    def energy_from_rdms(self, one_rdm, two_rdm):
+        """Computes the molecular energy from one- and two-particle reduced
+        density matrices (RDMs). Coefficients (integrals) are computed
+        on-the-fly using a pyscf object and the mean-field. Frozen orbitals
+        are supported with this method.
+
+        Args:
+            one_rdm (numpy.array): One-particle density matrix in MO basis.
+            two_rdm (numpy.array): Two-particle density matrix in MO basis.
+
+        Returns:
+            float: Molecular energy.
+        """
+
+        # Pyscf molecule to get integrals.
+        pyscf_mol = self.to_pyscf(self.basis)
+
+        # Corresponding to nuclear repulsion energy and static coulomb energy.
+        core_constant = float(pyscf_mol.energy_nuc())
+
+        # get_hcore is equivalent to int1e_kin + int1e_nuc.
+        one_electron_integrals = self.mean_field.mo_coeff.T @ self.mean_field.get_hcore() @ self.mean_field.mo_coeff
+
+        # Getting 2-body integrals in atomic and converting to molecular basis.
+        two_electron_integrals = ao2mo.kernel(pyscf_mol.intor("int2e"), self.mean_field.mo_coeff)
+        two_electron_integrals  = ao2mo.restore(1, two_electron_integrals, len(self.mean_field.mo_coeff))
+
+        # PQRS convention in openfermion:
+        # h[p,q]=\int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
+        # h[p,q,r,s]=\int \phi_p(x)* \phi_q(y)* V_{elec-elec} \phi_r(y) \phi_s(x) dxdy
+        # The convention is not the same with PySCF integrals. So, a change is
+        # made and reverse back after performing the truncation for frozen
+        # orbitals.
+        two_electron_integrals  = two_electron_integrals.transpose(0, 2, 3, 1)
+        core_offset, one_electron_integrals, two_electron_integrals = get_active_space_integrals(one_electron_integrals, two_electron_integrals, self.frozen_occupied, self.active_mos)
+        two_electron_integrals = two_electron_integrals.transpose(0, 3, 1, 2)
+
+        # Adding frozen electron contribution to core constant.
+        core_constant += core_offset
+
+        # Computing the total energy from integrals and provided RDMs.
+        e = core_constant + np.sum(one_electron_integrals * one_rdm) + 0.5*np.sum(two_electron_integrals * two_rdm)
+
+        return e.real
