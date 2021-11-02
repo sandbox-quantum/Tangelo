@@ -48,7 +48,7 @@ def jordan_wigner(operator):
     a_j -> Z_0 .. Z_{j-1} (X_j + iY_j) / 2
 
     Returns:
-        transformed_operator: An instance of the QubitOperator class.
+        QubitOperator: An instance of the QubitOperator class.
 
     Warning:
         The runtime of this method is exponential in the maximum locality of the
@@ -150,7 +150,7 @@ def jordan_wigner_interaction_op(iop, n_qubits=None):
     This only works for real InteractionOperators (no complex numbers).
 
     Returns:
-        qubit_operator: An instance of the QubitOperator class.
+        QubitOperator: An instance of the QubitOperator class.
     """
     if n_qubits is None:
         n_qubits = count_qubits(iop)

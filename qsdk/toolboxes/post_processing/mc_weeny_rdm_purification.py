@@ -30,8 +30,10 @@ def mcweeny_purify_2rdm(rdm2_spin, conv=1.0e-07):
             notation).
         conv (float), optional: The convergence criteria for McWeeny"s
             purification.
+
     Returns:
-        One- and two-particle RDMs in spatial orbital basis (in chemistry
+        numpy.array: One-particle RDM in spatial orbital basis.
+        numpy.array: Two-particle RDM in spatial orbital basis (in chemistry
             notation).
     """
 

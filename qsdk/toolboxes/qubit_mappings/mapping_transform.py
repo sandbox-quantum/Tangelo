@@ -39,7 +39,7 @@ def get_qubit_number(mapping, n_spinorbitals):
         n_spinorbitals (int): number of spin-orbitals for molecule.
 
     Returns:
-        (int): number of qubits.
+        int: number of qubits.
     """
     if mapping.upper() == "SCBK":
         return n_spinorbitals - 2
@@ -56,7 +56,7 @@ def get_fermion_operator(operator):
         operator (SymbolicOperator): input operator to be cast.
 
     Returns:
-        fermion_operator (FermionOperator).
+        FermionOperator: Self-explanatory.
     """
     if not isinstance(operator, Iterable):
         raise TypeError("Input must be iterable suitable for casting to FermionOperator type.")
@@ -91,8 +91,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
             then all spin down.
 
     Returns:
-        qubit_operator (QubitOperator): input operator, encoded in the qubit
-            space.
+        QubitOperator: input operator, encoded in the qubit space.
     """
     # some methods may pass another operator class type. If this is the case, cast to FermionOperator where possible
     if not isinstance(fermion_operator, FermionOperator):
@@ -135,8 +134,7 @@ def make_up_then_down(fermion_operator, n_spinorbitals):
         n_spinorbitals (int): number of spin-orbitals in register.
 
     Returns:
-        new_operator (FermionOperator): operator with all spin up followed by
-            all spin down.
+        FermionOperator: operator with all spin up followed by all spin down.
     """
     if not isinstance(fermion_operator, FermionOperator):
         raise TypeError("Invalid operator input. Must be FermionOperator.")

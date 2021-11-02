@@ -33,8 +33,8 @@ def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low):
             calculation (float64).
 
     Returns:
-        bath_orb (numpy.array): The bath orbitals (float64).
-        e_core (numpy.array): Orbital energies (float64).
+        numpy.array: The bath orbitals (float64).
+        numpy.array: Orbital energies (float64).
     """
 
     # Extract the one-particle RDM for the active space
@@ -63,7 +63,7 @@ def dmet_onerdm_embed(mol, temp_list, onerdm_before):
             calculation (float64).
 
     Returns:
-        onerdm_temp3 (numpy.array): Extracted one-particle RDM (float64).
+        numpy.array: Extracted one-particle RDM (float64).
     """
 
     # Get the number of orbitals
@@ -97,8 +97,8 @@ def dmet_bath_orb_sort(t_list, e_before, c_before):
             (float64).
 
     Returns:
-        e_new (numpy.array): Sorted orbital energies (float64).
-        c_new (numpy.array): Coefficients of the sorted orbitals (float64).
+        numpy.array: Sorted orbital energies (float64).
+        numpy.array: Coefficients of the sorted orbitals (float64).
     """
 
     # Sort the orbital energies (Occupation of 1.0 should come first...)
@@ -132,8 +132,8 @@ def dmet_add_to_bath_orb( mol, t_list, temp_list, e_before, c_before ):
             frozen core (float64).
 
     Returns:
-        c_before (numpy.array): Constructed bath orbitals (float64).
-        e_occupied_core_orbitals (numpy.array): Orbital energies (float64).
+        numpy.array: Constructed bath orbitals (float64).
+        numpy.array: Orbital energies (float64).
     """
 
     # Copy the bath orbitals and energies be fore adding the core

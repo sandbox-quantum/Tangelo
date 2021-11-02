@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Python wrappers around Honeywell REST API, to facilitate job submission, result retrieval and post-processing
+"""Python wrappers around Honeywell REST API, to facilitate job submission,
+result retrieval and post-processing.
 
-    Using Honeywell services require logins to their portal: https://um.qapi.honeywell.com/index.html
-    Users are expected to set the environment variables HONEYWELL_EMAIL, HONEYWELL_PASSWORD with their credentials
+Using Honeywell services require logins to their portal:
+https://um.qapi.honeywell.com/index.html
+Users are expected to set the environment variables HONEYWELL_EMAIL,
+HONEYWELL_PASSWORD with their credentials.
 
-    The portal above provides access to a dashboard, which is better suited for job monitoring experiments.
+The portal above provides access to a dashboard, which is better suited for job
+monitoring experiments.
 """
 
 import os
@@ -33,7 +36,9 @@ from qsdk.backendbuddy.qpu_connection.qpu_connection import QpuConnection
 
 
 class HoneywellConnection(QpuConnection):
-    """ Wrapper about the Honeywell REST API, to facilitate job submission and automated post-processing of results """
+    """Wrapper about the Honeywell REST API, to facilitate job submission and
+    automated post-processing of results.
+    """
 
     def __init__(self):
         self.endpoint = "https://qapi.honeywell.com" + "/v1/"   # Update endpoint or version number here if needed
@@ -46,10 +51,10 @@ class HoneywellConnection(QpuConnection):
         return {"Content-Type": "application/json", "Authorization": self.id_token}
 
     def _login(self):
+        """Use Honeywell logins (email, password) to retrieve the id token to be
+        used for request with their REST API. Assumes users have set
+        HONEYWELL_EMAIL and HONEYWELL_PASSWORD in their environment variables.
         """
-            Use Honeywell logins (email, password) to retrieve the id token to be used for request with their REST API.
-            Assumes users have set HONEYWELL_EMAIL and HONEYWELL_PASSWORD in their environment variables.
-         """
 
         honeywell_email, honeywell_password = os.getenv("HONEYWELL_EMAIL", None), os.getenv("HONEYWELL_PASSWORD", None)
         if not (honeywell_email and honeywell_password):
@@ -63,13 +68,17 @@ class HoneywellConnection(QpuConnection):
         self.id_token, self.refresh_token = login_response["id-token"], login_response["refresh-token"]
 
     def _catch_request_error(self, return_dict):
-        """ Use the dictionary returned from a REST request to check for errors at runtime, and catch them """
+        """Use the dictionary returned from a REST request to check for errors
+        at runtime, and catch them.
+        """
         if "error" in return_dict:
             pprint.pprint(return_dict)
             raise RuntimeError(f"Error returned by Honeywell API :\n{return_dict['error']}")
 
     def get_devices(self):
-        """ Return dictionary of available devices to the user, as well as some useful information about them """
+        """Return dictionary of available devices to the user, as well as some
+        useful information about them.
+        """
 
         device_list_response = rq.get(self.endpoint + "/machine?config=true", headers=self.header)
         available_devices = json.loads(device_list_response.text)
@@ -86,16 +95,19 @@ class HoneywellConnection(QpuConnection):
         return device_info
 
     def job_submit(self, machine_name, qasm_circuit, n_shots, job_name, **job_specs):
-        """ Submit job, return job ID.
+        """Submit job, return job ID.
 
         Args:
-            machine_name (str): name of the target device
-            qasm_circuit (str): openqasm 2.0 string representing the quantum circuit
-            n_shots (int): number of shots
-            job_name (str): name to make the job more identifiable
-            **job_specs: extra arguments such as `max_cost` or `options` in the code below
+            machine_name (str): name of the target device.
+            qasm_circuit (str): openqasm 2.0 string representing the quantum
+                circuit.
+            n_shots (int): number of shots.
+            job_name (str): name to make the job more identifiable.
+            **job_specs: extra arguments such as `max_cost` or `options` in the
+                code below.
+
         Returns:
-            job_id (str): alphanumeric character string representing the job id
+            str: alphanumeric character string representing the job id.
         """
 
         # Honeywell does not support openqasm comments: remove them before submission
@@ -119,12 +131,13 @@ class HoneywellConnection(QpuConnection):
         return job_request['job']
 
     def job_get_info(self, job_id):
-        """ Returns information about the job corresponding to the input job id
+        """Returns information about the job corresponding to the input job id.
 
         Args:
-            job_id (str): alphanumeric character string representing the job id
+            job_id (str): alphanumeric character string representing the job id.
+
         Returns:
-            job_status (dict): status response from the Honeywell REST API
+            dict: status response from the Honeywell REST API.
         """
 
         option = "?websocket=true"
@@ -136,12 +149,14 @@ class HoneywellConnection(QpuConnection):
         return job_status
 
     def job_get_results(self, job_id):
-        """ Blocking call querying the REST API at a given frequency, until job results are available.
+        """Blocking call querying the REST API at a given frequency, until job
+        results are available.
 
         Args:
-            job_id (str): alphanumeric character string representing the job id
+            job_id (str): alphanumeric character string representing the job id.
+
         Returns:
-            job_status (dict): status response from the Honeywell REST API
+            dict: status response from the Honeywell REST API.
         """
 
         # The only way to retrieve the results, see if a job submission was incorrect, etc, is to look at the job info
@@ -158,10 +173,11 @@ class HoneywellConnection(QpuConnection):
                 raise RuntimeError(f'Unexpected job status :: \n {job_status}')
 
     def job_cancel(self, job_id):
-        """ Blocking call querying the REST API at a given frequency, until job results are available.
+        """Blocking call querying the REST API at a given frequency, until job
+        results are available.
 
         Args:
-            job_id (str): alphanumeric character string representing the job id
+            str: alphanumeric character string representing the job id.
         """
         job_cancel = rq.post(self.endpoint+"/job/"+job_id+"/cancel", headers=self.header, data={})
         job_cancel = json.loads(job_cancel.text)

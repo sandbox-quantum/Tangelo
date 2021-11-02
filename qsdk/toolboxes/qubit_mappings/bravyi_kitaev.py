@@ -42,8 +42,7 @@ def bravyi_kitaev(fermion_operator, n_qubits):
         n_qubits (int): number of qubits associated with the operator.
 
     Returns:
-        qubit_operator (QubitOperator): output bravyi-kitaev encoded qubit
-            operator.
+        QubitOperator: output bravyi-kitaev encoded qubit operator.
     """
     if not (type(n_qubits) is int):
         raise TypeError("Number of qubits (n_qubits) must be integer type.")

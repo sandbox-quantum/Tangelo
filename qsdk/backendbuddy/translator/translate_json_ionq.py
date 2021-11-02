@@ -12,19 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Functions helping with quantum circuit format conversion between abstract format and ionq format
+"""Functions helping with quantum circuit format conversion between abstract
+format and ionq format.
 
-    In order to produce an equivalent circuit for the target backend, it is necessary to account for:
-    - how the gate names differ between the source backend to the target backend
-    - how the order and conventions for some of the inputs to the gate operations may also differ
+In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations
+    may also differ.
 """
 
 
 def get_ionq_gates():
-    """
-        Map gate name of the abstract format to the equivalent gate name used in the json IonQ format
-        For more information:   https://dewdrop.ionq.co/    https://docs.ionq.co
+    """Map gate name of the abstract format to the equivalent gate name used in
+    the json IonQ format. For more information:
+    - https://dewdrop.ionq.co/
+    - https://docs.ionq.co
     """
 
     GATE_JSON_IONQ = dict()
@@ -34,13 +37,16 @@ def get_ionq_gates():
 
 
 def translate_json_ionq(source_circuit):
-    """ Take in an abstract circuit, return a dictionary following the IonQ JSON format as described below
-        https://dewdrop.ionq.co/#json-specification
+    """Take in an abstract circuit, return a dictionary following the IonQ JSON
+    format as described below.
+    https://dewdrop.ionq.co/#json-specification
 
-        Args:
-            source_circuit: quantum circuit in the abstract format
-        Returns:
-            json_ionq_circ (dict): representation of the quantum circuit following the IonQ JSON format
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        dict: representation of the quantum circuit following the IonQ JSON
+            format.
     """
 
     GATE_JSON_IONQ = get_ionq_gates()

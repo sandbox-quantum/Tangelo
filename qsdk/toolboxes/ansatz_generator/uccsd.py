@@ -201,8 +201,7 @@ class UCCSD(Ansatz):
         and translate to QubitOperator via relevant qubit mapping.
 
         Returns:
-            qubit_op (QubitOperator): qubit-encoded elements of the UCCSD
-                ansatz.
+            QubitOperator: qubit-encoded elements of the UCCSD ansatz.
         """
         fermion_op = uccsd_singlet_generator(self.var_params, self.n_spinorbitals, self.n_electrons)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
@@ -222,8 +221,7 @@ class UCCSD(Ansatz):
         parameters, and translate to QubitOperator via relevant qubit mapping.
 
         Returns:
-            qubit_op (QubitOperator): qubit-encoded elements of the UCCSD
-                ansatz.
+            QubitOperator: qubit-encoded elements of the UCCSD ansatz.
         """
         fermion_op = uccsd_openshell_generator(self.var_params,
                                                self.n_spinorbitals,

@@ -95,7 +95,7 @@ class RUCC(Ansatz):
         This method outputs |1010>.
 
         Returns:
-            qsdk.backendbuddy.Circuit: |1010> initial state.
+            Circuit: |1010> initial state.
         """
 
         if self.reference_state_initialization not in self.supported_reference_state:
@@ -111,8 +111,8 @@ class RUCC(Ansatz):
         var_params).
 
         Args:
-            var_params (array-like): Initial variational parameters. Must be
-                consistent with the chosen UCC (1 or 3).
+            list: Initial variational parameters. Must be consistent with the
+                chosen UCC (1 or 3).
         """
 
         # Set initial variational parameters used to build the circuit.
@@ -141,8 +141,7 @@ class RUCC(Ansatz):
         time if only the variational parameters change.
 
         Args:
-            var_params (array-like): Variational parameters to parse into the
-                circuit.
+            list: Variational parameters to parse into the circuit.
         """
 
         assert len(var_params) == self.n_var_params
@@ -157,7 +156,7 @@ class RUCC(Ansatz):
         state are removed.
 
         Returns:
-            qsdk.backendbuddy.Circuit: UCC1 quantum circuit.
+            Circuit: UCC1 quantum circuit.
         """
 
         # Initialization of an empty list.
@@ -185,7 +184,7 @@ class RUCC(Ansatz):
         state are removed.
 
         Returns:
-            qsdk.backendbuddy.Circuit: UCC3 quantum circuit.
+            Circuit: UCC3 quantum circuit.
         """
 
         # Initialization of an empty list.

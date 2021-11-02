@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Functions helping with quantum circuit format conversion between abstract format and Braket format
+"""Functions helping with quantum circuit format conversion between abstract
+format and Braket format
 
-    In order to produce an equivalent circuit for the target backend, it is necessary to account for:
-    - how the gate names differ between the source backend to the target backend
-    - how the order and conventions for some of the inputs to the gate operations may also differ
+In order to produce an equivalent circuit for the target backend, it is necessary
+to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations
+    may also differ.
 """
 
 
 def get_braket_gates():
-    """
-        Map gate name of the abstract format to the equivalent methods of the braket.circuits.Circuit class
-        API and supported gates: https://amazon-braket-sdk-python.readthedocs.io/en/latest/_apidoc/braket.circuits.circuit.html
+    """Map gate name of the abstract format to the equivalent methods of the
+    braket.circuits.Circuit class API and supported gates:
+    https://amazon-braket-sdk-python.readthedocs.io/en/latest/_apidoc/braket.circuits.circuit.html
     """
 
     from braket.circuits import Circuit as BraketCircuit
@@ -46,12 +48,14 @@ def get_braket_gates():
 
 
 def translate_braket(source_circuit):
-    """ Take in an abstract circuit, return a quantum circuit object as defined in the Python Braket SDK
+    """Take in an abstract circuit, return a quantum circuit object as defined
+    in the Python Braket SDK.
 
-        Args:
-            source_circuit: quantum circuit in the abstract format
-        Returns:
-            target_circuit (braket.circuits.Circuit): quantum circuit in Python Braket SDK format
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        braket.circuits.Circuit: quantum circuit in Python Braket SDK format.
     """
 
     from braket.circuits import Circuit as BraketCircuit

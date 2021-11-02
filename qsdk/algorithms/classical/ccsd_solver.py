@@ -15,7 +15,8 @@
 """Class performing electronic structure calculation employing the CCSD method.
 """
 
-from pyscf import cc
+from pyscf import cc, lib
+from pyscf.cc.ccsd_rdm import _make_rdm1, _make_rdm2, _gamma1_intermediates, _gamma2_outcore
 
 from qsdk.algorithms.electronic_structure_solver import ElectronicStructureSolver
 
@@ -42,8 +43,8 @@ class CCSDSolver(ElectronicStructureSolver):
     def simulate(self):
         """Perform the simulation (energy calculation) for the molecule.
 
-            Returns:
-                total_energy (float): CCSD energy
+        Returns:
+            float: CCSD energy.
         """
         # Execute CCSD calculation
         self.cc_fragment = cc.CCSD(self.mean_field, frozen=self.frozen)
@@ -60,11 +61,12 @@ class CCSDSolver(ElectronicStructureSolver):
         """Calculate the 1- and 2-particle reduced density matrices. The CCSD
         lambda equation will be solved for calculating the RDMs.
 
-            Returns:
-                one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle
-                    RDMs
-            Raises:
-                RuntimeError: If no simulation has been run.
+        Returns:
+            numpy.array: One-particle RDM.
+            numpy.array: Two-particle RDM.
+
+        Raises:
+            RuntimeError: If no simulation has been run.
         """
 
         # Check if CCSD calculation is performed
@@ -73,7 +75,16 @@ class CCSDSolver(ElectronicStructureSolver):
 
         # Solve the lambda equation and obtain the reduced density matrix from CC calculation
         self.cc_fragment.solve_lambda()
-        one_rdm = self.cc_fragment.make_rdm1()
-        two_rdm = self.cc_fragment.make_rdm2()
+        t1 = self.cc_fragment.t1
+        t2 = self.cc_fragment.t2
+        l1 = self.cc_fragment.l1
+        l2 = self.cc_fragment.l2
+
+        d1 = _gamma1_intermediates(self.cc_fragment, t1, t2, l1, l2)
+        f = lib.H5TmpFile()
+        d2 = _gamma2_outcore(self.cc_fragment, t1, t2, l1, l2, f, False)
+
+        one_rdm = _make_rdm1(self.cc_fragment, d1, with_frozen=False)
+        two_rdm = _make_rdm2(self.cc_fragment, d1, d2, with_dm1=True, with_frozen=False)
 
         return one_rdm, two_rdm

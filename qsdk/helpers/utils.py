@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    This file provides information about what the backends currently installed in the user's environment,
-    for the purpose of running / skipping tests, and setting a default simulator.
+"""This file provides information about what the backends currently installed in
+the user's environment, for the purpose of running / skipping tests, and setting
+a default simulator.
 """
 
 import os, sys
