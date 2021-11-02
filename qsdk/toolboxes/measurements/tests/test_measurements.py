@@ -98,10 +98,13 @@ class MeasurementsTest(unittest.TestCase):
             exp_val = 0.
             sim = Simulator(target=default_simulator, n_shots=1)
             for m_basis, coef in qb_ham.terms.items():
-                term_circ = abs_circ + Circuit(measurement_basis_gates(m_basis))
-                sim.n_shots = mes_dict[m_basis]
-                freqs, _ = sim.simulate(term_circ)
-                exp_val += sim.get_expectation_value_from_frequencies_oneterm(m_basis, freqs) * coef
+                if (m_basis):
+                    term_circ = abs_circ + Circuit(measurement_basis_gates(m_basis))
+                    sim.n_shots = mes_dict[m_basis]
+                    freqs, _ = sim.simulate(term_circ)
+                    exp_val += sim.get_expectation_value_from_frequencies_oneterm(m_basis, freqs) * coef
+                else:
+                    exp_val += coef
             diffs.append(abs(exp_val - exp_val_exact))
 
         # Check that on average, we deliver the expected accuracy
