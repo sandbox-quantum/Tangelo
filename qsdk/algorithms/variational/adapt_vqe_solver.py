@@ -274,7 +274,8 @@ class ADAPTSolver:
     def LBFGSB_optimizer(self, func, var_params):
         """Default optimizer for ADAPT-VQE."""
 
-        result = minimize(func, var_params, method="L-BFGS-B", options={"disp": False, "maxiter": 100, "gtol": 1e-10, "iprint": -1})
+        result = minimize(func, var_params, method="L-BFGS-B",
+                          options={"disp": False, "maxiter": 100, "gtol": 1e-10, "iprint": -1})
 
         self.optimal_var_params = result.x
         self.optimal_energy = result.fun
