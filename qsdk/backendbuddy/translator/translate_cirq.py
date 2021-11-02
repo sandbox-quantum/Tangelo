@@ -12,19 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Functions helping with quantum circuit format conversion between abstract format and circ format
+"""Functions helping with quantum circuit format conversion between abstract
+format and circ format.
 
-    In order to produce an equivalent circuit for the target backend, it is necessary to account for:
-    - how the gate names differ between the source backend to the target backend
-    - how the order and conventions for some of the inputs to the gate operations may also differ
+In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations
+    may also differ.
 """
 
 
 def get_cirq_gates():
-    """
-    Map gate name of the abstract format to the equivalent methods of the cirq class
-    API and supported gates: https://quantumai.google/cirq/gates
+    """Map gate name of the abstract format to the equivalent methods of the
+    cirq class API and supported gates: https://quantumai.google/cirq/gates.
     """
     import cirq
 
@@ -44,14 +45,16 @@ def get_cirq_gates():
 
 
 def translate_cirq(source_circuit, noise_model=None):
-    """ Take in an abstract circuit, return an equivalent cirq QuantumCircuit instance
+    """Take in an abstract circuit, return an equivalent cirq QuantumCircuit
+    instance.
 
-        Args:
-            source_circuit: quantum circuit in the abstract format
-        Returns:
-            target_circuit: a corresponding cirq Circuit. Right now, the
-                            structure is of LineQubit. It is possible in the
-                            future that we may support NamedQubit or GridQubit
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        cirq.Circuit: a corresponding cirq Circuit. Right now, the structure is
+            of LineQubit. It is possible in the future that we may support
+            NamedQubit or GridQubit.
     """
     import cirq
 

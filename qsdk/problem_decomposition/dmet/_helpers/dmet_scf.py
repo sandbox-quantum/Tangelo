@@ -36,12 +36,10 @@ def dmet_fragment_scf(t_list, two_ele, fock, number_electrons, number_orbitals, 
         chemical_potential (float64): The chemical potential.
 
     Returns:
-        mf_frag (pyscf.scf.RHF): The mean field of the molecule (Fragment
-            calculation).
-        fock_frag_copy (numpy.array): The fock matrix with chemical potential
-            subtracted (float64).
-        mol_frag (pyscf.gto.Mole): The molecule to simulate (Fragment
-            calculation).
+        pyscf.scf.RHF: The mean field of the molecule (Fragment calculation).
+        numpy.array: The fock matrix with chemical potential subtracted
+            (float64).
+        pyscf.gto.Mole: The molecule to simulate (Fragment calculation).
     """
 
     # Deep copy the fock matrix

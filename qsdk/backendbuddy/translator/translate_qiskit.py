@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Functions helping with quantum circuit format conversion between abstract format and qiskit format
+"""Functions helping with quantum circuit format conversion between abstract
+format and qiskit format.
 
-    In order to produce an equivalent circuit for the target backend, it is necessary to account for:
-    - how the gate names differ between the source backend to the target backend
-    - how the order and conventions for some of the inputs to the gate operations may also differ
+In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations
+    may also differ.
 """
 
 
 def get_qiskit_gates():
-    """
-        Map gate name of the abstract format to the equivalent add_gate method of Qiskit's QuantumCircuit class
-        API and supported gates: https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html
+    """Map gate name of the abstract format to the equivalent add_gate method of
+    Qiskit's QuantumCircuit class API and supported gates:
+    https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html
     """
 
     import qiskit
@@ -45,12 +47,14 @@ def get_qiskit_gates():
 
 
 def translate_qiskit(source_circuit):
-    """ Take in an abstract circuit, return an equivalent qiskit QuantumCircuit instance
+    """Take in an abstract circuit, return an equivalent qiskit QuantumCircuit
+    instance
 
-        Args:
-            source_circuit: quantum circuit in the abstract format
-        Returns:
-            qiskit.QuantumCircuit: the corresponding qiskit quantum circuit
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        qiskit.QuantumCircuit: the corresponding qiskit quantum circuit.
     """
 
     import qiskit

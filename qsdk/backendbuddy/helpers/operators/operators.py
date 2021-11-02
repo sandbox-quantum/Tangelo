@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Helper functions on QubitOperators, such as exporting Openfermion QubitOperator to file and vice-versa, or
- to visualize its coefficients for example. """
+"""Helper functions on QubitOperators, such as exporting Openfermion
+QubitOperator to file and vice-versa, or to visualize its coefficients for
+example.
+"""
 
 import math
 import numpy as np
@@ -21,7 +23,9 @@ from openfermion.ops import QubitOperator
 
 
 def ham_of_to_string(of_qb_ham):
-    """ Converts an Openfermion QubitOperator into a string with information for a Pauli word per line """
+    """Converts an Openfermion QubitOperator into a string with information for
+    a Pauli word per line.
+    """
     res = ""
     for k, v in of_qb_ham.terms.items():
         res += f'{str(v)}\t{str(k)}\n'
@@ -29,8 +33,10 @@ def ham_of_to_string(of_qb_ham):
 
 
 def string_ham_to_of(string_ham):
-    """ Reverse function of ham_of_to_string : reads a Hamiltonian from a file that uses the Openfermion syntax,
-     loads it into an openfermion QubitOperator """
+    """Reverse function of ham_of_to_string : reads a Hamiltonian from a file
+    that uses the Openfermion syntax, loads it into an openfermion
+    QubitOperator.
+    """
     of_terms_dict = dict()
     string_ham = string_ham.split('\n')[:-1]
 
@@ -44,9 +50,12 @@ def string_ham_to_of(string_ham):
 
 
 def print_histogram_coeffs(qb_ham):
-    """ Convenience function printing a matplotlib histogram of the magnitudes of the coefficient in a
-    QubitOperator object. Combine with the compress method of the QubitOperator class, this allows users to
-    quickly identify what terms in the operator can be discarded, depending on the target accuracy of calculations. """
+    """Convenience function printing a matplotlib histogram of the magnitudes
+    of the coefficient in a QubitOperator object. Combine with the compress
+    method of the QubitOperator class, this allows users to quickly identify
+    what terms in the operator can be discarded, depending on the target
+    accuracy of calculations.
+    """
 
     import matplotlib
     matplotlib.use('TkAgg')

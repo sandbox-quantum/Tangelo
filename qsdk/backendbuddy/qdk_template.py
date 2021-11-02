@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    This python module stores template Q# strings that can be used to have Q# code files ready
-    to be shared with collaborators, submitted to a remote compute backend through Microsoft services
-    or compiled by the local QDK simulator.
+"""This python module stores template Q# strings that can be used to have Q#
+code files ready to be shared with collaborators, submitted to a remote compute
+backend through Microsoft services or compiled by the local QDK simulator.
 """
 
 _header = '''namespace MyNamespace

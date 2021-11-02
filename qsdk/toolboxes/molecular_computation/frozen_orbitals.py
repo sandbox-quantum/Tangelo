@@ -26,7 +26,7 @@ def get_frozen_core(molecule):
         molecule (pyscf.gto): Molecule to be evaluated.
 
     Returns:
-        frozen_core (int): First N molecular orbitals to freeze.
+        int: First N molecular orbitals to freeze.
     """
 
     # Freezing core of each atom. "Row" refers to a periodic table row.
@@ -59,8 +59,7 @@ def get_orbitals_excluding_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
         lumo_plus_n (int): Ending point at LUMO + lumo_plus_n.
 
     Returns:
-        frozen_orbitals (list of int): Frozen orbitals not detected in the
-            active space.
+        list of int: Frozen orbitals not detected in the active space.
     """
 
     # Getting the number of molecular orbitals. It also works with different

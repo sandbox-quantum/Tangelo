@@ -36,7 +36,7 @@ def number_operator(n_orbs, up_then_down=False):
             openfermion (False).
 
     Returns:
-        num_op (FermionicOperator): The number operator penalty \hat{N}.
+        FermionicOperator: The number operator penalty \hat{N}.
     """
 
     all_terms = number_operator_list(n_orbs, up_then_down)
@@ -55,7 +55,7 @@ def number_operator_list(n_orbs, up_then_down=False):
             openfermion (False).
 
     Returns:
-        all_terms (list): The number operator penalty \hat{N}.
+        list: The number operator penalty \hat{N}.
     """
 
     all_terms = list()
@@ -75,7 +75,7 @@ def spinz_operator(n_orbs, up_then_down=False):
             openfermion (False).
 
     Returns:
-        spin_op (FermionicOperator): The Sz operator \hat{Sz}.
+        FermionicOperator: The Sz operator \hat{Sz}.
     """
 
     all_terms = spinz_operator_list(n_orbs, up_then_down)
@@ -94,7 +94,7 @@ def spinz_operator_list(n_orbs, up_then_down=False):
             openfermion (False).
 
     Returns:
-        all_terms (list): The Sz operator \hat{Sz}.
+        list: The Sz operator \hat{Sz}.
     """
 
     all_terms = list()
@@ -115,7 +115,7 @@ def spin2_operator(n_orbs, up_then_down=False):
             openfermion (False).
 
     Returns:
-        spin2_op (FermionicOperator): The S^2 operator \hat{S}^2.
+        FermionicOperator: The S^2 operator \hat{S}^2.
     """
 
     all_terms = spin2_operator_list(n_orbs, up_then_down)
@@ -135,7 +135,7 @@ def spin2_operator_list(n_orbs, up_then_down=False):
             openfermion (False).
 
     Returns:
-        all_terms (list): The S^2 operator \hat{S}^2.
+        list: The S^2 operator \hat{S}^2.
     """
 
     all_terms = list()

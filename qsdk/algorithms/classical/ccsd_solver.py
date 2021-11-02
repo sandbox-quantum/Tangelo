@@ -43,8 +43,8 @@ class CCSDSolver(ElectronicStructureSolver):
     def simulate(self):
         """Perform the simulation (energy calculation) for the molecule.
 
-            Returns:
-                total_energy (float): CCSD energy
+        Returns:
+            float: CCSD energy.
         """
         # Execute CCSD calculation
         self.cc_fragment = cc.CCSD(self.mean_field, frozen=self.frozen)
@@ -61,11 +61,12 @@ class CCSDSolver(ElectronicStructureSolver):
         """Calculate the 1- and 2-particle reduced density matrices. The CCSD
         lambda equation will be solved for calculating the RDMs.
 
-            Returns:
-                one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle
-                    RDMs
-            Raises:
-                RuntimeError: If no simulation has been run.
+        Returns:
+            numpy.array: One-particle RDM.
+            numpy.array: Two-particle RDM.
+
+        Raises:
+            RuntimeError: If no simulation has been run.
         """
 
         # Check if CCSD calculation is performed

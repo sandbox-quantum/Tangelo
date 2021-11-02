@@ -65,8 +65,7 @@ def _iao_occupied_orbitals(mol, mf):
         mf (pyscf.scf.RHF): The mean field of the molecule.
 
     Returns:
-        iao_active (numpy.array): The localized orbitals for the occupied space
-            (float64).
+        numpy.array: The localized orbitals for the occupied space (float64).
     """
 
     #   Get MO coefficient of occupied MOs
@@ -115,7 +114,7 @@ def _iao_complementary_orbitals(mol, iao_ref):
         iao_ref (numpy.array): IAO in occupied space (float64).
 
     Returns:
-        iao_comp (numpy.array): IAO in complementary space (float64).
+        numpy.array: IAO in complementary space (float64).
     """
 
     #   Get the total number of AOs
@@ -166,8 +165,8 @@ def _iao_count_active(mol, min_mol):
         min_mol (numpy.array): The molecule to simulate in minao basis.
 
     Returns:
-        number_active (int): Number of active orbitals.
-        active_number_list (list): List of active orbitals (int).
+        int: Number of active orbitals.
+        list: List of active orbitals (int).
     """
 
     #   Initialize the list
@@ -189,13 +188,11 @@ def _iao_complementary_space(iao_ref, s, number_inactive):
 
     Args:
         iao_ref (numpy.array): IAO in occupied space.
-        (float64)
         s (numpy.array): The overlap matrix.
-        (float64)
         number_inactive (int): The number of inactive orbitals.
 
     Returns:
-        eigen_vectors (numpy.array): The inactive part in IAO (float64).
+        numpy.array: The inactive part in IAO (float64).
     """
 
     #   Construct the "density matrix" for active space
@@ -220,7 +217,7 @@ def _iao_atoms(mol, iao1, iao2):
         iao2 (numpy.array): IAO for complementary space (float64).
 
     Returns:
-        iao_combined (numpy.array): The rearranged IAO (float64).
+        numpy.array: The rearranged IAO (float64).
     """
 
     # Calclate the integrals for assignment
@@ -260,7 +257,7 @@ def _dmet_atom_list(mol, orbitals):
         orbitals (numpy.array): Coordinates for the orbital centers (float64).
 
     Returns:
-        newlist (list): The list for atom assignment for IAO (int).
+        list: The list for atom assignment for IAO (int).
     """
 
     # Initialize the list
@@ -291,7 +288,7 @@ def _dmet_orb_list(mol, atom_list):
         atom_list (list): Atom list for IAO assignment (int).
 
     Returns:
-        newlist (list): The orbital list in new order (int).
+        list: The orbital list in new order (int).
     """
     newlist = []
     for i in range(mol.natm):

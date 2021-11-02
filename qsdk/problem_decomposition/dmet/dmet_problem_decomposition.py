@@ -54,8 +54,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
             only a string is detected, this solver is used for all fragments.
         optimizer (function handle): A function defining the classical optimizer
             and its behavior.
-        initial_chemical_potential (str or array-like) : Initial value for the
-            chemical potential.
+        initial_chemical_potential (float) : Initial value for the chemical
+            potential.
         solvers_options (list or dict): List of dictionaries for the solver
             options. If only a single dictionary is passed, the same options are
             applied for every solver. This will raise an error if different
@@ -573,9 +573,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
             var_params (list): The variational parameters (float).
 
         Returns:
-            The optimal chemical potential found by the optimizer.
+            float: The chemical potential found by the optimizer.
         """
 
         result = scipy.optimize.newton(func, var_params, tol=1e-5)
 
-        return result
+        return result.real

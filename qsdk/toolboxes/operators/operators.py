@@ -108,7 +108,7 @@ def normal_ordered(fe_op):
     reordering.
 
     Returns:
-        toolboxes.operators.FermionicOperator: Normal ordered operator.
+        FermionicOperator: Normal ordered operator.
     """
 
     # Obtain normal ordered fermionic operator as list of terms
@@ -126,7 +126,7 @@ def squared_normal_ordered(all_terms):
     or openfermion.FermionOperator
 
     Returns:
-        toolboxes.operators.FermionOperator: squared (i.e. fe_op*fe_op) and
+        FermionOperator: squared (i.e. fe_op*fe_op) and
             normal ordered.
     """
 
@@ -140,7 +140,7 @@ def list_to_fermionoperator(all_terms):
     """Input: a list of terms to generate FermionOperator
 
     Returns:
-        toolboxes.operators.FermionOperator: Single merged operator.
+        FermionOperator: Single merged operator.
     """
 
     fe_op = FermionOperator()

@@ -81,8 +81,7 @@ class Fragment:
         self.e_fragment = None
 
     def build(self):
-        """Get the solver objects for this layer. Also defined molecule objects.
-        """
+        """Get the solver objects for this layer. Also defined molecule objects."""
 
         # Low accuracy solver.
         # We begin by defining the molecule.
@@ -168,7 +167,7 @@ class Fragment:
             options_solver (dict): Options for the solver.
 
         Returns:
-            Solver object or string.
+            ElectronicStructureSolver: Solver object or string.
         """
 
         if solver_string == "RHF":
@@ -235,7 +234,8 @@ class Link:
                 [[str,tuple(float,float,float)],...].
 
         Returns:
-            Atomic species, and position of replacement atom.
+            str: Atomic species.
+            tuple: Position (x, y, z) of replacement atom.
         """
 
         staying = np.array(geometry[self.staying][1])

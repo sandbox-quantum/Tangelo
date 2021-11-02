@@ -197,8 +197,8 @@ class UpCCGSD(Ansatz):
         parameters, and translate to QubitOperator via relevant qubit mapping.
 
         Returns:
-            qubit_op (QubitOperator): qubit-encoded elements of the UpCCGSD
-                ansatz for current_k.
+            QubitOperator: qubit-encoded elements of the UpCCGSD ansatz for
+                current_k.
         """
         current_k_params = self.var_params[current_k*self.n_var_params_per_step:(current_k+1)*self.n_var_params_per_step]
 

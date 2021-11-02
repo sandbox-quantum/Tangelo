@@ -43,8 +43,8 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
             alternating spin up/down.
 
     Returns:
-        vector (numpy array of int): binary integer array indicating occupation
-            of each spin-orbital.
+        numpy array of int: binary integer array indicating occupation of each
+            spin-orbital.
     """
     if mapping.upper() not in available_mappings:
         raise ValueError(f"Invalid mapping selection. Select from: {available_mappings}")
@@ -79,7 +79,7 @@ def do_bk_transform(vector):
         vector (numpy array of int): fermion occupation vector.
 
     Returns:
-        vector_bk (numpy array of int): qubit-encoded occupation vector.
+        numpy array of int: qubit-encoded occupation vector.
     """
     mat = bravyi_kitaev_code(len(vector)).encoder.toarray()
     vector_bk = np.mod(np.dot(mat, vector), 2)
@@ -92,10 +92,10 @@ def do_scbk_transform(n_spinorbitals, n_electrons):
 
     Args:
         n_spinorbitals (int): number of qubits in register.
-        n_electrons (int): number of fermions occupied
+        n_electrons (int): number of fermions occupied.
 
     Returns:
-        vector (numpy array of int): qubit-encoded occupation vector.
+        numpy array of int: qubit-encoded occupation vector.
     """
     n_alpha, n_orb = n_electrons//2, (n_spinorbitals - 2)//2
     vector = np.zeros(n_spinorbitals - 2, dtype=int)
@@ -113,7 +113,7 @@ def vector_to_circuit(vector):
         vector (numpy array of int): occupation vector.
 
     Returns:
-        circuit (Circuit): instance of qsdk.backendbuddy Circuit class
+        Circuit: instance of qsdk.backendbuddy Circuit class.
     """
 
     n_qubits = len(vector)
@@ -142,7 +142,7 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
         spin (int): 2*S = n_alpha - n_beta.
 
     Returns:
-        circuit (Circuit): instance of qsdk.backendbuddy Circuit class
+        Circuit: instance of qsdk.backendbuddy Circuit class.
     """
     vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down, spin=spin)
     circuit = vector_to_circuit(vector)

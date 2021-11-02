@@ -72,7 +72,7 @@ class FCISolver(ElectronicStructureSolver):
         """Perform the simulation (energy calculation) for the molecule.
 
         Returns:
-            energy (float): Total FCI energy.
+            float: Total FCI energy.
         """
 
         if self.cas:  # Use previously generated effective Hamiltonian to obtain FCI solution
@@ -103,8 +103,8 @@ class FCISolver(ElectronicStructureSolver):
         """Compute the Full CI 1- and 2-particle reduced density matrices.
 
         Returns:
-            one_rdm, two_rdm (numpy.array, numpy.array): One & two-particle
-                RDMs.
+            numpy.array: One-particle RDM.
+            numpy.array: Two-particle RDM.
 
         Raises:
             RuntimeError: If method "simulate" hasn't been run.

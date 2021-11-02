@@ -224,8 +224,9 @@ class VQESolver:
         Args:
              var_params (numpy.array or str): variational parameters to use for
                 VQE energy evaluation.
+
         Returns:
-             energy (float): energy computed by VQE using the ansatz and input
+             float: energy computed by VQE using the ansatz and input
                 variational parameters.
         """
 
@@ -262,8 +263,8 @@ class VQESolver:
                     QubitHamiltonian.
 
            Returns:
-                expectation (float): operator expectation value computed by VQE
-                    using the ansatz and input variational parameters.
+                float: operator expectation value computed by VQE using the
+                    ansatz and input variational parameters.
         """
         if var_params is None:
             var_params = self.ansatz.var_params
@@ -445,7 +446,8 @@ class VQESolver:
             var_params (list): The variational parameters (float64).
 
         Returns:
-            The optimal energy found by the optimizer.
+            float: The optimal energy found by the optimizer.
+            list of floats: Optimal parameters
         """
 
         from scipy.optimize import minimize

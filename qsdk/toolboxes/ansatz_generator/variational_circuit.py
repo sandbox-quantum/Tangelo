@@ -26,7 +26,7 @@ class VariationalCircuitAnsatz(Ansatz):
     enables users to provide a custom pre-built circuit.
 
     Args:
-        abstract_circuit (Circuit) : Circuit with variational gates.
+        Circuit: Circuit with variational gates.
     """
 
     def __init__(self, abstract_circuit):

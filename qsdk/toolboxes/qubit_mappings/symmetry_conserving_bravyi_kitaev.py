@@ -60,9 +60,8 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
             ordered putting all spin up before all spin down states.
 
     Returns:
-        qubit_operator (QubitOperator): The qubit operator corresponding to the
-            supplied fermionic operator, with two qubits removed using spin
-            symmetries.
+        QubitOperator: The qubit operator corresponding to the supplied
+            fermionic operator, with two qubits removed using spin symmetries.
 
     WARNING:
         Reorders orbitals from the default even-odd ordering to all spin-up
@@ -142,8 +141,8 @@ def edit_operator_for_spin(qubit_operator, spin_orbital, orbital_parity):
         orbital_parity (int): plus/minus one, parity of eigenvalue.
 
     Returns:
-        qubit_operator (QubitOperator): updated operator, with relevant
-            coefficients multiplied by +/-1.
+        QubitOperator: updated operator, with relevant coefficients multiplied
+            by +/-1.
     """
     new_qubit_dict = {}
     for term, coefficient in qubit_operator.terms.items():
@@ -190,8 +189,7 @@ def prune_unused_indices(qubit_operator, prune_indices, n_qubits):
         n_qubits (int): number of qubits in register.
 
     Returns:
-         new_operator (QubitOperator): output operator, with designated qubit
-            indices excised.
+        QubitOperator: output operator, with designated qubit indices excised.
     """
 
     indices = np.linspace(0, n_qubits - 1, n_qubits, dtype=int)

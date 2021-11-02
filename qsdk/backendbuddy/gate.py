@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Define an abstract quantum gate class holding information about a quantum gate operation, without tying it
-    to a particular backend or an underlying mathematical operation.
+"""Define an abstract quantum gate class holding information about a quantum
+gate operation, without tying it to a particular backend or an underlying
+mathematical operation.
 """
 
 ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ"}
@@ -22,16 +22,19 @@ TWO_QUBIT_GATES = {"CNOT"}
 
 
 class Gate(dict):
-    """
-    An abstract gate class that exposes all the gate information such as gate name, control and target qubit indices,
-    parameter values. Assumes qubit indexation starts at index 0.
+    """An abstract gate class that exposes all the gate information such as gate
+    name, control and target qubit indices, parameter values. Assumes qubit
+    indexation starts at index 0.
 
     Attributes:
-        name (str): the gate name
-        target (int): A positive integer denoting the index of the target qubit
-        control (int): A positive integer denoting the index of the control qubit
-        parameter: A floating-point number or symbolic expression that will resolve at runtime. Can hold anything.
-        is_variational (bool): a boolean indicating if the gate operation is variational or not
+        name (str): the gate name,
+        target (int): A positive integer denoting the index of the target qubit,
+        control (int): A positive integer denoting the index of the control
+            qubit,
+        parameter: A floating-point number or symbolic expression that will
+            resolve at runtime. Can hold anything.
+        is_variational (bool): a boolean indicating if the gate operation is
+            variational or not.
     """
 
     # TODO: extend control to a list to support gates such as the Toffoli gate etc in the future
@@ -48,7 +51,9 @@ class Gate(dict):
                          "parameter": parameter, "is_variational": is_variational}
 
     def __str__(self):
-        """ Print gate information in a somewhat formatted way. Do not print empty attributes. """
+        """Print gate information in a somewhat formatted way. Do not print
+        empty attributes.
+        """
 
         mystr = f"{self.name:<10}"
         for attr in ["target", "control"]:

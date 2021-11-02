@@ -29,8 +29,7 @@ def dmet_low_rdm(active_fock, number_active_electrons):
         number_active_electrons (int): Number of electrons in the entire system.
 
     Returns:
-        onerdm (numpy.array): One-particle RDM of the low-level calculation
-            (float64).
+        numpy.array: One-particle RDM of the low-level calculation (float64).
     """
 
     # Extract the occupied part of the one-particle RDM
@@ -54,10 +53,9 @@ def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
         number_active_electrons (int): Number of electrons in the entire system.
 
     Returns:
-        number_orbitals (int): Number of orbitals for fragment calculation.
-        number_electrons (int): Number of electrons for fragment calulation.
-        core_occupied_onerdm (numpy.array): Core part of the one-particle RDM
-            (float64).
+        int: Number of orbitals for fragment calculation.
+        int: Number of electrons for fragment calulation.
+        numpy.array: Core part of the one-particle RDM (float64).
     """
 
     # Obtain number of active orbitals

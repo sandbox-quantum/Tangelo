@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Python wrappers around IonQ REST API, to facilitate job submission, result retrieval and post-processing
+"""Python wrappers around IonQ REST API, to facilitate job submission, result
+retrieval and post-processing
 
-    Using IonQ services requires an API key.
-    Users are expected to set the environment variable IONQ_APIKEY with the value of this token.
+Using IonQ services requires an API key.
+Users are expected to set the environment variable IONQ_APIKEY with the value of
+this token.
 
-    Please check IonQ documentations to ensure what features and acceptable values exist:
-    https://dewdrop.ionq.co/
-    https://docs.ionq.co
+Please check IonQ documentations to ensure what features and acceptable values
+exist:
+https://dewdrop.ionq.co/
+https://docs.ionq.co
 """
 
 import os
@@ -34,7 +36,9 @@ from qsdk.backendbuddy.qpu_connection.qpu_connection import QpuConnection
 
 
 class IonQConnection(QpuConnection):
-    """ Wrapper about the IonQ REST API, to facilitate job submission and automated post-processing of results """
+    """Wrapper about the IonQ REST API, to facilitate job submission and
+    automated post-processing of results.
+    """
 
     def __init__(self):
         self.endpoint = "https://api.ionq.co" + "/v0.1"  # Update endpoint or version number here if needed
@@ -43,7 +47,7 @@ class IonQConnection(QpuConnection):
 
     @property
     def header(self):
-        """ Produce the header for REST requests """
+        """Produce the header for REST requests."""
         return {"Content-Type": "application/json", "Authorization": self.api_key}
 
     def _login(self):
@@ -63,13 +67,17 @@ class IonQConnection(QpuConnection):
             raise RuntimeError(f"{err}")
 
     def _catch_request_error(self, return_dict):
-        """ Use the dictionary returned from a REST request to check for errors at runtime, and catch them """
+        """Use the dictionary returned from a REST request to check for errors
+        at runtime, and catch them.
+        """
         if "error" in return_dict:
             pprint.pprint(return_dict)
             raise RuntimeError(f"Error returned by IonQ API :\n{return_dict['error']}")
 
     def _get_job_dataframe(self, job_history):
-        """ Display main job info as pandas dataframe. Takes REST request answer as input """
+        """Display main job info as pandas dataframe. Takes REST request answer
+        as input.
+        """
 
         jl = job_history['jobs']
         jl_info = [(j['id'], j['status'], j['target']) for j in jl]
@@ -77,17 +85,22 @@ class IonQConnection(QpuConnection):
         return jobs_df
 
     def job_submit(self, target_backend, ionq_circuit, n_shots, job_name, **job_specs):
-        """ Submit job, return job ID.
+        """Submit job, return job ID.
 
         Args:
-            target_backend (str): name of target device. See IonQ documentation for possible values.
-                Current acceptable values are 'simulator' and 'qpu'
-            ionq_circuit (str): Circuit in a compatible format (json format recommended)
-            n_shots (int): number of shots (ignored if target_backend is set to `simulator`
-            job_name (str): name to make the job more identifiable
-            **job_specs: extra arguments such as `lang` in the code below; `metadata` is not currently supported.
+            target_backend (str): name of target device. See IonQ documentation
+                for possible values. Current acceptable values are 'simulator'
+                and 'qpu'.
+            ionq_circuit (str): Circuit in a compatible format (json format
+                recommended).
+            n_shots (int): number of shots (ignored if target_backend is set to
+                `simulator`.
+            job_name (str): name to make the job more identifiable.
+            **job_specs: extra arguments such as `lang` in the code below;
+                `metadata` is not currently supported.
+
         Returns:
-            job_id (str): string representing the job id
+            str: string representing the job id.
         """
 
         payload = {"target": target_backend,
@@ -105,12 +118,13 @@ class IonQConnection(QpuConnection):
         return return_dict['id']
 
     def job_get_history(self):
-        """ Returns information about the job corresponding to the input job id
+        """Returns information about the job corresponding to the input job id.
 
         Args:
-            job_id (str): alphanumeric character string representing the job id
+            job_id (str): alphanumeric character string representing the job id.
+
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API.
         """
 
         job_history = rq.get(self.endpoint + '/jobs', headers=self.header)
@@ -120,12 +134,13 @@ class IonQConnection(QpuConnection):
         return self._get_job_dataframe(return_dict)
 
     def job_get_info(self, job_id):
-        """ Returns information about the job corresponding to the input job id
+        """Returns information about the job corresponding to the input job id.
 
         Args:
-            job_id (str): string representing the job id
+            job_id (str): string representing the job id.
+
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API.
         """
 
         job_status = rq.get(self.endpoint + "/jobs/" + job_id, headers=self.header)
@@ -135,12 +150,14 @@ class IonQConnection(QpuConnection):
         return job_status
 
     def job_get_results(self, job_id):
-        """ Blocking call querying the REST API at a given frequency, until job results are available.
+        """Blocking call querying the REST API at a given frequency, until job
+        results are available.
 
         Args:
-            job_id (str): string representing the job id
+            job_id (str): string representing the job id.
+
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API.
         """
 
         while True:
@@ -153,12 +170,13 @@ class IonQConnection(QpuConnection):
                 raise RuntimeError(f'Unexpected job status :: \n {job_status}')
 
     def job_cancel(self, job_id):
-        """ Cancel / delete a job from IonQ servers.
+        """Cancel / delete a job from IonQ servers.
 
         Args:
-            job_id (str): string representing the job id
+            job_id (str): string representing the job id.
+
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API.
         """
         job_cancel = rq.delete(self.endpoint+"/jobs/"+job_id, headers=self.header)
         job_cancel = json.loads(job_cancel.text)
