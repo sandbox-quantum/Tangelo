@@ -18,7 +18,6 @@ functionalities.
 
 import copy
 from dataclasses import dataclass, field
-from functools import reduce
 import numpy as np
 from pyscf import gto, scf, ao2mo
 import openfermion
@@ -388,7 +387,7 @@ class SecondQuantizedMolecule(Molecule):
         core_constant = float(pyscf_mol.energy_nuc())
 
         # get_hcore is equivalent to int1e_kin + int1e_nuc.
-        one_electron_integrals = reduce(np.dot, (self.mean_field.mo_coeff.T, self.mean_field.get_hcore(), self.mean_field.mo_coeff))
+        one_electron_integrals = self.mean_field.mo_coeff.T @ self.mean_field.get_hcore() @ self.mean_field.mo_coeff
 
         # Getting 2-body integrals in atomic and converting to molecular basis.
         two_electron_integrals = ao2mo.kernel(pyscf_mol.intor("int2e"), self.mean_field.mo_coeff)
