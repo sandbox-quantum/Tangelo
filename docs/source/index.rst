@@ -11,8 +11,8 @@ Welcome to qsdk's documentation!
    :caption: Contents:
 
    README
-   qsdk
    tutorials
+   qsdk
 
 Indices and tables
 ==================
