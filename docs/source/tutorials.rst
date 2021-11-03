@@ -6,6 +6,6 @@ Tutorials
 
    overview_endtoend
    backendbuddy_basics
-   dmet
    vqe
+   dmet
    qemist_cloud_hardware_experiments_braket
