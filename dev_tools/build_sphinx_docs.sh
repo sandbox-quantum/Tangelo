@@ -4,6 +4,14 @@
 # or mock the desired packages in docs/source/conf.py
 cd ../docs || cd docs
 pip install sphinx sphinx_rtd_theme nbsphinx
+
+# This environment seems to work for building the docs.
+# Something fishy otherwise.
+pip install -r requirements.txt
+
+# Support for LaTeX
 sudo apt-get install -y latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended pandoc dvipng
+
+# Build html documentation in ../docs/source/html
 sphinx-apidoc -o source ../qsdk
 make clean; make html
