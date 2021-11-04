@@ -5,4 +5,5 @@
 cd ../docs || cd docs
 pip install sphinx sphinx_rtd_theme nbsphinx
 sudo apt-get install -y latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended pandoc dvipng
+sphinx-apidoc -o source ../qsdk
 make clean; make html
