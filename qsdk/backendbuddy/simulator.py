@@ -108,8 +108,9 @@ class Simulator:
         if source_circuit.width == 0:
             raise ValueError("Cannot simulate an empty circuit (e.g identity unitary) with unknown number of qubits.")
 
-        # If the unitary is the identity (no gates), no need for simulation: return all-zero state
-        if source_circuit.size == 0:
+        # If the unitary is the identity (no gates) and no noise model, no need for simulation:
+        # return all-zero state or sample from statevector
+        if source_circuit.size == 0 and not self._noise_model:
             if initial_statevector is not None:
                 statevector = initial_statevector
                 frequencies = self._statevector_to_frequencies(initial_statevector)
@@ -392,7 +393,7 @@ class Simulator:
         n_qubits = state_prep_circuit.width
         if not self.statevector_available or state_prep_circuit.is_mixed_state or self._noise_model:
             initial_circuit = state_prep_circuit
-            if initial_statevector is not None:
+            if initial_statevector is not None and not self.statevector_available:
                 raise ValueError(f'Backend {self._target} does not support statevectors')
             else:
                 updated_statevector = initial_statevector
