@@ -89,8 +89,6 @@ class QITESolver:
             if not (self.n_spinorbitals and self.n_electrons):
                 raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals) and the number of electrons (n_electrons) with a qubit_hamiltonian.")
 
-        self.ansatz = None
-        self.converged = False
         self.iteration = 0
         self.energies = list()
 
@@ -114,7 +112,7 @@ class QITESolver:
                                      up_then_down=self.up_then_down)
 
     def build(self):
-        """Builds the underlying objects required to run the ADAPT-VQE
+        """Builds the underlying objects required to run the QITE
         algorithm.
         """
 
@@ -190,20 +188,28 @@ class QITESolver:
         self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
                                  noise_model=self.backend_options["noise_model"])
 
+        self.use_statevector = True if (self.backend.statevector_available and self.backend._noise_model is None) else False
+
     def simulate(self):
         """Performs the QITE cycles. Each iteration, a linear system is
-        solved to obtain the next unitary.
+        solved to obtain the next unitary. The system to be solved can be found in
+        section 3.5 of https://arxiv.org/pdf/2108.04413.pdf
+
+        Returns:
+            float: final energy after obtaining running QITE
         """
 
-        # Construction of the ansatz. self.max_cycles terms are added, unless
-        # all operator gradients are less than self.tol.
+        # Construction of the circuit. self.max_cycles terms are added, unless
+        # the energy change is less than self.min_de.
         self.final_energy = self.energy_expectation(self.backend)
         self.energies.append(self.final_energy)
         while self.iteration < self.max_cycles:
             self.iteration += 1
-            print(f"Iteration {self.iteration} of QITE.")
+            if self.verbose:
+                print(f"Iteration {self.iteration} of QITE with starting energy {self.final_energy}")
 
-            self.update_statevector(self.backend, self.circuit_list[self.iteration - 1])
+            if self.use_statevector:
+                self.update_statevector(self.backend, self.circuit_list[self.iteration - 1])
             suv, bu = self.calculate_matrices(self.backend, self.final_energy)
 
             new_energy = self.energy_expectation(self.backend)
@@ -215,7 +221,7 @@ class QITESolver:
             else:
                 self.final_energy = new_energy
 
-            alphas = self.dt*np.linalg.solve(suv.real, bu.real)
+            alphas = self.dt * np.linalg.solve(suv.real, bu.real)
             next_circuit, _ = trotterize(self.pool_qubit_op, alphas, trotter_order=1, num_trotter_steps=1)
 
             self.circuit_list.append(next_circuit)
@@ -227,8 +233,8 @@ class QITESolver:
         r"""Update self.final_statevector by propagating with next_circuit using backend
 
         Args:
-            backend (Simulator): the backend to use for the statevector update
-            next_circuit (Circuit): The circuit to apply to the statevector
+            Simulator: the backend to use for the statevector update
+            Circuit: The circuit to apply to the statevector
         """
         _, self.final_statevector = backend.simulate(next_circuit,
                                                      return_statevector=True,
@@ -236,21 +242,22 @@ class QITESolver:
 
     def calculate_matrices(self, backend: Simulator, new_energy: float):
         r"""Calculated matrix elements for imaginary time evolution.
+        The matrices are defined in section 3.5 of https://arxiv.org/pdf/2108.04413.pdf
 
         Args:
             backend (Simulator): the backend from which the matrices are generated
             new_energy (float): the current energy_expectation of the Hamiltonian
 
         Returns:
-            suv (matrix float): The expectation values <\psi| pu^+ pv |\psi>
-            bu (array float): The expecation values <\psi| pu^+ H |\psi>
+            matrix float: The expectation values <\psi| pu^+ pv |\psi>
+            array float: The expecation values <\psi| pu^+ H |\psi>
         """
 
-        empty_circuit = Circuit(n_qubits=self.final_circuit.width)
+        circuit = Circuit(n_qubits=self.final_circuit.width) if self.use_statevector else self.final_circuit
 
         ndeltab = np.sqrt(1 - 2 * self.dt * new_energy)
         bu = [backend.get_expectation_value(element,
-                                            empty_circuit,
+                                            circuit,
                                             initial_statevector=self.final_statevector)/ndeltab for element in self.pool_h]
         bu = -1j*np.array(bu)
         pool_size = len(self.pool_h)
@@ -259,7 +266,7 @@ class QITESolver:
             suv[u, u] = 0
             for v in range(u+1, pool_size):
                 suv[u, v] = backend.get_expectation_value(self.pool_pool[u][v],
-                                                          empty_circuit,
+                                                          circuit,
                                                           initial_statevector=self.final_statevector)
                 suv[v, u] = suv[u, v]
 
@@ -273,14 +280,24 @@ class QITESolver:
              backend (Simulator): the backend one computes the energy expectation with
 
         Returns:
-             energy (float): energy computed by the backend
+            float: energy computed by the backend
         """
+        circuit = Circuit(n_qubits=self.final_circuit.width) if self.use_statevector else self.final_circuit
         energy = backend.get_expectation_value(self.qubit_hamiltonian.to_qubitoperator(),
-                                               Circuit(n_qubits=self.final_circuit.width),
+                                               circuit,
                                                initial_statevector=self.final_statevector)
         return energy
 
     def get_resources(self):
-        """Returns resources currently used in underlying VQE."""
+        """Returns resources currently used in underlying state preparation i.e. self.final_circuit
+        the number of pool operators, and the size of qubit_hamiltonian
 
-        return None
+        Returns:
+            dict: Dictionary of various quantum resources required"""
+        resources = dict()
+        resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms)
+        resources["pool_size"] = len(self.pool_operators)
+        resources["circuit_width"] = self.final_circuit.width
+        resources["circuit_gates"] = self.final_circuit.size
+        resources["circuit_2qubit_gates"] = self.final_circuit.counts.get("CNOT", 0)
+        return resources

@@ -18,13 +18,13 @@ import numpy as np
 from qsdk.backendbuddy import Simulator
 from qsdk.algorithms.projective.quantum_imaginary_time import QITESolver
 from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g
-from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from qsdk.backendbuddy.noisy_simulation import NoiseModel
 
 
 class QITESolverTest(unittest.TestCase):
 
     def test_instantiation_qite(self):
-        """Try instantiating VQESolver with basic input."""
+        """Try instantiating QITESolver with basic input."""
 
         options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw"}
         QITESolver(options)
@@ -41,49 +41,52 @@ class QITESolverTest(unittest.TestCase):
         options = {"qubit_mapping": "jw"}
         self.assertRaises(ValueError, QITESolver, options)
 
-#    def test_operator_expectation_qite(self):
-#        """ A test of the operator_expectation function, using optimal parameters and exact simulator """
-#
-#        qite_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": 'jw'}
-#        qite_solver = VQESolver(qite_options)
-#        qite_solver.build()
-#
-#        # Test using var_params input and Qubit Hamiltonian
-#        energy = qite_solver.operator_expectation(qite_solver.qubit_hamiltonian, var_params=[5.86665842e-06, 5.65317429e-02])
-#        self.assertAlmostEqual(energy, -1.137270422018, places=6)
-#
-#        # Test using updated var_params and Fermion Hamiltonian
-#        qite_solver.ansatz.update_var_params([5.86665842e-06, 5.65317429e-02])
-#        energy = qite_solver.operator_expectation(mol_H2_sto3g.fermionic_hamiltonian)
-#        self.assertAlmostEqual(energy, -1.137270422018, places=6)
-#
-#        # Test the three in place operators
-#        n_electrons = qite_solver.operator_expectation('N')
-#        self.assertAlmostEqual(n_electrons, 2, places=6)
-#        spin_z = qite_solver.operator_expectation('Sz')
-#        self.assertAlmostEqual(spin_z, 0, places=6)
-#        spin2 = qite_solver.operator_expectation('S^2')
-#        self.assertAlmostEqual(spin2, 0, places=6)
+    def test_simulate_h2_noisy(self):
+        """Run QITE on H2 molecule with bk qubit mapping and an empty noise model for 1 cycle.
+        Result should be lower than mean field energy.
+        """
+
+        backend_options = {"target": "qulacs", "n_shots": 10000, "noise_model": NoiseModel()}
+
+        qite_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "bk",
+                        "verbose": True, 'backend_options': backend_options,
+                        "max_cycles": 1, "up_then_down": True}
+        qite_solver = QITESolver(qite_options)
+        qite_solver.build()
+
+        energy = qite_solver.simulate()
+        self.assertTrue(energy < mol_H2_sto3g.mf_energy)
 
     def test_simulate_h2(self):
-        """Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial
-        parameters, exact simulator.
+        """Run QITE on H2 molecule, with JW qubit mapping and exact simulator
         """
 
         qite_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw",
-                       "verbose": True}
+                        "verbose": True}
         qite_solver = QITESolver(qite_options)
         qite_solver.build()
 
         energy = qite_solver.simulate()
         self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
 
+    def test_resources_h2(self):
+        """Test get_resources funtion for QITE on H2 molecule, with JW qubit mapping.
+        """
+
+        qite_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw",
+                        "verbose": True}
+        qite_solver = QITESolver(qite_options)
+        qite_solver.build()
+        resources = qite_solver.get_resources()
+        self.assertEqual(resources["qubit_hamiltonian_terms"], 15)
+        self.assertEqual(resources["pool_size"], 20)
+
     def test_mapping_BK(self):
-        """Test that BK mapping recovers the expected result, to within 1e-6 Ha,
+        """Test that BK mapping recovers the expected result, to within 1e-4 Ha,
         for the example of H2 and MP2 initial guess.
         """
         qite_options = {"molecule": mol_H2_sto3g, "verbose": False,
-                       "qubit_mapping": "bk"}
+                        "qubit_mapping": "bk"}
 
         qite_solver = QITESolver(qite_options)
         qite_solver.build()
@@ -94,10 +97,10 @@ class QITESolverTest(unittest.TestCase):
 
     def test_mapping_scBK(self):
         """Test that scBK mapping recovers the expected result, to within
-        1e-6 Ha, for the example of H2 and MP2 initial guess.
+        1e-4 Ha.
         """
         qite_options = {"molecule": mol_H2_sto3g, "verbose": False,
-                       "qubit_mapping": "scbk"}
+                        "qubit_mapping": "scbk"}
 
         qite_solver = QITESolver(qite_options)
         qite_solver.build()
@@ -111,7 +114,7 @@ class QITESolverTest(unittest.TestCase):
         the same optimized energy result for both JW and BK mappings.
         """
         qite_options = {"molecule": mol_H2_sto3g, "up_then_down": True,
-                       "verbose": False, "qubit_mapping": "jw"}
+                        "verbose": False, "qubit_mapping": "jw"}
 
         qite_solver_jw = QITESolver(qite_options)
         qite_solver_jw.build()
@@ -127,14 +130,14 @@ class QITESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy_bk, energy_target, places=5)
 
     def test_simulate_h4_frozen_orbitals(self):
-        """Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial
+        """Run QITE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial
         parameters, exact simulator. First (occupied) and last (virtual)
         orbitals are frozen.
         """
         mol_H4_sto3g_frozen = mol_H4_sto3g.freeze_mos([0, 3], inplace=False)
 
         qite_options = {"molecule": mol_H4_sto3g_frozen, "qubit_mapping": "jw",
-                       "verbose": False}
+                        "verbose": False}
         qite_solver = QITESolver(qite_options)
         qite_solver.build()
 
