@@ -22,6 +22,7 @@
 
 import numpy as np
 from collections.abc import Iterable
+from openfermion import FermionOperator as ofFermionOperator
 
 from qsdk.toolboxes.operators import FermionOperator, QubitOperator
 from qsdk.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev
@@ -94,7 +95,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
         QubitOperator: input operator, encoded in the qubit space.
     """
     # some methods may pass another operator class type. If this is the case, cast to FermionOperator where possible
-    if not isinstance(fermion_operator, FermionOperator):
+    if not (isinstance(fermion_operator, FermionOperator) or isinstance(fermion_operator, ofFermionOperator)):
         fermion_operator = get_fermion_operator(fermion_operator)
 
     if mapping.upper() not in available_mappings:

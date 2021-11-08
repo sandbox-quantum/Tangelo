@@ -31,12 +31,12 @@ Refs:
 import itertools
 import numpy as np
 from pyscf import mp
+from openfermion.circuits import uccsd_singlet_generator
 
 from qsdk.backendbuddy import Circuit
 
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit
-from ._unitary_cc import uccsd_singlet_generator
 from ._unitary_cc_openshell import uccsd_openshell_paramsize, uccsd_openshell_generator
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
