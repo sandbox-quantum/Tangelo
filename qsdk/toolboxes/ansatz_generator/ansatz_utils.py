@@ -41,8 +41,17 @@ def pauli_op_to_gate(index, op, inverse=False):
 
 
 def pauliword_to_circuit(pauli_word, coef, variational=True, control=None):
-    """Generate a quantum circuit corresponding to the pauli word.
+    """Generate a list of Gate objects corresponding to the exponential of a pauli word.
     The process is described in Whitfield 2010 https://arxiv.org/pdf/1001.3855.pdf
+
+    Args:
+        pauli_word (): The pauli_word to exponentiate
+        coef (float): The coefficient in the exponentiation
+        variational (bool): When creating the Gate objects, label the (controlled-)Rz gate as variational
+        control (integer): The control qubit label
+
+    Returns:
+        list: list of Gate objects that represent the exponentiation.
     """
     gates = []
 
@@ -75,13 +84,15 @@ def pauliword_to_circuit(pauli_word, coef, variational=True, control=None):
 def circuit_for_exponentiated_qubit_operator(qubit_op, time=1., variational=False, trotter_order=1, control=None):
     """Generate the exponentiation of a qubit operator in first_order Trotterized form.
     The algorithm is described in Whitfield 2010 https://arxiv.org/pdf/1001.3855.pdf
+
     Args:
         qubit_op  (QubitOperator):  qubit hamiltonian to exponentiate
         time (float): the coefficient to multiple to each coef for the exponential of each term
         variational (bool) : Whether the coefficients are variational
         trotter_order (int): order of trotter approximation
+
     Returns:
-        Circuit corresponding to exponentiation of qubit operator
+        Circuit: circuit corresponding to exponentiation of qubit operator
     """
     pauli_words = qubit_op.terms.items()
     num_ops = len(pauli_words)
@@ -121,21 +132,23 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
     """Generate the circuit that represents time evolution of an operator.
     This circuit is generated as a trotterization of a qubit operator which is either the input
     or mapped from the given fermion operator.
+
     Args:
         operator  (QubitOperator or FermionOperator):  operator to time evolve
         time (float or array): The time to evolve the whole system or individiual times for each
             term in the operator. If an array, must match the number of terms
             in operator
-        variational=False: whether the coefficients are variational
-        trotter_order=1: order of trotter approximation
-        num_trotter_steps=1: The number of different time steps taken for total time t
+        variational (bool): whether the coefficients are variational
+        trotter_order (int): order of trotter approximation, 1 or 2 supported
+        num_trotter_steps (int): The number of different time steps taken for total time t
         mapping_options (dict): Defines the desired Fermion->Qubit mapping
-        "up_then_down": False
-        "qubit_mapping": 'jw'
-        'n_spinorbitals': None
-        'n_electrons': None
+                                "up_then_down": False
+                                "qubit_mapping": 'jw'
+                                "n_spinorbitals": None
+                                "n_electrons": None
+
     Returns:
-        Circuit corresponding to time evolution of the operator
+        Circuit: circuit corresponding to time evolution of the operator
     """
     if isinstance(operator, (FermionOperator, ofFermionOperator, ofInteractionOperator)):
         options = {"up_then_down": False,
@@ -300,7 +313,7 @@ def decomp_controlled_swap(c, n1, n2):
         n2 (int): second target qubit
 
     Returns:
-        gates (list): List of Gate that applies controlled swap operation
+        list: List of Gate that applies controlled swap operation
     '''
     gates = [Gate('RY', target=n1, parameter=np.pi/2),
              Gate('RZ', target=n2, parameter=5*np.pi/2),
@@ -327,7 +340,7 @@ def decomp_controlled_swap_ue(c, n1, n2):
         n2 (int): second target qubit
 
     Returns:
-        gates (list): List of Gate that applies controlled swap operation
+        list: List of Gate that applies controlled swap operation
     '''
     gates = [Gate('CRX', control=c, target=n1, parameter=3*np.pi),
              Gate('CRX', control=n1, target=n2, parameter=np.pi),
@@ -352,7 +365,7 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=False):
         decomp (bool): If True, uses the decomposed controlled-swap into 1- and 2-qubit gates.
                        If False, implements the full 3-qubit operator.
     Returns:
-        derangement_circuit (Circuit)
+        Circuit: The derangement circuit
     """
     num_copies = len(qubit_list)
     if num_copies == 1:
