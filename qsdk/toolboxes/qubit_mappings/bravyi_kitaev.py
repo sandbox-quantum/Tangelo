@@ -23,7 +23,6 @@ implementation, as needed.
 
 from openfermion.utils import count_qubits
 from openfermion.transforms import bravyi_kitaev as openfermion_bravyi_kitaev
-from qsdk.toolboxes.operators import QubitOperator
 
 
 def bravyi_kitaev(fermion_operator, n_qubits):
@@ -51,7 +50,4 @@ def bravyi_kitaev(fermion_operator, n_qubits):
 
     qubit_operator = openfermion_bravyi_kitaev(fermion_operator, n_qubits=n_qubits)
 
-    converted_qubit_op = QubitOperator()
-    converted_qubit_op.terms = qubit_operator.terms.copy()
-
-    return converted_qubit_op
+    return qubit_operator

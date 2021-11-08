@@ -23,7 +23,7 @@
 import numpy as np
 from collections.abc import Iterable
 
-from qsdk.toolboxes.operators import FermionOperator
+from qsdk.toolboxes.operators import FermionOperator, QubitOperator
 from qsdk.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev
 
 available_mappings = {"JW", "BK", "SCBK"}
@@ -122,7 +122,10 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
                                                            n_electrons=n_electrons,
                                                            up_then_down=up_then_down)
 
-    return qubit_operator
+    converted_qubit_op = QubitOperator()
+    converted_qubit_op.terms = qubit_operator.terms.copy()
+
+    return converted_qubit_op
 
 
 def make_up_then_down(fermion_operator, n_spinorbitals):
