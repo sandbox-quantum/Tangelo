@@ -49,6 +49,7 @@ def get_qiskit_gates():
     GATE_QISKIT["CRZ"] = qiskit.QuantumCircuit.crz
     GATE_QISKIT["CNOT"] = qiskit.QuantumCircuit.cx
     GATE_QISKIT["SWAP"] = qiskit.QuantumCircuit.swap
+    GATE_QISKIT["XX"] = qiskit.QuantumCircuit.rxx
     GATE_QISKIT["CSWAP"] = qiskit.QuantumCircuit.cswap
     GATE_QISKIT["PHASE"] = qiskit.QuantumCircuit.p
     GATE_QISKIT["CPHASE"] = qiskit.QuantumCircuit.cp
@@ -86,6 +87,8 @@ def translate_qiskit(source_circuit):
             (GATE_QISKIT[gate.name])(target_circuit, gate.target, gate.target1)
         elif gate.name in {"CSWAP"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.control, gate.target, gate.target1)
+        elif gate.name in {"XX"}:
+            (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.target, gate.target1)
         elif gate.name in {"MEASURE"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.target, gate.target)
         else:

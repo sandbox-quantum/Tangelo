@@ -77,7 +77,7 @@ def translate_braket(source_circuit):
             (GATE_BRAKET[gate.name])(target_circuit, gate.target)
         elif gate.name in {"RX", "RY", "RZ", "PHASE"}:
             (GATE_BRAKET[gate.name])(target_circuit, gate.target, gate.parameter)
-        elif gate.name in {"CNOT", "CY", "CZ"}:
+        elif gate.name in {"CNOT", "CX", "CY", "CZ"}:
             (GATE_BRAKET[gate.name])(target_circuit, control=gate.control, target=gate.target)
         elif gate.name in {"CRZ"}:
             (GATE_BRAKET[gate.name][0])(target_circuit, gate.control, gate.target, gate.parameter/2.)

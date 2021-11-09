@@ -49,6 +49,7 @@ def get_cirq_gates():
     GATE_CIRQ["CRY"] = cirq.ry
     GATE_CIRQ["PHASE"] = cirq.ZPowGate
     GATE_CIRQ["CPHASE"] = cirq.ZPowGate
+    GATE_CIRQ["XX"] = cirq.XXPowGate
     GATE_CIRQ["SWAP"] = cirq.SWAP
     GATE_CIRQ["CSWAP"] = cirq.SWAP
     GATE_CIRQ["MEASURE"] = cirq.measure
