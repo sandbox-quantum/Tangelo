@@ -44,6 +44,7 @@ def get_braket_gates():
     GATE_BRAKET["RX"] = BraketCircuit.rx
     GATE_BRAKET["RY"] = BraketCircuit.ry
     GATE_BRAKET["RZ"] = BraketCircuit.rz
+    GATE_BRAKET["XX"] = BraketCircuit.xx
     GATE_BRAKET["CRZ"] = [BraketCircuit.cphaseshift, BraketCircuit.cphaseshift10]
     GATE_BRAKET["PHASE"] = BraketCircuit.phaseshift
     GATE_BRAKET["CPHASE"] = BraketCircuit.cphaseshift
@@ -79,6 +80,8 @@ def translate_braket(source_circuit):
             (GATE_BRAKET[gate.name])(target_circuit, gate.target, gate.parameter)
         elif gate.name in {"CNOT", "CX", "CY", "CZ"}:
             (GATE_BRAKET[gate.name])(target_circuit, control=gate.control, target=gate.target)
+        elif gate.name in {"XX"}:
+            (GATE_BRAKET[gate.name])(target_circuit, gate.target, gate.target1, gate.parameter)
         elif gate.name in {"CRZ"}:
             (GATE_BRAKET[gate.name][0])(target_circuit, gate.control, gate.target, gate.parameter/2.)
             (GATE_BRAKET[gate.name][1])(target_circuit, gate.control, gate.target, -gate.parameter/2.)
