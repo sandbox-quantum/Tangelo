@@ -95,7 +95,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
         QubitOperator: input operator, encoded in the qubit space.
     """
     # some methods may pass another operator class type. If this is the case, cast to FermionOperator where possible
-    if not (isinstance(fermion_operator, FermionOperator) or isinstance(fermion_operator, ofFermionOperator)):
+    if not isinstance(fermion_operator, ofFermionOperator):
         fermion_operator = get_fermion_operator(fermion_operator)
 
     if mapping.upper() not in available_mappings:
@@ -140,7 +140,7 @@ def make_up_then_down(fermion_operator, n_spinorbitals):
     Returns:
         FermionOperator: operator with all spin up followed by all spin down.
     """
-    if not isinstance(fermion_operator, FermionOperator):
+    if not isinstance(fermion_operator, ofFermionOperator):
         raise TypeError("Invalid operator input. Must be FermionOperator.")
     if n_spinorbitals % 2 != 0:
         raise ValueError("Invalid number of spin-orbitals. Expecting even number.")

@@ -33,7 +33,7 @@ arXiv:1701.08213 and Phys. Rev. X 6, 031007.
 import numpy as np
 import copy
 
-from qsdk.toolboxes.operators import FermionOperator
+from openfermion import FermionOperator as ofFermionOperator
 from openfermion.transforms import bravyi_kitaev_tree, reorder
 from openfermion.utils import count_qubits
 from openfermion.utils import up_then_down as up_then_down_order
@@ -78,7 +78,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
         Hamiltonian only for the lowest energy even and odd fermion number
         states, not states with an arbitrary number of fermions.
     """
-    if not isinstance(fermion_operator, FermionOperator):
+    if not isinstance(fermion_operator, ofFermionOperator):
         raise ValueError("Supplied operator should be an instance "
                          "of FermionOperator class")
     if type(n_spinorbitals) is not int:
