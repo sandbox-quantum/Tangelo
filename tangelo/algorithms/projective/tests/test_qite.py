@@ -13,9 +13,7 @@
 # limitations under the License.
 
 import unittest
-import numpy as np
 
-from qsdk.backendbuddy import Simulator
 from qsdk.algorithms.projective.quantum_imaginary_time import QITESolver
 from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g
 from qsdk.backendbuddy.noisy_simulation import NoiseModel
@@ -41,6 +39,7 @@ class QITESolverTest(unittest.TestCase):
         options = {"qubit_mapping": "jw"}
         self.assertRaises(ValueError, QITESolver, options)
 
+    @unittest.skip("Test takes a long time")
     def test_simulate_h2_noisy(self):
         """Run QITE on H2 molecule with bk qubit mapping and an empty noise model for 1 cycle.
         Result should be lower than mean field energy.
@@ -50,7 +49,7 @@ class QITESolverTest(unittest.TestCase):
 
         qite_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "bk",
                         "verbose": True, 'backend_options': backend_options,
-                        "max_cycles": 1, "up_then_down": True}
+                        "max_cycles": 2, "up_then_down": True}
         qite_solver = QITESolver(qite_options)
         qite_solver.build()
 
