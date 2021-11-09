@@ -25,7 +25,7 @@ backend_candidates_nshots = ["qdk"]
 sims_nshots = list()
 for backend in backend_candidates_nshots:
     if backend in installed_backends:
-        sims_nshots += [Simulator(target=backend, n_shots=10**5)]
+        sims_nshots += [Simulator(target=backend, n_shots=10**4)]
 
 fermion_operator = mol_H4_sto3g._get_fermionic_hamiltonian()
 
@@ -251,6 +251,7 @@ class ansatz_utils_Test(unittest.TestCase):
             target_freq_dict = {'1000': 0.5, '1001': 0.5}  # 1 * 1/2 + 0 * 1/4 + 0 * 1/8
             assert_freq_dict_almost_equal(target_freq_dict, freqs, atol=1.e-7)
 
+    @unittest.skipIf('qdk' not in installed_backends, "qdk not installed")
     def test_qft_by_phase_estimation_nshots(self):
         n_qubits = 4
         qubit_list = [2, 1, 0]
@@ -269,7 +270,7 @@ class ansatz_utils_Test(unittest.TestCase):
         for sim in sims_nshots:
             freqs, _ = sim.simulate(pe_circuit)
             target_freq_dict = {'1000': 0.5, '1001': 0.5}  # 1 * 1/2 + 0 * 1/4 + 0 * 1/8
-            assert_freq_dict_almost_equal(target_freq_dict, freqs, atol=1.e-2)
+            assert_freq_dict_almost_equal(target_freq_dict, freqs, atol=1.e-1)
 
     def test_controlled_time_evolution_by_phase_estimation(self):
         """ Verify that the time evolution is correct for a QubitOperator input with different times

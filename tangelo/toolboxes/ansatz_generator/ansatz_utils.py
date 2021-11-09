@@ -304,7 +304,7 @@ def controlled_pauliwords(qubit_op, control, n_qubits=None):
     return pauliword_circuits
 
 
-def decomp_controlled_swap(c, n1, n2):
+def decomp_controlled_swap_crx(c, n1, n2):
     '''Exact decomposition of controlled swap into 1- and 2-qubit gates
 
     Args:
@@ -331,7 +331,7 @@ def decomp_controlled_swap(c, n1, n2):
     return gates
 
 
-def decomp_controlled_swap_ue(c, n1, n2):
+def decomp_controlled_swap_crx_ue(c, n1, n2):
     '''Unitary equivalent decomposition of controlled swap into 1- and 2-qubit gates
 
     Args:
@@ -353,7 +353,65 @@ def decomp_controlled_swap_ue(c, n1, n2):
     return gates
 
 
-def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=False):
+def decomp_controlled_swap_xx_ue(c, n1, n2):
+    '''Unitary equivalent decomposition of controlled swap into 1- and xx 2-qubit gate
+
+    Args:
+        c (int): control qubit
+        n1 (int): first target qubit
+        n2 (int): second target qubit
+
+    Returns:
+        list: List of Gate that applies controlled swap operation
+    '''
+    gates = [Gate('RY', target=c, parameter=7*np.pi/2.),
+             Gate('RZ', target=n2, parameter=np.pi/2.),
+             Gate('XX', target=[n1, n2], parameter=7*np.pi/2.),
+             Gate('XX', target=[c, n2], parameter=7*np.pi/2.),
+             Gate('RY', target=n1, parameter=5*np.pi/4),
+             Gate('RY', target=c, parameter=5*np.pi/2),
+             Gate('XX', target=[n1, n2], parameter=3*np.pi/2),
+             Gate('RZ', target=n1, parameter=3*np.pi/4),
+             Gate('XX', target=[c, n2], parameter=11*np.pi/4),
+             Gate('XX', target=[c, n1], parameter=np.pi/2),
+             Gate('RY', target=c, parameter=np.pi/2),
+             Gate('RZ', target=c, parameter=5*np.pi/4)]
+    return gates
+
+
+def decomp_controlled_swap_xx(c, n1, n2):
+    '''Unitary equivalent decomposition of controlled swap into 1- and xx 2-qubit gate
+
+    Args:
+        c (int): control qubit
+        n1 (int): first target qubit
+        n2 (int): second target qubit
+
+    Returns:
+        list: List of Gate that applies controlled swap operation
+    '''
+    gates = [Gate('RY', target=c, parameter=7*np.pi/2.),
+             Gate('RZ', target=n1, parameter=7*np.pi/2.),
+             Gate('XX', target=[n1, n2], parameter=5*np.pi/2.),
+             Gate('RZ', target=n1, parameter=7*np.pi/4.),
+             Gate('RZ', target=n2, parameter=3*np.pi/4.),
+             Gate('RY', target=n1, parameter=np.pi/2.),
+             Gate('XX', target=[c, n2], parameter=7*np.pi/2.),
+             Gate('RY', target=n2, parameter=11*np.pi/4),
+             Gate('XX', target=[n1, n2], parameter=7*np.pi/2.),
+             Gate('XX', target=[c, n2], parameter=np.pi/4.),
+             Gate('RZ', target=n2, parameter=np.pi/4),
+             Gate('XX', target=[c, n2], parameter=5*np.pi/2),
+             Gate('RY', target=c, parameter=5*np.pi/2),
+             Gate('RZ', target=n1, parameter=5*np.pi/2),
+             Gate('RY', target=n2, parameter=7*np.pi/4),
+             Gate('XX', target=[n1, n2], parameter=7*np.pi/2),
+             Gate('RY', target=n1, parameter=np.pi/2),
+             Gate('RZ', target=c, parameter=11*np.pi/4)]
+    return gates
+
+
+def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=None):
     """returns the derangement circuit for multiple copies of a state
 
     Args:
@@ -362,8 +420,11 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=False):
                                         must be the same.
         control (int): The control register to be measured.
         n_qubits (int): The number of qubits in the circuit.
-        decomp (bool): If True, uses the decomposed controlled-swap into 1- and 2-qubit gates.
-                       If False, implements the full 3-qubit operator.
+        decomp (str): Use the decomposed controlled-swap into 1- and 2-qubit gates.
+                      "crx": 2-qubit gate is controlled rx, exact decomposition
+                      "crxUE": 2-qubit gate is controlled rx, unitary equivalent
+                      "xxUE": 2-qubit gate is xx, unitary equivalent
+
     Returns:
         Circuit: The derangement circuit
     """
@@ -387,10 +448,25 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=False):
         for copy1 in range(num_copies):
             for copy2 in range(copy1+1, num_copies):
                 for rhoi in range(rho_range):
-                    if decomp:
-                        gate_list += decomp_controlled_swap_ue(control,
-                                                               qubit_list[copy1][rhoi],
-                                                               qubit_list[copy2][rhoi])
+                    if decomp is not None:
+                        if decomp == 'crxUE':
+                            gate_list += decomp_controlled_swap_crx_ue(control,
+                                                                       qubit_list[copy1][rhoi],
+                                                                       qubit_list[copy2][rhoi])
+                        elif decomp == 'crx':
+                            gate_list += decomp_controlled_swap_crx(control,
+                                                                    qubit_list[copy1][rhoi],
+                                                                    qubit_list[copy2][rhoi])
+                        elif decomp == 'xxUE':
+                            gate_list += decomp_controlled_swap_xx_ue(control,
+                                                                      qubit_list[copy1][rhoi],
+                                                                      qubit_list[copy2][rhoi])
+                        elif decomp == 'xx':
+                            gate_list += decomp_controlled_swap_xx(control,
+                                                                   qubit_list[copy1][rhoi],
+                                                                   qubit_list[copy2][rhoi])
+                        else:
+                            raise ValueError(f"{decomp} is not a valid controlled swap decomposition")
                     else:
                         gate_list += [Gate('CSWAP',
                                            target=[qubit_list[copy1][rhoi], qubit_list[copy2][rhoi]],
