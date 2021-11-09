@@ -17,8 +17,8 @@ __status__ = "beta"
 __authors__ = ["Valentin Senicourt, Alexandre Fleury, Ryan Day, James Brown"]
 
 install('wheel')
-install('pyscf')
-install('git+https://github.com/pyscf/semiempirical')
+install('h5py==3.2.0')
+install('pyscf==1.7.6')
 
 setuptools.setup(
     name="qSDK",
@@ -29,5 +29,6 @@ setuptools.setup(
     url="https://github.com/quantumsimulation/QEMIST_qSDK",
     packages=setuptools.find_packages(),
     test_suite="qsdk",
-    install_requires=['h5py', 'bitarray', 'openfermion', 'openfermionpyscf']
+    setup_requires=['h5py==3.2.0'],
+    install_requires=['h5py==3.2.0', 'bitarray', 'openfermion', 'openfermionpyscf']
 )
