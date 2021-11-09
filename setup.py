@@ -11,8 +11,8 @@ with open('README.rst', 'r') as f:
     long_description = f.read()
 
 install('wheel')
-install('pyscf')
-install('git+https://github.com/pyscf/semiempirical')
+install('h5py==3.2.0')
+install('pyscf==1.7.6')
 
 setuptools.setup(
     name="tangelo",
