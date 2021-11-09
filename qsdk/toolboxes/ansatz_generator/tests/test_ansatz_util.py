@@ -13,9 +13,19 @@ from qsdk.molecule_library import mol_H4_sto3g
 from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from qsdk.toolboxes.ansatz_generator.ansatz_utils import trotterize, qft_circuit
 from qsdk.toolboxes.ansatz_generator.ansatz_utils import derangement_circuit, controlled_pauliwords
+from qsdk.helpers.utils import installed_backends
 
-# Initiate simulator, use cirq as it uses lsq_first like openfermion
-sims = [Simulator(target="cirq"), Simulator(target="qulacs"), Simulator(target="qiskit")]
+# Initiate simulators
+backend_candidates = ["cirq", "qulacs", "qiskit"]
+sims = list()
+for backend in backend_candidates:
+    if backend in installed_backends:
+        sims += [Simulator(target=backend)]
+backend_candidates_nshots = ["qdk"]
+sims_nshots = list()
+for backend in backend_candidates_nshots:
+    if backend in installed_backends:
+        sims_nshots += [Simulator(target=backend, n_shots=10**5)]
 
 fermion_operator = mol_H4_sto3g._get_fermionic_hamiltonian()
 
@@ -240,6 +250,26 @@ class ansatz_utils_Test(unittest.TestCase):
             freqs, _ = sim.simulate(pe_circuit)
             target_freq_dict = {'1000': 0.5, '1001': 0.5}  # 1 * 1/2 + 0 * 1/4 + 0 * 1/8
             assert_freq_dict_almost_equal(target_freq_dict, freqs, atol=1.e-7)
+
+    def test_qft_by_phase_estimation_nshots(self):
+        n_qubits = 4
+        qubit_list = [2, 1, 0]
+        # Generate state with eigenvalue -1 of X operator exp(2*pi*i*phi) phi=1/2
+        gate_list = [Gate('X', target=n_qubits-1), Gate('H', target=n_qubits-1)]
+        pe_circuit = Circuit(gate_list, n_qubits=n_qubits)
+        qft = qft_circuit(qubit_list, n_qubits_in_circuit=n_qubits)
+        pe_circuit += qft
+        controlled_unitaries = []
+        for i, qubit in enumerate(qubit_list):
+            for j in range(2**i):
+                controlled_unitaries += [Gate('CNOT', target=n_qubits-1, control=qubit)]
+        pe_circuit += Circuit(controlled_unitaries, n_qubits=n_qubits)
+        iqft = qft_circuit(qubit_list, n_qubits_in_circuit=n_qubits, inverse=True)
+        pe_circuit += iqft
+        for sim in sims_nshots:
+            freqs, _ = sim.simulate(pe_circuit)
+            target_freq_dict = {'1000': 0.5, '1001': 0.5}  # 1 * 1/2 + 0 * 1/4 + 0 * 1/8
+            assert_freq_dict_almost_equal(target_freq_dict, freqs, atol=1.e-2)
 
     def test_controlled_time_evolution_by_phase_estimation(self):
         """ Verify that the time evolution is correct for a QubitOperator input with different times
