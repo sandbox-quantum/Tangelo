@@ -80,7 +80,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
     """
     if not isinstance(fermion_operator, ofFermionOperator):
         raise ValueError("Supplied operator should be an instance "
-                         "of FermionOperator class")
+                         "of openfermion FermionOperator class.")
     if type(n_spinorbitals) is not int:
         raise ValueError("Number of spin-orbitals should be an integer.")
     if type(n_electrons) is not int:
