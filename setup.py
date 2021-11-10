@@ -12,7 +12,7 @@ with open('README.rst', 'r') as f:
 
 install('wheel')
 install('h5py==3.2.0')
-install('pyscf==1.7.6')
+install('pyscf==1.7.6.post1')
 
 setuptools.setup(
     name="tangelo",
