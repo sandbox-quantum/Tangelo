@@ -33,7 +33,7 @@ arXiv:1701.08213 and Phys. Rev. X 6, 031007.
 import numpy as np
 import copy
 
-from qsdk.toolboxes.operators import FermionOperator, QubitOperator
+from openfermion import FermionOperator as ofFermionOperator
 from openfermion.transforms import bravyi_kitaev_tree, reorder
 from openfermion.utils import count_qubits
 from openfermion.utils import up_then_down as up_then_down_order
@@ -78,9 +78,9 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
         Hamiltonian only for the lowest energy even and odd fermion number
         states, not states with an arbitrary number of fermions.
     """
-    if not isinstance(fermion_operator, FermionOperator):
+    if not isinstance(fermion_operator, ofFermionOperator):
         raise ValueError("Supplied operator should be an instance "
-                         "of FermionOperator class")
+                         "of openfermion FermionOperator class.")
     if type(n_spinorbitals) is not int:
         raise ValueError("Number of spin-orbitals should be an integer.")
     if type(n_electrons) is not int:
@@ -123,10 +123,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
     to_prune = (n_spinorbitals//2 - 1, n_spinorbitals - 1)
     qubit_operator = prune_unused_indices(qubit_operator, prune_indices=to_prune, n_qubits=n_spinorbitals)
 
-    converted_qubit_op = QubitOperator()
-    converted_qubit_op.terms = qubit_operator.terms.copy()
-
-    return converted_qubit_op
+    return qubit_operator
 
 
 def edit_operator_for_spin(qubit_operator, spin_orbital, orbital_parity):

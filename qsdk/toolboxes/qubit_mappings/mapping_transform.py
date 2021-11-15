@@ -22,8 +22,9 @@
 
 import numpy as np
 from collections.abc import Iterable
+from openfermion import FermionOperator as ofFermionOperator
 
-from qsdk.toolboxes.operators import FermionOperator
+from qsdk.toolboxes.operators import FermionOperator, QubitOperator
 from qsdk.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev
 
 available_mappings = {"JW", "BK", "SCBK"}
@@ -94,7 +95,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
         QubitOperator: input operator, encoded in the qubit space.
     """
     # some methods may pass another operator class type. If this is the case, cast to FermionOperator where possible
-    if not isinstance(fermion_operator, FermionOperator):
+    if not isinstance(fermion_operator, ofFermionOperator):
         fermion_operator = get_fermion_operator(fermion_operator)
 
     if mapping.upper() not in available_mappings:
@@ -122,7 +123,10 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
                                                            n_electrons=n_electrons,
                                                            up_then_down=up_then_down)
 
-    return qubit_operator
+    converted_qubit_op = QubitOperator()
+    converted_qubit_op.terms = qubit_operator.terms.copy()
+
+    return converted_qubit_op
 
 
 def make_up_then_down(fermion_operator, n_spinorbitals):
@@ -136,7 +140,7 @@ def make_up_then_down(fermion_operator, n_spinorbitals):
     Returns:
         FermionOperator: operator with all spin up followed by all spin down.
     """
-    if not isinstance(fermion_operator, FermionOperator):
+    if not isinstance(fermion_operator, ofFermionOperator):
         raise TypeError("Invalid operator input. Must be FermionOperator.")
     if n_spinorbitals % 2 != 0:
         raise ValueError("Invalid number of spin-orbitals. Expecting even number.")
