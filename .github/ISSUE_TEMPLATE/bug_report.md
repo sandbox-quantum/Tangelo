@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: "[BUG]"
+title: "[BUG] <insert description>"
 labels: bug
 assignees: AlexandreF-1qbit, JamesB-1qbit, ValentinS4t1qbit
 
