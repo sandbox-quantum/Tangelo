@@ -220,8 +220,8 @@ class DMETProblemDecompositionTest(unittest.TestCase):
 
         onerdm, twordm = vqe_solver.get_rdm(vqe_solver.optimal_var_params)
 
-        np.testing.assert_array_almost_equal(ref_onerdm, onerdm)
-        np.testing.assert_array_almost_equal(ref_twordm, twordm)
+        np.testing.assert_array_almost_equal(ref_onerdm, onerdm, decimal=3)
+        np.testing.assert_array_almost_equal(ref_twordm, twordm, decimal=3)
 
 
 if __name__ == "__main__":
