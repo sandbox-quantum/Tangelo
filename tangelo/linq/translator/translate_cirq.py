@@ -21,6 +21,7 @@ necessary to account for:
 - how the order and conventions for some of the inputs to the gate operations
     may also differ.
 """
+from math import pi
 
 
 def get_cirq_gates():
@@ -30,16 +31,28 @@ def get_cirq_gates():
     import cirq
 
     GATE_CIRQ = dict()
+    GATE_CIRQ = dict()
     GATE_CIRQ["H"] = cirq.H
     GATE_CIRQ["X"] = cirq.X
     GATE_CIRQ["Y"] = cirq.Y
     GATE_CIRQ["Z"] = cirq.Z
+    GATE_CIRQ["CX"] = cirq.X
+    GATE_CIRQ["CY"] = cirq.Y
+    GATE_CIRQ["CZ"] = cirq.Z
     GATE_CIRQ["S"] = cirq.S
     GATE_CIRQ["T"] = cirq.T
     GATE_CIRQ["RX"] = cirq.rx
     GATE_CIRQ["RY"] = cirq.ry
     GATE_CIRQ["RZ"] = cirq.rz
     GATE_CIRQ["CNOT"] = cirq.CNOT
+    GATE_CIRQ["CRZ"] = cirq.rz
+    GATE_CIRQ["CRX"] = cirq.rx
+    GATE_CIRQ["CRY"] = cirq.ry
+    GATE_CIRQ["PHASE"] = cirq.ZPowGate
+    GATE_CIRQ["CPHASE"] = cirq.ZPowGate
+    GATE_CIRQ["XX"] = cirq.XXPowGate
+    GATE_CIRQ["SWAP"] = cirq.SWAP
+    GATE_CIRQ["CSWAP"] = cirq.SWAP
     GATE_CIRQ["MEASURE"] = cirq.measure
     return GATE_CIRQ
 
@@ -69,15 +82,40 @@ def translate_cirq(source_circuit, noise_model=None):
 
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
+        if gate.control is not None and gate.name is not 'CNOT':
+            control_list = []
+            num_controls = len(gate.control)
+            for c in gate.control:
+                control_list.append(qubit_list[c])
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
-            target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target]))
+            target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]]))
+        elif gate.name in {"CX", "CY", "CZ"}:
+            next_gate = GATE_CIRQ[gate.name].controlled(num_controls)
+            target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
         elif gate.name in {"RX", "RY", "RZ"}:
             next_gate = GATE_CIRQ[gate.name](gate.parameter)
-            target_circuit.append(next_gate(qubit_list[gate.target]))
+            target_circuit.append(next_gate(qubit_list[gate.target[0]]))
         elif gate.name in {"CNOT"}:
-            target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.control], qubit_list[gate.target]))
+            target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.control[0]], qubit_list[gate.target[0]]))
         elif gate.name in {"MEASURE"}:
-            target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target]))
+            target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]]))
+        elif gate.name in {"CRZ", "CRX", "CRY"}:
+            next_gate = GATE_CIRQ[gate.name](gate.parameter).controlled(num_controls)
+            target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
+        elif gate.name in {"XX"}:
+            next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/pi)
+            target_circuit.append(next_gate(qubit_list[gate.target[0]], qubit_list[gate.target1[0]]))
+        elif gate.name in {"PHASE"}:
+            next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/pi)
+            target_circuit.append(next_gate(qubit_list[gate.target[0]]))
+        elif gate.name in {"CPHASE"}:
+            next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/pi).controlled(num_controls)
+            target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
+        elif gate.name in {"SWAP"}:
+            target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]], qubit_list[gate.target[1]]))
+        elif gate.name in {"CSWAP"}:
+            next_gate = GATE_CIRQ[gate.name].controlled(num_controls)
+            target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]], qubit_list[gate.target[1]]))
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend cirq")
 
@@ -87,17 +125,21 @@ def translate_cirq(source_circuit, noise_model=None):
                 if nt == 'pauli':
                     # Define pauli gate in cirq language
                     depo = cirq.asymmetric_depolarize(np[0], np[1], np[2])
-                    target_circuit.append(depo(qubit_list[gate.target]))
-                    if gate.control or gate.control == 0:
-                        target_circuit.append(depo(qubit_list[gate.control]))
+                    for t in gate.target:
+                        target_circuit.append(depo(qubit_list[t]))
+                    if gate.control is not None:
+                        for c in gate.control:
+                            target_circuit.append(depo(qubit_list[c]))
                 elif nt == 'depol':
-                    if gate.control or gate.control == 0:
-                        # define 2-qubit depolarization gate
-                        depo = cirq.depolarize(np*15/16, 2)  # sparam, num_qubits
-                        target_circuit.append(depo(qubit_list[gate.control], qubit_list[gate.target]))  # gates targetted
-                    else:
-                        # sdefine 1-qubit depolarization gate
-                        depo = cirq.depolarize(np*3/4, 1)
-                        target_circuit.append(depo(qubit_list[gate.target]))
+                    depo_list = []
+                    if gate.control is not None:
+                        for c in gate.control:
+                            depo_list.append(qubit_list[c])
+                    for t in gate.target:
+                        depo_list.append(qubit_list[t])
+                    depo_size = len(depo_list)
+                    # define depo_size-qubit depolarization gate
+                    depo = cirq.depolarize(np*(4**depo_size-1)/4**depo_size, depo_size)  # sparam, num_qubits
+                    target_circuit.append(depo(*depo_list))  # gates targetted
 
     return target_circuit

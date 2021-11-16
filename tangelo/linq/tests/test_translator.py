@@ -28,8 +28,11 @@ from tangelo.helpers.utils import installed_backends
 path_data = os.path.dirname(os.path.realpath(__file__)) + '/data'
 
 gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1), Gate("Y", 0), Gate("S", 0)]
+multi_controlled_gates = [Gate("X", 0), Gate("X", 1), Gate("CX", target=2, control=[0,1])]
 abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=2.)])
+abs_multi_circ = Circuit(multi_controlled_gates)
 references = [0., 0.38205142 ** 2, 0., 0.59500984 ** 2, 0., 0.38205142 ** 2, 0., 0.59500984 ** 2]
+references_multi = [0., 0., 0., 0., 0., 0., 0., 1.]
 
 abs_circ_mixed = Circuit(gates) + Circuit([Gate("RX", 1, parameter=1.5), Gate("MEASURE", 0)])
 
@@ -63,6 +66,30 @@ class TestTranslation(unittest.TestCase):
 
         # Run the simulation
         state2 = qulacs.QuantumState(abs_circ.width)
+        qulacs_circuit.update_quantum_state(state2)
+
+        # Assert that both simulations returned the same state vector
+        np.testing.assert_array_equal(state1.get_vector(), state2.get_vector())
+
+        # Generates the qulacs circuit by translating from the abstract one
+        translated_circuit = translator.translate_qulacs(abs_multi_circ)
+
+        # Run the simulation
+        state1 = qulacs.QuantumState(abs_multi_circ.width)
+        translated_circuit.update_quantum_state(state1)
+
+        # Directly define the same circuit through qulacs
+        # NB: this includes convention fixes for some parametrized rotation gates (-theta instead of theta)
+        qulacs_circuit = qulacs.QuantumCircuit(3)
+        qulacs_circuit.add_X_gate(0)
+        qulacs_circuit.add_X_gate(1)
+        mat_gate = qulacs.gate.to_matrix_gate(qulacs.gate.X(2))
+        mat_gate.add_control_qubit(0, 1)
+        mat_gate.add_control_qubit(1, 1)
+        qulacs_circuit.add_gate(mat_gate)
+
+        # Run the simulation
+        state2 = qulacs.QuantumState(abs_multi_circ.width)
         qulacs_circuit.update_quantum_state(state2)
 
         # Assert that both simulations returned the same state vector
@@ -104,6 +131,9 @@ class TestTranslation(unittest.TestCase):
 
         np.testing.assert_array_equal(v1, v2)
 
+        #Return error when attempting to use qiskit with multiple controls
+        self.assertRaises(ValueError, translator.translate_qiskit, abs_multi_circ)
+
     @unittest.skipIf("cirq" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_cirq(self):
         """
@@ -138,6 +168,21 @@ class TestTranslation(unittest.TestCase):
 
         np.testing.assert_array_equal(v1, v2)
 
+        translated_circuit = translator.translate_cirq(abs_multi_circ)
+        circ = cirq.Circuit()
+        circ.append(cirq.X(qubit_labels[0]))
+        circ.append(cirq.X(qubit_labels[1]))
+        next_gate = cirq.X.controlled(num_controls=2)
+        circ.append(next_gate(qubit_labels[0], qubit_labels[1], qubit_labels[2]))
+
+        job_sim = cirq_simulator.simulate(circ)
+        v1 = job_sim.final_state_vector
+
+        job_sim = cirq_simulator.simulate(translated_circuit)
+        v2 = job_sim.final_state_vector
+
+        np.testing.assert_array_equal(v1, v2)
+
     @unittest.skipIf("qdk" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_qdk(self):
         """ Compares the frequencies computed by the QDK/Q# shot-based simulator to the theoretical ones """
@@ -162,6 +207,27 @@ class TestTranslation(unittest.TestCase):
 
         # Compares with theoretical probabilities obtained through a statevector simulator
         np.testing.assert_almost_equal(np.array(probabilities), np.array(references), 2)
+
+        # Generate the qdk circuit by translating from the abstract one and print it
+        translated_circuit = translator.translate_qsharp(abs_multi_circ)
+        print(translated_circuit)
+
+        # Write to file
+        with open('tmp_circuit.qs', 'w+') as f_out:
+            f_out.write(translated_circuit)
+
+        # Compile all qsharp files found in directory and import the qsharp operation
+        import qsharp
+        qsharp.reload()
+        from MyNamespace import EstimateFrequencies
+
+        # Simulate, return frequencies
+        n_shots = 10**4
+        probabilities = EstimateFrequencies.simulate(nQubits=abs_multi_circ.width, nShots=n_shots)
+        print("Q# frequency estimation with {0} samples: \n {1}".format(n_shots, probabilities))
+
+        # Compares with theoretical probabilities obtained through a statevector simulator
+        np.testing.assert_almost_equal(np.array(probabilities), np.array(references_multi), 2)
 
     @unittest.skipIf("projectq" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_projectq(self):
@@ -299,6 +365,9 @@ class TestTranslation(unittest.TestCase):
         translated_result = device.run(translated_circuit, shots=0).result()
 
         np.testing.assert_array_equal(circ_result.values[0], translated_result.values[0])
+
+        #Return error when attempting to use braket with multiple controls
+        self.assertRaises(ValueError, translator.translate_braket, abs_multi_circ)        
 
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_unsupported_gate(self):

@@ -17,8 +17,11 @@ gate operation, without tying it to a particular backend or an underlying
 mathematical operation.
 """
 
-ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ"}
-TWO_QUBIT_GATES = {"CNOT"}
+from typing import Union
+
+ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"}
+TWO_QUBIT_GATES = {"CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"}
+THREE_QUBIT_GATES = {"CSWAP"}
 
 
 class Gate(dict):
@@ -37,15 +40,27 @@ class Gate(dict):
             variational or not.
     """
 
-    # TODO: extend control to a list to support gates such as the Toffoli gate etc in the future
-    # TODO: extend target to a list to support gates such as U2, U3 etc in the future
-    def __init__(self, name: str, target: int, control: int=None, parameter="", is_variational: bool=False):
+    def __init__(self, name: str, target: Union[int, list], control: Union[int, list] = None, parameter="", is_variational: bool = False):
         """ This gate class is basically a dictionary with extra methods. """
 
-        if not (isinstance(target, int) and target >= 0):
-            raise ValueError("Qubit index must be a positive integer.")
-        if control and (not (isinstance(control, int) and control >= 0)):
-            raise ValueError("Qubit index must be a positive integer.")
+        if not isinstance(target, (int, list)):
+            raise ValueError("Qubit index must be int or list of ints.")
+        else:
+            if isinstance(target, int):
+                target = [target]
+            for t in target:
+                if not isinstance(t, int) or t < 0:
+                    raise ValueError(f"Target {t} of input {target} is not a positive integer")
+
+        if control is not None:
+            if not isinstance(control, (int, list)):
+                raise ValueError("Qubit index must be int or list of ints.")
+            else:
+                if isinstance(control, int):
+                    control = [control]
+                for c in control:
+                    if not isinstance(c, int) or c < 0:
+                        raise ValueError(f"Target {c} of input {control} is not a positive integer")
 
         self.__dict__ = {"name": name, "target": target, "control": control,
                          "parameter": parameter, "is_variational": is_variational}

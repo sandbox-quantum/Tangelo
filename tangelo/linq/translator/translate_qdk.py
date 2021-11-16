@@ -34,6 +34,13 @@ def get_qdk_gates():
         GATE_QDK[name] = name
     for name in {"RX", "RY", "RZ"}:
         GATE_QDK[name] = name[0] + name[1:].lower()
+    GATE_QDK["PHASE"] = "R1"
+    GATE_QDK["CPHASE"] = "R1"
+    for name in {"CRX", "CRY", "CRZ"}:
+        GATE_QDK[name] = name[1] + name[2:].lower()
+    for name in {"CX", "CY", "CZ", "CSWAP"}:
+        GATE_QDK[name] = name[1:]
+    GATE_QDK["SWAP"] = "SWAP"
     GATE_QDK["MEASURE"] = "M"
 
     return GATE_QDK
@@ -66,14 +73,28 @@ def translate_qsharp(source_circuit, operation="MyQsharpOperation"):
     # Generate Q# strings with the right syntax, order and values for the gate inputs
     body_str = ""
     for gate in source_circuit._gates:
+        if gate.control is not None and gate.name is not "CNOT":
+            control_string = '['
+            num_controls = len(gate.control)
+            for i, c in enumerate(gate.control):
+                control_string += f'qreg[{c}]]' if i == num_controls - 1 else f'qreg[{c}], '
+
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
-            body_str += f"\t\t{GATE_QDK[gate.name]}(qreg[{gate.target}]);\n"
-        elif gate.name in {"RX", "RY", "RZ"}:
-            body_str += f"\t\t{GATE_QDK[gate.name]}({gate.parameter}, qreg[{gate.target}]);\n"
+            body_str += f"\t\t{GATE_QDK[gate.name]}(qreg[{gate.target[0]}]);\n"
+        elif gate.name in {"RX", "RY", "RZ", "PHASE"}:
+            body_str += f"\t\t{GATE_QDK[gate.name]}({gate.parameter}, qreg[{gate.target[0]}]);\n"
         elif gate.name in {"CNOT"}:
-            body_str += f"\t\t{GATE_QDK[gate.name]}(qreg[{gate.control}], qreg[{gate.target}]);\n"
+            body_str += f"\t\t{GATE_QDK[gate.name]}(qreg[{gate.control[0]}], qreg[{gate.target[0]}]);\n"
+        elif gate.name in {"CRX", "CRY", "CRZ", "CPHASE"}:
+            body_str += f"\t\tControlled {GATE_QDK[gate.name]}({control_string}, ({gate.parameter}, qreg[{gate.target[0]}]));\n"
+        elif gate.name in {"CX", "CY", "CZ"}:
+            body_str += f"\t\tControlled {GATE_QDK[gate.name]}({control_string}, (qreg[{gate.target[0]}]));\n"
+        elif gate.name in {"SWAP"}:
+            body_str += f"\t\t{GATE_QDK[gate.name]}(qreg[{gate.target[0]}], qreg[{gate.target[1]}]);\n"
+        elif gate.name in {"CSWAP"}:
+            body_str += f"\t\tControlled {GATE_QDK[gate.name]}({control_string}, (qreg[{gate.target[0]}], qreg[{gate.target[1]}]));\n"
         elif gate.name in {"MEASURE"}:
-            body_str += f"\t\tset c w/= {gate.target} <- {GATE_QDK[gate.name]}(qreg[{gate.target}]);\n"
+            body_str += f"\t\tset c w/= {gate.target[0]} <- {GATE_QDK[gate.name]}(qreg[{gate.target[0]}]);\n"
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qdk")
     qsharp_string += body_str + "\n\t\treturn ForEach(MResetZ, qreg);\n"

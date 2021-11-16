@@ -21,6 +21,7 @@ necessary to account for:
 - how the order and conventions for some of the inputs to the gate operations
     may also differ.
 """
+from numpy import exp
 
 
 def get_qulacs_gates():
@@ -35,12 +36,22 @@ def get_qulacs_gates():
     GATE_QULACS["X"] = qulacs.QuantumCircuit.add_X_gate
     GATE_QULACS["Y"] = qulacs.QuantumCircuit.add_Y_gate
     GATE_QULACS["Z"] = qulacs.QuantumCircuit.add_Z_gate
+    GATE_QULACS["CX"] = qulacs.gate.X
+    GATE_QULACS["CY"] = qulacs.gate.Y
+    GATE_QULACS["CZ"] = qulacs.gate.Z
     GATE_QULACS["S"] = qulacs.QuantumCircuit.add_S_gate
     GATE_QULACS["T"] = qulacs.QuantumCircuit.add_T_gate
     GATE_QULACS["RX"] = qulacs.QuantumCircuit.add_RX_gate
     GATE_QULACS["RY"] = qulacs.QuantumCircuit.add_RY_gate
     GATE_QULACS["RZ"] = qulacs.QuantumCircuit.add_RZ_gate
     GATE_QULACS["CNOT"] = qulacs.QuantumCircuit.add_CNOT_gate
+    GATE_QULACS["CRX"] = qulacs.gate.RX
+    GATE_QULACS["CRY"] = qulacs.gate.RY
+    GATE_QULACS["CRZ"] = qulacs.gate.RZ
+    GATE_QULACS["PHASE"] = qulacs.gate.DenseMatrix
+    GATE_QULACS["CPHASE"] = qulacs.gate.DenseMatrix
+    GATE_QULACS["SWAP"] = qulacs.QuantumCircuit.add_SWAP_gate
+    GATE_QULACS["CSWAP"] = qulacs.gate.SWAP
     GATE_QULACS["MEASURE"] = qulacs.gate.Measurement
     return GATE_QULACS
 
@@ -69,13 +80,38 @@ def translate_qulacs(source_circuit, noise_model=None):
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
-            (GATE_QULACS[gate.name])(target_circuit, gate.target)
+            (GATE_QULACS[gate.name])(target_circuit, gate.target[0])
+        elif gate.name in {"CX", "CY", "CZ"}:
+            mat_gate = qulacs.gate.to_matrix_gate(GATE_QULACS[gate.name](gate.target[0]))
+            for c in gate.control:
+                mat_gate.add_control_qubit(c, 1)
+            target_circuit.add_gate(mat_gate)
         elif gate.name in {"RX", "RY", "RZ"}:
-            (GATE_QULACS[gate.name])(target_circuit, gate.target, -1. * gate.parameter)
+            (GATE_QULACS[gate.name])(target_circuit, gate.target[0], -1. * gate.parameter)
+        elif gate.name in {"CRX", "CRY", "CRZ"}:
+            mat_gate = qulacs.gate.to_matrix_gate(GATE_QULACS[gate.name](gate.target[0], -1. * gate.parameter))
+            for c in gate.control:
+                mat_gate.add_control_qubit(c, 1)
+            target_circuit.add_gate(mat_gate)
+        elif gate.name in {"SWAP"}:
+            (GATE_QULACS[gate.name])(target_circuit, gate.target[0], gate.target[1])
+        elif gate.name in {"CSWAP"}:
+            mat_gate = qulacs.gate.to_matrix_gate(GATE_QULACS[gate.name](gate.target[0], gate.target[1]))
+            for c in gate.control:
+                mat_gate.add_control_qubit(c, 1)
+            target_circuit.add_gate(mat_gate)
+        elif gate.name in {"PHASE"}:
+            mat_gate = GATE_QULACS[gate.name](gate.target[0], [[1, 0], [0, exp(1j * gate.parameter)]])
+            target_circuit.add_gate(mat_gate)
+        elif gate.name in {"CPHASE"}:
+            mat_gate = GATE_QULACS[gate.name](gate.target[0], [[1, 0], [0, exp(1j * gate.parameter)]])
+            for c in gate.control:
+                mat_gate.add_control_qubit(c, 1)
+            target_circuit.add_gate(mat_gate)
         elif gate.name in {"CNOT"}:
-            (GATE_QULACS[gate.name])(target_circuit, gate.control, gate.target)
+            (GATE_QULACS[gate.name])(target_circuit, gate.control[0], gate.target[0])
         elif gate.name in {"MEASURE"}:
-            gate = (GATE_QULACS[gate.name])(gate.target, gate.target)
+            gate = (GATE_QULACS[gate.name])(gate.target[0], gate.target[0])
             target_circuit.add_gate(gate)
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qulacs")
@@ -84,13 +120,24 @@ def translate_qulacs(source_circuit, noise_model=None):
         if noise_model and (gate.name in noise_model.noisy_gates):
             for nt, np in noise_model._quantum_errors[gate.name]:
                 if nt == 'pauli':
-                    target_circuit.add_gate(Probabilistic(np, [X(gate.target), Y(gate.target), Z(gate.target)]))
-                    if gate.control or gate.control == 0:
-                        target_circuit.add_gate(Probabilistic(np, [X(gate.control), Y(gate.control), Z(gate.control)]))
+                    for t in gate.target:
+                        target_circuit.add_gate(Probabilistic(np, [X(t), Y(t), Z(t)]))
+                    if gate.control is not None:
+                        for c in gate.control:
+                            target_circuit.add_gate(Probabilistic(np, [X(c), Y(c), Z(c)]))
                 elif nt == 'depol':
-                    if gate.control or gate.control == 0:
-                        target_circuit.add_gate(TwoQubitDepolarizingNoise(gate.control, gate.target, (15/16)*np))
+                    depol_list = []
+                    for t in gate.target:
+                        depol_list.append(t)
+                    if gate.control is not None:
+                        for c in gate.control:
+                            depol_list.append(c)
+                    n_depol = len(depol_list)
+                    if n_depol == 2:
+                        target_circuit.add_gate(TwoQubitDepolarizingNoise(*depol_list, (15/16)*np))
+                    elif n_depol == 1:
+                        target_circuit.add_gate(DepolarizingNoise(depol_list[0], (3/4) * np))
                     else:
-                        target_circuit.add_gate(DepolarizingNoise(gate.target, (3/4) * np))
+                        raise ValueError(f'{gate.name} has more than 2 qubits, Qulacs DepolarizingNoise only supports 1- and 2-qubits')
 
     return target_circuit
