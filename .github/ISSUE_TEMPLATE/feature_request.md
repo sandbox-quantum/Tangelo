@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: "[FEATURE REQUEST]"
+title: "[FEATURE REQUEST] <insert description>"
 labels: enhancement
 assignees: AlexandreF-1qbit, JamesB-1qbit, ValentinS4t1qbit
 
