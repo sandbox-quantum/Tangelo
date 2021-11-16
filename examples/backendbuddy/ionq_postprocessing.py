@@ -10,8 +10,8 @@
     "get_expectation_value" method. There is zero benefit in using the IonQ simulator, it does exactly the same.
 """
 
-from qsdk.backendbuddy import Simulator
-from qsdk.backendbuddy.helpers import pauli_string_to_of
+from tangelo.backendbuddy import Simulator
+from tangelo.backendbuddy.helpers import pauli_string_to_of
 
 # Example of IonQ QPU results written in a Python-friendly format
 # The dictionary below contains 5 histograms corresponding to 5 different experiments, each for a different basis

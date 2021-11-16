@@ -21,7 +21,7 @@
     change significantly or "grow" (such as ADAPT-VQE).
 """
 
-from qsdk.backendbuddy import Gate, Circuit
+from tangelo.backendbuddy import Gate, Circuit
 
 
 class MyAnsatzCircuit(Circuit):

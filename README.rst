@@ -1,4 +1,4 @@
-qSDK overview
+Tangelo overview
 =============
 
 Welcome !
@@ -41,19 +41,14 @@ root directory:
 If the installation of a dependency fails and the reason is not obvious, we suggest installing that dependency
 separately with ``pip``\ , before trying again.
 
-If you would like to modify or develop code in ``qSDK``\ , you can add the path to this folder to your ``PYTHONPATH`` 
-environment variable instead of installing it with pip: 
-
-.. code-block::
-
-   export PYTHONPATH=<path_to_this_folder>:$PYTHONPATH
+You can also add the path to this folder to your ``PYTHONPATH`` environment variable to facilitate your own developments.
 
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-qSDK enables users to target various backends. In particular, it integrates quantum circuit  simulators such as 
+Tangelo enables users to target various backends. In particular, it integrates quantum circuit  simulators such as 
 ``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice.
-Backends such as ``qulacs`` and ``cirq`` show good overall performance. Most packages can be installed through pip in a straightforward way:
+Most packages can be installed through pip in a straightforward way:
 
 .. code-block::
 
@@ -91,7 +86,7 @@ Tests
 -----
 
 Unit tests can be found in the ``tests`` folders, located in the various toolboxes they are related to. To automatically
-find and run all tests (assuming you are in the ``qsdk`` subfolder that contains the code of the package):
+find and run all tests (assuming you are in the ``tangelo`` subfolder that contains the code of the package):
 
 .. code-block::
 
@@ -100,8 +95,8 @@ find and run all tests (assuming you are in the ``qsdk`` subfolder that contains
 Citations
 ---------
 
-If you use qSDK in your research, please cite
+If you use Tangelo in your research, please cite
 
-[TODO: this is a placeholder for our qSDK paper, to be written and put on arxiv in October]
+[TODO: this is a placeholder for our Tangelo paper, to be written and put on arxiv in October]
 
-Copyright 1QBit 2021. This software is released under the Apache Software License version 2.0.
+Copyright Good Chemistry Company 2021. This software is released under the Apache Software License version 2.0.

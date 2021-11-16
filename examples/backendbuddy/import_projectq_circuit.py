@@ -1,6 +1,6 @@
 """
     This example shows how users can perform surgery in their ProjectQ scripts to retrieve the circuit
-    using the CommandPrinter engine, and then import it into qsdk.backendbuddy, to simulate it with something else
+    using the CommandPrinter engine, and then import it into tangelo.backendbuddy, to simulate it with something else
     such as a noisy simulator or a more performant / scalable simulator, such as qulacs.
 
     It relies on a function in the translator module called projectq2abs.
@@ -28,7 +28,7 @@ sys.stdout, s = s, sys.stdout
 
 # 3: Allocate, simulate, deallocate as usual.
 # Here, I use a dummy circuit to construct a Bell pair, for the sake of example
-# Only a subset of ProjectQ instructions are supported by qsdk.backendbuddy.
+# Only a subset of ProjectQ instructions are supported by tangelo.backendbuddy.
 # NB: `Measure` instructions are currently ignored. This is only an issue if you have mid-circuit measurements.
 qreg = eng.allocate_qureg(2)
 eng.flush()
@@ -43,16 +43,16 @@ pq_circ = s.getvalue()
 print(f"*** Your ProjectQ instructions, as shown by the CommandPrinter engine:\n{pq_circ}\n")
 
 
-# 5: qsdk.backendbuddy can translate the projectq instructions into its abstract format
+# 5: tangelo.backendbuddy can translate the projectq instructions into its abstract format
 # The resulting circuit can then be translated in various formats or run on different compute backends.
-from qsdk.backendbuddy import translator
+from tangelo.backendbuddy import translator
 abs_circ = translator._translate_projectq2abs(pq_circ)
-print(f"*** The corresponding qsdk.backendbuddy abstract circuit:\n{abs_circ}\n")
+print(f"*** The corresponding tangelo.backendbuddy abstract circuit:\n{abs_circ}\n")
 
 
-# 6: Do your thing. Example: using qulacs as a simulation backend, using qsdk.backendbuddy.
+# 6: Do your thing. Example: using qulacs as a simulation backend, using tangelo.backendbuddy.
 # Check out 'the_basics.ipynb` python jupyter notebook for more info
-from qsdk.backendbuddy import Simulator
+from tangelo.backendbuddy import Simulator
 cirq_sim = Simulator(target='cirq')
 cirq_freqs = cirq_sim.simulate(abs_circ)
 print(f"*** Simulation results (frequencies):\n{cirq_freqs}")

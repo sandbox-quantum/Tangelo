@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'qsdk'
+project = 'tangelo'
 copyright = '2021 1QBit'
 author = 'Valentin senicourt, Alexandre Fleury, Ryan Day, James Brown'
 
