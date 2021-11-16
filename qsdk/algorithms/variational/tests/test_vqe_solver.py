@@ -20,28 +20,7 @@ from qsdk.algorithms import BuiltInAnsatze, VQESolver
 from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_NaH_sto3g, mol_NaH_sto3g
 from qsdk.toolboxes.ansatz_generator.uccsd import UCCSD
 from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-
-
-def matricize_2rdm(two_rdm, n_orbitals):
-    """Turns the two_rdm tensor into a matrix for test purposes."""
-
-    l = 0
-    sq = n_orbitals * n_orbitals
-    jpqrs = np.zeros((n_orbitals, n_orbitals), dtype=int)
-    for i in range(n_orbitals):
-        for j in range(n_orbitals):
-            jpqrs[i, j] = l
-            l += 1
-
-    rho = np.zeros((sq, sq), dtype=complex)
-    for i in range(n_orbitals):
-        for j in range(n_orbitals):
-            ij = jpqrs[i, j]
-            for k in range(n_orbitals):
-                for l in range(n_orbitals):
-                    kl = jpqrs[k, l]
-                    rho[ij, kl] += two_rdm[i, k, j, l]
-    return rho
+from qsdk.toolboxes.molecular_computation.rdms import matricize_2rdm
 
 
 class VQESolverTest(unittest.TestCase):
