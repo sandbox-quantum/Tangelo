@@ -30,7 +30,7 @@ jobs:
         pip install qiskit
         pip install qulacs
         pip install amazon-braket-sdk
-        pip install cirq
+        pip install cirq==0.12.0
         pip install projectq
 
     - name: Install Microsoft qsharp/qdk
