@@ -31,6 +31,7 @@ def get_cirq_gates():
     import cirq
 
     GATE_CIRQ = dict()
+    GATE_CIRQ = dict()
     GATE_CIRQ["H"] = cirq.H
     GATE_CIRQ["X"] = cirq.X
     GATE_CIRQ["Y"] = cirq.Y
