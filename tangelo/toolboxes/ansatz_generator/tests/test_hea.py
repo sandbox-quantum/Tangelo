@@ -15,7 +15,7 @@
 import unittest
 import numpy as np
 
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_doublecation_minao
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.hea import HEA
 
@@ -77,8 +77,8 @@ class HEATest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, hea_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.1372661564779496, delta=1e-6)
 
-    def test_hea_H4(self):
-        """Verify closed-shell HEA functionalities for H4."""
+    def test_hea_H4_doublecation(self):
+        """Verify closed-shell HEA functionalities for H4 2+."""
 
         var_params = [-2.34142720e-04,  6.28472420e+00,  4.67668267e+00, -3.14063369e+00,
                       -1.53697174e+00, -6.22546556e+00, -3.11351342e+00,  3.14158366e+00,
@@ -88,16 +88,16 @@ class HEATest(unittest.TestCase):
                       -1.57734737e+00, -3.63191375e+00, -3.15706332e+00, -1.73625091e+00]
 
         # Build circuit with Ry rotationas instead of RZ*RX*RZ rotations
-        hea_ansatz = HEA(molecule=mol_H4_sto3g, rot_type="real")
+        hea_ansatz = HEA(molecule=mol_H4_doublecation_minao, rot_type="real")
         hea_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = jordan_wigner(mol_H4_sto3g.fermionic_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H4_doublecation_minao.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
         hea_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, hea_ansatz.circuit)
-        self.assertAlmostEqual(energy, -0.6534450968231997, delta=1e-6)
+        self.assertAlmostEqual(energy, -0.795317, delta=1e-4)
 
 
 if __name__ == "__main__":

@@ -15,10 +15,9 @@
 import unittest
 import numpy as np
 
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_doublecation_minao, mol_H4_cation_sto3g
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.upccgsd import UpCCGSD
-
 from tangelo.backendbuddy import Simulator
 
 
@@ -91,31 +90,28 @@ class UpCCGSDTest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, upccgsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.6412047312, delta=1e-6)
 
-    def test_upccgsd_H4(self):
-        """Verify closed-shell UpCCGSD functionalities for H4."""
+    def test_upccgsd_H4_doublecation(self):
+        """Verify closed-shell UpCCGSD functionalities for H4 2+."""
 
-        var_params = [ 3.79061344e-02, -4.30067212e-02,  3.02230152e-02,  3.42936301e-03,
-                      -6.09234584e-04, -3.14370905e-02, -4.86666676e-02,  5.16834522e-02,
-                       2.58779710e-03,  2.58848760e-03,  2.50477121e-02,  3.13929977e-02,
-                       6.60326773e-03, -9.12896032e-02,  1.53572944e-01,  1.87098400e-01,
-                      -4.15148608e-02,  4.92466084e-02,  7.04965743e-01,  7.18739139e-01,
-                       1.54329908e-02, -3.33233433e-02, -9.08825509e-03,  3.93555394e-02,
-                       5.47661674e-02, -4.91387503e-02, -1.11946468e-02, -2.61401420e-02,
-                       5.38915256e-01,  5.37080003e-01, -1.77856374e-02,  1.17461439e-02,
-                       2.73552144e-02,  6.02186436e-01, -8.58400153e-02, -1.17667425e-01]
+        var_params = [1.08956248, 1.08956247, 1.05305993, 1.05305993, 0.8799399, 0.8799399,
+                      0.88616586, 0.88616586, 1.09532143, 1.09532143, 1.23586857, 1.23586857,
+                      1.09001216, 0.85772769, 1.28020861, 1.05820721, 0.9680792 , 1.01693601,
+                      0.68355852, 0.68355852, 1.30303827, 1.30303827, 0.74524063, 0.74524063,
+                      0.36958813, 0.36958813, 1.37092805, 1.37092805, 0.92860293, 0.92860293,
+                      1.30296676, 0.5803438 , 1.42469953, 1.05666723, 0.86961358, 0.55347531]
 
         # Build circuit
-        upccgsd_ansatz = UpCCGSD(mol_H4_sto3g)
+        upccgsd_ansatz = UpCCGSD(mol_H4_doublecation_minao)
         upccgsd_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = jordan_wigner(mol_H4_sto3g.fermionic_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H4_doublecation_minao.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
         sim = Simulator()
         upccgsd_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, upccgsd_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.968345618, delta=1e-6)
+        self.assertAlmostEqual(energy, -0.854608, delta=1e-4)
 
 
 if __name__ == "__main__":

@@ -16,9 +16,10 @@ import unittest
 import numpy as np
 
 from tangelo.molecule_library import mol_H4_doublecation_minao, mol_H4_doublecation_321g, mol_H10_321g, mol_H10_minao
-from tangelo.problem_decomposition import dmet
 from tangelo.problem_decomposition.dmet.dmet_problem_decomposition import Localization, DMETProblemDecomposition
 from tangelo.algorithms.variational import VQESolver
+from tangelo.toolboxes.molecular_computation.rdms import matricize_2rdm
+
 
 class DMETProblemDecompositionTest(unittest.TestCase):
 
@@ -211,7 +212,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
                         [[ 2.53371393e-07, -2.03773912e-05],
                         [-2.03773912e-05,  1.63885145e-03]]]]
 
-        fragment, q_H, q_circuit = dmet_solver.quantum_fragments_data[0]
+        fragment, _, q_circuit = dmet_solver.quantum_fragments_data[0]
 
         vqe_solver = VQESolver({"molecule": fragment, "ansatz": q_circuit,
                                 "qubit_mapping": "scBK"})
@@ -220,8 +221,15 @@ class DMETProblemDecompositionTest(unittest.TestCase):
 
         onerdm, twordm = vqe_solver.get_rdm(vqe_solver.optimal_var_params)
 
-        np.testing.assert_array_almost_equal(ref_onerdm, onerdm)
-        np.testing.assert_array_almost_equal(ref_twordm, twordm)
+        # Test traces of matrices
+        n_elec = fragment.n_active_electrons
+        n_orb = fragment.n_active_sos // 2
+        self.assertAlmostEqual(np.trace(onerdm), n_elec, delta=1e-3,
+                               msg="Trace of one_rdm does not match number of electrons")
+
+        rho = matricize_2rdm(twordm, n_orb)
+        self.assertAlmostEqual(np.trace(rho), n_elec * (n_elec - 1), delta=1e-3,
+                               msg="Trace of two_rdm does not match n_elec * (n_elec-1)")
 
 
 if __name__ == "__main__":

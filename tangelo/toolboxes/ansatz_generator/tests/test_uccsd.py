@@ -15,10 +15,9 @@
 import unittest
 import numpy as np
 
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_doublecation_minao, mol_H4_cation_sto3g
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.uccsd import UCCSD
-
 from tangelo.backendbuddy import Simulator
 
 
@@ -122,25 +121,25 @@ class UCCSDTest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, uccsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.639461490, delta=1e-6)
 
-    def test_uccsd_H4(self):
-        """Verify closed-shell UCCSD functionalities for H4."""
+    def test_uccsd_H4_doublecation(self):
+        """Verify closed-shell UCCSD functionalities for H4 2+."""
 
-        var_params = [-3.96898484e-04, 4.59786847e-05, 3.95285013e-05, 1.85885610e-04, 1.05759154e-02,
-                      3.47363359e-01, 3.42657596e-02, 1.45006203e-02, 7.43941871e-02, 7.57255601e-03,
-                      -1.83407761e-01, -1.03261491e-01, 1.34258277e-02, -3.78096407e-02]
+        var_params = [-1.32047062e-02, -7.16419743e-06, -9.25426159e-06,
+                       6.84650642e-02,  6.32462456e-02,  1.44675096e-02,
+                      -8.34820283e-06, -7.79703747e-06,  3.28660359e-02]
 
         # Build circuit
-        uccsd_ansatz = UCCSD(mol_H4_sto3g)
+        uccsd_ansatz = UCCSD(mol_H4_doublecation_minao)
         uccsd_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = jordan_wigner(mol_H4_sto3g.fermionic_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(mol_H4_doublecation_minao.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
         sim = Simulator()
         uccsd_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, uccsd_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.9778041, delta=1e-6)
+        self.assertAlmostEqual(energy, -0.854607, delta=1e-4)
 
 
 if __name__ == "__main__":
