@@ -11,8 +11,8 @@ with open('README.rst', 'r') as f:
     long_description = f.read()
 
 install('wheel')
-install('h5py==3.2.0')
-install('pyscf==1.7.6')
+install('pyscf')
+install('git+https://github.com/pyscf/semiempirical')
 
 setuptools.setup(
     name="tangelo",
@@ -25,6 +25,6 @@ setuptools.setup(
     url="https://github.com/quantumsimulation/QEMIST_Tangelo",
     packages=setuptools.find_packages(),
     test_suite="tangelo",
-    setup_requires=['h5py==3.2.0'],
-    install_requires=['h5py==3.2.0', 'bitarray', 'openfermion', 'openfermionpyscf']
+    setup_requires=['h5py'],
+    install_requires=['h5py', 'bitarray', 'openfermion', 'openfermionpyscf']
 )
