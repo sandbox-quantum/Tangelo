@@ -98,10 +98,13 @@ def do_scbk_transform(n_spinorbitals, n_electrons):
         numpy array of int: qubit-encoded occupation vector.
     """
     n_alpha, n_orb = n_electrons//2, (n_spinorbitals - 2)//2
-    vector = np.zeros(n_spinorbitals - 2, dtype=int)
     if n_alpha >= 1:
-        vector[:n_alpha - 1] = 1
-        vector[n_orb:n_orb + n_alpha - 1] = 1
+        if n_spinorbitals - 2 > 2:
+            vector = np.zeros(n_spinorbitals - 2, dtype=int)
+            vector[:n_alpha - 1] = 1
+            vector[n_orb:n_orb + n_alpha - 1] = 1
+        else:
+            vector = np.ones(n_spinorbitals - 2, dtype=int)
     return vector
 
 
