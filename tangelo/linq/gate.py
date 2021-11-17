@@ -26,6 +26,9 @@ ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"}
 TWO_QUBIT_GATES = {"CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"}
 THREE_QUBIT_GATES = {"CSWAP"}
 PARAMETERIZED_GATES = {"RX", "RY", "RZ", "PHASE", "CRX", "CRY", "CRZ", "CPHASE", "XX"}
+INVERTABLE_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE",
+                    "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"
+                    "CSWAP"}
 
 
 class Gate(dict):
