@@ -21,11 +21,11 @@ RUN pip3 install --upgrade pip
 RUN pip3 install h5py==2.9.0 ipython jupyter setuptools wheel sphinx py3Dmol sphinx_rtd_theme nbsphinx scikit-build
 
 # Copy and set root directory,
-ENV PYTHONPATH=/root/qsdk:$PYTHONPATH
+ENV PYTHONPATH=/root/tangelo:$PYTHONPATH
 WORKDIR /root/
 COPY . /root
 
-# Install qSDK and its immediate dependencies (pyscf, openfermion, ...)
+# Install Tangelo and its immediate dependencies (pyscf, openfermion, ...)
 RUN python3 /root/setup.py install
 
 # Install Microsoft QDK qsharp package

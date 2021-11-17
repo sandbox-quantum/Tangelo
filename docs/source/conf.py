@@ -17,8 +17,8 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'qsdk'
-copyright = '2021 1QBit'
+project = 'tangelo'
+copyright = '2021 Good Chemistry Company'
 author = 'Valentin senicourt, Alexandre Fleury, Ryan Day, James Brown'
 
 # The full version, including alpha/beta/rc tags

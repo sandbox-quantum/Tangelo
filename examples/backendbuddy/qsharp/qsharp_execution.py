@@ -8,11 +8,7 @@ Submit a job to Azure Quantum to run on QPUs.
 
 Qubits are numbered left-to-right in the results, in both cases (e.g q0q1q2...)
 
-In the case of Azure Quantum, the following tutorials and documentations may be helpful to you:
-https://1qbit-intra.atlassian.net/wiki/spaces/QSD/pages/1319600305/Submit+monitor+Hardware+Experiments+on+Azure+Quantum
-https://github.com/MicrosoftDocs/quantum-docs-private/wiki/
-
-You can elegantly generate your Q# circuits using qsdk.backendbuddy and submit them right away in one single script.
+You can elegantly generate your Q# circuits using tangelo.backendbuddy and submit them right away in one single script.
 """
 
 
@@ -60,5 +56,5 @@ else:
 
     # If your Q# operation takes no parameter (results need to be retrieved through Azure portal, under the relevant Quantum Workspace).
     job_id = qsharp.azure.submit(MyQsharpOperation, shots=n_shots, jobName=job_name)
-    # If your Q# operation takes parameters (currently not available in qsdk.backendbuddy, but you can write your own Q#):
+    # If your Q# operation takes parameters (currently not available in tangelo.backendbuddy, but you can write your own Q#):
     # job_id = qsharp.azure.submit(MyQsharpOperation, param1=value1, param2=value2, ..., shots=n_shots, jobName=job_name')

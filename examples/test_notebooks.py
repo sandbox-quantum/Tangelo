@@ -9,9 +9,9 @@ def run_notebook_as_test(notebook_path):
         subprocess.run(['jupyter', 'nbconvert', '--to', 'script', notebook_path])
         script_path = os.path.splitext(notebook_path)[0] + '.py'
         subprocess.run(['chmod', '+x', script_path])
-        subprocess.run([script_path], check=True)
-    except Exception as err:
-        raise RuntimeError(err.args)
+        subprocess.check_output([script_path])
+    except subprocess.CalledProcessError as e:
+        raise e
 
 
 class TestNotebooks(unittest.TestCase):

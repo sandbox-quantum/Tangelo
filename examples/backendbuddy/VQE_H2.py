@@ -9,7 +9,7 @@
 import numpy as np
 from scipy.optimize import minimize
 
-from qsdk.backendbuddy import Gate, Circuit, Simulator
+from tangelo.backendbuddy import Gate, Circuit, Simulator
 
 
 class H2StatePreparationCircuit(Circuit):
