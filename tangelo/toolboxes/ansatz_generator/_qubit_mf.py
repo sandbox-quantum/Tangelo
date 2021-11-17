@@ -20,7 +20,7 @@ from random import choice
 from cmath import sin, cos
 from functools import reduce
 
-from agnostic_simulator import Circuit, Gate
+from tangelo.backendbuddy import Circuit, Gate
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
 
 def calc_op_expval(args):

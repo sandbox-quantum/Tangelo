@@ -15,10 +15,9 @@ import numpy as np
 from random import choice
 
 from .ansatz import Ansatz
-from agnostic_simulator import Circuit
-from ._qubit_mf import get_qmf_circuit
+from tangelo.backendbuddy import Circuit
 from .ansatz_utils import pauliword_to_circuit
-from ._qubit_mf import initialize_qmf_state_from_hf_vec
+from ._qubit_mf import initialize_qmf_state_from_hf_vec, get_qmf_circuit
 from ._qubit_cc import construct_DIS
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number, fermion_to_qubit_mapping 
