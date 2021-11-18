@@ -202,7 +202,6 @@ class QCC(Ansatz):
         Select one generator from the n_var_params unique DIS groups that were characterized by the largest gradient magnitudes.
         The QCC qubit operator is formed as the linear combination of those generators with var_params as coefficients.
 
-#        if self.n_qmf_params != 2 * self.n_qubits:
         Args:
             var_params (numpy array of floats): QCC variational parameter set {tau}.
             DIS (list of lists): The direct interaction set of QCC generators. The DIS holds lists for each DIS group. Each DIS

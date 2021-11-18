@@ -151,7 +151,7 @@ def get_DIS_list_from_idx(idx_list):
             for idx in idx_list:
                 # if a flip index idx matches xy_idx, add a Y operator
                 generator.append((idx, 'Y')) if (idx in xy_idx) else generator.append((idx, 'X'))
-            DIS_list.append(QubitOperator(tuple(generator), 1.0))
+            DIS_list.append(QubitOperator(tuple(generator), 1.))
     return DIS_list
 
 

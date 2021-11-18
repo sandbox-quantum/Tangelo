@@ -128,5 +128,5 @@ class QMF(Ansatz):
  
         # The QMF operators do not change -- update parameters and rebuild the circuit
         self.set_var_params(var_params)
-        self.build_circuit()
+        self.build_circuit(var_params)
 
