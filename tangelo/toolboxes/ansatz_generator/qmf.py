@@ -1,14 +1,16 @@
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+# Copyright 2021 Good Chemistry Company.
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-#   Unless required by applicable law or agreed to in writing, software
-#   distributed under the License is distributed on an "AS IS" BASIS,
-#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#   See the License for the specific language governing permissions and
-#   limitations under the License.
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import warnings
 import numpy as np
@@ -76,14 +78,15 @@ class QMF(Ansatz):
 
         if isinstance(var_params, str):
             var_params = var_params.lower()
-            if (var_params not in self.supported_initial_var_params):
+            if var_params not in self.supported_initial_var_params:
                 raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
             elif var_params == "ones":
                 initial_var_params = np.ones((self.n_var_params,), dtype=float)
             elif var_params == "random":
-                initial_var_params = np.random.random((self.n_var_params,))
+                initial_var_params = np.pi * np.random.random((self.n_var_params // 2,))
+                initial_var_params = np.concatenate((initial_var_params, 2. * np.pi * np.random.random((self.n_var_params // 2,))))
             elif var_params == "hf-state":
                 initial_var_params = initialize_qmf_state_from_hf_vec(self.n_spinorbitals, self.n_electrons, self.mapping, self.up_then_down) 
         else:

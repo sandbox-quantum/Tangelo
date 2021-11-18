@@ -1,14 +1,16 @@
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+# Copyright 2021 Good Chemistry Company.
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-#   Unless required by applicable law or agreed to in writing, software
-#   distributed under the License is distributed on an "AS IS" BASIS,
-#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#   See the License for the specific language governing permissions and
-#   limitations under the License.
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import warnings
 import numpy as np
@@ -48,12 +50,9 @@ class QCC(Ansatz):
                 Default, None
             qmf_circuit (Circuit): QMF state preparation circuit. 
                 Default, None
-            build_qmf_qcc (bool): if True, QCC circuits will be built with a QMF circuit prepending it, and both sets of parameters are considered variational.
-                                  else, only the QCC circuit is built.
-                Default, True
     """
 
-    def __init__(self, molecule, mapping="JW", up_then_down=False, qcc_guess=1.e-1, qcc_deriv_thresh=1.e-3, max_qcc_gens=None, qubit_op_list=None, qmf_var_params=None, qmf_circuit=None, build_qmf_qcc=True):
+    def __init__(self, molecule, mapping="JW", up_then_down=False, qcc_guess=1.e-1, qcc_deriv_thresh=1.e-3, max_qcc_gens=None, qubit_op_list=None, qmf_var_params=None, qmf_circuit=None):
 
         self.molecule = molecule
         self.mapping = mapping
@@ -70,7 +69,6 @@ class QCC(Ansatz):
         self.qubit_op_list = qubit_op_list
         self.qmf_var_params = qmf_var_params
         self.qmf_circuit = qmf_circuit
-        self.build_qmf_qcc = build_qmf_qcc
 
         self.n_spinorbitals = self.molecule.n_active_sos
         self.n_electrons = self.molecule.n_active_electrons
@@ -92,6 +90,7 @@ class QCC(Ansatz):
 
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError('The number of QMF variational parameters must be 2 * n_qubits.')           
+
 
         # Build the DIS of QCC generators and determine the number of QCC variational parameters.
         self.DIS = construct_DIS(self.qmf_var_params, self.qubit_ham, self.qcc_deriv_thresh)
@@ -122,7 +121,7 @@ class QCC(Ansatz):
 
         if isinstance(var_params, str):
             var_params = var_params.lower()
-            if (var_params not in self.supported_initial_var_params):
+            if var_params not in self.supported_initial_var_params:
                 raise ValueError(f"Supported keywords for initializing variational parameters: {self.supported_initial_var_params}")
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
@@ -148,7 +147,7 @@ class QCC(Ansatz):
         if self.default_reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
         if self.default_reference_state == "HF":
-            return get_qmf_circuit(self.qmf_var_params)
+            return get_qmf_circuit(self.qmf_var_params, variational=False)
 
     def build_circuit(self, var_params=None):
         """ Build and return the quantum circuit implementing the state preparation ansatz
@@ -161,7 +160,11 @@ class QCC(Ansatz):
 
         # Build a qubit operator required for QCC 
         qubit_op = self._get_qcc_qubit_op()
-   
+  
+        # Build a QMF state preparation circuit
+        if self.qmf_circuit is None: 
+            self.qmf_circuit = self.prepare_reference_state()
+ 
         # Obtain quantum circuit through trivial trotterization of the qubit operator
         # Keep track of the order in which pauli words have been visited for fast subsequent parameter updates
         pauli_words = sorted(qubit_op.terms.items(), key=lambda x: len(x[0]))
@@ -172,12 +175,7 @@ class QCC(Ansatz):
             self.pauli_to_angles_mapping[pauli_word] = i
 
         self.qcc_circuit = Circuit(pauli_words_gates)
-        if self.build_qmf_qcc:
-            if self.qmf_circuit is None:
-                self.qmf_circuit = self.prepare_reference_state()
-            self.circuit = self.qmf_circuit + self.qcc_circuit
-        else:
-            self.circuit = self.qcc_circuit
+        self.circuit = self.qmf_circuit + self.qcc_circuit if self.qmf_circuit.size is not None else self.qcc_circuit
 
     def update_var_params(self, var_params):
         """ 
@@ -197,14 +195,14 @@ class QCC(Ansatz):
             for pauli_word, coef in qubit_op.terms.items():
                 gate_index = self.pauli_to_angles_mapping[pauli_word]
                 self.qcc_circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
-        
-        self.circuit = self.qmf_circuit + self.qcc_circuit if self.build_qmf_qcc else self.qcc_circuit
+            self.circuit = self.qmf_circuit + self.qcc_circuit if self.qmf_circuit.size is not None else self.qcc_circuit
         
     def _get_qcc_qubit_op(self):
         """
         Select one generator from the n_var_params unique DIS groups that were characterized by the largest gradient magnitudes.
         The QCC qubit operator is formed as the linear combination of those generators with var_params as coefficients.
 
+#        if self.n_qmf_params != 2 * self.n_qubits:
         Args:
             var_params (numpy array of floats): QCC variational parameter set {tau}.
             DIS (list of lists): The direct interaction set of QCC generators. The DIS holds lists for each DIS group. Each DIS
@@ -222,17 +220,19 @@ class QCC(Ansatz):
         qcc_qubit_op = QubitOperator.zero()
         # Build a QCC operator using either the DIS or a list of supplied generators
         if self.qubit_op_list is None:
+            self.qubit_op_list = list()
             for i in range(self.n_var_params):
                 # Randomly select a QCC generator from each DIS group.
                 qcc_gen = choice(self.DIS[i][0])
                 qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen
-                print('\tInitial amplitude for DIS group {:} generator {:} = {:} rad.\n'.format(i, str(qcc_gen), self.var_params[i]))
+                self.qubit_op_list.append(qcc_gen)
+                print('\tAmplitude for DIS group {:} generator {:} = {:} rad.\n'.format(i, str(qcc_gen), self.var_params[i]))
         else:
             try:
                 assert (len(self.qubit_op_list) == self.n_var_params)
                 for i, qcc_gen in enumerate(self.qubit_op_list):
                     qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen 
-                    print('\tInitial amplitude for generator {:} = {:} rad.\n'.format(str(qcc_gen), self.var_params[i]))
+                    print('\tAmplitude for generator {:} = {:} rad.\n'.format(str(qcc_gen), self.var_params[i]))
             except AssertionError:
                 raise ValueError(f"Expected {self.n_var_params} QubitOperators in self.qubit_op_list but received {len(self.qubit_op_list)}.")
 

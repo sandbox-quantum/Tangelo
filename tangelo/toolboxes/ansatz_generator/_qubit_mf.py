@@ -1,14 +1,16 @@
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+# Copyright 2021 Good Chemistry Company.
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-#   Unless required by applicable law or agreed to in writing, software
-#   distributed under the License is distributed on an "AS IS" BASIS,
-#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#   See the License for the specific language governing permissions and
-#   limitations under the License.
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 """
     Modules for analytically evaluating the expectation value of a QubitOperator
@@ -70,7 +72,7 @@ def get_op_expval(qubit_op, qmf_var_params):
 def initialize_qmf_state_from_hf_vec(n_spinorbitals, n_electrons, mapping, up_then_down):
     """
     Function to initialize the variational parameters of a QMF wave function from a Hartree-Fock
-    occupation vector. The theta Bloch angles are derived from and occupation vector, 
+    occupation vector. The theta Bloch angles are derived from an occupation vector, 
     while the phi Bloch angles are randomly selected over the range [0, 2.*np.pi).
 
     Args:
@@ -120,7 +122,7 @@ def purify_qmf_state(qmf_var_params):
         print('\tPurified QMF_{:} Bloch angles: (theta, phi) = ({:}, {:}) rad.\n'.format(i, pure_var_params[i], pure_var_params[i + n_qmf_params]))
     return np.array(pure_var_params)
 
-def get_qmf_circuit(qmf_var_params):
+def get_qmf_circuit(qmf_var_params, variational=True):
     """
     Args:
         qmf_var_params (numpy array of floats): QMF variational parameter set {Omega}
@@ -132,7 +134,7 @@ def get_qmf_circuit(qmf_var_params):
     circuit = Circuit()
     for index, param in enumerate(qmf_var_params):
         gate_ID = "RX" if index < qmf_var_params.size//2 else "RZ"
-        gate = Gate(gate_ID, target=index, parameter=param, is_variational=True)
+        gate = Gate(gate_ID, target=index, parameter=param, is_variational=variational)
         circuit.add_gate(gate)
     return circuit
 
