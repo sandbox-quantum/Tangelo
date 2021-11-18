@@ -110,7 +110,7 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.update_var_params(qcc_var_params)
 
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.9515395411986836, delta=1e-6)
+        self.assertAlmostEqual(energy, -1.9515395411986798, delta=1e-6)
 
     def test_qcc_H4(self):
         """ Verify closed-shell QCC functionalities for H4 """
@@ -135,8 +135,7 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.update_var_params(qcc_var_params)
 
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.9515395411986836, delta=1e-6)
-
+        self.assertAlmostEqual(energy, -1.9515395411986798, delta=1e-6)
 
 if __name__ == "__main__":
     unittest.main()
