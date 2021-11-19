@@ -1,0 +1,17 @@
+# Default reviewers
+*		@ValentinS4t1qbit @AlexandreF-1qbit @JamesB-1qbit
+
+# DevOPs, scripts
+*.sh		@ValentinS4t1qbit 
+/.github/	@ValentinS4t1qbit
+
+# Docs
+/docs/	@ValentinS4t1qbit @AlexandreF-1qbit
+*.txt		@ValentinS4t1qbit
+*.rst 		@ValentinS4t1qbit
+
+# Tests
+Tests/ 	@ValentinS4t1qbit
+
+#  Backend-agnostic code
+backendbuddy/	@ValentinS4t1qbit @JamesB-1qbit
