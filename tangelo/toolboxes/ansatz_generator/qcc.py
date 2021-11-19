@@ -91,14 +91,6 @@ class QCC(Ansatz):
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError('The number of QMF variational parameters must be 2 * n_qubits.')           
 
-
-        # Build the DIS of QCC generators and determine the number of QCC variational parameters.
-        self.DIS = construct_DIS(self.qmf_var_params, self.qubit_ham, self.qcc_deriv_thresh)
-        if self.qubit_op_list is None: 
-            self.n_var_params = len(self.DIS) if self.max_qcc_gens is None else min(len(self.DIS), self.max_qcc_gens)
-        else:
-            self.n_var_params = len(self.qubit_op_list)
-
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
@@ -110,6 +102,13 @@ class QCC(Ansatz):
         self.var_params_default = "random"
         self.qcc_circuit = None
         self.circuit = None
+
+        # Build the DIS of QCC generators and determine the number of QCC variational parameters.
+        self.DIS = construct_DIS(self.qmf_var_params, self.qubit_ham, self.qcc_deriv_thresh)
+        if self.qubit_op_list is None: 
+            self.n_var_params = len(self.DIS) if self.max_qcc_gens is None else min(len(self.DIS), self.max_qcc_gens)
+        else:
+            self.n_var_params = len(self.qubit_op_list)
 
     def set_var_params(self, var_params=None):
         """ Set values for variational parameters, such as zeros, random numbers, providing some

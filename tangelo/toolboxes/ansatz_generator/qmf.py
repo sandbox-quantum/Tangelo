@@ -85,8 +85,8 @@ class QMF(Ansatz):
             elif var_params == "ones":
                 initial_var_params = np.ones((self.n_var_params,), dtype=float)
             elif var_params == "random":
-                initial_var_params = np.pi * np.random.random((self.n_var_params // 2,))
-                initial_var_params = np.concatenate((initial_var_params, 2. * np.pi * np.random.random((self.n_var_params // 2,))))
+                initial_var_params = np.pi * np.random.random((self.n_qubts,))
+                initial_var_params = np.concatenate((initial_var_params, 2. * np.pi * np.random.random((self.n_qubits,))))
             elif var_params == "hf-state":
                 initial_var_params = initialize_qmf_state_from_hf_vec(self.n_spinorbitals, self.n_electrons, self.mapping, self.up_then_down) 
         else:
