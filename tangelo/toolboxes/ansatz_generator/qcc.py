@@ -36,6 +36,9 @@ class QCC(Ansatz):
                 Default, 'JW'
             up_then_down (bool): if True, change basis ordering putting all spin up orbitals first, followed by all spin down.
                 Default, False 
+            qcc_guess (float): Controls the initial guess for the QCC variational parameter set {tau} when initializing randomly.
+                               Initial values for tau are selected randomly selected over the domain [-qcc_guess, qcc_guess].
+                Default, 1.e-1 a.u.
             qcc_deriv_thresh (float): Threshold for the gradient magnitude |dEQCC/dtau| used to determine whether a particular direct interaction set (DIS) group
                                       of generators should be considered when forming the QCC operator.
                 Default, 1.e-3 a.u.
@@ -91,6 +94,14 @@ class QCC(Ansatz):
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError('The number of QMF variational parameters must be 2 * n_qubits.')           
 
+        # Either build the DIS or use a list of generators to determine the number of variational parameters.
+        if self.qubit_op_list is None:
+            self.DIS = construct_DIS(self.qmf_var_params, self.qubit_ham, self.qcc_deriv_thresh)
+            self.n_var_params = len(self.DIS) if self.max_qcc_gens is None else min(len(self.DIS), self.max_qcc_gens)
+        else:
+            self.DIS = None
+            self.n_var_params = len(self.qubit_op_list)
+
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
@@ -102,13 +113,6 @@ class QCC(Ansatz):
         self.var_params_default = "random"
         self.qcc_circuit = None
         self.circuit = None
-
-        # Build the DIS of QCC generators and determine the number of QCC variational parameters.
-        self.DIS = construct_DIS(self.qmf_var_params, self.qubit_ham, self.qcc_deriv_thresh)
-        if self.qubit_op_list is None: 
-            self.n_var_params = len(self.DIS) if self.max_qcc_gens is None else min(len(self.DIS), self.max_qcc_gens)
-        else:
-            self.n_var_params = len(self.qubit_op_list)
 
     def set_var_params(self, var_params=None):
         """ Set values for variational parameters, such as zeros, random numbers, providing some
@@ -174,7 +178,7 @@ class QCC(Ansatz):
             self.pauli_to_angles_mapping[pauli_word] = i
 
         self.qcc_circuit = Circuit(pauli_words_gates)
-        self.circuit = self.qmf_circuit + self.qcc_circuit if self.qmf_circuit.size is not None else self.qcc_circuit
+        self.circuit = self.qmf_circuit + self.qcc_circuit if self.qmf_circuit.size != 0 else self.qcc_circuit
 
     def update_var_params(self, var_params):
         """ 
@@ -194,7 +198,7 @@ class QCC(Ansatz):
             for pauli_word, coef in qubit_op.terms.items():
                 gate_index = self.pauli_to_angles_mapping[pauli_word]
                 self.qcc_circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
-            self.circuit = self.qmf_circuit + self.qcc_circuit if self.qmf_circuit.size is not None else self.qcc_circuit
+            self.circuit = self.qmf_circuit + self.qcc_circuit if self.qmf_circuit.size != 0 else self.qcc_circuit
         
     def _get_qcc_qubit_op(self):
         """

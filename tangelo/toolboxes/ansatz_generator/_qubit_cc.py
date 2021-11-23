@@ -80,7 +80,7 @@ def get_DIS_groups(qmf_var_params, qubit_ham, qcc_deriv_thresh):
     def op_data():
         for term, coef in qubit_ham.terms.items(): 
             # at least 2 flip indices are required for a DIS group
-            if len(term) > 1:
+            if term:
                 yield term, coef, pure_var_params
     flip_data = list(data for data in map(get_flip_idx, op_data()) if data is not None)
 

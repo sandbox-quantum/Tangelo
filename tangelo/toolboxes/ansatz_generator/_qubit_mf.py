@@ -133,7 +133,7 @@ def get_qmf_circuit(qmf_var_params, variational=True):
 
     circuit = Circuit()
     for index, param in enumerate(qmf_var_params):
-        gate_ID = "RX" if index < qmf_var_params.size//2 else "RZ"
+        gate_ID = "RX" if index < qmf_var_params.size // 2 else "RZ"
         gate = Gate(gate_ID, target=index, parameter=param, is_variational=variational)
         circuit.add_gate(gate)
     return circuit
