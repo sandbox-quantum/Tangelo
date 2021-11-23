@@ -20,6 +20,11 @@ import unittest
 import numpy as np
 
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector, vector_to_circuit
+from tangelo.molecule_library import mol_H4_sto3g, mol_H4_cation_sto3g
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.backendbuddy import Simulator
+
+sim = Simulator()
 
 
 class TestVector(unittest.TestCase):
@@ -64,6 +69,102 @@ class TestVector(unittest.TestCase):
         circuit = vector_to_circuit(vector)
         self.assertEqual(circuit.size, sum(vector))
         self.assertEqual(circuit.width, vector.size)
+
+    def test_all_same_energy_mol_H4_sto3g(self):
+        """Check that all mappings return statevectors that have the same energy expectation
+        for an even number of electrons and various spins"""
+        ferm_op = mol_H4_sto3g.fermionic_hamiltonian
+        qu_op_bk = fermion_to_qubit_mapping(ferm_op,
+                                            "BK",
+                                            mol_H4_sto3g.n_active_sos,
+                                            mol_H4_sto3g.n_active_electrons,
+                                            up_then_down=True)
+        qu_op_jw = fermion_to_qubit_mapping(ferm_op,
+                                            "JW",
+                                            mol_H4_sto3g.n_active_sos,
+                                            mol_H4_sto3g.n_active_electrons,
+                                            up_then_down=True)
+        # Test for spin 0, 2, and 4
+        for spin in range(3):
+            vector_bk = get_vector(mol_H4_sto3g.n_active_sos,
+                                   mol_H4_sto3g.n_active_electrons,
+                                   mapping="BK",
+                                   up_then_down=True,
+                                   spin=spin*2)
+            vector_scbk = get_vector(mol_H4_sto3g.n_active_sos,
+                                     mol_H4_sto3g.n_active_electrons,
+                                     mapping="SCBK",
+                                     up_then_down=True,
+                                     spin=spin*2)
+            vector_jw = get_vector(mol_H4_sto3g.n_active_sos,
+                                   mol_H4_sto3g.n_active_electrons,
+                                   mapping="JW",
+                                   up_then_down=True,
+                                   spin=spin*2)
+            circuit_bk = vector_to_circuit(vector_bk)
+            circuit_scbk = vector_to_circuit(vector_scbk)
+            circuit_jw = vector_to_circuit(vector_jw)
+
+            qu_op_scbk = fermion_to_qubit_mapping(ferm_op,
+                                                  'SCBK',
+                                                  mol_H4_sto3g.n_active_sos,
+                                                  mol_H4_sto3g.n_active_electrons,
+                                                  up_then_down=True,
+                                                  spin=spin*2)
+
+            e_bk = sim.get_expectation_value(qu_op_bk, circuit_bk)
+            e_scbk = sim.get_expectation_value(qu_op_scbk, circuit_scbk)
+            e_jw = sim.get_expectation_value(qu_op_jw, circuit_jw)
+            self.assertAlmostEqual(e_bk, e_jw, places=7, msg=f"Failed for bk vs jw for spin={spin}")
+            self.assertAlmostEqual(e_jw, e_scbk, places=7, msg=f"Failed for jw vs scbk for spin={spin}")
+
+    def test_all_same_energy_mol_H4_cation_sto3g(self):
+        """Check that all mappings return statevectors that have the same energy expectation
+        for an odd number of electrons and various spins"""
+        ferm_op = mol_H4_cation_sto3g.fermionic_hamiltonian
+        qu_op_bk = fermion_to_qubit_mapping(ferm_op,
+                                            "BK",
+                                            mol_H4_cation_sto3g.n_active_sos,
+                                            mol_H4_cation_sto3g.n_active_electrons,
+                                            up_then_down=True)
+        qu_op_jw = fermion_to_qubit_mapping(ferm_op,
+                                            "JW",
+                                            mol_H4_cation_sto3g.n_active_sos,
+                                            mol_H4_cation_sto3g.n_active_electrons,
+                                            up_then_down=True)
+        # Test for spin 1 and 3
+        for spin in range(2):
+            vector_bk = get_vector(mol_H4_cation_sto3g.n_active_sos,
+                                   mol_H4_cation_sto3g.n_active_electrons,
+                                   mapping="BK",
+                                   up_then_down=True,
+                                   spin=spin*2+1)
+            vector_scbk = get_vector(mol_H4_cation_sto3g.n_active_sos,
+                                     mol_H4_cation_sto3g.n_active_electrons,
+                                     mapping="SCBK",
+                                     up_then_down=True,
+                                     spin=spin*2+1)
+            vector_jw = get_vector(mol_H4_cation_sto3g.n_active_sos,
+                                   mol_H4_cation_sto3g.n_active_electrons,
+                                   mapping="JW",
+                                   up_then_down=True,
+                                   spin=spin*2+1)
+            circuit_bk = vector_to_circuit(vector_bk)
+            circuit_scbk = vector_to_circuit(vector_scbk)
+            circuit_jw = vector_to_circuit(vector_jw)
+
+            qu_op_scbk = fermion_to_qubit_mapping(ferm_op,
+                                                  'SCBK',
+                                                  mol_H4_cation_sto3g.n_active_sos,
+                                                  mol_H4_cation_sto3g.n_active_electrons,
+                                                  up_then_down=True,
+                                                  spin=spin*2+1)
+
+            e_bk = sim.get_expectation_value(qu_op_bk, circuit_bk)
+            e_scbk = sim.get_expectation_value(qu_op_scbk, circuit_scbk)
+            e_jw = sim.get_expectation_value(qu_op_jw, circuit_jw)
+            self.assertAlmostEqual(e_bk, e_jw, places=7, msg=f"Failed for bk vs jw for spin={spin}")
+            self.assertAlmostEqual(e_jw, e_scbk, places=7, msg=f"Failed for jw vs scbk for spin={spin}")
 
 
 if __name__ == "__main__":

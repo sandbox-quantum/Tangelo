@@ -89,6 +89,7 @@ def do_scbk_transform(vector, n_spinorbitals):
     Args:
         vector (numpy array of int): fermion occupation vector.
         n_spinorbitals (int): number of qubits in register.
+
     Returns:
         numpy array of int: qubit-encoded occupation vector.
     """
