@@ -298,16 +298,14 @@ class VQESolver:
             raise TypeError("operator must be a of string, FermionOperator or QubitOperator type.")
 
         if isinstance(operator, (str, FermionOperator)):
-            if (n_active_electrons is None or n_active_sos is None) and self.qubit_hamiltonian.mapping == "scbk":
+            if (n_active_electrons is None or n_active_sos is None or spin is None) and self.qubit_hamiltonian.mapping == "scbk":
                 if self.molecule:
                     n_active_electrons = self.molecule.n_active_electrons
                     n_active_sos = self.molecule.n_active_sos
                     spin = self.molecule.spin
                 else:
-                    raise KeyError("Must supply n_active_electrons and n_active_sos with a FermionOperator and scbk mapping.")
+                    raise KeyError("Must supply n_active_electrons, n_active_sos, and spin with a FermionOperator and scbk mapping.")
 
-            if spin is None:
-                spin = 0
             self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=exp_op,
                                                               mapping=self.qubit_hamiltonian.mapping,
                                                               n_spinorbitals=n_active_sos,

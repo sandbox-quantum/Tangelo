@@ -71,6 +71,8 @@ class TestVector(unittest.TestCase):
         self.assertEqual(circuit.width, vector.size)
 
     def test_all_same_energy_mol_H4_sto3g(self):
+        """Check that all mappings return statevectors that have the same energy expectation
+        for an even number of electrons and various spins"""
         ferm_op = mol_H4_sto3g.fermionic_hamiltonian
         qu_op_bk = fermion_to_qubit_mapping(ferm_op,
                                             "BK",
@@ -117,6 +119,8 @@ class TestVector(unittest.TestCase):
             self.assertAlmostEqual(e_jw, e_scbk, places=7, msg=f"Failed for jw vs scbk for spin={spin}")
 
     def test_all_same_energy_mol_H4_cation_sto3g(self):
+        """Check that all mappings return statevectors that have the same energy expectation
+        for an odd number of electrons and various spins"""
         ferm_op = mol_H4_cation_sto3g.fermionic_hamiltonian
         qu_op_bk = fermion_to_qubit_mapping(ferm_op,
                                             "BK",
