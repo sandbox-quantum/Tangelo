@@ -14,9 +14,9 @@
 
 import unittest
 
-from qsdk.algorithms.projective.quantum_imaginary_time import QITESolver
-from qsdk.molecule_library import mol_H2_sto3g, mol_H4_sto3g
-from qsdk.backendbuddy.noisy_simulation import NoiseModel
+from tangelo.algorithms.projective.quantum_imaginary_time import QITESolver
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g
+from tangelo.backendbuddy.noisy_simulation import NoiseModel
 
 
 class QITESolverTest(unittest.TestCase):
@@ -39,7 +39,6 @@ class QITESolverTest(unittest.TestCase):
         options = {"qubit_mapping": "jw"}
         self.assertRaises(ValueError, QITESolver, options)
 
-    @unittest.skip("Test takes a long time")
     def test_simulate_h2_noisy(self):
         """Run QITE on H2 molecule with bk qubit mapping and an empty noise model for 1 cycle.
         Result should be lower than mean field energy.
@@ -47,9 +46,9 @@ class QITESolverTest(unittest.TestCase):
 
         backend_options = {"target": "qulacs", "n_shots": 10000, "noise_model": NoiseModel()}
 
-        qite_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "bk",
+        qite_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "scbk",
                         "verbose": True, 'backend_options': backend_options,
-                        "max_cycles": 2, "up_then_down": True}
+                        "max_cycles": 1, "up_then_down": True}
         qite_solver = QITESolver(qite_options)
         qite_solver.build()
 
@@ -61,7 +60,7 @@ class QITESolverTest(unittest.TestCase):
         """
 
         qite_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw",
-                        "verbose": True}
+                        "verbose": False, "up_then_down": True}
         qite_solver = QITESolver(qite_options)
         qite_solver.build()
 
@@ -73,7 +72,7 @@ class QITESolverTest(unittest.TestCase):
         """
 
         qite_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw",
-                        "verbose": True}
+                        "verbose": False}
         qite_solver = QITESolver(qite_options)
         qite_solver.build()
         resources = qite_solver.get_resources()
@@ -99,7 +98,7 @@ class QITESolverTest(unittest.TestCase):
         1e-4 Ha.
         """
         qite_options = {"molecule": mol_H2_sto3g, "verbose": False,
-                        "qubit_mapping": "scbk"}
+                        "qubit_mapping": "scbk", "up_then_down": True}
 
         qite_solver = QITESolver(qite_options)
         qite_solver.build()

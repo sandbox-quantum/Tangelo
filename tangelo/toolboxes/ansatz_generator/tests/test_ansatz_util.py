@@ -6,14 +6,14 @@ import numpy as np
 from numpy.linalg import eigh
 from openfermion import get_sparse_operator
 
-from qsdk.backendbuddy import Simulator, Circuit, Gate
-from qsdk.toolboxes.operators import FermionOperator, QubitOperator
-from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from qsdk.molecule_library import mol_H4_sto3g
-from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
-from qsdk.toolboxes.ansatz_generator.ansatz_utils import trotterize, qft_circuit
-from qsdk.toolboxes.ansatz_generator.ansatz_utils import derangement_circuit, controlled_pauliwords
-from qsdk.helpers.utils import installed_backends
+from tangelo.backendbuddy import Simulator, Circuit, Gate
+from tangelo.toolboxes.operators import FermionOperator, QubitOperator
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.molecule_library import mol_H4_sto3g
+from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize, qft_circuit
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import derangement_circuit, controlled_pauliwords
+from tangelo.helpers.utils import installed_backends
 
 # Initiate simulators
 backend_candidates = ["cirq", "qulacs", "qiskit"]

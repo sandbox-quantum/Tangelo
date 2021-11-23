@@ -18,15 +18,15 @@ from copy import copy
 
 import math
 from openfermion import FermionOperator as ofFermionOperator
-from qsdk.toolboxes.ansatz_generator.ansatz_utils import trotterize
-from qsdk.toolboxes.operators.operators import FermionOperator, QubitOperator
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
+from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
 import numpy as np
 
-from qsdk.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from qsdk.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
-from qsdk.toolboxes.operators import qubitop_to_qubitham
-from qsdk.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
-from qsdk.backendbuddy import Circuit, Simulator
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
+from tangelo.toolboxes.operators import qubitop_to_qubitham
+from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
+from tangelo.backendbuddy import Circuit, Simulator
 
 
 class QITESolver:
@@ -109,7 +109,8 @@ class QITESolver:
         return get_reference_circuit(n_spinorbitals=self.n_spinorbitals,
                                      n_electrons=self.n_electrons,
                                      mapping=self.qubit_mapping,
-                                     up_then_down=self.up_then_down)
+                                     up_then_down=self.up_then_down,
+                                     spin=0)
 
     def build(self):
         """Builds the underlying objects required to run the QITE
@@ -127,7 +128,8 @@ class QITESolver:
                                                 mapping=self.qubit_mapping,
                                                 n_spinorbitals=self.n_spinorbitals,
                                                 n_electrons=self.n_electrons,
-                                                up_then_down=self.up_then_down)
+                                                up_then_down=self.up_then_down,
+                                                spin=0)
 
             self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
 
@@ -201,6 +203,8 @@ class QITESolver:
 
         # Construction of the circuit. self.max_cycles terms are added, unless
         # the energy change is less than self.min_de.
+        if self.use_statevector:
+            self.update_statevector(self.backend, self.circuit_list[0])
         self.final_energy = self.energy_expectation(self.backend)
         self.energies.append(self.final_energy)
         while self.iteration < self.max_cycles:
@@ -208,9 +212,16 @@ class QITESolver:
             if self.verbose:
                 print(f"Iteration {self.iteration} of QITE with starting energy {self.final_energy}")
 
-            if self.use_statevector:
-                self.update_statevector(self.backend, self.circuit_list[self.iteration - 1])
             suv, bu = self.calculate_matrices(self.backend, self.final_energy)
+
+            alphas = self.dt * np.linalg.solve(suv.real, bu.real)
+            next_circuit, _ = trotterize(self.pool_qubit_op, alphas, trotter_order=1, num_trotter_steps=1)
+
+            self.circuit_list.append(next_circuit)
+            self.final_circuit += next_circuit
+
+            if self.use_statevector:
+                self.update_statevector(self.backend, self.circuit_list[self.iteration])
 
             new_energy = self.energy_expectation(self.backend)
             self.energies.append(new_energy)
@@ -220,12 +231,8 @@ class QITESolver:
                 break
             else:
                 self.final_energy = new_energy
-
-            alphas = self.dt * np.linalg.solve(suv.real, bu.real)
-            next_circuit, _ = trotterize(self.pool_qubit_op, alphas, trotter_order=1, num_trotter_steps=1)
-
-            self.circuit_list.append(next_circuit)
-            self.final_circuit += next_circuit
+        if self.verbose:
+            print(f"Final energy of QITE is {self.final_energy}")
 
         return self.energies[-1]
 
