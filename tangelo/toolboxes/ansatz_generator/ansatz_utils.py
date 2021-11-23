@@ -260,6 +260,7 @@ def qft_circuit(qubits, n_qubits_in_circuit=None, inverse=False):
         Returns:
             Circuit: The circuit that applies QFT or iQFT to qubits
         """
+
     if isinstance(qubits, int):
         qubit_list = [i for i in range(qubits)]
     elif isinstance(qubits, list):
