@@ -68,7 +68,8 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
     elif mapping.upper() == "SCBK":
         if not up_then_down:
             warnings.warn("Symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.", RuntimeWarning)
-        return do_scbk_transform(n_spinorbitals, n_electrons)
+            vector = np.concatenate((vector[::2], vector[1::2]))
+        return do_scbk_transform(vector, n_spinorbitals)
 
 
 def do_bk_transform(vector):
@@ -86,22 +87,20 @@ def do_bk_transform(vector):
     return vector_bk
 
 
-def do_scbk_transform(n_spinorbitals, n_electrons):
+def do_scbk_transform(vector, n_spinorbitals):
     """Instantiate qubit vector for symmetry-conserving Bravyi-Kitaev
     transformation. Based on implementation by Yukio Kawashima in DMET project.
 
     Args:
+        vector (numpy array of int): fermion occupation vector.
         n_spinorbitals (int): number of qubits in register.
-        n_electrons (int): number of fermions occupied.
 
     Returns:
         numpy array of int: qubit-encoded occupation vector.
     """
-    n_alpha, n_orb = n_electrons//2, (n_spinorbitals - 2)//2
-    vector = np.zeros(n_spinorbitals - 2, dtype=int)
-    if n_alpha >= 1:
-        vector[:n_alpha - 1] = 1
-        vector[n_orb:n_orb + n_alpha - 1] = 1
+    vector_bk = do_bk_transform(vector)
+    vector = np.delete(vector_bk, n_spinorbitals - 1)
+    vector = np.delete(vector, n_spinorbitals//2 - 1)
     return vector
 
 

@@ -131,7 +131,8 @@ class VQESolver:
                                                 mapping=self.qubit_mapping,
                                                 n_spinorbitals=self.molecule.n_active_sos,
                                                 n_electrons=self.molecule.n_active_electrons,
-                                                up_then_down=self.up_then_down)
+                                                up_then_down=self.up_then_down,
+                                                spin=self.molecule.spin)
 
             self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
 
@@ -141,7 +142,8 @@ class VQESolver:
                                                      mapping=self.qubit_mapping,
                                                      n_spinorbitals=self.molecule.n_active_sos,
                                                      n_electrons=self.molecule.n_active_electrons,
-                                                     up_then_down=self.up_then_down)
+                                                     up_then_down=self.up_then_down,
+                                                     spin=self.molecule.spin)
                 pen_qubit = qubitop_to_qubitham(pen_qubit, self.qubit_hamiltonian.mapping, self.qubit_hamiltonian.up_then_down)
                 self.qubit_hamiltonian += pen_qubit
 
@@ -240,7 +242,7 @@ class VQESolver:
 
         return energy
 
-    def operator_expectation(self, operator, var_params=None, n_active_mos=None, n_active_electrons=None, n_active_sos=None):
+    def operator_expectation(self, operator, var_params=None, n_active_mos=None, n_active_electrons=None, n_active_sos=None, spin=None):
         """Obtains the operator expectation value of a given operator.
 
            Args:
@@ -262,6 +264,7 @@ class VQESolver:
                     required when operator is of type FermionOperator and
                     mapping used is scbk and vqe_solver was initiated using a
                     QubitHamiltonian.
+                spin (int): Spin (n_alpha - n_beta)
 
            Returns:
                 float: operator expectation value computed by VQE using the
@@ -299,13 +302,18 @@ class VQESolver:
                 if self.molecule:
                     n_active_electrons = self.molecule.n_active_electrons
                     n_active_sos = self.molecule.n_active_sos
+                    spin = self.molecule.spin
                 else:
                     raise KeyError("Must supply n_active_electrons and n_active_sos with a FermionOperator and scbk mapping.")
+
+            if spin is None:
+                spin = 0
             self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=exp_op,
                                                               mapping=self.qubit_hamiltonian.mapping,
                                                               n_spinorbitals=n_active_sos,
                                                               n_electrons=n_active_electrons,
-                                                              up_then_down=self.qubit_hamiltonian.up_then_down)
+                                                              up_then_down=self.qubit_hamiltonian.up_then_down,
+                                                              spin=spin)
 
         expectation = self.energy_estimation(var_params)
 
@@ -379,7 +387,8 @@ class VQESolver:
                                                           mapping=self.qubit_mapping,
                                                           n_spinorbitals=self.molecule.n_active_sos,
                                                           n_electrons=self.molecule.n_active_electrons,
-                                                          up_then_down=self.up_then_down)
+                                                          up_then_down=self.up_then_down,
+                                                          spin=self.molecule.spin)
             qubit_hamiltonian2.compress()
 
             # Run through each qubit term separately, use previously calculated result for the qubit term or

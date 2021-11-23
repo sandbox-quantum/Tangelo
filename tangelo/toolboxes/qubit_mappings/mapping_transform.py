@@ -70,7 +70,7 @@ def get_fermion_operator(operator):
     return fermion_operator
 
 
-def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_electrons=None, up_then_down=False):
+def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_electrons=None, up_then_down=False, spin=0):
     """Perform mapping of fermionic operator to qubit operator. This function is
     mostly a wrapper around standard openfermion code, with some important
     distinctions. We strictly enforce the specification of n_qubits for
@@ -90,6 +90,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
             Required for symmetry conserving Bravyi-Kitaev only.
         up_then_down (bool): flag to change basis ordering, putting all spin up
             then all spin down.
+        spin (int): The spin number (n_alpha - n_beta)
 
     Returns:
         QubitOperator: input operator, encoded in the qubit space.
@@ -121,7 +122,8 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
         qubit_operator = symmetry_conserving_bravyi_kitaev(fermion_operator=fermion_operator,
                                                            n_spinorbitals=n_spinorbitals,
                                                            n_electrons=n_electrons,
-                                                           up_then_down=up_then_down)
+                                                           up_then_down=up_then_down,
+                                                           spin=spin)
 
     converted_qubit_op = QubitOperator()
     converted_qubit_op.terms = qubit_operator.terms.copy()

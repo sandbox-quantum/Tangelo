@@ -136,13 +136,15 @@ class ADAPTSolver:
 
             self.n_spinorbitals = self.molecule.n_active_sos
             self.n_electrons = self.molecule.n_active_electrons
+            self.spin = self.molecule.spin
 
             # Compute qubit hamiltonian for the input molecular system
             qubit_op = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
                                                 mapping=self.qubit_mapping,
                                                 n_spinorbitals=self.n_spinorbitals,
                                                 n_electrons=self.n_electrons,
-                                                up_then_down=self.up_then_down)
+                                                up_then_down=self.up_then_down,
+                                                spin=self.spin)
 
             self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
 
@@ -183,7 +185,8 @@ class ADAPTSolver:
                                                             mapping=self.qubit_mapping,
                                                             n_spinorbitals=self.n_spinorbitals,
                                                             n_electrons=self.n_electrons,
-                                                            up_then_down=self.up_then_down) for fi in self.fermionic_operators]
+                                                            up_then_down=self.up_then_down,
+                                                            spin=self.spin) for fi in self.fermionic_operators]
         else:
             raise ValueError('pool function must return either QubitOperator or FermionOperator')
 
