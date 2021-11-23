@@ -40,7 +40,7 @@ from openfermion.utils import up_then_down as up_then_down_order
 
 
 def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
-                                      n_electrons, up_then_down=False):
+                                      n_electrons, up_then_down=False, spin=0):
     """Returns the QubitOperator for the FermionOperator supplied, with two
     qubits removed using conservation of (parity) of electron spin and number,
     as described in arXiv:1701.08213.  This function has been modified from its
@@ -87,7 +87,7 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
         raise ValueError("Number of electrons should be an integer.")
     if n_spinorbitals < count_qubits(fermion_operator):
         raise ValueError("Number of spin-orbitals is too small for FermionOperator input.")
-    #Check that the input operator is suitable for application of scBK
+    # Check that the input operator is suitable for application of scBK
     check_operator(fermion_operator, num_orbitals=(n_spinorbitals//2), up_then_down=up_then_down)
 
     # If necessary, arrange spins up then down, then BK map to qubit Hamiltonian.
@@ -96,30 +96,21 @@ def symmetry_conserving_bravyi_kitaev(fermion_operator, n_spinorbitals,
     qubit_operator = bravyi_kitaev_tree(fermion_operator, n_qubits=n_spinorbitals)
     qubit_operator.compress()
 
-    # Allocates the parity factors for the orbitals as in arXiv:1704.05018.
-    remainder = n_electrons % 4
-    if remainder == 0:
-        parity_final_orb = 1
-        parity_middle_orb = 1
-    elif remainder == 1:
-        parity_final_orb = -1
-        parity_middle_orb = -1
-    elif remainder == 2:
-        parity_final_orb = 1
-        parity_middle_orb = -1
-    else:
-        parity_final_orb = -1
-        parity_middle_orb = 1
+    n_alpha = n_electrons//2 + spin//2 + (n_electrons % 2)
+
+    # Allocates the parity factors for the orbitals as in arXiv:1704.08213.
+    parity_final_orb = (-1)**n_electrons
+    parity_middle_orb = (-1)**n_alpha
 
     # Removes the final qubit, then the middle qubit.
     qubit_operator = edit_operator_for_spin(qubit_operator,
-                                                  n_spinorbitals,
-                                                  parity_final_orb)
+                                            n_spinorbitals,
+                                            parity_final_orb)
     qubit_operator = edit_operator_for_spin(qubit_operator,
-                                                  n_spinorbitals/2,
-                                                  parity_middle_orb)
+                                            n_spinorbitals/2,
+                                            parity_middle_orb)
 
-    #We remove the N/2-th and N-th qubit from the register.
+    # We remove the N/2-th and N-th qubit from the register.
     to_prune = (n_spinorbitals//2 - 1, n_spinorbitals - 1)
     qubit_operator = prune_unused_indices(qubit_operator, prune_indices=to_prune, n_qubits=n_spinorbitals)
 
