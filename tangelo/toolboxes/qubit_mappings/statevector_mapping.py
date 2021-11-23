@@ -32,7 +32,6 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
     Reference state will occupy up to the n_electron-th molecular orbital.
     Depending on convention, basis is ordered alternating spin-up/spin-down
     (updown = False), or all up, then all down (updown = True).
-
     Args:
         n_spinorbitals (int): number of spin-orbitals in register.
         n_electrons (int): number of electrons in system.
@@ -41,7 +40,6 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
             (symmetry-conserving Bravyi Kitaev).
         up_then_down (boolean): if True, all up, then all down, if False,
             alternating spin up/down.
-
     Returns:
         numpy array of int: binary integer array indicating occupation of each
             spin-orbital.
@@ -68,16 +66,15 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
     elif mapping.upper() == "SCBK":
         if not up_then_down:
             warnings.warn("Symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.", RuntimeWarning)
-        return do_scbk_transform(n_spinorbitals, n_electrons)
+            vector = np.concatenate((vector[::2], vector[1::2]))
+        return do_scbk_transform(vector, n_spinorbitals)
 
 
 def do_bk_transform(vector):
     """Apply Bravyi-Kitaev transformation to fermion occupation vector.
     Currently, simple wrapper on openfermion tools.
-
     Args:
         vector (numpy array of int): fermion occupation vector.
-
     Returns:
         numpy array of int: qubit-encoded occupation vector.
     """
@@ -86,35 +83,26 @@ def do_bk_transform(vector):
     return vector_bk
 
 
-def do_scbk_transform(n_spinorbitals, n_electrons):
+def do_scbk_transform(vector, n_spinorbitals):
     """Instantiate qubit vector for symmetry-conserving Bravyi-Kitaev
     transformation. Based on implementation by Yukio Kawashima in DMET project.
-
     Args:
+        vector (numpy array of int): fermion occupation vector.
         n_spinorbitals (int): number of qubits in register.
-        n_electrons (int): number of fermions occupied.
-
     Returns:
         numpy array of int: qubit-encoded occupation vector.
     """
-    n_alpha, n_orb = n_electrons//2, (n_spinorbitals - 2)//2
-    if n_alpha >= 1:
-        if n_spinorbitals - 2 > 2:
-            vector = np.zeros(n_spinorbitals - 2, dtype=int)
-            vector[:n_alpha - 1] = 1
-            vector[n_orb:n_orb + n_alpha - 1] = 1
-        else:
-            vector = np.ones(n_spinorbitals - 2, dtype=int)
+    vector_bk = do_bk_transform(vector)
+    vector = np.delete(vector_bk, n_spinorbitals - 1)
+    vector = np.delete(vector, n_spinorbitals//2 - 1)
     return vector
 
 
 def vector_to_circuit(vector):
     """Translate occupation vector into a circuit. Each occupied state
     corresponds to an X-gate on the associated qubit index.
-
     Args:
         vector (numpy array of int): occupation vector.
-
     Returns:
         Circuit: instance of tangelo.backendbuddy Circuit class.
     """
@@ -133,7 +121,6 @@ def vector_to_circuit(vector):
 def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=None):
     """Build the Hartree-Fock state preparation circuit for the designated
     mapping.
-
     Args:
         n_spinorbitals (int): number of qubits in register.
         n_electrons (int): number of electrons in system.
@@ -143,7 +130,6 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
         up_then_down (boolean): if True, all up, then all down, if False,
             alternating spin up/down.
         spin (int): 2*S = n_alpha - n_beta.
-
     Returns:
         Circuit: instance of tangelo.backendbuddy Circuit class.
     """
