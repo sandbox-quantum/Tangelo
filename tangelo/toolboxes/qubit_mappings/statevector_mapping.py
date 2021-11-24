@@ -32,6 +32,7 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
     Reference state will occupy up to the n_electron-th molecular orbital.
     Depending on convention, basis is ordered alternating spin-up/spin-down
     (updown = False), or all up, then all down (updown = True).
+
     Args:
         n_spinorbitals (int): number of spin-orbitals in register.
         n_electrons (int): number of electrons in system.
@@ -40,6 +41,7 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
             (symmetry-conserving Bravyi Kitaev).
         up_then_down (boolean): if True, all up, then all down, if False,
             alternating spin up/down.
+
     Returns:
         numpy array of int: binary integer array indicating occupation of each
             spin-orbital.
@@ -73,8 +75,10 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
 def do_bk_transform(vector):
     """Apply Bravyi-Kitaev transformation to fermion occupation vector.
     Currently, simple wrapper on openfermion tools.
+
     Args:
         vector (numpy array of int): fermion occupation vector.
+
     Returns:
         numpy array of int: qubit-encoded occupation vector.
     """
@@ -86,6 +90,7 @@ def do_bk_transform(vector):
 def do_scbk_transform(vector, n_spinorbitals):
     """Instantiate qubit vector for symmetry-conserving Bravyi-Kitaev
     transformation. Based on implementation by Yukio Kawashima in DMET project.
+
     Args:
         vector (numpy array of int): fermion occupation vector.
         n_spinorbitals (int): number of qubits in register.
@@ -102,8 +107,10 @@ def do_scbk_transform(vector, n_spinorbitals):
 def vector_to_circuit(vector):
     """Translate occupation vector into a circuit. Each occupied state
     corresponds to an X-gate on the associated qubit index.
+
     Args:
         vector (numpy array of int): occupation vector.
+
     Returns:
         Circuit: instance of tangelo.backendbuddy Circuit class.
     """
@@ -122,6 +129,7 @@ def vector_to_circuit(vector):
 def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=None):
     """Build the Hartree-Fock state preparation circuit for the designated
     mapping.
+
     Args:
         n_spinorbitals (int): number of qubits in register.
         n_electrons (int): number of electrons in system.
@@ -131,6 +139,7 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
         up_then_down (boolean): if True, all up, then all down, if False,
             alternating spin up/down.
         spin (int): 2*S = n_alpha - n_beta.
+
     Returns:
         Circuit: instance of tangelo.backendbuddy Circuit class.
     """
