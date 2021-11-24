@@ -218,7 +218,6 @@ class QCC(Ansatz):
                                           qcc_qubit_op = -0.5 * SUM_k P_k * tau_k,
         """
 
-        print(' The QCC operator comprises {:} generator(s):\n'.format(self.n_var_params))
         qcc_qubit_op = QubitOperator.zero()
         # Build a QCC operator using either the DIS or a list of supplied generators
         if self.qubit_op_list is None:
@@ -228,13 +227,11 @@ class QCC(Ansatz):
                 qcc_gen = choice(self.DIS[i][0])
                 qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen
                 self.qubit_op_list.append(qcc_gen)
-                print('\tAmplitude for DIS group {:} generator {:} = {:} rad.\n'.format(i, str(qcc_gen), self.var_params[i]))
         else:
             try:
                 assert (len(self.qubit_op_list) == self.n_var_params)
                 for i, qcc_gen in enumerate(self.qubit_op_list):
                     qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen 
-                    print('\tAmplitude for generator {:} = {:} rad.\n'.format(str(qcc_gen), self.var_params[i]))
             except AssertionError:
                 raise ValueError(f"Expected {self.n_var_params} QubitOperators in self.qubit_op_list but received {len(self.qubit_op_list)}.")
 

@@ -19,7 +19,7 @@ from tangelo.backendbuddy import Simulator
 from tangelo.toolboxes.ansatz_generator.qmf import QMF
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.toolboxes.operators.operators import QubitOperator
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g, mol_H4_doublecation_minao
 
 class QCCTest(unittest.TestCase):
 
@@ -99,30 +99,22 @@ class QCCTest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.1372701746609022, delta=1e-6)
 
-    @unittest.skip(" Test fails sometimes due to non-deterministic Hamiltonian. TODO: use saved Hamiltonians in the future.")
-    def test_qmf_qcc_H4(self):
-        """ Verify closed-shell QMF + QCC functionalities for H4 """
+    def test_qcc_H4_cation(self):
+        """ Verify open-shell QMF + QCC functionalities for H4 +1 """
 
-        # Build the QMF ansatz with optimized variational parameters
-        qmf_var_params = [ 3.14159240e+00,  3.14159212e+00, -5.23016857e-07,  1.44620161e-07,
-                           3.14159270e+00,  3.14159273e+00, -3.68840303e-07,  6.71472866e-08,
-                          -8.70574300e-08, -8.70574300e-08,  4.49523312e-07,  2.33914807e-07,
-                           2.14488065e-06,  1.11626300e-06,  2.20341542e-06,  6.62639874e-07 ]
-        qmf_ansatz = QMF(mol_H4_sto3g, up_then_down=True)
-        qmf_ansatz.build_circuit(qmf_var_params)
+        # Build the QCC class for H4 1+ with QMF parameters and optimized QCC parameters for a set of generators.
+        qmf_var_params = [ 3.14159265, 0.,         0.,         3.14159265, 3.14159265, 0.,
+                           1.65188077, 0.34371929, 4.43025577, 4.26598251, 1.08692256, 1.29529587 ]
 
-        # Build the QCC ansatz with a QCC generator and optimized parameter; pass the optimized QMF parameters and circuit
-        qcc_op_list = [QubitOperator("Y1 Y3 X5 Y7"), QubitOperator("Y0 Y2 X4 Y6"), QubitOperator("Y1 X2 X5 X6"), QubitOperator("X0 Y2 X5 X7"),
-                       QubitOperator("Y1 Y3 Y4 X6"), QubitOperator("Y0 Y3 Y4 X7"), QubitOperator("X0 X2 X5 Y6"), QubitOperator("Y1 Y2 Y4 X6"),
-                       QubitOperator("Y0 X3 Y5 Y6"), QubitOperator("X1 Y2 Y4 Y7"), QubitOperator("Y0 Y3 X5 Y7"), QubitOperator("X1 Y3 Y4 Y7"),
-                       QubitOperator("X0 X1 Y2 X3"), QubitOperator("X4 Y5 Y6 Y7"), QubitOperator("X1 Y3 Y5 Y6"), QubitOperator("X1 Y2 Y5 Y7"),
-                       QubitOperator("X0 Y3 Y4 Y6"), QubitOperator("Y0 X2 Y4 Y7")]
-        qcc_var_params = [  8.13594173e-02,  5.17649672e-02, -1.31132560e+00,  2.56564526e-01,
-                           -2.31674482e-01, -1.30875865e-01, -7.89718913e-02,  8.01799962e-02,
-                           -2.25464402e-01,  3.64317733e-02,  3.92029443e-02,  4.27843829e-02,
-                           -2.48747025e-03, -2.10290191e-01,  3.93801396e-02, -8.45929757e-03,
-                            2.48311883e-02, -3.53866908e-02 ]
-        qcc_ansatz = QCC(mol_H4_sto3g, up_then_down=True, qubit_op_list=qcc_op_list, qmf_var_params=qmf_ansatz.var_params, qmf_circuit=qmf_ansatz.circuit)
+        qcc_op_list = [ QubitOperator("X0 X1 Y2 X3 X4 X5"), QubitOperator("X1 Y3 Y4 Y5"), QubitOperator("Y0 Y1 X3 Y4"), QubitOperator("X1 X2 Y3 Y4 Y5"),
+                        QubitOperator("X1 X2 X3 Y4"),       QubitOperator("X1 Y3 X4"),    QubitOperator("Y0 X2"),       QubitOperator("X0 Y1 Y3 Y4 X5"),
+                        QubitOperator("Y0 Y1 X2 X3 Y4") ]
+
+        qcc_var_params = [ -0.26197751,   0.2181322,  0.11635916, -0.22256682,
+                            0.14391785,  0.08627913,  0.03102110,  0.06512990,
+                            0.05254937 ]
+
+        qcc_ansatz = QCC(mol_H4_cation_sto3g, mapping="SCBK", qubit_op_list=qcc_op_list, qmf_var_params=qmf_var_params)
 
         # Build a variational QCC circuit and prepend a variational QMF circuit to it
         qcc_ansatz.build_circuit()
@@ -135,24 +127,23 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.update_var_params(qcc_var_params)
 
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.9659086296992885, delta=1e-6)
+        self.assertAlmostEqual(energy, -1.63781775, delta=1e-6)
 
-    @unittest.skip(" Test fails sometimes due to non-deterministic Hamiltonian. TODO: use saved Hamiltonians in the future.")
-    def test_qcc_H4(self):
-        """ Verify closed-shell QCC functionalities for H4 """
+    def test_qcc_H4_double_cation(self):
+        """ Verify closed-shell QCC functionalities for H4 +2 """
 
-        # Build the QCC class for H4, which sets the QMF parameters automatically if None are passed
-        qcc_op_list = [QubitOperator("Y1 Y3 X5 Y7"), QubitOperator("Y0 Y2 X4 Y6"), QubitOperator("Y1 X2 X5 X6"), QubitOperator("X0 Y2 X5 X7"),
-                       QubitOperator("Y1 Y3 Y4 X6"), QubitOperator("Y0 Y3 Y4 X7"), QubitOperator("X0 X2 X5 Y6"), QubitOperator("Y1 Y2 Y4 X6"),
-                       QubitOperator("Y0 X3 Y5 Y6"), QubitOperator("X1 Y2 Y4 Y7"), QubitOperator("Y0 Y3 X5 Y7"), QubitOperator("X1 Y3 Y4 Y7"),
-                       QubitOperator("X0 X1 Y2 X3"), QubitOperator("X4 Y5 Y6 Y7"), QubitOperator("X1 Y3 Y5 Y6"), QubitOperator("X1 Y2 Y5 Y7"),
-                       QubitOperator("X0 Y3 Y4 Y6"), QubitOperator("Y0 X2 Y4 Y7")]
-        qcc_var_params = [ 0.08134942,  0.05176103, -1.31130635,  0.25658127,
-                          -0.23169954, -0.13088206, -0.07897360,  0.08017313, 
-                          -0.22544533,  0.03642924,  0.03918970,  0.04276501,
-                          -0.00248156, -0.21026984,  0.03939769, -0.00847347,
-                           0.02479605, -0.03540217 ]
-        qcc_ansatz = QCC(mol_H4_sto3g, up_then_down=True, qubit_op_list=qcc_op_list) 
+        # Build the QCC class for H4 2+ with QMF parameters and optimized QCC parameters for a set of generators.
+        qmf_var_params = [ 3.14159265, 0.,         0.,         0.,         0.,         0.,
+                           0.,         0.,         2.68274492, 0.65222886, 1.61056342, 5.41758547,
+                           3.92606034, 4.05125009, 0.03740878, 2.86163151 ]
+
+        qcc_op_list = [ QubitOperator("X0 Y2"), QubitOperator("Y0 X4"), QubitOperator("X0 Y6"), QubitOperator("X0 Y5 X6"),
+                        QubitOperator("Y0 Y4 Y5") ]                   
+                      
+        qcc_var_params = [ 0.27697283, -0.2531527,  0.05947973, -0.06943673,
+                           0.07049098 ]
+                       
+        qcc_ansatz = QCC(mol_H4_doublecation_minao, mapping="BK", qmf_var_params=qmf_var_params, qubit_op_list=qcc_op_list) 
 
         # Build the QCC circuit and prepend the QMF circuit to it
         qcc_ansatz.build_circuit()
@@ -165,7 +156,7 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.update_var_params(qcc_var_params)
 
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.965908629987424, delta=1e-6)
+        self.assertAlmostEqual(energy, -0.8547019, delta=1e-6)
 
 if __name__ == "__main__":
     unittest.main()
