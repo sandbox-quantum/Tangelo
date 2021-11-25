@@ -39,10 +39,15 @@ class TestGates(unittest.TestCase):
         RZ_gate = Gate("RZ", 1, parameter="an expression", is_variational=True)
         # Create a multi-controlled X gate with a numpy array
         CCCX_gate = Gate("CX", 0, control=np.array([1, 2, 4], dtype=np.int32))
+<<<<<<< HEAD:tangelo/linq/tests/test_gates.py
         # Create a gate with strings as inputs
         CRZ_gate = Gate("CRZ", target=1, control=0, parameter=0.1)
 
         for gate in [H_gate, CNOT_gate, RX_gate, RZ_gate, CCCX_gate, CRZ_gate]:
+=======
+
+        for gate in [H_gate, CNOT_gate, RX_gate, RZ_gate, CCCX_gate]:
+>>>>>>> 6a87692 (syntax fix, added support for inp.integer, fixes #67):tangelo/backendbuddy/tests/test_gates.py
             print(gate)
 
     def test_some_gates_inverse(self):
@@ -70,10 +75,16 @@ class TestGates(unittest.TestCase):
         self.assertRaises(ValueError, Gate, "H", -1)
         self.assertRaises(ValueError, Gate, "CNOT", 0, control=0.3)
         self.assertRaises(ValueError, Gate, 'X', target=0, control=1)
+<<<<<<< HEAD:tangelo/linq/tests/test_gates.py
         self.assertRaises(ValueError, Gate, "CNOT", target=0, control=0)
 
     def test_integer_types(self):
         """ Test to catch error with incorrect target or control qubit index type"""
+=======
+
+    def test_integer_types(self):
+        """ Test to catch error with incorrect target or control"""
+>>>>>>> 6a87692 (syntax fix, added support for inp.integer, fixes #67):tangelo/backendbuddy/tests/test_gates.py
         self.assertRaises(ValueError, Gate, "CSWAP", target=[0, 'a'], control=np.array([1], dtype=np.int32))
         self.assertRaises(ValueError, Gate, "X", target=0, control=[-1, 2, 3],)
 

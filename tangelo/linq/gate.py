@@ -46,6 +46,7 @@ class Gate(dict):
             variational or not.
     """
 
+<<<<<<< HEAD:tangelo/linq/gate.py
     def __init__(self, name: str, target: Union[int, integer, list, ndarray],
                  control: Union[int, integer, list, ndarray] = None,
                  parameter="", is_variational: bool = False):
@@ -72,10 +73,31 @@ class Gate(dict):
         target = (target.tolist() if isinstance(target, ndarray) else list(target)) if hasattr(target, "__iter__") else [target]
 
         check_qubit_indices(target, "target")
+=======
+    def __init__(self, name: str, target: Union[int, integer, list, ndarray], control: Union[int, integer, list, ndarray] = None,
+                 parameter="", is_variational: bool = False):
+        """ This gate class is basically a dictionary with extra methods. """
+
+        if not isinstance(target, (int, integer, list, ndarray)):
+            raise ValueError("Qubit index must be int or list of ints.")
+        else:
+            if isinstance(target, (int, integer)):
+                target = [int(target)]
+            new_target = []
+            for t in target:
+                if isinstance(t, integer) and t >= 0:
+                    new_target.append(int(t))
+                elif isinstance(t, int) and t >= 0:
+                    new_target.append(t)
+                else:
+                    raise ValueError(f"Target {t} of requested target={target} is not a positive integer")
+            target = new_target
+>>>>>>> 6a87692 (syntax fix, added support for inp.integer, fixes #67):tangelo/backendbuddy/gate.py
 
         if control is not None:
             if name[0] != "C":
                 raise ValueError(f"Gate {name} was given control={control} but does not support controls. Try C{name}")
+<<<<<<< HEAD:tangelo/linq/gate.py
             control = (control.tolist() if isinstance(control, ndarray) else list(control)) if hasattr(control, "__iter__") else [control]
             check_qubit_indices(control, "control")
 
@@ -85,6 +107,24 @@ class Gate(dict):
             raise ValueError(f"There are duplicate qubits in the target/control qubits")
 
         self.__dict__ = {"name": name, "target": target0, "target1": target1, "control": control,
+=======
+            if not isinstance(control, (int, integer, list, ndarray)):
+                raise ValueError("Qubit index must be int or list of ints.")
+            else:
+                if isinstance(control, (int, integer)):
+                    control = [int(control)]
+                new_control = []
+                for c in control:
+                    if isinstance(c, integer) and c >= 0:
+                        new_control.append(int(c))
+                    elif isinstance(c, int) and c >= 0:
+                        new_control.append(c)
+                    else:
+                        raise ValueError(f"Control {c} of requested control={control} is not a positive integer")
+                control = new_control
+
+        self.__dict__ = {"name": name, "target": target, "control": control,
+>>>>>>> 6a87692 (syntax fix, added support for inp.integer, fixes #67):tangelo/backendbuddy/gate.py
                          "parameter": parameter, "is_variational": is_variational}
 
     def __str__(self):
