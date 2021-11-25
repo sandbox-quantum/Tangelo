@@ -73,7 +73,7 @@ def translate_qsharp(source_circuit, operation="MyQsharpOperation"):
     # Generate Q# strings with the right syntax, order and values for the gate inputs
     body_str = ""
     for gate in source_circuit._gates:
-        if gate.control is not None and gate.name is not "CNOT":
+        if gate.control is not None and gate.name != "CNOT":
             control_string = '['
             num_controls = len(gate.control)
             for i, c in enumerate(gate.control):

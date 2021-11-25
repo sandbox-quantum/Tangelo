@@ -13,6 +13,9 @@
 # limitations under the License.
 
 import unittest
+
+import numpy as np
+
 from tangelo.linq import Gate
 
 
@@ -34,8 +37,10 @@ class TestGates(unittest.TestCase):
         RX_gate = Gate("RX", 1, parameter=2.)
         # Create a parameterized rotation on qubit 1 , with an undefined angle, that will be variational
         RZ_gate = Gate("RZ", 1, parameter="an expression", is_variational=True)
+        # Create a multi-controlled X gate with a numpy array
+        CCCX_gate = Gate("CX", 0, control=np.array([1, 2, 4], dtype=np.int32))
 
-        for gate in [H_gate, CNOT_gate, RX_gate, RZ_gate]:
+        for gate in [H_gate, CNOT_gate, RX_gate, RZ_gate, CCCX_gate]:
             print(gate)
 
     def test_incorrect_gate(self):
@@ -43,6 +48,12 @@ class TestGates(unittest.TestCase):
 
         self.assertRaises(ValueError, Gate, "H", -1)
         self.assertRaises(ValueError, Gate, "CNOT", 0, control=0.3)
+        self.assertRaises(ValueError, Gate, 'X', target=0, control=1)
+
+    def test_integer_types(self):
+        """ Test to catch error with incorrect target or control"""
+        self.assertRaises(ValueError, Gate, "CSWAP", target=[0, 'a'], control=np.array([1], dtype=np.int32))
+        self.assertRaises(ValueError, Gate, "X", target=0, control=[-1, 2, 3],)
 
 
 if __name__ == "__main__":

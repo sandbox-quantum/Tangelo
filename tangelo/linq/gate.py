@@ -19,6 +19,8 @@ mathematical operation.
 
 from typing import Union
 
+from numpy import integer, ndarray
+
 ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"}
 TWO_QUBIT_GATES = {"CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"}
 THREE_QUBIT_GATES = {"CSWAP"}
@@ -40,27 +42,42 @@ class Gate(dict):
             variational or not.
     """
 
-    def __init__(self, name: str, target: Union[int, list], control: Union[int, list] = None, parameter="", is_variational: bool = False):
+    def __init__(self, name: str, target: Union[int, integer, list, ndarray], control: Union[int, integer, list, ndarray] = None,
+                 parameter="", is_variational: bool = False):
         """ This gate class is basically a dictionary with extra methods. """
 
-        if not isinstance(target, (int, list)):
+        if not isinstance(target, (int, integer, list, ndarray)):
             raise ValueError("Qubit index must be int or list of ints.")
         else:
-            if isinstance(target, int):
-                target = [target]
+            if isinstance(target, (int, integer)):
+                target = [int(target)]
+            new_target = []
             for t in target:
-                if not isinstance(t, int) or t < 0:
-                    raise ValueError(f"Target {t} of input {target} is not a positive integer")
+                if isinstance(t, integer) and t >= 0:
+                    new_target.append(int(t))
+                elif isinstance(t, int) and t >= 0:
+                    new_target.append(t)
+                else:
+                    raise ValueError(f"Target {t} of requested target={target} is not a positive integer")
+            target = new_target
 
         if control is not None:
-            if not isinstance(control, (int, list)):
+            if name[0] != "C":
+                raise ValueError(f"Gate {name} was given control={control} but does not support controls. Try C{name}")
+            if not isinstance(control, (int, integer, list, ndarray)):
                 raise ValueError("Qubit index must be int or list of ints.")
             else:
-                if isinstance(control, int):
-                    control = [control]
+                if isinstance(control, (int, integer)):
+                    control = [int(control)]
+                new_control = []
                 for c in control:
-                    if not isinstance(c, int) or c < 0:
-                        raise ValueError(f"Target {c} of input {control} is not a positive integer")
+                    if isinstance(c, integer) and c >= 0:
+                        new_control.append(int(c))
+                    elif isinstance(c, int) and c >= 0:
+                        new_control.append(c)
+                    else:
+                        raise ValueError(f"Control {c} of requested control={control} is not a positive integer")
+                control = new_control
 
         self.__dict__ = {"name": name, "target": target, "control": control,
                          "parameter": parameter, "is_variational": is_variational}
