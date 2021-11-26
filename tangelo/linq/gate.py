@@ -34,7 +34,6 @@ class Gate(dict):
     """An abstract gate class that exposes all the gate information such as gate
     name, control and target qubit indices, parameter values. Assumes qubit
     indexation starts at index 0.
-
     Attributes:
         name (str): the gate name,
         target (int): A positive integer denoting the index of the target qubit,
@@ -46,7 +45,6 @@ class Gate(dict):
             variational or not.
     """
 
-<<<<<<< HEAD:tangelo/linq/gate.py
     def __init__(self, name: str, target: Union[int, integer, list, ndarray],
                  control: Union[int, integer, list, ndarray] = None,
                  parameter="", is_variational: bool = False):
@@ -54,11 +52,9 @@ class Gate(dict):
 
         def check_qubit_indices(qubit_list, label):
             """Function to check if all given qubit indices are positive integers
-
             Args:
                 qubit_list (list) :: List of values to check are positive integers
                 label (str) :: The label of the list, "control" or "target"
-
             Raises:
                 ValueError :: If any of the values in the list are not non-negative integers.
             """
@@ -73,31 +69,10 @@ class Gate(dict):
         target = (target.tolist() if isinstance(target, ndarray) else list(target)) if hasattr(target, "__iter__") else [target]
 
         check_qubit_indices(target, "target")
-=======
-    def __init__(self, name: str, target: Union[int, integer, list, ndarray], control: Union[int, integer, list, ndarray] = None,
-                 parameter="", is_variational: bool = False):
-        """ This gate class is basically a dictionary with extra methods. """
-
-        if not isinstance(target, (int, integer, list, ndarray)):
-            raise ValueError("Qubit index must be int or list of ints.")
-        else:
-            if isinstance(target, (int, integer)):
-                target = [int(target)]
-            new_target = []
-            for t in target:
-                if isinstance(t, integer) and t >= 0:
-                    new_target.append(int(t))
-                elif isinstance(t, int) and t >= 0:
-                    new_target.append(t)
-                else:
-                    raise ValueError(f"Target {t} of requested target={target} is not a positive integer")
-            target = new_target
->>>>>>> 6a87692 (syntax fix, added support for inp.integer, fixes #67):tangelo/backendbuddy/gate.py
 
         if control is not None:
             if name[0] != "C":
                 raise ValueError(f"Gate {name} was given control={control} but does not support controls. Try C{name}")
-<<<<<<< HEAD:tangelo/linq/gate.py
             control = (control.tolist() if isinstance(control, ndarray) else list(control)) if hasattr(control, "__iter__") else [control]
             check_qubit_indices(control, "control")
 
@@ -106,25 +81,7 @@ class Gate(dict):
         if len(all_involved_qubits) != len(set(all_involved_qubits)):
             raise ValueError(f"There are duplicate qubits in the target/control qubits")
 
-        self.__dict__ = {"name": name, "target": target0, "target1": target1, "control": control,
-=======
-            if not isinstance(control, (int, integer, list, ndarray)):
-                raise ValueError("Qubit index must be int or list of ints.")
-            else:
-                if isinstance(control, (int, integer)):
-                    control = [int(control)]
-                new_control = []
-                for c in control:
-                    if isinstance(c, integer) and c >= 0:
-                        new_control.append(int(c))
-                    elif isinstance(c, int) and c >= 0:
-                        new_control.append(c)
-                    else:
-                        raise ValueError(f"Control {c} of requested control={control} is not a positive integer")
-                control = new_control
-
         self.__dict__ = {"name": name, "target": target, "control": control,
->>>>>>> 6a87692 (syntax fix, added support for inp.integer, fixes #67):tangelo/backendbuddy/gate.py
                          "parameter": parameter, "is_variational": is_variational}
 
     def __str__(self):
@@ -133,7 +90,7 @@ class Gate(dict):
         """
 
         mystr = f"{self.name:<10}"
-        for attr in ["target", "target1", "control"]:
+        for attr in ["target", "control"]:
             if self.__getattribute__(attr) or isinstance(self.__getattribute__(attr), int):
                 mystr += f"{attr} : {self.__getattribute__(attr)}   "
         if self.__getattribute__("parameter") != "":
@@ -173,5 +130,5 @@ class Gate(dict):
 
     def serialize(self):
         return {"type": "Gate",
-                "params": {"name": self.name, "target": self.target, "target1": self.target1,
+                "params": {"name": self.name, "target": self.target,
                            "control": self.control, "parameter": self.parameter}}
