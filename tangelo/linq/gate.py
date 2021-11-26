@@ -42,42 +42,42 @@ class Gate(dict):
             variational or not.
     """
 
-    def __init__(self, name: str, target: Union[int, integer, list, ndarray], control: Union[int, integer, list, ndarray] = None,
+    def __init__(self, name: str, target: Union[int, integer, list, ndarray, str],
+                 control: Union[int, integer, list, ndarray, str] = None,
                  parameter="", is_variational: bool = False):
         """ This gate class is basically a dictionary with extra methods. """
 
-        if not isinstance(target, (int, integer, list, ndarray)):
-            raise ValueError("Qubit index must be int or list of ints.")
-        else:
-            if isinstance(target, (int, integer)):
-                target = [int(target)]
-            new_target = []
-            for t in target:
-                if isinstance(t, integer) and t >= 0:
-                    new_target.append(int(t))
-                elif isinstance(t, int) and t >= 0:
-                    new_target.append(t)
-                else:
-                    raise ValueError(f"Target {t} of requested target={target} is not a positive integer")
-            target = new_target
+        if not hasattr(target, '__iter__'):
+            target = [target]
+        for t in target:
+            try:
+                int_t = int(t)
+                type_t = type(t)
+                if int_t < 0 or type_t(int_t) != t:
+                    raise ValueError
+            except Exception:
+                raise ValueError(f"Target {t} of target={target[0] if len(target)==1 else target} is not a positive integer")
+        target = [int(t) for t in target]
 
         if control is not None:
             if name[0] != "C":
                 raise ValueError(f"Gate {name} was given control={control} but does not support controls. Try C{name}")
-            if not isinstance(control, (int, integer, list, ndarray)):
-                raise ValueError("Qubit index must be int or list of ints.")
-            else:
-                if isinstance(control, (int, integer)):
-                    control = [int(control)]
-                new_control = []
-                for c in control:
-                    if isinstance(c, integer) and c >= 0:
-                        new_control.append(int(c))
-                    elif isinstance(c, int) and c >= 0:
-                        new_control.append(c)
-                    else:
-                        raise ValueError(f"Control {c} of requested control={control} is not a positive integer")
-                control = new_control
+            if not hasattr(control, '__iter__'):
+                control = [control]
+            for c in control:
+                try:
+                    int_c = int(c)
+                    type_c = type(c)
+                    if int_c < 0 or type_c(int_c) != c:
+                        raise ValueError
+                except Exception:
+                    raise ValueError(f"Target {c} of target={control[0] if len(control)==1 else control} is not a positive integer")
+            control = [int(c) for c in control]
+
+        # Check for duplications in qubits
+        all_involved_qubits = target if control is None else target + control
+        if len(all_involved_qubits) != len(set(all_involved_qubits)):
+            raise ValueError(f"There are duplicate qubits in the target/control qubits")
 
         self.__dict__ = {"name": name, "target": target, "control": control,
                          "parameter": parameter, "is_variational": is_variational}
