@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Unit tests for closed-shell and restricted open-shell qubit coupled cluster (QCC) ansatze. """
+
 import unittest
 import numpy as np
 
@@ -21,14 +23,22 @@ from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g, mol_H4_doublecation_minao
 
-class QCCTest(unittest.TestCase):
+sim = Simulator(target="qulacs")
 
-    def test_qcc_set_var_params(self):
+
+class QCCTest(unittest.TestCase):
+    """Unit tests for various functionalities of the QCC ansatz class. Examples for both closed-
+    and restricted open-shell QCC are provided using H2, H4 +, and H4 2+ as well as for using the
+    QMF and QCC classes together.
+    """
+
+    @staticmethod
+    def test_qcc_set_var_params():
         """ Verify behavior of set_var_params for different inputs (keyword, list, numpy array). """
 
         qcc_ansatz = QCC(mol_H2_sto3g)
-    
-        one_zero = np.zeros((1,))
+
+        one_zero = np.zeros((1,), dtype=float)
 
         qcc_ansatz.set_var_params("zeros")
         np.testing.assert_array_almost_equal(qcc_ansatz.var_params, one_zero, decimal=6)
@@ -36,7 +46,7 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.set_var_params([0.])
         np.testing.assert_array_almost_equal(qcc_ansatz.var_params, one_zero, decimal=6)
 
-        one_one = np.ones((1,))
+        one_one = np.ones((1,), dtype=float)
 
         qcc_ansatz.set_var_params("ones")
         np.testing.assert_array_almost_equal(qcc_ansatz.var_params, one_one, decimal=6)
@@ -51,112 +61,160 @@ class QCCTest(unittest.TestCase):
 
         self.assertRaises(ValueError, qcc_ansatz.set_var_params, np.array([1., 1.]))
 
-    def test_qmf_qcc_H2(self):
-        """ Verify closed-shell QMF + QCC functionalities for H2 """
+    def test_qcc_h2(self):
+        """ Verify closed-shell functionality when using the QCC class separately for H2 """
 
-        # Build the QMF ansatz with optimized variational parameters
-        qmf_var_params = [ 3.14159265e+00, -2.42743256e-08,  3.14159266e+00, -3.27162543e-08,
-                           3.08514545e-09,  3.08514545e-09,  3.08514545e-09,  3.08514545e-09 ]
-        qmf_ansatz = QMF(mol_H2_sto3g, up_then_down=True)
-        qmf_ansatz.build_circuit(qmf_var_params)
-
-        # Build the QCC ansatz with a QCC generator and optimized parameter; pass the optimized QMF parameters and circuit
-        qcc_op_list = [QubitOperator("Y0 X1 X2 X3")]
-        qcc_var_params = [-2.26136280e-01]
-        qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True, qubit_op_list=qcc_op_list, qmf_var_params=qmf_ansatz.var_params, qmf_circuit=qmf_ansatz.circuit)
-
-        # Build a variational QCC circuit and prepend a variational QMF circuit to it
-        qcc_ansatz.build_circuit()
-
-        # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = qcc_ansatz.qubit_ham 
-
-        # Assert energy returned is as expected for the optimized QMF + QCC variational parameters
-        sim = Simulator(target="qulacs")
-        qcc_ansatz.update_var_params(qcc_var_params)
-                                      
-        energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.137270174660901, delta=1e-6)
-
-    def test_qcc_H2(self):
-        """ Verify closed-shell QCC functionalities for H2 """
-
-        # Build the QCC class for H2, which sets the QMF parameters automatically if None are passed
-        qcc_op_list = [QubitOperator("X0 Y1 Y2 Y3")]
+        # Build the QCC ansatz, which sets the QMF parameters automatically if none are passed
         qcc_var_params = [0.22613627]
+        qcc_op_list = [QubitOperator("X0 Y1 Y2 Y3")]
         qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True, qubit_op_list=qcc_op_list)
 
-        # Build QMF and QCC circuits, prepending the former to the latter 
+        # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()
 
-        # Build qubit hamiltonian for energy evaluation
+        # Get qubit hamiltonian for energy evaluation
         qubit_hamiltonian = qcc_ansatz.qubit_ham
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator(target="qulacs")
         qcc_ansatz.update_var_params(qcc_var_params)
-
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.1372701746609022, delta=1e-6)
 
-    def test_qcc_H4_cation(self):
-        """ Verify open-shell QMF + QCC functionalities for H4 +1 """
+    def test_qmf_qcc_h2(self):
+        """ Verify closed-shell functionality when using the QMF and QCC classes together for H2 """
 
-        # Build the QCC class for H4 1+ with QMF parameters and optimized QCC parameters for a set of generators.
-        qmf_var_params = [ 3.14159265, 0.,         0.,         3.14159265, 3.14159265, 0.,
-                           1.65188077, 0.34371929, 4.43025577, 4.26598251, 1.08692256, 1.29529587 ]
+        # Build the QMF ansatz with optimized parameters
+        qmf_var_params = [3.14159265e+00, -2.42743256e-08,  3.14159266e+00, -3.27162543e-08,
+                          3.08514545e-09,  3.08514545e-09,  3.08514545e-09,  3.08514545e-09]
+        qmf_ansatz = QMF(mol_H2_sto3g, up_then_down=True)
+        qmf_ansatz.build_circuit(qmf_var_params)
 
-        qcc_op_list = [ QubitOperator("X0 X1 Y2 X3 X4 X5"), QubitOperator("X1 Y3 Y4 Y5"), QubitOperator("Y0 Y1 X3 Y4"), QubitOperator("X1 X2 Y3 Y4 Y5"),
-                        QubitOperator("X1 X2 X3 Y4"),       QubitOperator("X1 Y3 X4"),    QubitOperator("Y0 X2"),       QubitOperator("X0 Y1 Y3 Y4 X5"),
-                        QubitOperator("Y0 Y1 X2 X3 Y4") ]
+        # Build the QCC ansatz with optimized QMF and QCC parameters and selected QCC generator
+        qcc_var_params = [-2.26136280e-01]
+        qcc_op_list = [QubitOperator("Y0 X1 X2 X3")]
+        qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True, qubit_op_list=qcc_op_list,\
+            qmf_circuit=qmf_ansatz.circuit)
 
-        qcc_var_params = [ -0.26197751,   0.2181322,  0.11635916, -0.22256682,
-                            0.14391785,  0.08627913,  0.03102110,  0.06512990,
-                            0.05254937 ]
-
-        qcc_ansatz = QCC(mol_H4_cation_sto3g, mapping="SCBK", qubit_op_list=qcc_op_list, qmf_var_params=qmf_var_params)
-
-        # Build a variational QCC circuit and prepend a variational QMF circuit to it
+        # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()
 
-        # Build qubit hamiltonian for energy evaluation
+        # Get qubit hamiltonian for energy evaluation
         qubit_hamiltonian = qcc_ansatz.qubit_ham
 
         # Assert energy returned is as expected for the optimized QMF + QCC variational parameters
-        sim = Simulator(target="qulacs")
         qcc_ansatz.update_var_params(qcc_var_params)
-
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.63781775, delta=1e-6)
+        self.assertAlmostEqual(energy, -1.137270174660901, delta=1e-6)
 
-    def test_qcc_H4_double_cation(self):
-        """ Verify closed-shell QCC functionalities for H4 +2 """
+    def test_qcc_h4_cation(self):
+        """ Verify restricted open-shell functionality when using the QCC class for H4 + """
 
-        # Build the QCC class for H4 2+ with QMF parameters and optimized QCC parameters for a set of generators.
-        qmf_var_params = [ 3.14159265, 0.,         0.,         0.,         0.,         0.,
-                           0.,         0.,         2.68274492, 0.65222886, 1.61056342, 5.41758547,
-                           3.92606034, 4.05125009, 0.03740878, 2.86163151 ]
+        # Build the QCC ansatz, which sets the QMF parameters automatically if none are passed
+        qcc_op_list = [QubitOperator("X0 Y1 Y2 X3 X4 Y5"), QubitOperator("Y1 X3 X4 X5"),
+                       QubitOperator("X0 Y1 Y3 Y4"), QubitOperator("X1 X2 Y3 X4 X5"),
+                       QubitOperator("Y1 X2 Y3 Y4"), QubitOperator("Y1 X3 X4"),
+                       QubitOperator("X0 Y2"), QubitOperator("X0 X1 Y3 X4 X5"),
+                       QubitOperator("X0 X1 X2 Y3 X4")]
+        qcc_var_params = [ 0.26202301, -0.21102705,  0.11683144, -0.24234041,  0.13832747,
+                          -0.0951985 , -0.03501809,  0.0640034 ,  0.0542095]
+        qcc_ansatz = QCC(mol_H4_cation_sto3g, mapping="SCBK", up_then_down=True,\
+            qubit_op_list=qcc_op_list)
 
-        qcc_op_list = [ QubitOperator("X0 Y2"), QubitOperator("Y0 X4"), QubitOperator("X0 Y6"), QubitOperator("X0 Y5 X6"),
-                        QubitOperator("Y0 Y4 Y5") ]                   
-                      
-        qcc_var_params = [ 0.27697283, -0.2531527,  0.05947973, -0.06943673,
-                           0.07049098 ]
-                       
-        qcc_ansatz = QCC(mol_H4_doublecation_minao, mapping="BK", qmf_var_params=qmf_var_params, qubit_op_list=qcc_op_list) 
-
-        # Build the QCC circuit and prepend the QMF circuit to it
+        # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()
 
-        # Build qubit hamiltonian for energy evaluation
+        # Get qubit hamiltonian for energy evaluation
         qubit_hamiltonian = qcc_ansatz.qubit_ham
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator(target="qulacs")
         qcc_ansatz.update_var_params(qcc_var_params)
+        energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
+        self.assertAlmostEqual(energy, -1.6380901, delta=1e-6)
 
+    def test_qmf_qcc_h4_cation(self):
+        """ Verify restricted open-shell functionality when using QMF + QCC ansatze for H4 + """
+
+        # Build the QMF ansatz with optimized parameters
+        qmf_var_params = [3.14159302e+00,  6.20193478e-07,  1.51226426e-06,  3.14159350e+00,
+                          3.14159349e+00,  7.88310582e-07,  3.96032530e+00,  2.26734374e+00,
+                          3.22127001e+00,  5.77997401e-01,  5.51422406e+00,  6.26513711e+00]
+        qmf_ansatz = QMF(mol_H4_cation_sto3g, mapping="SCBK", up_then_down=True)
+        qmf_ansatz.build_circuit(qmf_var_params)
+
+        # Build QCC ansatz with optimized QMF and QCC parameters and selected QCC generators
+        qcc_op_list = [QubitOperator("X0 X1 Y2 Y3 X4 Y5"), QubitOperator("Y1 Y3 Y4 X5"),
+                       QubitOperator("X0 Y1 Y3 Y4"), QubitOperator("X1 X2 Y3 X4 X5"),
+                       QubitOperator("Y1 Y2 Y3 X4"), QubitOperator("Y1 X3 X4"),
+                       QubitOperator("Y0 X2"), QubitOperator("X0 X1 X3 X4 Y5"),
+                       QubitOperator("X0 X1 X2 Y3 X4")]
+        qcc_var_params = [-0.26816042,  0.21694796,  0.12139543, -0.2293093,
+                          -0.14577423, -0.08937818,  0.01796464, -0.06445363,  0.06056016]
+        qcc_ansatz = QCC(mol_H4_cation_sto3g, mapping="SCBK", up_then_down=True,\
+            qubit_op_list=qcc_op_list, qmf_circuit=qmf_ansatz.circuit)
+
+        # Build a QMF + QCC circuit
+        qcc_ansatz.build_circuit()
+
+        # Get qubit hamiltonian for energy evaluation
+        qubit_hamiltonian = qcc_ansatz.qubit_ham
+
+        # Assert energy returned is as expected for given parameters
+        qcc_ansatz.update_var_params(qcc_var_params)
+        energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
+        self.assertAlmostEqual(energy, -1.6382913, delta=1e-6)
+
+    def test_qcc_h4_double_cation(self):
+        """ Verify restricted open-shell functionality when using the QCC class for H4 2+ """
+
+        # Build the QCC ansatz, which sets the QMF parameters automatically if none are passed
+        qcc_op_list = [QubitOperator("X0 Y2"),    QubitOperator("Y0 X4"), QubitOperator("X0 Y6"),
+                       QubitOperator("X0 Y5 X6"), QubitOperator("Y0 Y4 Y5")]
+        qcc_var_params = [0.27697283, -0.2531527,  0.05947973, -0.06943673, 0.07049098]
+        qcc_ansatz = QCC(mol_H4_doublecation_minao, mapping="BK", qubit_op_list=qcc_op_list)
+
+        # Build a QMF + QCC circuit
+        qcc_ansatz.build_circuit()
+
+        # Get qubit hamiltonian for energy evaluation
+        qubit_hamiltonian = qcc_ansatz.qubit_ham
+
+        # Assert energy returned is as expected for given parameters
+        qcc_ansatz.update_var_params(qcc_var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
         self.assertAlmostEqual(energy, -0.8547019, delta=1e-6)
 
+    def test_qmf_qcc_h4_double_cation(self):
+        """ Verify restricted open-shell functionality when using QMF + QCC ansatze for H4 2+ """
+
+        # Build the QMF ansatz with optimized parameters
+        qmf_var_params = [3.14159247e+00,  3.14158884e+00,  1.37660700e-06,  3.14159264e+00,
+                          3.14159219e+00,  3.14158908e+00,  0.00000000e+00,  0.00000000e+00,
+                          6.94108155e-01,  1.03928030e-01,  5.14029803e+00,  2.81850365e+00,
+                          4.25403875e+00,  6.19640367e+00,  1.43241026e+00,  3.50279759e+00]
+        qmf_ansatz = QMF(mol_H4_doublecation_minao, mapping="BK", up_then_down=True)
+        qmf_ansatz.build_circuit(qmf_var_params)
+
+        # Build QCC ansatz with optimized QMF and QCC parameters and selected QCC generators
+        qcc_op_list = [QubitOperator("Y0 X4"), QubitOperator("X0 Y1 Y2 X4 Y5 X6"),
+                       QubitOperator("Y0 Y1 Y4 X5"), QubitOperator("Y0 X1 Y4 Y5 X6"),
+                       QubitOperator("X0 X1 X2 Y4 X5")]
+        qcc_var_params = [-2.76489925e-01, -2.52783324e-01,  5.76565629e-02,  6.99988237e-02,
+                          -7.03721438e-02]
+        qcc_ansatz = QCC(mol_H4_doublecation_minao, mapping="BK", up_then_down=True,\
+            qubit_op_list=qcc_op_list, qmf_circuit=qmf_ansatz.circuit)
+
+        # Build a QMF + QCC circuit
+        qcc_ansatz.build_circuit()
+
+        # Get qubit hamiltonian for energy evaluation
+        qubit_hamiltonian = qcc_ansatz.qubit_ham
+
+        # Assert energy returned is as expected for given parameters
+        qcc_ansatz.update_var_params(qcc_var_params)
+        energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
+        self.assertAlmostEqual(energy, -0.8546581, delta=1e-6)
+
+
 if __name__ == "__main__":
     unittest.main()
+
