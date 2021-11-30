@@ -72,7 +72,7 @@ class QMF(Ansatz):
             field Hamiltonian with the N, S^2, and Sz operators. {Omega} values are initialized
             from a HF reference state vector. The target values for each penalty operator are
             derived from self.molecule as <N> = n_electrons, <Sz> = spin//2, and
-            <S^2> = (spin//2)*(spin//2 + 1). The coefficient mu is set to 1. for all penalty terms.
+            <S^2> = (spin//2)*(spin//2 + 1). The coefficient mu is set to 1.5 for all penalty terms.
 
             If a str in self.supported_initial_var_params, {Omega} is initialized according to the
             option definition in set_var_params. If the "hf-state" option is chosen, penalty terms
