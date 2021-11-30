@@ -28,7 +28,7 @@ class Ansatz(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def set_var_params(self):
+    def set_var_params(self, var_params=None):
         """Initialize variational parameters as zeros, random numbers, MP2, or
         any insightful values. Impacts the convergence of variational
         algorithms.
@@ -43,12 +43,12 @@ class Ansatz(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def build_circuit(self):
+    def build_circuit(self, var_params=None):
         """Build and return the quantum circuit implementing the ansatz."""
         pass
 
     @abc.abstractmethod
-    def update_var_params(self):
+    def update_var_params(self, var_params):
         """Update value of variational parameters in the already-built ansatz
         circuit member.
         """

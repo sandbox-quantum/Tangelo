@@ -223,7 +223,7 @@ class VQESolverTest(unittest.TestCase):
         vqe_solver.build()
 
         energy = vqe_solver.simulate()
-        self.assertAlmostEqual(energy, -1.636789, delta=1e-3)
+        self.assertAlmostEqual(energy, -1.636789, delta=1.5e-3)
 
     def test_optimal_circuit_h4(self):
         """Run VQE on H4 molecule, save optimal circuit. Verify it yields
