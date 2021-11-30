@@ -111,8 +111,8 @@ class VQESolver:
                 raise KeyError(f"Keyword :: {k}, not available in VQESolver")
 
         # The QCC ansatz requires up_then_down=True when mapping="jw"
-        self.up_then_down = True if self.ansatz == BuiltInAnsatze.QCC and not self.up_then_down\
-            and self.qubit_mapping.lower() == "jw"
+        if self.ansatz == BuiltInAnsatze.QCC and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
+            self.up_then_down = True
 
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
