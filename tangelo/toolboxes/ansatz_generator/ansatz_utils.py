@@ -248,7 +248,7 @@ def swap_registers(gate_list, qubit_list):
     return gate_list
 
 
-def qft_circuit(qubits, n_qubits_in_circuit=None, inverse=False):
+def qft_circuit(qubits, n_qubits_in_circuit=None, inverse=False, swap=True):
     """Returns the QFT or iQFT circuit given a list of qubits to act on.
 
     Args:
@@ -256,6 +256,7 @@ def qft_circuit(qubits, n_qubits_in_circuit=None, inverse=False):
             the operation is applied to the [0,...,qubits-1] qubits
         n_qubits_in_circuit: Argument to initialize a Circuit with the desired number of qubits.
         inverse (bool): If True, the inverse QFT is applied. If False, QFT is applied
+        swap (bool): Whether to apply swap to the registers.
 
         Returns:
             Circuit: The circuit that applies QFT or iQFT to qubits
@@ -269,7 +270,8 @@ def qft_circuit(qubits, n_qubits_in_circuit=None, inverse=False):
         raise KeyError('qubits must be an int or list of ints')
 
     swap_gates = list()
-    swap_registers(swap_gates, qubit_list)
+    if swap:
+        swap_registers(swap_gates, qubit_list)
 
     qft_gates = list()
     if inverse:
