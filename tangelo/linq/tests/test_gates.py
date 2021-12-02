@@ -40,7 +40,7 @@ class TestGates(unittest.TestCase):
         # Create a multi-controlled X gate with a numpy array
         CCCX_gate = Gate("CX", 0, control=np.array([1, 2, 4], dtype=np.int32))
         # Create a gate with strings as inputs
-        CRZ_gate = Gate("CRZ", target=1, control='0', parameter=0.1)
+        CRZ_gate = Gate("CRZ", target=1, control=0, parameter=0.1)
 
         for gate in [H_gate, CNOT_gate, RX_gate, RZ_gate, CCCX_gate, CRZ_gate]:
             print(gate)
