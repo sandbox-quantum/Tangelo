@@ -76,7 +76,7 @@ def translate_braket(source_circuit):
     for gate in source_circuit._gates:
         if gate.control is not None:
             if len(gate.control) > 1:
-                raise ValueError('braket does not support multi controlled gates: Gate {gate.name} with controls {gate.control} is invalid')
+                raise ValueError('Multi-controlled gates not supported with braket: Gate {gate.name} with controls {gate.control} is invalid')
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
             (GATE_BRAKET[gate.name])(target_circuit, gate.target[0])
         elif gate.name in {"RX", "RY", "RZ", "PHASE"}:

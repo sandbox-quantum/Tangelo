@@ -36,6 +36,7 @@ def get_qiskit_gates():
     GATE_QISKIT["X"] = qiskit.QuantumCircuit.x
     GATE_QISKIT["Y"] = qiskit.QuantumCircuit.y
     GATE_QISKIT["Z"] = qiskit.QuantumCircuit.z
+    GATE_QISKIT["CH"] = qiskit.QuantumCircuit.ch
     GATE_QISKIT["CX"] = qiskit.QuantumCircuit.cx
     GATE_QISKIT["CY"] = qiskit.QuantumCircuit.cy
     GATE_QISKIT["CZ"] = qiskit.QuantumCircuit.cz
@@ -77,14 +78,14 @@ def translate_qiskit(source_circuit):
     for gate in source_circuit._gates:
         if gate.control is not None:
             if len(gate.control) > 1:
-                raise ValueError('qiskit does not support arbitrary number of controls. Gate {gate.name} with controls {gate.control} is not allowed')
+                raise ValueError('Multi-controlled gates not supported with qiskit. Gate {gate.name} with controls {gate.control} is not allowed')
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.target[0])
         elif gate.name in {"RX", "RY", "RZ", "PHASE"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.target[0])
         elif gate.name in {"CRX", "CRY", "CRZ", "CPHASE"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.control[0], gate.target[0])
-        elif gate.name in {"CNOT", "CX", "CY", "CZ"}:
+        elif gate.name in {"CNOT", "CH", "CX", "CY", "CZ"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.control[0], gate.target[0])
         elif gate.name in {"SWAP"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.target[0], gate.target[1])

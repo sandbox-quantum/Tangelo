@@ -38,7 +38,7 @@ def get_qdk_gates():
     GATE_QDK["CPHASE"] = "R1"
     for name in {"CRX", "CRY", "CRZ"}:
         GATE_QDK[name] = name[1] + name[2:].lower()
-    for name in {"CX", "CY", "CZ", "CSWAP"}:
+    for name in {"CH", "CX", "CY", "CZ", "CS", "CT", "CSWAP"}:
         GATE_QDK[name] = name[1:]
     GATE_QDK["SWAP"] = "SWAP"
     GATE_QDK["MEASURE"] = "M"
@@ -87,7 +87,7 @@ def translate_qsharp(source_circuit, operation="MyQsharpOperation"):
             body_str += f"\t\t{GATE_QDK[gate.name]}(qreg[{gate.control[0]}], qreg[{gate.target[0]}]);\n"
         elif gate.name in {"CRX", "CRY", "CRZ", "CPHASE"}:
             body_str += f"\t\tControlled {GATE_QDK[gate.name]}({control_string}, ({gate.parameter}, qreg[{gate.target[0]}]));\n"
-        elif gate.name in {"CX", "CY", "CZ"}:
+        elif gate.name in {"CH", "CX", "CY", "CZ", "CS", "CT"}:
             body_str += f"\t\tControlled {GATE_QDK[gate.name]}({control_string}, (qreg[{gate.target[0]}]));\n"
         elif gate.name in {"SWAP"}:
             body_str += f"\t\t{GATE_QDK[gate.name]}(qreg[{gate.target[0]}], qreg[{gate.target[1]}]);\n"

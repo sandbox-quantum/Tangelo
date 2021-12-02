@@ -36,6 +36,7 @@ def get_qulacs_gates():
     GATE_QULACS["X"] = qulacs.QuantumCircuit.add_X_gate
     GATE_QULACS["Y"] = qulacs.QuantumCircuit.add_Y_gate
     GATE_QULACS["Z"] = qulacs.QuantumCircuit.add_Z_gate
+    GATE_QULACS["CH"] = qulacs.gate.H
     GATE_QULACS["CX"] = qulacs.gate.X
     GATE_QULACS["CY"] = qulacs.gate.Y
     GATE_QULACS["CZ"] = qulacs.gate.Z
@@ -81,7 +82,7 @@ def translate_qulacs(source_circuit, noise_model=None):
     for gate in source_circuit._gates:
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
             (GATE_QULACS[gate.name])(target_circuit, gate.target[0])
-        elif gate.name in {"CX", "CY", "CZ"}:
+        elif gate.name in {"CH", "CX", "CY", "CZ"}:
             mat_gate = qulacs.gate.to_matrix_gate(GATE_QULACS[gate.name](gate.target[0]))
             for c in gate.control:
                 mat_gate.add_control_qubit(c, 1)
@@ -126,12 +127,9 @@ def translate_qulacs(source_circuit, noise_model=None):
                         for c in gate.control:
                             target_circuit.add_gate(Probabilistic(np, [X(c), Y(c), Z(c)]))
                 elif nt == 'depol':
-                    depol_list = []
-                    for t in gate.target:
-                        depol_list.append(t)
+                    depol_list = [t for t in gate.target]
                     if gate.control is not None:
-                        for c in gate.control:
-                            depol_list.append(c)
+                        depol_list += [c for c in gate.control]
                     n_depol = len(depol_list)
                     if n_depol == 2:
                         target_circuit.add_gate(TwoQubitDepolarizingNoise(*depol_list, (15/16)*np))

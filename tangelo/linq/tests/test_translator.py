@@ -28,8 +28,8 @@ from tangelo.helpers.utils import installed_backends
 path_data = os.path.dirname(os.path.realpath(__file__)) + '/data'
 
 gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1), Gate("Y", 0), Gate("S", 0)]
-multi_controlled_gates = [Gate("X", 0), Gate("X", 1), Gate("CX", target=2, control=[0,1])]
 abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=2.)])
+multi_controlled_gates = [Gate("X", 0), Gate("X", 1), Gate("CX", target=2, control=[0, 1])]
 abs_multi_circ = Circuit(multi_controlled_gates)
 references = [0., 0.38205142 ** 2, 0., 0.59500984 ** 2, 0., 0.38205142 ** 2, 0., 0.59500984 ** 2]
 references_multi = [0., 0., 0., 0., 0., 0., 0., 1.]
@@ -117,7 +117,7 @@ class TestTranslation(unittest.TestCase):
         circ.rx(2., 1)
 
         # Simulate both circuits, assert state vectors are equal
-        qiskit_simulator = qiskit.Aer.get_backend("aer_simulator", method='statevector') 
+        qiskit_simulator = qiskit.Aer.get_backend("aer_simulator", method='statevector')
         save_state_circuit = qiskit.QuantumCircuit(abs_circ.width, abs_circ.width)
         save_state_circuit.save_statevector()
         translated_circuit = translated_circuit.compose(save_state_circuit)
@@ -131,7 +131,7 @@ class TestTranslation(unittest.TestCase):
 
         np.testing.assert_array_equal(v1, v2)
 
-        #Return error when attempting to use qiskit with multiple controls
+        # Return error when attempting to use qiskit with multiple controls
         self.assertRaises(ValueError, translator.translate_qiskit, abs_multi_circ)
 
     @unittest.skipIf("cirq" not in installed_backends, "Test Skipped: Backend not available \n")
@@ -366,8 +366,8 @@ class TestTranslation(unittest.TestCase):
 
         np.testing.assert_array_equal(circ_result.values[0], translated_result.values[0])
 
-        #Return error when attempting to use braket with multiple controls
-        self.assertRaises(ValueError, translator.translate_braket, abs_multi_circ)        
+        # Return error when attempting to use braket with multiple controls
+        self.assertRaises(ValueError, translator.translate_braket, abs_multi_circ)
 
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_unsupported_gate(self):

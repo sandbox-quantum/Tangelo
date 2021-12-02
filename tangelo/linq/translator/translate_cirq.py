@@ -31,7 +31,6 @@ def get_cirq_gates():
     import cirq
 
     GATE_CIRQ = dict()
-    GATE_CIRQ = dict()
     GATE_CIRQ["H"] = cirq.H
     GATE_CIRQ["X"] = cirq.X
     GATE_CIRQ["Y"] = cirq.Y
@@ -41,6 +40,7 @@ def get_cirq_gates():
     GATE_CIRQ["CZ"] = cirq.Z
     GATE_CIRQ["S"] = cirq.S
     GATE_CIRQ["T"] = cirq.T
+    GATE_CIRQ["CH"] = cirq.H
     GATE_CIRQ["RX"] = cirq.rx
     GATE_CIRQ["RY"] = cirq.ry
     GATE_CIRQ["RZ"] = cirq.rz
@@ -89,7 +89,7 @@ def translate_cirq(source_circuit, noise_model=None):
                 control_list.append(qubit_list[c])
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
             target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]]))
-        elif gate.name in {"CX", "CY", "CZ"}:
+        elif gate.name in {"CH", "CX", "CY", "CZ"}:
             next_gate = GATE_CIRQ[gate.name].controlled(num_controls)
             target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
         elif gate.name in {"RX", "RY", "RZ"}:
@@ -125,21 +125,17 @@ def translate_cirq(source_circuit, noise_model=None):
                 if nt == 'pauli':
                     # Define pauli gate in cirq language
                     depo = cirq.asymmetric_depolarize(np[0], np[1], np[2])
-                    for t in gate.target:
-                        target_circuit.append(depo(qubit_list[t]))
+
+                    target_circuit += [depo(qubit_list[t]) for t in gate.target]
                     if gate.control is not None:
-                        for c in gate.control:
-                            target_circuit.append(depo(qubit_list[c]))
+                        target_circuit += [depo(qubit_list[c]) for c in gate.control]
                 elif nt == 'depol':
-                    depo_list = []
+                    depo_list = [qubit_list[t] for t in gate.target]
                     if gate.control is not None:
-                        for c in gate.control:
-                            depo_list.append(qubit_list[c])
-                    for t in gate.target:
-                        depo_list.append(qubit_list[t])
+                        depo_list += [qubit_list[c] for c in gate.control]
                     depo_size = len(depo_list)
                     # define depo_size-qubit depolarization gate
-                    depo = cirq.depolarize(np*(4**depo_size-1)/4**depo_size, depo_size)  # sparam, num_qubits
-                    target_circuit.append(depo(*depo_list))  # gates targetted
+                    depo = cirq.depolarize(np*(4**depo_size-1)/4**depo_size, depo_size)  # param, num_qubits
+                    target_circuit.append(depo(*depo_list))  # gates targeted
 
     return target_circuit
