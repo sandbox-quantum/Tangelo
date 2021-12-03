@@ -12,14 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module defines the qubit mean field (QMF) ansatz class. The ansatz is a
+"""This module defines the qubit mean-field (QMF) ansatz class. The ansatz is a
 variational product state built from a set of parameterized single-qubit states.
 For applications in quantum chemistry, the ansatz can be used to describe the
-mean field component of an electronic wave function on a quantum computer. For
-this reason, it is the foundation of the qubit coupled cluster (QCC)
-method, which addresses the electron correlation component of an electronic wave
-function that is neglected by the QMF ansatz. For more information about this
-ansatz, see references below.
+mean-field component of an electronic wave function on a quantum computer.
+For more information about this ansatz, see references below.
 
 Refs:
     1. I. G. Ryabinkin, T.-C. Yen, S. N. Genin, and A. F. Izmaylov.
@@ -45,101 +42,104 @@ from ._qubit_mf import get_qmf_circuit, init_qmf_state_from_hf_vec,\
 class QMF(Ansatz):
     """This class implements the QMF ansatz. Closed-shell and restricted open-shell QMF are
     supported. While the form of the QMF ansatz is the same for either variation, the underlying
-    fermionic mean field state is treated differently depending on the spin. Closed-shell
-    or restricted open-shell QMF implies that spin = 0 or spin != 0 and the fermionic mean field
+    fermionic mean-field state is treated differently depending on the spin. Closed-shell
+    or restricted open-shell QMF implies that spin = 0 or spin != 0 and the fermionic mean-field
     state is obtained using a RHF or ROHF Hamiltonian, respectively.
 
     Optimizing QMF variational parameters is risky, epsecially when a random initial guess is used.
-    It is recommended that penalty terms be addded to the mean field Hamiltonian to enforce
+    It is recommended that penalty terms be addded to the mean-field Hamiltonian to enforce
     appropriate electron number and spin angular momentum symmetries on the QMF wave function
     during optimization (see Ref. 4). If using penalty terms is to be avoided, an inital guess
     based on a Hartree-Fock reference state will likely converge quickly to the desired state, but
     it is not guaranteed.
 
     Args:
-        molecule (SecondQuantizedMolecule) : The molecular system.
-        mapping (str) : One of the supported qubit mapping identifiers. Default, "JW".
+        molecule (SecondQuantizedMolecule): The molecular system.
+        mapping (str): One of the supported qubit mapping identifiers. Default, "JW".
         up_then_down (bool): Change basis ordering putting all spin up orbitals first,
-            followed by all spin down. Default, False (i.e. has alternating spin up/down ordering).
-        qmf_state_init (str or dict): The QMF variational parameter set {Omega} procedure.
-            If a dict, the mean field Hamiltonian is penalized using N, S^2, or Sz operators.
-            The keys are (str) "init_params", "N", "S^2", and "Sz". The key "init_params" takes one
-            of the values in self.supported_initial_var_params. For keys "N", "S^2", and "Sz",
-            the values are tuples of the penatly term coefficient and the target value of the
-            penalty operator: value=(mu, target). Keys and values are case sensitive and mu > 0.
-
-            If "auto_pen" (str), a dict is automatically built with details for penalizing the mean
-            field Hamiltonian with the N, S^2, and Sz operators. {Omega} values are initialized
-            from a HF reference state vector. The target values for each penalty operator are
-            derived from self.molecule as <N> = n_electrons, <Sz> = spin//2, and
-            <S^2> = (spin//2)*(spin//2 + 1). The coefficient mu is set to 1.5 for all penalty terms.
-
-            If a str in self.supported_initial_var_params, {Omega} is initialized according to the
-            option definition in set_var_params. If the "hf-state" option is chosen, penalty terms
-            are not used. For all other options, a dict is created as is done for "auto_pen".
-            Default, "auto_pen".
+            followed by all spin down. Default, False (i.e. has alternating spin up/down
+            ordering).
+        init_qmf (dict): Controls the QMF variational parameter set {Omega} initialization
+            procedure and mean-field Hamiltonian penalization. The keys are "init_params",
+            "N", "S^2", or "Sz" (str). The value of "init_params" must be in
+            supported_initial_var_params (str), which initializes {Omega} according to the
+            option definition in set_var_params. The value of "N", "S^2", or "Sz" is (tuple
+            or None). If a tuple, its elements are the penalty term coefficient (float) and
+            the target value of a penalty operator (int), "key": (mu, target). If "N", "S^2",
+            or "Sz" is None, a penalty term is added with default mu and target values:
+            mu = 1.5 and target is derived from molecule as <N> = n_electrons,
+            <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z, where spin_z = spin // 2. Key,
+            value pairs are case sensitive and mu > 0. Default, {"init_params": "hf-state"}.
     """
 
-    def __init__(self, molecule, mapping="JW", up_then_down=False, qmf_state_init="auto_pen"):
+    def __init__(self, molecule, mapping="JW", up_then_down=False, init_qmf=None):
 
         self.molecule = molecule
         self.n_spinorbitals = self.molecule.n_active_sos
+
+        if self.n_spinorbitals % 2 != 0:
+            raise ValueError("The total number of spin-orbitals should be even.")
+
         self.n_orbitals = self.n_spinorbitals // 2
         self.n_electrons = self.molecule.n_active_electrons
         self.spin = molecule.spin
+
         self.mapping = mapping
-        self.up_then_down = up_then_down
-        self.qmf_state_init = qmf_state_init
-
-        if self.mapping.upper() == "JW":
-            if not self.up_then_down:
-                warn_msg = "If using the QMF and QCC ansatz classes together, set up_then_down "\
-                           " = True when mapping = JW when initializing both classes."
-                warnings.warn(warn_msg, RuntimeWarning)
-
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
-        if self.n_qubits % 2 != 0:
-            raise ValueError("The total number of spin-orbitals should be even.")
+        self.up_then_down = up_then_down
+        self.init_qmf = {"init_params": "hf-state"} if init_qmf is None else init_qmf
 
-        self.n_var_params = 2 * self.n_qubits
+        # Supported var param initialization
+        self.supported_initial_var_params = {"zeros", "pi_over_two", "pis", "random", "hf-state"}
 
-        # get fermionic Hamiltonians and check if penalty terms will be added
+        # Supported reference state initialization
+        self.supported_reference_state = {"HF"}
+
+        # Get the fermionic Hamiltonian
         self.fermi_ham = self.molecule.fermionic_hamiltonian
-        if isinstance(self.qmf_state_init, str):
-            if self.qmf_state_init == "hf-state":
-                self.var_params_default = "hf-state"
-            else:
-                if self.qmf_state_init == "auto_pen":
-                    self.var_params_default = "hf-state"
+
+        # Check if the mean-field Hamiltonian will be penalized
+        if isinstance(self.init_qmf, dict):
+            if "init_params" not in self.init_qmf.keys():
+                err_msg = f"Missing key 'init_params' in {self.init_qmf}. "\
+                          f"Supported values are {self.supported_initial_var_params}."
+                raise KeyError(err_msg)
+            if self.init_qmf["init_params"] in self.supported_initial_var_params:
+                # Set default value of var_params and remove it
+                self.var_params_default = self.init_qmf.pop("init_params")
+                # Check for at least one penalty term
+                if self.init_qmf:
+                    # Set default values if a key has value of None
+                    spin_z = self.spin // 2
+                    default_keys = list(filter(lambda kv: kv[1] is None,\
+                        (kv for kv in self.init_qmf.keys())))
+                    for default_key in default_keys:
+                        if default_key == "N":
+                            self.init_qmf["N"] = (1.5, self.n_electrons)
+                        elif default_key == "S^2":
+                            self.init_qmf["S^2"] = (1.5, spin_z * (spin_z + 1))
+                        elif default_key == "Sz":
+                            self.init_qmf["Sz"] = (1.5, spin_z)
+                    self.fermi_ham += penalize_mf_ham(self.init_qmf, self.n_orbitals)
                 else:
-                    self.var_params_default = self.qmf_state_init
-
-                spin_z = self.spin // 2
-                pen_details = {"N": (1.5, self.n_electrons), "S^2": (1.5, spin_z * (spin_z + 1)),\
-                    "Sz": (1.5, spin_z)}
-
-                self.fermi_ham += penalize_mf_ham(pen_details, self.n_orbitals,\
-                    self.n_electrons, up_then_down=False)
-        elif isinstance(self.qmf_state_init, dict):
-            try:
-                self.var_params_default = qmf_state_init["init_params"]
-                self.fermi_ham += penalize_mf_ham(self.qmf_state_init, self.n_orbitals,\
-                    self.n_electrons, up_then_down=False)
-            except KeyError as k_err:
-                raise KeyError("Key 'init_params' was not found in qmf_state_init.") from k_err
+                    if self.var_params_default != "hf-state":
+                        warn_msg = "It is recommended to penalize the mean-field Hamiltonian with "\
+                                   "one or more penalty terms is recommended when QMF params are "\
+                                   "not initialized using a reference HF state."
+                        warnings.warn(warn_msg, RuntimeWarning)
+            else:
+                err_msg = f"Unrecognized value for 'init_params' key in {self.init_qmf} "\
+                          f"Supported values are {self.supported_initial_var_params}."
+                raise ValueError(err_msg)
         else:
-            raise TypeError("Unrecognized type self.qmf_state_init: must be str or dict.")
+            raise TypeError(f"{self.init_qmf} must be dictionary type.")
 
         self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping,\
             n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons,\
             up_then_down=self.up_then_down, spin=self.spin)
 
-        # Supported reference state initialization
-        self.supported_reference_state = {"HF"}
-        # Supported var param initialization
-        self.supported_initial_var_params = {"zeros", "ones", "pi_over_two", "random", "hf-state"}
-
         # Default starting parameters for initialization
+        self.n_var_params = 2 * self.n_qubits
         self.default_reference_state = "HF"
         self.var_params = None
         self.circuit = None
@@ -161,10 +161,10 @@ class QMF(Ansatz):
                 raise ValueError(err_msg)
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-            elif var_params == "ones":
-                initial_var_params = np.ones((self.n_var_params,), dtype=float)
             elif var_params == "pi_over_two":
                 initial_var_params = 0.5 * np.pi * np.ones((self.n_var_params,), dtype=float)
+            elif var_params == "pis":
+                initial_var_params = np.pi * np.ones((self.n_var_params,), dtype=float)
             elif var_params == "random":
                 initial_thetas = np.pi * np.random.random((self.n_qubits,))
                 initial_phis = 2. * np.pi * np.random.random((self.n_qubits,))
@@ -172,13 +172,14 @@ class QMF(Ansatz):
             elif var_params == "hf-state":
                 initial_var_params = init_qmf_state_from_hf_vec(self.n_spinorbitals,\
                     self.n_electrons, self.mapping, up_then_down=self.up_then_down, spin=self.spin)
+
+        if len(var_params) == self.n_var_params:
+            initial_var_params = np.array(var_params)
         else:
-            try:
-                assert len(var_params) == self.n_var_params
-                initial_var_params = np.array(var_params)
-            except AssertionError as as_err:
-                raise ValueError(f"Expected {self.n_var_params} variational parameters but\
-                                   received {len(var_params)}.") from as_err
+            err_msg = f"Expected {self.n_var_params} variational parameters but "\
+                      f"received {len(var_params)}."
+            raise ValueError(err_msg)
+
         self.var_params = initial_var_params
         return initial_var_params
 
@@ -212,4 +213,3 @@ class QMF(Ansatz):
 
         # Rebuild the circuit because it is trivial
         self.build_circuit(var_params)
-

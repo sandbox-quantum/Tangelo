@@ -23,7 +23,7 @@ from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g, mol_H4_doublecation_minao
 
-sim = Simulator(target="qulacs")
+sim = Simulator()
 
 
 class QCCTest(unittest.TestCase):
@@ -46,13 +46,13 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.set_var_params([0.])
         np.testing.assert_array_almost_equal(qcc_ansatz.var_params, one_zero, decimal=6)
 
-        one_one = np.ones((1,), dtype=float)
+        one_tenth = 0.1 * np.ones((1,))
 
-        qcc_ansatz.set_var_params("ones")
-        np.testing.assert_array_almost_equal(qcc_ansatz.var_params, one_one, decimal=6)
+        qcc_ansatz.set_var_params([0.1])
+        np.testing.assert_array_almost_equal(qcc_ansatz.var_params, one_tenth, decimal=6)
 
-        qcc_ansatz.set_var_params(np.array([1.]))
-        np.testing.assert_array_almost_equal(qcc_ansatz.var_params, one_one, decimal=6)
+        qcc_ansatz.set_var_params(np.array([0.1]))
+        np.testing.assert_array_almost_equal(qcc_ansatz.var_params, one_tenth, decimal=6)
 
     def test_qcc_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """
@@ -212,9 +212,8 @@ class QCCTest(unittest.TestCase):
         # Assert energy returned is as expected for given parameters
         qcc_ansatz.update_var_params(qcc_var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -0.8546581, delta=1e-6)
+        self.assertAlmostEqual(energy, -0.85465810, delta=1e-6)
 
 
 if __name__ == "__main__":
     unittest.main()
-

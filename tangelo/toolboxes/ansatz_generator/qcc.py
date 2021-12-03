@@ -34,7 +34,6 @@ Refs:
 """
 
 import warnings
-from random import choice
 import numpy as np
 
 from tangelo.toolboxes.operators.operators import QubitOperator
@@ -56,35 +55,35 @@ class QCC(Ansatz):
     state is obtained using a RHF or ROHF Hamiltonian, respectively.
 
     Args:
-        molecule (SecondQuantizedMolecule) : The molecular system.
-        mapping (str) : One of the supported qubit mapping identifiers. Default, "JW".
+        molecule (SecondQuantizedMolecule): The molecular system.
+        mapping (str): One of the supported qubit mapping identifiers. Default, "JW".
         up_then_down (bool): Change basis ordering putting all spin up orbitals first,
             followed by all spin down. Default, False (i.e. has alternating spin up/down ordering).
-        qcc_guess (float): Controls the range of the initial guess for the amplitudes in the
-            QCC variational parameter set {tau}. Values for {tau} are selected in the range
-            [-qcc_guess, qcc_guess]. Default, 1.e-2 a.u.
-        qcc_deriv_thresh (float): Threshold of |dEQCC/dtau| for a generator from a candidate DIS
-            group. If |dEQCC/dtau| >= qcc_deriv_thresh, the candidate DIS group enters the DIS and
-            its generators can be selected for the QCC ansatz. Default, 1.e-3.
+        qcc_guess (float): Sets the initial guess for all amplitudes in the QCC variational
+            parameter set {tau}. Default, 1.e-1 a.u.
+        qcc_deriv_thresh (float): Threshold of the value of |dEQCC/dtau| for a generator from
+            a candidate DIS group. If |dEQCC/dtau| >= qcc_deriv_thresh, the candidate DIS group
+            enters the DIS and its generators can be used in the QCC ansatz.
         max_qcc_gens (int or None): Maximum number of generators to include in the QCC operator.
             If None, build the QCC operator with one generator from each DIS group characterized by
             |dEQCC/tau| >= qcc_deriv_thresh. If max_qcc_gens is an int, then use
             min(size(DIS), max_qcc_gens) generators to build the QCC operator. Default, None.
-        qubit_op_list list of QubitOperator: A list of generators to use when building the QCC
+        qubit_op_list (list of QubitOperator): A list of generators to use when building the QCC
             operator instead of selecting from DIS groups.
-        qubit_mf_ham (QubitOperator): Allows a qubit Hamiltonian to be passed to the QCC
+        qubit_mf_ham (QubitOperator): Allows a qubit Hamiltonian to be passed to the QCC ansatz
             class during initilization. This enables straightforward constrcution of the DIS
             with a user-specified Hamiltonian (e.g. a penalized mean field qubit Hamiltonian from
             a mean field simulation with the QMF ansatz class). If not None, then the fermionic
             Hamiltonian in molecule is ignored. Default, None.
-        qmf_var_params list or numpy array of float: The QMF parameter variational set {Omega}.
+        qmf_var_params (list or numpy array of float): The QMF parameter variational set {Omega}.
             If None, then the values of {Omega} are determined using a reference state Hartree-Fock
             occupation vector. Default, None.
-        qmf_circuit (Circuit): a state preparation circuit for a QMF state with parameters
-            treated either variationally or not. If None, then one is built using
-            qmf_var_params for the parameters, which are not treated variationally (i.e.,
-            the QMF state is fixed in this case). Default, None
-        verbose (bool): Flag for QCC verbosity. Default, False
+        qmf_circuit (Circuit): A state preparation circuit for a QMF state. Enables a QMF circuit to
+            be passed with parameters that can be treated variationally or not (e.g. a circuit
+            prepared by the QMF ansatz class). If None, then one is built using qmf_var_params
+            initialized from a HF reference state and the parameters are not treated variationally
+            (i.e. the QMF state is fixed in this case). Default, None.
+        verbose (bool): Flag for QCC verbosity. Default, False.
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, qcc_guess=1.e-1,\
@@ -98,12 +97,11 @@ class QCC(Ansatz):
         self.mapping = mapping
         self.up_then_down = up_then_down
 
-        if self.mapping.upper() == "JW":
-            if not self.up_then_down:
-                warn_msg = "The QCC ansatz requires spin-orbital ordering to be all spin up "\
-                           "first,  followed by all spin down."
-                warnings.warn(warn_msg, RuntimeWarning)
-                self.up_then_down = True
+        if self.mapping.upper() == "JW" and not self.up_then_down:
+            warn_msg = "The QCC ansatz requires spin-orbital ordering to be all spin-up "\
+                       "first followed by all spin-down for the JW mapping."
+            warnings.warn(warn_msg, RuntimeWarning)
+            self.up_then_down = True
 
         self.qcc_guess = qcc_guess
         self.qcc_deriv_thresh = qcc_deriv_thresh
@@ -146,19 +144,19 @@ class QCC(Ansatz):
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"zeros", "ones", "random"}
+        self.supported_initial_var_params = {"zeros", "qcc_guess"}
 
         # Default starting parameters for initialization
         self.pauli_to_angles_mapping = {}
         self.default_reference_state = "HF"
-        self.var_params_default = "random"
+        self.var_params_default = "qcc_guess"
         self.var_params = None
         self.rebuild_dis = False
         self.qcc_circuit = None
         self.circuit = None
 
     def set_var_params(self, var_params=None):
-        """Set values for variational parameters, such as zeros, ones, or random numbers,
+        """Set values for variational parameters, such as zeros or floats,
         providing some keywords for users, and also supporting direct user input
         (list or numpy array). Return the parameters so that workflows such as VQE can
         retrieve these values. """
@@ -174,18 +172,16 @@ class QCC(Ansatz):
                 raise ValueError(err_msg)
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-            elif var_params == "ones":
-                initial_var_params = np.ones((self.n_var_params,), dtype=float)
-            elif var_params == "random":
-                initial_var_params = 2. * self.qcc_guess * np.random.random((self.n_var_params,))\
-                    - self.qcc_guess
+            elif var_params == "qcc_guess":
+                initial_var_params = self.qcc_guess * np.ones((self.n_var_params,), dtype=float)
+
+        if len(var_params) == self.n_var_params:
+            initial_var_params = np.array(var_params)
         else:
-            try:
-                assert len(var_params) == self.n_var_params
-                initial_var_params = np.array(var_params)
-            except AssertionError as as_err:
-                raise ValueError(f"Expected {self.n_var_params} variational parameters but\
-                                   received {len(var_params)}.") from as_err
+            err_msg = f"Expected {self.n_var_params} variational parameters but "\
+                      f"received {len(var_params)}."
+            raise ValueError(err_msg)
+
         self.var_params = initial_var_params
         return initial_var_params
 
@@ -195,8 +191,9 @@ class QCC(Ansatz):
         with the transform used to obtain the qubit operator. """
 
         if self.default_reference_state not in self.supported_reference_state:
-            raise ValueError(f"Only supported reference state methods are:\
-                               {self.supported_reference_state}")
+            err_msg = f"Only supported reference state methods are: "\
+                      f"{self.supported_reference_state}."
+            raise ValueError(err_msg)
         if self.default_reference_state == "HF":
             reference_state_circuit = get_qmf_circuit(self.qmf_var_params, variational=False)
         return reference_state_circuit
@@ -257,57 +254,51 @@ class QCC(Ansatz):
         are used to build a QCC circuit.
 
         Args:
-            var_params (numpy array of floats): The QCC variational parameter set {tau}.
+            var_params (numpy array of float): The QCC variational parameter set {tau}.
             n_var_params (int): Size of the QCC variational parameter set.
-            dis list of list: The DIS of QCC generators. Each list in dis contains (1) all possible
-                generators for a DIS group created by permutating Pauli X and Y operators on the
-                flip indices and have an odd number of Y operators and (2) the value of
-                |dEQCC/dtau|.
-            qubit_op_list list of QubitOperator: A list of generators to use when building the QCC
+            qmf_var_params (numpy array of float): The QMF variational parameter set {Omega}.
+            qubit_ham (QubitOperator): A qubit Hamiltonian.
+            qcc_deriv_thresh (float): Threshold of the value of |dEQCC/dtau| for a generator from
+                a candidate DIS group. If |dEQCC/dtau| >= qcc_deriv_thresh, the candidate DIS group
+                enters the DIS and its generators can be used in the QCC ansatz.
+            dis (list of list): The DIS of QCC generators. Each list in dis contains (1) a complete
+                set of generators for a DIS group built from Pauli X and an odd number of Y
+                operators that act on qubits indexed by all combinations of the flip indices and
+                (2) the value of |dEQCC/dtau|.
+            qubit_op_list (list of QubitOperator): A list of generators to use when building the QCC
                 operator instead of selecting from DIS groups.
             rebuild_dis (bool): Rebuild the DIS. This is useful if qubit_ham of qmf_var_params have
                 changed (e.g. in iterative methods like iQCC or QCC-ILC). If True, qubit_op_list is
                 reset to None.
 
         Returns:
-            qcc_qubit_op (QubitOperator): The QCC ansazt qubit operator.
+            QubitOperator: QCC ansatz qubit operator.
         """
 
-        # Rebuild the DIS in case qubit_ham changed or it and qubit_op_list don't exist
+        # Rebuild the DIS in case qubit_ham changed or DIS and qubit_op_list don't exist
         if self.rebuild_dis or (self.dis is None and self.qubit_op_list is None):
             self.dis = construct_dis(self.qmf_var_params, self.qubit_ham, self.qcc_deriv_thresh,\
                 verbose=self.verbose)
             self.n_var_params = len(self.dis) if self.max_qcc_gens is None\
                 else min(len(self.dis), self.max_qcc_gens)
             self.qubit_op_list = None
-        if self.verbose:
-            print(f"The QCC operator comprises {self.n_var_params} generator(s).\n")
 
-        # Build the QCC operator using the DIS or a list of specific generators
+        # Build the QCC operator using the DIS or a list of generators
         qcc_qubit_op = QubitOperator.zero()
         if self.qubit_op_list is None:
             self.qubit_op_list = []
             for i in range(self.n_var_params):
-                # Randomly select a QCC generator from each DIS group
-                qcc_gen = choice(self.dis[i][0])
+                dis_group = self.dis[i]
+                # Instead of randomly choosing a generator, get the last one.
+                qcc_gen = dis_group[0][-1]
                 qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen
                 self.qubit_op_list.append(qcc_gen)
-                if self.verbose:
-                    print_msg = f"tau amplitude for DIS group {i} generator {str(qcc_gen)} "\
-                                f"= {self.var_params[i]}\n"
-                    print(print_msg)
         else:
-            try:
-                assert len(self.qubit_op_list) == self.n_var_params
+            if len(self.qubit_op_list) == self.n_var_params:
                 for i, qcc_gen in enumerate(self.qubit_op_list):
                     qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen
-                    if self.verbose:
-                        print_msg = f"tau amplitude for DIS group {i} generator {str(qcc_gen)} "\
-                                    f"= {self.var_params[i]}\n"
-                        print(print_msg)
-            except AssertionError as as_err:
-                err_msg = f"Expected {self.n_var_params} qubit_ops in self.qubit_op_list but "\
+            else:
+                err_msg = f"Expected {self.n_var_params} generators in self.qubit_op_list but "\
                           f"received {len(self.qubit_op_list)}.\n"
-                raise ValueError(err_msg) from as_err
+                raise ValueError(err_msg)
         return qcc_qubit_op
-

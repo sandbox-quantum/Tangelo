@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for closed-shell and restricted open-shell qubit mean field (QMF) ansatze. """
+"""Unit tests for closed-shell and restricted open-shell qubit mean field (QMF) ansatz. """
 
 import unittest
 import numpy as np
@@ -21,7 +21,7 @@ from tangelo.backendbuddy import Simulator
 from tangelo.toolboxes.ansatz_generator.qmf import QMF
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g
 
-sim = Simulator(target="qulacs")
+sim = Simulator()
 
 
 class QMFTest(unittest.TestCase):
@@ -40,60 +40,58 @@ class QMFTest(unittest.TestCase):
         qmf_ansatz.set_var_params("zeros")
         np.testing.assert_array_almost_equal(qmf_ansatz.var_params, eight_zeros, decimal=6)
 
-        qmf_ansatz.set_var_params([0., 0., 0., 0., 0., 0., 0., 0.])
+        qmf_ansatz.set_var_params([0.] * 8)
         np.testing.assert_array_almost_equal(qmf_ansatz.var_params, eight_zeros, decimal=6)
 
-        eight_ones = np.ones((8,))
+        eight_pis = np.pi * np.ones((8,))
 
-        qmf_ansatz.set_var_params("ones")
-        np.testing.assert_array_almost_equal(qmf_ansatz.var_params, eight_ones, decimal=6)
+        qmf_ansatz.set_var_params("pis")
+        np.testing.assert_array_almost_equal(qmf_ansatz.var_params, eight_pis, decimal=6)
 
-        qmf_ansatz.set_var_params(np.array([1., 1., 1., 1., 1., 1., 1., 1.]))
-        np.testing.assert_array_almost_equal(qmf_ansatz.var_params, eight_ones, decimal=6)
+        qmf_ansatz.set_var_params(np.array([np.pi] * 8))
+        np.testing.assert_array_almost_equal(qmf_ansatz.var_params, eight_pis, decimal=6)
 
     def test_qmf_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """
 
         qmf_ansatz = QMF(mol_H2_sto3g)
 
-        self.assertRaises(ValueError, qmf_ansatz.set_var_params, np.array([1., 1., 1., 1.]))
+        self.assertRaises(ValueError, qmf_ansatz.set_var_params, np.array([1.] * 4))
 
-    def test_qmf_set_params_upper_hf_state_h2(self):
+    @staticmethod
+    def test_qmf_set_params_upper_hf_state_h2():
         """ Verify closed-shell QMF functionalities for H2: upper case initial parameters """
 
         qmf_ansatz = QMF(mol_H2_sto3g)
         qmf_ansatz.set_var_params("HF-State")
 
-        # only check the theta Bloch angles -- phi Bloch angles are randomly initialized
-        qmf_thetas = qmf_ansatz.var_params[:4]
-        expected = [3.141592653589793, 3.141592653589793, 0., 0.]
+        expected = [3.141592653589793, 3.141592653589793, 0., 0.,
+                    0.,                0.,                0., 0.]
+        np.testing.assert_allclose(np.array(expected), qmf_ansatz.var_params, rtol=1e-10)
 
-        self.assertAlmostEqual(np.linalg.norm(qmf_thetas), np.linalg.norm(expected), delta=1e-10)
-
-    def test_qmf_set_params_lower_hf_state_h2(self):
+    @staticmethod
+    def test_qmf_set_params_lower_hf_state_h2():
         """ Verify closed-shell QMF functionalities for H2: lower case initial parameters """
 
         qmf_ansatz = QMF(mol_H2_sto3g)
         qmf_ansatz.set_var_params("hf-state")
 
-        # only check the theta Bloch angles -- phi Bloch angles are randomly initialized
-        qmf_thetas = qmf_ansatz.var_params[:4]
-        expected = [3.141592653589793, 3.141592653589793, 0., 0.]
+        expected = [3.141592653589793, 3.141592653589793, 0., 0.,
+                    0.,                0.,                0., 0.]
+        np.testing.assert_allclose(np.array(expected), qmf_ansatz.var_params, rtol=1e-10)
 
-        self.assertAlmostEqual(np.linalg.norm(qmf_thetas), np.linalg.norm(expected), delta=1e-10)
-
-    def test_qmf_set_params_hf_state_h4(self):
+    @staticmethod
+    def test_qmf_set_params_hf_state_h4():
         """ Verify closed-shell QMF functionalities for H4: hf-state initial parameters """
 
         qmf_ansatz = QMF(mol_H4_sto3g)
         qmf_ansatz.set_var_params("hf-state")
 
-        # only check the theta Bloch angles -- phi Bloch angles are randomly initialized
-        qmf_thetas = qmf_ansatz.var_params[:8]
         expected = [3.141592653589793, 3.141592653589793, 3.141592653589793, 3.141592653589793,
+                    0.,                0.,                0.,                0.,
+                    0.,                0.,                0.,                0.,
                     0.,                0.,                0.,                0.]
-
-        self.assertAlmostEqual(np.linalg.norm(qmf_thetas), np.linalg.norm(expected), delta=1e-10)
+        np.testing.assert_allclose(np.array(expected), qmf_ansatz.var_params, rtol=1e-10)
 
     def test_qmf_closed_h2(self):
         """ Verify closed-shell QMF functionalities for H2 """
@@ -141,7 +139,7 @@ class QMFTest(unittest.TestCase):
                       2.95766833, 5.00079708, 3.53150391, 1.9093635]
 
         # Build circuit
-        qmf_ansatz = QMF(mol_H4_cation_sto3g, qmf_state_init="hf-state")
+        qmf_ansatz = QMF(mol_H4_cation_sto3g)
         qmf_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
@@ -155,4 +153,3 @@ class QMFTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -187,7 +187,7 @@ class VQESolverTest(unittest.TestCase):
         vqe_solver.build()
 
         energy = vqe_solver.simulate()
-        self.assertAlmostEqual(energy, -1.965156, delta=1e-2)
+        self.assertAlmostEqual(energy, -1.963270, delta=1e-4)
 
     def test_simulate_h4_open(self):
         """Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
@@ -223,7 +223,7 @@ class VQESolverTest(unittest.TestCase):
         vqe_solver.build()
 
         energy = vqe_solver.simulate()
-        self.assertAlmostEqual(energy, -1.636789, delta=1.5e-3)
+        self.assertAlmostEqual(energy, -1.638020, delta=1e-4)
 
     def test_optimal_circuit_h4(self):
         """Run VQE on H4 molecule, save optimal circuit. Verify it yields
