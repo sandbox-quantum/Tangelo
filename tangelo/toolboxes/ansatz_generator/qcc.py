@@ -92,9 +92,14 @@ class QCC(Ansatz):
 
         self.molecule = molecule
         self.n_spinorbitals = self.molecule.n_active_sos
+
+        if self.n_spinorbitals % 2 != 0:
+            raise ValueError("The total number of spin-orbitals should be even.")
+
         self.n_electrons = self.molecule.n_active_electrons
         self.spin = molecule.spin
         self.mapping = mapping
+        self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
         self.up_then_down = up_then_down
 
         if self.mapping.upper() == "JW" and not self.up_then_down:
@@ -111,10 +116,6 @@ class QCC(Ansatz):
         self.qmf_circuit = qmf_circuit
         self.verbose = verbose
 
-        self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
-        if self.n_qubits % 2 != 0:
-            raise ValueError("The total number of spin-orbitals should be even.")
-
         if qubit_mf_ham is None:
             self.fermi_ham = self.molecule.fermionic_hamiltonian
             self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping,\
@@ -128,6 +129,7 @@ class QCC(Ansatz):
                 self.n_electrons, self.mapping, up_then_down=self.up_then_down, spin=self.spin)
         elif isinstance(self.qmf_var_params, list):
             self.qmf_var_params = np.array(self.qmf_var_params)
+
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError("The number of QMF variational parameters must be 2 * n_qubits.")
 
@@ -173,7 +175,7 @@ class QCC(Ansatz):
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
             elif var_params == "qcc_guess":
-                initial_var_params = self.qcc_guess * np.ones((self.n_var_params,), dtype=float)
+                initial_var_params = self.qcc_guess * np.ones((self.n_var_params,))
         elif np.array(var_params).size == self.n_var_params:
             initial_var_params = np.array(var_params)
         elif np.array(var_params).size != self.n_var_params:
@@ -208,6 +210,7 @@ class QCC(Ansatz):
 
         # Build a qubit operator required for QCC
         qubit_op = self._get_qcc_qubit_op()
+
         # Build a QMF state preparation circuit
         if self.qmf_circuit is None:
             self.qmf_circuit = self.prepare_reference_state()
@@ -269,12 +272,13 @@ class QCC(Ansatz):
             rebuild_dis (bool): Rebuild the DIS. This is useful if qubit_ham of qmf_var_params have
                 changed (e.g. in iterative methods like iQCC or QCC-ILC). If True, qubit_op_list is
                 reset to None.
+            verbose (bool): Flag for QCC verbosity. Default, False.
 
         Returns:
             QubitOperator: QCC ansatz qubit operator.
         """
 
-        # Rebuild the DIS in case qubit_ham changed or DIS and qubit_op_list don't exist
+        # Rebuild the DIS in case qubit_ham changed or both the DIS and qubit_op_list don't exist
         if self.rebuild_dis or (self.dis is None and self.qubit_op_list is None):
             self.dis = construct_dis(self.qmf_var_params, self.qubit_ham, self.qcc_deriv_thresh,\
                 verbose=self.verbose)

@@ -30,7 +30,6 @@ Refs:
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 """
 
-import warnings
 from itertools import combinations
 
 from tangelo.toolboxes.operators.operators import QubitOperator
@@ -58,8 +57,8 @@ def construct_dis(qmf_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
     Returns:
         list of list: The DIS of QCC generators. Each list in dis contains (1) a complete set
             of generators for a DIS group built from Pauli X and an odd number of Y operators that
-            act on qubits indexed by all combinations of the flip indices and (2) the value of
-            |dEQCC/dtau|.
+            act on qubits indexed by all combinations of the flip indices and (2) the signed value
+            of dEQCC/dtau.
     """
 
     if verbose:
@@ -81,9 +80,9 @@ def construct_dis(qmf_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
                             f"{abs(dis_group[1])} a.u.\n"
                 print(print_msg)
     else:
-        warn_msg = f"DIS = NULL. There are no candidate DIS groups where |dEQCC/dtau| "\
-                   f">= {qcc_deriv_thresh} a.u.\n"
-        warnings.warn(warn_msg, RuntimeWarning)
+        err_msg = f"The DIS is empty. There are no candidate DIS groups where "\
+                  f"|dEQCC/dtau| >= {qcc_deriv_thresh} a.u. Terminating the QCC simulation.\n"
+        raise ValueError(err_msg)
     return dis
 
 
@@ -100,7 +99,7 @@ def get_dis_groups(qmf_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
         verbose (bool): Flag for QCC verbosity.
 
     Returns:
-        list of tuple: the flip indices (str) and the value of |dEQCC/dtau|
+        list of tuple: the flip indices (str) and the signed value of dEQCC/dtau
             (float) for DIS groups where |dEQCC/dtau| >= qcc_deriv_thresh.
     """
 
@@ -109,7 +108,7 @@ def get_dis_groups(qmf_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
 
     # Get the flip indices from qubit_ham and compute the gradient dEQCC/dtau
     qubit_ham_gen = ((term_coef[0], (term_coef[1], pure_var_params))\
-       for term_coef in qubit_ham.terms.items() if len(term_coef) > 1)
+       for term_coef in qubit_ham.terms.items())
     flip_idxs = list(filter(None, (get_idxs_deriv(q_gen[0], *q_gen[1])\
         for q_gen in qubit_ham_gen)))
 
