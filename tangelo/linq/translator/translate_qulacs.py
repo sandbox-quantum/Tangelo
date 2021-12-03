@@ -21,7 +21,7 @@ necessary to account for:
 - how the order and conventions for some of the inputs to the gate operations
     may also differ.
 """
-from numpy import exp
+from numpy import exp, cos, sin
 
 
 def get_qulacs_gates():
@@ -51,6 +51,7 @@ def get_qulacs_gates():
     GATE_QULACS["CRZ"] = qulacs.gate.RZ
     GATE_QULACS["PHASE"] = qulacs.gate.DenseMatrix
     GATE_QULACS["CPHASE"] = qulacs.gate.DenseMatrix
+    GATE_QULACS["XX"] = qulacs.gate.DenseMatrix
     GATE_QULACS["SWAP"] = qulacs.QuantumCircuit.add_SWAP_gate
     GATE_QULACS["CSWAP"] = qulacs.gate.SWAP
     GATE_QULACS["MEASURE"] = qulacs.gate.Measurement
@@ -108,6 +109,14 @@ def translate_qulacs(source_circuit, noise_model=None):
             mat_gate = GATE_QULACS[gate.name](gate.target[0], [[1, 0], [0, exp(1j * gate.parameter)]])
             for c in gate.control:
                 mat_gate.add_control_qubit(c, 1)
+            target_circuit.add_gate(mat_gate)
+        elif gate.name in {"XX"}:
+            c = cos(gate.parameter/2)
+            s = -1j * sin(gate.parameter/2)
+            mat_gate = GATE_QULACS[gate.name]([gate.target[0], gate.target[1]], [[c, 0, 0, s],
+                                                                                 [0, c, s, 0],
+                                                                                 [0, s, c, 0],
+                                                                                 [s, 0, 0, c]])
             target_circuit.add_gate(mat_gate)
         elif gate.name in {"CNOT"}:
             (GATE_QULACS[gate.name])(target_circuit, gate.control[0], gate.target[0])

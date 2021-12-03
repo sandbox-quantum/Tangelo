@@ -43,16 +43,16 @@ circuit3 = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.)])
 circuit4 = Circuit([Gate("RZ", 0, parameter=2.)], n_qubits=2)
 # Circuit that tests all gates that are supported on all simulators
 init_gates = [Gate('H', 0), Gate('X', 1), Gate('H', 2)]
-ONE_QUBIT_GATES = ["H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"]
-all_one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else Gate(name, target=0, parameter=0.5)
-                       for name in ONE_QUBIT_GATES]
-all_one_qubit_gates += [Gate(name, target=1) if name not in PARAMETERIZED_GATES else Gate(name, target=1, parameter=0.2)
-                        for name in ONE_QUBIT_GATES]
-TWO_QUBIT_GATES = ["CNOT", "CH", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE"]
-all_two_qubit_gates = [Gate(name, target=1, control=0) if name not in PARAMETERIZED_GATES
-                       else Gate(name, target=1, control=0, parameter=0.5) for name in TWO_QUBIT_GATES]
+one_qubit_gate_names = ["H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"]
+one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else Gate(name, target=0, parameter=0.5)
+                       for name in one_qubit_gate_names]
+one_qubit_gates += [Gate(name, target=1) if name not in PARAMETERIZED_GATES else Gate(name, target=1, parameter=0.2)
+                        for name in one_qubit_gate_names]
+two_qubit_gate_names = ["CNOT", "CH", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE"]
+two_qubit_gates = [Gate(name, target=1, control=0) if name not in PARAMETERIZED_GATES
+                       else Gate(name, target=1, control=0, parameter=0.5) for name in two_qubit_gate_names]
 swap_gates = [Gate('SWAP', target=[1, 0]), Gate('CSWAP', target=[1, 2], control=0)]
-circuit5 = Circuit(init_gates + all_one_qubit_gates + all_two_qubit_gates + swap_gates)
+circuit5 = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates)
 # Circuit preparing a mixed-state (e.g containing a MEASURE instruction in the middle of the circuit)
 circuit_mixed = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
 

@@ -103,8 +103,8 @@ def translate_cirq(source_circuit, noise_model=None):
             next_gate = GATE_CIRQ[gate.name](gate.parameter).controlled(num_controls)
             target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
         elif gate.name in {"XX"}:
-            next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/pi)
-            target_circuit.append(next_gate(qubit_list[gate.target[0]], qubit_list[gate.target1[0]]))
+            next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/pi, global_shift=-0.5)
+            target_circuit.append(next_gate(qubit_list[gate.target[0]], qubit_list[gate.target[1]]))
         elif gate.name in {"PHASE"}:
             next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/pi)
             target_circuit.append(next_gate(qubit_list[gate.target[0]]))

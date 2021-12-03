@@ -60,7 +60,7 @@ class Gate(dict):
             """
             errmsg = ""
             for ind in qubit_list:
-                if (ind < 0) or (type(ind) != int):
+                if (type(ind) != int) or (ind < 0):
                     errmsg += f"\n {label} qubit index {ind} is not a non-negative integer"
 
             if errmsg:

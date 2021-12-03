@@ -22,6 +22,7 @@ import os
 import numpy as np
 
 from tangelo.linq import Gate, Circuit
+from tangelo.linq.gate import PARAMETERIZED_GATES
 import tangelo.linq.translator as translator
 from tangelo.helpers.utils import installed_backends
 
@@ -31,8 +32,26 @@ gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1), G
 abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=2.)])
 multi_controlled_gates = [Gate("X", 0), Gate("X", 1), Gate("CX", target=2, control=[0, 1])]
 abs_multi_circ = Circuit(multi_controlled_gates)
+init_gates = [Gate('H', 0), Gate('X', 1), Gate('H', 2)]
+one_qubit_gate_names = ["H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"]
+one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else Gate(name, target=0, parameter=0.5)
+                   for name in one_qubit_gate_names]
+one_qubit_gates += [Gate(name, target=1) if name not in PARAMETERIZED_GATES else Gate(name, target=1, parameter=0.2)
+                    for name in one_qubit_gate_names]
+two_qubit_gate_names = ["CNOT", "CX", "CY", "CZ", "CPHASE", "CRZ"]
+two_qubit_gates = [Gate(name, target=1, control=0) if name not in PARAMETERIZED_GATES
+                   else Gate(name, target=1, control=0, parameter=0.5) for name in two_qubit_gate_names]
+swap_gates = [Gate('SWAP', target=[1, 0]), Gate('CSWAP', target=[1, 2], control=0)]
+big_circuit = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates + [Gate('XX', [0, 1], parameter=0.5)])
+
 references = [0., 0.38205142 ** 2, 0., 0.59500984 ** 2, 0., 0.38205142 ** 2, 0., 0.59500984 ** 2]
 references_multi = [0., 0., 0., 0., 0., 0., 0., 1.]
+reference_big_lsq = [-0.29022980 + 0.20684454j, -0.34400320 + 0.12534970j,  0.21316957 + 0.23442923j,
+                      0.15939614 + 0.15293439j, -0.36723378 + 0.29031223j, -0.04807413 + 0.0797184j,
+                     -0.37427732 + 0.41885117j, -0.05511766 + 0.20825736j]
+reference_big_msq = [-0.29022979 + 0.20684454j, -0.36723376 + 0.29031221j,  0.21316958 + 0.23442923j,
+                     -0.37427729 + 0.41885117j, -0.34400321 + 0.12534970j, -0.04807414 + 0.07971841j,
+                      0.15939615 + 0.15293440j, -0.05511766 + 0.20825737j]
 
 abs_circ_mixed = Circuit(gates) + Circuit([Gate("RX", 1, parameter=1.5), Gate("MEASURE", 0)])
 
@@ -95,6 +114,14 @@ class TestTranslation(unittest.TestCase):
         # Assert that both simulations returned the same state vector
         np.testing.assert_array_equal(state1.get_vector(), state2.get_vector())
 
+        # Test that the translated circuit reports the same result for all cross-supported gates
+        translated_circuit = translator.translate_qulacs(big_circuit)
+
+        # Run the simulation
+        state1 = qulacs.QuantumState(big_circuit.width)
+        translated_circuit.update_quantum_state(state1)
+        np.testing.assert_array_almost_equal(state1.get_vector(), reference_big_msq, decimal=6)
+
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_qiskit(self):
         """
@@ -118,10 +145,10 @@ class TestTranslation(unittest.TestCase):
 
         # Simulate both circuits, assert state vectors are equal
         qiskit_simulator = qiskit.Aer.get_backend("aer_simulator", method='statevector')
-        save_state_circuit = qiskit.QuantumCircuit(abs_circ.width, abs_circ.width)
-        save_state_circuit.save_statevector()
-        translated_circuit = translated_circuit.compose(save_state_circuit)
-        circ = circ.compose(save_state_circuit)
+        translated_circuit = qiskit.transpile(translated_circuit, qiskit_simulator)
+        circ = qiskit.transpile(circ, qiskit_simulator)
+        translated_circuit.save_statevector()
+        circ.save_statevector()
 
         sim_results = qiskit_simulator.run(translated_circuit).result()
         v1 = sim_results.get_statevector(translated_circuit)
@@ -133,6 +160,15 @@ class TestTranslation(unittest.TestCase):
 
         # Return error when attempting to use qiskit with multiple controls
         self.assertRaises(ValueError, translator.translate_qiskit, abs_multi_circ)
+
+        # Generate the qiskit circuit by translating from the abstract one and print it
+        translated_circuit = translator.translate_qiskit(big_circuit)
+        # Simulate both circuits, assert state vectors are equal
+        qiskit_simulator = qiskit.Aer.get_backend("aer_simulator", method='statevector')
+        translated_circuit = qiskit.transpile(translated_circuit, qiskit_simulator)
+        translated_circuit.save_statevector()
+        sim_results = qiskit_simulator.run(translated_circuit).result()
+        np.testing.assert_array_almost_equal(sim_results.get_statevector(translated_circuit), reference_big_msq, decimal=6)
 
     @unittest.skipIf("cirq" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_cirq(self):
@@ -182,6 +218,11 @@ class TestTranslation(unittest.TestCase):
         v2 = job_sim.final_state_vector
 
         np.testing.assert_array_equal(v1, v2)
+
+        # Test that translated circuit is correct for all cross-supported gates
+        translated_circuit = translator.translate_cirq(big_circuit)
+        job_sim = cirq_simulator.simulate(translated_circuit)
+        np.testing.assert_array_almost_equal(job_sim.final_state_vector, reference_big_lsq, decimal=6)
 
     @unittest.skipIf("qdk" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_qdk(self):
@@ -368,6 +409,12 @@ class TestTranslation(unittest.TestCase):
 
         # Return error when attempting to use braket with multiple controls
         self.assertRaises(ValueError, translator.translate_braket, abs_multi_circ)
+
+        # Test that circuit is correct for all cross-supported gates
+        translated_circuit = translator.translate_braket(big_circuit)
+        translated_circuit.state_vector()
+        translated_result = device.run(translated_circuit, shots=0).result()
+        np.testing.assert_array_almost_equal(translated_result.values[0], reference_big_lsq, decimal=6)
 
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_unsupported_gate(self):
