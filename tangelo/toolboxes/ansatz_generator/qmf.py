@@ -162,9 +162,9 @@ class QMF(Ansatz):
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
             elif var_params == "pi_over_two":
-                initial_var_params = 0.5 * np.pi * np.ones((self.n_var_params,), dtype=float)
+                initial_var_params = 0.5 * np.pi * np.ones((self.n_var_params,))
             elif var_params == "pis":
-                initial_var_params = np.pi * np.ones((self.n_var_params,), dtype=float)
+                initial_var_params = np.pi * np.ones((self.n_var_params,))
             elif var_params == "random":
                 initial_thetas = np.pi * np.random.random((self.n_qubits,))
                 initial_phis = 2. * np.pi * np.random.random((self.n_qubits,))
