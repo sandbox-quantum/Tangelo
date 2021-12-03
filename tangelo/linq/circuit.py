@@ -19,7 +19,7 @@ characteristics (width, size ...).
 """
 
 from typing import List
-from tangelo.backendbuddy import Gate
+from tangelo.linq import Gate
 
 
 class Circuit:

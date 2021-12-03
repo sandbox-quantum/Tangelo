@@ -5,7 +5,7 @@ Tutorials
    :maxdepth: 2
 
    overview_endtoend
-   backendbuddy_basics
+   linq_basics
    vqe
    dmet
    problem_decomposition_oniom

@@ -23,7 +23,7 @@ from .ansatz import Ansatz
 from ._hea_circuit import construct_hea_circuit
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
-from tangelo.backendbuddy import Circuit
+from tangelo.linq import Circuit
 
 
 class HEA(Ansatz):

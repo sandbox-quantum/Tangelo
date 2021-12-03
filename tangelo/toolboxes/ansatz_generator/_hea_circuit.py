@@ -14,7 +14,7 @@
 
 """Module to create Hardware Efficient Ansatze (HEA) circuit with n_layers."""
 
-from tangelo.backendbuddy import Circuit, Gate
+from tangelo.linq import Circuit, Gate
 
 
 def rotation_circuit(n_qubits, rot_type="euler"):

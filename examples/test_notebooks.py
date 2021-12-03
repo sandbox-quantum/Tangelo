@@ -17,11 +17,11 @@ def run_notebook_as_test(notebook_path):
 class TestNotebooks(unittest.TestCase):
     """ Turn target Python notebooks into script, run them as unittests (pass = no errors at runtime) """
 
-    def test_backendbuddy_basics_notebook(self):
-        run_notebook_as_test('backendbuddy/1.the_basics.ipynb')
+    def test_linq_basics_notebook(self):
+        run_notebook_as_test('linq/1.the_basics.ipynb')
 
-    def test_backendbuddy_noisy_simulation_notebook(self):
-        run_notebook_as_test('backendbuddy/3.noisy_simulation.ipynb')
+    def test_linq_noisy_simulation_notebook(self):
+        run_notebook_as_test('linq/3.noisy_simulation.ipynb')
 
     def test_dmet_notebook(self):
         run_notebook_as_test('./dmet.ipynb')
