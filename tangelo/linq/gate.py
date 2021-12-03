@@ -34,6 +34,7 @@ class Gate(dict):
     """An abstract gate class that exposes all the gate information such as gate
     name, control and target qubit indices, parameter values. Assumes qubit
     indexation starts at index 0.
+
     Attributes:
         name (str): the gate name,
         target (int): A positive integer denoting the index of the target qubit,
@@ -52,9 +53,11 @@ class Gate(dict):
 
         def check_qubit_indices(qubit_list, label):
             """Function to check if all given qubit indices are positive integers
+
             Args:
                 qubit_list (list) :: List of values to check are positive integers
                 label (str) :: The label of the list, "control" or "target"
+
             Raises:
                 ValueError :: If any of the values in the list are not non-negative integers.
             """

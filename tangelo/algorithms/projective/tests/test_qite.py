@@ -16,7 +16,7 @@ import unittest
 
 from tangelo.algorithms.projective.quantum_imaginary_time import QITESolver
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g
-from tangelo.backendbuddy.noisy_simulation import NoiseModel
+from tangelo.linq.noisy_simulation import NoiseModel
 
 
 class QITESolverTest(unittest.TestCase):
