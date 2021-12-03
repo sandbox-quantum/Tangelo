@@ -8,7 +8,7 @@ Submit a job to Azure Quantum to run on QPUs.
 
 Qubits are numbered left-to-right in the results, in both cases (e.g q0q1q2...)
 
-You can elegantly generate your Q# circuits using tangelo.backendbuddy and submit them right away in one single script.
+You can elegantly generate your Q# circuits using tangelo.linq and submit them right away in one single script.
 """
 
 
@@ -56,5 +56,5 @@ else:
 
     # If your Q# operation takes no parameter (results need to be retrieved through Azure portal, under the relevant Quantum Workspace).
     job_id = qsharp.azure.submit(MyQsharpOperation, shots=n_shots, jobName=job_name)
-    # If your Q# operation takes parameters (currently not available in tangelo.backendbuddy, but you can write your own Q#):
+    # If your Q# operation takes parameters (currently not available in tangelo.linq, but you can write your own Q#):
     # job_id = qsharp.azure.submit(MyQsharpOperation, param1=value1, param2=value2, ..., shots=n_shots, jobName=job_name')
