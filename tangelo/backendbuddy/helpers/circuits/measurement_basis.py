@@ -15,7 +15,7 @@
 """Helper function: pauli word rotations."""
 
 import numpy as np
-from tangelo.backendbuddy import Gate
+from tangelo.linq import Gate
 
 
 def measurement_basis_gates(term):

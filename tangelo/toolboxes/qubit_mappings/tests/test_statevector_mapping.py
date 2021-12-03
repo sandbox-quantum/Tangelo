@@ -22,7 +22,7 @@ import numpy as np
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector, vector_to_circuit
 from tangelo.molecule_library import mol_H4_sto3g, mol_H4_cation_sto3g
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from tangelo.backendbuddy import Simulator
+from tangelo.linq import Simulator
 
 sim = Simulator()
 

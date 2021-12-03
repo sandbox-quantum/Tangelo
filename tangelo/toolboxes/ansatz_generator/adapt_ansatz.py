@@ -16,7 +16,7 @@
 
 import math
 
-from tangelo.backendbuddy import Circuit
+from tangelo.linq import Circuit
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import pauliword_to_circuit
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz

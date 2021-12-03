@@ -23,8 +23,8 @@ import time
 import numpy as np
 from openfermion.ops import QubitOperator
 
-from tangelo.backendbuddy import Gate, Circuit, translator, Simulator
-from tangelo.backendbuddy.helpers import string_ham_to_of
+from tangelo.linq import Gate, Circuit, translator, Simulator
+from tangelo.linq.helpers import string_ham_to_of
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'

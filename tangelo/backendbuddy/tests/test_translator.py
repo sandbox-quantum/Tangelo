@@ -21,8 +21,8 @@ import unittest
 import os
 import numpy as np
 
-from tangelo.backendbuddy import Gate, Circuit
-import tangelo.backendbuddy.translator as translator
+from tangelo.linq import Gate, Circuit
+import tangelo.linq.translator as translator
 from tangelo.helpers.utils import installed_backends
 
 path_data = os.path.dirname(os.path.realpath(__file__)) + '/data'

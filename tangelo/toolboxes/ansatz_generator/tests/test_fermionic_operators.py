@@ -14,7 +14,7 @@
 
 import unittest
 
-from tangelo.backendbuddy import Simulator
+from tangelo.linq import Simulator
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit, get_vector, vector_to_circuit

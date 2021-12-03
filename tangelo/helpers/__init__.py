@@ -13,4 +13,4 @@
 # limitations under the License.
 
 from .utils import *
-from tangelo.backendbuddy.helpers import *
+from tangelo.linq.helpers import *
