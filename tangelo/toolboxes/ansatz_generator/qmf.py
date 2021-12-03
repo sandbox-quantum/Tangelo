@@ -172,10 +172,9 @@ class QMF(Ansatz):
             elif var_params == "hf-state":
                 initial_var_params = init_qmf_state_from_hf_vec(self.n_spinorbitals,\
                     self.n_electrons, self.mapping, up_then_down=self.up_then_down, spin=self.spin)
-
-        if len(var_params) == self.n_var_params:
+        elif np.array(var_params).size == self.n_var_params:
             initial_var_params = np.array(var_params)
-        else:
+        elif np.array(var_params).size != self.n_var_params:
             err_msg = f"Expected {self.n_var_params} variational parameters but "\
                       f"received {len(var_params)}."
             raise ValueError(err_msg)

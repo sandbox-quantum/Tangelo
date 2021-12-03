@@ -174,10 +174,9 @@ class QCC(Ansatz):
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
             elif var_params == "qcc_guess":
                 initial_var_params = self.qcc_guess * np.ones((self.n_var_params,), dtype=float)
-
-        if len(var_params) == self.n_var_params:
+        elif np.array(var_params).size == self.n_var_params:
             initial_var_params = np.array(var_params)
-        else:
+        elif np.array(var_params).size != self.n_var_params:
             err_msg = f"Expected {self.n_var_params} variational parameters but "\
                       f"received {len(var_params)}."
             raise ValueError(err_msg)

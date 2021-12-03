@@ -80,10 +80,9 @@ class RUCC(Ansatz):
                 initial_var_params = np.random.random((self.n_var_params,))
             elif var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-
-        if len(var_params) == self.n_var_params:
+        elif np.array(var_params).size == self.n_var_params:
             initial_var_params = np.array(var_params)
-        else:
+        elif np.array(var_params).size != self.n_var_params:
             err_msg = f"Expected {self.n_var_params} variational parameters but "\
                       f"received {len(var_params)}."
             raise ValueError(err_msg)
