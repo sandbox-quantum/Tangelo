@@ -35,7 +35,7 @@ class QMFTest(unittest.TestCase):
 
         qmf_ansatz = QMF(mol_H2_sto3g)
 
-        eight_zeros = np.zeros((8,))
+        eight_zeros = np.zeros((8,), dtype=float)
 
         qmf_ansatz.set_var_params("zeros")
         np.testing.assert_array_almost_equal(qmf_ansatz.var_params, eight_zeros, decimal=6)

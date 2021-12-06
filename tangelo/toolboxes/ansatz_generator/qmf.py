@@ -63,9 +63,9 @@ class QMF(Ansatz):
             procedure and mean-field Hamiltonian penalization. The keys are "init_params",
             "N", "S^2", or "Sz" (str). The value of "init_params" must be in
             supported_initial_var_params (str), which initializes {Omega} according to the
-            option definition in set_var_params. The value of "N", "S^2", or "Sz" is (tuple
-            or None). If a tuple, its elements are the penalty term coefficient (float) and
-            the target value of a penalty operator (int), "key": (mu, target). If "N", "S^2",
+            option definitions in set_var_params. The value of "N", "S^2", or "Sz" is (tuple
+            or None). If a tuple, its elements are the penalty term coefficient, mu, (float)
+            and target value of a penalty operator (int), "key": (mu, target). If "N", "S^2",
             or "Sz" is None, a penalty term is added with default mu and target values:
             mu = 1.5 and target is derived from molecule as <N> = n_electrons,
             <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z, where spin_z = spin // 2. Key,
@@ -124,8 +124,8 @@ class QMF(Ansatz):
                 else:
                     if self.var_params_default != "hf-state":
                         warn_msg = "It is recommended to penalize the mean-field Hamiltonian with "\
-                                   "one or more penalty terms is recommended when QMF params are "\
-                                   "not initialized using a reference HF state."
+                                   "one or more penalty terms when the QMF parameters are not "\
+                                   "initialized using a reference Hartree-Fock state."
                         warnings.warn(warn_msg, RuntimeWarning)
             else:
                 err_msg = f"Unrecognized value for 'init_params' key in {self.init_qmf} "\
@@ -176,7 +176,7 @@ class QMF(Ansatz):
             initial_var_params = np.array(var_params)
         elif np.array(var_params).size != self.n_var_params:
             err_msg = f"Expected {self.n_var_params} variational parameters but "\
-                      f"received {len(var_params)}."
+                      f"received {np.array(var_params).size}."
             raise ValueError(err_msg)
 
         self.var_params = initial_var_params

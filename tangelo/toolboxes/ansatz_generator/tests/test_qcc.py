@@ -59,7 +59,7 @@ class QCCTest(unittest.TestCase):
 
         qcc_ansatz = QCC(mol_H2_sto3g)
 
-        self.assertRaises(ValueError, qcc_ansatz.set_var_params, np.array([1., 1.]))
+        self.assertRaises(ValueError, qcc_ansatz.set_var_params, np.array([1.] * 2))
 
     def test_qcc_h2(self):
         """ Verify closed-shell functionality when using the QCC class separately for H2 """

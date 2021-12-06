@@ -114,7 +114,7 @@ class HEA(Ansatz):
             initial_var_params = np.array(var_params)
         elif np.array(var_params).size != self.n_var_params:
             err_msg = f"Expected {self.n_var_params} variational parameters but "\
-                      f"received {len(var_params)}."
+                      f"received {np.array(var_params).size}."
             raise ValueError(err_msg)
 
         self.var_params = initial_var_params

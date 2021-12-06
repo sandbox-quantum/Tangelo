@@ -20,7 +20,7 @@ takes the form of a variational product state built directly from a set of
 parameterized exponentiated qubit operators. A qubit operator is selected for
 the ansatz based on an energy gradient criterion that indicates its potential
 contribution to variational lowering of the QCC energy. For chemical applications,
-the quantum mean field ansatz is used in conjunction with this ansatz to
+the quantum mean-field ansatz is used in conjunction with this ansatz to
 describe an electronic wave function on a quantum computer. For more information
 about this ansatz and its variations, see references below.
 
@@ -50,8 +50,8 @@ from ._qubit_cc import construct_dis
 class QCC(Ansatz):
     """This class implements the QCC ansatz. Closed-shell and restricted open-shell QCC are
     supported. While the form of the QCC ansatz is the same for either variation, the underlying
-    fermionic mean field state is treated differently depending on the spin. Closed-shell
-    or restricted open-shell QCC implies that spin = 0 or spin != 0 and the fermionic mean field
+    fermionic mean-field state is treated differently depending on the spin. Closed-shell
+    or restricted open-shell QCC implies that spin = 0 or spin != 0 and the fermionic mean-field
     state is obtained using a RHF or ROHF Hamiltonian, respectively.
 
     Args:
@@ -71,18 +71,18 @@ class QCC(Ansatz):
         qubit_op_list (list of QubitOperator): A list of generators to use when building the QCC
             operator instead of selecting from DIS groups.
         qubit_mf_ham (QubitOperator): Allows a qubit Hamiltonian to be passed to the QCC ansatz
-            class during initilization. This enables straightforward constrcution of the DIS
-            with a user-specified Hamiltonian (e.g. a penalized mean field qubit Hamiltonian from
-            a mean field simulation with the QMF ansatz class). If not None, then the fermionic
+            class during initilization. This enables straightforward construction of the DIS
+            with a user-specified Hamiltonian (e.g. a penalized mean-field qubit Hamiltonian from
+            a mean-field simulation with the QMF ansatz). If not None, then the fermionic
             Hamiltonian in molecule is ignored. Default, None.
         qmf_var_params (list or numpy array of float): The QMF parameter variational set {Omega}.
-            If None, then the values of {Omega} are determined using a reference state Hartree-Fock
-            occupation vector. Default, None.
-        qmf_circuit (Circuit): A state preparation circuit for a QMF state. Enables a QMF circuit to
-            be passed with parameters that can be treated variationally or not (e.g. a circuit
+            If None, {Omega} is determined using a reference state Hartree-Fock occupation vector.
+            Default, None.
+        qmf_circuit (Circuit): A QMF state preparation circuit. Enables a QMF circuit to be
+            passed with parameters that can be treated variationally or not (e.g. a circuit
             prepared by the QMF ansatz class). If None, then one is built using qmf_var_params
-            initialized from a HF reference state and the parameters are not treated variationally
-            (i.e. the QMF state is fixed in this case). Default, None.
+            and the parameters are not treated variationally (i.e. the QMF state is fixed).
+            Default, None.
         verbose (bool): Flag for QCC verbosity. Default, False.
     """
 
@@ -180,7 +180,7 @@ class QCC(Ansatz):
             initial_var_params = np.array(var_params)
         elif np.array(var_params).size != self.n_var_params:
             err_msg = f"Expected {self.n_var_params} variational parameters but "\
-                      f"received {len(var_params)}."
+                      f"received {np.array(var_params).size}."
             raise ValueError(err_msg)
 
         self.var_params = initial_var_params
@@ -266,7 +266,7 @@ class QCC(Ansatz):
             dis (list of list): The DIS of QCC generators. Each list in dis contains (1) a complete
                 set of generators for a DIS group built from Pauli X and an odd number of Y
                 operators that act on qubits indexed by all combinations of the flip indices and
-                (2) the value of |dEQCC/dtau|.
+                (2) the signed value of dEQCC/dtau.
             qubit_op_list (list of QubitOperator): A list of generators to use when building the QCC
                 operator instead of selecting from DIS groups.
             rebuild_dis (bool): Rebuild the DIS. This is useful if qubit_ham of qmf_var_params have
@@ -301,7 +301,7 @@ class QCC(Ansatz):
                 for i, qcc_gen in enumerate(self.qubit_op_list):
                     qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen
             else:
-                err_msg = f"Expected {self.n_var_params} generators in self.qubit_op_list but "\
+                err_msg = f"Expected {self.n_var_params} generators in {self.qubit_op_list} but "\
                           f"received {len(self.qubit_op_list)}.\n"
                 raise ValueError(err_msg)
         return qcc_qubit_op

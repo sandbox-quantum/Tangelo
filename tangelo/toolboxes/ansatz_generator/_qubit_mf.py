@@ -44,19 +44,19 @@ def get_op_expval(qubit_op, qmf_var_params):
 
     Args:
         qubit_op (QubitOperator): A qubit operator to compute the expectation value of.
-        qmf_var_params (numpy array of float): The QMF variational parameter set {Omega}.
+        qmf_var_params (numpy array of float): The QMF variational parameter set.
 
     Returns:
-        complex: sum of expectation values for all terms in qubit_op.
+        complex: expectation value of all qubit operator terms.
     """
 
     n_qubits = qmf_var_params.size // 2
-    qubit_op_data = ((term_coef[0], (term_coef[1], qmf_var_params, n_qubits))\
-        for term_coef in qubit_op.terms.items())
-    return sum([calc_op_expval(qmf_data[0], *qmf_data[1]) for qmf_data in qubit_op_data])
+    qubit_op_gen = ((qop_items[0], (qop_items[1], qmf_var_params, n_qubits))\
+        for qop_items in qubit_op.terms.items())
+    return sum([calc_op_expval(qop_gen[0], *qop_gen[1]) for qop_gen in qubit_op_gen])
 
 
-def calc_op_expval(qubit_op_term, *qmf_data):
+def calc_op_expval(qop_term, *qop_qmf_data):
     """Analytically evaluate a qubit operator expectation value with a QMF wave function.
     The expectation values of Pauli operators X, Y, and Z are (Ref. 2)
     <QMF| X | QMF> = cos(phi) * sin(theta)
@@ -64,30 +64,28 @@ def calc_op_expval(qubit_op_term, *qmf_data):
     <QMF| Z | QMF> = cos(theta)
 
     Args:
-        calc_op_expval (tuple of tuple): A QubitOperator term specifying the indices and Pauli
-           operators of the qubit operator term.
-        qmf_data (tuple): Arguments needed to evaluate the expectation value of a qubit
-            operator term: coefficient of the term (float), the QMF variational parameter set
-            (numpy array of float), and number of qubits (int).
+        qop_term (tuple of tuple): The Pauli operators and indices of a QubitOperator term.
+        qop_qmf_data (tuple): The coefficient of a QubitOperator term, QMF variational parameter
+            set (numpy array of float), and number of qubits (int).
 
     Returns:
         complex: expectation value of a qubit operator term.
     """
 
-    qubit_op_coef, qmf_params, n_qubits = qmf_data
-    for idx, pauli in qubit_op_term:
-        theta, phi = qmf_params[idx], qmf_params[idx + n_qubits]
+    coef, qmf_var_params, n_qubits = qop_qmf_data
+    for idx, pauli in qop_term:
+        theta, phi = qmf_var_params[idx], qmf_var_params[idx + n_qubits]
         if pauli == "X":
-            qubit_op_coef *= np.cos(phi) * np.sin(theta)
+            coef *= np.cos(phi) * np.sin(theta)
         elif pauli == "Y":
-            qubit_op_coef *= np.sin(phi) * np.sin(theta)
+            coef *= np.sin(phi) * np.sin(theta)
         elif pauli == "Z":
-            qubit_op_coef *= np.cos(theta)
-    return qubit_op_coef
+            coef *= np.cos(theta)
+    return coef
 
 
 def init_qmf_state_from_hf_vec(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=0):
-    """Function to initialize the QMF variational parameter set {Omega} from a Hartree-Fock state
+    """Function to initialize the QMF variational parameter set from a Hartree-Fock state
     occupation vector. The theta Bloch angles are set to 0. or np.pi if the molecular orbital is
     unoccupied or occupied, respectively. The phi Bloch angles are set to 0.
 
@@ -100,7 +98,7 @@ def init_qmf_state_from_hf_vec(n_spinorbitals, n_electrons, mapping, up_then_dow
         spin (int): 2*S = n_alpha - n_beta.
 
     Returns:
-        numpy array of float: QMF variational parameter set {Omega}.
+        numpy array of float: QMF variational parameter set.
     """
 
     # get thetas from HF vec and arrange Bloch angles so all thetas are first then phis
@@ -114,7 +112,7 @@ def purify_qmf_state(qmf_var_params, verbose=False):
     parameters to the nearest z-collinear computational basis state.
 
     Args:
-        qmf_var_params (numpy array of float): QMF variational parameter set {Omega}.
+        qmf_var_params (numpy array of float): QMF variational parameter set.
         verbose (bool): Flag for QMF verbosity.
 
     Returns:
@@ -122,18 +120,14 @@ def purify_qmf_state(qmf_var_params, verbose=False):
             state to the current QMF state.
     """
 
-    if verbose:
-        print("Purifying the QMF wave function parameters.\n")
-
     pure_var_params, n_qubits = qmf_var_params.tolist(), qmf_var_params.size // 2
-    # only need to adjust the theta Bloch angles
+    # Adjust the theta Bloch angles
     for i, theta in enumerate(qmf_var_params[:n_qubits]):
         c_0, c_1 = np.cos(0.5 * theta), np.sin(0.5 * theta)
         if abs(c_0) >= abs(c_1):
             pure_var_params[i] = 0.
         elif abs(c_0) < abs(c_1):
             pure_var_params[i] = np.pi
-
         if verbose:
             print_msg = f"Purified QMF_{i} Bloch angles: (theta, phi) = ({pure_var_params[i]},"\
                         f" {pure_var_params[i + n_qubits]})\n"
@@ -147,7 +141,7 @@ def get_qmf_circuit(qmf_var_params, variational=True):
     and the second n_qubit elements in {Omega} are parameters for RZ gates.
 
     Args:
-        qmf_var_params (numpy array of float): The QMF variational parameter set {Omega}.
+        qmf_var_params (numpy array of float): The QMF variational parameter set.
         variational (bool): Flag to treat {Omega} variationally or not.
 
     Returns:
