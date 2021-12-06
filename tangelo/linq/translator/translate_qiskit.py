@@ -36,12 +36,24 @@ def get_qiskit_gates():
     GATE_QISKIT["X"] = qiskit.QuantumCircuit.x
     GATE_QISKIT["Y"] = qiskit.QuantumCircuit.y
     GATE_QISKIT["Z"] = qiskit.QuantumCircuit.z
+    GATE_QISKIT["CH"] = qiskit.QuantumCircuit.ch
+    GATE_QISKIT["CX"] = qiskit.QuantumCircuit.cx
+    GATE_QISKIT["CY"] = qiskit.QuantumCircuit.cy
+    GATE_QISKIT["CZ"] = qiskit.QuantumCircuit.cz
     GATE_QISKIT["S"] = qiskit.QuantumCircuit.s
     GATE_QISKIT["T"] = qiskit.QuantumCircuit.t
     GATE_QISKIT["RX"] = qiskit.QuantumCircuit.rx
     GATE_QISKIT["RY"] = qiskit.QuantumCircuit.ry
     GATE_QISKIT["RZ"] = qiskit.QuantumCircuit.rz
+    GATE_QISKIT["CRX"] = qiskit.QuantumCircuit.crx
+    GATE_QISKIT["CRY"] = qiskit.QuantumCircuit.cry
+    GATE_QISKIT["CRZ"] = qiskit.QuantumCircuit.crz
     GATE_QISKIT["CNOT"] = qiskit.QuantumCircuit.cx
+    GATE_QISKIT["SWAP"] = qiskit.QuantumCircuit.swap
+    GATE_QISKIT["XX"] = qiskit.QuantumCircuit.rxx
+    GATE_QISKIT["CSWAP"] = qiskit.QuantumCircuit.cswap
+    GATE_QISKIT["PHASE"] = qiskit.QuantumCircuit.p
+    GATE_QISKIT["CPHASE"] = qiskit.QuantumCircuit.cp
     GATE_QISKIT["MEASURE"] = qiskit.QuantumCircuit.measure
     return GATE_QISKIT
 
@@ -64,14 +76,25 @@ def translate_qiskit(source_circuit):
 
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
+        if gate.control is not None:
+            if len(gate.control) > 1:
+                raise ValueError('Multi-controlled gates not supported with qiskit. Gate {gate.name} with controls {gate.control} is not allowed')
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
-            (GATE_QISKIT[gate.name])(target_circuit, gate.target)
-        elif gate.name in {"RX", "RY", "RZ"}:
-            (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.target)
-        elif gate.name in {"CNOT"}:
-            (GATE_QISKIT[gate.name])(target_circuit, gate.control, gate.target)
+            (GATE_QISKIT[gate.name])(target_circuit, gate.target[0])
+        elif gate.name in {"RX", "RY", "RZ", "PHASE"}:
+            (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.target[0])
+        elif gate.name in {"CRX", "CRY", "CRZ", "CPHASE"}:
+            (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.control[0], gate.target[0])
+        elif gate.name in {"CNOT", "CH", "CX", "CY", "CZ"}:
+            (GATE_QISKIT[gate.name])(target_circuit, gate.control[0], gate.target[0])
+        elif gate.name in {"SWAP"}:
+            (GATE_QISKIT[gate.name])(target_circuit, gate.target[0], gate.target[1])
+        elif gate.name in {"CSWAP"}:
+            (GATE_QISKIT[gate.name])(target_circuit, gate.control[0], gate.target[0], gate.target[1])
+        elif gate.name in {"XX"}:
+            (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.target[0], gate.target[1])
         elif gate.name in {"MEASURE"}:
-            (GATE_QISKIT[gate.name])(target_circuit, gate.target, gate.target)
+            (GATE_QISKIT[gate.name])(target_circuit, gate.target[0], gate.target[0])
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qiskit")
     return target_circuit

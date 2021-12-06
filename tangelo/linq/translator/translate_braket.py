@@ -36,12 +36,21 @@ def get_braket_gates():
     GATE_BRAKET["X"] = BraketCircuit.x
     GATE_BRAKET["Y"] = BraketCircuit.y
     GATE_BRAKET["Z"] = BraketCircuit.z
+    GATE_BRAKET["CX"] = BraketCircuit.cnot
+    GATE_BRAKET["CY"] = BraketCircuit.cy
+    GATE_BRAKET["CZ"] = BraketCircuit.cz
     GATE_BRAKET["S"] = BraketCircuit.s
     GATE_BRAKET["T"] = BraketCircuit.t
     GATE_BRAKET["RX"] = BraketCircuit.rx
     GATE_BRAKET["RY"] = BraketCircuit.ry
     GATE_BRAKET["RZ"] = BraketCircuit.rz
+    GATE_BRAKET["XX"] = BraketCircuit.xx
+    GATE_BRAKET["CRZ"] = [BraketCircuit.cphaseshift, BraketCircuit.cphaseshift10]
+    GATE_BRAKET["PHASE"] = BraketCircuit.phaseshift
+    GATE_BRAKET["CPHASE"] = BraketCircuit.cphaseshift
     GATE_BRAKET["CNOT"] = BraketCircuit.cnot
+    GATE_BRAKET["SWAP"] = BraketCircuit.swap
+    GATE_BRAKET["CSWAP"] = BraketCircuit.cswap
     # GATE_BRAKET["MEASURE"] = ? (mid-circuit measurement currently unsupported?)
 
     return GATE_BRAKET
@@ -65,12 +74,26 @@ def translate_braket(source_circuit):
 
     # Map the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
+        if gate.control is not None:
+            if len(gate.control) > 1:
+                raise ValueError('Multi-controlled gates not supported with braket: Gate {gate.name} with controls {gate.control} is invalid')
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
-            (GATE_BRAKET[gate.name])(target_circuit, gate.target)
-        elif gate.name in {"RX", "RY", "RZ"}:
-            (GATE_BRAKET[gate.name])(target_circuit, gate.target, gate.parameter)
-        elif gate.name in {"CNOT"}:
-            (GATE_BRAKET[gate.name])(target_circuit, control=gate.control, target=gate.target)
+            (GATE_BRAKET[gate.name])(target_circuit, gate.target[0])
+        elif gate.name in {"RX", "RY", "RZ", "PHASE"}:
+            (GATE_BRAKET[gate.name])(target_circuit, gate.target[0], gate.parameter)
+        elif gate.name in {"CNOT", "CX", "CY", "CZ"}:
+            (GATE_BRAKET[gate.name])(target_circuit, control=gate.control[0], target=gate.target[0])
+        elif gate.name in {"XX"}:
+            (GATE_BRAKET[gate.name])(target_circuit, gate.target[0], gate.target[1], gate.parameter)
+        elif gate.name in {"CRZ"}:
+            (GATE_BRAKET[gate.name][0])(target_circuit, gate.control[0], gate.target[0], gate.parameter/2.)
+            (GATE_BRAKET[gate.name][1])(target_circuit, gate.control[0], gate.target[0], -gate.parameter/2.)
+        elif gate.name in {"SWAP"}:
+            (GATE_BRAKET[gate.name])(target_circuit, gate.target[0], gate.target[1])
+        elif gate.name in {"CSWAP"}:
+            (GATE_BRAKET[gate.name])(target_circuit, gate.control[0], gate.target[0], gate.target[1])
+        elif gate.name in {"CPHASE"}:
+            (GATE_BRAKET[gate.name])(target_circuit, gate.control[0], gate.target[0], gate.parameter)
         # elif gate.name in {"MEASURE"}:
         # implement if mid-circuit measurement available through Braket later on
         else:

@@ -24,6 +24,7 @@ import numpy as np
 from openfermion.ops import QubitOperator
 
 from tangelo.linq import Gate, Circuit, translator, Simulator
+from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.linq.helpers import string_ham_to_of
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
 
@@ -40,6 +41,18 @@ circuit2 = Circuit(mygates)
 circuit3 = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.)])
 # Circuit for the parametrized rotation gate Rz. Some convention about the sign of theta or a phase may appear
 circuit4 = Circuit([Gate("RZ", 0, parameter=2.)], n_qubits=2)
+# Circuit that tests all gates that are supported on all simulators
+init_gates = [Gate('H', 0), Gate('X', 1), Gate('H', 2)]
+one_qubit_gate_names = ["H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"]
+one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else Gate(name, target=0, parameter=0.5)
+                       for name in one_qubit_gate_names]
+one_qubit_gates += [Gate(name, target=1) if name not in PARAMETERIZED_GATES else Gate(name, target=1, parameter=0.2)
+                        for name in one_qubit_gate_names]
+two_qubit_gate_names = ["CNOT", "CH", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE"]
+two_qubit_gates = [Gate(name, target=1, control=0) if name not in PARAMETERIZED_GATES
+                       else Gate(name, target=1, control=0, parameter=0.5) for name in two_qubit_gate_names]
+swap_gates = [Gate('SWAP', target=[1, 0]), Gate('CSWAP', target=[1, 2], control=0)]
+circuit5 = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates)
 # Circuit preparing a mixed-state (e.g containing a MEASURE instruction in the middle of the circuit)
 circuit_mixed = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
 
@@ -49,7 +62,7 @@ op2 = 1.0 * QubitOperator('X1 Y0')  # X and Y
 op3 = 1.0 * QubitOperator('Y0') - 2.0 * QubitOperator('Z0 X1')  # Linear combination
 op4 = 1.0 * QubitOperator('Z0 Y1 X2')  # Operates on more qubits than circuit size
 
-circuits = [circuit1, circuit2, circuit3, circuit4]
+circuits = [circuit1, circuit2, circuit3, circuit4, circuit5]
 ops = [op1, op2, op3]
 
 # Reference results
@@ -58,7 +71,11 @@ ref_freqs.append({'00': 0.5, '10': 0.5})
 ref_freqs.append({'01': 0.5, '10': 0.5})
 ref_freqs.append({'00': 0.2248275934887, '10': 0.5453235594453, '01': 0.06709898823771, '11': 0.16274985882821})
 ref_freqs.append({'00': 1.0})
-reference_exp_values = np.array([[0., 0., 0.], [0., -1., 0.], [-0.41614684, 0.7651474, -1.6096484], [1., 0., 0.]])
+ref_freqs.append({'000': 0.15972060437359714, '100': 0.2828171838599203, '010': 0.03984122195648572,
+                  '110': 0.28281718385992016, '001': 0.15972060437359714, '101': 0.017620989809996816,
+                  '011': 0.039841221956485706, '111': 0.01762098980999681})
+reference_exp_values = np.array([[0., 0., 0.], [0., -1., 0.], [-0.41614684, 0.7651474, -1.6096484], [1., 0., 0.],
+                                 [-0.20175269, -0.0600213, 1.2972912]])
 reference_mixed = {'01': 0.163, '11': 0.066, '10': 0.225, '00': 0.545}  # With Qiskit noiseless, 1M shots
 
 
