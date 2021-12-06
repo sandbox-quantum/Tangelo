@@ -18,7 +18,7 @@ facilitate the assembly of ansatz quantum circuits.
 """
 
 import numpy as np
-from tangelo.backendbuddy import Circuit, Gate
+from tangelo.linq import Circuit, Gate
 
 
 def pauli_op_to_gate(index, op, inverse=False):

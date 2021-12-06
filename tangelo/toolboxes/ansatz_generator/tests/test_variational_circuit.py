@@ -15,7 +15,7 @@
 import unittest
 import numpy as np
 
-from tangelo.backendbuddy import Gate, Circuit
+from tangelo.linq import Gate, Circuit
 from tangelo.toolboxes.ansatz_generator.variational_circuit import VariationalCircuitAnsatz
 
 

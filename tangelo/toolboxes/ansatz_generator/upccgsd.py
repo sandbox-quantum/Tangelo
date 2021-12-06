@@ -26,7 +26,7 @@ Refs:
 
 import numpy as np
 
-from tangelo.backendbuddy import Circuit
+from tangelo.linq import Circuit
 
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit

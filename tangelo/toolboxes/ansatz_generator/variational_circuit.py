@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" This module defines an ansatz class to wrap up a custom tangelo.backendbuddy
+""" This module defines an ansatz class to wrap up a custom tangelo.linq
     circuit.
 """
 

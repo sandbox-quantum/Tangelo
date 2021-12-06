@@ -20,8 +20,8 @@ import unittest
 
 from openfermion.ops import QubitOperator
 
-from tangelo.backendbuddy import Gate, Circuit, Simulator, backend_info
-from tangelo.backendbuddy.noisy_simulation import NoiseModel, get_qiskit_noise_dict
+from tangelo.linq import Gate, Circuit, Simulator, backend_info
+from tangelo.linq.noisy_simulation import NoiseModel, get_qiskit_noise_dict
 from tangelo.helpers.utils import default_simulator, installed_backends
 
 # Noisy simulation: circuits, noise models, references

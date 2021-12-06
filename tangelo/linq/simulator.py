@@ -39,9 +39,9 @@ from bitarray import bitarray
 from openfermion.ops import QubitOperator
 
 from tangelo.helpers.utils import default_simulator
-from tangelo.backendbuddy import Gate, Circuit
-from tangelo.backendbuddy.helpers.circuits.measurement_basis import measurement_basis_gates
-import tangelo.backendbuddy.translator as translator
+from tangelo.linq import Gate, Circuit
+from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
+import tangelo.linq.translator as translator
 
 
 # Data-structure showing what functionalities are supported by the backend, in this package
@@ -184,7 +184,7 @@ class Simulator:
 
             # Drawing individual shots with the qasm simulator, for noisy simulation or simulating mixed states
             if self._noise_model or source_circuit.is_mixed_state:
-                from tangelo.backendbuddy.noisy_simulation.noise_models import get_qiskit_noise_model
+                from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
 
                 meas_range = range(source_circuit.width)
                 translated_circuit.measure(meas_range, meas_range)

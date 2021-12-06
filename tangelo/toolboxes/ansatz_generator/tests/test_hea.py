@@ -19,7 +19,7 @@ from tangelo.molecule_library import mol_H2_sto3g, mol_H4_doublecation_minao
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.hea import HEA
 
-from tangelo.backendbuddy import Simulator
+from tangelo.linq import Simulator
 
 # Initiate simulator
 sim = Simulator()

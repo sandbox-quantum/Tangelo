@@ -20,7 +20,7 @@ translate into a Circuit.
 import numpy as np
 import warnings
 
-from tangelo.backendbuddy import Gate, Circuit
+from tangelo.linq import Gate, Circuit
 
 from openfermion.transforms import bravyi_kitaev_code
 
@@ -112,7 +112,7 @@ def vector_to_circuit(vector):
         vector (numpy array of int): occupation vector.
 
     Returns:
-        Circuit: instance of tangelo.backendbuddy Circuit class.
+        Circuit: instance of tangelo.linq Circuit class.
     """
 
     n_qubits = len(vector)
@@ -141,7 +141,7 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
         spin (int): 2*S = n_alpha - n_beta.
 
     Returns:
-        Circuit: instance of tangelo.backendbuddy Circuit class.
+        Circuit: instance of tangelo.linq Circuit class.
     """
     vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down, spin=spin)
     circuit = vector_to_circuit(vector)

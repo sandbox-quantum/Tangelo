@@ -23,7 +23,7 @@ necessary to account for:
 """
 
 import re
-from tangelo.backendbuddy import Gate, Circuit
+from tangelo.linq import Gate, Circuit
 
 
 def get_projectq_gates():

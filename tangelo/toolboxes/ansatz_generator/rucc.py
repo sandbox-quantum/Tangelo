@@ -28,7 +28,7 @@ Reference for those circuits.
 
 import numpy as np
 
-from tangelo.backendbuddy import Circuit, Gate
+from tangelo.linq import Circuit, Gate
 
 from .ansatz import Ansatz
 

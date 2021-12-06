@@ -20,7 +20,7 @@
 import unittest
 import copy
 from collections import Counter
-from tangelo.backendbuddy import Gate, Circuit
+from tangelo.linq import Gate, Circuit
 
 # Create several abstract circuits with different features
 mygates = list()

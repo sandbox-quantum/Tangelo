@@ -18,7 +18,7 @@ import numpy as np
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_doublecation_minao, mol_H4_cation_sto3g
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.upccgsd import UpCCGSD
-from tangelo.backendbuddy import Simulator
+from tangelo.linq import Simulator
 
 
 class UpCCGSDTest(unittest.TestCase):

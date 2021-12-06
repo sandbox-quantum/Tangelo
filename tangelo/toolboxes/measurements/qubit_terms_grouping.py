@@ -21,7 +21,7 @@ terms present in the Pauli operator.
 
 import warnings
 from openfermion.measurements import group_into_tensor_product_basis_sets
-from tangelo.backendbuddy import Simulator
+from tangelo.linq import Simulator
 
 
 def group_qwc(qb_ham, seed=None):

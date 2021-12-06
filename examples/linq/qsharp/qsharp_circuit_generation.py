@@ -9,9 +9,9 @@ Below, an example with a simple "base" circuit of two CNOTS and a parameterized 
 Q# code needs to be written to file, as it needs to be compiled before execution, regardless of the compute backend.
 """
 
-from tangelo.backendbuddy import Gate, Circuit
-from tangelo.backendbuddy.translator import translate_qsharp
-from tangelo.backendbuddy.helper_circuits import measurement_basis_gates, pauli_string_to_of
+from tangelo.linq import Gate, Circuit
+from tangelo.linq.translator import translate_qsharp
+from tangelo.linq.helper_circuits import measurement_basis_gates, pauli_string_to_of
 
 
 def theta_sweep(theta, m_basis):

@@ -15,7 +15,7 @@
 import unittest
 import numpy as np
 
-from tangelo.backendbuddy import Simulator
+from tangelo.linq import Simulator
 from tangelo.algorithms import BuiltInAnsatze, VQESolver
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_NaH_sto3g
 from tangelo.toolboxes.ansatz_generator.uccsd import UCCSD

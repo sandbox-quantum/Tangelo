@@ -20,7 +20,7 @@ Only works for simulators supporting noisy simulation.
 """
 
 
-from tangelo.backendbuddy import ONE_QUBIT_GATES
+from tangelo.linq import ONE_QUBIT_GATES
 
 SUPPORTED_NOISE_MODELS = {'depol', 'pauli'}
 

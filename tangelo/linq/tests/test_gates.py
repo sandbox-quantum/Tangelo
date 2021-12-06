@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-from tangelo.backendbuddy import Gate
+from tangelo.linq import Gate
 
 
 class TestGates(unittest.TestCase):
