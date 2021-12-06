@@ -95,10 +95,9 @@ class QMF(Ansatz):
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
 
-        # Get the fermionic Hamiltonian
+        # Get the fermionic Hamiltonian and check for penalty terms
         self.fermi_ham = self.molecule.fermionic_hamiltonian
 
-        # Check if the mean-field Hamiltonian will be penalized
         if isinstance(self.init_qmf, dict):
             if "init_params" not in self.init_qmf.keys():
                 err_msg = f"Missing key 'init_params' in {self.init_qmf}. "\
@@ -124,7 +123,7 @@ class QMF(Ansatz):
                 else:
                     if self.var_params_default != "hf-state":
                         warn_msg = "It is recommended to penalize the mean-field Hamiltonian with "\
-                                   "one or more penalty terms when the QMF parameters are not "\
+                                   "one or more penalty terms when QMF parameters are not "\
                                    "initialized using a reference Hartree-Fock state."
                         warnings.warn(warn_msg, RuntimeWarning)
             else:
@@ -178,7 +177,6 @@ class QMF(Ansatz):
             err_msg = f"Expected {self.n_var_params} variational parameters but "\
                       f"received {np.array(var_params).size}."
             raise ValueError(err_msg)
-
         self.var_params = initial_var_params
         return initial_var_params
 

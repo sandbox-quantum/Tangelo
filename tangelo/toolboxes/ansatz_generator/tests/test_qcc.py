@@ -17,7 +17,7 @@
 import unittest
 import numpy as np
 
-from tangelo.backendbuddy import Simulator
+from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.qmf import QMF
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.toolboxes.operators.operators import QubitOperator

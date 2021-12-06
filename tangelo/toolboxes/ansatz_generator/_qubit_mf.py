@@ -31,7 +31,7 @@ Refs:
 
 import numpy as np
 
-from tangelo.backendbuddy import Circuit, Gate
+from tangelo.linq import Circuit, Gate
 from tangelo.toolboxes.operators.operators import FermionOperator
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
 from .penalty_terms import combined_penalty, number_operator_penalty, spin2_operator_penalty,\
@@ -145,7 +145,7 @@ def get_qmf_circuit(qmf_var_params, variational=True):
         variational (bool): Flag to treat {Omega} variationally or not.
 
     Returns:
-        Circuit: instance of tangelo.backendbuddy Circuit class.
+        Circuit: instance of tangelo.linq Circuit class.
     """
 
     n_qubits, gates = qmf_var_params.size // 2, []

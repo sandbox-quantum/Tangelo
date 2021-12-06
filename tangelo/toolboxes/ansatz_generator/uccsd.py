@@ -124,7 +124,6 @@ class UCCSD(Ansatz):
             err_msg = f"Expected {self.n_var_params} variational parameters but "\
                       f"received {np.array(var_params).size}."
             raise ValueError(err_msg)
-
         self.var_params = initial_var_params
         return initial_var_params
 

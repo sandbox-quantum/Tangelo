@@ -39,7 +39,7 @@ import numpy as np
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from tangelo.backendbuddy import Circuit
+from tangelo.linq import Circuit
 
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit
@@ -182,7 +182,6 @@ class QCC(Ansatz):
             err_msg = f"Expected {self.n_var_params} variational parameters but "\
                       f"received {np.array(var_params).size}."
             raise ValueError(err_msg)
-
         self.var_params = initial_var_params
         return initial_var_params
 

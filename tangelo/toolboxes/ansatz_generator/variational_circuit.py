@@ -66,9 +66,7 @@ class VariationalCircuitAnsatz(Ansatz):
             err_msg = f"Expected {self.n_var_params} variational parameters but "\
                       f"received {np.array(var_params).size}."
             raise ValueError(err_msg)
-
         self.var_params = var_params
-
         return var_params
 
     def update_var_params(self, var_params):

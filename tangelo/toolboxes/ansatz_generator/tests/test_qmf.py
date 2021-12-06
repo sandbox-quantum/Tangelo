@@ -17,7 +17,7 @@
 import unittest
 import numpy as np
 
-from tangelo.backendbuddy import Simulator
+from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.qmf import QMF
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g
 
