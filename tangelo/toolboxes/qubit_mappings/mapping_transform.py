@@ -20,14 +20,15 @@
 """
 
 
+import warnings
 import numpy as np
 from collections.abc import Iterable
 from openfermion import FermionOperator as ofFermionOperator
 
 from tangelo.toolboxes.operators import FermionOperator, QubitOperator
-from tangelo.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev
+from tangelo.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev, jkmn
 
-available_mappings = {"JW", "BK", "SCBK"}
+available_mappings = {"JW", "BK", "SCBK", "JKMN"}
 
 
 def get_qubit_number(mapping, n_spinorbitals):
@@ -105,7 +106,10 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
     if up_then_down:
         if n_spinorbitals is None:
             raise ValueError("The number of spin-orbitals is required to execute basis re-ordering.")
-        fermion_operator = make_up_then_down(fermion_operator, n_spinorbitals=n_spinorbitals)
+        if mapping.upper() == "JKMN":
+            warnings.warn("Tangelo implementation of JKMN only supports up_then_down=False")
+        else:
+            fermion_operator = make_up_then_down(fermion_operator, n_spinorbitals=n_spinorbitals)
 
     if mapping.upper() == "JW":
         qubit_operator = jordan_wigner(fermion_operator)
@@ -124,6 +128,8 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
                                                            n_electrons=n_electrons,
                                                            up_then_down=up_then_down,
                                                            spin=spin)
+    elif mapping.upper() == "JKMN":
+        qubit_operator = jkmn(fermion_operator, n_qubits=n_spinorbitals)
 
     converted_qubit_op = QubitOperator()
     converted_qubit_op.terms = qubit_operator.terms.copy()

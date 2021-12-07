@@ -21,10 +21,11 @@ import numpy as np
 import warnings
 
 from tangelo.linq import Gate, Circuit
+from tangelo.toolboxes.qubit_mappings.jkmn import jkmn_prep_circuit
 
 from openfermion.transforms import bravyi_kitaev_code
 
-available_mappings = {"JW", "BK", "SCBK"}
+available_mappings = {"JW", "BK", "SCBK", "JKMN"}
 
 
 def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=None):
@@ -59,7 +60,10 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
     else:
         vector[:n_electrons] = 1
     if up_then_down:
-        vector = np.concatenate((vector[::2], vector[1::2]))
+        if mapping.upper() == "JKMN":
+            warnings.warn("Tangelo implementation of JKMN only supports up_then_down=False")
+        else:
+            vector = np.concatenate((vector[::2], vector[1::2]))
 
     if mapping.upper() == "JW":
         return vector
@@ -70,6 +74,8 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
             warnings.warn("Symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.", RuntimeWarning)
             vector = np.concatenate((vector[::2], vector[1::2]))
         return do_scbk_transform(vector, n_spinorbitals)
+    elif mapping.upper() == "JKMN":
+        return vector
 
 
 def do_bk_transform(vector):
@@ -144,5 +150,8 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
         Circuit: instance of tangelo.linq Circuit class.
     """
     vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down, spin=spin)
-    circuit = vector_to_circuit(vector)
+    if mapping.upper() == "JKMN":
+        return jkmn_prep_circuit(vector, n_spinorbitals)
+    else:
+        circuit = vector_to_circuit(vector)
     return circuit
