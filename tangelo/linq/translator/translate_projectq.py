@@ -62,11 +62,11 @@ def translate_projectq(source_circuit):
 
     for gate in source_circuit._gates:
         if gate.name in {"H", "X", "Y", "Z", "S", "T", "MEASURE"}:
-            projectq_circuit += f"{GATE_PROJECTQ[gate.name]} | Qureg[{gate.target}]\n"
+            projectq_circuit += f"{GATE_PROJECTQ[gate.name]} | Qureg[{gate.target[0]}]\n"
         elif gate.name in {"RX", "RY", "RZ"}:
-            projectq_circuit += f"{GATE_PROJECTQ[gate.name]}({gate.parameter}) | Qureg[{gate.target}]\n"
+            projectq_circuit += f"{GATE_PROJECTQ[gate.name]}({gate.parameter}) | Qureg[{gate.target[0]}]\n"
         elif gate.name in {"CNOT"}:
-            projectq_circuit += f"{GATE_PROJECTQ[gate.name]} | ( Qureg[{gate.control}], Qureg[{gate.target}] )\n"
+            projectq_circuit += f"{GATE_PROJECTQ[gate.name]} | ( Qureg[{gate.control[0]}], Qureg[{gate.target[0]}] )\n"
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend projectQ")
 

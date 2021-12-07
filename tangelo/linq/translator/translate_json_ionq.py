@@ -54,11 +54,11 @@ def translate_json_ionq(source_circuit):
     json_gates = []
     for gate in source_circuit._gates:
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
-            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target})
+            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0]})
         elif gate.name in {"RX", "RY", "RZ"}:
-            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target, 'rotation': gate.parameter})
+            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'rotation': gate.parameter})
         elif gate.name in {"CNOT"}:
-            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target, 'control': gate.control})
+            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'control': gate.control[0]})
         else:
             raise ValueError(f"Gate '{gate.name}' not supported with JSON IonQ translation")
 

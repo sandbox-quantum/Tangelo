@@ -17,8 +17,14 @@ gate operation, without tying it to a particular backend or an underlying
 mathematical operation.
 """
 
-ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ"}
-TWO_QUBIT_GATES = {"CNOT"}
+from typing import Union
+
+from numpy import integer, ndarray
+
+ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"}
+TWO_QUBIT_GATES = {"CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"}
+THREE_QUBIT_GATES = {"CSWAP"}
+PARAMETERIZED_GATES = {"RX", "RY", "RZ", "PHASE", "CRX", "CRY", "CRZ", "CPHASE", "XX"}
 
 
 class Gate(dict):
@@ -37,15 +43,43 @@ class Gate(dict):
             variational or not.
     """
 
-    # TODO: extend control to a list to support gates such as the Toffoli gate etc in the future
-    # TODO: extend target to a list to support gates such as U2, U3 etc in the future
-    def __init__(self, name: str, target: int, control: int=None, parameter="", is_variational: bool=False):
+    def __init__(self, name: str, target: Union[int, integer, list, ndarray],
+                 control: Union[int, integer, list, ndarray] = None,
+                 parameter="", is_variational: bool = False):
         """ This gate class is basically a dictionary with extra methods. """
 
-        if not (isinstance(target, int) and target >= 0):
-            raise ValueError("Qubit index must be a positive integer.")
-        if control and (not (isinstance(control, int) and control >= 0)):
-            raise ValueError("Qubit index must be a positive integer.")
+        def check_qubit_indices(qubit_list, label):
+            """Function to check if all given qubit indices are positive integers
+
+            Args:
+                qubit_list (list) :: List of values to check are positive integers
+                label (str) :: The label of the list, "control" or "target"
+
+            Raises:
+                ValueError :: If any of the values in the list are not non-negative integers.
+            """
+            errmsg = ""
+            for ind in qubit_list:
+                if (type(ind) != int) or (ind < 0):
+                    errmsg += f"\n {label} qubit index {ind} is not a non-negative integer"
+
+            if errmsg:
+                raise ValueError(f"Error: type or value of {label} qubit indices not as expected. See details below:"+errmsg)
+
+        target = (target.tolist() if isinstance(target, ndarray) else list(target)) if hasattr(target, "__iter__") else [target]
+
+        check_qubit_indices(target, "target")
+
+        if control is not None:
+            if name[0] != "C":
+                raise ValueError(f"Gate {name} was given control={control} but does not support controls. Try C{name}")
+            control = (control.tolist() if isinstance(control, ndarray) else list(control)) if hasattr(control, "__iter__") else [control]
+            check_qubit_indices(control, "control")
+
+        # Check for duplications in qubits
+        all_involved_qubits = target if control is None else target + control
+        if len(all_involved_qubits) != len(set(all_involved_qubits)):
+            raise ValueError(f"There are duplicate qubits in the target/control qubits")
 
         self.__dict__ = {"name": name, "target": target, "control": control,
                          "parameter": parameter, "is_variational": is_variational}

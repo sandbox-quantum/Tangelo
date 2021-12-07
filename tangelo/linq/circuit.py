@@ -122,11 +122,10 @@ class Circuit:
                                      f"Gate = {gate}")
 
         # Track qubit indices
-        self._qubit_indices.add(gate.target)
-        check_index_valid(gate.target)
-        if isinstance(gate.control, int):
-            self._qubit_indices.add(gate.control)
-            check_index_valid(gate.control)
+        all_involved_qubits = gate.target if gate.control is None else gate.target + gate.control
+        for q in all_involved_qubits:
+            check_index_valid(q)
+            self._qubit_indices.add(q)
 
         # Keep track of the total gate count
         self._gate_counts[gate.name] = self._gate_counts.get(gate.name, 0) + 1
