@@ -38,7 +38,7 @@ import numpy as np
 
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,\
-                                                                fermion_to_qubit_mapping
+                                                               fermion_to_qubit_mapping
 from tangelo.linq import Circuit
 from .ansatz import Ansatz
 from .ansatz_utils import pauliword_to_circuit
@@ -86,12 +86,11 @@ class QCC(Ansatz):
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, qubit_op_list=None,\
-                qmf_circuit=None, qmf_var_params=None, qubit_mf_ham=None, qcc_guess=1.e-1,\
-                qcc_deriv_thresh=1.e-3, max_qcc_gens=None, verbose=False):
+                 qmf_circuit=None, qmf_var_params=None, qubit_mf_ham=None, qcc_guess=1.e-1,\
+                 qcc_deriv_thresh=1.e-3, max_qcc_gens=None, verbose=False):
 
         self.molecule = molecule
         self.n_spinorbitals = self.molecule.n_active_sos
-
         if self.n_spinorbitals % 2 != 0:
             raise ValueError("The total number of spin-orbitals should be even.")
 
@@ -100,7 +99,6 @@ class QCC(Ansatz):
         self.mapping = mapping
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
         self.up_then_down = up_then_down
-
         if self.mapping.upper() == "JW" and not self.up_then_down:
             warnings.warn("The QCC ansatz requires spin-orbital ordering to be all spin-up "\
                           "first followed by all spin-down for the JW mapping.", RuntimeWarning)
@@ -127,7 +125,6 @@ class QCC(Ansatz):
                                                    self.mapping, self.up_then_down, self.spin)
         elif isinstance(self.qmf_var_params, list):
             self.qmf_var_params = np.array(self.qmf_var_params)
-
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError("The number of QMF variational parameters must be 2 * n_qubits.")
 
@@ -171,7 +168,7 @@ class QCC(Ansatz):
             var_params = var_params.lower()
             if var_params not in self.supported_initial_var_params:
                 raise ValueError(f"Supported keywords for initializing variational parameters: "\
-                                  f"{self.supported_initial_var_params}")
+                                 f"{self.supported_initial_var_params}")
             # Initialize the QCC wave function as |QCC> = |QMF>
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
@@ -182,7 +179,7 @@ class QCC(Ansatz):
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:
                 raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
-                                  f"received {initial_var_params.size}.")
+                                 f"received {initial_var_params.size}.")
         self.var_params = initial_var_params
         return initial_var_params
 
@@ -304,5 +301,5 @@ class QCC(Ansatz):
                     qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen
             else:
                 raise ValueError(f"Expected {self.n_var_params} generators in {self.qubit_op_list} but "\
-                                  f"received {len(self.qubit_op_list)}.\n")
+                                 f"received {len(self.qubit_op_list)}.\n")
         return qcc_qubit_op

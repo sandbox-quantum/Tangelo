@@ -63,37 +63,36 @@ class QMFTest(unittest.TestCase):
         """ Verify closed-shell QMF functionalities for H2: upper case initial parameters """
 
         qmf_ansatz = QMF(mol_H2_sto3g)
-        qmf_ansatz.set_var_params("HF-State")
+        qmf_ansatz.set_var_params("HF_State")
 
-        expected = [np.pi] * 2  + [0.] * 6
-        np.testing.assert_allclose(np.array(expected), qmf_ansatz.var_params, rtol=1e-10)
+        expected = np.array([np.pi] * 2  + [0.] * 6)
+        np.testing.assert_allclose(expected, qmf_ansatz.var_params, rtol=1e-10)
 
     @staticmethod
     def test_qmf_set_params_lower_hf_state_h2():
         """ Verify closed-shell QMF functionalities for H2: lower case initial parameters """
 
         qmf_ansatz = QMF(mol_H2_sto3g)
-        qmf_ansatz.set_var_params("hf-state")
+        qmf_ansatz.set_var_params("hf_state")
 
-        expected = [np.pi] * 2  + [0.] * 6
-        np.testing.assert_allclose(np.array(expected), qmf_ansatz.var_params, rtol=1e-10)
+        expected = np.array([np.pi] * 2  + [0.] * 6)
+        np.testing.assert_allclose(expected, qmf_ansatz.var_params, rtol=1e-10)
 
     @staticmethod
     def test_qmf_set_params_hf_state_h4():
-        """ Verify closed-shell QMF functionalities for H4: hf-state initial parameters """
+        """ Verify closed-shell QMF functionalities for H4: hf_state initial parameters """
 
         qmf_ansatz = QMF(mol_H4_sto3g)
-        qmf_ansatz.set_var_params("hf-state")
+        qmf_ansatz.set_var_params("hf_state")
 
-        expected = [np.pi] * 4 + [0.] * 12
-        np.testing.assert_allclose(np.array(expected), qmf_ansatz.var_params, rtol=1e-10)
+        expected = np.array([np.pi] * 4  + [0.] * 12)
+        np.testing.assert_allclose(expected, qmf_ansatz.var_params, rtol=1e-10)
 
     def test_qmf_closed_h2(self):
         """ Verify closed-shell QMF functionalities for H2 """
 
-        var_params = [np.pi] * 2  + [0.] * 6
-
-        # Build circuit
+        # Build ansatz and circuit
+        qmf_var_params = [np.pi] * 2  + [0.] * 6
         qmf_ansatz = QMF(mol_H2_sto3g)
         qmf_ansatz.build_circuit()
 
@@ -101,16 +100,15 @@ class QMFTest(unittest.TestCase):
         qubit_hamiltonian = qmf_ansatz.qubit_ham
 
         # Assert energy returned is as expected for given parameters
-        qmf_ansatz.update_var_params(var_params)
+        qmf_ansatz.update_var_params(qmf_var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, qmf_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.1166843870853400, delta=1e-6)
 
     def test_qmf_closed_h4(self):
         """ Verify closed-shell QMF functionalities for H4. """
 
-        var_params = [np.pi] * 4 + [0.] * 12
-
-        # Build circuit
+        # Build ansatz and circuit
+        qmf_var_params = [np.pi] * 4  + [0.] * 12
         qmf_ansatz = QMF(mol_H4_sto3g)
         qmf_ansatz.build_circuit()
 
@@ -118,16 +116,15 @@ class QMFTest(unittest.TestCase):
         qubit_hamiltonian = qmf_ansatz.qubit_ham
 
         # Assert energy returned is as expected for given parameters
-        qmf_ansatz.update_var_params(var_params)
+        qmf_ansatz.update_var_params(qmf_var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, qmf_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.7894832518559973, delta=1e-6)
 
     def test_qmf_open_h4_cation(self):
         """ Verify open-shell QMF functionalities for H4 + """
 
-        var_params = [np.pi] * 4 + [0.] * 12
-
-        # Build circuit
+        # Build ansatz and circuit
+        qmf_var_params = [np.pi] * 4 + [0.] * 12
         qmf_ansatz = QMF(mol_H4_cation_sto3g)
         qmf_ansatz.build_circuit()
 
@@ -136,7 +133,7 @@ class QMFTest(unittest.TestCase):
 
         # Assert energy returned is as expected for given parameters
         energy = sim.get_expectation_value(qubit_hamiltonian, qmf_ansatz.circuit)
-        qmf_ansatz.update_var_params(var_params)
+        qmf_ansatz.update_var_params(qmf_var_params)
         self.assertAlmostEqual(energy, -1.5859184313544759, delta=1e-6)
 
 

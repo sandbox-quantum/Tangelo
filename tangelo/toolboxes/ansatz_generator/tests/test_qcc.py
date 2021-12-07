@@ -86,13 +86,13 @@ class QCCTest(unittest.TestCase):
         # Build the QMF ansatz with optimized parameters
         qmf_var_params = [3.14159265e+00, -2.42743256e-08,  3.14159266e+00, -3.27162543e-08,
                           3.08514545e-09,  3.08514545e-09,  3.08514545e-09,  3.08514545e-09]
-        qmf_ansatz = QMF(mol_H2_sto3g, up_then_down=True)
+        qmf_ansatz = QMF(mol_H2_sto3g, "JW", True)
         qmf_ansatz.build_circuit(qmf_var_params)
 
         # Build the QCC ansatz with optimized QMF and QCC parameters and selected QCC generator
         qcc_var_params = [-2.26136280e-01]
         qcc_op_list = [QubitOperator("Y0 X1 X2 X3")]
-        qcc_ansatz = QCC(mol_H2_sto3g, 'JW', True, qcc_op_list, qmf_ansatz.circuit)
+        qcc_ansatz = QCC(mol_H2_sto3g, "JW", True, qcc_op_list, qmf_ansatz.circuit)
 
         # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()

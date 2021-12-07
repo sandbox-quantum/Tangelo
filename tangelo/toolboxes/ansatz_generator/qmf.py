@@ -33,20 +33,20 @@ import warnings
 import numpy as np
 
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,\
-                                                                fermion_to_qubit_mapping
+                                                               fermion_to_qubit_mapping
 from .ansatz import Ansatz
 from ._qubit_mf import get_qmf_circuit, init_qmf_from_hf, penalize_mf_ham
 
 
 class QMF(Ansatz):
     """This class implements the QMF ansatz. Closed-shell and restricted open-shell QMF are
-    supported. While the form of the QMF ansatz is the same for either variation, the underlying
+    supported. While the form of the QMF ansatz the same for either variation, the underlying
     fermionic mean-field state is treated differently depending on the spin. Closed-shell
     or restricted open-shell QMF implies that spin = 0 or spin != 0 and the fermionic mean-field
     state is obtained using a RHF or ROHF Hamiltonian, respectively.
 
     Optimizing QMF variational parameters is risky, epsecially when a random initial guess is used.
-    It is recommended that penalty terms be addded to the mean-field Hamiltonian to enforce
+    It is recommended that penalty terms be added to the mean-field Hamiltonian to enforce
     appropriate electron number and spin angular momentum symmetries on the QMF wave function
     during optimization (see Ref. 4). If using penalty terms is to be avoided, an inital guess
     based on a Hartree-Fock reference state will likely converge quickly to the desired state, but
@@ -68,14 +68,13 @@ class QMF(Ansatz):
             or "Sz" is None, a penalty term is added with default mu and target values:
             mu = 1.5 and target is derived from molecule as <N> = n_electrons,
             <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z, where spin_z = spin // 2. Key,
-            value pairs are case sensitive and mu > 0. Default, {"init_params": "hf-state"}.
+            value pairs are case sensitive and mu > 0. Default, {"init_params": "hf_state"}.
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, init_qmf=None):
 
         self.molecule = molecule
         self.n_spinorbitals = self.molecule.n_active_sos
-
         if self.n_spinorbitals % 2 != 0:
             raise ValueError("The total number of spin-orbitals should be even.")
 
@@ -86,18 +85,16 @@ class QMF(Ansatz):
         self.mapping = mapping
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
         self.up_then_down = up_then_down
-        self.init_qmf = {"init_params": "hf-state"} if init_qmf is None else init_qmf
+        self.init_qmf = {"init_params": "hf_state"} if init_qmf is None else init_qmf
 
         # Supported var param initialization
-        self.supported_initial_var_params = {"zeros", "half_pi", "pis", "random", "hf-state"}
+        self.supported_initial_var_params = {"zeros", "half_pi", "pis", "random", "hf_state"}
 
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
 
-        # Get the fermionic Hamiltonian
+        # Get the mean-field fermionic Hamiltonian and check for penalty terms
         self.fermi_ham = self.molecule.fermionic_hamiltonian
-
-        # Prepare QMF parameter initialization and check for penalty terms
         if isinstance(self.init_qmf, dict):
             if "init_params" not in self.init_qmf.keys():
                 raise KeyError(f"Missing key 'init_params' in {self.init_qmf}. "\
@@ -118,13 +115,13 @@ class QMF(Ansatz):
                     # Add the penalty terms to the mean-field Hamiltonian
                     self.fermi_ham += penalize_mf_ham(self.init_qmf, self.n_orbitals)
                 else:
-                    if self.var_params_default != "hf-state":
+                    if self.var_params_default != "hf_state":
                         warnings.warn("It is recommended that the QMF parameters are intialized "\
-                                       "using a Hartree-Fock reference state if penalty terms are "\
-                                       "not added to the mean-field Hamiltonian.", RuntimeWarning)
+                                      "using a Hartree-Fock reference state if penalty terms are "\
+                                      "not added to the mean-field Hamiltonian.", RuntimeWarning)
             else:
                 raise ValueError(f"Unrecognized value for 'init_params' key in {self.init_qmf} "\
-                                  f"Supported values are {self.supported_initial_var_params}.")
+                                 f"Supported values are {self.supported_initial_var_params}.")
         else:
             raise TypeError(f"{self.init_qmf} must be dictionary type.")
 
@@ -150,7 +147,7 @@ class QMF(Ansatz):
             var_params = var_params.lower()
             if var_params not in self.supported_initial_var_params:
                 raise ValueError(f"Supported keywords for initializing variational parameters: "\
-                                  f"{self.supported_initial_var_params}")
+                                 f"{self.supported_initial_var_params}")
             # Initialize the QMF wave function as the |00...0> state
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
@@ -167,14 +164,14 @@ class QMF(Ansatz):
                 initial_var_params = np.concatenate((initial_thetas, initial_phis))
             # Initialize theta angles such that |QMF> represents the reference |HF> state and
             # set all phi angles to 0.
-            elif var_params == "hf-state":
+            elif var_params == "hf_state":
                 initial_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,\
                                                       self.mapping, self.up_then_down, self.spin)
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:
                 raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
-                                  f"received {initial_var_params.size}.")
+                                 f"received {initial_var_params.size}.")
         self.var_params = initial_var_params
         return initial_var_params
 

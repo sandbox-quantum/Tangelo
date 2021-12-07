@@ -61,7 +61,7 @@ def construct_dis(pure_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
             of dEQCC/dtau.
     """
 
-    # Use a qubit Hamiltonian and QMF parameter set to construct the DIS
+    # Use a qubit Hamiltonian and purified QMF parameter set to construct the DIS
     dis, dis_groups = [], get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh)
     if dis_groups:
         if verbose:
@@ -97,7 +97,7 @@ def get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh):
 
     # Get the flip indices from qubit_ham and compute the gradient dEQCC/dtau
     qham_gen = ((qham_items[0], (qham_items[1], pure_var_params))\
-               for qham_items in qubit_ham.terms.items())
+                 for qham_items in qubit_ham.terms.items())
     flip_idxs = list(filter(None, (get_idxs_deriv(q_gen[0], *q_gen[1]) for q_gen in qham_gen)))
 
     # Group Hamiltonian terms with the same flip indices and sum signed dEQCC/tau values
@@ -108,7 +108,7 @@ def get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh):
 
     # Return a sorted list of flip indices and signed dEQCC/dtau values for each DIS group
     dis_groups = [idxs_deriv for idxs_deriv in candidates.items()\
-                 if abs(idxs_deriv[1]) >= qcc_deriv_thresh]
+                  if abs(idxs_deriv[1]) >= qcc_deriv_thresh]
     return sorted(dis_groups, key=lambda deriv: abs(deriv[1]), reverse=True)
 
 
