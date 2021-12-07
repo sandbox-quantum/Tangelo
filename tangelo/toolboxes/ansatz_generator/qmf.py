@@ -40,35 +40,33 @@ from ._qubit_mf import get_qmf_circuit, init_qmf_from_hf, penalize_mf_ham
 
 class QMF(Ansatz):
     """This class implements the QMF ansatz. Closed-shell and restricted open-shell QMF are
-    supported. While the form of the QMF ansatz the same for either variation, the underlying
+    supported. While the form of the QMF ansatz is the same for either variation, the underlying
     fermionic mean-field state is treated differently depending on the spin. Closed-shell
     or restricted open-shell QMF implies that spin = 0 or spin != 0 and the fermionic mean-field
     state is obtained using a RHF or ROHF Hamiltonian, respectively.
 
-    Optimizing QMF variational parameters is risky, epsecially when a random initial guess is used.
-    It is recommended that penalty terms be added to the mean-field Hamiltonian to enforce
-    appropriate electron number and spin angular momentum symmetries on the QMF wave function
-    during optimization (see Ref. 4). If using penalty terms is to be avoided, an inital guess
-    based on a Hartree-Fock reference state will likely converge quickly to the desired state, but
-    it is not guaranteed.
+    Optimizing QMF variational parameters can be risky without taking proper precautions,
+    especially when a random initial guess is used. It is recommended that penalty terms are
+    added to the mean-field Hamiltonian to enforce appropriate electron number and spin angular
+    momentum symmetries on the QMF wave function during optimization (see Ref. 4). If using
+    penalty terms is to be avoided, an inital guess based on a Hartree-Fock reference state will
+    likely converge quickly to the desired state, but this is not guaranteed.
 
     Args:
         molecule (SecondQuantizedMolecule): The molecular system.
         mapping (str): One of the supported qubit mapping identifiers. Default, "JW".
         up_then_down (bool): Change basis ordering putting all spin up orbitals first,
-            followed by all spin down. Default, False (i.e. has alternating spin up/down
-            ordering).
-        init_qmf (dict): Controls the QMF variational parameter set {Omega} initialization
-            procedure and mean-field Hamiltonian penalization. The keys are "init_params",
-            "N", "S^2", or "Sz" (str). The value of "init_params" must be in
-            supported_initial_var_params (str), which initializes {Omega} according to the
-            option definitions in set_var_params. The value of "N", "S^2", or "Sz" is (tuple
-            or None). If a tuple, its elements are the penalty term coefficient, mu, (float)
-            and target value of a penalty operator (int), "key": (mu, target). If "N", "S^2",
-            or "Sz" is None, a penalty term is added with default mu and target values:
-            mu = 1.5 and target is derived from molecule as <N> = n_electrons,
-            <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z, where spin_z = spin // 2. Key,
-            value pairs are case sensitive and mu > 0. Default, {"init_params": "hf_state"}.
+            followed by all spin down. Default, False.
+        init_qmf (dict): Parameters for initializing the QMF variational parameter set and
+            mean-field Hamiltonian penalization. The keys are "init_params", "N", "S^2", or "Sz"
+            (str). The value of "init_params" must be in self.supported_initial_var_params (str).
+            The value of "N", "S^2", or "Sz" is (tuple or None). If a tuple, its elements are
+            the penalty term coefficient, mu (float), and target value of a penalty operator
+            (int). Example - "key": (mu, target). If "N", "S^2", or "Sz" is None, a penalty term
+            is added with default mu and target values: mu = 1.5 and target is derived
+            from molecule as <N> = n_electrons, <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z,
+            where spin_z = spin // 2. Key, value pairs are case sensitive and mu > 0.
+            Default, {"init_params": "hf_state"}.
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, init_qmf=None):
@@ -148,13 +146,13 @@ class QMF(Ansatz):
             if var_params not in self.supported_initial_var_params:
                 raise ValueError(f"Supported keywords for initializing variational parameters: "\
                                  f"{self.supported_initial_var_params}")
-            # Initialize the QMF wave function as the |00...0> state
+            # Initialize |QMF> as |00...0>
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-            # Initialize the QMF wave function as (i/sqrt(2))^n_qubits * tensor_prod(|0> + |1>)
+            # Initialize |QMF> as (i/sqrt(2))^n_qubits * tensor_prod(|0> + |1>)
             elif var_params == "half_pi":
                 initial_var_params = 0.5 * np.pi * np.ones((self.n_var_params,))
-            # Initialize the QMF wave function as the (-1)^n_qubits |11...1> state
+            # Initialize |QMF> as (-1)^n_qubits |11...1> state
             elif var_params == "pis":
                 initial_var_params = np.pi * np.ones((self.n_var_params,))
             # Initialize theta and phi angles randomly over [0, pi] and [0, 2*pi], respectively
@@ -162,8 +160,7 @@ class QMF(Ansatz):
                 initial_thetas = np.pi * np.random.random((self.n_qubits,))
                 initial_phis = 2. * np.pi * np.random.random((self.n_qubits,))
                 initial_var_params = np.concatenate((initial_thetas, initial_phis))
-            # Initialize theta angles such that |QMF> represents the reference |HF> state and
-            # set all phi angles to 0.
+            # Initialize theta angles so that |QMF> = |HF> state and set all phi angles to 0.
             elif var_params == "hf_state":
                 initial_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,\
                                                       self.mapping, self.up_then_down, self.spin)

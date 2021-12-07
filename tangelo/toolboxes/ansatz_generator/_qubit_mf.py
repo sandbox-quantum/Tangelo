@@ -164,17 +164,17 @@ def get_qmf_circuit(qmf_var_params, variational=True):
 
 def penalize_mf_ham(mf_pen_terms, n_orbitals):
     """Generate a FermionOperator that is used to penalize a mean-field Hamiltonian for at
-    least one of the N, S^2, or Sz operators. See penalty_terms.py for more details.
+    least one of the N, S^2, or Sz operators.
 
     Args:
-        mf_pen_terms (dict): Controls mean-field Hamiltonian penalization. The keys are "N", "S^2",
-            or "Sz" (str) and the values are (tuple) of the penalty term coefficient (float) and
-            the target value of a penalty operator (int), "key": (mu, target). Key, value pairs
-            are case sensitive and mu > 0.
+        mf_pen_terms (dict): Parameters for mean-field Hamiltonian penalization.
+            The keys are "N", "S^2", or "Sz" (str) and the values are a tuple of the penalty
+            term coefficient, mu (float), and the target value of a penalty operator (int).
+            Example - "key": (mu, target). Key, value pairs are case sensitive and mu > 0.
         n_orbitals (int): Number of orbitals in the fermion basis.
 
     Returns:
-        FermionOperator: sum of all mean-field Hamiltonian penalty term(s).
+        FermionOperator: sum of all mean-field Hamiltonian penalty terms.
     """
 
     mf_penalty = FermionOperator.zero()

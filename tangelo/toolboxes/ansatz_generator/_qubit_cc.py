@@ -49,16 +49,12 @@ def construct_dis(pure_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
     Args:
         pure_var_params (numpy array of float): A purified QMF variational parameter set.
         qubit_ham (QubitOperator): A qubit Hamiltonian.
-        qcc_deriv_thresh (float): Threshold of the value of |dEQCC/dtau| for a generator from
-            a candidate DIS group. If |dEQCC/dtau| >= qcc_deriv_thresh, the candidate DIS group
-            enters the DIS and its generators can be used in the QCC ansatz.
+        qcc_deriv_thresh (float): Threshold value of |dEQCC/dtau| so that if |dEQCC/dtau| >=
+            qcc_deriv_thresh for a generator, add its candidate group to the DIS.
         verbose (bool): Flag for QCC verbosity.
 
     Returns:
-        list of list: The DIS of QCC generators. Each list in dis contains (1) a complete set
-            of generators for a DIS group built from Pauli X and an odd number of Y operators that
-            act on qubits indexed by all combinations of the flip indices and (2) the signed value
-            of dEQCC/dtau.
+        list of list: the DIS of QCC generators.
     """
 
     # Use a qubit Hamiltonian and purified QMF parameter set to construct the DIS
@@ -69,7 +65,7 @@ def construct_dis(pure_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
         for i, dis_group in enumerate(dis_groups):
             dis_group_idxs = [int(idxs) for idxs in dis_group[0].split(" ")]
             dis_group_gens = get_gens_from_idxs(dis_group_idxs)
-            dis.append([dis_group_gens, abs(dis_group[1])])
+            dis.append(dis_group_gens)
             if verbose:
                 print(f"DIS group {i} | group size = {len(dis_group_gens)} | "\
                       f"flip indices = {dis_group_idxs} | |dEQCC/dtau| = "\
@@ -86,13 +82,11 @@ def get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh):
     Args:
         pure_var_params (numpy array of float): A purified QMF variational parameter set.
         qubit_ham (QubitOperator): A qubit Hamiltonian.
-        qcc_deriv_thresh (float): The threshold of |dEQCC/dtau| for a generator from a candidate
-            DIS group. If |dEQCC/dtau| >= qcc_deriv_thresh, the candidate DIS group enters the
-            DIS and its generators can be selected for the QCC ansatz.
+        qcc_deriv_thresh (float): Threshold value of |dEQCC/dtau| so that if |dEQCC/dtau| >=
+            qcc_deriv_thresh for a generator, add its candidate group to the DIS.
 
     Returns:
-        list of tuple: the flip indices (str) and the signed value of dEQCC/dtau
-            (float) for DIS groups where |dEQCC/dtau| >= qcc_deriv_thresh.
+        list of tuple: the DIS group flip indices (str) and signed value of dEQCC/dtau (float).
     """
 
     # Get the flip indices from qubit_ham and compute the gradient dEQCC/dtau
@@ -126,7 +120,7 @@ def get_idxs_deriv(qham_term, *qham_qmf_data):
 
     Returns:
         tuple or None: return a tuple of the flip indices (str) and the signed value of
-            dEQCC/dtau (float) if at least two flip indices were found; otherwise return None.
+            dEQCC/dtau (float) if at least two flip indices were found. Otherwise return None.
     """
 
     coef, pure_params = qham_qmf_data
