@@ -33,10 +33,9 @@ import warnings
 import numpy as np
 
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,\
-    fermion_to_qubit_mapping
+                                                                fermion_to_qubit_mapping
 from .ansatz import Ansatz
-from ._qubit_mf import get_qmf_circuit, init_qmf_state_from_hf_vec,\
-    penalize_mf_ham
+from ._qubit_mf import get_qmf_circuit, init_qmf_from_hf, penalize_mf_ham
 
 
 class QMF(Ansatz):
@@ -90,52 +89,47 @@ class QMF(Ansatz):
         self.init_qmf = {"init_params": "hf-state"} if init_qmf is None else init_qmf
 
         # Supported var param initialization
-        self.supported_initial_var_params = {"zeros", "pi_over_two", "pis", "random", "hf-state"}
+        self.supported_initial_var_params = {"zeros", "half_pi", "pis", "random", "hf-state"}
 
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
 
-        # Get the fermionic Hamiltonian and check for penalty terms
+        # Get the fermionic Hamiltonian
         self.fermi_ham = self.molecule.fermionic_hamiltonian
 
+        # Prepare QMF parameter initialization and check for penalty terms
         if isinstance(self.init_qmf, dict):
             if "init_params" not in self.init_qmf.keys():
-                err_msg = f"Missing key 'init_params' in {self.init_qmf}. "\
-                          f"Supported values are {self.supported_initial_var_params}."
-                raise KeyError(err_msg)
+                raise KeyError(f"Missing key 'init_params' in {self.init_qmf}. "\
+                               f"Supported values are {self.supported_initial_var_params}.")
             if self.init_qmf["init_params"] in self.supported_initial_var_params:
-                # Set default value of var_params and remove it
+                # Set the default QMF parameter procedure
                 self.var_params_default = self.init_qmf.pop("init_params")
                 # Check for at least one penalty term
                 if self.init_qmf:
-                    # Set default values if a key has value of None
+                    # Set default penalty term values
                     spin_z = self.spin // 2
-                    default_keys = list(filter(lambda kv: kv[1] is None,\
-                        (kv for kv in self.init_qmf.keys())))
-                    for default_key in default_keys:
-                        if default_key == "N":
-                            self.init_qmf["N"] = (1.5, self.n_electrons)
-                        elif default_key == "S^2":
-                            self.init_qmf["S^2"] = (1.5, spin_z * (spin_z + 1))
-                        elif default_key == "Sz":
-                            self.init_qmf["Sz"] = (1.5, spin_z)
+                    init_qmf_defaults = {"N": (1.5, self.n_electrons),\
+                                         "S^2": (1.5, spin_z * (spin_z + 1)), "Sz": (1.5, spin_z)}
+                    # Check if the user requested default values for any penalty terms
+                    for term, params in init_qmf_defaults.items():
+                        if params is None:
+                            self.init_qmf[term] = init_qmf_defaults[term]
+                    # Add the penalty terms to the mean-field Hamiltonian
                     self.fermi_ham += penalize_mf_ham(self.init_qmf, self.n_orbitals)
                 else:
                     if self.var_params_default != "hf-state":
-                        warn_msg = "It is recommended to penalize the mean-field Hamiltonian with "\
-                                   "one or more penalty terms when QMF parameters are not "\
-                                   "initialized using a reference Hartree-Fock state."
-                        warnings.warn(warn_msg, RuntimeWarning)
+                        warnings.warn("It is recommended that the QMF parameters are intialized "\
+                                       "using a Hartree-Fock reference state if penalty terms are "\
+                                       "not added to the mean-field Hamiltonian.", RuntimeWarning)
             else:
-                err_msg = f"Unrecognized value for 'init_params' key in {self.init_qmf} "\
-                          f"Supported values are {self.supported_initial_var_params}."
-                raise ValueError(err_msg)
+                raise ValueError(f"Unrecognized value for 'init_params' key in {self.init_qmf} "\
+                                  f"Supported values are {self.supported_initial_var_params}.")
         else:
             raise TypeError(f"{self.init_qmf} must be dictionary type.")
 
-        self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping,\
-            n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons,\
-            up_then_down=self.up_then_down, spin=self.spin)
+        self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping, self.n_spinorbitals,\
+                                                  self.n_electrons, self.up_then_down, self.spin)
 
         # Default starting parameters for initialization
         self.n_var_params = 2 * self.n_qubits
@@ -155,28 +149,32 @@ class QMF(Ansatz):
         if isinstance(var_params, str):
             var_params = var_params.lower()
             if var_params not in self.supported_initial_var_params:
-                err_msg = f"Supported keywords for initializing variational parameters: "\
-                          f"{self.supported_initial_var_params}"
-                raise ValueError(err_msg)
+                raise ValueError(f"Supported keywords for initializing variational parameters: "\
+                                  f"{self.supported_initial_var_params}")
+            # Initialize the QMF wave function as the |00...0> state
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-            elif var_params == "pi_over_two":
+            # Initialize the QMF wave function as (i/sqrt(2))^n_qubits * tensor_prod(|0> + |1>)
+            elif var_params == "half_pi":
                 initial_var_params = 0.5 * np.pi * np.ones((self.n_var_params,))
+            # Initialize the QMF wave function as the (-1)^n_qubits |11...1> state
             elif var_params == "pis":
                 initial_var_params = np.pi * np.ones((self.n_var_params,))
+            # Initialize theta and phi angles randomly over [0, pi] and [0, 2*pi], respectively
             elif var_params == "random":
                 initial_thetas = np.pi * np.random.random((self.n_qubits,))
                 initial_phis = 2. * np.pi * np.random.random((self.n_qubits,))
                 initial_var_params = np.concatenate((initial_thetas, initial_phis))
+            # Initialize theta angles such that |QMF> represents the reference |HF> state and
+            # set all phi angles to 0.
             elif var_params == "hf-state":
-                initial_var_params = init_qmf_state_from_hf_vec(self.n_spinorbitals,\
-                    self.n_electrons, self.mapping, up_then_down=self.up_then_down, spin=self.spin)
-        elif np.array(var_params).size == self.n_var_params:
+                initial_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,\
+                                                      self.mapping, self.up_then_down, self.spin)
+        else:
             initial_var_params = np.array(var_params)
-        elif np.array(var_params).size != self.n_var_params:
-            err_msg = f"Expected {self.n_var_params} variational parameters but "\
-                      f"received {np.array(var_params).size}."
-            raise ValueError(err_msg)
+            if initial_var_params.size != self.n_var_params:
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
+                                  f"received {initial_var_params.size}.")
         self.var_params = initial_var_params
         return initial_var_params
 
@@ -186,10 +184,10 @@ class QMF(Ansatz):
         with the transform used to obtain the qubit operator. """
 
         if self.default_reference_state not in self.supported_reference_state:
-            raise ValueError(f"Only supported reference state methods are:\
-                               {self.supported_reference_state}")
+            raise ValueError(f"Only supported reference state methods are: "\
+                             f"{self.supported_reference_state}")
         if self.default_reference_state == "HF":
-            reference_state_circuit = get_qmf_circuit(self.var_params, variational=True)
+            reference_state_circuit = get_qmf_circuit(self.var_params, True)
         return reference_state_circuit
 
     def build_circuit(self, var_params=None):

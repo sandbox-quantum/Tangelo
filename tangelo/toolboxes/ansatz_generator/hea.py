@@ -110,12 +110,11 @@ class HEA(Ansatz):
                     initial_var_params = 4 * np.pi * (np.random.random((self.n_var_params,)) - 0.5)
                 elif var_params == "zeros":
                     initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-        elif np.array(var_params).size == self.n_var_params:
+        else:
             initial_var_params = np.array(var_params)
-        elif np.array(var_params).size != self.n_var_params:
-            err_msg = f"Expected {self.n_var_params} variational parameters but "\
-                      f"received {np.array(var_params).size}."
-            raise ValueError(err_msg)
+            if initial_var_params.size != self.n_var_params:
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
+                                  f"received {initial_var_params.size}.")
         self.var_params = initial_var_params
         return initial_var_params
 

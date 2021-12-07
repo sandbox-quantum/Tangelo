@@ -65,8 +65,7 @@ class QMFTest(unittest.TestCase):
         qmf_ansatz = QMF(mol_H2_sto3g)
         qmf_ansatz.set_var_params("HF-State")
 
-        expected = [3.141592653589793, 3.141592653589793, 0., 0.,
-                    0.,                0.,                0., 0.]
+        expected = [np.pi] * 2  + [0.] * 6
         np.testing.assert_allclose(np.array(expected), qmf_ansatz.var_params, rtol=1e-10)
 
     @staticmethod
@@ -76,8 +75,7 @@ class QMFTest(unittest.TestCase):
         qmf_ansatz = QMF(mol_H2_sto3g)
         qmf_ansatz.set_var_params("hf-state")
 
-        expected = [3.141592653589793, 3.141592653589793, 0., 0.,
-                    0.,                0.,                0., 0.]
+        expected = [np.pi] * 2  + [0.] * 6
         np.testing.assert_allclose(np.array(expected), qmf_ansatz.var_params, rtol=1e-10)
 
     @staticmethod
@@ -87,17 +85,14 @@ class QMFTest(unittest.TestCase):
         qmf_ansatz = QMF(mol_H4_sto3g)
         qmf_ansatz.set_var_params("hf-state")
 
-        expected = [3.141592653589793, 3.141592653589793, 3.141592653589793, 3.141592653589793,
-                    0.,                0.,                0.,                0.,
-                    0.,                0.,                0.,                0.,
-                    0.,                0.,                0.,                0.]
+        expected = [np.pi] * 4 + [0.] * 12
         np.testing.assert_allclose(np.array(expected), qmf_ansatz.var_params, rtol=1e-10)
 
     def test_qmf_closed_h2(self):
         """ Verify closed-shell QMF functionalities for H2 """
 
-        var_params = [3.14159265, 3.14159265, 0.,         0.,
-                      4.61265659, 0.73017920, 1.03851163, 2.48977533]
+        var_params = [np.pi] * 2  + [0.] * 6
+
         # Build circuit
         qmf_ansatz = QMF(mol_H2_sto3g)
         qmf_ansatz.build_circuit()
@@ -113,10 +108,7 @@ class QMFTest(unittest.TestCase):
     def test_qmf_closed_h4(self):
         """ Verify closed-shell QMF functionalities for H4. """
 
-        var_params = [3.14159265, 3.14159265, 3.14159265, 3.14159265,
-                      0.,         0.,         0.,         0.,
-                      0.45172480, 5.30089707, 4.52791163, 4.85272121,
-                      2.28473042, 2.15616885, 0.81424786, 5.11611248]
+        var_params = [np.pi] * 4 + [0.] * 12
 
         # Build circuit
         qmf_ansatz = QMF(mol_H4_sto3g)
@@ -133,10 +125,7 @@ class QMFTest(unittest.TestCase):
     def test_qmf_open_h4_cation(self):
         """ Verify open-shell QMF functionalities for H4 + """
 
-        var_params = [3.14159265, 3.14159265, 3.14159265, 0.,
-                      0.,         0.,         0.,         0.,
-                      2.56400050, 5.34585441, 1.46689000, 1.3119943,
-                      2.95766833, 5.00079708, 3.53150391, 1.9093635]
+        var_params = [np.pi] * 4 + [0.] * 12
 
         # Build circuit
         qmf_ansatz = QMF(mol_H4_cation_sto3g)

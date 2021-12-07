@@ -92,8 +92,7 @@ class QCCTest(unittest.TestCase):
         # Build the QCC ansatz with optimized QMF and QCC parameters and selected QCC generator
         qcc_var_params = [-2.26136280e-01]
         qcc_op_list = [QubitOperator("Y0 X1 X2 X3")]
-        qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True, qubit_op_list=qcc_op_list,\
-            qmf_circuit=qmf_ansatz.circuit)
+        qcc_ansatz = QCC(mol_H2_sto3g, 'JW', True, qcc_op_list, qmf_ansatz.circuit)
 
         # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()
@@ -117,8 +116,7 @@ class QCCTest(unittest.TestCase):
                        QubitOperator("X0 X1 X2 Y3 X4")]
         qcc_var_params = [ 0.26202301, -0.21102705,  0.11683144, -0.24234041,  0.13832747,
                           -0.0951985 , -0.03501809,  0.0640034 ,  0.0542095]
-        qcc_ansatz = QCC(mol_H4_cation_sto3g, mapping="SCBK", up_then_down=True,\
-            qubit_op_list=qcc_op_list)
+        qcc_ansatz = QCC(mol_H4_cation_sto3g, "SCBK", True, qcc_op_list)
 
         # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()
@@ -138,7 +136,7 @@ class QCCTest(unittest.TestCase):
         qmf_var_params = [3.14159302e+00,  6.20193478e-07,  1.51226426e-06,  3.14159350e+00,
                           3.14159349e+00,  7.88310582e-07,  3.96032530e+00,  2.26734374e+00,
                           3.22127001e+00,  5.77997401e-01,  5.51422406e+00,  6.26513711e+00]
-        qmf_ansatz = QMF(mol_H4_cation_sto3g, mapping="SCBK", up_then_down=True)
+        qmf_ansatz = QMF(mol_H4_cation_sto3g, "SCBK", True)
         qmf_ansatz.build_circuit(qmf_var_params)
 
         # Build QCC ansatz with optimized QMF and QCC parameters and selected QCC generators
@@ -149,8 +147,7 @@ class QCCTest(unittest.TestCase):
                        QubitOperator("X0 X1 X2 Y3 X4")]
         qcc_var_params = [-0.26816042,  0.21694796,  0.12139543, -0.2293093,
                           -0.14577423, -0.08937818,  0.01796464, -0.06445363,  0.06056016]
-        qcc_ansatz = QCC(mol_H4_cation_sto3g, mapping="SCBK", up_then_down=True,\
-            qubit_op_list=qcc_op_list, qmf_circuit=qmf_ansatz.circuit)
+        qcc_ansatz = QCC(mol_H4_cation_sto3g, "SCBK", True, qcc_op_list, qmf_ansatz.circuit)
 
         # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()
@@ -170,7 +167,7 @@ class QCCTest(unittest.TestCase):
         qcc_op_list = [QubitOperator("X0 Y2"),    QubitOperator("Y0 X4"), QubitOperator("X0 Y6"),
                        QubitOperator("X0 Y5 X6"), QubitOperator("Y0 Y4 Y5")]
         qcc_var_params = [0.27697283, -0.2531527,  0.05947973, -0.06943673, 0.07049098]
-        qcc_ansatz = QCC(mol_H4_doublecation_minao, mapping="BK", qubit_op_list=qcc_op_list)
+        qcc_ansatz = QCC(mol_H4_doublecation_minao, "BK", False, qcc_op_list)
 
         # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()
@@ -191,7 +188,7 @@ class QCCTest(unittest.TestCase):
                           3.14159219e+00,  3.14158908e+00,  0.00000000e+00,  0.00000000e+00,
                           6.94108155e-01,  1.03928030e-01,  5.14029803e+00,  2.81850365e+00,
                           4.25403875e+00,  6.19640367e+00,  1.43241026e+00,  3.50279759e+00]
-        qmf_ansatz = QMF(mol_H4_doublecation_minao, mapping="BK", up_then_down=True)
+        qmf_ansatz = QMF(mol_H4_doublecation_minao, "BK", True)
         qmf_ansatz.build_circuit(qmf_var_params)
 
         # Build QCC ansatz with optimized QMF and QCC parameters and selected QCC generators
@@ -200,8 +197,7 @@ class QCCTest(unittest.TestCase):
                        QubitOperator("X0 X1 X2 Y4 X5")]
         qcc_var_params = [-2.76489925e-01, -2.52783324e-01,  5.76565629e-02,  6.99988237e-02,
                           -7.03721438e-02]
-        qcc_ansatz = QCC(mol_H4_doublecation_minao, mapping="BK", up_then_down=True,\
-            qubit_op_list=qcc_op_list, qmf_circuit=qmf_ansatz.circuit)
+        qcc_ansatz = QCC(mol_H4_doublecation_minao, "BK", True, qcc_op_list, qmf_ansatz.circuit)
 
         # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()

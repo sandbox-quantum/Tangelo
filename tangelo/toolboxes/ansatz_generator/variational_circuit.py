@@ -60,12 +60,11 @@ class VariationalCircuitAnsatz(Ansatz):
                     var_params = 4 * np.pi * (np.random.random((self.n_var_params,)) - 0.5)
                 elif var_params == "zeros":
                     var_params = np.zeros((self.n_var_params,), dtype=float)
-        elif np.array(var_params).size == self.n_var_params:
+        else:
             var_params = np.array(var_params)
-        elif np.array(var_params).size != self.n_var_params:
-            err_msg = f"Expected {self.n_var_params} variational parameters but "\
-                      f"received {np.array(var_params).size}."
-            raise ValueError(err_msg)
+            if var_params.size != self.n_var_params:
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
+                                  f"received {var_params.size}.")
         self.var_params = var_params
         return var_params
 

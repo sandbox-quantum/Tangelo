@@ -35,7 +35,7 @@ from tangelo.linq import Circuit, Gate
 from tangelo.toolboxes.operators.operators import FermionOperator
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
 from .penalty_terms import combined_penalty, number_operator_penalty, spin2_operator_penalty,\
-    spin_operator_penalty
+                           spin_operator_penalty
 
 
 def get_op_expval(qubit_op, qmf_var_params):
@@ -52,15 +52,14 @@ def get_op_expval(qubit_op, qmf_var_params):
 
     n_qubits = qmf_var_params.size // 2
     qubit_op_gen = ((qop_items[0], (qop_items[1], qmf_var_params, n_qubits))\
-        for qop_items in qubit_op.terms.items())
+                   for qop_items in qubit_op.terms.items())
     return sum([calc_op_expval(qop_gen[0], *qop_gen[1]) for qop_gen in qubit_op_gen])
 
 
 def calc_op_expval(qop_term, *qop_qmf_data):
     """Analytically evaluate a qubit operator expectation value with a QMF wave function.
     The expectation values of Pauli operators X, Y, and Z are (Ref. 2)
-    <QMF| X | QMF> = cos(phi) * sin(theta)
-    <QMF| Y | QMF> = sin(phi) * sin(theta)
+    <QMF| X | QMF> = cos(phi) * sin(theta), <QMF| Y | QMF> = sin(phi) * sin(theta),
     <QMF| Z | QMF> = cos(theta)
 
     Args:
@@ -84,7 +83,7 @@ def calc_op_expval(qop_term, *qop_qmf_data):
     return coef
 
 
-def init_qmf_state_from_hf_vec(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=0):
+def init_qmf_from_hf(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=None):
     """Function to initialize the QMF variational parameter set from a Hartree-Fock state
     occupation vector. The theta Bloch angles are set to 0. or np.pi if the molecular orbital is
     unoccupied or occupied, respectively. The phi Bloch angles are set to 0.
@@ -101,38 +100,46 @@ def init_qmf_state_from_hf_vec(n_spinorbitals, n_electrons, mapping, up_then_dow
         numpy array of float: QMF variational parameter set.
     """
 
-    # get thetas from HF vec and arrange Bloch angles so all thetas are first then phis
-    thetas = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down, spin=spin)
+    # Get thetas from HF vec and arrange Bloch angles so all thetas are first then phis
+    thetas = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down, spin)
     return np.concatenate((np.pi * thetas, np.zeros((len(thetas),), dtype=float)))
 
 
-def purify_qmf_state(qmf_var_params, verbose=False):
+def purify_qmf_state(qmf_var_params, n_spinorbitals, n_electrons, mapping, up_then_down=False,\
+                    spin=None, verbose=False):
     """The efficient construction and screening of the DIS requires a z-collinear QMF state.
     If the QMF state specified by qmf_var_params is not z-collinear, this function adjusts the
     parameters to the nearest z-collinear computational basis state.
 
     Args:
         qmf_var_params (numpy array of float): QMF variational parameter set.
+        n_spinorbitals (int): Number of spin-orbitals in the molecular system.
+        n_electrons (int): Number of electrons in the molecular system.
+        mapping (str) : One of the supported qubit mapping identifiers.
+        up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
+            followed by all spin-down.
+        spin (int): 2*S = n_alpha - n_beta.
         verbose (bool): Flag for QMF verbosity.
 
     Returns:
-        numpy array of float: purified QMF parameter set that corresponds to the nearest z-collinear
-            state to the current QMF state.
+        numpy array of float: purified QMF parameter set that corresponds to the
+            nearest z-collinear state to the current QMF state.
     """
 
-    pure_var_params, n_qubits = qmf_var_params.tolist(), qmf_var_params.size // 2
     # Adjust the theta Bloch angles
+    pure_var_params, n_qubits = np.copy(qmf_var_params), qmf_var_params.size // 2
     for i, theta in enumerate(qmf_var_params[:n_qubits]):
         c_0, c_1 = np.cos(0.5 * theta), np.sin(0.5 * theta)
-        if abs(c_0) >= abs(c_1):
+        if abs(c_0) > abs(c_1):
             pure_var_params[i] = 0.
         elif abs(c_0) < abs(c_1):
             pure_var_params[i] = np.pi
+        else:
+            vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down, spin)
+            pure_var_params[i] = np.pi * vector[i]
         if verbose:
-            print_msg = f"Purified QMF_{i} Bloch angles: (theta, phi) = ({pure_var_params[i]},"\
-                        f" {pure_var_params[i + n_qubits]})\n"
-            print(print_msg)
-    return np.array(pure_var_params)
+            print(f"Purified QMF_{i} Bloch angles: (theta, phi) = ({pure_var_params[i]}, {pure_var_params[i + n_qubits]})\n")
+    return pure_var_params
 
 
 def get_qmf_circuit(qmf_var_params, variational=True):
@@ -171,21 +178,18 @@ def penalize_mf_ham(mf_pen_terms, n_orbitals):
     """
 
     mf_penalty = FermionOperator.zero()
-
-    # Get the keys of all penalty term operators
     penalty_terms = list(key for key in mf_pen_terms.keys())
     if len(penalty_terms) == 3:
-        mf_penalty += combined_penalty(n_orbitals, opt_penalty_terms=mf_pen_terms,\
-            up_then_down=False)
+        mf_penalty += combined_penalty(n_orbitals, mf_pen_terms, False)
     else:
         for penalty_term in penalty_terms:
             coef, target = mf_pen_terms[penalty_term]
             if coef <= 0.:
                 raise ValueError("The penalty term coefficient must be positive.")
             if penalty_term == "N":
-                mf_penalty += number_operator_penalty(n_orbitals, target, coef, up_then_down=False)
+                mf_penalty += number_operator_penalty(n_orbitals, target, coef, False)
             elif penalty_term == "S^2":
-                mf_penalty += spin2_operator_penalty(n_orbitals, target, coef, up_then_down=False)
+                mf_penalty += spin2_operator_penalty(n_orbitals, target, coef, False)
             elif penalty_term == "Sz":
-                mf_penalty += spin_operator_penalty(n_orbitals, target, coef, up_then_down=False)
+                mf_penalty += spin_operator_penalty(n_orbitals, target, coef, False)
     return mf_penalty

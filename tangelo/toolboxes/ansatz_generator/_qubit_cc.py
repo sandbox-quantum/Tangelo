@@ -33,10 +33,10 @@ Refs:
 from itertools import combinations
 
 from tangelo.toolboxes.operators.operators import QubitOperator
-from ._qubit_mf import get_op_expval, purify_qmf_state
+from ._qubit_mf import get_op_expval
 
 
-def construct_dis(qmf_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
+def construct_dis(pure_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
     """Construct the DIS of QCC generators, which proceeds as follows:
     1. Identify the flip indices of all Hamiltonian terms and group terms by flip indices.
     2. Construct a representative generator using flip indices from each candidate DIS group
@@ -47,7 +47,7 @@ def construct_dis(qmf_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
        odd number of Y operators.
 
     Args:
-        qmf_var_params (numpy array of float): The QMF variational parameter set {Omega}.
+        pure_var_params (numpy array of float): A purified QMF variational parameter set.
         qubit_ham (QubitOperator): A qubit Hamiltonian.
         qcc_deriv_thresh (float): Threshold of the value of |dEQCC/dtau| for a generator from
             a candidate DIS group. If |dEQCC/dtau| >= qcc_deriv_thresh, the candidate DIS group
@@ -61,9 +61,8 @@ def construct_dis(qmf_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
             of dEQCC/dtau.
     """
 
-    dis = []
     # Use a qubit Hamiltonian and QMF parameter set to construct the DIS
-    dis_groups = get_dis_groups(qmf_var_params, qubit_ham, qcc_deriv_thresh, verbose=verbose)
+    dis, dis_groups = [], get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh)
     if dis_groups:
         if verbose:
             print(f"The DIS contains {len(dis_groups)} unique generator group(s).\n")
@@ -72,51 +71,44 @@ def construct_dis(qmf_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
             dis_group_gens = get_gens_from_idxs(dis_group_idxs)
             dis.append([dis_group_gens, abs(dis_group[1])])
             if verbose:
-                print_msg = f"DIS group {i} | group size = {len(dis_group_gens)} | "\
-                            f"flip indices = {dis_group_idxs} | |dEQCC/dtau| = "\
-                            f"{abs(dis_group[1])} a.u.\n"
-                print(print_msg)
+                print(f"DIS group {i} | group size = {len(dis_group_gens)} | "\
+                      f"flip indices = {dis_group_idxs} | |dEQCC/dtau| = "\
+                      f"{abs(dis_group[1])} a.u.\n")
     else:
-        err_msg = f"The DIS is empty: there are no candidate DIS groups where "\
-                  f"|dEQCC/dtau| >= {qcc_deriv_thresh} a.u. Terminating the QCC simulation.\n"
-        raise ValueError(err_msg)
+        raise ValueError(f"The DIS is empty: there are no candidate DIS groups where "\
+                         f"|dEQCC/dtau| >= {qcc_deriv_thresh} a.u. Terminate the QCC simulation.\n")
     return dis
 
 
-def get_dis_groups(qmf_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
-    """Purify the QMF variational parameter set and then construct unique DIS groups
-    characterized by the flip indices and |dEQCC/dtau|.
+def get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh):
+    """Construct unique DIS groups characterized by the flip indices and |dEQCC/dtau|.
 
     Args:
-        qmf_var_params (numpy array of float): The QMF variational parameter set {Omega}.
+        pure_var_params (numpy array of float): A purified QMF variational parameter set.
         qubit_ham (QubitOperator): A qubit Hamiltonian.
         qcc_deriv_thresh (float): The threshold of |dEQCC/dtau| for a generator from a candidate
             DIS group. If |dEQCC/dtau| >= qcc_deriv_thresh, the candidate DIS group enters the
             DIS and its generators can be selected for the QCC ansatz.
-        verbose (bool): Flag for QCC verbosity.
 
     Returns:
         list of tuple: the flip indices (str) and the signed value of dEQCC/dtau
             (float) for DIS groups where |dEQCC/dtau| >= qcc_deriv_thresh.
     """
 
-    # Purify the QMF wave function in order to efficiently screen the DIS
-    pure_var_params = purify_qmf_state(qmf_var_params, verbose=verbose)
-
     # Get the flip indices from qubit_ham and compute the gradient dEQCC/dtau
     qham_gen = ((qham_items[0], (qham_items[1], pure_var_params))\
-        for qham_items in qubit_ham.terms.items())
+               for qham_items in qubit_ham.terms.items())
     flip_idxs = list(filter(None, (get_idxs_deriv(q_gen[0], *q_gen[1]) for q_gen in qham_gen)))
 
-    candidates = {}
     # Group Hamiltonian terms with the same flip indices and sum signed dEQCC/tau values
+    candidates = dict()
     for idxs in flip_idxs:
         deriv_old = candidates.get(idxs[0], 0.)
         candidates[idxs[0]] = idxs[1] + deriv_old
 
-    # Return a sorted list of flip indices and signed dEQCC/dtau for each DIS group
+    # Return a sorted list of flip indices and signed dEQCC/dtau values for each DIS group
     dis_groups = [idxs_deriv for idxs_deriv in candidates.items()\
-        if abs(idxs_deriv[1]) >= qcc_deriv_thresh]
+                 if abs(idxs_deriv[1]) >= qcc_deriv_thresh]
     return sorted(dis_groups, key=lambda deriv: abs(deriv[1]), reverse=True)
 
 
@@ -129,8 +121,8 @@ def get_idxs_deriv(qham_term, *qham_qmf_data):
 
     Args:
         qham_term (tuple of tuple): The Pauli operators and indices of a QubitOperator term.
-        qham_qmf_data (tuple): The coefficient of a QubitOperator term and QMF variational
-            parameter set (numpy array of float).
+        qham_qmf_data (tuple): The coefficient of a QubitOperator term and a purified QMF
+            variational parameter set (numpy array of float).
 
     Returns:
         tuple or None: return a tuple of the flip indices (str) and the signed value of
@@ -140,7 +132,7 @@ def get_idxs_deriv(qham_term, *qham_qmf_data):
     coef, pure_params = qham_qmf_data
     idxs, gen_list, idxs_deriv = "", [], None
     for pauli_factor in qham_term:
-       # The indices of X and Y operators are flip indices
+        # The indices of X and Y operators are flip indices
         idx, pauli_op = pauli_factor
         if "X" in pauli_op or "Y" in pauli_op:
             gen = (idx, "Y") if idxs == "" else (idx, "X")
@@ -167,15 +159,11 @@ def get_gens_from_idxs(group_idxs):
         list of QubitOperator: DIS group generators.
     """
 
-    dis_group_gens, odds = [], list(range(1, len(group_idxs), 2))
-    for n_y in odds:
-        # Create a list of Y operator indices.
-        xy_idxs = list(combinations(group_idxs, n_y))
-        for xy_idx in xy_idxs:
-            gen_list = []
-            for idx in group_idxs:
-                # if a flip index idx matches xy_idx, add a Y operator
-                gen = (idx, "Y") if idx in xy_idx else (idx, "X")
-                gen_list.append(gen)
+    dis_group_gens = []
+    for n_y in range(1, len(group_idxs), 2):
+        # Create combinations of odd numbers of flip indices for the Pauli Y operators
+        for xy_idx in combinations(group_idxs, n_y):
+            # If a flip index idx matches xy_idx, add a Y operator
+            gen_list = [(idx, "Y") if idx in xy_idx else (idx, "X") for idx in group_idxs]
             dis_group_gens.append(QubitOperator(tuple(gen_list), 1.))
     return dis_group_gens
