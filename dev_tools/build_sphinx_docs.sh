@@ -12,6 +12,7 @@ pip install -r requirements.txt
 sudo apt-get install -y latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended pandoc dvipng
 
 # Build html documentation in ../docs/source/html
+# Make sure Tangelo is installed beforehand
 cd ../docs || cd docs
 sphinx-apidoc -o ./source ../tangelo
 make clean; make html
