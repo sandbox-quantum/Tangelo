@@ -2,26 +2,18 @@ Tangelo overview
 =============
 
 Welcome !
-This open-source quantum SDK provides tools developed for exploring quantum chemistry simulation end-to-end workflows on 
-both gate-model quantum computers and quantum circuit emulators.
 
-It was designed to support the development of quantum algorithms and workflows running by providing building-blocks from various toolboxes.
-It attempts to cover all steps of the process, such as quantum execution, pre- and post-processing techniques, including problem decomposition.
-It provides users with features such as resource estimation, access to various compute backends (noiseless and noisy simulators, 
-quantum devices) and some classical solvers in order to keep track of both accuracy and resource requirements of our workflows,
-and facilitate the design of successful hardware experiments.
+Tangelo is an open-source python package developed by Good Chemistry Company, focused on the development of end-to-end material simulation workflows on quantum computers. Its modular design and ease-of-use enables users to easily assemble custom workflows, tinker and define their own building blocks, while keeping track of quantum resource requirements, such as number of qubits, gates or measurements. Through problem decomposition techniques, users can scale up beyond toy models and study the impact of quantum computing on more industrially-relevant use cases. Tangelo is backend-agnostic and compatible with many existing open-source frameworks, making the integration of third-party tools such as state-of-the-art simulators, circuit compilers or quantum cloud services straightforward. It is our wish to develop a community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
+
 
 Install
 -------
 
-This package requires a Python 3 environment.
-
-We recommend:
-
+This package requires a Python 3 environment. We recommend:
 
 * using `Python virtual environments <https://docs.python.org/3/tutorial/venv.html>`_ in order to set up your environment safely and cleanly
 * installing the "dev" version of Python3 if you encounter missing header errors, such as ``python.h file not found``.
-* having good C/C++ compilers and BLAS library to ensure the quantum circuit simulators you choose to install have good performance.
+* having good C/C++ compilers and BLAS libraries to ensure good overall performance of computation-intensive code.
 
 Using pip
 ^^^^^^^^^
@@ -31,7 +23,7 @@ TODO: once this package is available on pypi, give the command.
 From source, using setuptools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package can be installed by first cloning this repository with ``git clone``\ , and typing the following command in the
+This package can be installed by downloading or cloning the contents of this repository, and typing the following command in the
 root directory:
 
 .. code-block::
@@ -41,12 +33,11 @@ root directory:
 If the installation of a dependency fails and the reason is not obvious, we suggest installing that dependency
 separately with ``pip``\ , before trying again.
 
-You can also add the path to this folder to your ``PYTHONPATH`` environment variable to facilitate your own developments.
 
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-Tangelo enables users to target various backends. In particular, it integrates quantum circuit  simulators such as 
+Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as 
 ``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice.
 Most packages can be installed through pip in a straightforward way:
 
@@ -80,7 +71,8 @@ Tutorials
 ---------
 
 Please check the ``examples`` folder jupyter notebook tutorials and other examples.
-TODO: recommend here the one we are doing about the DMET paper once its ready and merged
+
+
 
 Tests
 -----
