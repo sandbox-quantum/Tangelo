@@ -136,7 +136,6 @@ pytket-qiskit==0.13.0
 pytz==2021.1
 pyzmq==19.0.2
 qcs-api-client==0.8.0
-qemist-client===0.2.1-cb867ac6
 qtconsole==5.1.1
 QtPy==1.11.2
 Quandl==3.6.0
