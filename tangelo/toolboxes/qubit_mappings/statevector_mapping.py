@@ -61,7 +61,7 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
         vector[:n_electrons] = 1
     if up_then_down:
         if mapping.upper() == "JKMN":
-            warnings.warn("Tangelo implementation of JKMN only supports up_then_down=False")
+            warnings.warn("Tangelo implementation of JKMN only supports up_then_down=False, ignoring up_then_down=True")
         else:
             vector = np.concatenate((vector[::2], vector[1::2]))
 
@@ -110,24 +110,28 @@ def do_scbk_transform(vector, n_spinorbitals):
     return vector
 
 
-def vector_to_circuit(vector):
+def vector_to_circuit(vector, mapping=None):
     """Translate occupation vector into a circuit. Each occupied state
     corresponds to an X-gate on the associated qubit index.
 
     Args:
         vector (numpy array of int): occupation vector.
+        mapping (str) : qubit mapping that defines circuit preparation.
 
     Returns:
         Circuit: instance of tangelo.linq Circuit class.
     """
 
-    n_qubits = len(vector)
-    circuit = Circuit(n_qubits=n_qubits)
+    if mapping is not None and mapping.upper() == "JKMN":
+        return jkmn_prep_circuit(vector)
+    else:
+        n_qubits = len(vector)
+        circuit = Circuit(n_qubits=n_qubits)
 
-    for index, occupation in enumerate(vector):
-        if occupation:
-            gate = Gate("X", target=index)
-            circuit.add_gate(gate)
+        for index, occupation in enumerate(vector):
+            if occupation:
+                gate = Gate("X", target=index)
+                circuit.add_gate(gate)
 
     return circuit
 
@@ -150,8 +154,5 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
         Circuit: instance of tangelo.linq Circuit class.
     """
     vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down, spin=spin)
-    if mapping.upper() == "JKMN":
-        return jkmn_prep_circuit(vector, n_spinorbitals)
-    else:
-        circuit = vector_to_circuit(vector)
+    circuit = vector_to_circuit(vector, mapping)
     return circuit
