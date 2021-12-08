@@ -119,11 +119,10 @@ class UCCSD(Ansatz):
             elif var_params == "mp2":
                 initial_var_params = self._compute_mp2_params()
         else:
-            try:
-                assert (len(var_params) == self.n_var_params)
-                initial_var_params = np.array(var_params)
-            except AssertionError:
-                raise ValueError(f"Expected {self.n_var_params} variational parameters but received {len(var_params)}.")
+            initial_var_params = np.array(var_params)
+            if initial_var_params.size != self.n_var_params:
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
+                                  f"received {initial_var_params.size}.")
         self.var_params = initial_var_params
         return initial_var_params
 

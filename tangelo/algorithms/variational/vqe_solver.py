@@ -33,6 +33,8 @@ from tangelo.toolboxes.ansatz_generator.uccsd import UCCSD
 from tangelo.toolboxes.ansatz_generator.rucc import RUCC
 from tangelo.toolboxes.ansatz_generator.hea import HEA
 from tangelo.toolboxes.ansatz_generator.upccgsd import UpCCGSD
+from tangelo.toolboxes.ansatz_generator.qmf import QMF
+from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.toolboxes.ansatz_generator.variational_circuit import VariationalCircuitAnsatz
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
@@ -46,6 +48,8 @@ class BuiltInAnsatze(Enum):
     UCC3 = 2
     HEA = 3
     UpCCGSD = 4
+    QMF = 5
+    QCC = 6
 
 
 class VQESolver:
@@ -105,6 +109,13 @@ class VQESolver:
                 setattr(self, k, v)
             else:
                 raise KeyError(f"Keyword :: {k}, not available in VQESolver")
+
+        # The QCC ansatz requires up_then_down=True when mapping="jw"
+        if self.ansatz == BuiltInAnsatze.QCC and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
+            warn_msg = "The QCC ansatz requires spin-orbital ordering to be all spin-up "\
+                       "first followed by all spin-down for the JW mapping."
+            warnings.warn(warn_msg, RuntimeWarning)
+            self.up_then_down = True
 
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
@@ -171,6 +182,10 @@ class VQESolver:
                     self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.UpCCGSD:
                     self.ansatz = UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                elif self.ansatz == BuiltInAnsatze.QMF:
+                    self.ansatz = QMF(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                elif self.ansatz == BuiltInAnsatze.QCC:
+                    self.ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):

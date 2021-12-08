@@ -61,13 +61,11 @@ class VariationalCircuitAnsatz(Ansatz):
                 elif var_params == "zeros":
                     var_params = np.zeros((self.n_var_params,), dtype=float)
         else:
-            try:
-                assert (len(var_params) == self.n_var_params)
-                var_params = np.array(var_params)
-            except AssertionError:
-                raise ValueError(f"Expected {self.n_var_params} variational parameters but received {len(var_params)}.")
+            var_params = np.array(var_params)
+            if var_params.size != self.n_var_params:
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
+                                  f"received {var_params.size}.")
         self.var_params = var_params
-
         return var_params
 
     def update_var_params(self, var_params):

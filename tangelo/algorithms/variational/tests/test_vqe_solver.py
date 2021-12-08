@@ -19,6 +19,8 @@ from tangelo.linq import Simulator
 from tangelo.algorithms import BuiltInAnsatze, VQESolver
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_NaH_sto3g
 from tangelo.toolboxes.ansatz_generator.uccsd import UCCSD
+from tangelo.toolboxes.ansatz_generator.qmf import QMF
+from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.molecular_computation.rdms import matricize_2rdm
 
@@ -110,6 +112,31 @@ class VQESolverTest(unittest.TestCase):
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
 
+    def test_simulate_qmf_h2(self):
+        """Run VQE on H2 molecule, with QMF ansatz, JW qubit mapping, initial
+        parameters, exact simulator.
+        """
+
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.QMF, "qubit_mapping": "jw",
+                       "verbose": True}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.116684, delta=1e-4)
+
+    def test_simulate_qcc_h2(self):
+        """Run VQE on H2 molecule, with QCC ansatz, JW qubit mapping, initial
+        parameters, exact simulator.
+        """
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.QCC, "qubit_mapping": "jw",
+                       "verbose": True}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.137270, delta=1e-4)
+
     def test_simulate_h2_qiskit(self):
         """Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial
         parameters, exact qiskit simulator.
@@ -137,6 +164,31 @@ class VQESolverTest(unittest.TestCase):
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.9778312978826869, delta=1e-4)
 
+    def test_simulate_qmf_h4(self):
+        """Run VQE on H4 molecule, with QMF ansatz, JW qubit mapping, initial
+        parameters, exact simulator.
+        """
+
+        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.QMF, "qubit_mapping": "jw",
+                       "verbose": True}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.789483, delta=1e-4)
+
+    def test_simulate_qcc_h4(self):
+        """Run VQE on H4 molecule, with QCC ansatz, JW qubit mapping, initial
+        parameters, exact simulator.
+        """
+        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.QCC, "qubit_mapping": "jw",
+                       "verbose": True}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.963270, delta=1e-4)
+
     def test_simulate_h4_open(self):
         """Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
         vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
@@ -146,6 +198,32 @@ class VQESolverTest(unittest.TestCase):
 
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.6394, delta=1e-3)
+
+    def test_simulate_qmf_h4_open(self):
+        """Run VQE on H4 + molecule, with QMF ansatz, JW qubit mapping, initial
+        parameters, exact simulator.
+        """
+
+        vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.QMF, "qubit_mapping": "jw",
+                       "verbose": True}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.585918, delta=1e-4)
+
+    def test_simulate_qcc_h4_open(self):
+        """Run VQE on H4 + molecule, with QCC ansatz, JW qubit mapping, initial
+        parameters, exact simulator.
+        """
+
+        vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.QCC, "qubit_mapping": "jw",
+                       "verbose": True}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.638020, delta=1e-4)
 
     def test_optimal_circuit_h4(self):
         """Run VQE on H4 molecule, save optimal circuit. Verify it yields
