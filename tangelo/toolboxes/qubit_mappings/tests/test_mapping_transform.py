@@ -70,6 +70,22 @@ class MappingTest(unittest.TestCase):
         qubit = fermion_to_qubit_mapping(fermion, mapping="SCBK", n_spinorbitals=4, n_electrons=2)
         self.assertEqual(qubit, scbk_operator)
 
+    def test_jkmn(self):
+        """Check output from JKMN transform"""
+        jkmn_operator = QubitOperator(((0, "Y"), (1, "X"), (3, "X")), -0.125j)
+        jkmn_operator += QubitOperator(((0, "Y"), (1, "X"), (3, "Y")), 0.125)
+        jkmn_operator += QubitOperator(((0, "Y"), (1, "Y"), (3, "X")), -0.125)
+        jkmn_operator += QubitOperator(((0, "Y"), (1, "Y"), (3, "Y")), -0.125j)
+        jkmn_operator += QubitOperator(((0, "Z"), (1, "Z"), (2, "Y")), 0.25j)
+        jkmn_operator += QubitOperator(((0, "Z"), (1, "Z"), (2, "Z")), 0.25)
+        jkmn_operator += QubitOperator(((2, "Y")), -0.25j)
+        jkmn_operator += QubitOperator(((2, "Z")), -0.25)
+
+        fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
+
+        qubit = fermion_to_qubit_mapping(fermion, mapping="JKMN", n_spinorbitals=4)
+        self.assertEqual(qubit, jkmn_operator)
+
     def test_scbk_invalid(self):
         """Check if fermion operator fails to conserve number parity or spin
         parity. In either case, scBK is not an appropriate mapping.
@@ -158,7 +174,7 @@ class MappingTest(unittest.TestCase):
         self.assertEqual(scBK_reordered, scBK_notreordered)
 
     def test_jkmn_reorder(self):
-        """JKMN forces spin-orbital ordering order alternately. Check that
+        """Tangelo implementation of JKMN forces spin-orbitals to order alternately. Check that
         the qubit Hamiltonian returned is the same whether the user passes a
         FermionOperator with this ordering, or not.
         """

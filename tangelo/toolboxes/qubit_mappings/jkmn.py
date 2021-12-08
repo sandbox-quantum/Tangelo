@@ -23,6 +23,16 @@ sigma_map = {"0": "X", "1": "Y", "2": "Z"}
 
 
 def _number_to_base(n, b, h):
+    """generates the string that corresponds to the number n with base b and string length h
+
+    Args:
+        n (int) : The number to convert to a string of integers for a given base
+        b (int) : The base to convert the number to
+        h (int) : The length of the string to return
+
+    Returns:
+        str : The base b representation of the integer n with length h
+    """
     if n == 0:
         return "0"*h
     digits = ""
@@ -34,19 +44,35 @@ def _number_to_base(n, b, h):
     return digits[::-1]
 
 
-def _node_value(terstring, l):
+def _node_value(p, l):
+    """Obtain the node value from vector p and depth l as given in Eq (3) in
+    arXiv:1910.10746v2"""
     if l == 0:
         return 0
     nv = (3**l - 1)//2
     for j in range(l):
-        nv += 3**(l-1-j)*int(terstring[j])
+        nv += 3**(l-1-j)*int(p[j])
     return nv
 
 
 def _jkmn_list(h):
+    """Generates the full list of paths in the JKMN defined ternary tree of height h
+
+    The algorithm is described in arXiv:1910.10746v2
+
+    Args:
+        h (int) : The height of the full ternary tree to generate the leaf paths
+
+    Returns:
+        list : The list with elements that generate the qubit operators
+        for each path in the ternary tree
+    """
     t_list = []
     for i in range(3**h):
+        # string representation of leaf index
         terstring = _number_to_base(i, 3, h)
+
+        # descend ternary tree and obtain tuples describing QubitOperator
         c_qu_op = []
         for ch in range(h):
             nv = _node_value(terstring, ch)
@@ -56,17 +82,30 @@ def _jkmn_list(h):
 
 
 def _jkmn_dict(n_qubits):
-    n = n_qubits
-    h = int(np.log10(2*n + 1)/np.log10(3))
-    n_leaves_to_qubit = n - (3**h - 1) // 2
+    """Generates the mapping from Majorana modes to qubit operators
+
+    The algorithm is described in arXiv:1910.10746v2
+
+    Args:
+        n_qubits (int) : The number of qubits in the system
+
+    Returns:
+        dict : The mapping from Majorana modes to qubit operators
+    """
+
+    # Calculate initial height of ternary tree (largest full tree with n < n_qubit nodes)
+    h = int(np.log10(2 * n_qubits + 1) / np.log10(3))
 
     # create full tree of largest size with less than n nodes
     all_list = _jkmn_list(h)
 
+    # Obtain number of leaves of tree that need to be branched
+    n_leaves_to_qubit = n_qubits - (3**h - 1) // 2
+
     # change first n_leaves_to_qubit leaves to qubits
     prepend_list = []
     for j in range(n_leaves_to_qubit):
-        # remove leaf and change to node
+        # remove leaf and change to node append sigma_x sigma_y sigma_z
         item_to_qubit = all_list.pop(0)
         for i in range(3):
             nv = (3**(h)-1)//2 + j
@@ -74,15 +113,23 @@ def _jkmn_dict(n_qubits):
 
     all_list = prepend_list + all_list
 
-    # Create map from Majorana modes to QubitOperators
+    # Create map from Majorana modes to QubitOperators ignoring furthest right leaf
     full_map = dict()
     for i, v in enumerate(all_list[:-1]):
-        # print(f"{i, v}")
         full_map[i] = QubitOperator(v)
     return full_map
 
 
 def jkmn(fermion_operator, n_qubits):
+    """The JKMN mapping of a fermion operator as described in arXiv:1910.10746v2
+
+    Args:
+        fermion_operator (FermionOperator) : The fermion operator to transform to a qubit operator
+        n_qubits (int) : The number of qubits in the system
+
+    Returns:
+        QubitOperator : The qubit operator corresponding to the Fermion Operator
+    """
     mj_op = get_majorana_operator(fermion_operator)
     jkmn_map = _jkmn_dict(n_qubits)
 
@@ -93,15 +140,28 @@ def jkmn(fermion_operator, n_qubits):
             for mj in term:
                 c_term *= jkmn_map[mj]
             full_operator += c_term
+    full_operator.compress()
     return full_operator
 
 
-def _jkmn_vaccuum_circuit(full_map, n):
+def jkmn_vaccuum_circuit(n_qubits, jkmn_map=None):
+    """Generates the circuit that initializes vaccuum state for JKMN mapping
+
+    Args:
+        n_qubits (int) : The number of qubits in the system
+        jkmn_map (dict) : The mapping from a Majorana operator index to a QubitOperator
+
+    Returns:
+        Circuit : The circuit that prepares the vaccuum state.
+    """
+
+    if jkmn_map is None:
+        jkmn_map = _jkmn_dict(n_qubits)
     fock_dict = dict()
     rot_dict = dict()
     # generate number operators
-    for i in range(n):
-        fock_dict[i] = 0.5 * QubitOperator([]) - 0.5j * full_map[2*i] * full_map[2*i+1]
+    for i in range(n_qubits):
+        fock_dict[i] = 0.5 * QubitOperator([]) - 0.5j * jkmn_map[2*i] * jkmn_map[2*i+1]
         for k, v in fock_dict[i].terms.items():
             if k:
                 for i in k:
@@ -111,12 +171,24 @@ def _jkmn_vaccuum_circuit(full_map, n):
     for k, v in rot_dict.items():
         if v == "X":
             gate_list.append(Gate("H", int(k)))
-    return Circuit(gate_list, n_qubits=n)
+    return Circuit(gate_list, n_qubits=n_qubits)
 
 
 def jkmn_prep_circuit(vector, n_qubits):
+    r"""Generates the circuit corresponding to a HF state with occupations defined by vector
+
+    The vaccuum state preparation circuit is obtained. Each fermionic mode i is then generated by applying
+    \gamma_{2*i} = a_i^{\dagger} + a_i
+
+    Args:
+        vector (list of int) : The occupation of each spinorbital
+        n_qubits : The number of qubits in the system
+
+    Returns:
+        Circuit : The state preparation circuit for a HF state with occupation given by vector
+    """
     jkmn_map = _jkmn_dict(n_qubits)
-    vacuum_circuit = _jkmn_vaccuum_circuit(jkmn_map, n_qubits)
+    vacuum_circuit = jkmn_vaccuum_circuit(n_qubits, jkmn_map)
 
     state_prep_qu_op = QubitOperator([], 1)
     for i, occ in enumerate(vector):

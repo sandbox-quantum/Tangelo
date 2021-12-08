@@ -107,7 +107,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
         if n_spinorbitals is None:
             raise ValueError("The number of spin-orbitals is required to execute basis re-ordering.")
         if mapping.upper() == "JKMN":
-            warnings.warn("Tangelo implementation of JKMN only supports up_then_down=False")
+            warnings.warn("Tangelo implementation of JKMN only supports up_then_down=False, ignoring up_then_down=True")
         else:
             fermion_operator = make_up_then_down(fermion_operator, n_spinorbitals=n_spinorbitals)
 
@@ -129,6 +129,8 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
                                                            up_then_down=up_then_down,
                                                            spin=spin)
     elif mapping.upper() == "JKMN":
+        if n_spinorbitals is None:
+            raise ValueError("JKMN mapping requires specification of number of qubits")
         qubit_operator = jkmn(fermion_operator, n_qubits=n_spinorbitals)
 
     converted_qubit_op = QubitOperator()
