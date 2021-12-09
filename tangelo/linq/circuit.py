@@ -141,7 +141,5 @@ class Circuit:
         Returns:
             Circuit: the inverted circuit
         '''
-        gate_list = list()
-        for gate in reversed(self._gates):
-            gate_list.append(gate.inverse())
+        gate_list = [gate.inverse() for gate in reversed(self._gates)]
         return Circuit(gate_list)

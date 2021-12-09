@@ -29,7 +29,6 @@ from tangelo.helpers.utils import installed_backends
 path_data = os.path.dirname(os.path.realpath(__file__)) + '/data'
 
 gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1), Gate("Y", 0), Gate("S", 0)]
-multi_controlled_gates = [Gate("X", 0), Gate("X", 1), Gate("CX", target=2, control=[0,1])]
 abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=2.)])
 multi_controlled_gates = [Gate("X", 0), Gate("X", 1), Gate("CX", target=2, control=[0, 1])]
 abs_multi_circ = Circuit(multi_controlled_gates)
