@@ -22,33 +22,9 @@ from tangelo.linq import Circuit, Gate
 sigma_map = {"0": "X", "1": "Y", "2": "Z"}
 
 
-def _number_to_base(n, b, h):
-    """Generate the string that corresponds to the number n with base b and string length h
-
-    Args:
-        n (int) : The number to convert to a string of integers for a given base
-        b (int) : The base to convert the number to
-        h (int) : The length of the string to return
-
-    Returns:
-        str : The base b representation of the integer n with length h
-    """
-    if n == 0:
-        return "0"*h
-    digits = ""
-    while n:
-        digits += str(n % b)
-        n //= b
-    while len(digits) < h:
-        digits += "0"
-    return digits[::-1]
-
-
 def _node_value(p, l):
     """Obtain the node value from vector p and depth l as given in Eq (3) in
     arXiv:1910.10746v2"""
-    if l == 0:
-        return 0
     nv = (3**l - 1)//2
     for j in range(l):
         nv += 3**(l-1-j)*int(p[j])
@@ -67,16 +43,18 @@ def _jkmn_list(h):
         list : The list with elements that generate the qubit operators
         for each path in the ternary tree
     """
-    t_list = []
+    t_list = list()
     for i in range(3**h):
-        # string representation of leaf index
-        terstring = _number_to_base(i, 3, h)
+        # string representation of leaf index with base 3 and padding 0s to the tree height h
+        terstring = np.base_repr(i, base=3).rjust(h, '0')
 
         # descend ternary tree and obtain tuples describing QubitOperator
         c_qu_op = []
         for ch in range(h):
+            # generates tuple that initiates QubitOperator on index nv and operator op=X,Y,Z
             nv = _node_value(terstring, ch)
-            c_qu_op += [(nv, sigma_map[terstring[ch]])]
+            op = sigma_map[terstring[ch]]
+            c_qu_op += [(nv, op)]
         t_list += [c_qu_op]
     return t_list
 
