@@ -50,7 +50,7 @@ class BravyiKitaevTest(unittest.TestCase):
         openfermion_result = openfermion_bravyi_kitaev(input_operator, n_qubits=n_qubits)
 
         # check that the number of terms is the same.
-        self.assertEqual(len(tangelo_result.terms), len(openfermion_result.terms), msg="Number of terms generated does not agree" +
+        self.assertEqual(len(tangelo_result.terms), len(openfermion_result.terms), msg="Number of terms generated does not agree"
                                                                                        "with openfermion implementation of Bravyi Kitaev.")
 
         # check that the term coefficients are the same
