@@ -55,7 +55,7 @@ def hermitian_conjugate(terms):
                   (v[0][1][0], 0),
                   (v[0][0][0], 0)),
                  -v[1]] for v in terms]
-    except:
+    except Exception:
         raise ValueError("Input terms must be format as, e.g. [[((int,1),(int,0),(int,1),(int,0)),float],...]")
 
 

@@ -20,6 +20,7 @@ environment effect from the surrounding part) is done here.
 
 import numpy as np
 
+
 def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low):
     """ Construct the bath orbitals for DMET fragment calculation.
 
@@ -51,6 +52,7 @@ def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low):
 
     return bath_orb, e_core
 
+
 def dmet_onerdm_embed(mol, temp_list, onerdm_before):
     """ Extract the one particle RDM of the active space.
 
@@ -74,18 +76,19 @@ def dmet_onerdm_embed(mol, temp_list, onerdm_before):
 
     if temp_list[0] == 0:
         # If it is the first fragment, just determine the maximum for extraction
-        onerdm_temp  = onerdm_matrix[ : , temp_list[1]: ]
-        onerdm_temp3 = onerdm_temp[temp_list[1]: , : ]
+        onerdm_temp = onerdm_matrix[:, temp_list[1]:]
+        onerdm_temp3 = onerdm_temp[temp_list[1]:, :]
     else:
         # Determine the minimum and maximum orbitals for extraction
-        onerdm_temp  = onerdm_matrix[ : , : temp_list[0]]
-        onerdm_temp2 = onerdm_matrix[ : , temp_list[1]: ]
+        onerdm_temp = onerdm_matrix[:, : temp_list[0]]
+        onerdm_temp2 = onerdm_matrix[:, temp_list[1]:]
         onerdm_temp3 = np.hstack((onerdm_temp, onerdm_temp2))
-        onerdm_temp  = onerdm_temp3[ : temp_list[0], : ]
-        onerdm_temp2 = onerdm_temp3[temp_list[1]: , : ]
+        onerdm_temp = onerdm_temp3[:temp_list[0], :]
+        onerdm_temp2 = onerdm_temp3[temp_list[1]:, :]
         onerdm_temp3 = np.vstack((onerdm_temp, onerdm_temp2))
 
     return onerdm_temp3
+
 
 def dmet_bath_orb_sort(t_list, e_before, c_before):
     """ Sort the bath orbitals with the eigenvalues (orbital energies).
@@ -113,11 +116,12 @@ def dmet_bath_orb_sort(t_list, e_before, c_before):
 
     # Sort the bath orbitals with its energies
     e_new = e_before[new_index]
-    c_new = c_before[ : , new_index]
+    c_new = c_before[:, new_index]
 
     return e_new, c_new
 
-def dmet_add_to_bath_orb( mol, t_list, temp_list, e_before, c_before ):
+
+def dmet_add_to_bath_orb(mol, t_list, temp_list, e_before, c_before):
     """ Add the frozen core part to the bath orbitals.
 
     Args:
@@ -137,12 +141,12 @@ def dmet_add_to_bath_orb( mol, t_list, temp_list, e_before, c_before ):
     """
 
     # Copy the bath orbitals and energies be fore adding the core
-    add_e = - e_before[t_list[1]: ]
-    add_c = c_before[ : , t_list[1]: ]
+    add_e = - e_before[t_list[1]:]
+    add_c = c_before[:, t_list[1]:]
     new_index = add_e.argsort()
 
     # Sort the orbitals based on its energies
-    c_before[ : , t_list[1]: ] = add_c[ : , new_index]
+    c_before[:, t_list[1]:] = add_c[:, new_index]
     add_e = - add_e[new_index]
 
     # The orbital energies with core part
@@ -153,7 +157,7 @@ def dmet_add_to_bath_orb( mol, t_list, temp_list, e_before, c_before ):
     for orb in range(0, t_list[0]):
         c_before = np.insert(c_before, orb, 0.0, axis=1)
     i_temp = 0
-    for orb_total in range( 0, norbital_total ):
+    for orb_total in range(0, norbital_total):
         if ((orb_total >= temp_list[0]) and (orb_total < temp_list[1])):
             c_before = np.insert(c_before, orb_total, 0.0, axis=0)
             c_before[orb_total, i_temp] = 1.0

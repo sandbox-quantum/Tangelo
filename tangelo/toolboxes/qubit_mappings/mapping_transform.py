@@ -66,7 +66,7 @@ def get_fermion_operator(operator):
     for term in operator:
         try:
             fermion_operator += FermionOperator(term, operator[term])
-        except:
+        except Exception:
             raise TypeError("Operator terms are not formatted as valid input for FermionOperator type.")
     return fermion_operator
 

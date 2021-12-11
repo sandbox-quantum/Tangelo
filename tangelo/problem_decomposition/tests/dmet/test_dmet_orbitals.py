@@ -24,6 +24,7 @@ from tangelo.problem_decomposition.electron_localization import iao_localization
 
 path_file = os.path.dirname(os.path.abspath(__file__))
 
+
 class TestDMETorbitals(unittest.TestCase):
     """Generate the localized orbitals employing IAOs."""
 

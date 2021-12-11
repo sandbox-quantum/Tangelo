@@ -44,7 +44,7 @@ class ADAPTAnsatz(Ansatz):
     """
 
     def __init__(self, n_spinorbitals, n_electrons, ansatz_options=None):
-        default_options = {"operators": list(), "ferm_operators":list(),
+        default_options = {"operators": list(), "ferm_operators": list(),
                            "mapping": "jw", "up_then_down": False,
                            "reference_state": "HF"}
 

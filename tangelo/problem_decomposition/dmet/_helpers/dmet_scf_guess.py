@@ -22,6 +22,7 @@ import scipy
 import numpy as np
 from functools import reduce
 
+
 def dmet_fragment_guess(t_list, bath_orb, chemical_potential, norb_high, number_active_electron, active_fock):
     """Construct the guess orbitals.
 
@@ -40,7 +41,7 @@ def dmet_fragment_guess(t_list, bath_orb, chemical_potential, norb_high, number_
     """
 
     # Construct the fock matrix of the fragment (subtract the chemical potential for consistency)
-    fock_fragment = reduce(np.dot, (bath_orb[ : , : norb_high].T, active_fock, bath_orb[ : , : norb_high]))
+    fock_fragment = reduce(np.dot, (bath_orb[:, : norb_high].T, active_fock, bath_orb[:, : norb_high]))
     norb = t_list[0]
     if(chemical_potential != 0):
         for i in range(norb):
@@ -48,7 +49,7 @@ def dmet_fragment_guess(t_list, bath_orb, chemical_potential, norb_high, number_
 
     # Diagonalize the fock matrix and get the eigenvectors
     eigenvalues, eigenvectors = scipy.linalg.eigh(fock_fragment)
-    eigenvectors = eigenvectors[ : , eigenvalues.argsort()]
+    eigenvectors = eigenvectors[:, eigenvalues.argsort()]
 
     # Extract the eigenvectors of the occupied orbitals as the guess orbitals
     frag_guess = np.dot(eigenvectors[ :, : int(number_active_electron/2)], eigenvectors[ :, : int(number_active_electron/2)].T) * 2

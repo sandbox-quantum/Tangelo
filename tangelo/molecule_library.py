@@ -78,7 +78,7 @@ mol_NaH_sto3g = SecondQuantizedMolecule(xyz_NaH, q=0, spin=0, basis="sto-3g", fr
 
 # Beryllium atom.
 xyz_Be = [
-    ("Be" , (0., 0., 0.))
+    ("Be", (0., 0., 0.))
 ]
 mol_Be_321g = SecondQuantizedMolecule(xyz_Be, q=0, spin=0, basis="3-21g", frozen_orbitals=None)
 

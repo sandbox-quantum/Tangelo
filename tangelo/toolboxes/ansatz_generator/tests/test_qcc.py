@@ -115,7 +115,7 @@ class QCCTest(unittest.TestCase):
                        QubitOperator("X0 Y2"), QubitOperator("X0 X1 Y3 X4 X5"),
                        QubitOperator("X0 X1 X2 Y3 X4")]
         qcc_var_params = [ 0.26202301, -0.21102705,  0.11683144, -0.24234041,  0.13832747,
-                          -0.0951985 , -0.03501809,  0.0640034 ,  0.0542095]
+                          -0.0951985,  -0.03501809,  0.0640034,   0.0542095]
         qcc_ansatz = QCC(mol_H4_cation_sto3g, "SCBK", True, qcc_op_list)
 
         # Build a QMF + QCC circuit
