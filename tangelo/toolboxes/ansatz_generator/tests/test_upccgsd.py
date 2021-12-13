@@ -14,11 +14,16 @@
 
 import unittest
 import numpy as np
+import os
+from openfermion import load_operator
 
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_doublecation_minao, mol_H4_cation_sto3g
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.upccgsd import UpCCGSD
 from tangelo.linq import Simulator
+
+# For openfermion.load_operator function.
+pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
 
 class UpCCGSDTest(unittest.TestCase):
@@ -105,7 +110,7 @@ class UpCCGSDTest(unittest.TestCase):
         upccgsd_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = jordan_wigner(mol_H4_doublecation_minao.fermionic_hamiltonian)
+        qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_jw.data", data_directory=pwd_this_test, plain_text=True)
 
         # Assert energy returned is as expected for given parameters
         sim = Simulator()
