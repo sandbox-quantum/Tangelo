@@ -1,9 +1,14 @@
 [![GitHub License](https://img.shields.io/badge/License-Apache-green)](https://github.com/quantumsimulation/QEMIST_qSDK/main/LICENSE)
 
+/github/workflow/status//:repo/:workflow/:branch
+
 |licence|
+|build|
 
 .. |licence| image:: https://img.shields.io/badge/License-Apache-green
+.. |build| image:: https://github.com/quantumsimulation/QEMIST_qSDK/actions/workflows/github_actions_automated_testing.yml/badge.svg
 
+		     
 Tangelo overview
 =============
 
