@@ -122,10 +122,10 @@ class MappingTest(unittest.TestCase):
         scbk_ground = np.linalg.eigvalsh(qubit_operator_sparse(scbk_operator, n_qubits=2).todense()).min()
         jkmn_ground = np.linalg.eigvalsh(qubit_operator_sparse(jkmn_operator, n_qubits=4).todense()).min()
 
-        self.assertEqual(ground, jw_ground)
-        self.assertEqual(ground, bk_ground)
-        self.assertEqual(ground, scbk_ground)
-        self.assertAlmostEqual(ground, jkmn_ground, delta=1.e-12)
+        self.assertAlmostEqual(ground, jw_ground, places=15)
+        self.assertAlmostEqual(ground, bk_ground, places=15)
+        self.assertAlmostEqual(ground, scbk_ground, places=15)
+        self.assertAlmostEqual(ground, jkmn_ground, places=15)
 
     def test_spin_order(self):
         """Test that re-ordering of spin-orbitals from alternating up down to
