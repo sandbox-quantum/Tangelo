@@ -1,3 +1,5 @@
+[![GitHub License](https://img.shields.io/badge/License-Apache-green)](https://github.com/nasa/hybridq/blob/main/LICENSE)
+
 Tangelo overview
 =============
 
