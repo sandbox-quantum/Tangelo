@@ -1,5 +1,7 @@
 [![GitHub License](https://img.shields.io/badge/License-Apache-green)](https://github.com/quantumsimulation//QEMIST_qSDK/main/LICENSE)
 
+|licence|
+
 .. |licence| image:: https://assets.readthedocs.org/static/projects/badges/passing-flat.svg
 
 Tangelo overview
