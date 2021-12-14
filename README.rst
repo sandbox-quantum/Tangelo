@@ -1,16 +1,20 @@
-[![GitHub License](https://img.shields.io/badge/License-Apache-green)](https://github.com/quantumsimulation/QEMIST_qSDK/main/LICENSE)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/nasa/hybridq.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nasa/hybridq/context:python)
 
-/github/workflow/status//:repo/:workflow/:branch
+.. |PyPI version shields.io| image:: https://img.shields.io/pypi/v/ansicolortags.svg
+   :target: https://pypi.python.org/pypi/ansicolortags/
 
+Tangelo overview
+================
+
+|maintainer|
 |licence|
 |build|
 
+.. |maintainer| image:: https://img.shields.io/badge/maintainer-GoodChemistry-blue
 .. |licence| image:: https://img.shields.io/badge/License-Apache-green
+   :target: https://github.com/quantumsimulation/QEMIST_qSDK/blob/main/README.rst
 .. |build| image:: https://github.com/quantumsimulation/QEMIST_qSDK/actions/workflows/github_actions_automated_testing.yml/badge.svg
-
-		     
-Tangelo overview
-=============
+.. |python| image:: 
 
 Welcome !
 
@@ -82,7 +86,6 @@ Tutorials
 ---------
 
 Please check the ``examples`` folder jupyter notebook tutorials and other examples.
-
 
 
 Tests
