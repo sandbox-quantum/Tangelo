@@ -16,15 +16,18 @@
 gate operation, without tying it to a particular backend or an underlying
 mathematical operation.
 """
-
+from math import pi
 from typing import Union
 
-from numpy import integer, ndarray
+from numpy import integer, ndarray, floating
 
 ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"}
 TWO_QUBIT_GATES = {"CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"}
 THREE_QUBIT_GATES = {"CSWAP"}
 PARAMETERIZED_GATES = {"RX", "RY", "RZ", "PHASE", "CRX", "CRY", "CRZ", "CPHASE", "XX"}
+INVERTIBLE_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "CH", "PHASE",
+                    "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"
+                    "CSWAP"}
 
 
 class Gate(dict):
@@ -99,6 +102,34 @@ class Gate(dict):
             mystr += "\t (variational)"
 
         return mystr
+
+    def inverse(self):
+        """Returns the inverse (adjoint) of a gate.
+
+        Return:
+            Gate: the inverse of the gate.
+        """
+        if self.name not in INVERTIBLE_GATES:
+            raise AttributeError(f"{self.gate} is not an invertible gate")
+        if self.parameter == "":
+            new_parameter = ""
+        elif isinstance(self.parameter, (float, floating, int, integer)):
+            new_parameter = -self.parameter
+        elif self.name in {"T", "S"}:
+            new_parameter = -pi / 2 if self.name == "T" else -pi / 4
+            return Gate(name="PHASE",
+                        target=self.target,
+                        control=self.control,
+                        parameter=new_parameter,
+                        is_variational=self.is_variational)
+
+        else:
+            raise AttributeError(f"{self.name} is not an invertible gate when parameter is {self.parameter}")
+        return Gate(name=self.name,
+                    target=self.target,
+                    control=self.control,
+                    parameter=new_parameter,
+                    is_variational=self.is_variational)
 
     def serialize(self):
         return {"type": "Gate",

@@ -39,7 +39,7 @@ def get_openqasm_gates():
     GATE_OPENQASM = dict()
     for name in {"H", "X", "Y", "Z", "S", "T"}:
         GATE_OPENQASM[name] = name.lower()
-    for name in {"RX", "RY", "RZ", "MEASURE"}:
+    for name in {"RX", "RY", "RZ", "MEASURE", "PHASE"}:
         GATE_OPENQASM[name] = name.lower()
     GATE_OPENQASM["CNOT"] = "cx"
 
@@ -110,6 +110,8 @@ def _translate_openqasm2abs(openqasm_str):
         # TODO: Rethink the use of enums for gates to set the equality CX=CNOT and enable other refactoring
         elif gate_name in {"cx"}:
             gate = Gate("CNOT", qubit_indices[1], control=qubit_indices[0])
+        elif gate_name in {"p"}:
+            gate = Gate("PHASE", qubit_indices[0], parameter=eval(str(parameters[0])))
         else:
             raise ValueError(f"Gate '{gate_name}' not supported with openqasm translation")
         abs_circ.add_gate(gate)
