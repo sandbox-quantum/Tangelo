@@ -38,6 +38,7 @@ def get_projectq_gates():
     for name in {"RX", "RY", "RZ", "MEASURE"}:
         GATE_PROJECTQ[name] = name[0] + name[1:].lower()
     GATE_PROJECTQ["CNOT"] = "CX"
+    GATE_PROJECTQ["PHASE"] = "R"
 
     return GATE_PROJECTQ
 
@@ -63,7 +64,7 @@ def translate_projectq(source_circuit):
     for gate in source_circuit._gates:
         if gate.name in {"H", "X", "Y", "Z", "S", "T", "MEASURE"}:
             projectq_circuit += f"{GATE_PROJECTQ[gate.name]} | Qureg[{gate.target[0]}]\n"
-        elif gate.name in {"RX", "RY", "RZ"}:
+        elif gate.name in {"RX", "RY", "RZ", "PHASE"}:
             projectq_circuit += f"{GATE_PROJECTQ[gate.name]}({gate.parameter}) | Qureg[{gate.target[0]}]\n"
         elif gate.name in {"CNOT"}:
             projectq_circuit += f"{GATE_PROJECTQ[gate.name]} | ( Qureg[{gate.control[0]}], Qureg[{gate.target[0]}] )\n"
@@ -112,7 +113,7 @@ def _translate_projectq2abs(projectq_str):
 
         if gate_name in {"H", "X", "Y", "Z", "S", "T"}:
             gate = Gate(gate_mapping[gate_name], qubit_indices[0])
-        elif gate_name in {"Rx", "Ry", "Rz"}:
+        elif gate_name in {"Rx", "Ry", "Rz", "PHASE"}:
             gate = Gate(gate_mapping[gate_name], qubit_indices[0], parameter=parameters[0])
         # #TODO: Rethink the use of enums for gates to set the equality CX=CNOT and enable other refactoring
         elif gate_name in {"CX"}:

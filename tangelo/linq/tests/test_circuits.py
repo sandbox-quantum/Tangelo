@@ -19,6 +19,7 @@
 
 import unittest
 import copy
+from math import pi
 from collections import Counter
 from tangelo.linq import Gate, Circuit
 
@@ -97,6 +98,22 @@ class TestCircuits(unittest.TestCase):
         n_qubits = 3
         circuit_fixed = Circuit([Gate("H", 0)], n_qubits=n_qubits)
         self.assertTrue(circuit_fixed.width == n_qubits)
+
+    def test_inverse(self):
+        """ Test if inverse function returns the proper set of gates by comparing print strings."""
+
+        mygates_inverse = list()
+        mygates_inverse.append(Gate("RX", 1, parameter=-2.))
+        mygates_inverse.append(Gate("Y", 0))
+        mygates_inverse.append(Gate("CNOT", 2, control=1))
+        mygates_inverse.append(Gate("CNOT", 1, control=0))
+        mygates_inverse.append(Gate("H", 2))
+        circuit1_inverse = Circuit(mygates_inverse)
+        self.assertTrue(circuit1.inverse().__str__(), circuit1_inverse.__str__())
+
+        ts_circuit = Circuit([Gate("T", 0), Gate("S", 1)])
+        ts_circuit_inverse = Circuit([Gate("PHASE", 0, parameter=-pi/4), Gate("PHASE", 0, parameter=-pi/2)])
+        self.assertTrue(ts_circuit.inverse().__str__(), ts_circuit_inverse.__str__())
 
 
 if __name__ == "__main__":
