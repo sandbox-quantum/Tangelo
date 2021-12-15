@@ -17,7 +17,6 @@ gate operation, without tying it to a particular backend or an underlying
 mathematical operation.
 """
 from math import pi
-
 from typing import Union
 
 from numpy import integer, ndarray, floating
@@ -104,11 +103,6 @@ class Gate(dict):
 
         return mystr
 
-    def serialize(self):
-        return {"type": "Gate",
-                "params": {"name": self.name, "target": self.target,
-                           "control": self.control, "parameter": self.parameter}}
-
     def inverse(self):
         """Returns the inverse (adjoint) of a gate.
 
@@ -136,3 +130,8 @@ class Gate(dict):
                     control=self.control,
                     parameter=new_parameter,
                     is_variational=self.is_variational)
+
+    def serialize(self):
+        return {"type": "Gate",
+                "params": {"name": self.name, "target": self.target,
+                           "control": self.control, "parameter": self.parameter}}

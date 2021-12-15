@@ -61,11 +61,11 @@ def translate_json_ionq(source_circuit):
         elif gate.name in {"PHASE"}:
             if isclose(gate.parameter, pi / 2, abs_tol=1.e-7):
                 json_gates.append({'gate': 's', 'target': gate.target[0]})
-            elif isclose(gate.parameter, pi / 2, abs_tol=1.e-7):
+            elif isclose(gate.parameter, - pi / 2, abs_tol=1.e-7):
                 json_gates.append({'gate': 'si', 'target': gate.target[0]})
             elif isclose(gate.parameter, pi / 4, abs_tol=1.e-7):
                 json_gates.append({'gate': 't', 'target': gate.target[0]})
-            elif isclose(gate.parameter, pi / 4, abs_tol=1.e-7):
+            elif isclose(gate.parameter, - pi / 4, abs_tol=1.e-7):
                 json_gates.append({'gate': 'ti', 'target': gate.target[0]})
             else:
                 raise ValueError(f"Only phases of pi/2, -pi/2, pi/4, -pi/4 are supported with JSON IonQ translation")
