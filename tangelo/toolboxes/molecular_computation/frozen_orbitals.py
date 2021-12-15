@@ -13,8 +13,9 @@
 # limitations under the License.
 
 """This module defines functions to get suggestions for freezing orbitals. Those
-functions take a pyscf.gto object and return an integer or a list of orbital
-indexes for freezing orbitals.
+functions take a molecule and return an integer or a list of orbital indexes for
+freezing orbitals. Depending on the function, a Molecule or a
+SecondQuantizedMolecule object can be used.
 """
 
 
@@ -23,7 +24,7 @@ def get_frozen_core(molecule):
     for the core (occupied orbitals).
 
     Args:
-        molecule (pyscf.gto): Molecule to be evaluated.
+        molecule (SecondQuantizedMolecule): Molecule to be evaluated.
 
     Returns:
         int: First N molecular orbitals to freeze.
@@ -50,11 +51,10 @@ def get_orbitals_excluding_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
     """Function that returns a list of orbitals to freeze if the user wants to
     consider only a subset from HOMO(-homo_min_n) to LUMO(+lumo_plus_n)
     orbitals. Users should be aware of degeneracies, as this function does not
-    take this property into account. Also, it is only relevant for closed-shell
-    systems.
+    take this property into account.
 
     Args:
-        molecule (pyscf.gto): Molecule to be evaluated.
+        molecule (SecondQuantizedMolecule): Molecule to be evaluated.
         homo_minus_n (int): Starting point at HOMO - homo_minus_n.
         lumo_plus_n (int): Ending point at LUMO + lumo_plus_n.
 
@@ -65,11 +65,9 @@ def get_orbitals_excluding_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
     # Getting the number of molecular orbitals. It also works with different
     # basis sets.
     n_molecular_orb = molecule.n_mos
-    n_electrons = molecule.n_electrons
 
-    # Identify the HOMO and LUMO.
-    n_homo = n_electrons // 2 - 1
-    n_lumo = n_homo + 1
+    n_lumo = molecule.mo_occ.tolist().index(0.)
+    n_homo = n_lumo - 1
 
     frozen_orbitals = [n for n in range(n_molecular_orb) if n not in range(n_homo-homo_minus_n, n_lumo+lumo_plus_n+1)]
 

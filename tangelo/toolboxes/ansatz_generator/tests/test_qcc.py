@@ -16,6 +16,8 @@
 
 import unittest
 import numpy as np
+import os
+from openfermion import load_operator
 
 from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.qmf import QMF
@@ -24,6 +26,9 @@ from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g, mol_H4_doublecation_minao
 
 sim = Simulator()
+
+# For openfermion.load_operator function.
+pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
 
 class QCCTest(unittest.TestCase):
@@ -36,7 +41,7 @@ class QCCTest(unittest.TestCase):
     def test_qcc_set_var_params():
         """ Verify behavior of set_var_params for different inputs (keyword, list, numpy array). """
 
-        qcc_ansatz = QCC(mol_H2_sto3g)
+        qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True)
 
         one_zero = np.zeros((1,), dtype=float)
 
@@ -57,7 +62,7 @@ class QCCTest(unittest.TestCase):
     def test_qcc_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """
 
-        qcc_ansatz = QCC(mol_H2_sto3g)
+        qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True)
 
         self.assertRaises(ValueError, qcc_ansatz.set_var_params, np.array([1.] * 2))
 
@@ -173,7 +178,7 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.build_circuit()
 
         # Get qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = qcc_ansatz.qubit_ham
+        qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_bk.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
         # Assert energy returned is as expected for given parameters
         qcc_ansatz.update_var_params(qcc_var_params)
@@ -203,7 +208,7 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.build_circuit()
 
         # Get qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = qcc_ansatz.qubit_ham
+        qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_bk_updown.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
         # Assert energy returned is as expected for given parameters
         qcc_ansatz.update_var_params(qcc_var_params)

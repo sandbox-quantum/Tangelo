@@ -22,6 +22,7 @@ import os
 import time
 import numpy as np
 from openfermion.ops import QubitOperator
+from openfermion import load_operator
 
 from tangelo.linq import Gate, Circuit, translator, Simulator
 from tangelo.linq.gate import PARAMETERIZED_GATES
@@ -203,9 +204,7 @@ class TestSimulateStatevector(unittest.TestCase):
         """ Get expectation value of large circuits and qubit Hamiltonians corresponding to molecules.
             Molecule: H2 sto-3g = [("H", (0., 0., 0.)), ("H", (0., 0., 0.741377))]
         """
-        with open(f"{path_data}/H2_qubit_hamiltonian.txt", "r") as ham_handle:
-            string_ham = ham_handle.read()
-            qubit_operator = string_ham_to_of(string_ham)
+        qubit_operator = load_operator("mol_H2_qubitham.data", data_directory=path_data, plain_text=True)
 
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
@@ -234,9 +233,7 @@ class TestSimulateStatevector(unittest.TestCase):
             Molecule: H2 sto-3g = [("H", (0., 0., 0.)), ("H", (0., 0., 0.741377))]
             Generate statevector first and then get_expectation value from statevector and empty circuit.
         """
-        with open(f"{path_data}/H2_qubit_hamiltonian.txt", "r") as ham_handle:
-            string_ham = ham_handle.read()
-            qubit_operator = string_ham_to_of(string_ham)
+        qubit_operator = load_operator("mol_H2_qubitham.data", data_directory=path_data, plain_text=True)
 
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
@@ -270,10 +267,8 @@ class TestSimulateStatevector(unittest.TestCase):
                   ['H', [-1.0071067811865476,  0.0,                 0.0]],
                   ['H', [0.0,                 -1.0071067811865476,  0.0]]]
         """
+        qubit_operator = load_operator("mol_H4_qubitham.data", data_directory=path_data, plain_text=True)
 
-        with open(f"{path_data}/H4_qubit_hamiltonian.txt", "r") as ham_handle:
-            string_ham = ham_handle.read()
-            qubit_operator = string_ham_to_of(string_ham)
         with open(f"{path_data}/H4_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
@@ -303,9 +298,8 @@ class TestSimulateStatevector(unittest.TestCase):
             The result is computed using samples ("shots") drawn form a statevector simulator here. This is the kind
             of results we could expect from a noiseless QPU.
         """
-        with open(f"{path_data}/H2_qubit_hamiltonian.txt", "r") as ham_handle:
-            string_ham = ham_handle.read()
-            qubit_operator = string_ham_to_of(string_ham)
+        qubit_operator = load_operator("mol_H2_qubitham.data", data_directory=path_data, plain_text=True)
+
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
