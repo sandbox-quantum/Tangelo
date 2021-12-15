@@ -44,7 +44,7 @@ class TestGates(unittest.TestCase):
             print(gate)
 
     def test_some_gates_inverse(self):
-        """ Test that some basic gates can be inverted with a few different parameters, and fails when non-invertable
+        """ Test that some basic gates can be inverted with a few different parameters, and fails when non-invertible
         parameters are passed"""
 
         # Create a Hadamard gate acting on qubit 2

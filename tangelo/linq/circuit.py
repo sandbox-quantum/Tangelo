@@ -134,12 +134,12 @@ class Circuit:
         return {"type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
 
     def inverse(self):
-        '''Return the inverse (adjoint) of a circuit
+        """Return the inverse (adjoint) of a circuit
 
         This is performed by reversing the Gate order and applying the inverse to each Gate.
 
         Returns:
             Circuit: the inverted circuit
-        '''
+        """
         gate_list = [gate.inverse() for gate in reversed(self._gates)]
         return Circuit(gate_list)
