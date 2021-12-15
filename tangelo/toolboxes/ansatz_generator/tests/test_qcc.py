@@ -178,7 +178,7 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.build_circuit()
 
         # Get qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_bk.data", data_directory=pwd_this_test, plain_text=True)
+        qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_bk.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
         # Assert energy returned is as expected for given parameters
         qcc_ansatz.update_var_params(qcc_var_params)
@@ -208,7 +208,7 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.build_circuit()
 
         # Get qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_bk_updown.data", data_directory=pwd_this_test, plain_text=True)
+        qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_bk_updown.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
         # Assert energy returned is as expected for given parameters
         qcc_ansatz.update_var_params(qcc_var_params)

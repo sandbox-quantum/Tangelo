@@ -97,7 +97,7 @@ class HEATest(unittest.TestCase):
         hea_ansatz.build_circuit()
 
         # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_jw.data", data_directory=pwd_this_test, plain_text=True)
+        qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_jw.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
         # Assert energy returned is as expected for given parameters
         hea_ansatz.update_var_params(var_params)
