@@ -56,8 +56,8 @@ class TestCircuits(unittest.TestCase):
     def test_is_variational(self):
         """ Ensure that the circuit is labeled as variational as soon as one variational gate is present """
 
-        self.assertTrue(circuit1.is_variational == False)
-        self.assertTrue(circuit3.is_variational == True)
+        self.assertTrue(circuit1.is_variational is False)
+        self.assertTrue(circuit3.is_variational is True)
 
     def test_width(self):
         """ Ensure the width attribute of the circuit object (number of qubits) matches the gate operations

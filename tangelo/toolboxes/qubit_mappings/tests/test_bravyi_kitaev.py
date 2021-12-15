@@ -41,7 +41,7 @@ class BravyiKitaevTest(unittest.TestCase):
         """Test that our wrapper returns the same result as openfermion's bare
         implementation of bravyi_kitaev.
         """
-        #Instantiate simple non-trivial FermionOperator input
+        # Instantiate simple non-trivial FermionOperator input
         input_operator = FermionOperator(((0, 0), (1, 0), (2, 0), (12, 1)))
         input_operator += FermionOperator((13, 1), 0.2)
         n_qubits = 14
@@ -49,10 +49,11 @@ class BravyiKitaevTest(unittest.TestCase):
         tangelo_result = bravyi_kitaev(input_operator, n_qubits=n_qubits)
         openfermion_result = openfermion_bravyi_kitaev(input_operator, n_qubits=n_qubits)
 
-        #check that the number of terms is the same.
-        self.assertEqual(len(tangelo_result.terms), len(openfermion_result.terms), msg="Number of terms generated does not agree with openfermion implementation of Bravyi Kitaev.")
+        # check that the number of terms is the same.
+        self.assertEqual(len(tangelo_result.terms), len(openfermion_result.terms), msg="Number of terms generated does not agree"
+                                                                                       "with openfermion implementation of Bravyi Kitaev.")
 
-        #check that the term coefficients are the same
+        # check that the term coefficients are the same
         for ti in tangelo_result.terms:
             factor = tangelo_result.terms[ti]
             openfermion_factor = openfermion_result.terms[ti]

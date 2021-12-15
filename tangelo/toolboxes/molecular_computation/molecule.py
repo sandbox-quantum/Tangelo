@@ -94,7 +94,7 @@ class Molecule:
     def __post_init__(self):
         self.xyz = atom_string_to_list(self.xyz) if isinstance(self.xyz, str) else self.xyz
         mol = self.to_pyscf(basis="sto-3g")
-        self.n_atoms =  mol.natm
+        self.n_atoms = mol.natm
         self.n_electrons = mol.nelectron
         self.n_min_orbitals = mol.nao_nr()
 
@@ -390,7 +390,7 @@ class SecondQuantizedMolecule(Molecule):
 
         # Getting 2-body integrals in atomic and converting to molecular basis.
         two_electron_integrals = ao2mo.kernel(pyscf_mol.intor("int2e"), self.mean_field.mo_coeff)
-        two_electron_integrals  = ao2mo.restore(1, two_electron_integrals, len(self.mean_field.mo_coeff))
+        two_electron_integrals = ao2mo.restore(1, two_electron_integrals, len(self.mean_field.mo_coeff))
 
         # PQRS convention in openfermion:
         # h[p,q]=\int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
@@ -398,8 +398,11 @@ class SecondQuantizedMolecule(Molecule):
         # The convention is not the same with PySCF integrals. So, a change is
         # made and reverse back after performing the truncation for frozen
         # orbitals.
-        two_electron_integrals  = two_electron_integrals.transpose(0, 2, 3, 1)
-        core_offset, one_electron_integrals, two_electron_integrals = get_active_space_integrals(one_electron_integrals, two_electron_integrals, self.frozen_occupied, self.active_mos)
+        two_electron_integrals = two_electron_integrals.transpose(0, 2, 3, 1)
+        core_offset, one_electron_integrals, two_electron_integrals = get_active_space_integrals(one_electron_integrals,
+                                                                                                 two_electron_integrals,
+                                                                                                 self.frozen_occupied,
+                                                                                                 self.active_mos)
         two_electron_integrals = two_electron_integrals.transpose(0, 3, 1, 2)
 
         # Adding frozen electron contribution to core constant.

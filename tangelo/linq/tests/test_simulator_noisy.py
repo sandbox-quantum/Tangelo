@@ -212,7 +212,7 @@ class TestSimulate(unittest.TestCase):
         noise = 0.00
         nmp_no_noise.add_quantum_error("CNOT", "pauli", [noise, noise, noise])
         sim_no_noise = Simulator(target=default_simulator, n_shots=10**6, noise_model=nmp_no_noise)
-        
+
         # Small Noise model
         nmp_small_noise = NoiseModel()
         noise = 0.01

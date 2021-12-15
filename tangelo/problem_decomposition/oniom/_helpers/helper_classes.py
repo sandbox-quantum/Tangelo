@@ -90,7 +90,7 @@ class Fragment:
             # Basis is only relevant when computing the mean-field. After this,
             # it is discarded (not needed for electronic solver because they
             # retrieved it from the molecule object).
-            self.options_low = {i:self.options_low[i] for i in self.options_low if i not in ["basis", "frozen_orbitals"]}
+            self.options_low = {i: self.options_low[i] for i in self.options_low if i not in ["basis", "frozen_orbitals"]}
 
         self.solver_low = self.get_solver(self.mol_low, self.solver_low, self.options_low)
 
@@ -101,7 +101,7 @@ class Fragment:
             if self.mol_high is None:
                 self.mol_high = self.get_mol(self.options_high["basis"], self.options_high.get("frozen_orbitals", None))
                 # Same process done as in low accuracy process.
-                self.options_high = {i:self.options_high[i] for i in self.options_high if i not in ["basis", "frozen_orbitals"]}
+                self.options_high = {i: self.options_high[i] for i in self.options_high if i not in ["basis", "frozen_orbitals"]}
 
             self.solver_high = self.get_solver(self.mol_high, self.solver_high, self.options_high)
 

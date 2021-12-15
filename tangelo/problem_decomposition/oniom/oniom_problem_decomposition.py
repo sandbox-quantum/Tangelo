@@ -100,7 +100,7 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
                 fragment.geometry += [li.relink(self.geometry) for li in fragment.broken_links]
 
     def simulate(self):
-        """Run the ONIOM core-method. The total energy is defined as
+        r"""Run the ONIOM core-method. The total energy is defined as
         E_ONIOM = E_LOW[SYSTEM] + \sum_i {E_HIGH_i[MODEL_i] - E_LOW_i[MODEL_i]}
 
         Returns:

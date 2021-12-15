@@ -20,6 +20,7 @@ Construction of the one-particle reduced density matrix (RDM) is done here.
 import numpy as np
 from functools import reduce
 
+
 def dmet_low_rdm(active_fock, number_active_electrons):
     """Construct the one-particle RDM from low-level calculation.
 
@@ -37,10 +38,11 @@ def dmet_low_rdm(active_fock, number_active_electrons):
     e, c = np.linalg.eigh(active_fock)
     new_index = e.argsort()
     e = e[new_index]
-    c = c[ : , new_index]
-    onerdm = np.dot(c[ : , : int(num_occ)], c[ : , : int(num_occ)].T) * 2
+    c = c[:, new_index]
+    onerdm = np.dot(c[:, : int(num_occ)], c[:, : int(num_occ)].T) * 2
 
     return onerdm
+
 
 def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
     """Construct the one-particle RDM for the core orbitals.

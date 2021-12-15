@@ -17,7 +17,8 @@ the user's environment, for the purpose of running / skipping tests, and setting
 a default simulator.
 """
 
-import os, sys
+import os
+import sys
 
 
 class HiddenPrints:

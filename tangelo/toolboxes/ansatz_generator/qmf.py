@@ -95,7 +95,7 @@ class QMF(Ansatz):
         self.fermi_ham = self.molecule.fermionic_hamiltonian
         if isinstance(self.init_qmf, dict):
             if "init_params" not in self.init_qmf.keys():
-                raise KeyError(f"Missing key 'init_params' in {self.init_qmf}. "\
+                raise KeyError(f"Missing key 'init_params' in {self.init_qmf}. "
                                f"Supported values are {self.supported_initial_var_params}.")
             if self.init_qmf["init_params"] in self.supported_initial_var_params:
                 # Set the default QMF parameter procedure
@@ -104,7 +104,7 @@ class QMF(Ansatz):
                 if self.init_qmf:
                     # Set default penalty term values
                     spin_z = self.spin // 2
-                    init_qmf_defaults = {"N": (1.5, self.n_electrons),\
+                    init_qmf_defaults = {"N": (1.5, self.n_electrons),
                                          "S^2": (1.5, spin_z * (spin_z + 1)), "Sz": (1.5, spin_z)}
                     # Check if the user requested default values for any penalty terms
                     for term, params in init_qmf_defaults.items():
@@ -114,16 +114,16 @@ class QMF(Ansatz):
                     self.fermi_ham += penalize_mf_ham(self.init_qmf, self.n_orbitals)
                 else:
                     if self.var_params_default != "hf_state":
-                        warnings.warn("It is recommended that the QMF parameters are intialized "\
-                                      "using a Hartree-Fock reference state if penalty terms are "\
+                        warnings.warn("It is recommended that the QMF parameters are intialized "
+                                      "using a Hartree-Fock reference state if penalty terms are "
                                       "not added to the mean-field Hamiltonian.", RuntimeWarning)
             else:
-                raise ValueError(f"Unrecognized value for 'init_params' key in {self.init_qmf} "\
+                raise ValueError(f"Unrecognized value for 'init_params' key in {self.init_qmf} "
                                  f"Supported values are {self.supported_initial_var_params}.")
         else:
             raise TypeError(f"{self.init_qmf} must be dictionary type.")
 
-        self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping, self.n_spinorbitals,\
+        self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping, self.n_spinorbitals,
                                                   self.n_electrons, self.up_then_down, self.spin)
 
         # Default starting parameters for initialization
@@ -144,7 +144,7 @@ class QMF(Ansatz):
         if isinstance(var_params, str):
             var_params = var_params.lower()
             if var_params not in self.supported_initial_var_params:
-                raise ValueError(f"Supported keywords for initializing variational parameters: "\
+                raise ValueError(f"Supported keywords for initializing variational parameters: "
                                  f"{self.supported_initial_var_params}")
             # Initialize |QMF> as |00...0>
             if var_params == "zeros":
@@ -162,12 +162,12 @@ class QMF(Ansatz):
                 initial_var_params = np.concatenate((initial_thetas, initial_phis))
             # Initialize theta angles so that |QMF> = |HF> state and set all phi angles to 0.
             elif var_params == "hf_state":
-                initial_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,\
+                initial_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                       self.mapping, self.up_then_down, self.spin)
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:
-                raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but "
                                  f"received {initial_var_params.size}.")
         self.var_params = initial_var_params
         return initial_var_params
@@ -178,7 +178,7 @@ class QMF(Ansatz):
         with the transform used to obtain the qubit operator. """
 
         if self.default_reference_state not in self.supported_reference_state:
-            raise ValueError(f"Only supported reference state methods are: "\
+            raise ValueError(f"Only supported reference state methods are: "
                              f"{self.supported_reference_state}")
         if self.default_reference_state == "HF":
             reference_state_circuit = get_qmf_circuit(self.var_params, True)

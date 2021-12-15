@@ -15,10 +15,10 @@
 import warnings
 import numpy as np
 
+from tangelo.toolboxes.molecular_computation.molecule import Molecule, SecondQuantizedMolecule
+
 sup = np.testing.suppress_warnings()
 warnings.filterwarnings("ignore", message="Using default_file_mode other than 'r' is deprecated")
 warnings.filterwarnings("ignore", message="`np")
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 sup.filter(np.core)
-
-from tangelo.toolboxes.molecular_computation.molecule import Molecule, SecondQuantizedMolecule

@@ -109,7 +109,7 @@ def job_result(qemist_cloud_job_id):
             print(f"Reconnect and block until the problem is complete with "
                   f"qemist_client.util.monitor_problem_status({qemist_cloud_job_id}).\n\n")
 
-    except:
+    except Exception:
         print(f"\n\nYour problem is still running with handle {qemist_cloud_job_id}.\n"
               f"Cancel the problem with qemist_client.util.cancel_problems({qemist_cloud_job_id}).\n"
               f"Reconnect and block until the problem is complete with qemist_client.util.monitor_problem_status({qemist_cloud_job_id}).\n\n")
