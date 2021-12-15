@@ -129,7 +129,10 @@ class HEA(Ansatz):
                                          mapping=self.qubit_mapping,
                                          up_then_down=self.up_then_down)
         elif self.reference_state == "zero":
-            return Circuit()
+            return get_reference_circuit(n_spinorbitals=self.n_qubits,
+                                         n_electrons=0,
+                                         mapping=self.qubit_mapping,
+                                         up_then_down=self.up_then_down)
 
     def build_circuit(self, var_params=None):
         """Construct the variational circuit to be used as our ansatz."""
