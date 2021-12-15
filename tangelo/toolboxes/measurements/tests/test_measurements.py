@@ -14,6 +14,7 @@
 
 import unittest
 import os
+from openfermion import load_operator
 
 from tangelo.helpers.utils import default_simulator
 from tangelo.linq import translator, Simulator, Circuit
@@ -79,9 +80,7 @@ class MeasurementsTest(unittest.TestCase):
         abs_circ = translator._translate_openqasm2abs(openqasm_circ)
 
         # Load qubit Hamiltonian
-        with open(f"{path_data}/H2_qubit_hamiltonian.txt", 'r') as f:
-            qb_hamstring = f.read()
-        qb_ham = string_ham_to_of(qb_hamstring)
+        qb_ham = load_operator("mol_H2_qubitham.data", data_directory=path_data, plain_text=True)
 
         # Get exact expectation value using a simulator
         sim_exact = Simulator()
