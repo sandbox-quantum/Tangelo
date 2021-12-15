@@ -13,8 +13,9 @@
 # limitations under the License.
 
 """This module defines functions to get suggestions for freezing orbitals. Those
-functions take a Molecule object and return an integer or a list of orbital
-indexes for freezing orbitals.
+functions take a molecule and return an integer or a list of orbital indexes for
+freezing orbitals. Depending on the function, a Molecule or a
+SecondQuantizedMolecule object can be used.
 """
 
 
@@ -65,7 +66,7 @@ def get_orbitals_excluding_homo_lumo(molecule, homo_minus_n=0, lumo_plus_n=0):
     # basis sets.
     n_molecular_orb = molecule.n_mos
 
-    n_lumo = next((n_orb for n_orb, occ in enumerate(molecule.mo_occ) if occ == 0.), None)
+    n_lumo = molecule.mo_occ.tolist().index(0.)
     n_homo = n_lumo - 1
 
     frozen_orbitals = [n for n in range(n_molecular_orb) if n not in range(n_homo-homo_minus_n, n_lumo+lumo_plus_n+1)]
