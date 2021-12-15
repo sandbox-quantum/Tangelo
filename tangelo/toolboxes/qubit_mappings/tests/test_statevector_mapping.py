@@ -84,6 +84,12 @@ class TestVector(unittest.TestCase):
                                             mol_H4_sto3g.n_active_sos,
                                             mol_H4_sto3g.n_active_electrons,
                                             up_then_down=True)
+        qu_op_jkmn = fermion_to_qubit_mapping(ferm_op,
+                                              "JKMN",
+                                              mol_H4_sto3g.n_active_sos,
+                                              mol_H4_sto3g.n_active_electrons,
+                                              up_then_down=True)
+
         # Test for spin 0, 2, and 4
         for spin in range(3):
             vector_bk = get_vector(mol_H4_sto3g.n_active_sos,
@@ -101,9 +107,15 @@ class TestVector(unittest.TestCase):
                                    mapping="JW",
                                    up_then_down=True,
                                    spin=spin*2)
+            vector_jkmn = get_vector(mol_H4_sto3g.n_active_sos,
+                                     mol_H4_sto3g.n_active_electrons,
+                                     mapping="JKMN",
+                                     up_then_down=True,
+                                     spin=spin*2)
             circuit_bk = vector_to_circuit(vector_bk)
             circuit_scbk = vector_to_circuit(vector_scbk)
             circuit_jw = vector_to_circuit(vector_jw)
+            circuit_jkmn = vector_to_circuit(vector_jkmn, "JKMN")
 
             qu_op_scbk = fermion_to_qubit_mapping(ferm_op,
                                                   'SCBK',
@@ -115,8 +127,10 @@ class TestVector(unittest.TestCase):
             e_bk = sim.get_expectation_value(qu_op_bk, circuit_bk)
             e_scbk = sim.get_expectation_value(qu_op_scbk, circuit_scbk)
             e_jw = sim.get_expectation_value(qu_op_jw, circuit_jw)
+            e_jkmn = sim.get_expectation_value(qu_op_jkmn, circuit_jkmn)
             self.assertAlmostEqual(e_bk, e_jw, places=7, msg=f"Failed for bk vs jw for spin={spin}")
             self.assertAlmostEqual(e_jw, e_scbk, places=7, msg=f"Failed for jw vs scbk for spin={spin}")
+            self.assertAlmostEqual(e_scbk, e_jkmn, places=7, msg=f"Failed for jkmn vs scbk for spin={spin}")
 
     def test_all_same_energy_mol_H4_cation_sto3g(self):
         """Check that all mappings return statevectors that have the same energy expectation
@@ -132,6 +146,11 @@ class TestVector(unittest.TestCase):
                                             mol_H4_cation_sto3g.n_active_sos,
                                             mol_H4_cation_sto3g.n_active_electrons,
                                             up_then_down=True)
+        qu_op_jkmn = fermion_to_qubit_mapping(ferm_op,
+                                              "JKMN",
+                                              mol_H4_cation_sto3g.n_active_sos,
+                                              mol_H4_cation_sto3g.n_active_electrons,
+                                              up_then_down=True)
         # Test for spin 1 and 3
         for spin in range(2):
             vector_bk = get_vector(mol_H4_cation_sto3g.n_active_sos,
@@ -149,9 +168,15 @@ class TestVector(unittest.TestCase):
                                    mapping="JW",
                                    up_then_down=True,
                                    spin=spin*2+1)
+            vector_jkmn = get_vector(mol_H4_cation_sto3g.n_active_sos,
+                                     mol_H4_cation_sto3g.n_active_electrons,
+                                     mapping="JKMN",
+                                     up_then_down=True,
+                                     spin=spin*2+1)
             circuit_bk = vector_to_circuit(vector_bk)
             circuit_scbk = vector_to_circuit(vector_scbk)
             circuit_jw = vector_to_circuit(vector_jw)
+            circuit_jkmn = vector_to_circuit(vector_jkmn, "JKMN")
 
             qu_op_scbk = fermion_to_qubit_mapping(ferm_op,
                                                   'SCBK',
@@ -163,8 +188,10 @@ class TestVector(unittest.TestCase):
             e_bk = sim.get_expectation_value(qu_op_bk, circuit_bk)
             e_scbk = sim.get_expectation_value(qu_op_scbk, circuit_scbk)
             e_jw = sim.get_expectation_value(qu_op_jw, circuit_jw)
+            e_jkmn = sim.get_expectation_value(qu_op_jkmn, circuit_jkmn)
             self.assertAlmostEqual(e_bk, e_jw, places=7, msg=f"Failed for bk vs jw for spin={spin}")
             self.assertAlmostEqual(e_jw, e_scbk, places=7, msg=f"Failed for jw vs scbk for spin={spin}")
+            self.assertAlmostEqual(e_scbk, e_jkmn, places=7, msg=f"Failed for scbk vs jkmn for spin={spin}")
 
 
 if __name__ == "__main__":

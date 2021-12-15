@@ -21,10 +21,11 @@ import numpy as np
 import warnings
 
 from tangelo.linq import Gate, Circuit
+from tangelo.toolboxes.qubit_mappings.jkmn import jkmn_prep_circuit
 
 from openfermion.transforms import bravyi_kitaev_code
 
-available_mappings = {"JW", "BK", "SCBK"}
+available_mappings = {"JW", "BK", "SCBK", "JKMN"}
 
 
 def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=None):
@@ -59,7 +60,10 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
     else:
         vector[:n_electrons] = 1
     if up_then_down:
-        vector = np.concatenate((vector[::2], vector[1::2]))
+        if mapping.upper() == "JKMN":
+            warnings.warn("Tangelo implementation of JKMN only supports up_then_down=False, ignoring up_then_down=True")
+        else:
+            vector = np.concatenate((vector[::2], vector[1::2]))
 
     if mapping.upper() == "JW":
         return vector
@@ -70,6 +74,8 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
             warnings.warn("Symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.", RuntimeWarning)
             vector = np.concatenate((vector[::2], vector[1::2]))
         return do_scbk_transform(vector, n_spinorbitals)
+    elif mapping.upper() == "JKMN":
+        return vector
 
 
 def do_bk_transform(vector):
@@ -104,24 +110,28 @@ def do_scbk_transform(vector, n_spinorbitals):
     return vector
 
 
-def vector_to_circuit(vector):
+def vector_to_circuit(vector, mapping=None):
     """Translate occupation vector into a circuit. Each occupied state
     corresponds to an X-gate on the associated qubit index.
 
     Args:
         vector (numpy array of int): occupation vector.
+        mapping (str) : qubit mapping that defines circuit preparation.
 
     Returns:
         Circuit: instance of tangelo.linq Circuit class.
     """
 
-    n_qubits = len(vector)
-    circuit = Circuit(n_qubits=n_qubits)
+    if mapping is not None and mapping.upper() == "JKMN":
+        return jkmn_prep_circuit(vector)
+    else:
+        n_qubits = len(vector)
+        circuit = Circuit(n_qubits=n_qubits)
 
-    for index, occupation in enumerate(vector):
-        if occupation:
-            gate = Gate("X", target=index)
-            circuit.add_gate(gate)
+        for index, occupation in enumerate(vector):
+            if occupation:
+                gate = Gate("X", target=index)
+                circuit.add_gate(gate)
 
     return circuit
 
@@ -144,5 +154,5 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
         Circuit: instance of tangelo.linq Circuit class.
     """
     vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down, spin=spin)
-    circuit = vector_to_circuit(vector)
+    circuit = vector_to_circuit(vector, mapping)
     return circuit
