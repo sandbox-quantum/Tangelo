@@ -12,5 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .mc_weeny_rdm_purification import mcweeny_purify_2rdm
-from .extrapolation import diis, richardson
+import unittest
+from tangelo.toolboxes.post_processing import diis, richardson
+
+
+class ExtrapolationTest(unittest.TestCase):
+
+    def test_diis(self):
+        self.assertAlmostEqual(reference, calculated, delta=1e-10)
+
+    def test_richardson(self):
+        self.assertAlmostEqual(reference, calculated, delta=1e-10)
+
+
+
+if __name__ == "__main__":
+    unittest.main()
