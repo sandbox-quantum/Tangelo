@@ -80,8 +80,7 @@ class QITESolverTest(unittest.TestCase):
         self.assertEqual(resources["pool_size"], 20)
 
     def test_mapping_BK(self):
-        """Test that BK mapping recovers the expected result, to within 1e-4 Ha,
-        for the example of H2 and MP2 initial guess.
+        """Test that BK mapping recovers the expected result for the example of H2.
         """
         qite_options = {"molecule": mol_H2_sto3g, "verbose": False,
                         "qubit_mapping": "bk"}
@@ -93,9 +92,21 @@ class QITESolverTest(unittest.TestCase):
         energy_target = -1.137270
         self.assertAlmostEqual(energy, energy_target, places=5)
 
+    def test_mapping_JKMN(self):
+        """Test that JKMN mapping recovers the expected result for the example of H2.
+        """
+        qite_options = {"molecule": mol_H2_sto3g, "verbose": False,
+                        "qubit_mapping": "JKMN"}
+
+        qite_solver = QITESolver(qite_options)
+        qite_solver.build()
+        energy = qite_solver.simulate()
+
+        energy_target = -1.137270
+        self.assertAlmostEqual(energy, energy_target, places=5)
+
     def test_mapping_scBK(self):
-        """Test that scBK mapping recovers the expected result, to within
-        1e-4 Ha.
+        """Test that scBK mapping recovers the expected result for the example of H2.
         """
         qite_options = {"molecule": mol_H2_sto3g, "verbose": False,
                         "qubit_mapping": "scbk", "up_then_down": True}

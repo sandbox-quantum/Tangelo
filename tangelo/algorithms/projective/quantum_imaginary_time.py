@@ -83,11 +83,13 @@ class QITESolver:
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
-            raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
+            raise ValueError("A molecule OR qubit Hamiltonian object must be provided when instantiating "
+                             f"{self.__class__.__name__}.")
 
         if self.qubit_hamiltonian:
             if not (self.n_spinorbitals and self.n_electrons):
-                raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals) and the number of electrons (n_electrons) with a qubit_hamiltonian.")
+                raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals) and the number of "
+                                 "electrons (n_electrons) with a qubit_hamiltonian.")
 
         self.iteration = 0
         self.energies = list()
@@ -161,16 +163,22 @@ class QITESolver:
             for term, coeff in qubit_op.terms.items():
                 qubit_op.terms[term] = math.copysign(1., coeff.imag)
 
-        # Only select terms with odd number of Y gates
-        reduced_pool_terms = list()
-        for qubit_op in self.full_pool_operators:
-            for term in qubit_op.terms.keys():
-                count_y = 0
-                for op in term:
-                    if 'Y' in op:
-                        count_y += 1
-                if count_y % 2 == 1 and term not in reduced_pool_terms:
-                    reduced_pool_terms.append(term)
+        # Remove duplicates and only select terms with odd number of Y gates for all mappings except JKMN
+        if self.qubit_mapping.upper() != "JKMN":
+            reduced_pool_terms = set()
+            for qubit_op in self.full_pool_operators:
+                for term in qubit_op.terms.keys():
+                    count_y = 0
+                    for op in term:
+                        if 'Y' in op:
+                            count_y += 1
+                    if count_y % 2 == 1:
+                        reduced_pool_terms.add(term)
+        else:
+            reduced_pool_terms = set()
+            for qubit_op in self.full_pool_operators:
+                for term in qubit_op.terms.keys():
+                    reduced_pool_terms.add(term)
 
         # Generated list of pool_operators and full pool operator.
         self.pool_operators = [QubitOperator(term) for term in reduced_pool_terms]

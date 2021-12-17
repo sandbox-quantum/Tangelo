@@ -35,12 +35,12 @@ def get_cirq_gates():
     GATE_CIRQ["X"] = cirq.X
     GATE_CIRQ["Y"] = cirq.Y
     GATE_CIRQ["Z"] = cirq.Z
-    GATE_CIRQ["CH"] = cirq.H
     GATE_CIRQ["CX"] = cirq.X
     GATE_CIRQ["CY"] = cirq.Y
     GATE_CIRQ["CZ"] = cirq.Z
     GATE_CIRQ["S"] = cirq.S
     GATE_CIRQ["T"] = cirq.T
+    GATE_CIRQ["CH"] = cirq.H
     GATE_CIRQ["RX"] = cirq.rx
     GATE_CIRQ["RY"] = cirq.ry
     GATE_CIRQ["RZ"] = cirq.rz

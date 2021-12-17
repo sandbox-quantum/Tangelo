@@ -97,11 +97,14 @@ def circuit_for_exponentiated_qubit_operator(qubit_op, time=1., variational=Fals
     pauli_words = qubit_op.terms.items()
     num_ops = len(pauli_words)
 
-    if isinstance(time, float):
+    if isinstance(time, (float, np.floating, np.integer, int)):
         evolve_time = np.ones((num_ops,), dtype=np.double) * time
     else:
         if len(time) == num_ops:
             evolve_time = np.array(time)
+        else:
+            raise ValueError(f"The array of times with {len(time)} elements does not have the same number of operators"
+                             f"as the given qubit operator with {num_ops}")
 
     if trotter_order == 2:
         evolve_time /= trotter_order
@@ -163,13 +166,13 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
                 raise KeyError(f"Keyword :: {k}, not a valid fermion to qubit mapping option")
         if isinstance(operator, ofInteractionOperator):
             operator = get_fermion_operator(operator)
-        if isinstance(time, float):
+        if isinstance(time, (float, np.floating, int, np.integer)):
             evolve_time = np.ones(len(operator.terms)) * time
         elif isinstance(time, list) or isinstance(time, np.ndarray):
             if len(time) == len(operator.terms):
                 evolve_time = np.array(time)
             else:
-                raise ValueError(f'time as length {len(time)} but FermionicOperator has length {len(operator.terms)}')
+                raise ValueError(f'time as length {len(time)} but FermionOperator has length {len(operator.terms)}')
         else:
             raise ValueError("time must be a float or array")
         new_operator = FermionOperator()
@@ -194,7 +197,8 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
             if len(time) == len(operator.terms):
                 evolve_time = np.array(time) / num_trotter_steps
             else:
-                raise ValueError(f"time as length {len(time)} but FermionicOperator has length {len(operator.terms)}")
+                raise ValueError(f"Time array has length {len(time)} but QubitOperator has length {len(operator.terms)}. "
+                                 "These lengths must be the same.")
         circuit, phase = circuit_for_exponentiated_qubit_operator(qubit_op,
                                                                   time=evolve_time,
                                                                   trotter_order=trotter_order,
@@ -241,7 +245,7 @@ def swap_registers(gate_list, qubit_list):
         qubit_list (list): List of integers for the locations of the qubits
 
     Result:
-        list: The operations that swap the register order'''
+        list: The Gate operations that swap the register order'''
     n = len(qubit_list)
     for qubit_index in range(n//2):
         gate_list += [Gate("SWAP", target=[qubit_list[qubit_index], qubit_list[n - qubit_index - 1]])]
@@ -252,7 +256,7 @@ def qft_circuit(qubits, n_qubits_in_circuit=None, inverse=False, swap=True):
     """Returns the QFT or iQFT circuit given a list of qubits to act on.
 
     Args:
-        qubits (int or list): The list of qubits to apply the QFT circuit to. If an integer.
+        qubits (int or list): The list of qubits to apply the QFT circuit to. If an integer,
             the operation is applied to the [0,...,qubits-1] qubits
         n_qubits_in_circuit: Argument to initialize a Circuit with the desired number of qubits.
         inverse (bool): If True, the inverse QFT is applied. If False, QFT is applied
@@ -285,13 +289,13 @@ def qft_circuit(qubits, n_qubits_in_circuit=None, inverse=False, swap=True):
     return Circuit(qft_gates, n_qubits=n_qubits_in_circuit)
 
 
-def controlled_pauliwords(qubit_op, control, n_qubits=None):
+def controlled_pauliwords(qubit_op, control, n_qubits_in_circuit=None):
     """Takes a qubit operator and returns controlled-pauliword circuits for each term as a list.
 
     Args:
         qubit_op (QubitOperator): The qubit operator with pauliwords to generate circuits for
         control (int): The index of the control qubit
-        n_qubits (int): When generating each Circuit, create with n_qubits size
+        n_qubits_in_circuit (int): When generating each Circuit, create with n_qubits size
 
     Returns:
         list: List of controlled-pauliword Circuit for each pauliword in the qubit_op
@@ -303,87 +307,14 @@ def controlled_pauliwords(qubit_op, control, n_qubits=None):
         gates = []
         for index, op in pauli_word:
             gates += [Gate(name='C'+op, target=index, control=control)]
-        pauliword_circuits.append(Circuit(gates, n_qubits=n_qubits))
+        pauliword_circuits.append(Circuit(gates, n_qubits=n_qubits_in_circuit))
     return pauliword_circuits
 
 
-def decomp_controlled_swap_crx(c, n1, n2):
-    '''Exact decomposition of controlled swap into 1- and 2-qubit gates
-
-    Args:
-        c (int): control qubit
-        n1 (int): first target qubit
-        n2 (int): second target qubit
-
-    Returns:
-        list: List of Gate that applies controlled swap operation
-    '''
-    gates = [Gate('RY', target=n1, parameter=np.pi/2),
-             Gate('RZ', target=n2, parameter=5*np.pi/2),
-             Gate('CRX', control=n1, target=n2, parameter=np.pi),
-             Gate('RZ', target=n2, parameter=7*np.pi/2),
-             Gate('CRX', control=c, target=n2, parameter=5*np.pi/2),
-             Gate('CRX', control=c, target=n1, parameter=np.pi/2),
-             Gate('CRX', control=n1, target=n2, parameter=np.pi),
-             Gate('RZ', target=n1, parameter=3*np.pi/2),
-             Gate('CRX', control=c, target=n1, parameter=3*np.pi/2),
-             Gate('RY', target=n1, parameter=7*np.pi/2),
-             Gate('RZ', target=n2, parameter=3*np.pi/2),
-             Gate('CRX', control=n2, target=n1, parameter=np.pi),
-             Gate('RZ', target=c, parameter=7*np.pi/2)]
-    return gates
-
-
-def decomp_controlled_swap_crx_ue(c, n1, n2):
-    '''Unitary equivalent decomposition of controlled swap into 1- and 2-qubit gates
-
-    Args:
-        c (int): control qubit
-        n1 (int): first target qubit
-        n2 (int): second target qubit
-
-    Returns:
-        list: List of Gate that applies controlled swap operation
-    '''
-    gates = [Gate('CRX', control=c, target=n1, parameter=3*np.pi),
-             Gate('CRX', control=n1, target=n2, parameter=np.pi),
-             Gate('RZ', target=n1, parameter=5*np.pi/2),
-             Gate('RZ', target=n2, parameter=13*np.pi/4),
-             Gate('CRX', control=n2, target=n1, parameter=np.pi/2),
-             Gate('CRX', control=c, target=n2, parameter=3*np.pi),
-             Gate('CRX', control=c, target=n1, parameter=np.pi/2),
-             Gate('RZ', target=c, parameter=np.pi/4)]
-    return gates
-
-
-def decomp_controlled_swap_xx_ue(c, n1, n2):
-    '''Unitary equivalent decomposition of controlled swap into 1- and xx 2-qubit gate
-
-    Args:
-        c (int): control qubit
-        n1 (int): first target qubit
-        n2 (int): second target qubit
-
-    Returns:
-        list: List of Gate that applies controlled swap operation
-    '''
-    gates = [Gate('RY', target=c, parameter=7*np.pi/2.),
-             Gate('RZ', target=n2, parameter=np.pi/2.),
-             Gate('XX', target=[n1, n2], parameter=7*np.pi/2.),
-             Gate('XX', target=[c, n1], parameter=7*np.pi/2.),
-             Gate('RY', target=n1, parameter=5*np.pi/4),
-             Gate('RY', target=n2, parameter=5*np.pi/2),
-             Gate('XX', target=[n1, n2], parameter=3*np.pi/2),
-             Gate('RZ', target=n1, parameter=3*np.pi/4),
-             Gate('XX', target=[c, n2], parameter=11*np.pi/4),
-             Gate('XX', target=[c, n1], parameter=np.pi/2),
-             Gate('RY', target=c, parameter=np.pi/2),
-             Gate('RZ', target=c, parameter=5*np.pi/4)]
-    return gates
-
-
 def decomp_controlled_swap_xx(c, n1, n2):
-    '''Unitary equivalent decomposition of controlled swap into 1- and xx 2-qubit gate
+    '''Equivalent decomposition of controlled swap into 1-qubit gates and xx 2-qubit gate.
+
+    This is useful for IonQ experiments
 
     Args:
         c (int): control qubit
@@ -414,26 +345,24 @@ def decomp_controlled_swap_xx(c, n1, n2):
     return gates
 
 
-def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=None):
-    """returns the derangement circuit for multiple copies of a state
+def derangement_circuit(qubit_list, control=None, n_qubits_in_circuit=None, decomp=None):
+    """Returns the (controlled-)derangement circuit for multiple copies of a state
 
     Args:
-        qubit_list (list of list(int)): Each item in the list is a list of qubit registers for
-                                        each copy. The length of each list of qubit registers
-                                        must be the same.
+        qubit_list (list of list(int)): Each item in the list is a list of qubit registers for each copy. The length of
+            each list of qubit registers must be the same.
+            For example [[1, 2], [3, 4]] applies controlled-swaps between equivalent states located on qubits [1, 2] and [3, 4]
         control (int): The control register to be measured.
-        n_qubits (int): The number of qubits in the circuit.
-        decomp (str): Use the decomposed controlled-swap into 1- and 2-qubit gates.
-                      "crx": 2-qubit gate is controlled rx, exact decomposition
-                      "crxUE": 2-qubit gate is controlled rx, unitary equivalent
-                      "xxUE": 2-qubit gate is xx, unitary equivalent
+        n_qubits_in_circuit (int): The number of qubits in the circuit.
+        decomp (str): Use the decomposed controlled-swap into 1-qubit gates and a certain 2-qubit gate listed below.
+            "xx": 2-qubit gate is xx, exact decomposition
 
     Returns:
         Circuit: The derangement circuit
     """
     num_copies = len(qubit_list)
     if num_copies == 1:
-        return Circuit(n_qubits=n_qubits)
+        return Circuit(n_qubits=n_qubits_in_circuit)
     else:
         rho_range = len(qubit_list[0])
         for i in range(1, num_copies):
@@ -445,26 +374,12 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=None):
             for copy2 in range(copy1+1, num_copies):
                 for rhoi in range(rho_range):
                     gate_list += [Gate('SWAP', target=[qubit_list[copy1][rhoi], qubit_list[copy2][rhoi]])]
-        if n_qubits is None:
-            n_qubits = rho_range * num_copies
     else:
         for copy1 in range(num_copies):
             for copy2 in range(copy1+1, num_copies):
                 for rhoi in range(rho_range):
                     if decomp is not None:
-                        if decomp == 'crxUE':
-                            gate_list += decomp_controlled_swap_crx_ue(control,
-                                                                       qubit_list[copy1][rhoi],
-                                                                       qubit_list[copy2][rhoi])
-                        elif decomp == 'crx':
-                            gate_list += decomp_controlled_swap_crx(control,
-                                                                    qubit_list[copy1][rhoi],
-                                                                    qubit_list[copy2][rhoi])
-                        elif decomp == 'xxUE':
-                            gate_list += decomp_controlled_swap_xx_ue(control,
-                                                                      qubit_list[copy1][rhoi],
-                                                                      qubit_list[copy2][rhoi])
-                        elif decomp == 'xx':
+                        if decomp == 'xx':
                             gate_list += decomp_controlled_swap_xx(control,
                                                                    qubit_list[copy1][rhoi],
                                                                    qubit_list[copy2][rhoi])
@@ -475,7 +390,4 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=None):
                                            target=[qubit_list[copy1][rhoi], qubit_list[copy2][rhoi]],
                                            control=control)]
 
-        if n_qubits is None:
-            n_qubits = rho_range * num_copies + 1
-
-    return Circuit(gate_list, n_qubits=n_qubits)
+    return Circuit(gate_list, n_qubits=n_qubits_in_circuit)

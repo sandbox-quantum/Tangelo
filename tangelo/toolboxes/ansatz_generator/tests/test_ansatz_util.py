@@ -1,5 +1,4 @@
 import unittest
-from cirq.sim import state_vector
 
 from scipy.linalg import expm
 import numpy as np
@@ -10,8 +9,10 @@ from tangelo.linq import Simulator, Circuit, Gate
 from tangelo.toolboxes.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.molecule_library import mol_H4_sto3g
+from tangelo.linq.tests.test_simulator import assert_freq_dict_almost_equal
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize, qft_circuit
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import decomp_controlled_swap_xx, decomp_controlled_swap_xx_ue
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import derangement_circuit, controlled_pauliwords
 from tangelo.helpers.utils import installed_backends
 
@@ -28,18 +29,6 @@ for backend in backend_candidates_nshots:
         sims_nshots += [Simulator(target=backend, n_shots=10**4)]
 
 fermion_operator = mol_H4_sto3g._get_fermionic_hamiltonian()
-
-
-def assert_freq_dict_almost_equal(d1, d2, atol):
-    """ Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance """
-    if d1.keys() != d2.keys():
-        raise AssertionError("Dictionary keys differ. Frequency dictionaries are not almost equal.\n"
-                             f"d1 keys: {d1.keys()} \nd2 keys: {d2.keys()}")
-    else:
-        for k in d1.keys():
-            if abs(d1[k] - d2[k]) > atol:
-                raise AssertionError(f"Dictionary entries beyond tolerance {atol}: \n{d1} \n{d2}")
-    return True
 
 
 class ansatz_utils_Test(unittest.TestCase):
@@ -284,12 +273,12 @@ class ansatz_utils_Test(unittest.TestCase):
         ham_mat = get_sparse_operator(qu_op).toarray()
         _, wavefunction = eigh(ham_mat)
 
-        # State 9 has eigenvalue 0.25 so return should be 0100 (0*1/2 + 1*1/4 + 0*1/8 + 0*1/16)
-        ground_wave = wavefunction[:, 9]
-        ground_wave = np.kron(ground_wave, np.array([1, 0]))
-        ground_wave = np.kron(ground_wave, np.array([1, 0]))
-        ground_wave = np.kron(ground_wave, np.array([1, 0]))
-        ground_wave = np.kron(ground_wave, np.array([1, 0]))
+        # Append four qubits in the zero state to eigenvector 9
+        wave_9 = wavefunction[:, 9]
+        wave_9 = np.kron(wave_9, np.array([1, 0]))
+        wave_9 = np.kron(wave_9, np.array([1, 0]))
+        wave_9 = np.kron(wave_9, np.array([1, 0]))
+        wave_9 = np.kron(wave_9, np.array([1, 0]))
 
         n_qubits = 8
 
@@ -309,31 +298,35 @@ class ansatz_utils_Test(unittest.TestCase):
         iqft = qft_circuit(qubit_list, n_qubits_in_circuit=n_qubits, inverse=True)
         pe_circuit += iqft
         for sim in sims:
-            freqs, _ = sim.simulate(pe_circuit, initial_statevector=ground_wave)
+            freqs, _ = sim.simulate(pe_circuit, initial_statevector=wave_9)
+            # Trace out first 4 dictionary amplitudes, only care about final 4 indices
             trace_freq = dict()
             for key, value in freqs.items():
                 if key[-4:] in trace_freq:
                     trace_freq[key[-4:]] += value
                 else:
                     trace_freq[key[-4:]] = value
+            # State 9 has eigenvalue 0.25 so return should be 0100 (0*1/2 + 1*1/4 + 0*1/8 + 0*1/16)
             self.assertAlmostEqual(trace_freq['0100'], 1.0, delta=2)
 
     def test_controlled_swap(self):
-        cswap = Circuit([Gate('CSWAP', target=[1, 2], control=0)], n_qubits=3)
+        cswap_list = [Circuit([Gate('CSWAP', target=[1, 2], control=0)], n_qubits=3),
+                      Circuit(decomp_controlled_swap_xx(0, 1, 2))]
 
-        # initialize in '110', returns '101'
-        init_gates = [Gate('X', target=0), Gate('X', target=1)]
-        circuit = Circuit(init_gates, n_qubits=3) + cswap
-        for sim in sims:
-            freqs, _ = sim.simulate(circuit, return_statevector=True)
-            assert_freq_dict_almost_equal({'101': 1.0}, freqs, atol=1.e-7)
+        for cswap in cswap_list:
+            # initialize in '110', returns '101'
+            init_gates = [Gate('X', target=0), Gate('X', target=1)]
+            circuit = Circuit(init_gates, n_qubits=3) + cswap
+            for sim in sims:
+                freqs, _ = sim.simulate(circuit, return_statevector=True)
+                assert_freq_dict_almost_equal({'101': 1.0}, freqs, atol=1.e-7)
 
-        # initialize in '010' returns '010'
-        init_gates = [Gate('X', target=1)]
-        circuit = Circuit(init_gates, n_qubits=3) + cswap
-        for sim in sims:
-            freqs, _ = sim.simulate(circuit, return_statevector=True)
-            assert_freq_dict_almost_equal({'010': 1.0}, freqs, atol=1.e-7)
+            # initialize in '010' returns '010'
+            init_gates = [Gate('X', target=1)]
+            circuit = Circuit(init_gates, n_qubits=3) + cswap
+            for sim in sims:
+                freqs, _ = sim.simulate(circuit, return_statevector=True)
+                assert_freq_dict_almost_equal({'010': 1.0}, freqs, atol=1.e-7)
 
     def test_derangement_circuit_by_estimating_pauli_string(self):
         """ Verify that tr(rho^3 pa) for a pauliword pa is correct.
@@ -348,8 +341,7 @@ class ansatz_utils_Test(unittest.TestCase):
         _, wavefunction = eigh(ham_mat)
         pamat = get_sparse_operator(pa).toarray()
 
-        # State 9 has eigenvalue 0.25 so return should be 0100 (0*1/2 + 1*1/4 + 0*1/8 + 0*1/16)
-        mixed_wave = np.sqrt(3)/2*wavefunction[:, 9] + 1/2*wavefunction[:, 0]
+        mixed_wave = np.sqrt(3)/2*wavefunction[:, -1] + 1/2*wavefunction[:, 0]
         mixed_wave_3 = np.kron(np.kron(mixed_wave, mixed_wave), mixed_wave)
         full_start_vec = np.kron(mixed_wave_3, np.array([1, 0]))
         rho = np.outer(mixed_wave, mixed_wave)
@@ -360,8 +352,8 @@ class ansatz_utils_Test(unittest.TestCase):
 
         qubit_list = [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]]
         rho3_pa_circuit = Circuit([Gate('H', target=12)], n_qubits=n_qubits)
-        derange_circuit = derangement_circuit(qubit_list, control=12, n_qubits=n_qubits)
-        cpas = controlled_pauliwords(pa, control=12, n_qubits=n_qubits)
+        derange_circuit = derangement_circuit(qubit_list, control=12, n_qubits_in_circuit=n_qubits)
+        cpas = controlled_pauliwords(pa, control=12, n_qubits_in_circuit=n_qubits)
         rho3_pa_circuit += derange_circuit + cpas[0]
         rho3_pa_circuit += Circuit([Gate('H', target=12)], n_qubits=n_qubits)
 
