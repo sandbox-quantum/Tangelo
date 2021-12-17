@@ -12,7 +12,7 @@ from tangelo.molecule_library import mol_H4_sto3g
 from tangelo.linq.tests.test_simulator import assert_freq_dict_almost_equal
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize, qft_circuit
-from tangelo.toolboxes.ansatz_generator.ansatz_utils import decomp_controlled_swap_xx, decomp_controlled_swap_xx_ue
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import decomp_controlled_swap_xx
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import derangement_circuit, controlled_pauliwords
 from tangelo.helpers.utils import installed_backends
 
