@@ -13,8 +13,12 @@
 # limitations under the License.
 
 import unittest
+import os
 import numpy as np
+
 from tangelo.toolboxes.post_processing import diis, richardson
+
+path_data = os.path.dirname(os.path.abspath(__file__)) + "/data"
 
 
 class ExtrapolationTest(unittest.TestCase):
@@ -22,7 +26,7 @@ class ExtrapolationTest(unittest.TestCase):
     def test_diis(self):
         """Test DIIS extrapolation on small sample data from Alejandro
         """
-        with open(f"./data/diis_test.dat") as f:
+        with open(f"{path_data}/diis_test.dat") as f:
             data = np.loadtxt(f)
             coeffs = data[:-1, 0]
             energies = data[:-1, 1]
@@ -34,7 +38,7 @@ class ExtrapolationTest(unittest.TestCase):
     def test_richardson(self):
         """Test Richardson extrapolation on small sample data from Alejandro
         """
-        with open(f"./data/richardson_test.dat") as f:
+        with open(f"{path_data}/richardson_test.dat") as f:
             data = np.loadtxt(f)
             coeffs = data[:-1, 0]
             energies = data[:-1, 1]
