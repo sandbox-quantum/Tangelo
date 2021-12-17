@@ -13,17 +13,35 @@
 # limitations under the License.
 
 import unittest
+import numpy as np
 from tangelo.toolboxes.post_processing import diis, richardson
 
 
 class ExtrapolationTest(unittest.TestCase):
 
     def test_diis(self):
+        """Test DIIS extrapolation on small sample data from Alejandro
+        """
+        with open(f"./data/diis_test.dat") as f:
+            data = np.loadtxt(f)
+            coeffs = data[:-1, 0]
+            energies = data[:-1, 1]
+            reference = data[-1, 1]
+
+        calculated = diis(energies, coeffs)
         self.assertAlmostEqual(reference, calculated, delta=1e-10)
 
     def test_richardson(self):
-        self.assertAlmostEqual(reference, calculated, delta=1e-10)
+        """Test Richardson extrapolation on small sample data from Alejandro
+        """
+        with open(f"./data/richardson_test.dat") as f:
+            data = np.loadtxt(f)
+            coeffs = data[:-1, 0]
+            energies = data[:-1, 1]
+            reference = data[-1, 1]
 
+        calculated = richardson(energies, coeffs)
+        self.assertAlmostEqual(reference, calculated, delta=1e-10)
 
 
 if __name__ == "__main__":
