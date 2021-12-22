@@ -171,11 +171,14 @@ class QITESolver:
             reduced_pool_terms = set()
             for qubit_op in self.full_pool_operators:
                 for term in qubit_op.terms.keys():
-                    reduced_pool_terms.add(term)
+                    if term:
+                        reduced_pool_terms.add(term)
 
         # Generated list of pool_operators and full pool operator.
         self.pool_operators = [QubitOperator(term) for term in reduced_pool_terms]
-        self.pool_qubit_op = sum(self.pool_operators, start=QubitOperator())
+        self.pool_qubit_op = QubitOperator()
+        for term in self.pool_operators:
+            self.pool_qubit_op += term
 
         self.qubit_operator = self.qubit_hamiltonian.to_qubitoperator()
 
@@ -216,7 +219,7 @@ class QITESolver:
             suv, bu = self.calculate_matrices(self.backend, self.final_energy)
 
             alphas = self.dt * np.linalg.solve(suv.real, bu.real)
-            next_circuit = trotterize(self.pool_qubit_op, alphas, trotter_order=1, num_trotter_steps=1)
+            next_circuit = trotterize(self.pool_qubit_op, alphas, trotter_order=1, n_trotter_steps=1)
 
             self.circuit_list.append(next_circuit)
             self.final_circuit += next_circuit

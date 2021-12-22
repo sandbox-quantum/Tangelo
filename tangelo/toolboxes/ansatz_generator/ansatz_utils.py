@@ -18,6 +18,7 @@ facilitate the assembly of ansatz quantum circuits.
 """
 
 from copy import deepcopy
+from itertools import combinations
 
 import numpy as np
 from openfermion.ops import FermionOperator as ofFermionOperator
@@ -88,14 +89,15 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
 
     Args:
         qubit_op  (QubitOperator):  qubit hamiltonian to exponentiate
-        time (float or list): For float input the coefficient to multiple to each coef for the exponential of each ter
+        time (float or array): The time to evolve the whole system or individiual times for each
+            term in the operator. If an array, must match the number of terms in qubit_op.terms
         variational (bool) : Whether the coefficients are variational
         trotter_order (int): order of trotter approximation, only 1 or 2 are supported.
         return_phase (bool): Return the global-phase generated
 
     Returns:
         Circuit: circuit corresponding to exponentiation of qubit operator
-        phase : The global phase of the time evolution if return_phase=True
+        phase : The global phase of the time evolution if return_phase=True else not included
     """
     pauli_words = qubit_op.terms.items()
     num_ops = len(pauli_words)
@@ -136,7 +138,7 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
     return return_value
 
 
-def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variational=False,
+def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variational=False,
                mapping_options=dict(), control=None, return_phase=False):
     """Generate the circuit that represents time evolution of an operator.
     This circuit is generated as a trotterization of a qubit operator which is either the input
@@ -145,11 +147,10 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
     Args:
         operator  (QubitOperator or FermionOperator):  operator to time evolve
         time (float or array): The time to evolve the whole system or individiual times for each
-            term in the operator. If an array, must match the number of terms
-            in operator
+            term in the operator. If an array, must match the number of terms operator.terms
         variational (bool): whether the coefficients are variational
         trotter_order (int): order of trotter approximation, 1 or 2 supported
-        num_trotter_steps (int): The number of different time steps taken for total time t
+        n_trotter_steps (int): The number of different time steps taken for total time t
         mapping_options (dict): Defines the desired Fermion->Qubit mapping
                                 Default values:{"up_then_down": False, "qubit_mapping": "jw", "n_spinorbitals": None,
                                                 "n_electrons": None}
@@ -158,7 +159,7 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
 
     Returns:
         Circuit: circuit corresponding to time evolution of the operator
-        float: the global phase not included in the circuit if return_phase=True
+        float: the global phase not included in the circuit if return_phase=True else not included
     """
     if isinstance(operator, (FermionOperator, ofFermionOperator, ofInteractionOperator)):
         options = {"up_then_down": False, "qubit_mapping": "jw", "n_spinorbitals": None, "n_electrons": None}
@@ -181,7 +182,7 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
             raise ValueError("time must be a float or array of floats")
         new_operator = FermionOperator()
         for i, term in enumerate(operator.terms):
-            new_operator += FermionOperator(term, operator.terms[term]*evolve_time[i]/num_trotter_steps)
+            new_operator += FermionOperator(term, operator.terms[term]*evolve_time[i]/n_trotter_steps)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=new_operator,
                                             mapping=options["qubit_mapping"],
                                             n_spinorbitals=options["n_spinorbitals"],
@@ -197,10 +198,10 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
     elif isinstance(operator, (QubitOperator, ofQubitOperator)):
         qubit_op = deepcopy(operator)
         if isinstance(time, float):
-            evolve_time = time / num_trotter_steps
+            evolve_time = time / n_trotter_steps
         elif isinstance(time, np.ndarray) or isinstance(time, list):
             if len(time) == len(operator.terms):
-                evolve_time = np.array(time) / num_trotter_steps
+                evolve_time = np.array(time) / n_trotter_steps
             else:
                 raise ValueError(f"Time array has length {len(time)} but QubitOperator has length {len(operator.terms)}. "
                                  "These lengths must be the same.")
@@ -213,12 +214,12 @@ def trotterize(operator, time=1., num_trotter_steps=1, trotter_order=1, variatio
     else:
         raise ValueError("Only FermionOperator or QubitOperator allowed")
 
-    if num_trotter_steps == 1:
+    if n_trotter_steps == 1:
         return_value = (circuit, phase) if return_phase else circuit
     else:
         final_circuit = deepcopy(circuit)
         final_phase = deepcopy(phase)
-        for i in range(1, num_trotter_steps):
+        for i in range(1, n_trotter_steps):
             final_circuit += circuit
             final_phase *= phase
         return_value = (final_circuit, final_phase) if return_phase else circuit
@@ -365,7 +366,7 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=None):
     Returns:
         Circuit: The derangement circuit
     """
-    if decomp is not None and decomp.lower() not in ["XX"]:
+    if decomp is not None and decomp not in ["XX"]:
         raise ValueError(f"{decomp} is not a valid controlled swap decomposition")
 
     num_copies = len(qubit_list)
@@ -378,21 +379,19 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=None):
                 raise ValueError("All copies must have the same number of qubits")
     gate_list = list()
     if control is None:
-        for copy1 in range(num_copies):
-            for copy2 in range(copy1+1, num_copies):
-                for rhoi in range(rho_range):
-                    gate_list += [Gate("SWAP", target=[qubit_list[copy1][rhoi], qubit_list[copy2][rhoi]])]
+        for copy1, copy2 in combinations(range(num_copies), 2):
+            for rhoi in range(rho_range):
+                gate_list += [Gate("SWAP", target=[qubit_list[copy1][rhoi], qubit_list[copy2][rhoi]])]
     else:
-        for copy1 in range(num_copies):
-            for copy2 in range(copy1+1, num_copies):
-                for rhoi in range(rho_range):
-                    if decomp == "xx":
-                        gate_list += controlled_swap_to_XX_gates(control,
-                                                                 qubit_list[copy1][rhoi],
-                                                                 qubit_list[copy2][rhoi])
-                    else:
-                        gate_list += [Gate("CSWAP",
-                                           target=[qubit_list[copy1][rhoi], qubit_list[copy2][rhoi]],
-                                           control=control)]
+        for copy1, copy2 in combinations(range(num_copies), 2):
+            for rhoi in range(rho_range):
+                if decomp == "XX":
+                    gate_list += controlled_swap_to_XX_gates(control,
+                                                             qubit_list[copy1][rhoi],
+                                                             qubit_list[copy2][rhoi])
+                else:
+                    gate_list += [Gate("CSWAP",
+                                       target=[qubit_list[copy1][rhoi], qubit_list[copy2][rhoi]],
+                                       control=control)]
 
     return Circuit(gate_list, n_qubits=n_qubits)
