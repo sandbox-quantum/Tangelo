@@ -1,4 +1,4 @@
-# Copyright 2021 1QB Information Technologies Inc.
+# Copyright 2021 Good Chemsitry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,10 +44,10 @@ class QITESolverTest(unittest.TestCase):
         Result should be lower than mean field energy.
         """
 
-        backend_options = {"target": "qulacs", "n_shots": 10000, "noise_model": NoiseModel()}
+        backend_options = {"target": None, "n_shots": 10000, "noise_model": NoiseModel()}
 
         qite_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "scbk",
-                        "verbose": True, 'backend_options': backend_options,
+                        "verbose": True, "backend_options": backend_options,
                         "max_cycles": 1, "up_then_down": True}
         qite_solver = QITESolver(qite_options)
         qite_solver.build()
