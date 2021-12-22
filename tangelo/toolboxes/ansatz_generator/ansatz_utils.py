@@ -161,7 +161,7 @@ def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variationa
         Circuit: circuit corresponding to time evolution of the operator
         float: the global phase not included in the circuit if return_phase=True else not included
     """
-    if isinstance(operator, (FermionOperator, ofFermionOperator, ofInteractionOperator)):
+    if isinstance(operator, (ofFermionOperator, ofInteractionOperator)):
         options = {"up_then_down": False, "qubit_mapping": "jw", "n_spinorbitals": None, "n_electrons": None}
         # Overwrite default values with user-provided ones, if they correspond to a valid keyword
         for k, v in mapping_options.items():
