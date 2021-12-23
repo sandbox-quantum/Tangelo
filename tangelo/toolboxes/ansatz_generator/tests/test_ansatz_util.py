@@ -124,7 +124,8 @@ class ansatz_utils_Test(unittest.TestCase):
                              FermionOperator("1^ 3", 0.5) + FermionOperator("3^ 1", 0.5)]
 
         # time is twice as long as each Hermitian Operator has two terms
-        time = [0.1, 0.1, 0.2, 0.2, 0.3, 0.3]
+        time = {((0, 1), (3, 0)): 0.1, ((3, 1), (0, 0)): 0.1, ((1, 1), (2, 0)): 0.2, ((2, 1), (1, 0)): 0.2,
+                ((1, 1), (3, 0)): 0.3, ((3, 1), (1, 0)): 0.3}
 
         # Build referenc circuit and obtain reference wavefunction
         reference_circuit = Circuit([Gate("X", 0), Gate("X", 3)])
@@ -138,7 +139,7 @@ class ansatz_utils_Test(unittest.TestCase):
             qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=fermion_operators[i],
                                                          mapping=mapping)
             ham_mat = get_sparse_operator(qubit_hamiltonian, n_qubits=4).toarray()
-            evolve_exact = expm(-1j * time[2*i] * ham_mat) @ evolve_exact
+            evolve_exact = expm(-1j * time[next(iter(fermion_operators[i].terms))] * ham_mat) @ evolve_exact
 
         # Apply trotter-suzuki steps using different times for each term
         tcircuit, phase = trotterize(total_fermion_operator, trotter_order=1, n_trotter_steps=1, time=time, return_phase=True)
@@ -155,7 +156,7 @@ class ansatz_utils_Test(unittest.TestCase):
 
         qubit_operator_list = [QubitOperator("X0 Y1", 0.5), QubitOperator("Y1 Z2", 0.5), QubitOperator("Y2 X3", 0.5)]
 
-        time = [0.1, 0.2, 0.3]
+        time = {((0, 'X'), (1, 'Y')): 0.1, ((1, 'Y'), (2, 'Z')): 0.2, ((2, 'Y'), (3, 'X')): 0.3}
 
         # Generate initial wavefunction
         reference_circuit = Circuit([Gate("X", 0), Gate("X", 3)])
@@ -165,16 +166,15 @@ class ansatz_utils_Test(unittest.TestCase):
         evolve_exact = refwave
         for i in range(3):
             ham_mat = get_sparse_operator(qubit_operator_list[i], n_qubits=4).toarray()
-            evolve_exact = expm(-1j * time[i] * ham_mat) @ evolve_exact
+            evolve_exact = expm(-1j * time[next(iter(qubit_operator_list[i].terms))] * ham_mat) @ evolve_exact
 
         # Apply trotter-suzuki with different times for each qubit operator term
         total_qubit_operator = QubitOperator()
-        for qu_op in qubit_operator_list:
+        for qu_op in reversed(qubit_operator_list):
             total_qubit_operator += qu_op
-        tcircuit, phase = trotterize(total_qubit_operator, trotter_order=1, n_trotter_steps=1, time=time, return_phase=True)
+        tcircuit, phase = trotterize(total_qubit_operator, trotter_order=2, n_trotter_steps=2, time=time, return_phase=True)
         _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
         wavefunc *= phase
-
         overlap = np.dot(np.conj(evolve_exact), wavefunc)
         self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
 

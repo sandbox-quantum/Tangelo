@@ -218,8 +218,10 @@ class QITESolver:
 
             suv, bu = self.calculate_matrices(self.backend, self.final_energy)
 
-            alphas = self.dt * np.linalg.solve(suv.real, bu.real)
-            next_circuit = trotterize(self.pool_qubit_op, alphas, trotter_order=1, n_trotter_steps=1)
+            alphas_array = np.linalg.solve(suv.real, bu.real)
+            # convert to dictionary with key as first (only) term of each pool_operator and value self.dt * alphas_array[i]
+            alphas_dict = {next(iter(qu_op.terms)): self.dt * alphas_array[i] for i, qu_op in enumerate(self.pool_operators)}
+            next_circuit = trotterize(self.pool_qubit_op, alphas_dict, trotter_order=1, n_trotter_steps=1)
 
             self.circuit_list.append(next_circuit)
             self.final_circuit += next_circuit

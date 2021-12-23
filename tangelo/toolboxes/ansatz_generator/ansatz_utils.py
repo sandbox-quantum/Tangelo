@@ -89,8 +89,8 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
 
     Args:
         qubit_op  (QubitOperator):  qubit hamiltonian to exponentiate
-        time (float or array): The time to evolve the whole system or individiual times for each
-            term in the operator. If an array, must match the number of terms in qubit_op.terms
+        time (float or dict): The time to evolve the whole system or individiual times for each
+            term in the operator. If a dictionary, must have keys that have a matching key in qubit_op.terms
         variational (bool) : Whether the coefficients are variational
         trotter_order (int): order of trotter approximation, only 1 or 2 are supported.
         return_phase (bool): Return the global-phase generated
@@ -100,40 +100,38 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
         phase : The global phase of the time evolution if return_phase=True else not included
     """
     pauli_words = qubit_op.terms.items()
-    num_ops = len(pauli_words)
+
+    if trotter_order > 2:
+        raise ValueError(f"Trotter order of >2 is not supported currently in Tangelo.")
+    prefactor = 1/2 if trotter_order == 2 else 1
 
     if isinstance(time, (float, np.floating, np.integer, int)):
-        evolve_time = np.ones((num_ops,), dtype=float) * time
-    else:
-        if len(time) == num_ops:
-            evolve_time = np.array(time)
+        evolve_time = {term: prefactor*time for term in qubit_op.terms.keys()}
+    elif isinstance(time, dict):
+        if time.keys() == qubit_op.terms.keys():
+            evolve_time = {term: prefactor*etime for term, etime in time.items()}
         else:
-            raise ValueError(f"The array of times with {len(time)} elements does not have the same number of operators"
-                             f"as the given qubit operator with {num_ops}")
-
-    if trotter_order == 2:
-        evolve_time /= 2
-    elif trotter_order > 2:
-        raise ValueError(f"Trotter order of >2 is not supported currently in Tangelo.")
+            raise ValueError(f"The keys in the time dictionary do not match the keys in qubit_op.terms")
+    else:
+        raise ValueError(f"time must be a float or a dictionary")
 
     phase = 1.
     exp_pauli_word_gates = list()
-    for i, (pauli_word, coef) in enumerate(pauli_words):
-        if pauli_word:  # identity terms do not contribute to evolution outside of a phase
-            if abs(np.real(coef)*evolve_time[i]) > 1.e-10:
-                exp_pauli_word_gates += exp_pauliword_to_gates(pauli_word,
-                                                               np.real(coef)*evolve_time[i],
-                                                               variational=variational,
-                                                               control=control)
-        else:
-            if control is None:
-                phase *= np.exp(-1j * coef * evolve_time[i])
+    for i in range(trotter_order):
+        pauli_words_list = list(pauli_words) if i == 0 else list(reversed(pauli_words))
+        for pauli_word, coef in pauli_words_list:
+            if pauli_word:  # identity terms do not contribute to evolution outside of a phase
+                if abs(np.real(coef)*evolve_time[pauli_word]) > 1.e-10:
+                    exp_pauli_word_gates += exp_pauliword_to_gates(pauli_word,
+                                                                   np.real(coef)*evolve_time[pauli_word],
+                                                                   variational=variational,
+                                                                   control=control)
             else:
-                exp_pauli_word_gates += [Gate("PHASE", target=control, parameter=-np.real(coef)*evolve_time[i])]
+                if control is None:
+                    phase *= np.exp(-1j * coef * evolve_time[pauli_word])
+                else:
+                    exp_pauli_word_gates += [Gate("PHASE", target=control, parameter=-np.real(coef)*evolve_time[pauli_word])]
 
-    if trotter_order == 2:
-        exp_pauli_word_gates += [exp_pauli_word for exp_pauli_word in reversed(exp_pauli_word_gates)]
-        phase *= phase
     return_value = (Circuit(exp_pauli_word_gates), phase) if return_phase else Circuit(exp_pauli_word_gates)
     return return_value
 
@@ -146,8 +144,8 @@ def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variationa
 
     Args:
         operator  (QubitOperator or FermionOperator):  operator to time evolve
-        time (float or array): The time to evolve the whole system or individiual times for each
-            term in the operator. If an array, must match the number of terms operator.terms
+        time (float or dict): The time to evolve the whole system or individiual times for each
+            term in the operator. If a dict, each key must match the keys in operator.terms
         variational (bool): whether the coefficients are variational
         trotter_order (int): order of trotter approximation, 1 or 2 supported
         n_trotter_steps (int): The number of different time steps taken for total time t
@@ -161,7 +159,8 @@ def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variationa
         Circuit: circuit corresponding to time evolution of the operator
         float: the global phase not included in the circuit if return_phase=True else not included
     """
-    if isinstance(operator, (ofFermionOperator, ofInteractionOperator)):
+
+    if isinstance(operator, ofFermionOperator):
         options = {"up_then_down": False, "qubit_mapping": "jw", "n_spinorbitals": None, "n_electrons": None}
         # Overwrite default values with user-provided ones, if they correspond to a valid keyword
         for k, v in mapping_options.items():
@@ -169,20 +168,18 @@ def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variationa
                 options[k] = v
             else:
                 raise KeyError(f"Keyword :: {k}, not a valid fermion to qubit mapping option")
-        if isinstance(operator, ofInteractionOperator):
-            operator = get_fermion_operator(operator)
         if isinstance(time, (float, np.floating, int, np.integer)):
-            evolve_time = np.ones(len(operator.terms)) * time
-        elif isinstance(time, (list, np.ndarray)):
-            if len(time) == len(operator.terms):
-                evolve_time = np.array(time)
+            evolve_time = {term: time for term in operator.terms.keys()}
+        elif isinstance(time, dict):
+            if time.keys() == operator.terms.keys():
+                evolve_time = deepcopy(time)
             else:
-                raise ValueError(f"time has length {len(time)} but FermionOperator has length {len(operator.terms)}")
+                raise ValueError(f"keys of time do not match keys of operator.terms")
         else:
-            raise ValueError("time must be a float or array of floats")
+            raise ValueError("time must be a float or dictionary of floats")
         new_operator = FermionOperator()
-        for i, term in enumerate(operator.terms):
-            new_operator += FermionOperator(term, operator.terms[term]*evolve_time[i]/n_trotter_steps)
+        for term in operator.terms:
+            new_operator += FermionOperator(term, operator.terms[term]*evolve_time[term]/n_trotter_steps)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=new_operator,
                                             mapping=options["qubit_mapping"],
                                             n_spinorbitals=options["n_spinorbitals"],
@@ -195,16 +192,17 @@ def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variationa
                                                                   control=control,
                                                                   return_phase=True)
 
-    elif isinstance(operator, (QubitOperator, ofQubitOperator)):
+    elif isinstance(operator, (ofQubitOperator)):
         qubit_op = deepcopy(operator)
         if isinstance(time, float):
             evolve_time = time / n_trotter_steps
-        elif isinstance(time, np.ndarray) or isinstance(time, list):
-            if len(time) == len(operator.terms):
-                evolve_time = np.array(time) / n_trotter_steps
+        elif isinstance(time, dict):
+            if time.keys() == operator.terms.keys():
+                evolve_time = {term: etime / n_trotter_steps for term, etime in time.items()}
             else:
-                raise ValueError(f"Time array has length {len(time)} but QubitOperator has length {len(operator.terms)}. "
-                                 "These lengths must be the same.")
+                raise ValueError(f"time dictionary and operator.terms dictionary have different keys.")
+        else:
+            raise ValueError(f"time must be a float or a dictionary of floats")
         circuit, phase = get_exponentiated_qubit_operator_circuit(qubit_op,
                                                                   time=evolve_time,
                                                                   trotter_order=trotter_order,
