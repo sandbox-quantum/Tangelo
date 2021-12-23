@@ -119,7 +119,7 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
     phase = 1.
     exp_pauli_word_gates = list()
     for i, (pauli_word, coef) in enumerate(pauli_words):
-        if (len(pauli_word) > 0):  # identity terms do not contribute to evolution outside of a phase
+        if pauli_word:  # identity terms do not contribute to evolution outside of a phase
             if abs(np.real(coef)*evolve_time[i]) > 1.e-10:
                 exp_pauli_word_gates += exp_pauliword_to_gates(pauli_word,
                                                                np.real(coef)*evolve_time[i],
