@@ -68,6 +68,18 @@ class Circuit:
         """
         return Circuit(self._gates + other._gates, n_qubits=max(self.width, other.width))
 
+    def __mul__(self, n_repeat):
+        """Return a circuit consisting of n_repeat repetitions of the input circuit.
+        """
+        if not isinstance(n_repeat, int) or n_repeat <= 0:
+            raise ValueError("Multiplication (repetition) operator with Circuit class only works for integers > 0")
+        return Circuit(self._gates * n_repeat, n_qubits=self.width)
+
+    def __rmul__(self, n_repeat):
+        """Return a circuit consisting of n_repeat repetitions of the input circuit (circuit as right-hand side)
+        """
+        return self * n_repeat
+
     @property
     def size(self):
         """The size is the number of gates in the circuit. It is different from

@@ -84,6 +84,28 @@ class TestCircuits(unittest.TestCase):
         self.assertTrue(len(circuit_sum._variational_gates) == (len(circuit3._variational_gates) +
                                                                 len(circuit4._variational_gates)))
 
+    def test_mul_circuit(self):
+        """ Test the multiplication (repetition) operator for circuit objects """
+
+        # Should work for *2
+        c2 = circuit3 * 2
+        ref_counts = {k: 2*v for k, v in circuit3._gate_counts.items()}
+        self.assertTrue(c2._gate_counts == ref_counts)
+        self.assertTrue(len(c2._variational_gates) == 2*len(circuit3._variational_gates))
+
+        # Fail for incorrect values, such as 2.5, or 0.
+        with self.assertRaises(ValueError):
+            _ = circuit3 * 2.5
+        with self.assertRaises(ValueError):
+            _ = circuit3 * 0
+
+        # Repeating an empty circuit yields an empty circuit
+        self.assertTrue((Circuit()*3).size == 0)
+
+        # Check on right-hand side
+        print(2*circuit3)
+        self.assertTrue((2*circuit3).__str__() == c2.__str__())
+
     def test_fixed_sized_circuit_above(self):
         """ If circuit is instantiated with fixed width, the code must throw if qubit indices are not consistent """
         circuit_fixed = Circuit(n_qubits=2)
