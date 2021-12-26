@@ -42,6 +42,11 @@ circuit3.add_gate(Gate("RZ", 4, parameter="some angle", is_variational=True))
 circuit4 = copy.deepcopy(circuit3)
 circuit4.add_gate(Gate("RY", 3, parameter="some angle", is_variational=True))
 
+entangle_gates = [Gate("CNOT", target=4, control=0), Gate("CNOT", target=5, control=1),
+                  Gate("H", target=2), Gate("CNOT", target=6, control=5),
+                  Gate("CNOT", target=1, control=4),
+                  Gate("CSWAP", target=[2, 7], control=[0])]
+
 
 class TestCircuits(unittest.TestCase):
 
@@ -104,6 +109,37 @@ class TestCircuits(unittest.TestCase):
 
         # Check on right-hand side
         self.assertTrue(2*circuit3 == c2)
+
+    def test_entangled_indices(self):
+        """ Test that entangled indices subsets are properly updated after
+            a new gate is added to the circuit. """
+
+        c = Circuit()
+        c.add_gate(Gate("CNOT", target=4, control=0))
+        self.assertTrue(c.get_entangled_indices() == [{0, 4}])
+        c.add_gate(Gate("CNOT", target=5, control=1))
+        self.assertTrue(c.get_entangled_indices() == [{0, 4}, {1, 5}])
+        c.add_gate(Gate("H", target=2))
+        self.assertTrue(c.get_entangled_indices() == [{0, 4}, {1, 5}, {2}])
+        c.add_gate(Gate("CNOT", target=6, control=5))
+        self.assertTrue(c.get_entangled_indices() == [{0, 4}, {2}, {1, 5, 6}])
+        c.add_gate(Gate("CNOT", target=1, control=4))
+        self.assertTrue(c.get_entangled_indices() == [{2}, {0, 1, 4, 5, 6}])
+        c.add_gate(Gate("CSWAP", target=[2, 7], control=[0]))
+        self.assertTrue(c.get_entangled_indices() == [{0, 1, 2, 4, 5, 6, 7}])
+
+    def test_split_circuits(self):
+        """ Test function that splits circuit into several circuits targeting qubit subsets
+        that are not entangled with each other"""
+        gates = [Gate("CSWAP", target=[2, 5], control=[0]),
+                 Gate("CSWAP", target=[3, 7], control=[4]),
+                 Gate("H", 6)]
+        c = Circuit(gates)
+        print(c.get_entangled_indices())
+        for cs in c.split():
+            print(cs)
+            cs.relabel_qubits()
+            print(cs)
 
     def test_equality_circuit(self):
         """ Test equality operators (== and !=) for circuits """

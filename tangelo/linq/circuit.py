@@ -156,6 +156,61 @@ class Circuit:
         # Keep track of the total gate count
         self._gate_counts[gate.name] = self._gate_counts.get(gate.name, 0) + 1
 
+        # # Track entangled subsystems
+        # # Gradually accumulate entangled indices from the different subsets
+        # # Remove and replace them with their union
+        # q_new = set(all_involved_qubits)
+        # for qs in self._entangled_indices[::-1]:
+        #     if q_new & qs:
+        #         q_new = q_new | qs
+        #         self._entangled_indices.remove(qs)
+        # self._entangled_indices.append(q_new)
+
+    def relabel_qubits(self):
+        """
+        """
+        mapping = {ind: i for i, ind in enumerate(self._qubit_indices)}
+        for g in self._gates:
+            g.target = [mapping[ind] for ind in g.target]
+            g.control = [mapping[ind] for ind in g.control]
+
+    def get_entangled_indices(self):
+        """Return a list of qubit indices sets. Each set includes indices
+         of qubits that form an entangled subset.
+        """
+
+        entangled_indices = list()
+        for g in self._gates:
+
+            # Gradually accumulate entangled indices from the different subsets
+            # Remove and replace them with their union, for each gate.
+            q_new = set(g.target) if g.control is None else set(g.target + g.control)
+            for qs in entangled_indices[::-1]:
+                if q_new & qs:
+                    q_new = q_new | qs
+                    entangled_indices.remove(qs)
+            entangled_indices.append(q_new)
+
+        return entangled_indices
+
+    def split(self):
+        """ Return a list of circuits that
+        """
+
+        entangled_indices = self.get_entangled_indices()
+        separate_circuits = [Circuit() for i in range(len(entangled_indices))]
+        for g in self._gates:
+            q_new = set(g.target) if g.control is None else set(g.target + g.control)
+
+            for i, indices in enumerate(entangled_indices):
+                if q_new & indices:
+                    separate_circuits[i].add_gate(g)
+                    break
+
+        return separate_circuits
+
+
+
     def inverse(self):
         """Return the inverse (adjoint) of a circuit
 
