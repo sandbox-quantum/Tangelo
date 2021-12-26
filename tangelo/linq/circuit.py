@@ -193,11 +193,13 @@ class Circuit:
         separate_circuits = [Circuit() for i in range(len(entangled_indices))]
         for g in self._gates:
             q_new = set(g.target) if g.control is None else set(g.target + g.control)
+            # Append the gate to the circuit that handles the corresponding qubit indices
             for i, indices in enumerate(entangled_indices):
                 if q_new & indices:
                     separate_circuits[i].add_gate(g)
                     break
 
+        # Trim unnecessary indices in the new circuits
         for c in separate_circuits:
             c.trim_qubits()
         return separate_circuits

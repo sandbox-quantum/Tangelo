@@ -111,7 +111,7 @@ class TestCircuits(unittest.TestCase):
 
     def test_entangled_indices(self):
         """ Test that entangled indices subsets are properly updated after
-            a new gate is added to the circuit. """
+        a new gate is added to the circuit. """
 
         c = Circuit()
         c.add_gate(Gate("CNOT", target=4, control=0))
@@ -138,7 +138,7 @@ class TestCircuits(unittest.TestCase):
 
     def test_split_circuit(self):
         """ Test function that splits circuit into several circuits targeting qubit subsets
-        that are not entangled with each other. Trims unnecessary qubit indices."""
+        that are not entangled with each other. Trims unnecessary qubit indices. """
         c = Circuit([Gate("CSWAP", target=[2, 5], control=[0]),
                      Gate("CSWAP", target=[3, 7], control=[4]),
                      Gate("H", 6)])
@@ -165,13 +165,13 @@ class TestCircuits(unittest.TestCase):
 
     def test_fixed_sized_circuit_below(self):
         """ If circuit is instantiated with fixed width, then the width property must be consistent, regardless
-            of what gate instructions have been passed """
+        of what gate instructions have been passed """
         n_qubits = 3
         circuit_fixed = Circuit([Gate("H", 0)], n_qubits=n_qubits)
         self.assertTrue(circuit_fixed.width == n_qubits)
 
     def test_inverse(self):
-        """ Test if inverse function returns the proper set of gates by comparing print strings."""
+        """ Test if inverse function returns the proper set of gates."""
 
         mygates_inverse = list()
         mygates_inverse.append(Gate("RX", 1, parameter=-2.))
