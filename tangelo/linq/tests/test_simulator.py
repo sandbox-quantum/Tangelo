@@ -26,7 +26,6 @@ from openfermion import load_operator
 
 from tangelo.linq import Gate, Circuit, translator, Simulator
 from tangelo.linq.gate import PARAMETERIZED_GATES
-from tangelo.linq.helpers import string_ham_to_of
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'

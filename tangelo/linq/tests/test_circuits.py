@@ -42,10 +42,9 @@ circuit3.add_gate(Gate("RZ", 4, parameter="some angle", is_variational=True))
 circuit4 = copy.deepcopy(circuit3)
 circuit4.add_gate(Gate("RY", 3, parameter="some angle", is_variational=True))
 
-entangle_gates = [Gate("CNOT", target=4, control=0), Gate("CNOT", target=5, control=1),
-                  Gate("H", target=2), Gate("CNOT", target=6, control=5),
-                  Gate("CNOT", target=1, control=4),
-                  Gate("CSWAP", target=[2, 7], control=[0])]
+entangle_circuit = Circuit([Gate("CSWAP", target=[2, 5], control=[0]),
+                            Gate("CSWAP", target=[3, 7], control=[4]),
+                            Gate("H", 6)], n_qubits=10)
 
 
 class TestCircuits(unittest.TestCase):
@@ -128,18 +127,26 @@ class TestCircuits(unittest.TestCase):
         c.add_gate(Gate("CSWAP", target=[2, 7], control=[0]))
         self.assertTrue(c.get_entangled_indices() == [{0, 1, 2, 4, 5, 6, 7}])
 
-    def test_split_circuits(self):
+    def test_trim_circuit(self):
+        """ Check that unnecessary indices are trimmed and new indices minimal """
+
+        ref_c = Circuit([Gate("CSWAP", target=[1, 4], control=[0]),
+                         Gate("CSWAP", target=[2, 6], control=[3]),
+                         Gate("H", 5)], n_qubits=7)
+        entangle_circuit.trim_qubits()
+        self.assertTrue(ref_c == entangle_circuit)
+
+    def test_split_circuit(self):
         """ Test function that splits circuit into several circuits targeting qubit subsets
-        that are not entangled with each other"""
-        gates = [Gate("CSWAP", target=[2, 5], control=[0]),
-                 Gate("CSWAP", target=[3, 7], control=[4]),
-                 Gate("H", 6)]
-        c = Circuit(gates)
-        print(c.get_entangled_indices())
-        for cs in c.split():
-            print(cs)
-            cs.relabel_qubits()
-            print(cs)
+        that are not entangled with each other. Trims unnecessary qubit indices."""
+        c = Circuit([Gate("CSWAP", target=[2, 5], control=[0]),
+                     Gate("CSWAP", target=[3, 7], control=[4]),
+                     Gate("H", 6)])
+        c1, c2, c3 = c.split()
+
+        self.assertTrue(c1 == Circuit([Gate("CSWAP", target=[1, 2], control=[0])]))
+        self.assertTrue(c2 == Circuit([Gate("CSWAP", target=[0, 2], control=[1])]))
+        self.assertTrue(c3 == Circuit([Gate("H", target=0)]))
 
     def test_equality_circuit(self):
         """ Test equality operators (== and !=) for circuits """

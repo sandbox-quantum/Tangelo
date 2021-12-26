@@ -20,8 +20,6 @@ characteristics (width, size ...).
 
 from typing import List
 
-import numpy as np
-
 from tangelo.linq import Gate
 
 
@@ -156,23 +154,17 @@ class Circuit:
         # Keep track of the total gate count
         self._gate_counts[gate.name] = self._gate_counts.get(gate.name, 0) + 1
 
-        # # Track entangled subsystems
-        # # Gradually accumulate entangled indices from the different subsets
-        # # Remove and replace them with their union
-        # q_new = set(all_involved_qubits)
-        # for qs in self._entangled_indices[::-1]:
-        #     if q_new & qs:
-        #         q_new = q_new | qs
-        #         self._entangled_indices.remove(qs)
-        # self._entangled_indices.append(q_new)
-
-    def relabel_qubits(self):
+    def trim_qubits(self):
+        """Trim unnecessary qubits and update indices with the lowest values possible.
         """
-        """
-        mapping = {ind: i for i, ind in enumerate(self._qubit_indices)}
+        qubits_in_use = set().union(*self.get_entangled_indices())
+        mapping = {ind: i for i, ind in enumerate(qubits_in_use)}
         for g in self._gates:
             g.target = [mapping[ind] for ind in g.target]
-            g.control = [mapping[ind] for ind in g.control]
+            if g.control:
+                g.control = [mapping[ind] for ind in g.control]
+
+        self._qubit_indices = set(range(len(qubits_in_use)))
 
     def get_entangled_indices(self):
         """Return a list of qubit indices sets. Each set includes indices
@@ -181,7 +173,6 @@ class Circuit:
 
         entangled_indices = list()
         for g in self._gates:
-
             # Gradually accumulate entangled indices from the different subsets
             # Remove and replace them with their union, for each gate.
             q_new = set(g.target) if g.control is None else set(g.target + g.control)
@@ -194,22 +185,22 @@ class Circuit:
         return entangled_indices
 
     def split(self):
-        """ Return a list of circuits that
+        """ Split a circuit featuring unentangled qubit subsets into as many circuit objects.
+        Each circuit only contains the gate operations targeting the qubit indices in its subsets.
         """
 
         entangled_indices = self.get_entangled_indices()
         separate_circuits = [Circuit() for i in range(len(entangled_indices))]
         for g in self._gates:
             q_new = set(g.target) if g.control is None else set(g.target + g.control)
-
             for i, indices in enumerate(entangled_indices):
                 if q_new & indices:
                     separate_circuits[i].add_gate(g)
                     break
 
+        for c in separate_circuits:
+            c.trim_qubits()
         return separate_circuits
-
-
 
     def inverse(self):
         """Return the inverse (adjoint) of a circuit
