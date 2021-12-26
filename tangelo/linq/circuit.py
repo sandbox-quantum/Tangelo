@@ -19,6 +19,9 @@ characteristics (width, size ...).
 """
 
 from typing import List
+
+import numpy as np
+
 from tangelo.linq import Gate
 
 
@@ -79,6 +82,17 @@ class Circuit:
         """Return a circuit consisting of n_repeat repetitions of the input circuit (circuit as right-hand side)
         """
         return self * n_repeat
+
+    def __eq__(self, other):
+        """Define equality (==) between 2 circuits. They are equal iff all their gates are equal, and they have
+        the same numbers of qubits.
+        """
+        return (self._gates == other._gates) and (self.width == other.width)
+
+    def __ne__(self, other):
+        """Define inequality (!=) operator on circuits
+        """
+        return not (self == other)
 
     @property
     def size(self):

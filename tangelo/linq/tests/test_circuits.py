@@ -103,8 +103,14 @@ class TestCircuits(unittest.TestCase):
         self.assertTrue((Circuit()*3).size == 0)
 
         # Check on right-hand side
-        print(2*circuit3)
-        self.assertTrue((2*circuit3).__str__() == c2.__str__())
+        self.assertTrue(2*circuit3 == c2)
+
+    def test_equality_circuit(self):
+        """ Test equality operators (== and !=) for circuits """
+        self.assertTrue(circuit1 == circuit2)
+        self.assertTrue(circuit3 != circuit2)
+        c3 = Circuit(circuit3._gates, n_qubits=6)
+        self.assertTrue(circuit3 != c3)
 
     def test_fixed_sized_circuit_above(self):
         """ If circuit is instantiated with fixed width, the code must throw if qubit indices are not consistent """
@@ -131,11 +137,11 @@ class TestCircuits(unittest.TestCase):
         mygates_inverse.append(Gate("CNOT", 1, control=0))
         mygates_inverse.append(Gate("H", 2))
         circuit1_inverse = Circuit(mygates_inverse)
-        self.assertTrue(circuit1.inverse().__str__(), circuit1_inverse.__str__())
+        self.assertTrue(circuit1.inverse(), circuit1_inverse)
 
         ts_circuit = Circuit([Gate("T", 0), Gate("S", 1)])
         ts_circuit_inverse = Circuit([Gate("PHASE", 0, parameter=-pi/4), Gate("PHASE", 0, parameter=-pi/2)])
-        self.assertTrue(ts_circuit.inverse().__str__(), ts_circuit_inverse.__str__())
+        self.assertTrue(ts_circuit.inverse(), ts_circuit_inverse)
 
 
 if __name__ == "__main__":
