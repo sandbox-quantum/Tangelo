@@ -131,7 +131,7 @@ class Circuit:
         qubit indices...).
         """
         # Add the gate to the list of gates
-        self._gates += [copy.deepcopy(gate)]
+        self._gates += [gate]
 
         # A circuit is variational as soon as a variational gate is added to it
         if gate.is_variational:
@@ -166,10 +166,10 @@ class Circuit:
                 g.control = [mapping[ind] for ind in g.control]
 
         self._qubit_indices = set(range(len(qubits_in_use)))
+        return self
 
     def reindex_qubits(self, new_indices):
         """Reindex qubit indices according to users labels / new indices.
-        The
         """
 
         if len(new_indices) != len(self._qubit_indices):
@@ -185,7 +185,7 @@ class Circuit:
         self._qubit_indices = set(new_indices)
 
     def get_entangled_indices(self):
-        """Return a list of qubit indices sets. Each set includes indices
+        """Return a list of unentangled sets of qubit indices. Each set includes indices
          of qubits that form an entangled subset.
         """
 
@@ -205,8 +205,10 @@ class Circuit:
     def split(self):
         """ Split a circuit featuring unentangled qubit subsets into as many circuit objects.
         Each circuit only contains the gate operations targeting the qubit indices in its subsets.
-        """
 
+        Returns:
+            list of Circuit: list of resulting circuits
+        """
         entangled_indices = self.get_entangled_indices()
         separate_circuits = [Circuit() for i in range(len(entangled_indices))]
         for g in self._gates:
@@ -222,10 +224,17 @@ class Circuit:
             c.trim_qubits()
         return separate_circuits
 
-    def stack(self, other):
-        """
+    def stack(self, *other_circuits):
+        """Convenience method to stack other circuits on top of this one.
+        See separate stack function.
 
+        Args:
+            *other_circuits (Circuit): one or several circuit objects to stack
+
+        Returns:
+            Circuit: the stacked circuit
         """
+        return stack(self, *other_circuits)
 
     def inverse(self):
         """Return the inverse (adjoint) of a circuit
@@ -242,7 +251,7 @@ class Circuit:
         return {"type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
 
 
-def stack(*circuits, trim=True):
+def stack(*circuits):
     """ Take list of circuits as input, and stack them (e.g concatenate them along the
     width (qubits)) to form a single wider circuit, which allows users to run all of
     these circuits at once on a quantum device.
@@ -250,16 +259,24 @@ def stack(*circuits, trim=True):
     Stacking provides a way to "fill up" a device if many qubits would be unused otherwise,
     therefore reducing cost / duration of a hardware experiment. However, depending on the
     device, this may amplify some sources of errors or make qubit placement more challenging.
+
+    Args:
+        *circuits (Circuit): the circuits to trim and stack into a single one
+
+    Returns:
+        Circuit: the stacked circuit
     """
 
+    if not circuits:
+        return Circuit()
+
     # Trim qubits of input circuit for maximum compactness
-    if trim:
-        for c in circuits:
-            c.trim_qubits()
+    circuits = [c.trim_qubits() for c in copy.deepcopy(list(circuits))]
 
-    # Stack circuits
+    # Stack circuits. Reindex each circuit with the proper offset and then concatenate, until done
     stacked_circuit = circuits.pop(0)
-    stacked_circuit = Circuit()
-
     for c in circuits:
-        stacked_circuit.width
+        c.reindex_qubits(list(range(stacked_circuit.width, stacked_circuit.width + c.width)))
+        stacked_circuit += c
+
+    return stacked_circuit

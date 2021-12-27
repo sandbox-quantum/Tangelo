@@ -21,7 +21,7 @@ import unittest
 import copy
 from math import pi
 from collections import Counter
-from tangelo.linq import Gate, Circuit
+from tangelo.linq import Gate, Circuit, stack
 
 # Create several abstract circuits with different features
 mygates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1),
@@ -137,8 +137,9 @@ class TestCircuits(unittest.TestCase):
 
         # With circuit of natural width
         gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CSWAP", target=[1, 2], control=[0])]
-        c1 = Circuit(gates)
+        c1 = Circuit(copy.deepcopy(gates))
         c1.reindex_qubits([4, 5, 6])
+
         ref = [Gate("H", 6), Gate("CNOT", 5, control=4), Gate("CSWAP", target=[5, 6], control=[4])]
         self.assertTrue(ref == c1._gates)
 
@@ -164,6 +165,23 @@ class TestCircuits(unittest.TestCase):
         self.assertTrue(c1 == Circuit([Gate("CSWAP", target=[1, 2], control=[0])]))
         self.assertTrue(c2 == Circuit([Gate("CSWAP", target=[0, 2], control=[1])]))
         self.assertTrue(c3 == Circuit([Gate("H", target=0)]))
+
+    def test_stack_circuits(self):
+        """ Test circuit stacking """
+
+        c1 = Circuit([Gate("H", 6)])
+        c2 = Circuit([Gate("CNOT", 5, control=4)])
+        c3 = Circuit([Gate("CSWAP", target=[5, 6], control=[4])])
+
+        ref = [Gate("H", 0), Gate("CNOT", 2, control=1), Gate("CSWAP", target=[4, 5], control=[3])]
+
+        # No and multiple arguments, natural or as an unpacked list
+        self.assertTrue(ref == stack(c1, c2, c3)._gates)
+        self.assertTrue(ref == stack(*[c1, c2, c3])._gates)
+        self.assertTrue([] == stack(*[])._gates)
+
+        # Try convenience method in Circuit class
+        self.assertTrue(ref == c1.stack(c2, c3)._gates)
 
     def test_equality_circuit(self):
         """ Test equality operators (== and !=) for circuits """
