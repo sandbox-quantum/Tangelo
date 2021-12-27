@@ -115,6 +115,13 @@ class VQESolver:
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
+        # The QCC ansatz requires up_then_down=True when mapping="jw"
+        if isinstance(self.ansatz, BuiltInAnsatze):
+            if self.ansatz == BuiltInAnsatze.QCC and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
+                warnings.warn("The QCC ansatz requires spin-orbital ordering to be all spin-up "
+                              "first followed by all spin-down for the JW mapping.", RuntimeWarning)
+                self.up_then_down = True
+
         self.optimal_energy = None
         self.optimal_var_params = None
         self.builtin_ansatze = set(BuiltInAnsatze)
