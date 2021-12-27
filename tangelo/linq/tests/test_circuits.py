@@ -24,12 +24,8 @@ from collections import Counter
 from tangelo.linq import Gate, Circuit
 
 # Create several abstract circuits with different features
-mygates = list()
-mygates.append(Gate("H", 2))
-mygates.append(Gate("CNOT", 1, control=0))
-mygates.append(Gate("CNOT", 2, control=1))
-mygates.append(Gate("Y", 0))
-mygates.append(Gate("RX", 1, parameter=2.))
+mygates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1),
+           Gate("Y", 0), Gate("RX", 1, parameter=2.)]
 
 circuit1 = Circuit()
 for gate in mygates:
@@ -135,6 +131,27 @@ class TestCircuits(unittest.TestCase):
                          Gate("H", 5)], n_qubits=7)
         entangle_circuit.trim_qubits()
         self.assertTrue(ref_c == entangle_circuit)
+
+    def test_reindex_qubits(self):
+        """ Test the function that reindexes qubits (e.g replaces indices by another). """
+
+        # With circuit of natural width
+        gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CSWAP", target=[1, 2], control=[0])]
+        c1 = Circuit(gates)
+        c1.reindex_qubits([4, 5, 6])
+        ref = [Gate("H", 6), Gate("CNOT", 5, control=4), Gate("CSWAP", target=[5, 6], control=[4])]
+        self.assertTrue(ref == c1._gates)
+
+        # With circuit of fixed width (sends 4,5,6 to 0,1,2, the rest is not relevant)
+        c2 = Circuit(ref, n_qubits=8)
+        c2.reindex_qubits([3, 4, 5, 6, 0, 1, 2, 7])
+        self.assertTrue(gates == c2._gates)
+
+        # Test for input of incorrect length in both previous cases
+        with self.assertRaises(ValueError):
+            c1.reindex_qubits([2])
+        with self.assertRaises(ValueError):
+            c2.reindex_qubits([0, 1, 2])
 
     def test_split_circuit(self):
         """ Test function that splits circuit into several circuits targeting qubit subsets

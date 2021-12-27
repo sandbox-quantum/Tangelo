@@ -18,6 +18,7 @@ particular backend. It also provides methods to compute some of its
 characteristics (width, size ...).
 """
 
+import copy
 from typing import List
 
 from tangelo.linq import Gate
@@ -130,7 +131,7 @@ class Circuit:
         qubit indices...).
         """
         # Add the gate to the list of gates
-        self._gates += [gate]
+        self._gates += [copy.deepcopy(gate)]
 
         # A circuit is variational as soon as a variational gate is added to it
         if gate.is_variational:
@@ -165,6 +166,23 @@ class Circuit:
                 g.control = [mapping[ind] for ind in g.control]
 
         self._qubit_indices = set(range(len(qubits_in_use)))
+
+    def reindex_qubits(self, new_indices):
+        """Reindex qubit indices according to users labels / new indices.
+        The
+        """
+
+        if len(new_indices) != len(self._qubit_indices):
+            raise ValueError(f"The number of indices does not match the length of self._qubit_indices")
+
+        qubits_in_use = self._qubit_indices
+        mapping = {i: j for i, j in zip(qubits_in_use, new_indices)}
+        for g in self._gates:
+            g.target = [mapping[ind] for ind in g.target]
+            if g.control:
+                g.control = [mapping[ind] for ind in g.control]
+
+        self._qubit_indices = set(new_indices)
 
     def get_entangled_indices(self):
         """Return a list of qubit indices sets. Each set includes indices
@@ -204,6 +222,11 @@ class Circuit:
             c.trim_qubits()
         return separate_circuits
 
+    def stack(self, other):
+        """
+
+        """
+
     def inverse(self):
         """Return the inverse (adjoint) of a circuit
 
@@ -217,3 +240,26 @@ class Circuit:
 
     def serialize(self):
         return {"type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
+
+
+def stack(*circuits, trim=True):
+    """ Take list of circuits as input, and stack them (e.g concatenate them along the
+    width (qubits)) to form a single wider circuit, which allows users to run all of
+    these circuits at once on a quantum device.
+
+    Stacking provides a way to "fill up" a device if many qubits would be unused otherwise,
+    therefore reducing cost / duration of a hardware experiment. However, depending on the
+    device, this may amplify some sources of errors or make qubit placement more challenging.
+    """
+
+    # Trim qubits of input circuit for maximum compactness
+    if trim:
+        for c in circuits:
+            c.trim_qubits()
+
+    # Stack circuits
+    stacked_circuit = circuits.pop(0)
+    stacked_circuit = Circuit()
+
+    for c in circuits:
+        stacked_circuit.width
