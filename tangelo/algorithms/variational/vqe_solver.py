@@ -110,13 +110,6 @@ class VQESolver:
             else:
                 raise KeyError(f"Keyword :: {k}, not available in VQESolver")
 
-        # The QCC ansatz requires up_then_down=True when mapping="jw"
-        if self.ansatz == BuiltInAnsatze.QCC and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
-            warn_msg = "The QCC ansatz requires spin-orbital ordering to be all spin-up "\
-                       "first followed by all spin-down for the JW mapping."
-            warnings.warn(warn_msg, RuntimeWarning)
-            self.up_then_down = True
-
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
@@ -171,7 +164,7 @@ class VQESolver:
                     raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
 
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
-            if type(self.ansatz) == BuiltInAnsatze:
+            if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz == BuiltInAnsatze.UCCSD:
                     self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down)
                 elif self.ansatz == BuiltInAnsatze.UCC1:
@@ -190,8 +183,9 @@ class VQESolver:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
+
         # Building with a qubit Hamiltonian.
-        elif (not isinstance(self.ansatz, Ansatz)):
+        elif not isinstance(self.ansatz, Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
