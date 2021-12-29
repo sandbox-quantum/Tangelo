@@ -1,10 +1,6 @@
-.. |PyPI version shields.io| image:: https://img.shields.io/pypi/v/ansicolortags.svg
-   :target: https://pypi.python.org/pypi/ansicolortags/
-
 Tangelo overview
 ================
 
-|PyPI version shields.io|
 |maintainer|
 |licence|
 |build|
