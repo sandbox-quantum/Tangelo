@@ -1,11 +1,10 @@
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/nasa/hybridq.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nasa/hybridq/context:python)
-
 .. |PyPI version shields.io| image:: https://img.shields.io/pypi/v/ansicolortags.svg
    :target: https://pypi.python.org/pypi/ansicolortags/
 
 Tangelo overview
 ================
 
+|PyPI version shields.io|
 |maintainer|
 |licence|
 |build|
@@ -13,8 +12,7 @@ Tangelo overview
 .. |maintainer| image:: https://img.shields.io/badge/Maintainer-GoodChemistry-blue
 .. |licence| image:: https://img.shields.io/badge/License-Apache_2.0-green
    :target: https://github.com/quantumsimulation/QEMIST_qSDK/blob/main/README.rst
-.. |build| image:: https://github.com/quantumsimulation/QEMIST_qSDK/actions/workflows/github_actions_automated_testing.yml/badge.svg
-.. |python| image:: 
+.. |build| image:: https://github.com/quantumsimulation/QEMIST_qSDK/actions/workflows/continuous_integration.yml/badge.svg
 
 Welcome !
 
