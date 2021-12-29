@@ -51,7 +51,7 @@ def get_op_expval(qubit_op, qmf_var_params):
     """
 
     n_qubits = qmf_var_params.size // 2
-    qubit_op_gen = ((qop_items[0], (qop_items[1], qmf_var_params, n_qubits))\
+    qubit_op_gen = ((qop_items[0], (qop_items[1], qmf_var_params, n_qubits))
                      for qop_items in qubit_op.terms.items())
     return sum([calc_op_expval(qop_gen[0], *qop_gen[1]) for qop_gen in qubit_op_gen])
 
@@ -105,7 +105,7 @@ def init_qmf_from_hf(n_spinorbitals, n_electrons, mapping, up_then_down=False, s
     return np.concatenate((np.pi * thetas, np.zeros((len(thetas),), dtype=float)))
 
 
-def purify_qmf_state(qmf_var_params, n_spinorbitals, n_electrons, mapping, up_then_down=False,\
+def purify_qmf_state(qmf_var_params, n_spinorbitals, n_electrons, mapping, up_then_down=False,
                      spin=None, verbose=False):
     """The efficient construction and screening of the DIS requires a z-collinear QMF state.
     If the QMF state specified by qmf_var_params is not z-collinear, this function adjusts the

@@ -107,8 +107,8 @@ class TestDMETloop(unittest.TestCase):
         mf_fragments, fock_frag_copy, mol = dmet_fragment_scf(t_list, two_ele, fock, nelec_high, norb_high, guess_orbitals, chemical_potential)
 
         # Test the energy calculation and construction of the one-particle RDM from the CC calculation for a fragment
-        #fragment_energy, onerdm_frag, _, _ = dmet_fragment_cc_classical(mf_fragments, fock_frag_copy, t_list, one_ele, two_ele, fock)
-        #self.assertAlmostEqual(fragment_energy, -82.70210049368914, msg="The DMET energy does no agree", delta=1e-6)
+        # fragment_energy, onerdm_frag, _, _ = dmet_fragment_cc_classical(mf_fragments, fock_frag_copy, t_list, one_ele, two_ele, fock)
+        # self.assertAlmostEqual(fragment_energy, -82.70210049368914, msg="The DMET energy does no agree", delta=1e-6)
 
 
 if __name__ == "__main__":

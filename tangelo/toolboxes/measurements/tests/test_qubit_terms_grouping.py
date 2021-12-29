@@ -14,6 +14,7 @@
 
 import unittest
 import os
+from openfermion import load_operator
 
 from tangelo.linq import translator, Simulator, Circuit
 from tangelo.helpers import string_ham_to_of, measurement_basis_gates
@@ -32,9 +33,7 @@ class TermsGroupingTest(unittest.TestCase):
         """
 
         # Load qubit Hamiltonian
-        with open(f"{path_data}/H2_qubit_hamiltonian.txt", 'r') as f:
-            qb_hamstring = f.read()
-        qb_ham = string_ham_to_of(qb_hamstring)
+        qb_ham = load_operator("mol_H2_qubitham.data", data_directory=path_data, plain_text=True)
 
         # Group Hamiltonian terms using qubitwise commutativity
         grouped_ops = group_qwc(qb_ham, seed=0)
@@ -62,9 +61,7 @@ class TermsGroupingTest(unittest.TestCase):
         """
 
         # Load qubit Hamiltonian
-        with open(f"{path_data}/H4_qubit_hamiltonian.txt", 'r') as f:
-            qb_hamstring = f.read()
-        qb_ham = string_ham_to_of(qb_hamstring)
+        qb_ham = load_operator("mol_H4_qubitham.data", data_directory=path_data, plain_text=True)
 
         # Group Hamiltonian terms using qubitwise commutativity
         grouped_ops = group_qwc(qb_ham, seed=0)

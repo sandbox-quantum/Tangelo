@@ -113,8 +113,8 @@ class HEA(Ansatz):
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:
-                raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
-                                  f"received {initial_var_params.size}.")
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but "
+                                 f"received {initial_var_params.size}.")
         self.var_params = initial_var_params
         return initial_var_params
 
@@ -129,7 +129,10 @@ class HEA(Ansatz):
                                          mapping=self.qubit_mapping,
                                          up_then_down=self.up_then_down)
         elif self.reference_state == "zero":
-            return Circuit()
+            return get_reference_circuit(n_spinorbitals=self.n_qubits,
+                                         n_electrons=0,
+                                         mapping=self.qubit_mapping,
+                                         up_then_down=self.up_then_down)
 
     def build_circuit(self, var_params=None):
         """Construct the variational circuit to be used as our ansatz."""

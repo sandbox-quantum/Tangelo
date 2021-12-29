@@ -63,8 +63,8 @@ class VariationalCircuitAnsatz(Ansatz):
         else:
             var_params = np.array(var_params)
             if var_params.size != self.n_var_params:
-                raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
-                                  f"received {var_params.size}.")
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but "
+                                 f"received {var_params.size}.")
         self.var_params = var_params
         return var_params
 

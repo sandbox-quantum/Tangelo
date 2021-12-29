@@ -83,8 +83,8 @@ class RUCC(Ansatz):
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:
-                raise ValueError(f"Expected {self.n_var_params} variational parameters but "\
-                                  f"received {initial_var_params.size}.")
+                raise ValueError(f"Expected {self.n_var_params} variational parameters but "
+                                 f"received {initial_var_params.size}.")
         self.var_params = initial_var_params
         return initial_var_params
 

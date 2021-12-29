@@ -296,7 +296,8 @@ class VQESolver:
                 if self.molecule:
                     n_active_mos = self.molecule.n_active_mos
                 else:
-                    raise KeyError("Must supply n_active_mos when a QubitHamiltonian has initialized VQESolver and requesting the expectation of 'N', 'Sz', or 'S^2'")
+                    raise KeyError("Must supply n_active_mos when a QubitHamiltonian has initialized VQESolver"
+                                   " and requesting the expectation of 'N', 'Sz', or 'S^2'")
             if operator == "N":
                 exp_op = number_operator(n_active_mos, up_then_down=False)
             elif operator == "Sz":

@@ -285,7 +285,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # begin resampling
         resampled_energies = np.zeros(n_resamples, dtype=float)
         for i in range(n_resamples):
-            _ = self._oneshot_loop(self.chemical_potential, save_results=False, resample=True, n_shots=n_shots, purify=purify, rdm_measurements=rdm_measurements)
+            _ = self._oneshot_loop(self.chemical_potential, save_results=False, resample=True,
+                                   n_shots=n_shots, purify=purify, rdm_measurements=rdm_measurements)
             resampled_energies[i] = self.dmet_energy.real
 
         energy_average, energy_standard_deviation = np.mean(resampled_energies), np.std(resampled_energies, ddof=1)

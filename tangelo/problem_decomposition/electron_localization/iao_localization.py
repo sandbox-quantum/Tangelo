@@ -57,6 +57,7 @@ def iao_localization(mol, mf):
 
     return iao_lo
 
+
 def _iao_occupied_orbitals(mol, mf):
     """Get the IAOs for occupied space.
 
@@ -106,6 +107,7 @@ def _iao_occupied_orbitals(mol, mf):
 
     return iao_active
 
+
 def _iao_complementary_orbitals(mol, iao_ref):
     """Get the IAOs for complementary space (virtual orbitals).
 
@@ -133,8 +135,8 @@ def _iao_complementary_orbitals(mol, iao_ref):
     norbital_active, active_list = _iao_count_active(mol, min_mol)
 
     #   Obtain the Overlap-like matrices
-    s21 = s1[active_list, : ]
-    s2 = s21[ : , active_list]
+    s21 = s1[active_list, :]
+    s2 = s21[:, active_list]
     s12 = s21.T
 
     #   Calculate P_12 = S_1^-1 * S_12 using Cholesky decomposition
@@ -156,6 +158,7 @@ def _iao_complementary_orbitals(mol, iao_ref):
     iao_comp = np.dot(iao_comp, orth.lowdin(reduce(np.dot, (iao_comp.T, s1, iao_comp))))
 
     return iao_comp
+
 
 def _iao_count_active(mol, min_mol):
     """Figure out the basis functions matching with MINAO.
@@ -183,6 +186,7 @@ def _iao_count_active(mol, min_mol):
 
     return number_active, active_number_list
 
+
 def _iao_complementary_space(iao_ref, s, number_inactive):
     """Determine the complementary space orbitals.
 
@@ -207,6 +211,7 @@ def _iao_complementary_space(iao_ref, s, number_inactive):
 
     return eigen_vectors
 
+
 def _iao_atoms(mol, iao1, iao2):
     """Assign IAO to atom centers and rearrange the IAOs.
 
@@ -226,9 +231,9 @@ def _iao_atoms(mol, iao1, iao2):
     iao_combine = np.hstack((iao1, iao2))
 
     # Calculate atom center for each orbital
-    x = np.diag(reduce(np.dot,(iao_combine.T, r_int1e[0], iao_combine)))
-    y = np.diag(reduce(np.dot,(iao_combine.T, r_int1e[1], iao_combine)))
-    z = np.diag(reduce(np.dot,(iao_combine.T, r_int1e[2], iao_combine)))
+    x = np.diag(reduce(np.dot, (iao_combine.T, r_int1e[0], iao_combine)))
+    y = np.diag(reduce(np.dot, (iao_combine.T, r_int1e[1], iao_combine)))
+    z = np.diag(reduce(np.dot, (iao_combine.T, r_int1e[2], iao_combine)))
 
     # Align the coordinates
     orbitals_temp = np.vstack((x, y, z))
@@ -241,13 +246,14 @@ def _iao_atoms(mol, iao1, iao2):
     orb_list = _dmet_orb_list(mol, atom_list)
 
     # Rearrange the orbitals
-    iao_combine = iao_combine[ : , orb_list]
+    iao_combine = iao_combine[:, orb_list]
 
     # Orthogonalize the orbitals
     s1 = mol.intor_symmetric("int1e_ovlp")
     iao_combine = np.dot(iao_combine, orth.lowdin(reduce(np.dot, (iao_combine.T, s1, iao_combine))))
 
     return iao_combine
+
 
 def _dmet_atom_list(mol, orbitals):
     """Assign IAO to atom centers and rearrange the IAOs.

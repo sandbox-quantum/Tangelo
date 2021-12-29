@@ -67,11 +67,11 @@ def construct_dis(pure_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
             dis_group_gens = get_gens_from_idxs(dis_group_idxs)
             dis.append(dis_group_gens)
             if verbose:
-                print(f"DIS group {i} | group size = {len(dis_group_gens)} | "\
-                      f"flip indices = {dis_group_idxs} | |dEQCC/dtau| = "\
+                print(f"DIS group {i} | group size = {len(dis_group_gens)} | "
+                      f"flip indices = {dis_group_idxs} | |dEQCC/dtau| = "
                       f"{abs(dis_group[1])} a.u.\n")
     else:
-        raise ValueError(f"The DIS is empty: there are no candidate DIS groups where "\
+        raise ValueError(f"The DIS is empty: there are no candidate DIS groups where "
                          f"|dEQCC/dtau| >= {qcc_deriv_thresh} a.u. Terminate the QCC simulation.\n")
     return dis
 
@@ -90,7 +90,7 @@ def get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh):
     """
 
     # Get the flip indices from qubit_ham and compute the gradient dEQCC/dtau
-    qham_gen = ((qham_items[0], (qham_items[1], pure_var_params))\
+    qham_gen = ((qham_items[0], (qham_items[1], pure_var_params))
                  for qham_items in qubit_ham.terms.items())
     flip_idxs = list(filter(None, (get_idxs_deriv(q_gen[0], *q_gen[1]) for q_gen in qham_gen)))
 
@@ -101,7 +101,7 @@ def get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh):
         candidates[idxs[0]] = idxs[1] + deriv_old
 
     # Return a sorted list of flip indices and signed dEQCC/dtau values for each DIS group
-    dis_groups = [idxs_deriv for idxs_deriv in candidates.items()\
+    dis_groups = [idxs_deriv for idxs_deriv in candidates.items()
                   if abs(idxs_deriv[1]) >= qcc_deriv_thresh]
     return sorted(dis_groups, key=lambda deriv: abs(deriv[1]), reverse=True)
 

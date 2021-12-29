@@ -49,8 +49,8 @@ class VQESolverTest(unittest.TestCase):
         """Resource estimation, with UCCSD ansatz, given initial parameters.
         Each of JW, BK, and scBK mappings are checked.
         """
-        mappings = ["jw", "bk", "scbk"]
-        expected_values = [(15, 4), (15, 4), (5, 2)]
+        mappings = ["jw", "bk", "scbk", "jkmn"]
+        expected_values = [(15, 4), (15, 4), (5, 2), (15, 4)]
 
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                        "initial_var_params": [0.1, 0.1]}
@@ -319,6 +319,20 @@ class VQESolverTest(unittest.TestCase):
         """
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
                        "qubit_mapping": "scbk"}
+
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+        energy = vqe_solver.simulate()
+
+        energy_target = -1.137270
+        self.assertAlmostEqual(energy, energy_target, places=5)
+
+    def test_mapping_jkmn(self):
+        """Test that JKMN mapping recovers the expected result, to within
+        1e-6 Ha, for the example of H2 and MP2 initial guess.
+        """
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "initial_var_params": "MP2", "verbose": False,
+                       "qubit_mapping": "jkmn"}
 
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
