@@ -10,7 +10,7 @@ Tangelo overview
 |licence|
 |build|
 
-.. |maintainer| image:: https://img.shields.io/badge/maintainer-GoodChemistry-blue
+.. |maintainer| image:: https://img.shields.io/badge/Maintainer-GoodChemistry-blue
 .. |licence| image:: https://img.shields.io/badge/License-Apache_2.0-green
    :target: https://github.com/quantumsimulation/QEMIST_qSDK/blob/main/README.rst
 .. |build| image:: https://github.com/quantumsimulation/QEMIST_qSDK/actions/workflows/github_actions_automated_testing.yml/badge.svg
