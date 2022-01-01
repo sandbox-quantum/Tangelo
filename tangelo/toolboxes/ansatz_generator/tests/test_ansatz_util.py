@@ -15,7 +15,10 @@ from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize, get_qft_
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import controlled_swap_to_XX_gates
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import derangement_circuit, controlled_pauliwords
 
-# Initiate simulators, Use cirq as it has the same ordering as openfermion
+# Initiate simulators, Use cirq as it has the same ordering for statevectors as openfermion does for Hamiltonians
+# This is important when converting the openfermion QubitOperator toarray(), propagating exactly and comparing
+# to the statevector output of the simulator. All other simulators will produce the same statevector values but
+# in a different order (i.e. msq_first instead of lsq_first)
 sim = Simulator(target="cirq")
 
 fermion_operator = mol_H4_sto3g._get_fermionic_hamiltonian()

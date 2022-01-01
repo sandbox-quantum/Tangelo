@@ -118,7 +118,8 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
     phase = 1.
     exp_pauli_word_gates = list()
     for i in range(trotter_order):
-        pauli_words = pauli_words if i == 0 else list(reversed(pauli_words))
+        if i == 0:
+            pauli_words.reverse()
         for pauli_word, coef in pauli_words:
             if pauli_word:  # identity terms do not contribute to evolution outside of a phase
                 if abs(np.real(coef)*evolve_time[pauli_word]) > 1.e-10:
@@ -273,7 +274,7 @@ def get_qft_circuit(qubits, n_qubits=None, inverse=False, swap=True):
         """
 
     if isinstance(qubits, int):
-        qubit_list = [i for i in range(qubits)]
+        qubit_list = list(range(qubits))
     elif isinstance(qubits, list):
         qubit_list = qubits
     else:
