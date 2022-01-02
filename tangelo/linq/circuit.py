@@ -21,6 +21,8 @@ characteristics (width, size ...).
 import copy
 from typing import List
 
+import numpy as np
+
 from tangelo.linq import Gate
 
 
@@ -73,7 +75,7 @@ class Circuit:
     def __mul__(self, n_repeat):
         """Return a circuit consisting of n_repeat repetitions of the input circuit.
         """
-        if not isinstance(n_repeat, int) or n_repeat <= 0:
+        if not isinstance(n_repeat, (int, np.integer)) or n_repeat <= 0:
             raise ValueError("Multiplication (repetition) operator with Circuit class only works for integers > 0")
         return Circuit(self._gates * n_repeat, n_qubits=self.width)
 
