@@ -23,6 +23,7 @@ import warnings
 
 from tangelo.linq.circuit import Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates, pauli_string_to_of
+from tangelo.toolboxes.operators.operators import QubitOperator
 
 # TODO method or property to get the circuits
 
@@ -40,9 +41,7 @@ Z = np.array([[1, 0], [0, -1]])
 matrices = {"X": X, "Y": Y, "Z": Z}
 
 # Traces of each Pauli matrices.
-traces = dict()
-for key, value in matrices.items():
-    traces[key] = np.trace(value)
+traces = {pauli: np.trace(matrix) for pauli, matrix in matrices.items()}
 
 # Reversed channel to undo single Pauli rotations.
 S_T = np.array([[1, 0], [0, -1j]], dtype=complex)
@@ -131,7 +130,7 @@ class ClassicalShadow(abc.ABC):
             qubit_op (QubitOperator): Operator to estimate.
         """
         observable = 0.
-        for term, coeff in qubit_op:
+        for term, coeff in qubit_op.terms.items():
             observable += self.get_term_observable(term, coeff, *args, **kwargs)
 
         return observable
@@ -165,7 +164,7 @@ class ClassicalShadow(abc.ABC):
             elif self.circuit is not None and initial_statevector is None:
                 one_shot_circuit = self.circuit + basis_circuit if (basis_circuit.size > 0) else self.circuit
             else:
-                raise ValueError("A linq.Circuit or an initia_statevector must be provided.")
+                raise ValueError("A linq.Circuit or an initial_statevector must be provided.")
 
             results = backend.simulate(one_shot_circuit, initial_statevector=initial_statevector)
 
@@ -263,7 +262,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
         # Returning the state estimation.
         return self.state_estimate
 
-    def get_term_observable(self, term, coeff, k=10):
+    def get_term_observable(self, term, coeff=1., k=10):
         """Returns the estimated observable for a term and its coefficient.
 
         Args:
@@ -314,22 +313,11 @@ class RandomizedClassicalShadow(ClassicalShadow):
                             trace *= 3*np.dot(left_side, right_side) - tobs
                         # If there is no operation applied on the qubit n.
                         else:
+                            # Trace of identity matrix
                             obs = I
-                            tobs = 2  # trace of identity matrix
+                            tobs = 2
 
                     observables_to_mean[snapshot - i] = np.real(coeff*trace)
                 observables_to_median.append(np.mean(observables_to_mean))
 
         return np.median(observables_to_median)
-
-
-if __name__ == "__main__":
-    from tangelo.linq import Gate, Simulator
-    bell_state =Circuit([Gate("H", 0), Gate("CNOT", 1, 0)])
-
-    cs = RandomizedClassicalShadow(circuit=bell_state)
-    cs.build(10)
-
-    sim = Simulator("qulacs", 1, None)
-    cs.simulate(sim)
-    print(cs.__dict__)
