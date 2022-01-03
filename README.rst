@@ -4,11 +4,13 @@ Tangelo overview
 |maintainer|
 |licence|
 |build|
+|dev_branch|
 
 .. |maintainer| image:: https://img.shields.io/badge/Maintainer-GoodChemistry-blue
 .. |licence| image:: https://img.shields.io/badge/License-Apache_2.0-green
    :target: https://github.com/quantumsimulation/QEMIST_qSDK/blob/main/README.rst
 .. |build| image:: https://github.com/quantumsimulation/QEMIST_qSDK/actions/workflows/continuous_integration.yml/badge.svg
+.. |dev_branch| image:: https://img.shields.io/badge/DevBranch-staging_0.3.0-yellow
 
 Welcome !
 
