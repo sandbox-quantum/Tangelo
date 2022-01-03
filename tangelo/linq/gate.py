@@ -103,8 +103,16 @@ class Gate(dict):
 
         return mystr
 
+    def __eq__(self, other):
+        """Define equality (==) operator on gates"""
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        """Define inequality (!=) operator on gates"""
+        return not (self == other)
+
     def inverse(self):
-        """Returns the inverse (adjoint) of a gate.
+        """Return the inverse (adjoint) of a gate.
 
         Return:
             Gate: the inverse of the gate.
