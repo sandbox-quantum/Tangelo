@@ -29,7 +29,7 @@ import numpy as np
 from tangelo.linq import Circuit
 
 from .ansatz import Ansatz
-from .ansatz_utils import pauliword_to_circuit
+from .ansatz_utils import exp_pauliword_to_gates
 from ._unitary_cc_paired import get_upccgsd
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
@@ -156,7 +156,7 @@ class UpCCGSD(Ansatz):
 
             # Obtain quantum circuit through trivial trotterization of the qubit operator for each current_k
             for i, (pauli_word, coef) in enumerate(pauli_words):
-                pauli_words_gates += pauliword_to_circuit(pauli_word, coef)
+                pauli_words_gates += exp_pauliword_to_gates(pauli_word, coef)
                 self.pauli_to_angles_mapping[current_k][pauli_word] = i + sum_prev_qubit_terms[current_k]
 
             sum_prev_qubit_terms[current_k + 1] = len(qubit_op.terms.items())
