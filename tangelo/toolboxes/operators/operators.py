@@ -54,7 +54,7 @@ class QubitHamiltonian(QubitOperator):
     def __init__(self, mapping, up_then_down, *args, **kwargs):
         super(QubitOperator, self).__init__(*args, **kwargs)
         self.mapping = mapping
-        self.up_then_down=up_then_down
+        self.up_then_down = up_then_down
 
     @property
     def n_terms(self):
