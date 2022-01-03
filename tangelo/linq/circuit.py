@@ -18,7 +18,11 @@ particular backend. It also provides methods to compute some of its
 characteristics (width, size ...).
 """
 
+import copy
 from typing import List
+
+import numpy as np
+
 from tangelo.linq import Gate
 
 
@@ -67,6 +71,29 @@ class Circuit:
         single one.
         """
         return Circuit(self._gates + other._gates, n_qubits=max(self.width, other.width))
+
+    def __mul__(self, n_repeat):
+        """Return a circuit consisting of n_repeat repetitions of the input circuit.
+        """
+        if not isinstance(n_repeat, (int, np.integer)) or n_repeat <= 0:
+            raise ValueError("Multiplication (repetition) operator with Circuit class only works for integers > 0")
+        return Circuit(self._gates * n_repeat, n_qubits=self.width)
+
+    def __rmul__(self, n_repeat):
+        """Return a circuit consisting of n_repeat repetitions of the input circuit (circuit as right-hand side)
+        """
+        return self * n_repeat
+
+    def __eq__(self, other):
+        """Define equality (==) between 2 circuits. They are equal iff all their gates are equal, and they have
+        the same numbers of qubits.
+        """
+        return (self._gates == other._gates) and (self.width == other.width)
+
+    def __ne__(self, other):
+        """Define inequality (!=) operator on circuits
+        """
+        return not (self == other)
 
     @property
     def size(self):
@@ -130,6 +157,87 @@ class Circuit:
         # Keep track of the total gate count
         self._gate_counts[gate.name] = self._gate_counts.get(gate.name, 0) + 1
 
+    def trim_qubits(self):
+        """Trim unnecessary qubits and update indices with the lowest values possible.
+        """
+        qubits_in_use = set().union(*self.get_entangled_indices())
+        mapping = {ind: i for i, ind in enumerate(qubits_in_use)}
+        for g in self._gates:
+            g.target = [mapping[ind] for ind in g.target]
+            if g.control:
+                g.control = [mapping[ind] for ind in g.control]
+
+        self._qubit_indices = set(range(len(qubits_in_use)))
+        return self
+
+    def reindex_qubits(self, new_indices):
+        """Reindex qubit indices according to users labels / new indices.
+        """
+
+        if len(new_indices) != len(self._qubit_indices):
+            raise ValueError(f"The number of indices does not match the length of self._qubit_indices")
+
+        qubits_in_use = self._qubit_indices
+        mapping = {i: j for i, j in zip(qubits_in_use, new_indices)}
+        for g in self._gates:
+            g.target = [mapping[ind] for ind in g.target]
+            if g.control:
+                g.control = [mapping[ind] for ind in g.control]
+
+        self._qubit_indices = set(new_indices)
+
+    def get_entangled_indices(self):
+        """Return a list of unentangled sets of qubit indices. Each set includes indices
+         of qubits that form an entangled subset.
+        """
+
+        entangled_indices = list()
+        for g in self._gates:
+            # Gradually accumulate entangled indices from the different subsets
+            # Remove and replace them with their union, for each gate.
+            q_new = set(g.target) if g.control is None else set(g.target + g.control)
+            for qs in entangled_indices[::-1]:
+                if q_new & qs:
+                    q_new = q_new | qs
+                    entangled_indices.remove(qs)
+            entangled_indices.append(q_new)
+
+        return entangled_indices
+
+    def split(self):
+        """ Split a circuit featuring unentangled qubit subsets into as many circuit objects.
+        Each circuit only contains the gate operations targeting the qubit indices in its subsets.
+
+        Returns:
+            list of Circuit: list of resulting circuits
+        """
+        entangled_indices = self.get_entangled_indices()
+        separate_circuits = [Circuit() for i in range(len(entangled_indices))]
+        for g in self._gates:
+            q_new = set(g.target) if g.control is None else set(g.target + g.control)
+            # Append the gate to the circuit that handles the corresponding qubit indices
+            for i, indices in enumerate(entangled_indices):
+                if q_new & indices:
+                    separate_circuits[i].add_gate(g)
+                    break
+
+        # Trim unnecessary indices in the new circuits
+        for c in separate_circuits:
+            c.trim_qubits()
+        return separate_circuits
+
+    def stack(self, *other_circuits):
+        """Convenience method to stack other circuits on top of this one.
+        See separate stack function.
+
+        Args:
+            *other_circuits (Circuit): one or several circuit objects to stack
+
+        Returns:
+            Circuit: the stacked circuit
+        """
+        return stack(self, *other_circuits)
+
     def inverse(self):
         """Return the inverse (adjoint) of a circuit
 
@@ -143,3 +251,34 @@ class Circuit:
 
     def serialize(self):
         return {"type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
+
+
+def stack(*circuits):
+    """ Take list of circuits as input, and stack them (e.g concatenate them along the
+    width (qubits)) to form a single wider circuit, which allows users to run all of
+    these circuits at once on a quantum device.
+
+    Stacking provides a way to "fill up" a device if many qubits would be unused otherwise,
+    therefore reducing cost / duration of a hardware experiment. However, depending on the
+    device, this may amplify some sources of errors or make qubit placement more challenging.
+
+    Args:
+        *circuits (Circuit): the circuits to trim and stack into a single one
+
+    Returns:
+        Circuit: the stacked circuit
+    """
+
+    if not circuits:
+        return Circuit()
+
+    # Trim qubits of input circuit for maximum compactness
+    circuits = [c.trim_qubits() for c in copy.deepcopy(list(circuits))]
+
+    # Stack circuits. Reindex each circuit with the proper offset and then concatenate, until done
+    stacked_circuit = circuits.pop(0)
+    for c in circuits:
+        c.reindex_qubits(list(range(stacked_circuit.width, stacked_circuit.width + c.width)))
+        stacked_circuit += c
+
+    return stacked_circuit

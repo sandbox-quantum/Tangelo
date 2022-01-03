@@ -75,6 +75,15 @@ class TestGates(unittest.TestCase):
         self.assertRaises(ValueError, Gate, "CSWAP", target=[0, 'a'], control=np.array([1], dtype=np.int32))
         self.assertRaises(ValueError, Gate, "X", target=0, control=[-1, 2, 3],)
 
+    def test_gate_equality(self):
+        """ Test behaviour of == and != operators on gates """
+        g1 = Gate("CPOTATO", target=2, control=0, parameter=0, is_variational=True)
+        g2 = Gate("CPOTATO", target=2, control=0, parameter="", is_variational=True)
+        g3 = Gate("CPOTATO", target=2, control=0, parameter=0, is_variational=True)
+
+        self.assertTrue(g1 == g3)
+        self.assertTrue(g1 != g2)
+
 
 if __name__ == "__main__":
     unittest.main()
