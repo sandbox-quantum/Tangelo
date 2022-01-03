@@ -92,10 +92,6 @@ class ClassicalShadow(abc.ABC):
         """Same as the shadow size."""
         return self.size
 
-    def __add__(self, other_shadow):
-        # TODO: Implementation.
-        pass
-
     def append(self, bitstring, unitary):
         """Append method to merge a new snapshot to an existing shadow.
 
@@ -119,6 +115,23 @@ class ClassicalShadow(abc.ABC):
             raise ValueError("Please use the append method if bistring and unitary are strings.")
         self.bitstrings += bitstrings
         self.unitaries += unitaries
+
+    def get_circuits(self):
+        """Docstring."""
+
+        if not self.unitaries:
+            raise ValueError(f"The build method of {self.__class__.__name__} must be called before simulation.")
+
+        appended_circuits = list()
+
+        for pauli_word in self.unitaries:
+            # Transformation of a unitary to quantum gates.
+            pauli_of = pauli_string_to_of(pauli_word)
+            basis_circuit = Circuit(measurement_basis_gates(pauli_of), self.n_qubits)
+
+            appended_circuits += [basis_circuit]
+
+        return self.circuit, appended_circuits
 
     def get_observable(self, qubit_op, *args, **kwargs):
         """Getting an estimated observable value for a qubit operator from the
@@ -254,7 +267,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
                 rho_i = 3 * np.outer(bU.conj(), bU) - I
                 rho_snapshot = np.kron(rho_snapshot, rho_i)
 
-            rho += rho_snapshot[:,:]
+            rho += rho_snapshot[:, :]
 
         # Saving the result.
         self.state_estimate = rho / len(snapshot_index)

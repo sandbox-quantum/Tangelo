@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+import numpy as np
 
 from tangelo.linq import Gate, Circuit, Simulator
 from tangelo.toolboxes.measurements.classical_shadows import RandomizedClassicalShadow
@@ -43,7 +44,7 @@ unitaries = ["ZY", "XZ", "XZ", "YZ", "ZX", "XX", "YZ", "XZ", "YX", "ZZ", "XX",
 class RandomizedClassicalShadowTest(unittest.TestCase):
 
     def test_initialization(self):
-        """Docstring """
+        """Testing the initialization."""
 
         # Test empty init.
         _ = RandomizedClassicalShadow(state)
@@ -52,7 +53,7 @@ class RandomizedClassicalShadowTest(unittest.TestCase):
         _ = RandomizedClassicalShadow(state, bitstrings, unitaries)
 
     def test_shadow_properties(self):
-        """Dosctrings """
+        """Testing of the shadow properties."""
 
         cs = RandomizedClassicalShadow(state, bitstrings, unitaries)
 
@@ -61,18 +62,34 @@ class RandomizedClassicalShadowTest(unittest.TestCase):
         self.assertEqual(len(cs), 100)
 
     def test_get_term_observable(self):
-        """Docstring """
+        """Testing the computation of a single qubit term."""
 
         cs = RandomizedClassicalShadow(state, bitstrings, unitaries)
         obs = cs.get_term_observable([(0, "Y"), (1, "Y")], 1., k=10)
         self.assertAlmostEqual(obs, -0.89999, places=4)
 
     def test_get_observable(self):
-        """Docstring """
+        """Testings the computation of an eigenvalue of a QubitOperator."""
 
         cs = RandomizedClassicalShadow(state, bitstrings, unitaries)
         obs = cs.get_observable(QubitOperator("Y0 Y1", coefficient=1.))
         self.assertAlmostEqual(obs, -0.89999, places=4)
+
+    def test_estimate_state(self):
+        """Testing of the state estimation method to get the density matrix."""
+
+        cs = RandomizedClassicalShadow(state, bitstrings, unitaries)
+        rho_estimate = cs.estimate_state()
+
+        # Previously ran with this specific shadow.
+        rho_ref = np.array([
+            [ 0.445+0.j, 0.06+0.045j, 0.255+0.09j, 0.63-0.09j],
+            [ 0.06-0.045j, 0.07+0.j, 0.135+0.045j, -0.15-0.09j],
+            [ 0.255-0.09j, 0.135-0.045j, 0.025+0.j, -0.12-0.045j],
+            [ 0.63+0.09j, -0.15+0.09j, -0.12+0.045j, 0.46+0.j]
+        ])
+
+        np.testing.assert_array_almost_equal(rho_estimate, rho_ref)
 
 
 if __name__ == "__main__":
