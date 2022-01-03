@@ -17,9 +17,10 @@ shadow.
 """
 
 import abc
-import numpy as np
 import random
 import warnings
+
+import numpy as np
 
 from tangelo.linq.circuit import Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates, pauli_string_to_of

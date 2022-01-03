@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+
 import numpy as np
 
 from tangelo.linq import Gate, Circuit, Simulator
