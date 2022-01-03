@@ -13,6 +13,6 @@
 # limitations under the License.
 
 from .gate import *
-from .circuit import Circuit
+from .circuit import Circuit, stack
 from .translator import *
 from .simulator import Simulator, backend_info
