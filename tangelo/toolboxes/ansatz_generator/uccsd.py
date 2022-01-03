@@ -36,7 +36,7 @@ from openfermion.circuits import uccsd_singlet_generator
 from tangelo.linq import Circuit
 
 from .ansatz import Ansatz
-from .ansatz_utils import pauliword_to_circuit
+from .ansatz_utils import exp_pauliword_to_gates
 from ._unitary_cc_openshell import uccsd_openshell_paramsize, uccsd_openshell_generator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
@@ -166,7 +166,7 @@ class UCCSD(Ansatz):
         pauli_words_gates = []
         self.pauli_to_angles_mapping = dict()
         for i, (pauli_word, coef) in enumerate(pauli_words):
-            pauli_words_gates += pauliword_to_circuit(pauli_word, coef)
+            pauli_words_gates += exp_pauliword_to_gates(pauli_word, coef)
             self.pauli_to_angles_mapping[pauli_word] = i
 
         uccsd_circuit = Circuit(pauli_words_gates)

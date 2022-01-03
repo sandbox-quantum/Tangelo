@@ -41,7 +41,7 @@ from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,
                                                                fermion_to_qubit_mapping
 from tangelo.linq import Circuit
 from .ansatz import Ansatz
-from .ansatz_utils import pauliword_to_circuit
+from .ansatz_utils import exp_pauliword_to_gates
 from ._qubit_mf import init_qmf_from_hf, get_qmf_circuit, purify_qmf_state
 from ._qubit_cc import construct_dis
 
@@ -208,7 +208,7 @@ class QCC(Ansatz):
         pauli_words = sorted(qubit_op.terms.items(), key=lambda x: len(x[0]))
         pauli_words_gates = []
         for i, (pauli_word, coef) in enumerate(pauli_words):
-            pauli_words_gates += pauliword_to_circuit(pauli_word, coef)
+            pauli_words_gates += exp_pauliword_to_gates(pauli_word, coef)
             self.pauli_to_angles_mapping[pauli_word] = i
         self.qcc_circuit = Circuit(pauli_words_gates)
         self.circuit = self.qmf_circuit + self.qcc_circuit if self.qmf_circuit.size != 0\

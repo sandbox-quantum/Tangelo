@@ -18,7 +18,7 @@ import math
 
 from tangelo.linq import Circuit
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
-from tangelo.toolboxes.ansatz_generator.ansatz_utils import pauliword_to_circuit
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import exp_pauliword_to_gates
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 
@@ -118,7 +118,7 @@ class ADAPTAnsatz(Ansatz):
         for op in self.operators:
             for pauli_term in op.get_operators():
                 pauli_tuple = list(pauli_term.terms.keys())[0]
-                adapt_circuit += pauliword_to_circuit(pauli_tuple, 0.1)
+                adapt_circuit += exp_pauliword_to_gates(pauli_tuple, 0.1)
 
         adapt_circuit = Circuit(adapt_circuit)
         if adapt_circuit.size != 0:
@@ -156,6 +156,6 @@ class ADAPTAnsatz(Ansatz):
             self._var_params_prefactor += [math.copysign(1., coeff)]
 
             pauli_tuple = list(pauli_term.terms.keys())[0]
-            new_operator = Circuit(pauliword_to_circuit(pauli_tuple, 0.1))
+            new_operator = Circuit(exp_pauliword_to_gates(pauli_tuple, 0.1))
 
             self.circuit += new_operator
