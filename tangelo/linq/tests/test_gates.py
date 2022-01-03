@@ -81,7 +81,7 @@ class TestGates(unittest.TestCase):
         g2 = Gate("CPOTATO", target=2, control=0, parameter="", is_variational=True)
         g3 = Gate("CPOTATO", target=2, control=0, parameter=0, is_variational=True)
 
-        self.assertTrue(g1 == g3)
+        self.assertTrue(g1 != g3)
         self.assertTrue(g1 != g2)
 
 
