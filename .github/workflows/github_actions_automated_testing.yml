@@ -16,13 +16,13 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-        
+
     - name: Install pip, wheel, pytest, jupyter
       run: |
         python -m pip install --upgrade pip
         pip install wheel
         pip install pytest
-        pip install pytest-cov 
+        pip install pytest-cov
         pip install jupyter
 
     - name: Install pycodestyle
@@ -42,6 +42,7 @@ jobs:
         pip install amazon-braket-sdk
         pip install cirq==0.12.0
         pip install projectq
+      if: always()
 
     - name: Install Microsoft qsharp/qdk
       run: |
@@ -53,6 +54,7 @@ jobs:
         dotnet tool install -g Microsoft.Quantum.IQSharp
         $(which dotnet-iqsharp) install --user
         pip install qsharp
+      if: always()
 
     - name: tangelo install
       run: |
