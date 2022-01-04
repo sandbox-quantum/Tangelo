@@ -95,28 +95,20 @@ class ClassicalShadow(abc.ABC):
         return self.size
 
     def append(self, bitstring, unitary):
-        """Append method to merge a new snapshot to an existing shadow.
+        """Append method to merge new snapshots to an existing shadow.
 
         Args:
-            bistring (str): Representation of a single outcome.
-            unitary (str): Relevant unitary for this single outcome.
+            bistring (str or list of str): Representation of outcomes.
+            unitary (str or list of str): Relevant unitary for those outcomes.
         """
-        if isinstance(bitstring, list) or isinstance(unitary, list):
-            raise ValueError("Please use the extend method if bistring and unitary are lists.")
-        self.bitstrings.append(bitstring)
-        self.unitaries.append(unitary)
-
-    def extend(self, bitstrings, unitaries):
-        """Extend method to merge new snapshots to an existing shadow.
-
-        Args:
-            bistrings (list of str): Representation of a collection of outcomes.
-            unitarys (list of str): Relevant unitaries for those outcomes.
-        """
-        if isinstance(bitstrings, str) or isinstance(unitaries, str):
-            raise ValueError("Please use the append method if bistring and unitary are strings.")
-        self.bitstrings += bitstrings
-        self.unitaries += unitaries
+        if isinstance(bitstring, list) and isinstance(unitary, list):
+            self.bitstrings += bitstring
+            self.unitaries += unitary
+        elif isinstance(bitstring, str) and isinstance(unitary, str):
+            self.bitstrings.append(bitstring)
+            self.unitaries.append(unitary)
+        else:
+            raise ValueError("bistring and unitary arguments must be consistent strings or list of strings.")
 
     def get_observable(self, qubit_op, *args, **kwargs):
         """Getting an estimated observable value for a qubit operator from the
