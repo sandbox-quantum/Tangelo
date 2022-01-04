@@ -24,11 +24,7 @@ import numpy as np
 
 from tangelo.linq.circuit import Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates, pauli_string_to_of
-from tangelo.toolboxes.operators.operators import QubitOperator
 
-# TODO method or property to get the circuits
-
-# Definition of important matrices used in observable or state estimation.
 
 # State |0> or |1>.
 zero_state = np.array([1, 0])
@@ -68,7 +64,7 @@ class ClassicalShadow(abc.ABC):
         Args:
             bistrings (list of str): Representation of the outcomes for all
                 snapshots. E.g. ["11011", "10000", ...].
-            unitaries (list of str): REpresentation of the unitary for every
+            unitaries (list of str): Representation of the unitary for every
                 snapshot, used to reverse the channel.
         """
 
@@ -82,12 +78,17 @@ class ClassicalShadow(abc.ABC):
     @property
     def n_qubits(self):
         """Returns the number of qubits the shadow represents."""
-        return self.circuit.size
+        return self.circuit.width
 
     @property
     def size(self):
         """Number of shots used to make the shadow."""
         return len(self.bitstrings)
+
+    @property
+    def unique_unitaries(self):
+        """Returns the a list of unique unitaries."""
+        return list(set(self.unitaries))
 
     def __len__(self):
         """Same as the shadow size."""
@@ -116,23 +117,6 @@ class ClassicalShadow(abc.ABC):
             raise ValueError("Please use the append method if bistring and unitary are strings.")
         self.bitstrings += bitstrings
         self.unitaries += unitaries
-
-    def get_circuits(self):
-        """Docstring."""
-
-        if not self.unitaries:
-            raise ValueError(f"The build method of {self.__class__.__name__} must be called before simulation.")
-
-        appended_circuits = list()
-
-        for pauli_word in self.unitaries:
-            # Transformation of a unitary to quantum gates.
-            pauli_of = pauli_string_to_of(pauli_word)
-            basis_circuit = Circuit(measurement_basis_gates(pauli_of), self.n_qubits)
-
-            appended_circuits += [basis_circuit]
-
-        return self.circuit, appended_circuits
 
     def get_observable(self, qubit_op, *args, **kwargs):
         """Getting an estimated observable value for a qubit operator from the
@@ -167,18 +151,11 @@ class ClassicalShadow(abc.ABC):
             warnings.warn(f"Warning: changing the number of shots to 1 for the backend.")
             backend.n_shots = 1
 
-        for pauli_word in self.unitaries:
-            # Transformation of a unitary to quantum gates.
-            pauli_of = pauli_string_to_of(pauli_word)
-            basis_circuit = Circuit(measurement_basis_gates(pauli_of), self.n_qubits)
+        # Different behavior if circuit or initial_statevector is defined.
+        one_shot_circuit_template = self.circuit if self.circuit is not None else Circuit(n_qubits=self.n_qubits)
 
-            # Different behavior if circuit or initial_statevector is defined.
-            if self.circuit is None and initial_statevector is not None:
-                one_shot_circuit = basis_circuit if (basis_circuit.size > 0) else Circuit(n_qubits=self.n_qubits)
-            elif self.circuit is not None and initial_statevector is None:
-                one_shot_circuit = self.circuit + basis_circuit if (basis_circuit.size > 0) else self.circuit
-            else:
-                raise ValueError("A linq.Circuit or an initial_statevector must be provided.")
+        for basis_circuit in self.get_basis_circuits():
+            one_shot_circuit = one_shot_circuit_template + basis_circuit if (basis_circuit.size > 0) else one_shot_circuit_template
 
             results = backend.simulate(one_shot_circuit, initial_statevector=initial_statevector)
 
@@ -192,6 +169,10 @@ class ClassicalShadow(abc.ABC):
 
     @abc.abstractmethod
     def build(self):
+        pass
+
+    @abc.abstractmethod
+    def get_basis_circuits(self, only_unique=False):
         pass
 
     @abc.abstractmethod
@@ -226,6 +207,30 @@ class RandomizedClassicalShadow(ClassicalShadow):
 
         self.unitaries = measurement_procedure
         return measurement_procedure
+
+    def get_basis_circuits(self, only_unique=False):
+        """Output a list of circuits corresponding to the random Pauli words
+        unitaries.
+
+        Args:
+            only_unique (bool): Considering only unique unitaries.
+
+        Returns:
+            list of Circuit: All circuits for unitaries.
+        """
+
+        if not self.unitaries:
+            raise ValueError(f"A set of unitaries must de defined (can be done with the build method in {self.__class__.__name__}.")
+
+        unitaries_to_convert = self.unique_unitaries if only_unique else self.unitaries
+
+        basis_circuits = list()
+        for pauli_word in unitaries_to_convert:
+            # Transformation of a unitary to quantum gates.
+            pauli_of = pauli_string_to_of(pauli_word)
+            basis_circuits += [Circuit(measurement_basis_gates(pauli_of), self.n_qubits)]
+
+        return basis_circuits
 
     def estimate_state(self, start=0, end=-1, list_of_index=None):
         """Returns classical shadow average density matrix for a range of
@@ -311,25 +316,25 @@ class RandomizedClassicalShadow(ClassicalShadow):
                         if n in dict_term.keys():
                             obs = matrices[dict_term[n]]
                             tobs = traces[dict_term[n]]
-
-                            state = zero_state if self.bitstrings[snapshot][n] == "0" else one_state
-                            U = rotations[self.unitaries[snapshot][n]]
-
-                            # Make <b_n|U_n for one qubit.
-                            right_side = np.matmul(state, U)
-
-                            # Make obs_n @ U_n^+ @ |b_n> for one qubit.
-                            left_side = right_side.conj()
-                            left_side = np.matmul(obs, left_side)
-
-                            # Below is the faster way of trace *= np.trace(
-                            # 3*np.outer(left_side, right_side) - obs).
-                            trace *= 3*np.dot(left_side, right_side) - tobs
                         # If there is no operation applied on the qubit n.
                         else:
                             # Trace of identity matrix
                             obs = I
                             tobs = 2
+
+                        state = zero_state if self.bitstrings[snapshot][n] == "0" else one_state
+                        U = rotations[self.unitaries[snapshot][n]]
+
+                        # Make <b_n|U_n for one qubit.
+                        right_side = state @ U
+
+                        # Make obs_n @ U_n^+ @ |b_n> for one qubit.
+                        left_side = right_side.conj()
+                        left_side = obs @ left_side
+
+                        # Below is the faster way of trace *= np.trace(
+                        # 3*np.outer(left_side, right_side) - obs).
+                        trace *= 3*np.dot(left_side, right_side) - tobs
 
                     observables_to_mean[snapshot - i] = np.real(coeff*trace)
                 observables_to_median.append(np.mean(observables_to_mean))

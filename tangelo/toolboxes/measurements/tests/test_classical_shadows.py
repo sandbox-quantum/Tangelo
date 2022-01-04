@@ -15,6 +15,7 @@
 import unittest
 
 import numpy as np
+from qiskit.providers.aer.noise.errors.standard_errors import thermal_relaxation_error
 
 from tangelo.linq import Gate, Circuit, Simulator
 from tangelo.toolboxes.measurements.classical_shadows import RandomizedClassicalShadow
@@ -91,6 +92,15 @@ class RandomizedClassicalShadowTest(unittest.TestCase):
         ])
 
         np.testing.assert_array_almost_equal(rho_estimate, rho_ref)
+
+    def test_get_basis_circuits(self):
+        """Testing of the method to get the appended circuit corresponding to
+        the unitaries.
+        """
+        cs = RandomizedClassicalShadow(state, bitstrings, unitaries)
+
+        self.assertEqual(len(cs.get_basis_circuits(False)), 100)
+        self.assertEqual(len(cs.get_basis_circuits(True)), 9)
 
 
 if __name__ == "__main__":
