@@ -146,7 +146,7 @@ class ClassicalShadow(abc.ABC):
         # Different behavior if circuit or initial_statevector is defined.
         one_shot_circuit_template = self.circuit if self.circuit is not None else Circuit(n_qubits=self.n_qubits)
 
-        for basis_circuit in self.get_basis_circuits():
+        for basis_circuit in self.get_basis_circuits(only_unique=False):
             one_shot_circuit = one_shot_circuit_template + basis_circuit if (basis_circuit.size > 0) else one_shot_circuit_template
 
             freqs, _ = backend.simulate(one_shot_circuit, initial_statevector=initial_statevector)
@@ -197,6 +197,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
         self.unitaries = measurement_procedure
         return measurement_procedure
 
+    # TODO counts
     def get_basis_circuits(self, only_unique=False):
         """Output a list of circuits corresponding to the random Pauli words
         unitaries.
@@ -205,7 +206,8 @@ class RandomizedClassicalShadow(ClassicalShadow):
             only_unique (bool): Considering only unique unitaries.
 
         Returns:
-            list of Circuit: All circuits for unitaries.
+            list of Circuit or tuple: All basis circuits or a tuple of unique
+                circuits (first) with the numbers of occurence (last).
         """
 
         if not self.unitaries:
@@ -219,7 +221,14 @@ class RandomizedClassicalShadow(ClassicalShadow):
             pauli_of = pauli_string_to_of(pauli_word)
             basis_circuits += [Circuit(measurement_basis_gates(pauli_of), self.n_qubits)]
 
-        return basis_circuits
+        # Counting each unique circuits (use for reversing to a full shadow from
+        # an experiement on hardware).
+        if only_unique:
+            unique_basis_circuits = [(basis_circuits[i], self.unitaries.count(u)) for i, u in enumerate(unitaries_to_convert)]
+            return unique_basis_circuits
+        # Not necessary if we output everything.
+        else:
+            return basis_circuits
 
     def estimate_state(self, start=0, end=None, list_of_index=None):
         """Returns the classical shadow average density matrix for a range of
@@ -230,6 +239,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
             end (int): Ending snapshot for the desired range.
             list_of_index (list int): Specific snapshot to pick. If this
                 variable is set, start and end are ignored.
+
         Returns:
             array of complex: Estimation of the 2^n * 2^n state.
         """
