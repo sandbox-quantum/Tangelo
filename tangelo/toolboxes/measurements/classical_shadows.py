@@ -149,11 +149,9 @@ class ClassicalShadow(abc.ABC):
         for basis_circuit in self.get_basis_circuits(only_unique=False):
             one_shot_circuit = one_shot_circuit_template + basis_circuit if (basis_circuit.size > 0) else one_shot_circuit_template
 
+            # Frequencies returned by simulate are of the form {'0100...01': 1.0}.
+            # We add the bitstring to the shadow.
             freqs, _ = backend.simulate(one_shot_circuit, initial_statevector=initial_statevector)
-
-            # Output of simulate is in the form ({'0100...': 1.0}, None).
-            # The wanted bitstring is in the first element of the tuple.
-            # Also appending the results to the shadow.
             self.bitstrings += [list(freqs.keys())[0]]
 
     @abc.abstractmethod
@@ -220,7 +218,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
             pauli_of = pauli_string_to_of(pauli_word)
             basis_circuits += [Circuit(measurement_basis_gates(pauli_of), self.n_qubits)]
 
-        # Counting each unique circuits (use for reversing to a full shadow from
+        # Counting each unique circuits (use for reversing to a full shadow from 
         # an experiement on hardware).
         if only_unique:
             unique_basis_circuits = [(basis_circuits[i], self.unitaries.count(u)) for i, u in enumerate(unitaries_to_convert)]
@@ -243,7 +241,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
             array of complex: Estimation of the 2^n * 2^n state.
         """
 
-        # Ability to select specific snapshots. Default: all snapshots.
+        # Select specific snapshots. Default: all snapshots.
         if indices is not None:
             snapshot_indices = indices
         else:
@@ -251,11 +249,10 @@ class RandomizedClassicalShadow(ClassicalShadow):
                 end = self.size
             snapshot_indices = list(range(start, min(end, self.size)))
 
-        # Creation of the density matrix object where snapshots rho will be
-        # added to.
+        # Creation of the density matrix object that snapshot rho will be added to.
         rho = np.zeros((2**self.n_qubits, 2**self.n_qubits), dtype=complex)
 
-        # Undoing rotations for the selected snapshot(s).
+        # Undo rotations for the selected snapshot(s).
         for i_snapshot in snapshot_indices:
 
             # Starting point is the Identity matrix of size 1.
@@ -272,10 +269,8 @@ class RandomizedClassicalShadow(ClassicalShadow):
 
             rho += rho_snapshot[:, :]
 
-        # Saving the result.
+        # Save the result, return the state estimation
         self.state_estimate = rho / len(snapshot_indices)
-
-        # Returning the state estimation.
         return self.state_estimate
 
     def get_term_observable(self, term, coeff=1., k=10):
