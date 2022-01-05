@@ -7,7 +7,7 @@ Do not feel intimidated by the guidelines and processes we describe in this docu
 
 Contributors have various backgounds and experience, from high schoolers to fully fledged quantum scientists or chemists, and there are many ways you can contribute to this project. You can of course open a pull request (PR) and extend our codebase, but opening an issue to suggest a new feature, report a bug, improve our documentation or make a Jupyter notebook is just as valuable.
 
-By joining the Tangelo community, you gain the opportunity to contribute to a collaborative project, in order to advance the field of quantum computing and further develop your own skills.
+By joining the Tangelo community and sharing your ideas and developments, you are creating an opportunity for us to learn and grow together, and take ideas to the finish line and beyond.
 
 Tangelo is under licence `Apache 2.0 <http://www.apache.org/licenses/LICENSE-2.0>`_.
 
