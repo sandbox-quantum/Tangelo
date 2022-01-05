@@ -94,6 +94,12 @@ find and run all tests (assuming you are in the ``tangelo`` subfolder that conta
 
    python -m unittest
 
+
+Contributions
+-------------
+
+Please have a look at the `contributions <./CONTRIBUTIONS.rst>`_ file.
+
 Citations
 ---------
 
