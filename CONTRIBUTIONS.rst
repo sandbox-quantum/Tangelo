@@ -15,7 +15,7 @@ Tangelo is under licence `Apache 2.0 <http://www.apache.org/licenses/LICENSE-2.0
 Feature requests, bug reports
 -----------------------------
 
-Have a look at the issue tab, and complete the adequate issue template if needed: there's one for feature request, bug reports, and more. If it turns out the issue ticket you wanted to bring up already exists, please consider leaving a thumbs up or participate in the conversation to help us prioritize or move things forward. It's important to know what matters to users, to take our collaborative project in the right direction.
+Have a look at the issue tab, and complete the adequate issue template if needed: there's one for feature request, bug reports, and more. If it turns out the issue ticket you wanted to bring up already exists, please consider leaving a thumbs up or participate in the conversation to help us prioritize or move things forward. It's important to know what matters to users, to take our collaborative project in the right direction: all of this is very useful !
 
 
 
@@ -90,7 +90,7 @@ When a pull request is created or updated, several automated processes are launc
 
 **Tests**
 
-  New changes should not break existing features: that's why we're running all the existing tests, on top of your new tests. If something fails, it may be a consequence of your changes, and we should find out what's going on. We use [pytest](https://docs.pytest.org/en/latest/) to run our tests.
+  New changes should not break existing features: that's why we're running all the existing tests, on top of your new tests. If something fails, it may be a consequence of your changes, and we should find out what's going on. We use `pytest <https://docs.pytest.org/en/latest/>`_ to run our tests.
 
   You can run tests locally with unittest; just move to the `tangelo` subfolder of the repo, which contains the source code, and type:
 
