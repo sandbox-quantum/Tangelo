@@ -26,21 +26,25 @@ state = Circuit([Gate("H", 0), Gate("CNOT", 1, 0)])
 
 # Simple saved bistrings and unitaries to construct a shadow (size = 100).
 bitstrings = ["01", "00", "00", "01", "00", "00", "11", "11", "00", "11", "11",
-"01", "00", "11", "11", "00", "11", "11", "00", "11", "11", "10", "01", "11",
-"01", "00", "00", "01", "01", "11", "01", "01", "11", "10", "00", "01", "01",
-"00", "00", "10", "10", "10", "00", "11", "00", "01", "00", "11", "00", "00",
-"11", "11", "11", "00", "10", "01", "01", "10", "01", "00", "00", "10", "00",
-"00", "10", "10", "01", "00", "11", "01", "00", "11", "11", "00", "11", "11",
-"01", "01", "01", "11", "00", "11", "10", "11", "10", "00", "00", "00", "00",
-"10", "01", "10", "10", "11", "11", "11", "01", "00", "11", "11"]
+              "01", "00", "11", "11", "00", "11", "11", "00", "11", "11", "10",
+              "01", "11", "01", "00", "00", "01", "01", "11", "01", "01", "11",
+              "10", "00", "01", "01", "00", "00", "10", "10", "10", "00", "11",
+              "00", "01", "00", "11", "00", "00", "11", "11", "11", "00", "10",
+              "01", "01", "10", "01", "00", "00", "10", "00", "00", "10", "10",
+              "01", "00", "11", "01", "00", "11", "11", "00", "11", "11", "01",
+              "01", "01", "11", "00", "11", "10", "11", "10", "00", "00", "00",
+              "00", "10", "01", "10", "10", "11", "11", "11", "01", "00", "11",
+              "11"]
 unitaries = ["ZY", "XZ", "XZ", "YZ", "ZX", "XX", "YZ", "XZ", "YX", "ZZ", "XX",
-"YY", "XX", "XX", "ZZ", "YZ", "XX", "XZ", "XY", "YX", "XZ", "ZY", "YX", "XY",
-"YZ", "XX", "XX", "ZY", "ZY", "XZ", "YY", "XZ", "YX", "YY", "ZZ", "YY", "YZ",
-"ZX", "XY", "XY", "YY", "YY", "XZ", "YZ", "XZ", "XZ", "ZZ", "XX", "XZ", "ZX",
-"ZZ", "ZX", "ZZ", "XX", "YX", "ZX", "XY", "YY", "YY", "XX", "YX", "YZ", "XX",
-"ZZ", "XZ", "YY", "YX", "ZY", "XZ", "ZX", "XX", "XX", "YX", "XY", "ZZ", "XZ",
-"ZX", "ZY", "YX", "ZZ", "XX", "ZY", "YZ", "ZX", "YZ", "ZY", "XZ", "XX", "XZ",
-"YZ", "YY", "ZY", "XZ", "XX", "ZY", "XX", "YY", "XY", "ZX", "ZX"]
+             "YY", "XX", "XX", "ZZ", "YZ", "XX", "XZ", "XY", "YX", "XZ", "ZY",
+             "YX", "XY", "YZ", "XX", "XX", "ZY", "ZY", "XZ", "YY", "XZ", "YX",
+             "YY", "ZZ", "YY", "YZ", "ZX", "XY", "XY", "YY", "YY", "XZ", "YZ",
+             "XZ", "XZ", "ZZ", "XX", "XZ", "ZX", "ZZ", "ZX", "ZZ", "XX", "YX",
+             "ZX", "XY", "YY", "YY", "XX", "YX", "YZ", "XX", "ZZ", "XZ", "YY",
+             "YX", "ZY", "XZ", "ZX", "XX", "XX", "YX", "XY", "ZZ", "XZ", "ZX",
+             "ZY", "YX", "ZZ", "XX", "ZY", "YZ", "ZX", "YZ", "ZY", "XZ", "XX",
+             "XZ", "YZ", "YY", "ZY", "XZ", "XX", "ZY", "XX", "YY", "XY", "ZX",
+             "ZX"]
 
 
 class RandomizedClassicalShadowTest(unittest.TestCase):
@@ -48,11 +52,7 @@ class RandomizedClassicalShadowTest(unittest.TestCase):
     def test_initialization(self):
         """Testing the initialization."""
 
-        # Test empty init.
-        _ = RandomizedClassicalShadow(state)
-
-        # Test init with provided bitstrings and unitaries.
-        _ = RandomizedClassicalShadow(state, bitstrings, unitaries)
+        RandomizedClassicalShadow(state, bitstrings, unitaries)
 
     def test_shadow_properties(self):
         """Testing of the shadow properties."""

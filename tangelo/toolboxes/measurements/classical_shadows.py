@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This file provides functions to contruct and perform operation with classical
-shadow.
+"""This file provides an API enabling the use of classical shadows. The original
+idea is described in H.Y. Huang, R. Kueng, and J. Preskill, Nature Physics 16,
+1050 (2020).
 """
 
 import abc
@@ -40,7 +41,7 @@ matrices = {"X": X, "Y": Y, "Z": Z}
 # Traces of each Pauli matrices.
 traces = {pauli: np.trace(matrix) for pauli, matrix in matrices.items()}
 
-# Reversed channel to undo single Pauli rotations.
+# Reverse channels to undo single Pauli rotations.
 S_T = np.array([[1, 0], [0, -1j]], dtype=complex)
 H = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
 I = np.array([[1, 0], [0, 1]])
@@ -48,18 +49,17 @@ rotations = {"X": H, "Y": H @ S_T, "Z": I}
 
 
 class ClassicalShadow(abc.ABC):
-    """Abstract class for the classical shadow implementation. Classical shadow
-    is a mean to characterize a quantum state (within an error treshold) with
-    the fewest measurement possible. The original idea is described in
-    H.Y. Huang, R. Kueng, and J. Preskill, Nature Physics 16, 1050 (2020).
+    """Abstract class for the classical shadows implementation. Classical
+    shadows is a mean to characterize a quantum state (within an error treshold)
+    with the fewest measurement possible.
     """
 
     def __init__(self, circuit, bitstrings=None, unitaries=None):
-        """Default constructor for the classical shadow object. This class is
-        the parent class for the different classical shadow flavors. The
-        classical shadow object is defined by the bistrings and unitaries used
-        in the process. Abstract methods are defined to take into account the
-        procedure to inverse the channel.
+        """Default constructor for the ClassicalShadow object. This class is
+        the parent class for the different classical shadows flavors. The object
+        is defined by the bistrings and unitaries used in the process. Abstract
+        methods are defined to take into account the procedure to inverse the
+        channel.
 
         Args:
             bistrings (list of str): Representation of the outcomes for all
@@ -87,7 +87,7 @@ class ClassicalShadow(abc.ABC):
 
     @property
     def unique_unitaries(self):
-        """Returns the a list of unique unitaries."""
+        """Returns the list of unique unitaries."""
         return list(set(self.unitaries))
 
     def __len__(self):
@@ -102,6 +102,7 @@ class ClassicalShadow(abc.ABC):
             unitary (str or list of str): Relevant unitary for those outcomes.
         """
         if isinstance(bitstring, list) and isinstance(unitary, list):
+            assert len(bitstring) == len(unitary)
             self.bitstrings += bitstring
             self.unitaries += unitary
         elif isinstance(bitstring, str) and isinstance(unitary, str):
@@ -113,8 +114,8 @@ class ClassicalShadow(abc.ABC):
     def get_observable(self, qubit_op, *args, **kwargs):
         """Getting an estimated observable value for a qubit operator from the
         classical shadow. This function loops through all terms and calls, for
-        each one, the get_term_observable defined in the child class. Other
-        arguments (args, kwargs) can be passed to the method.
+        each of them, the get_term_observable method defined in the child class.
+        Other arguments (args, kwargs) can be passed to the method.
 
         Args:
             qubit_op (QubitOperator): Operator to estimate.
@@ -131,7 +132,6 @@ class ClassicalShadow(abc.ABC):
 
         Args:
             backend (Simulator): Backend for the simulation of a shadow.
-            circuit (Circuit): State to characterize with a shadow.
             initial_statevector(list/array) : A valid statevector in the format
                 supported by the target backend.
         """
@@ -140,7 +140,7 @@ class ClassicalShadow(abc.ABC):
             raise ValueError(f"The build method of {self.__class__.__name__} must be called before simulation.")
 
         if backend.n_shots != 1:
-            warnings.warn(f"Warning: changing the number of shots to 1 for the backend.")
+            warnings.warn(f"Changing number of shots to 1 for the backend (classical shadows).")
             backend.n_shots = 1
 
         # Different behavior if circuit or initial_statevector is defined.
@@ -149,15 +149,12 @@ class ClassicalShadow(abc.ABC):
         for basis_circuit in self.get_basis_circuits():
             one_shot_circuit = one_shot_circuit_template + basis_circuit if (basis_circuit.size > 0) else one_shot_circuit_template
 
-            results = backend.simulate(one_shot_circuit, initial_statevector=initial_statevector)
+            freqs, _ = backend.simulate(one_shot_circuit, initial_statevector=initial_statevector)
 
-            # Output is of simulate is in the form ({'0100...': 1.0}, None).
-            # The wanted bitstring is the only key in the first element of the
-            # tuple.
-            bitstring = list(results[0].keys())[0]
-
-            # Appending the results to the shadow.
-            self.bitstrings += [bitstring]
+            # Output of simulate is in the form ({'0100...': 1.0}, None).
+            # The wanted bitstring is in the first element of the tuple.
+            # Also appending the results to the shadow.
+            self.bitstrings += [list(freqs.keys())[0]]
 
     @abc.abstractmethod
     def build(self):
@@ -177,7 +174,7 @@ class ClassicalShadow(abc.ABC):
 
 
 class RandomizedClassicalShadow(ClassicalShadow):
-    r"""Classical shadow using randomized single Pauli measurements, as defined
+    r"""Classical shadows using randomized single Pauli measurements, as defined
     in H.Y. Huang, R. Kueng, and J. Preskill, Nature Physics 16, 1050 (2020). In
     short, the channel is inversed to geet the state with the formula
     \hat{\rho} = \bigotimes_{j=1}^n \left( 3U_j^{\dagger} |b_j\rangle \langle b_j| U_j - \mathbb{I} \right)
@@ -187,7 +184,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
         """Random sampling of single pauli words.
 
         Args:
-            n_shots (int): Total number of measurement.
+            n_shots (int): Total number of measurements.
 
         Returns:
             list of str: Measurements generated for a randomized procedure.
@@ -212,7 +209,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
         """
 
         if not self.unitaries:
-            raise ValueError(f"A set of unitaries must de defined (can be done with the build method in {self.__class__.__name__}.")
+            raise ValueError(f"A set of unitaries must de defined (can be done with the build method in {self.__class__.__name__}).")
 
         unitaries_to_convert = self.unique_unitaries if only_unique else self.unitaries
 
@@ -224,25 +221,24 @@ class RandomizedClassicalShadow(ClassicalShadow):
 
         return basis_circuits
 
-    def estimate_state(self, start=0, end=-1, list_of_index=None):
-        """Returns classical shadow average density matrix for a range of
+    def estimate_state(self, start=0, end=None, list_of_index=None):
+        """Returns the classical shadow average density matrix for a range of
         snapshots.
 
         Args:
-            start (int): Starting snapshot for the wanted range.
-            end (int): Ending snapshot for the wanted range.
+            start (int): Starting snapshot for the desired range.
+            end (int): Ending snapshot for the desired range.
             list_of_index (list int): Specific snapshot to pick. If this
                 variable is set, start and end are ignored.
         Returns:
             array of complex: Estimation of the 2^n * 2^n state.
         """
 
-        # Ability to pick specific or a range of snapshots. Default behavior is
-        # averaging over all snapshot.
+        # Ability to select specific snapshots. Default: all snapshots.
         if list_of_index is not None:
             snapshot_index = list_of_index
         else:
-            if end == -1:
+            if end is None:
                 end = self.size
             snapshot_index = list(range(start, min(end, self.size)))
 
@@ -251,16 +247,16 @@ class RandomizedClassicalShadow(ClassicalShadow):
         rho = np.zeros((2**self.n_qubits, 2**self.n_qubits), dtype=complex)
 
         # Undoing rotations for the selected snapshot(s).
-        for snapshot_i in snapshot_index:
+        for i_snapshot in snapshot_index:
 
             # Starting point is the Identity matrix of size 1.
             rho_snapshot = np.ones((1, 1), dtype=complex)
 
             for n in range(self.n_qubits):
-                state = zero_state if self.bitstrings[snapshot_i][n] == "0" else one_state
+                state = zero_state if self.bitstrings[i_snapshot][n] == "0" else one_state
 
                 # Unitary to undo the rotation.
-                U = rotations[self.unitaries[snapshot_i][n]]
+                U = rotations[self.unitaries[i_snapshot][n]]
                 bU = state @ U
                 rho_i = 3 * np.outer(bU.conj(), bU) - I
                 rho_snapshot = np.kron(rho_snapshot, rho_i)
@@ -289,46 +285,46 @@ class RandomizedClassicalShadow(ClassicalShadow):
         dict_term = dict(term)
         observables_to_median = list()
 
+        shadow_step = shadow_size // k
+
         # Median of average loop.
-        for i in range(0, shadow_size, shadow_size // k):
-            observables_to_mean = np.empty(shadow_size//k, dtype=float)
+        for i_snapshot in range(0, shadow_size - shadow_step, shadow_step):
+            observables_to_mean = np.empty(shadow_step, dtype=float)
 
-            if i + shadow_size//k <= shadow_size:
-                for snapshot in range(i, i + shadow_size // k):
-                    # Uses the fact that the trace of a tensor product is the
-                    # product of the traces of the indidual matrices
-                    # Tr(L \otimes M) = Tr(L) * Tr(M)
-                    # Also uses the fact that the product of two matrices that
-                    # are tensor products of smaller matrices is the tensor
-                    # products of the smaller matrices multiplied
-                    # (L \otimes M) @ (O \otimes P) = (L @ O) \otimes (M @ P)
-                    trace = 1.
-                    for n in range(self.n_qubits):
-                        # If there is an operation applied on the qubit n.
-                        if n in dict_term.keys():
-                            obs = matrices[dict_term[n]]
-                            tobs = traces[dict_term[n]]
-                        # If there is no operation applied on the qubit n.
-                        else:
-                            # Trace of identity matrix
-                            obs = I
-                            tobs = 2
+            for j_snapshot in range(i_snapshot, i_snapshot + shadow_step):
+                # Uses the fact that the trace of a tensor product is the
+                # product of the traces of the indidual matrices
+                # Tr(L \otimes M) = Tr(L) * Tr(M)
+                # Also uses the fact that the product of two matrices that
+                # are tensor products of smaller matrices is the tensor
+                # products of the smaller matrices multiplied
+                # (L \otimes M) @ (O \otimes P) = (L @ O) \otimes (M @ P)
+                trace = 1.
+                for i_qubit in range(self.n_qubits):
+                    # If there is an operation applied on the qubit n.
+                    if i_qubit in dict_term.keys():
+                        obs = matrices[dict_term[i_qubit]]
+                        tobs = traces[dict_term[i_qubit]]
+                    # If there is no operation applied on the qubit n.
+                    else:
+                        # Trace of identity matrix
+                        obs = I
+                        tobs = 2
 
-                        state = zero_state if self.bitstrings[snapshot][n] == "0" else one_state
-                        U = rotations[self.unitaries[snapshot][n]]
+                    state = zero_state if self.bitstrings[j_snapshot][i_qubit] == "0" else one_state
+                    U = rotations[self.unitaries[j_snapshot][i_qubit]]
 
-                        # Make <b_n|U_n for one qubit.
-                        right_side = state @ U
+                    # Make <b_n|U_n for one qubit.
+                    right_side = state @ U
 
-                        # Make obs_n @ U_n^+ @ |b_n> for one qubit.
-                        left_side = right_side.conj()
-                        left_side = obs @ left_side
+                    # Make obs_n @ U_n^+ @ |b_n> for one qubit.
+                    left_side = obs @ right_side.conj()
 
-                        # Below is the faster way of trace *= np.trace(
-                        # 3*np.outer(left_side, right_side) - obs).
-                        trace *= 3*np.dot(left_side, right_side) - tobs
+                    # Below is the faster way to compute the trace *= np.trace(
+                    # 3*np.outer(left_side, right_side) - obs).
+                    trace *= 3*np.dot(left_side, right_side) - tobs
 
-                    observables_to_mean[snapshot - i] = np.real(coeff*trace)
-                observables_to_median.append(np.mean(observables_to_mean))
+                observables_to_mean[j_snapshot - i_snapshot] = np.real(coeff*trace)
+            observables_to_median.append(np.mean(observables_to_mean))
 
         return np.median(observables_to_median)
