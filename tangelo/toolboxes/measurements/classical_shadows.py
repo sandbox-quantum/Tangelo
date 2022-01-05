@@ -197,7 +197,6 @@ class RandomizedClassicalShadow(ClassicalShadow):
         self.unitaries = measurement_procedure
         return measurement_procedure
 
-    # TODO counts
     def get_basis_circuits(self, only_unique=False):
         """Output a list of circuits corresponding to the random Pauli words
         unitaries.
@@ -230,14 +229,14 @@ class RandomizedClassicalShadow(ClassicalShadow):
         else:
             return basis_circuits
 
-    def estimate_state(self, start=0, end=None, list_of_index=None):
+    def estimate_state(self, start=0, end=None, indices=None):
         """Returns the classical shadow average density matrix for a range of
         snapshots.
 
         Args:
             start (int): Starting snapshot for the desired range.
             end (int): Ending snapshot for the desired range.
-            list_of_index (list int): Specific snapshot to pick. If this
+            indices (list int): Specific snapshot to pick. If this
                 variable is set, start and end are ignored.
 
         Returns:
@@ -245,19 +244,19 @@ class RandomizedClassicalShadow(ClassicalShadow):
         """
 
         # Ability to select specific snapshots. Default: all snapshots.
-        if list_of_index is not None:
-            snapshot_index = list_of_index
+        if indices is not None:
+            snapshot_indices = indices
         else:
             if end is None:
                 end = self.size
-            snapshot_index = list(range(start, min(end, self.size)))
+            snapshot_indices = list(range(start, min(end, self.size)))
 
         # Creation of the density matrix object where snapshots rho will be
         # added to.
         rho = np.zeros((2**self.n_qubits, 2**self.n_qubits), dtype=complex)
 
         # Undoing rotations for the selected snapshot(s).
-        for i_snapshot in snapshot_index:
+        for i_snapshot in snapshot_indices:
 
             # Starting point is the Identity matrix of size 1.
             rho_snapshot = np.ones((1, 1), dtype=complex)
@@ -274,7 +273,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
             rho += rho_snapshot[:, :]
 
         # Saving the result.
-        self.state_estimate = rho / len(snapshot_index)
+        self.state_estimate = rho / len(snapshot_indices)
 
         # Returning the state estimation.
         return self.state_estimate
@@ -315,7 +314,6 @@ class RandomizedClassicalShadow(ClassicalShadow):
                     if i_qubit in dict_term.keys():
                         obs = matrices[dict_term[i_qubit]]
                         tobs = traces[dict_term[i_qubit]]
-                    # If there is no operation applied on the qubit n.
                     else:
                         # Trace of identity matrix
                         obs = I
@@ -330,8 +328,8 @@ class RandomizedClassicalShadow(ClassicalShadow):
                     # Make obs_n @ U_n^+ @ |b_n> for one qubit.
                     left_side = obs @ right_side.conj()
 
-                    # Below is the faster way to compute the trace *= np.trace(
-                    # 3*np.outer(left_side, right_side) - obs).
+                    # Below is the faster way to compute
+                    # trace *= np.trace(3*np.outer(left_side, right_side) - obs)
                     trace *= 3*np.dot(left_side, right_side) - tobs
 
                 observables_to_mean[j_snapshot - i_snapshot] = np.real(coeff*trace)
