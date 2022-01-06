@@ -15,9 +15,8 @@
 import unittest
 
 import numpy as np
-from qiskit.providers.aer.noise.errors.standard_errors import thermal_relaxation_error
 
-from tangelo.linq import Gate, Circuit, Simulator
+from tangelo.linq import Gate, Circuit
 from tangelo.toolboxes.measurements.classical_shadows import RandomizedClassicalShadow
 from tangelo.toolboxes.operators.operators import QubitOperator
 
