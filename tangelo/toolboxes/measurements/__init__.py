@@ -14,5 +14,6 @@
 
 from .qubit_terms_grouping import group_qwc, exp_value_from_measurement_bases
 from .estimate_measurements import get_measurement_estimate
-from .classical_shadows.classical_shadows import zero_state, one_state, rotations, matrices, traces, ClassicalShadow
+from .classical_shadows.classical_shadows import zero_state, one_state, I, rotations, matrices, traces, ClassicalShadow
 from .classical_shadows.randomized import RandomizedClassicalShadow
+from .classical_shadows.derandomized import DerandomizedClassicalShadow

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This file provides an API enabling the use of randomzied classical shadows.
+"""This file provides an API enabling the use of randomized classical shadows.
 This algorithm is described in H.Y. Huang, R. Kueng, and J. Preskill, Nature
 Physics 16, 1050 (2020).
 """
@@ -21,7 +21,7 @@ import random
 
 import numpy as np
 
-from tangelo.toolboxes.measurements.classical_shadows import zero_state, one_state, rotations, matrices, traces, ClassicalShadow
+from tangelo.toolboxes.measurements import zero_state, one_state, I, rotations, matrices, traces, ClassicalShadow
 from tangelo.linq.circuit import Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates, pauli_string_to_of
 

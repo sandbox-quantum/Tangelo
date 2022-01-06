@@ -17,7 +17,7 @@ import unittest
 import numpy as np
 
 from tangelo.linq import Gate, Circuit
-from tangelo.toolboxes.measurements.classical_shadows import RandomizedClassicalShadow
+from tangelo.toolboxes.measurements import RandomizedClassicalShadow
 from tangelo.toolboxes.operators.operators import QubitOperator
 
 # Circuit to sample (Bell state).
