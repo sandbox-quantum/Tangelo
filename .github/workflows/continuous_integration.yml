@@ -1,4 +1,4 @@
-name: automated_testing
+name: Continuous Integration
 
 on: [pull_request]
 
