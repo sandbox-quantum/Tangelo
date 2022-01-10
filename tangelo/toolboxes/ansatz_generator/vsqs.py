@@ -80,19 +80,19 @@ class VSQS(Ansatz):
             self.qubit_hamiltonian = fermion_to_qubit_mapping(molecule.fermionic_hamiltonian, n_spinorbitals=self.n_spinorbitals,
                                                               n_electrons=self.n_electrons, mapping=self.mapping,
                                                               up_then_down=self.up_then_down, spin=self.spin)
-            self.hini = self.build_hini(molecule) if hini is None else hini
+            self.hini = self._build_hini(molecule) if hini is None else hini
         self.hfin = self.qubit_hamiltonian
         self.hnav = hnav
 
-        self.hfin_list, self.n_hfin = self.remove_constant_and_count_terms(self.qubit_hamiltonian)
-        self.hini_list, self.n_hini = self.remove_constant_and_count_terms(self.hini)
+        self.hfin_list, self.n_hfin = self._remove_constant_and_count_terms(self.qubit_hamiltonian)
+        self.hini_list, self.n_hini = self._remove_constant_and_count_terms(self.hini)
         if self.hnav is None:
             self.stride = 2
             self.n_hnav = 0
         else:
             if isinstance(self.hnav, ofQubitOperator):
                 self.stride = 3
-                self.hnav_list, self.n_hnav = self.remove_constant_and_count_terms(self.hnav)
+                self.hnav_list, self.n_hnav = self._remove_constant_and_count_terms(self.hnav)
             else:
                 raise ValueError("Navigator Hamiltonian must be a QubitOperator")
 
@@ -102,7 +102,7 @@ class VSQS(Ansatz):
         self.var_params = None
         self.circuit = None
 
-    def remove_constant_and_count_terms(self, qu_op):
+    def _remove_constant_and_count_terms(self, qu_op):
         """count of non-zero terms in a QubitOperator and return the list of terms.items()"""
         count = 0
         new_qu_op = deepcopy(qu_op)
@@ -114,7 +114,7 @@ class VSQS(Ansatz):
         new_qu_op.compress()
         return list(new_qu_op.terms.items()), count
 
-    def build_hini(self, molecule):
+    def _build_hini(self, molecule):
         """Return the initial Hamiltonian (hini) composed of the one-body terms derived from the diagonal of Fock
         matrix and one-body off-diagonal terms"""
         fock = molecule.mean_field.mo_coeff.T @ molecule.mean_field.get_fock() @ molecule.mean_field.mo_coeff
@@ -134,7 +134,7 @@ class VSQS(Ansatz):
     def set_var_params(self, var_params=None):
         """Set values for the variational parameters. Default is linear interpolation."""
         if var_params is None:
-            var_params = self.init_params()[self.stride:self.n_var_params+self.stride]
+            var_params = self._init_params()[self.stride:self.n_var_params+self.stride]
 
         init_var_params = np.array(var_params)
         if init_var_params.size == self.n_var_params:
@@ -161,7 +161,7 @@ class VSQS(Ansatz):
             for i, (_, coeff) in enumerate(list(reversed(qu_op))):
                 self.circuit._variational_gates[n_var_start+num_terms+i].parameter = prefac * coeff
 
-    def init_params(self):
+    def _init_params(self):
         """Generate initial parameters for the VSQS algorithm.
         a_i = step*i, b_i=1-step*i, c_i= 1-step*i i<n_intervals/2, step*i i>n_intervals/2"""
         a = np.zeros(self.intervals+1)
