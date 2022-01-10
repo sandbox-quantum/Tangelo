@@ -158,7 +158,7 @@ def get_qmf_circuit(qmf_var_params, variational=True):
     n_qubits, gates = qmf_var_params.size // 2, []
     for idx, param in enumerate(qmf_var_params):
         gate_id = "RX" if idx < n_qubits else "RZ"
-        gates.append(Gate(gate_id, target=idx, parameter=param, is_variational=variational))
+        gates.append(Gate(gate_id, target=idx % n_qubits, parameter=param, is_variational=variational))
     return Circuit(gates)
 
 
