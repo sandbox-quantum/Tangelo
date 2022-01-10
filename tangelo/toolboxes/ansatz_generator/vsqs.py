@@ -193,7 +193,7 @@ class VSQS(Ansatz):
                                      up_then_down=self.up_then_down, spin=self.spin)
 
     def build_circuit(self, var_params=None):
-        """Build the VSQS circuit by successive first-order trotterizations of hini, hfin and possibly hnav"""
+        """Build the VSQS circuit by successive first- or second-order trotterizations of hini, hfin and possibly hnav"""
         reference_state_circuit = self.prepare_reference_state() if self.reference_state is None else self.reference_state
         self.var_params = self.set_var_params(var_params)
 
