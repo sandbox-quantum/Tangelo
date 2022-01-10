@@ -196,7 +196,7 @@ class VQESolver:
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
 
         # Building with a qubit Hamiltonian.
-        elif not isinstance(self.ansatz, Ansatz) or self.ansatz not in [BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS]:
+        elif not isinstance(self.ansatz, Ansatz) and self.ansatz in [BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS]:
             if self.ansatz == BuiltInAnsatze.HEA:
                 self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
             elif self.ansatz == BuiltInAnsatze.VSQS:
