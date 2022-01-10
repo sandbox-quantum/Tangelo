@@ -83,7 +83,7 @@ def exp_pauliword_to_gates(pauli_word, coef, variational=True, control=None):
 
 
 def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=False, trotter_order=1, control=None,
-                                             return_phase=False):
+                                             return_phase=False, pauli_order=None):
     """Generate the exponentiation of a qubit operator in first- or second-order Trotterized form.
     The algorithm is described in Whitfield 2010 https://arxiv.org/pdf/1001.3855.pdf
 
@@ -94,12 +94,19 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
         variational (bool) : Whether the coefficients are variational
         trotter_order (int): order of trotter approximation, only 1 or 2 are supported.
         return_phase (bool): Return the global-phase generated
+        pauli_order (list): The desired pauli_word order defined as a list with elements (pauli_word, coeff)
+            with corresponding dictionary elements pauli_word: coeff in QubitOperator terms.items()
 
     Returns:
         Circuit: circuit corresponding to exponentiation of qubit operator
         phase : The global phase of the time evolution if return_phase=True else not included
     """
-    pauli_words = list(qubit_op.terms.items())
+    if pauli_order is None:
+        pauli_words = list(qubit_op.terms.items())
+    elif isinstance(pauli_order, list):
+        pauli_words = deepcopy(pauli_order)
+    else:
+        raise ValueError("ordered terms must be a list with elements (keys, values) of qubit_op.terms.items()")
 
     if trotter_order > 2:
         raise ValueError(f"Trotter order of >2 is not supported currently in Tangelo.")
@@ -118,7 +125,7 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
     phase = 1.
     exp_pauli_word_gates = list()
     for i in range(trotter_order):
-        if i == 0:
+        if i == 1:
             pauli_words.reverse()
         for pauli_word, coef in pauli_words:
             if pauli_word:  # identity terms do not contribute to evolution outside of a phase

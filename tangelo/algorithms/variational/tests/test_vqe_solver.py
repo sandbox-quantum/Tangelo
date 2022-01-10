@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import unittest
 import numpy as np
 
@@ -131,6 +132,31 @@ class VQESolverTest(unittest.TestCase):
         """
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.QCC, "qubit_mapping": "jw",
                        "verbose": True}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.137270, delta=1e-4)
+
+    def test_simulate_vsqs_h2(self):
+        """Run VQE on H2 molecule, with vsqs ansatz, JW qubit mapping, exact simulator for both molecule input and
+        qubit_hamiltonian/hini/reference_state input
+        """
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.VSQS, "qubit_mapping": "jw",
+                       "verbose": True, "ansatz_options": {"intervals": 3, "time": 3}}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.137270, delta=1e-4)
+
+        qubit_hamiltonian = vqe_solver.qubit_hamiltonian
+        hini = vqe_solver.ansatz.hini
+        reference_state = vqe_solver.ansatz.prepare_reference_state()
+
+        vqe_options = {"molecule": None, "qubit_hamiltonian": qubit_hamiltonian, "ansatz": BuiltInAnsatze.VSQS, "qubit_mapping": "jw",
+                       "ansatz_options": {"intervals": 3, "time": 3, "qubit_hamiltonian": qubit_hamiltonian,
+                       "hini": hini, "reference_state": reference_state}}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 

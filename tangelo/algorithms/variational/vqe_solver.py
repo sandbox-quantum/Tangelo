@@ -35,6 +35,7 @@ from tangelo.toolboxes.ansatz_generator.hea import HEA
 from tangelo.toolboxes.ansatz_generator.upccgsd import UpCCGSD
 from tangelo.toolboxes.ansatz_generator.qmf import QMF
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
+from tangelo.toolboxes.ansatz_generator.vsqs import VSQS
 from tangelo.toolboxes.ansatz_generator.variational_circuit import VariationalCircuitAnsatz
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
@@ -50,6 +51,7 @@ class BuiltInAnsatze(Enum):
     UpCCGSD = 4
     QMF = 5
     QCC = 6
+    VSQS = 7
 
 
 class VQESolver:
@@ -186,13 +188,20 @@ class VQESolver:
                     self.ansatz = QMF(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.QCC:
                     self.ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                elif self.ansatz == BuiltInAnsatze.VSQS:
+                    self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
 
         # Building with a qubit Hamiltonian.
-        elif not isinstance(self.ansatz, Ansatz):
+        elif not isinstance(self.ansatz, Ansatz) or self.ansatz not in [BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS]:
+            if self.ansatz == BuiltInAnsatze.HEA:
+                self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+            elif self.ansatz == BuiltInAnsatze.VSQS:
+                self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+        else:
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
