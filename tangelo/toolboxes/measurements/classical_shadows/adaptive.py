@@ -31,8 +31,8 @@ class AdaptiveClassicalShadow(ClassicalShadow):
     """
 
     def build(self, n_shots, qu_op):
-        """Adaptive classical shadow building method to define to be sampled
-        unitaries.
+        """Adaptive classical shadow building method to define relevant
+        unitaries depending on the qubit operator.
 
         Args:
             n_shots (int): The number of desired measurements.
@@ -107,38 +107,34 @@ class AdaptiveClassicalShadow(ClassicalShadow):
             list of float: cB values for X, Y and Z.
         """
 
-        cb = [0.] * 3
+        cbs = [0.] * 3
         map_pauli = {"X": 0, "Y": 1, "Z": 2}
 
         for term, coeff in qu_op.terms.items():
 
-            # Default flags.
-            same_qubit = False
-            same_pauli = True
+            # Default conditions to compute cbs.
+            same_qubit_flag = False
+            same_pauli_flag = True
 
-            # Checking if the current qubit is this term.
             for i_qubit, pauli in term:
+                # Checking if the current qubit index has been detected in the
+                # term.
                 if i_qubit == curr_qubit:
-                    same_qubit = True
+                    same_qubit_flag = True
 
-                # Checking if the qubit in the term as already been matched.
-                #for prev_qubit, prev_pauli in zip(prev_qubits, prev_paulis):
-                #    if i_qubit != prev_qubit:
-                #        continue
-                #    else:
-                #        if pauli != prev_pauli:
-                #            same_pauli = False
+                # Checking if the Pauli basis in the term has already been
+                # chosen for this qubit.
                 for prev_qubit, prev_pauli in zip(prev_qubits, prev_paulis):
                     if i_qubit == prev_qubit and pauli != prev_pauli:
-                        same_pauli = False
+                        same_pauli_flag = False
 
-                if same_qubit and same_pauli:
-                    cb[map_pauli[pauli]] += abs(coeff)**2
+                if same_qubit_flag and same_pauli_flag:
+                    cbs[map_pauli[pauli]] += abs(coeff)**2
 
-        return np.sqrt(cb)
+        return np.sqrt(cbs)
 
     def get_basis_circuits(self, only_unique=False):
-        """Output a list of circuits corresponding to the random Pauli words
+        """Outputd a list of circuits corresponding to the adaptive single-Pauli
         unitaries.
 
         Args:
@@ -198,7 +194,7 @@ class AdaptiveClassicalShadow(ClassicalShadow):
                 state = zero_state if self.bitstrings[snapshot][i_qubit] == "0" else one_state
                 product *= state
 
-            # No quantities are considered if there is not a match.
+            # No quantity is considered if there is no match.
             sum_product += match*product
             n_match += match
 

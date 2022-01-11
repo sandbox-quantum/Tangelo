@@ -34,7 +34,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
     """
 
     def build(self, n_shots, qu_op, eta=0.9):
-        """Derandomized sampling of single pauli words.
+        """Derandomized sampling of single Pauli words.
 
         Args:
             n_shots (int): Total number of measurements.
@@ -50,7 +50,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
         # words. Some variables are defined to normalize the weights and track
         # the amount of measurements already defined by the algorithm.
         observables = [obs for obs in qu_op.terms.keys() if obs]
-        weights = [abs(w) for w in qu_op.terms.values()]
+        weights = [abs(w) for obs, w in qu_op.terms.items() if obs]
 
         n_observables = len(observables)
         n_measurements_per_observable = floor(n_shots / n_observables)
@@ -62,19 +62,18 @@ class DerandomizedClassicalShadow(ClassicalShadow):
 
         n_measurements_so_far = [0] * n_observables
 
-        # Output variable (containing all basis).
+        # Output variable (containing all chosen basis).
         measurement_procedure = list()
 
-        # Distribution of close to n_shots.
+        # Distribution of n_measurements_per_observable * n_observables shots.
         for _ in range(n_measurements_per_observable * n_observables):
 
-            # A single round of parallel measurement over "self.n_qubits" number
-            # of qubits.
+            # A single round of parallel measurements over all qubits.
             n_matches_needed_round = [len(p) for p in observables]
 
             single_round_measurement = [None] * self.n_qubits
 
-            # Optimizing which Pauli gate to use for each qubit according to
+            # Optimizing which Pauli basis to use for each qubit according to
             # self._cost_function.
             for i_qubit in range(self.n_qubits):
                 cost_of_outcomes = dict([("X", 0), ("Y", 0), ("Z", 0)])
@@ -100,7 +99,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
                     if min(cost_of_outcomes.values()) < cost_of_outcomes[dice_roll_pauli]:
                         continue
 
-                    # The best dice roll outcome will come to this line.
+                    # The best dice roll outcome will be chosen here.
                     single_round_measurement[i_qubit] = dice_roll_pauli
 
                     for i_obs, obs in enumerate(observables):
@@ -129,7 +128,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
         return measurement_procedure
 
     def get_basis_circuits(self, only_unique=False):
-        """Output a list of circuits corresponding to the random Pauli words
+        """Outputs a list of circuits corresponding to the chosen single-Pauli
         unitaries.
 
         Args:
@@ -189,7 +188,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
                 state = zero_state if self.bitstrings[snapshot][i_qubit] == "0" else one_state
                 product *= state
 
-            # No quantities are considered if there is not a match.
+            # No quantity is considered if there is no match.
             sum_product += match*product
             n_match += match
 
@@ -248,7 +247,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
             int: 0, -1, or a large int used in computing cost.
         """
 
-        large_number = 100 * (self.n_qubits+10)
+        large_number = 100 * (self.n_qubits + 10)
 
         for i_qubit, pauli in observable:
             if lookup_qubit == i_qubit and pauli == dice_roll_pauli:
