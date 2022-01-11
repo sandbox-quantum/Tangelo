@@ -134,7 +134,7 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         return np.sqrt(cbs)
 
     def get_basis_circuits(self, only_unique=False):
-        """Outputd a list of circuits corresponding to the adaptive single-Pauli
+        """Outputs a list of circuits corresponding to the adaptive single-Pauli
         unitaries.
 
         Args:
