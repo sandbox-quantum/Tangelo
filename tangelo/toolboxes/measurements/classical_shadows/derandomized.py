@@ -17,9 +17,7 @@ This algorithm is described in H.-Y. Huang, R. Kueng, and J. Preskill,
 ArXiv:2103.07510 [Quant-Ph] (2021).
 """
 
-from functools import reduce
 from math import floor, exp, log
-import operator
 import random
 
 import numpy as np
@@ -159,10 +157,6 @@ class DerandomizedClassicalShadow(ClassicalShadow):
             return unique_basis_circuits
         else:
             return basis_circuits
-
-    def estimate_state(self):
-        """Not implemented yet."""
-        raise NotImplementedError
 
     def get_term_observable(self, term, coeff=1.):
         """Returns the estimated observable for a term and its coefficient.

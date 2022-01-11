@@ -161,9 +161,5 @@ class ClassicalShadow(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def estimate_state(self):
-        pass
-
-    @abc.abstractmethod
     def get_term_observable(self):
         pass
