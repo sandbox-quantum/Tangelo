@@ -24,13 +24,13 @@ from openfermion.measurements import group_into_tensor_product_basis_sets
 from tangelo.linq import Simulator
 
 
-def group_qwc(qb_ham, seed=None):
+def group_qwc(qb_ham, seed=None, n_repeat=1):
     """Wrapper around Openfermion functionality that takes as input a
-    QubitOperator and yields a collection of mesurement bases defining a
+    QubitOperator and yields a collection of measurement bases defining a
     partition of groups of sub-operators with terms that are diagonal in the
     same tensor product basis. Each sub-operator can be measured using the same
     qubit post-rotations in expectation estimation. This uses the idea of
-    qubitwise commutativity (qwc).
+    qubitwise commutativity (qwc), and the minimum clique cover algorithm.
 
     The resulting dictionary maps the measurement basis (key) to the list of
     qubit operators whose expectation value can be computed using the
@@ -38,11 +38,16 @@ def group_qwc(qb_ham, seed=None):
     quantum circuits need to be executed in order to provide the expectation
     value of the input qubit operator.
 
+    The minimum clique cover algorithm can be initialized with a random seed
+    and can be repeated several times with different seeds in order to return
+    the best run.
+
     Args:
-        operator (QubitOperator): the operator that will be split into
+        qb_ham (QubitOperator): the operator that will be split into
             sub-operators (tensor product basis sets).
         seed (int): default None. Random seed used to initialize the
             numpy.RandomState pseudo-RNG.
+        n_repeat (int): Repeat with a different random seed, keep the best outcome
 
     Returns:
         dict: a dictionary where each key defines a tensor product basis, and
@@ -50,7 +55,81 @@ def group_qwc(qb_ham, seed=None):
             diagonal in that basis.
     """
 
-    return group_into_tensor_product_basis_sets(qb_ham, seed)
+    res = group_into_tensor_product_basis_sets(qb_ham, seed)
+    for i in range(n_repeat-1):
+        res2 = group_into_tensor_product_basis_sets(qb_ham)
+        if len(res2) < len(res):
+            res = res2
+    return res
+
+
+def bases_qwc_commute(b1, b2):
+    """ Check whether two bases commute qubitwise.
+
+    Args:
+        b1 (tuple of (int, str)): the first measurement basis
+        b2 (tuple of (int, str)): the second measurement basis
+
+    Returns:
+        bool: whether or not the basis commute qubitwise
+    """
+
+    if not (b1 and b2):
+        return False
+
+    b1_dict, b2_dict = dict(b1), dict(b2)
+    for i in set(b1_dict) & set(b2_dict):
+        if b1_dict[i] != b2_dict[i]:
+            return False
+    return True
+
+# Test
+I0 = ()
+Z1 = ((1, 'Z'),)
+X0Z1 = ((0, 'X'), (1, 'Z'))
+Z0Z1 = ((0, 'Z'), (1, 'Z'))
+print(bases_qwc_commute(I0, Z1), bases_qwc_commute(Z1, X0Z1),
+      bases_qwc_commute(Z1, Z0Z1), bases_qwc_commute(Z0Z1, X0Z1))
+
+
+def get_average_histogram(hists):
+    """ Compute the average of histograms provided as a list, assume identical weights (n_shots) for all of them """
+    from collections import Counter
+
+    sum_hist = sum([Counter(hist) for hist in hists], start=Counter())
+    avg_hist = {k: v / len(hists) for k, v in sum_hist.items()}
+    return avg_hist
+
+
+def sum_counters():
+    pass
+
+
+def map_measurements_qwc(qwc_group_map):
+    """ Somewhat reverses a grouping dictionary, linking all measurement bases to the list of
+    group representatives that commute with them qubitwise. Useful to find all the bases
+    whose shots can be used in order to form data for other bases during a hardware experiment.
+
+    Args:
+        qwc_group_map (dict): maps a measurement basis to a qubit operator whose terms commute
+            with said measurement basis qubit-wise.
+    Returns:
+        dict: maps each of the bases to all group representatives that commute with them qubitwise.
+    """
+
+    meas_map = dict()
+    bg, bf = list(), list()
+    for k, v in qwc_group_map.items():
+        bg.append(k)
+        bf.extend(v.terms.keys())
+
+    for b1 in bf:
+        for b2 in bg:
+            if b1 and bases_qwc_commute(b1, b2):
+                meas_map[b1] = meas_map.get(b1, []) + [b2]
+
+    print(meas_map)
+    return meas_map
 
 
 def exp_value_from_measurement_bases(sub_ops, histograms):
