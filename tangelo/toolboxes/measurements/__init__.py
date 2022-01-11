@@ -17,3 +17,4 @@ from .estimate_measurements import get_measurement_estimate
 from .classical_shadows.classical_shadows import zero_state, one_state, I, rotations, matrices, traces, ClassicalShadow
 from .classical_shadows.randomized import RandomizedClassicalShadow
 from .classical_shadows.derandomized import DerandomizedClassicalShadow
+from .classical_shadows.adaptive import AdaptiveClassicalShadow

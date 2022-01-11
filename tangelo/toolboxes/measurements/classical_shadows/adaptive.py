@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This file provides an API enabling the use of derandomized classical shadows.
-This algorithm is described in H.-Y. Huang, R. Kueng, and J. Preskill,
-ArXiv:2103.07510 [Quant-Ph] (2021).
+"""This file provides an API enabling the use of adaptive classical shadows.
+This algorithm is described in C. Hadfield, ArXiv:2105.12207 [Quant-Ph] (2021).
 """
 
-from math import floor, exp, log
 import random
 
 import numpy as np
@@ -29,84 +27,115 @@ from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_ga
 
 class AdaptiveClassicalShadow(ClassicalShadow):
     """Classical shadows using adaptive single Pauli measurements, as defined
-    in ...
+    in C. Hadfield, ArXiv:2105.12207 [Quant-Ph] (2021).
     """
-    '''Adaptive classical shadow as described in https://arxiv.org/pdf/2105.12207.pdf
-       Args:
-            qu_op (QubitOperator): The observable that one wishes to measure
-            n_qubits (int): The number of qubits in the system
-            shadow_size (int): The number of desired measurements
-        Returns:
-            measurement_list (array(shadow_size): The list of pauli words that describes the measurement
-                                                  basis to use
-    '''
 
     def build(self, n_shots, qu_op):
+        """Adaptive classical shadow building method to define to be sampled
+        unitaries.
 
-        def generate_cbs(prev_qubits, curr_qubit, blist, qu_op):
-            '''Generates the cB values from which the pauli basis is determined for curr_qubit
-            AKA Algorithm 2 from the paper
-            Args:
-                prev_qubits (list) : list of previous qubits from which the measurement basis
-                                        is already determined
-                curr_qubit (int) : The current qubit being examined
-                blist (list) : the pauli word for prev_qubits
-                qu_op (QubitOperator) : The operator one wishes to get the expectation value of
-            '''
-            cb = np.zeros(3, dtype=float)
-            map_pauli = {'X': 0, 'Y': 1, 'Z': 2}
-            for term, alphap in qu_op.terms.items():
-                first_cond = False
-                second_cond = True
-                for pos, pauli in term:
-                    if pos == curr_qubit:
-                        first_cond = True
-                        candidate_pauli = map_pauli[pauli]
-                    for jp, qubit_jp in enumerate(prev_qubits):
-                        if pos != qubit_jp:
-                            continue
-                        else:
-                            if pauli != blist[jp]:
-                                second_cond = False
-                    if first_cond and second_cond:
-                        cb[candidate_pauli] += abs(alphap)**2
-            return np.sqrt(cb)
+        Args:
+            n_shots (int): The number of desired measurements.
+            qu_op (QubitOperator): The observable that one wishes to measure.
 
-        def choose_measurement(n, qu_op):
-            ''' Algorithm 1 from the paper
-            Args:
-                n (list) : list of qubits
-                qu_op : The operator that one wishes to maximize the measurement budget over
-                returns Pauli word for one measurement
-            '''
-            i_bi = random.sample(n, len(n))
-            inverse_map = np.argsort(i_bi)
-            single_measurement = np.empty(len(n), dtype='<U1')
+        Returns:
+            list of str: The list of Pauli words that describes the measurement
+                basis to use.
+        """
 
-            for jp, j in enumerate(i_bi):
-                cbs = generate_cbs(i_bi[0:jp], j, single_measurement[0:jp], qu_op)
-                den = sum(cbs)
-                if den < 1.e-7:
-                    B = random.choice(['X', 'Y', 'Z'])
-                else:
-                    dist = [cbs[0]/den, (cbs[0]+cbs[1])/den]
-                    val = random.random()
-                    if val < dist[0]:
-                        single_measurement[jp] = 'X'
-                    elif val < dist[1]:
-                        single_measurement[jp] = 'Y'
-                    else:
-                        single_measurement[jp] = 'Z'
-
-            return [single_measurement[inverse_map[j]] for j in range(len(n))]
-
-        qubit_list = [i for i in range(n_qubits)]
-        measurements = np.empty((shadow_size, n_qubits), dtype='<U1')
-        for s in range(shadow_size):
-            measurements[s] = choose_measurement(qubit_list, qu_op)
+        measurement_procedure = [self._choose_measurement(qu_op) for _ in range(n_shots)]
 
         self.unitaries = measurement_procedure
         return measurement_procedure
+
+    def _choose_measurement(self, qu_op):
+        """Algorithm 1 from the publication.
+
+        Args:
+            qu_op (QubitOperator): The operator that one wishes to maximize the
+                measurement budget over.
+
+        Returns:
+            str: Pauli words for one measurement.
+        """
+
+        i_qubit_random = random.sample(range(self.n_qubits), self.n_qubits)
+        inverse_map = np.argsort(i_qubit_random)
+
+        single_measurement = [None] * self.n_qubits
+
+        for iteration, i_qubit in enumerate(i_qubit_random):
+            cbs = self._generate_cbs(qu_op,
+                                     i_qubit_random[0:iteration],
+                                     single_measurement[0:iteration],
+                                     i_qubit)
+            sum_cbs = sum(cbs)
+
+            # If sum is 0., the distribution is set to be uniform.
+            if sum_cbs < 1.e-7:
+                single_measurement[iteration] = random.choice(["X", "Y", "Z"])
+            else:
+                random_val = random.random()
+
+                # Depending on the cbs, the probabilities of drawing a specific
+                # Pauli gate are shifted.
+                if random_val < cbs[0] / sum_cbs:
+                    single_measurement[iteration] = "X"
+                elif random_val < (cbs[0] + cbs[1]) / sum_cbs:
+                    single_measurement[iteration] = "Y"
+                else:
+                    single_measurement[iteration] = "Z"
+
+        # Reordering according to the qubit indices 0, 1, 2, ... self.n_qubits.
+        reordered_measurement = [single_measurement[inverse_map[j]] for j in range(self.n_qubits)]
+
+        return "".join(reordered_measurement)
+
+    def _generate_cbs(self, qu_op, prev_qubits, prev_paulis, curr_qubit):
+        """Generates the cB values from which the Pauli basis is determined for
+        the current qubit (curr_qubit), as shown in Algorithm 2 from the paper.
+
+        Args:
+            qu_op (QubitOperator) : The operator one wishes to get the
+                expectation value of.
+            prev_qubits (list) : list of previous qubits from which the
+                measurement basis is already determined
+            curr_qubit (int) : The current qubit being examined.
+            bs (list) : the Pauli word for prev_qubits.
+
+        Returns:
+            list of float: cB values for X, Y and Z.
+        """
+
+        cb = [0.] * 3
+        map_pauli = {"X": 0, "Y": 1, "Z": 2}
+
+        for term, coeff in qu_op.terms.items():
+
+            # Default flags.
+            same_qubit = False
+            same_pauli = True
+
+            # Checking if the current qubit is this term.
+            for i_qubit, pauli in term:
+                if i_qubit == curr_qubit:
+                    same_qubit = True
+
+                # Checking if the qubit in the term as already been matched.
+                #for prev_qubit, prev_pauli in zip(prev_qubits, prev_paulis):
+                #    if i_qubit != prev_qubit:
+                #        continue
+                #    else:
+                #        if pauli != prev_pauli:
+                #            same_pauli = False
+                for prev_qubit, prev_pauli in zip(prev_qubits, prev_paulis):
+                    if i_qubit == prev_qubit and pauli != prev_pauli:
+                        same_pauli = False
+
+                if same_qubit and same_pauli:
+                    cb[map_pauli[pauli]] += abs(coeff)**2
+
+        return np.sqrt(cb)
 
     def get_basis_circuits(self, only_unique=False):
         """Output a list of circuits corresponding to the random Pauli words
@@ -138,11 +167,7 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         else:
             return basis_circuits
 
-    def estimate_state(self):
-        """Doc."""
-        raise NotImplementedError
-
-    def get_term_observable(self, one_observable, coeff=1.):
+    def get_term_observable(self, term, coeff=1.):
         """Returns the estimated observable for a term and its coefficient.
 
         Args:
@@ -153,63 +178,28 @@ class AdaptiveClassicalShadow(ClassicalShadow):
             float: Observable estimated with the shadow.
         """
 
-        sum_product, cnt_match = 0., 0
-        zero_state = 1
-        one_state = -1
+        sum_product = 0
+        n_match = 0
+
+        zero_state, one_state = 1, -1
 
         # For every single_measurement in shadow_size.
         for snapshot in range(self.size):
-            not_match = 0
+            match = True
             product = 1
 
-            for position, pauli_XYZ in one_observable:
-                if pauli_XYZ != self.unitaries[snapshot][position]:
-                    not_match = 1
+            # Checking if there is a match for all Pauli gate in the term.
+            # Works also with operator not on all qubits (e.g. X1 will hit Z0X1,
+            # Y0X1 and Z0X1).
+            for i_qubit, pauli in term:
+                if pauli != self.unitaries[snapshot][i_qubit]:
+                    match = False
                     break
-                state = zero_state if self.bitstrings[snapshot][position] == "0" else one_state
+                state = zero_state if self.bitstrings[snapshot][i_qubit] == "0" else one_state
                 product *= state
 
-            if not_match == 1:
-                continue
+            # No quantities are considered if there is not a match.
+            sum_product += match*product
+            n_match += match
 
-            sum_product += product
-            cnt_match += 1
-
-        if cnt_match > 0:
-            return sum_product / cnt_match * coeff
-        else:
-            return 0.
-
-    def _cost_function(self, n_measurements_so_far, n_matches_needed_in_this_round, weights, weighted_num_measurements_per_observable, eta=0.9):
-        """Doc"""
-
-        nu = 1 - exp(-eta / 2)
-
-        cost = 0.
-        for i_obs, (measurement_so_far, matches_needed) in enumerate(zip(n_measurements_so_far, n_matches_needed_in_this_round)):
-
-            if n_measurements_so_far[i_obs] >= weighted_num_measurements_per_observable[i_obs]:
-                continue
-
-            v = eta / 2 * measurement_so_far
-            if self.n_qubits >= matches_needed:
-                v -= log(1 - nu / (3**matches_needed))
-
-            cost += exp(-v / weights[i_obs])
-
-        return cost
-
-    def _match_up(self, qubit_i, dice_roll_pauli, single_observable):
-        """Doc"""
-
-        large_number = 100 * (self.n_qubits+10)
-
-        for pos, pauli in single_observable:
-            if pos != qubit_i:
-                continue
-            else:
-                if pauli != dice_roll_pauli:
-                    return large_number
-                else:
-                    return -1
-        return 0
+        return sum_product / n_match * coeff if n_match > 0 else 0.
