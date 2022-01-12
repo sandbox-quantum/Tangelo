@@ -247,7 +247,8 @@ class Circuit:
         Returns:
             Circuit: the inverted circuit
         """
-        gate_list = [gate.inverse() for gate in reversed(self._gates)]
+        gates = [gate.inverse() for gate in reversed(self._gates)]
+        return Circuit(gates, n_qubits=self.width)
 
     def serialize(self):
         if not isinstance(self.name, str):
