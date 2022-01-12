@@ -156,7 +156,7 @@ class VQESolverTest(unittest.TestCase):
 
         vqe_options = {"molecule": None, "qubit_hamiltonian": qubit_hamiltonian, "ansatz": BuiltInAnsatze.VSQS, "qubit_mapping": "jw",
                        "ansatz_options": {"intervals": 3, "time": 3, "qubit_hamiltonian": qubit_hamiltonian,
-                       "hini": hini, "reference_state": reference_state}}
+                                          "hini": hini, "reference_state": reference_state}}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 

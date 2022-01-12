@@ -32,7 +32,6 @@ class VSQSTest(unittest.TestCase):
 
     def test_vsqs_set_var_params(self):
         """Verify behavior of set_var_params for different inputs (list, numpy array).
-        MP2 have their own tests.
         """
 
         vsqs_ansatz = VSQS(mol_H2_sto3g)

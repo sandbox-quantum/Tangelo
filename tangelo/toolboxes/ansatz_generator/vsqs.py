@@ -37,15 +37,15 @@ class VSQS(Ansatz):
 
     Args:
         molecule (SecondQuantizedMolecule): The molecular system. Default: None
-        mapping (str): One of the support fermion to qubit mappings. Default : "JW"
-        up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down.
+        mapping (str): One of the supported fermion to qubit mappings. Default : "JW"
+        up_then_down (bool): Change basis ordering, putting all spin up orbitals first, followed by all spin down.
             Default: False (alternating spin up/down ordering)
         intervals (int): The number of steps in the VSQS process. Must be greater than 1. Default: 2
         time (float): The propagation time. Default: 1
-        qubit_hamiltonian (QubitOperator): The qubit hamiltonian to evolve. Default: None
+        qubit_hamiltonian (QubitOperator): The qubit Hamiltonian to evolve. Default: None
         reference_state (Circuit): The reference state for the propagation as defined by a Circuit. Mandatory if supplying
             a qubit_hamiltonian. Default: None
-        hini (QubitOperator): The initial qubit Hamiltonian that one corresponds to the reference state. Mandatory if supplying
+        hini (QubitOperator): The initial qubit Hamiltonian that corresponds to the reference state. Mandatory if supplying
             a qubit_hamiltonian. Default: None
         hnav (QubitOperator): The navigator Hamiltonian. Default: None
     """
@@ -67,10 +67,10 @@ class VSQS(Ansatz):
         if molecule is None:
             self.qubit_hamiltonian = qubit_hamiltonian
             if not isinstance(hini, ofQubitOperator):
-                raise ValueError("When providing a qubit hamiltonian, an initial Hamiltonian must also be provided")
+                raise ValueError("When providing a qubit hamiltonian, an initial qubit Hamiltonian must also be provided")
             self.hini = hini
             if not isinstance(reference_state, Circuit):
-                raise ValueError("Reference state must be provided when simulating a qubit hamiltonian directly")
+                raise ValueError("Reference state Circuit must be provided when simulating a qubit hamiltonian directly")
             self.reference_state = reference_state
         else:
             self.n_electrons = molecule.n_active_electrons
@@ -166,19 +166,19 @@ class VSQS(Ansatz):
         a_i = step*i, b_i=1-step*i, c_i= 1-step*i i<n_intervals/2, step*i i>n_intervals/2"""
         a = np.zeros(self.intervals+1)
         b = np.zeros(self.intervals+1)
-        c = np.zeros(self.intervals+1)
         a[0] = 1
         b[self.intervals] = 1
-        step = 1/self.intervals
+        step_size = 1/self.intervals
         for i in range(1, self.intervals):
-            a[i] = (1 - i * step)
-            b[i] = (i * step)
+            a[i] = (1 - i * step_size)
+            b[i] = (i * step_size)
         all_params = np.zeros(self.stride * (self.intervals + 1))
         if self.hnav is None:
             for i in range(self.intervals + 1):
                 all_params[2 * i] = a[i]
                 all_params[2 * i + 1] = b[i]
         else:
+            c = np.zeros(self.intervals+1)
             c[0:self.intervals//2] = b[0:self.intervals//2]
             c[self.intervals//2:self.intervals+1] = a[self.intervals//2:self.intervals+1]
             for i in range(self.intervals + 1):
