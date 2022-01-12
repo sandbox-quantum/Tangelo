@@ -64,29 +64,29 @@ class AdaptiveClassicalShadow(ClassicalShadow):
 
         single_measurement = [None] * self.n_qubits
 
-        for iteration, i_qubit in enumerate(i_qubit_random):
+        for it, i_qubit in enumerate(i_qubit_random):
             cbs = self._generate_cbs(qu_op,
-                                     i_qubit_random[0:iteration],
-                                     single_measurement[0:iteration],
+                                     i_qubit_random[0:it],
+                                     single_measurement[0:it],
                                      i_qubit)
             sum_cbs = sum(cbs)
 
             # If sum is 0., the distribution is set to be uniform.
             if sum_cbs < 1.e-7:
-                single_measurement[iteration] = random.choice(["X", "Y", "Z"])
+                single_measurement[it] = random.choice(["X", "Y", "Z"])
             else:
                 random_val = random.random()
 
                 # Depending on the cbs, the probabilities of drawing a specific
                 # Pauli gate are shifted.
                 if random_val < cbs[0] / sum_cbs:
-                    single_measurement[iteration] = "X"
+                    single_measurement[it] = "X"
                 elif random_val < (cbs[0] + cbs[1]) / sum_cbs:
-                    single_measurement[iteration] = "Y"
+                    single_measurement[it] = "Y"
                 else:
-                    single_measurement[iteration] = "Z"
+                    single_measurement[it] = "Z"
 
-        # Reordering according to the qubit indices 0, 1, 2, ... self.n_qubits.
+        # Reorders according to the qubit indices 0, 1, 2, ... self.n_qubits.
         reordered_measurement = [single_measurement[inverse_map[j]] for j in range(self.n_qubits)]
 
         return "".join(reordered_measurement)
@@ -99,9 +99,9 @@ class AdaptiveClassicalShadow(ClassicalShadow):
             qu_op (QubitOperator) : The operator one wishes to get the
                 expectation value of.
             prev_qubits (list) : list of previous qubits from which the
-                measurement basis is already determined
+                measurement basis is already determined.
+            prev_paulis (list) : the Pauli word for prev_qubits.
             curr_qubit (int) : The current qubit being examined.
-            bs (list) : the Pauli word for prev_qubits.
 
         Returns:
             list of float: cB values for X, Y and Z.
@@ -113,22 +113,22 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         for term, coeff in qu_op.terms.items():
 
             # Default conditions to compute cbs.
-            same_qubit_flag = False
-            same_pauli_flag = True
+            same_qubit = False
+            same_pauli = True
 
             for i_qubit, pauli in term:
-                # Checking if the current qubit index has been detected in the
+                # Checks if the current qubit index has been detected in the
                 # term.
                 if i_qubit == curr_qubit:
-                    same_qubit_flag = True
+                    same_qubit = True
 
-                # Checking if the Pauli basis in the term has already been
-                # chosen for this qubit.
+                # Checks if the Pauli basis in the term has already been chosen
+                # for this qubit.
                 for prev_qubit, prev_pauli in zip(prev_qubits, prev_paulis):
                     if i_qubit == prev_qubit and pauli != prev_pauli:
-                        same_pauli_flag = False
+                        same_pauli = False
 
-                if same_qubit_flag and same_pauli_flag:
+                if same_qubit and same_pauli:
                     cbs[map_pauli[pauli]] += abs(coeff)**2
 
         return np.sqrt(cbs)
@@ -138,7 +138,7 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         unitaries.
 
         Args:
-            only_unique (bool): Considering only unique unitaries.
+            only_unique (bool): Consider only unique unitaries.
 
         Returns:
             list of Circuit or tuple: All basis circuits or a tuple of unique
@@ -156,7 +156,8 @@ class AdaptiveClassicalShadow(ClassicalShadow):
             pauli_of = pauli_string_to_of(pauli_word)
             basis_circuits += [Circuit(measurement_basis_gates(pauli_of), self.n_qubits)]
 
-        # Counting each unique circuits (use for reversing to a full shadow from an experiement on hardware).
+        # Counts each unique circuits (use for reversing to a full shadow from
+        # an experiement on hardware).
         if only_unique:
             unique_basis_circuits = [(basis_circuits[i], self.unitaries.count(u)) for i, u in enumerate(unitaries_to_convert)]
             return unique_basis_circuits
@@ -177,25 +178,23 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         sum_product = 0
         n_match = 0
 
-        zero_state, one_state = 1, -1
-
         # For every single_measurement in shadow_size.
         for snapshot in range(self.size):
-            match = True
+            match = 1
             product = 1
 
-            # Checking if there is a match for all Pauli gate in the term.
-            # Works also with operator not on all qubits (e.g. X1 will hit Z0X1,
-            # Y0X1 and Z0X1).
+            # Checks if there is a match for all Pauli gate in the term. Works
+            # also with operator not on all qubits (e.g. X1 will hit Z0X1, Y0X1
+            # and Z0X1).
             for i_qubit, pauli in term:
                 if pauli != self.unitaries[snapshot][i_qubit]:
-                    match = False
+                    match = 0
                     break
-                state = zero_state if self.bitstrings[snapshot][i_qubit] == "0" else one_state
-                product *= state
+                if self.bitstrings[snapshot][i_qubit] != "0":
+                    product *= -1
 
             # No quantity is considered if there is no match.
-            sum_product += match*product
+            sum_product += match * product
             n_match += match
 
         return sum_product / n_match * coeff if n_match > 0 else 0.

@@ -20,30 +20,7 @@ idea is described in H.Y. Huang, R. Kueng, and J. Preskill, Nature Physics 16,
 import abc
 import warnings
 
-import numpy as np
-
 from tangelo.linq.circuit import Circuit
-
-
-# State |0> or |1>.
-zero_state = np.array([1, 0])
-one_state = np.array([0, 1])
-
-# Pauli matrices.
-I = np.array([[1, 0], [0, 1]])
-X = np.array([[0, 1], [1, 0]])
-Y = np.array([[0, -1j], [1j, 0]], dtype=complex)
-Z = np.array([[1, 0], [0, -1]])
-matrices = {"X": X, "Y": Y, "Z": Z}
-
-# Traces of each Pauli matrices.
-traces = {pauli: np.trace(matrix) for pauli, matrix in matrices.items()}
-
-# Reverse channels to undo single Pauli rotations.
-S_T = np.array([[1, 0], [0, -1j]], dtype=complex)
-H = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
-I = np.array([[1, 0], [0, 1]])
-rotations = {"X": H, "Y": H @ S_T, "Z": I}
 
 
 class ClassicalShadow(abc.ABC):

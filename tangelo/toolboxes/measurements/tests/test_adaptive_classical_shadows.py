@@ -16,7 +16,7 @@ import unittest
 
 from tangelo.linq import Gate, Circuit
 from tangelo.toolboxes.measurements import AdaptiveClassicalShadow
-from tangelo.toolboxes.operators.operators import QubitOperator
+from tangelo.toolboxes.operators import QubitOperator
 
 # Circuit to sample (Bell state).
 state = Circuit([Gate("H", 0), Gate("CNOT", 1, 0)])

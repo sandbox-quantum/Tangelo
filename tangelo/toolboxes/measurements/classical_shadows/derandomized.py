@@ -17,10 +17,9 @@ This algorithm is described in H.-Y. Huang, R. Kueng, and J. Preskill,
 ArXiv:2103.07510 [Quant-Ph] (2021).
 """
 
+from copy import deepcopy
 from math import floor, exp, log
 import random
-
-import numpy as np
 
 from tangelo.toolboxes.measurements import ClassicalShadow
 from tangelo.linq.circuit import Circuit
@@ -49,8 +48,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
         # Getting the weights, proportional to the coefficient of each Pauli
         # words. Some variables are defined to normalize the weights and track
         # the amount of measurements already defined by the algorithm.
-        observables = [obs for obs in qu_op.terms.keys() if obs]
-        weights = [abs(w) for obs, w in qu_op.terms.items() if obs]
+        observables, weights = zip(*[(obs, abs(w)) for obs, w in qu_op.terms.items() if obs])
 
         n_observables = len(observables)
         n_measurements_per_observable = floor(n_shots / n_observables)
@@ -76,23 +74,24 @@ class DerandomizedClassicalShadow(ClassicalShadow):
             # Optimizing which Pauli basis to use for each qubit according to
             # self._cost_function.
             for i_qubit in range(self.n_qubits):
-                cost_of_outcomes = dict([("X", 0), ("Y", 0), ("Z", 0)])
+                cost_of_outcomes = {"X": 0, "Y": 0, "Z": 0}
 
                 # Computing the cost function with all the possibilities.
                 for dice_roll_pauli in ["Z", "X", "Y"]:
                     # Assume the dice rollout to be dice_roll_pauli.
+                    try_matches_needed_round = deepcopy(n_matches_needed_round)
                     for i_obs, obs in enumerate(observables):
-                        n_matches_needed_round[i_obs] += self._match_up(i_qubit, dice_roll_pauli, obs)
+                        try_matches_needed_round[i_obs] += self._get_match_up(i_qubit, dice_roll_pauli, obs)
 
                     cost_of_outcomes[dice_roll_pauli] = self._cost_function(n_measurements_so_far,
-                                                                            n_matches_needed_round,
+                                                                            try_matches_needed_round,
                                                                             weights,
                                                                             weighted_n_measurements_per_observable,
                                                                             eta)
 
                     # Revert the dice roll.
-                    for i_obs, obs in enumerate(observables):
-                        n_matches_needed_round[i_obs] -= self._match_up(i_qubit, dice_roll_pauli, obs)
+                    #for i_obs, obs in enumerate(observables):
+                    #    n_matches_needed_round[i_obs] -= self._get_match_up(i_qubit, dice_roll_pauli, obs)
 
                 # Determining the single Pauli gate to use.
                 for dice_roll_pauli in ["Z", "X", "Y"]:
@@ -103,14 +102,14 @@ class DerandomizedClassicalShadow(ClassicalShadow):
                     single_round_measurement[i_qubit] = dice_roll_pauli
 
                     for i_obs, obs in enumerate(observables):
-                        n_matches_needed_round[i_obs] += self._match_up(i_qubit, dice_roll_pauli, obs)
+                        n_matches_needed_round[i_obs] += self._get_match_up(i_qubit, dice_roll_pauli, obs)
                     break
 
             measurement_procedure.append(single_round_measurement)
 
             # Incrementing the number of measurements so far if there is no more
             # matches to make this round.
-            n_measurements_so_far = list(map(lambda n: n[0] + 1 if n[1] == 0 else n[0], zip(n_measurements_so_far, n_matches_needed_round)))
+            n_measurements_so_far = [n[0] + 1 if n[1] == 0 else n[0] for n in zip(n_measurements_so_far, n_matches_needed_round)]
 
             # Incrementing success variable if number of measurements so far is
             # bigger than the weighted number of measurements per observable.
@@ -122,7 +121,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
         measurement_procedure = ["".join(m) for m in measurement_procedure]
 
         # Fill "missing" shots with a set of random (already chosen) basis.
-        measurement_procedure += [random.choice(measurement_procedure) for _ in range(n_shots-len(measurement_procedure))]
+        measurement_procedure += random.choices(measurement_procedure, k=n_shots-len(measurement_procedure))
 
         self.unitaries = measurement_procedure
         return measurement_procedure
@@ -171,38 +170,35 @@ class DerandomizedClassicalShadow(ClassicalShadow):
         sum_product = 0
         n_match = 0
 
-        zero_state, one_state = 1, -1
-
         # For every single_measurement in shadow_size.
         for snapshot in range(self.size):
-            match = True
+            match = 1
             product = 1
 
-            # Checking if there is a match for all Pauli gate in the term.
-            # Works also with operator not on all qubits (e.g. X1 will hit Z0X1,
-            # Y0X1 and Z0X1).
+            # Checks if there is a match for all Pauli gate in the term. Works
+            # also with operator not on all qubits (e.g. X1 will hit Z0X1, Y0X1
+            # and Z0X1).
             for i_qubit, pauli in term:
                 if pauli != self.unitaries[snapshot][i_qubit]:
-                    match = False
+                    match = 0
                     break
-                state = zero_state if self.bitstrings[snapshot][i_qubit] == "0" else one_state
-                product *= state
+                if self.bitstrings[snapshot][i_qubit] != "0":
+                    product *= -1
 
             # No quantity is considered if there is no match.
-            sum_product += match*product
+            sum_product += match * product
             n_match += match
 
         return sum_product / n_match * coeff if n_match > 0 else 0.
 
-    def _cost_function(self, n_measurements_so_far, n_matches_needed_in_this_round, weights, weighted_num_measurements_per_observable, eta=0.9):
+    def _cost_function(self, n_measurements_so_far, n_matches_needed, weights, weighted_num_measurements_per_observable, eta=0.9):
         """Cost function for derandomized Pauli measurements, according to
         equation (6) in the cited paper.
 
         Args:
             n_measurements_so_far (list of int): Number of measurements decided
                 per terms.
-            n_matches_needed_in_this_round (list of int): Number of matches per
-                round, updated with _match_up method.
+            n_matches_needed (list of int): Number of matches.
             weights (list of float): Coefficient (absolute) of each each term.
             weighted_num_measurements_per_observable (list of float): Weighted
                 number of measurements per term.
@@ -218,7 +214,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
 
         cost = 0.
         for (n_measure, n_match, weight, weight_per_obs) in zip(n_measurements_so_far,
-                                                                n_matches_needed_in_this_round,
+                                                                n_matches_needed,
                                                                 weights,
                                                                 weighted_num_measurements_per_observable):
 
@@ -233,7 +229,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
 
         return cost
 
-    def _match_up(self, lookup_qubit, dice_roll_pauli, observable):
+    def _get_match_up(self, lookup_qubit, dice_roll_pauli, observable):
         """Helper method to output 0, -1 or a large number depending on the
         index provided and the Pauli gate in a single observable.
 
@@ -250,8 +246,6 @@ class DerandomizedClassicalShadow(ClassicalShadow):
         large_number = 100 * (self.n_qubits + 10)
 
         for i_qubit, pauli in observable:
-            if lookup_qubit == i_qubit and pauli == dice_roll_pauli:
-                return -1
-            elif lookup_qubit == i_qubit and pauli != dice_roll_pauli:
-                return large_number
+            if lookup_qubit == i_qubit:
+                return -1 if pauli == dice_roll_pauli else large_number
         return 0

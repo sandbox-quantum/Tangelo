@@ -21,9 +21,28 @@ import random
 
 import numpy as np
 
-from tangelo.toolboxes.measurements import zero_state, one_state, I, rotations, matrices, traces, ClassicalShadow
+from tangelo.toolboxes.measurements import ClassicalShadow
 from tangelo.linq.circuit import Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates, pauli_string_to_of
+
+# State |0> or |1>.
+zero_state = np.array([1, 0])
+one_state = np.array([0, 1])
+
+# Pauli matrices.
+I = np.array([[1, 0], [0, 1]])
+X = np.array([[0, 1], [1, 0]])
+Y = np.array([[0, -1j], [1j, 0]], dtype=complex)
+Z = np.array([[1, 0], [0, -1]])
+pauli_matrices = {"X": X, "Y": Y, "Z": Z}
+
+# Traces of each Pauli matrices.
+pauli_traces = {pauli: np.trace(matrix) for pauli, matrix in pauli_matrices.items()}
+
+# Reverse channels to undo single Pauli rotations.
+S_T = np.array([[1, 0], [0, -1j]], dtype=complex)
+H = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
+rotations = {"X": H, "Y": H @ S_T, "Z": I}
 
 
 class RandomizedClassicalShadow(ClassicalShadow):
@@ -160,8 +179,8 @@ class RandomizedClassicalShadow(ClassicalShadow):
                 for i_qubit in range(self.n_qubits):
                     # If there is an operation applied on the qubit n.
                     if i_qubit in dict_term.keys():
-                        obs = matrices[dict_term[i_qubit]]
-                        tobs = traces[dict_term[i_qubit]]
+                        obs = pauli_matrices[dict_term[i_qubit]]
+                        tobs = pauli_traces[dict_term[i_qubit]]
                     else:
                         # Trace of identity matrix
                         obs = I
