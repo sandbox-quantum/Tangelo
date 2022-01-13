@@ -89,10 +89,6 @@ class DerandomizedClassicalShadow(ClassicalShadow):
                                                                             weighted_n_measurements_per_observable,
                                                                             eta)
 
-                    # Revert the dice roll.
-                    #for i_obs, obs in enumerate(observables):
-                    #    n_matches_needed_round[i_obs] -= self._get_match_up(i_qubit, dice_roll_pauli, obs)
-
                 # Determining the single Pauli gate to use.
                 for dice_roll_pauli in ["Z", "X", "Y"]:
                     if min(cost_of_outcomes.values()) < cost_of_outcomes[dice_roll_pauli]:
