@@ -163,7 +163,7 @@ class VSQS(Ansatz):
 
     def _init_params(self):
         """Generate initial parameters for the VSQS algorithm.
-        a_i = step*i, b_i=1-step*i, c_i= 1-step*i i<n_intervals/2, step*i i>n_intervals/2"""
+        a_i = step*i, b_i=1-step*i, c_i= 1-step*i i<=n_intervals/2, step*i i>n_intervals/2"""
         a = np.zeros(self.intervals+1)
         b = np.zeros(self.intervals+1)
         a[0] = 1
@@ -174,17 +174,14 @@ class VSQS(Ansatz):
             b[i] = (i * step_size)
         all_params = np.zeros(self.stride * (self.intervals + 1))
         if self.hnav is None:
-            for i in range(self.intervals + 1):
-                all_params[2 * i] = a[i]
-                all_params[2 * i + 1] = b[i]
+            # order [a[0],b[0],a[1],b[1],...]
+            all_params = np.dstack((a, b)).flatten()
         else:
             c = np.zeros(self.intervals+1)
             c[0:self.intervals//2] = b[0:self.intervals//2]
             c[self.intervals//2:self.intervals+1] = a[self.intervals//2:self.intervals+1]
-            for i in range(self.intervals + 1):
-                all_params[3 * i] = a[i]
-                all_params[3 * i + 1] = b[i]
-                all_params[3 * i + 2] = c[i]
+            # order [a[0],b[0],c[0],a[1],b[1],c[1],...]
+            all_params = np.dstack((a, b, c)).flatten()
         return all_params
 
     def prepare_reference_state(self):

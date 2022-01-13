@@ -96,7 +96,7 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
         return_phase (bool): Return the global-phase generated
         pauli_order (list): The desired pauli_word order for trotterization defined as a list of (pauli_word, coeff)
             elements which have matching dictionary elements pauli_word: coeff in QubitOperator terms.items().
-            The coeff in pauli_order is used.
+            The coeff in pauli_order is used to generate the exponential.
 
     Returns:
         Circuit: circuit corresponding to exponentiation of qubit operator
