@@ -129,7 +129,7 @@ class AdaptiveClassicalShadow(ClassicalShadow):
                         same_pauli = False
 
                 if same_qubit and same_pauli:
-                    cbs[map_pauli[pauli]] += abs(coeff)**2
+                    cbs[map_pauli[pauli]] += coeff**2
 
         return np.sqrt(cbs)
 
