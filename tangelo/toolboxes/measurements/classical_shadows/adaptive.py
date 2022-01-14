@@ -16,6 +16,8 @@
 This algorithm is described in C. Hadfield, ArXiv:2105.12207 [Quant-Ph] (2021).
 """
 
+from math import sqrt
+from re import L
 import numpy as np
 import random
 
@@ -63,14 +65,14 @@ class AdaptiveClassicalShadow(ClassicalShadow):
 
         single_measurement = [None] * self.n_qubits
 
+        # Choosing measurement one qubit at the time.
         for it, i_qubit in enumerate(i_qubit_random):
             probs = self._get_probs(qu_op,
                                     i_qubit_random[0:it],
                                     single_measurement[0:it],
                                     i_qubit)
 
-            # If sum is 0., the distribution is set to be uniform.
-            # TODO: change comments.
+            # Choosing a basis for the i_qubit according to the probabilities.
             single_measurement[it] = np.random.choice(["X", "Y", "Z"], size=None, replace=True, p=probs)
 
         # Reorders according to the qubit indices 0, 1, 2, ... self.n_qubits.
@@ -94,41 +96,42 @@ class AdaptiveClassicalShadow(ClassicalShadow):
             list of float: cB values for X, Y and Z.
         """
 
-        cbs = [0.] * 3
-        map_pauli = {"X": 0, "Y": 1, "Z": 2}
+        cbs = {"X": 0., "Y": 0., "Z": 0.}
+        previous_term = [(i_qubit, pauli) for i_qubit, pauli in zip(prev_qubits, prev_paulis)]
 
-        #for term, coeff in qu_op.terms.items():
-        #    #print(term)
-            # Default conditions to compute cbs.
-        #    same_qubit = False
-        #    same_pauli = True
-#
-        #    for i_qubit, pauli in term:
-        #        # Checks if the current qubit index has been detected in the
-        #        # term.
-        #        if i_qubit == curr_qubit:
-        #            same_qubit = True
-#
-        #        # Checks if the Pauli basis in the term has already been chosen
-        #        # for this qubit.
-        #        for prev_qubit, prev_pauli in zip(prev_qubits, prev_paulis):
-        #            if i_qubit == prev_qubit and pauli != prev_pauli:
-        #                same_pauli = False
-#
-        #        if same_qubit and same_pauli:
-        #            cbs[map_pauli[pauli]] += coeff**2
+        for basis in cbs.keys():
+            candidate_term = previous_term + [(curr_qubit, basis)]
 
-        #for B in map_pauli.keys():
-        #    print(B)
-        print(f"{prev_qubits}, {prev_paulis}, {curr_qubit}")
+            # Check if term (P) is covered by candidate_pauli (B). P and B are
+            # notation in the publication.
+            for term, coeff in qu_op.terms.items():
+                    if not term:
+                        continue
 
-        cbs = np.sqrt(cbs)
-        sum_cbs = sum(cbs)
+                    #Transformation as dictionary (P and B may not have the same
+                    # qubit order.
+                    P = {i_qubit: pauli for i_qubit, pauli in term}
+                    B = {i_qubit: pauli for i_qubit, pauli in candidate_term}
 
-        if sum_cbs < 1e-6:
+                    non_shared_items = {k: P[k] for k in P if k in B and P[k] != B[k]}
+
+                    # If there are non-overlapping terms P_i not in {I, B_i(j)},
+                    # we do not take into account the term coefficient.
+                    is_term_covered = True if len(non_shared_items) == 0 else False
+
+                    if is_term_covered:
+                        cbs[basis] += coeff**2
+
+        cbs = {basis: sqrt(cb) for basis, cb in  cbs.items()}
+
+        if sum(cbs.values()) < 1e-6:
+            # Unfiform distribution.
             probs = [1/3] * 3
         else:
-            probs = [1/3] * 3 # np.sqrt(cbs) / sum_cbs
+            # Normalization + make sure there are in X, Y and Z order (eq. 3).
+            sum_squared_cbs = sum([sqrt(cb) for cb in cbs.values()])
+            probs = [sqrt(cbs[pauli]) / sum_squared_cbs for pauli in ["X", "Y", "Z"]]
+
         return probs
 
     def get_basis_circuits(self, only_unique=False):
