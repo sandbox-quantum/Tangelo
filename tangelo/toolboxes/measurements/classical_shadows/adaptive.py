@@ -59,22 +59,22 @@ class AdaptiveClassicalShadow(ClassicalShadow):
             str: Pauli words for one measurement.
         """
 
+        # Random bijection i: [n] -> [n]. Also, compute the inverse to undo it.
         i_qubit_random = random.sample(range(self.n_qubits), self.n_qubits)
         inverse_map = np.argsort(i_qubit_random)
 
         single_measurement = [None] * self.n_qubits
 
-        # Choosing measurement one qubit at the time.
+        # Choose measurement one qubit at the time.
         for it, i_qubit in enumerate(i_qubit_random):
             probs = self._get_probs(qu_op,
                                     i_qubit_random[0:it],
                                     single_measurement[0:it],
                                     i_qubit)
 
-            # Choosing a basis for the i_qubit according to the probabilities.
             single_measurement[it] = np.random.choice(["X", "Y", "Z"], size=None, replace=True, p=probs)
 
-        # Reorders according to the qubit indices 0, 1, 2, ... self.n_qubits.
+        # Reorder according to the qubit indices 0, 1, 2, ... self.n_qubits.
         reordered_measurement = [single_measurement[inverse_map[j]] for j in range(self.n_qubits)]
 
         return "".join(reordered_measurement)
@@ -99,20 +99,22 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         previous_term = [(i_qubit, pauli) for i_qubit, pauli in zip(prev_qubits, prev_paulis)]
 
         for basis in cbs.keys():
-            candidate_term = previous_term + [(curr_qubit, basis)]
 
-            # Check if term (P) is covered by candidate_pauli (B). P and B are
+            # Builds the candidate term (appending X, Y or Z). Then, transform
+            # to a dictionary for removing qubit order dependency.
+            candidate_term = previous_term + [(curr_qubit, basis)]
+            B = {i_qubit: pauli for i_qubit, pauli in candidate_term}
+
+            # Checks if term (P) is covered by candidate_pauli (B). P and B are
             # notation in the publication.
             for term, coeff in qu_op.terms.items():
                 if not term:
                     continue
 
-                # Transformation as dictionary (P and B may not have the same
-                # qubit order.
+                # Like for B, remove qubit order dependency.
                 P = {i_qubit: pauli for i_qubit, pauli in term}
-                B = {i_qubit: pauli for i_qubit, pauli in candidate_term}
 
-                # Check if an entry is in both dictionaries and compare the
+                # Checks if an entry is in both dictionaries and compare the
                 # values. If values are different, it is appended to
                 # non_shared_items. If the key is not in P, it means that
                 # it is I for this qubit (so it does not break the cover
