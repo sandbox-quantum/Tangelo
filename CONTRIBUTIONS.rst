@@ -35,7 +35,7 @@ In your terminal, clone the repo on your local machine, and move into the newly 
 .. code-block:: shell
 
   git clone https://github.com/USERNAME/Tangelo.git
-  cd `Tangelo`
+  cd Tangelo
 
 From the perspective of your local clone, your fork is called the ``origin`` remote. 
 Let's synchronize your fork with the main Tangelo repo by adding the latter as the upstream remote, and then update your local ``main`` branch:
