@@ -17,7 +17,6 @@ This algorithm is described in C. Hadfield, ArXiv:2105.12207 [Quant-Ph] (2021).
 """
 
 from math import sqrt
-from re import L
 import numpy as np
 import random
 
