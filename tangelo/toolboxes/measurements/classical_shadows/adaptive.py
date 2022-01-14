@@ -104,29 +104,29 @@ class AdaptiveClassicalShadow(ClassicalShadow):
             # Check if term (P) is covered by candidate_pauli (B). P and B are
             # notation in the publication.
             for term, coeff in qu_op.terms.items():
-                    if not term:
-                        continue
+                if not term:
+                    continue
 
-                    #Transformation as dictionary (P and B may not have the same
-                    # qubit order.
-                    P = {i_qubit: pauli for i_qubit, pauli in term}
-                    B = {i_qubit: pauli for i_qubit, pauli in candidate_term}
+                # Transformation as dictionary (P and B may not have the same
+                # qubit order.
+                P = {i_qubit: pauli for i_qubit, pauli in term}
+                B = {i_qubit: pauli for i_qubit, pauli in candidate_term}
 
-                    # Check if an entry is in both dictionaries and compare the
-                    # values. If values are different, it is appended to
-                    # non_shared_items. If the key is not in P, it means that
-                    # it is I for this qubit (so it does not break the cover
-                    # condition).
-                    non_shared_items = {k: B[k] for k in B if k in P and P[k] != B[k]}
+                # Check if an entry is in both dictionaries and compare the
+                # values. If values are different, it is appended to
+                # non_shared_items. If the key is not in P, it means that
+                # it is I for this qubit (so it does not break the cover
+                # condition).
+                non_shared_items = {k: B[k] for k in B if k in P and P[k] != B[k]}
 
-                    # If there are non-overlapping terms P_i not in {I, B_i(j)},
-                    # we do not take into account the term coefficient.
-                    is_term_covered = True if len(non_shared_items) == 0 else False
+                # If there are non-overlapping terms P_i not in {I, B_i(j)},
+                # we do not take into account the term coefficient.
+                is_term_covered = True if len(non_shared_items) == 0 else False
 
-                    if is_term_covered:
-                        cbs[basis] += coeff**2
+                if is_term_covered:
+                    cbs[basis] += coeff**2
 
-        cbs = {basis: sqrt(cb) for basis, cb in  cbs.items()}
+        cbs = {basis: sqrt(cb) for basis, cb in cbs.items()}
 
         if sum(cbs.values()) < 1e-6:
             # Unfiform distribution.
