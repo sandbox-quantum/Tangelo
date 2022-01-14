@@ -44,9 +44,10 @@ class Circuit:
     the example folder.
     """
 
-    def __init__(self, gates: List[Gate] = None, n_qubits=None):
+    def __init__(self, gates: List[Gate] = None, n_qubits=None, name="no_name"):
         """Initialize gate list and internal variables depending on user input."""
 
+        self.name = name
         self._gates = list()
         self._qubits_simulated = n_qubits
         self._qubit_indices = set() if not n_qubits else set(range(n_qubits))
@@ -246,11 +247,13 @@ class Circuit:
         Returns:
             Circuit: the inverted circuit
         """
-        gate_list = [gate.inverse() for gate in reversed(self._gates)]
-        return Circuit(gate_list)
+        gates = [gate.inverse() for gate in reversed(self._gates)]
+        return Circuit(gates, n_qubits=self.width)
 
     def serialize(self):
-        return {"type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
+        if not isinstance(self.name, str):
+            return TypeError("Name of circuit object must be a string")
+        return {"name": self.name, "type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
 
 
 def stack(*circuits):
