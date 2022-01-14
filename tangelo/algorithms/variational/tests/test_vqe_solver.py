@@ -142,7 +142,7 @@ class VQESolverTest(unittest.TestCase):
         qubit_hamiltonian/hini/reference_state input
         """
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.VSQS, "qubit_mapping": "jw",
-                       "verbose": True, "ansatz_options": {"intervals": 3, "time": 3}}
+                       "verbose": False, "ansatz_options": {"intervals": 3, "time": 3}}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -150,12 +150,12 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.137270, delta=1e-4)
 
         qubit_hamiltonian = vqe_solver.qubit_hamiltonian
-        hini = vqe_solver.ansatz.hini
+        h_init = vqe_solver.ansatz.h_init
         reference_state = vqe_solver.ansatz.prepare_reference_state()
 
         vqe_options = {"molecule": None, "qubit_hamiltonian": qubit_hamiltonian, "ansatz": BuiltInAnsatze.VSQS, "qubit_mapping": "jw",
                        "ansatz_options": {"intervals": 3, "time": 3, "qubit_hamiltonian": qubit_hamiltonian,
-                                          "hini": hini, "reference_state": reference_state}}
+                                          "h_init": h_init, "reference_state": reference_state}}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 

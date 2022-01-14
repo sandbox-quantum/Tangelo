@@ -105,7 +105,7 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
     if pauli_order is None:
         pauli_words = list(qubit_op.terms.items())
     elif isinstance(pauli_order, list):
-        pauli_words = deepcopy(pauli_order)
+        pauli_words = pauli_order.copy()
     else:
         raise ValueError("ordered terms must be a list with elements (keys, values) of qubit_op.terms.items()")
 

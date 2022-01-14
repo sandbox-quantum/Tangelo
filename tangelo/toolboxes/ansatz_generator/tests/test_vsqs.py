@@ -13,14 +13,15 @@
 # limitations under the License.
 
 import unittest
+
 import numpy as np
 import os
 from openfermion import load_operator
 
 from tangelo.molecule_library import mol_H2_sto3g
-from tangelo.toolboxes.operators.operators import QubitOperator
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings import jordan_wigner, symmetry_conserving_bravyi_kitaev
-from tangelo.toolboxes.ansatz_generator.vsqs import VSQS
+from tangelo.toolboxes.ansatz_generator import VSQS
 from tangelo.linq import Simulator
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 
@@ -81,7 +82,7 @@ class VSQSTest(unittest.TestCase):
         reference_state = get_reference_circuit(8, 2, "jw", up_then_down=True, spin=0)
 
         # Build circuit
-        vsqs_ansatz = VSQS(qubit_hamiltonian=qubit_hamiltonian, hini=initial_hamiltonian, reference_state=reference_state,
+        vsqs_ansatz = VSQS(qubit_hamiltonian=qubit_hamiltonian, h_init=initial_hamiltonian, reference_state=reference_state,
                            intervals=5, time=5, trotter_order=2)
         vsqs_ansatz.build_circuit()
 
@@ -91,7 +92,7 @@ class VSQSTest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, vsqs_ansatz.circuit)
         self.assertAlmostEqual(energy, -0.85425, delta=1e-4)
 
-    def test_vsqs_H2_with_hnav(self):
+    def test_vsqs_H2_with_h_nav(self):
         """Verify closed-shell VSQS functionalities for H2 with navigator hamiltonian"""
         navigator_hamiltonian = (QubitOperator('X0 Y1', 0.03632537110234512) + QubitOperator('Y0 X1', 0.03632537110234512)
                                  + QubitOperator('Y0', 2.e-5) + QubitOperator('Y1', 2.e-5))
@@ -101,7 +102,7 @@ class VSQSTest(unittest.TestCase):
 
         # Build circuit
         vsqs_ansatz = VSQS(mol_H2_sto3g, intervals=2, time=1, mapping='scbk', up_then_down=True, trotter_order=2,
-                           hnav=navigator_hamiltonian)
+                           h_nav=navigator_hamiltonian)
         vsqs_ansatz.build_circuit()
 
         # Assert energy returned is as expected for given parameters
