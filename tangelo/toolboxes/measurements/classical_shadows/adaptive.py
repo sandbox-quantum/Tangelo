@@ -113,7 +113,12 @@ class AdaptiveClassicalShadow(ClassicalShadow):
                     P = {i_qubit: pauli for i_qubit, pauli in term}
                     B = {i_qubit: pauli for i_qubit, pauli in candidate_term}
 
-                    non_shared_items = {k: P[k] for k in P if k in B and P[k] != B[k]}
+                    # Check if an entry is in both dictionaries and compare the
+                    # values. If values are different, it is appended to
+                    # non_shared_items. If the key is not in P, it means that
+                    # it is I for this qubit (so it does not break the cover
+                    # condition).
+                    non_shared_items = {k: B[k] for k in B if k in P and P[k] != B[k]}
 
                     # If there are non-overlapping terms P_i not in {I, B_i(j)},
                     # we do not take into account the term coefficient.

@@ -22,26 +22,26 @@ from tangelo.toolboxes.operators import QubitOperator
 state = Circuit([Gate("H", 0), Gate("CNOT", 1, 0)])
 
 # Simple saved bistrings and unitaries to construct a shadow (size = 100).
-bitstrings = ["11", "00", "00", "11", "01", "11", "11", "10", "00", "01", "11",
-              "10", "00", "00", "11", "10", "00", "10", "10", "11", "10", "00",
-              "11", "11", "11", "01", "10", "00", "00", "10", "00", "01", "00",
-              "00", "01", "10", "10", "00", "00", "11", "01", "11", "11", "11",
-              "10", "01", "10", "01", "11", "11", "11", "11", "11", "11", "00",
-              "00", "10", "11", "01", "00", "11", "11", "00", "00", "00", "00",
-              "00", "11", "00", "11", "11", "00", "10", "10", "11", "10", "10",
-              "00", "00", "11", "01", "00", "01", "11", "00", "01", "11", "00",
-              "11", "01", "01", "11", "00", "00", "10", "11", "10", "10", "10",
+bitstrings = ["10", "00", "11", "00", "00", "11", "10", "11", "00", "00", "11",
+              "00", "00", "01", "00", "11", "11", "00", "11", "11", "11", "00",
+              "11", "11", "01", "00", "11", "01", "11", "11", "01", "10", "00",
+              "11", "11", "11", "11", "11", "10", "01", "00", "00", "11", "01",
+              "00", "11", "11", "00", "11", "11", "11", "00", "11", "10", "11",
+              "11", "00", "11", "10", "01", "11", "10", "10", "01", "00", "10",
+              "10", "11", "11", "00", "10", "11", "00", "11", "01", "01", "01",
+              "11", "10", "00", "00", "11", "00", "01", "10", "01", "00", "01",
+              "00", "01", "11", "00", "00", "00", "10", "11", "00", "11", "10",
               "11"]
-unitaries = ["ZZ", "XX", "XX", "ZZ", "YX", "XX", "XX", "YY", "ZZ", "YY", "XX",
-             "YY", "ZZ", "ZZ", "XX", "YY", "ZZ", "XZ", "YY", "XX", "XZ", "XX",
-             "XZ", "YZ", "XX", "YY", "YY", "ZZ", "YZ", "YY", "ZZ", "YY", "XX",
-             "XZ", "ZY", "YY", "YY", "ZZ", "XX", "XX", "ZY", "XX", "XX", "ZX",
-             "XZ", "XZ", "YY", "XZ", "XX", "XY", "XX", "YX", "XX", "ZZ", "XX",
-             "ZZ", "YY", "XX", "ZX", "XY", "XY", "XY", "XY", "ZY", "ZX", "XX",
-             "ZZ", "XX", "XX", "XX", "ZZ", "XX", "YY", "YY", "ZZ", "YY", "YY",
-             "XX", "ZZ", "YX", "XZ", "YX", "XY", "XX", "ZZ", "ZX", "ZZ", "ZZ",
-             "XX", "YY", "YY", "ZZ", "XX", "ZZ", "YZ", "ZZ", "YY", "YY", "XZ",
-             "ZZ"]
+unitaries = ["YY", "XX", "ZZ", "XX", "ZZ", "ZZ", "YY", "XX", "XX", "XX", "ZZ",
+             "ZZ", "XX", "YY", "ZZ", "ZZ", "XX", "XX", "ZZ", "XX", "ZZ", "ZZ",
+             "XX", "ZZ", "YY", "XX", "ZZ", "YY", "XX", "XX", "YY", "YY", "ZZ",
+             "XX", "XX", "ZZ", "ZZ", "ZZ", "YY", "YY", "ZZ", "XX", "XX", "YY",
+             "XX", "XX", "XX", "ZZ", "XX", "XX", "XX", "ZZ", "XX", "YY", "ZZ",
+             "ZZ", "XX", "ZZ", "YY", "YY", "XX", "YY", "YY", "YY", "XX", "YY",
+             "YY", "XX", "XX", "ZZ", "YY", "ZZ", "ZZ", "ZZ", "YY", "YY", "YY",
+             "ZZ", "YY", "ZZ", "ZZ", "XX", "ZZ", "YY", "YY", "YY", "XX", "YY",
+             "ZZ", "YY", "ZZ", "XX", "XX", "XX", "YY", "XX", "ZZ", "XX", "YY",
+             "XX"]
 
 
 class AdaptiveClassicalShadowTest(unittest.TestCase):
@@ -88,7 +88,7 @@ class AdaptiveClassicalShadowTest(unittest.TestCase):
         cs = AdaptiveClassicalShadow(state, bitstrings, unitaries)
 
         self.assertEqual(len(cs.get_basis_circuits(False)), 100)
-        self.assertEqual(len(cs.get_basis_circuits(True)), 9)
+        self.assertEqual(len(cs.get_basis_circuits(True)), 3)
 
 
 if __name__ == "__main__":
