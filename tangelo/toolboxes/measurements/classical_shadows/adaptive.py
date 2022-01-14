@@ -80,8 +80,9 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         return "".join(reordered_measurement)
 
     def _get_probs(self, qu_op, prev_qubits, prev_paulis, curr_qubit):
-        """Generates the cB values from which the Pauli basis is determined for
-        the current qubit (curr_qubit), as shown in Algorithm 2 from the paper.
+        """Generates the betas values from which the Pauli basis is determined
+        for the current qubit (curr_qubit), as shown in Algorithm 2 from the
+        paper.
 
         Args:
             qu_op (QubitOperator) : The operator one wishes to get the
@@ -114,10 +115,10 @@ class AdaptiveClassicalShadow(ClassicalShadow):
                 # Like for B, remove qubit order dependency.
                 P = {i_qubit: pauli for i_qubit, pauli in term}
 
-                # Checks if an entry is in both dictionaries and compare the
-                # values. If values are different, it is appended to
-                # non_shared_items. If the key is not in P, it means that
-                # it is I for this qubit (so it does not break the cover
+                # Checks if an entry is in both dictionaries and compares the
+                # values. If values are different, an entry is appended to
+                # non_shared_items. If the key is not in P it is not. It means
+                # that it is I for this qubit (so it does not break the cover
                 # condition).
                 non_shared_items = {k: B[k] for k in B if k in P and P[k] != B[k]}
 
