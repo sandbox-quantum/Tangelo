@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import unittest
+import os
 
 import numpy as np
-import os
 from openfermion import load_operator
 
 from tangelo.molecule_library import mol_H2_sto3g
@@ -95,7 +95,7 @@ class VSQSTest(unittest.TestCase):
     def test_vsqs_H2_with_h_nav(self):
         """Verify closed-shell VSQS functionalities for H2 with navigator hamiltonian"""
         navigator_hamiltonian = (QubitOperator('X0 Y1', 0.03632537110234512) + QubitOperator('Y0 X1', 0.03632537110234512)
-                                 + QubitOperator('Y0', 2.e-5) + QubitOperator('Y1', 2.e-5))
+                              + QubitOperator('Y0', 2.e-5) + QubitOperator('Y1', 2.e-5))
 
         # Build qubit hamiltonian for energy evaluation
         qubit_hamiltonian = symmetry_conserving_bravyi_kitaev(mol_H2_sto3g.fermionic_hamiltonian, 4, 2, False, 0)

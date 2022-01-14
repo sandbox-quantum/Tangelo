@@ -117,11 +117,11 @@ class VSQS(Ansatz):
         """Return the initial Hamiltonian (h_init) composed of the one-body terms derived from the diagonal of Fock
         matrix and one-body off-diagonal terms"""
         core_constant, h1, two_body = molecule.get_active_space_integrals()
-        dfock = np.diag(h1).copy()
+        diag_fock = np.diag(h1).copy()
         n_active_occupied = len(molecule.active_occupied)
         for j in range(molecule.n_active_mos):
             for i in range(n_active_occupied):
-                dfock[j] += 2*two_body[i, j, j, i] - 1*two_body[i, j, i, j]
+                diag_fock[j] += 2*two_body[i, j, j, i] - 1*two_body[i, j, i, j]
 
         hf_ferm = FermionOperator((), core_constant)
         for i in range(molecule.n_active_mos):
@@ -130,8 +130,8 @@ class VSQS(Ansatz):
                     hf_ferm += FermionOperator(((i * 2, 1), (j * 2, 0)), h1[i, j])
                     hf_ferm += FermionOperator(((i * 2 + 1, 1), (j * 2 + 1, 0)), h1[i, j])
                 else:
-                    hf_ferm += FermionOperator(((i * 2, 1), (j * 2, 0)), dfock[i])
-                    hf_ferm += FermionOperator(((i * 2 + 1, 1), (j * 2 + 1, 0)), dfock[j])
+                    hf_ferm += FermionOperator(((i * 2, 1), (j * 2, 0)), diag_fock[i])
+                    hf_ferm += FermionOperator(((i * 2 + 1, 1), (j * 2 + 1, 0)), diag_fock[j])
         return fermion_to_qubit_mapping(hf_ferm, mapping=self.mapping, n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons,
                                         up_then_down=self.up_then_down, spin=self.spin)
 
