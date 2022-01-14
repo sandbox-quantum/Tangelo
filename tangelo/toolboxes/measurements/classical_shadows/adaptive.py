@@ -16,9 +16,8 @@
 This algorithm is described in C. Hadfield, ArXiv:2105.12207 [Quant-Ph] (2021).
 """
 
-import random
-
 import numpy as np
+import random
 
 from tangelo.toolboxes.measurements import ClassicalShadow
 from tangelo.linq.circuit import Circuit
@@ -65,33 +64,21 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         single_measurement = [None] * self.n_qubits
 
         for it, i_qubit in enumerate(i_qubit_random):
-            cbs = self._generate_cbs(qu_op,
-                                     i_qubit_random[0:it],
-                                     single_measurement[0:it],
-                                     i_qubit)
-            sum_cbs = sum(cbs)
+            probs = self._get_probs(qu_op,
+                                    i_qubit_random[0:it],
+                                    single_measurement[0:it],
+                                    i_qubit)
 
             # If sum is 0., the distribution is set to be uniform.
-            if sum_cbs < 1.e-7:
-                single_measurement[it] = random.choice(["X", "Y", "Z"])
-            else:
-                random_val = random.random()
-
-                # Depending on the cbs, the probabilities of drawing a specific
-                # Pauli gate are shifted.
-                if random_val < cbs[0] / sum_cbs:
-                    single_measurement[it] = "X"
-                elif random_val < (cbs[0] + cbs[1]) / sum_cbs:
-                    single_measurement[it] = "Y"
-                else:
-                    single_measurement[it] = "Z"
+            # TODO: change comments.
+            single_measurement[it] = np.random.choice(["X", "Y", "Z"], size=None, replace=True, p=probs)
 
         # Reorders according to the qubit indices 0, 1, 2, ... self.n_qubits.
         reordered_measurement = [single_measurement[inverse_map[j]] for j in range(self.n_qubits)]
 
         return "".join(reordered_measurement)
 
-    def _generate_cbs(self, qu_op, prev_qubits, prev_paulis, curr_qubit):
+    def _get_probs(self, qu_op, prev_qubits, prev_paulis, curr_qubit):
         """Generates the cB values from which the Pauli basis is determined for
         the current qubit (curr_qubit), as shown in Algorithm 2 from the paper.
 
@@ -110,28 +97,39 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         cbs = [0.] * 3
         map_pauli = {"X": 0, "Y": 1, "Z": 2}
 
-        for term, coeff in qu_op.terms.items():
-
+        #for term, coeff in qu_op.terms.items():
+        #    #print(term)
             # Default conditions to compute cbs.
-            same_qubit = False
-            same_pauli = True
+        #    same_qubit = False
+        #    same_pauli = True
+#
+        #    for i_qubit, pauli in term:
+        #        # Checks if the current qubit index has been detected in the
+        #        # term.
+        #        if i_qubit == curr_qubit:
+        #            same_qubit = True
+#
+        #        # Checks if the Pauli basis in the term has already been chosen
+        #        # for this qubit.
+        #        for prev_qubit, prev_pauli in zip(prev_qubits, prev_paulis):
+        #            if i_qubit == prev_qubit and pauli != prev_pauli:
+        #                same_pauli = False
+#
+        #        if same_qubit and same_pauli:
+        #            cbs[map_pauli[pauli]] += coeff**2
 
-            for i_qubit, pauli in term:
-                # Checks if the current qubit index has been detected in the
-                # term.
-                if i_qubit == curr_qubit:
-                    same_qubit = True
+        #for B in map_pauli.keys():
+        #    print(B)
+        print(f"{prev_qubits}, {prev_paulis}, {curr_qubit}")
 
-                # Checks if the Pauli basis in the term has already been chosen
-                # for this qubit.
-                for prev_qubit, prev_pauli in zip(prev_qubits, prev_paulis):
-                    if i_qubit == prev_qubit and pauli != prev_pauli:
-                        same_pauli = False
+        cbs = np.sqrt(cbs)
+        sum_cbs = sum(cbs)
 
-                if same_qubit and same_pauli:
-                    cbs[map_pauli[pauli]] += coeff**2
-
-        return np.sqrt(cbs)
+        if sum_cbs < 1e-6:
+            probs = [1/3] * 3
+        else:
+            probs = [1/3] * 3 # np.sqrt(cbs) / sum_cbs
+        return probs
 
     def get_basis_circuits(self, only_unique=False):
         """Outputs a list of circuits corresponding to the adaptive single-Pauli
