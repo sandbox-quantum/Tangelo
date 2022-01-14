@@ -5,7 +5,7 @@ Thank you very much for considering contributing to this project; we’d love to
 
 Do not feel intimidated by the guidelines and processes we describe in this document: we are here to assist you and help you take things to the finish line. We do not expect you to be an expert in software development or to get everything right on the first attempt: don’t hesitate to open an issue or a pull request, or simply contact us.
 
-Contributors have various backgounds and experience, from high schoolers to fully fledged quantum scientists or chemists, and there are many ways you can contribute to this project. You can of course open a pull request (PR) and extend our codebase, but opening an issue to suggest a new feature, report a bug, improve our documentation or make a Jupyter notebook is just as valuable.
+Contributors have various backgounds and experience, from high schoolers to fully fledged quantum scientists or chemists, and there are many ways you can contribute to this project. You can of course open a pull request (PR) and extend our codebase, but opening an issue to suggest a new feature, report a bug, improve our documentation or make a tutorial notebook is just as valuable.
 
 By joining the Tangelo community and sharing your ideas and developments, you are creating an opportunity for us to learn and grow together, and take ideas to the finish line and beyond.
 
@@ -27,22 +27,22 @@ All submissions to the Github repository are subject to review by qualified proj
 
 **1. Set up your fork**
 
-Go to the `main Tangelo repo <https://github.com/quantumsimulation/QEMIST_qSDK>`_ and click the Fork button in the upper right corner of the screen.
-This creates a new Github repo ``https://github.com/USERNAME/tangelo`` where ``USERNAME`` is your Github ID.
+Go to the `main Tangelo repo <https://github.com/goodchemistryco/Tangelo>`_ and click the Fork button in the upper right corner of the screen.
+This creates a new Github repo ``https://github.com/USERNAME/Tangelo`` where ``USERNAME`` is your Github ID.
 
-In your terminal, clone the repo on your local machine, and move into the newly created directory:
+In your terminal, clone the repo on your local machine, and move into the newly created directory (replace ``USERNAME`` with your user ID)
 
 .. code-block:: shell
 
-  git clone https://github.com/quantumsimulation/QEMIST_qSDK.git
-  cd QEMISK_qSDK
+  git clone https://github.com/USERNAME/Tangelo.git
+  cd `Tangelo`
 
 From the perspective of your local clone, your fork is called the ``origin`` remote. 
 Let's synchronize your fork with the main Tangelo repo by adding the latter as the upstream remote, and then update your local ``main`` branch:
 
 .. code-block:: shell
 
-  git remote add upstream https://github.com/quantumsimulation/QEMIST_qSDK.git
+  git remote add upstream https://github.com/goodchemistryco/Tangelo.git
 
   git fetch upstream
   git checkout main
@@ -67,7 +67,7 @@ Let's assume you've made some changes and committed them with ``git commit``, an
 
 **3. The Pull Request (PR)**
 
-Now when you go to https://github.com/quantumsimulation/QEMIST_qSDK, you should be able to create a pull request from the branch on your fork to a branch on the main Tangelo repo. Give your pull request a name and briefly describe what the purpose is and include a reference to the associated issue if there's one.
+Now when you go to https://github.com/goodchemistryco/Tangelo, you should be able to create a pull request from the branch on your fork to a branch on the main Tangelo repo. Give your pull request a name and briefly describe what the purpose is and include a reference to the associated issue if there's one.
 Several Tangelo users will receive a notification, and will review your code and leave comments in the PR. You can reply to these comments, or simply apply the recommended changes locally, and then commit and push them like above: it automatically updates your PR.
 If there are conflicts, you can solve them locally and push, or directly through Github.
 

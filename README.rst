@@ -16,7 +16,9 @@ Tangelo overview
 
 Welcome !
 
-Tangelo is an open-source python package developed by `Good Chemistry Company <https://goodchemistry.com>`_, focused on the development of end-to-end material simulation workflows on quantum computers. Its modular design and ease-of-use enables users to easily assemble custom workflows, tinker and define their own building blocks, while keeping track of quantum resource requirements, such as number of qubits, gates or measurements. Through problem decomposition techniques, users can scale up beyond toy models and study the impact of quantum computing on more industrially-relevant use cases. Tangelo is backend-agnostic and compatible with many existing open-source frameworks, making the integration of third-party tools such as state-of-the-art simulators, circuit compilers or quantum cloud services straightforward. It is our wish to develop a community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
+Tangelo is an open-source python package developed by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of end-to-end material simulation workflows on quantum computers.
+
+Its modular design and ease-of-use enables users to easily assemble custom workflows, tinker and define their own building blocks, while keeping track of quantum resource requirements, such as number of qubits, gates or measurements. Through problem decomposition techniques, users can scale up beyond toy models and study the impact of quantum computing on more industrially-relevant use cases. Tangelo is backend-agnostic and compatible with many existing open-source frameworks, making the integration of third-party tools such as state-of-the-art simulators, circuit compilers or quantum cloud services straightforward. It is our wish to develop a community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
 
 
 Install
@@ -83,7 +85,7 @@ TODO: insert sentence and link to sphinx documentation when its online.
 Tutorials
 ---------
 
-Please check the ``examples`` folder jupyter notebook tutorials and other examples.
+Please check the ``examples`` folder for jupyter notebook tutorials and other examples.
 
 Tests
 -----
