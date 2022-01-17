@@ -20,6 +20,7 @@ from tangelo.toolboxes.post_processing import diis, richardson
 energies = [-1.0477557352266311, -1.0430228852530665, -1.0336456812527268, -1.0300524502477852]
 coeffs = [1., 1.1, 1.2, 1.3]
 
+
 class ExtrapolationTest(unittest.TestCase):
 
     def test_diis(self):

@@ -43,7 +43,7 @@ def richardson(energies, coeffs, estimate_exp=False):
     Returns:
         float: Extrapolated energy
     """
-    if estimate_exp==False:
+    if estimate_exp is False:
         return richardson_analytical(energies, coeffs)
     else:
         return richardson_with_exp_estimation(energies, coeffs)
@@ -63,7 +63,7 @@ def extrapolation(energies, coeffs, N=None):
         float: Extrapolated energy
     """
     n = len(coeffs)
-    if N == None:
+    if N is None:
         N = n-1
     Eh = np.array(energies)
     ck = np.array(coeffs)
@@ -92,7 +92,8 @@ def richardson_analytical(energies, coeffs):
     """
     Eh = np.array(energies)
     ck = np.array(coeffs)
-    x = np.array([np.prod((ai:=np.delete(ck, i))/(a - ai)) for i, a in enumerate(ck)])
+    x = np.array([np.prod(ai/(a - ai)) for i, a in enumerate(ck)
+                      for ai in [np.delete(ck, i)]])
     return np.dot(Eh, x)
 
 
@@ -124,7 +125,7 @@ def richardson_with_exp_estimation(energies, coeffs):
                 A1 = (tk*Eh[1] - Eh[0])/(tk - 1)
                 A2 = (sk*Eh[2] - Eh[0])/(sk - 1)
                 return (A1 - A2)**2
-            p = sp.minimize(f, p+1, method='BFGS', options={'disp':False}).x[0]
+            p = sp.minimize(f, p+1, method='BFGS', options={'disp': False}).x[0]
             if (i == 0):
                 ck = c**p
         else:
