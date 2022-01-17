@@ -17,8 +17,9 @@ This algorithm is described in C. Hadfield, ArXiv:2105.12207 [Quant-Ph] (2021).
 """
 
 from math import sqrt
-import numpy as np
 import random
+
+import numpy as np
 
 from tangelo.toolboxes.measurements import ClassicalShadow
 from tangelo.linq.circuit import Circuit
@@ -97,14 +98,15 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         """
 
         cbs = {"X": 0., "Y": 0., "Z": 0.}
-        previous_term = [(i_qubit, pauli) for i_qubit, pauli in zip(prev_qubits, prev_paulis)]
+
+        # Builds the candidate term (appending X, Y or Z). Then, transform
+        # to a dictionary for removing qubit order dependency.
+        B = dict(zip(prev_qubits, prev_paulis))
 
         for basis in cbs.keys():
 
-            # Builds the candidate term (appending X, Y or Z). Then, transform
-            # to a dictionary for removing qubit order dependency.
-            candidate_term = previous_term + [(curr_qubit, basis)]
-            B = {i_qubit: pauli for i_qubit, pauli in candidate_term}
+            # Adds or overwrites the X, Y or Z prospect term.
+            B[curr_qubit] = basis
 
             # Checks if term (P) is covered by candidate_pauli (B). P and B are
             # notation in the publication.
@@ -113,7 +115,7 @@ class AdaptiveClassicalShadow(ClassicalShadow):
                     continue
 
                 # Like for B, remove qubit order dependency.
-                P = {i_qubit: pauli for i_qubit, pauli in term}
+                P = dict(term)
 
                 # Checks if an entry is in both dictionaries and compares the
                 # values. If values are different, an entry is appended to
@@ -124,15 +126,13 @@ class AdaptiveClassicalShadow(ClassicalShadow):
 
                 # If there are non-overlapping terms P_i not in {I, B_i(j)},
                 # we do not take into account the term coefficient.
-                is_term_covered = True if len(non_shared_items) == 0 else False
-
-                if is_term_covered:
+                if not non_shared_items:
                     cbs[basis] += coeff**2
 
         cbs = {basis: sqrt(cb) for basis, cb in cbs.items()}
 
         if sum(cbs.values()) < 1e-6:
-            # Unfiform distribution.
+            # Uniform distribution.
             probs = [1/3] * 3
         else:
             # Normalization + make sure there are in X, Y and Z order (eq. 3).

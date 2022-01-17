@@ -17,7 +17,6 @@ This algorithm is described in H.-Y. Huang, R. Kueng, and J. Preskill,
 ArXiv:2103.07510 [Quant-Ph] (2021).
 """
 
-from copy import deepcopy
 from math import floor, exp, log
 import random
 
@@ -79,9 +78,9 @@ class DerandomizedClassicalShadow(ClassicalShadow):
                 # Computing the cost function with all the possibilities.
                 for dice_roll_pauli in ["Z", "X", "Y"]:
                     # Assume the dice rollout to be dice_roll_pauli.
-                    try_matches_needed_round = deepcopy(n_matches_needed_round)
+                    try_matches_needed_round = n_matches_needed_round.copy()
                     for i_obs, obs in enumerate(observables):
-                        try_matches_needed_round[i_obs] += self._get_match_up(i_qubit, dice_roll_pauli, obs)
+                        try_matches_needed_round[i_obs] += _get_match_up(i_qubit, dice_roll_pauli, obs, self.n_qubits)
 
                     cost_of_outcomes[dice_roll_pauli] = self._cost_function(n_measurements_so_far,
                                                                             try_matches_needed_round,
@@ -98,7 +97,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
                     single_round_measurement[i_qubit] = dice_roll_pauli
 
                     for i_obs, obs in enumerate(observables):
-                        n_matches_needed_round[i_obs] += self._get_match_up(i_qubit, dice_roll_pauli, obs)
+                        n_matches_needed_round[i_obs] += _get_match_up(i_qubit, dice_roll_pauli, obs, self.n_qubits)
                     break
 
             measurement_procedure.append(single_round_measurement)
@@ -225,23 +224,25 @@ class DerandomizedClassicalShadow(ClassicalShadow):
 
         return cost
 
-    def _get_match_up(self, lookup_qubit, dice_roll_pauli, observable):
-        """Helper method to output 0, -1 or a large number depending on the
-        index provided and the Pauli gate in a single observable.
 
-        Args:
-            lookup_qubit (int): Qubit index.
-            dice_roll_pauli (str): Z, X or Y.
-            observable (tuple): Single term in the form ((0, "Y"), (1, "Z"),
-                (2, "X"), ...).
+def _get_match_up(lookup_qubit, dice_roll_pauli, observable, n_qubits):
+    """Helper function to output 0, -1 or a large number depending on the
+    index provided and the Pauli gate in a single observable.
 
-        Returns:
-            int: 0, -1, or a large int used in computing cost.
-        """
+    Args:
+        lookup_qubit (int): Qubit index.
+        dice_roll_pauli (str): Z, X or Y.
+        observable (tuple): Single term in the form ((0, "Y"), (1, "Z"),
+            (2, "X"), ...).
+        n_qubits (int): Number of qubits.
 
-        large_number = 100 * (self.n_qubits + 10)
+    Returns:
+        int: 0, -1, or a large int used in computing cost.
+    """
 
-        for i_qubit, pauli in observable:
-            if lookup_qubit == i_qubit:
-                return -1 if pauli == dice_roll_pauli else large_number
-        return 0
+    large_number = 100 * (n_qubits + 10)
+
+    for i_qubit, pauli in observable:
+        if lookup_qubit == i_qubit:
+            return -1 if pauli == dice_roll_pauli else large_number
+    return 0
