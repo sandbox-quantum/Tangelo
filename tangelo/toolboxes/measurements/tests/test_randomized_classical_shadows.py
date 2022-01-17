@@ -15,11 +15,10 @@
 import unittest
 
 import numpy as np
-from qiskit.providers.aer.noise.errors.standard_errors import thermal_relaxation_error
 
-from tangelo.linq import Gate, Circuit, Simulator
-from tangelo.toolboxes.measurements.classical_shadows import RandomizedClassicalShadow
-from tangelo.toolboxes.operators.operators import QubitOperator
+from tangelo.linq import Gate, Circuit
+from tangelo.toolboxes.measurements import RandomizedClassicalShadow
+from tangelo.toolboxes.operators import QubitOperator
 
 # Circuit to sample (Bell state).
 state = Circuit([Gate("H", 0), Gate("CNOT", 1, 0)])

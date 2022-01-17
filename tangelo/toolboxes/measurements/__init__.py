@@ -14,3 +14,7 @@
 
 from .qubit_terms_grouping import group_qwc, exp_value_from_measurement_bases
 from .estimate_measurements import get_measurement_estimate
+from .classical_shadows.classical_shadows import ClassicalShadow
+from .classical_shadows.randomized import RandomizedClassicalShadow
+from .classical_shadows.derandomized import DerandomizedClassicalShadow
+from .classical_shadows.adaptive import AdaptiveClassicalShadow
