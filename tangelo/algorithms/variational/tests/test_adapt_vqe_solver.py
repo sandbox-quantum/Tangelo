@@ -57,9 +57,8 @@ class ADAPTSolverTest(unittest.TestCase):
         self.assertEqual(adapt_solver.get_resources(), resources)
 
     def test_multiple_cycle_adapt_majorana_pool(self):
-        """Try instantiating ADAPTSolver with basic input. The fermionic term
-        ordering has been taken from the reference below (original paper for
-        ADAPT-VQE).
+        """Solve H4 with one frozen orbtial with ADAPTSolver using 4 cycles and a operators chosen
+        from a Majorana UCCGSD pool
         """
 
         mol = SecondQuantizedMolecule(xyz_H4, 0, 0, "sto-3g", frozen_orbitals=[0])
