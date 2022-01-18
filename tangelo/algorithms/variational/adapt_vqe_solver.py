@@ -250,7 +250,7 @@ class ADAPTSolver:
         Args:
             pool_commutators (QubitOperator): Commutator [H, operator] for each
                 generator.
-            circuit (agnostic_simulator.Circuit): Circuit for measuring each
+            circuit (tangelo.linq.Circuit): Circuit for measuring each
                 commutator.
             backend (tangelo.linq.Simulator): Backend to measure
                 expectation values.
