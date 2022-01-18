@@ -77,7 +77,7 @@ def extrapolation(energies, coeffs, taylor_order=None):
     B[:n, :n] = ck.T @ ck
     # Setup the free coefficients
     b = np.zeros(n+1)
-    b[n] = 1 # For the Lagrange multiplier
+    b[n] = 1  # For the Lagrange multiplier
     # Solve  the DIIS equations by least squares
     x = np.linalg.lstsq(B, b, rcond=None)[0]
     return np.dot(Eh, x[:-1])
@@ -118,7 +118,7 @@ def richardson_with_exp_estimation(energies, coeffs):
     c = np.array(coeffs)
     ck = np.array(coeffs)
     p, p_old = 1, 0
-    
+
     # Define a helper function for exponent optimization
     def energy_diff(k, ti, si):
         tk = np.sign(ti)*np.abs(ti)**k
@@ -126,7 +126,7 @@ def richardson_with_exp_estimation(energies, coeffs):
         Et = (tk*Eh[1] - Eh[0])/(tk - 1)
         Es = (sk*Eh[2] - Eh[0])/(sk - 1)
         return (Et - Es)**2
-    
+
     # Run the Richardson algorithm with exponent optimization
     for i in range(n-1):
         ti = ck[0]/ck[1]
@@ -138,7 +138,7 @@ def richardson_with_exp_estimation(energies, coeffs):
                 ck = c**p
         else:
             break
-        
+
         for j in range(n-i-1):
             ti = (ck[j]/ck[j+1])
             if (i > 0):
