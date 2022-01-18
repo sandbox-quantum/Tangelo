@@ -40,7 +40,7 @@ jobs:
         pip install qiskit==0.33.1 # Due to strange behaviour of noise model
         pip install qulacs
         pip install amazon-braket-sdk
-        pip install cirq==0.12.0
+        pip install cirq
         pip install projectq
       if: always()
 

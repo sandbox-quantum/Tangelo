@@ -21,9 +21,10 @@ from dataclasses import dataclass, field
 import numpy as np
 from pyscf import gto, scf, ao2mo
 import openfermion
-import openfermionpyscf
+import openfermion.ops.representations as reps
 from openfermionpyscf import run_pyscf
-from openfermion.ops.representations.interaction_operator import get_active_space_integrals
+from openfermion.chem.molecular_data import spinorb_from_spatial
+from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import get_frozen_core
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
@@ -275,14 +276,11 @@ class SecondQuantizedMolecule(Molecule):
             FermionOperator: Self-explanatory.
         """
 
-        occupied_indices = self.frozen_occupied
-        active_indices = self.active_mos
+        core_constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals()
 
-        of_molecule = self.to_openfermion(self.basis)
-        of_molecule = run_pyscf(of_molecule, run_scf=True, run_mp2=False,
-                                run_cisd=False, run_ccsd=False, run_fci=False)
+        one_body_coefficients, two_body_coefficients = spinorb_from_spatial(one_body_integrals, two_body_integrals)
 
-        molecular_hamiltonian = of_molecule.get_molecular_hamiltonian(occupied_indices, active_indices)
+        molecular_hamiltonian = reps.InteractionOperator(core_constant, one_body_coefficients, 1 / 2 * two_body_coefficients)
 
         return get_fermion_operator(molecular_hamiltonian)
 
@@ -379,6 +377,28 @@ class SecondQuantizedMolecule(Molecule):
             float: Molecular energy.
         """
 
+        core_constant, one_electron_integrals, two_electron_integrals = self.get_active_space_integrals()
+
+        # PQRS convention in openfermion:
+        # h[p,q]=\int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
+        # h[p,q,r,s]=\int \phi_p(x)* \phi_q(y)* V_{elec-elec} \phi_r(y) \phi_s(x) dxdy
+        # The convention is not the same with PySCF integrals. So, a change is
+        # reverse back after performing the truncation for frozen orbitals
+        two_electron_integrals = two_electron_integrals.transpose(0, 3, 1, 2)
+
+        # Computing the total energy from integrals and provided RDMs.
+        e = core_constant + np.sum(one_electron_integrals * one_rdm) + 0.5*np.sum(two_electron_integrals * two_rdm)
+
+        return e.real
+
+    def get_active_space_integrals(self):
+        """Computes core constant, one_body, and two-body coefficients with frozen orbitals folded into one-body coefficients
+        and core constant
+
+        Returns:
+            (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
+        """
+
         # Pyscf molecule to get integrals.
         pyscf_mol = self.to_pyscf(self.basis)
 
@@ -396,19 +416,14 @@ class SecondQuantizedMolecule(Molecule):
         # h[p,q]=\int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
         # h[p,q,r,s]=\int \phi_p(x)* \phi_q(y)* V_{elec-elec} \phi_r(y) \phi_s(x) dxdy
         # The convention is not the same with PySCF integrals. So, a change is
-        # made and reverse back after performing the truncation for frozen
-        # orbitals.
+        # made before performing the truncation for frozen orbitals.
         two_electron_integrals = two_electron_integrals.transpose(0, 2, 3, 1)
-        core_offset, one_electron_integrals, two_electron_integrals = get_active_space_integrals(one_electron_integrals,
-                                                                                                 two_electron_integrals,
-                                                                                                 self.frozen_occupied,
-                                                                                                 self.active_mos)
-        two_electron_integrals = two_electron_integrals.transpose(0, 3, 1, 2)
+        core_offset, one_electron_integrals, two_electron_integrals = of_get_active_space_integrals(one_electron_integrals,
+                                                                                                    two_electron_integrals,
+                                                                                                    self.frozen_occupied,
+                                                                                                    self.active_mos)
 
         # Adding frozen electron contribution to core constant.
         core_constant += core_offset
 
-        # Computing the total energy from integrals and provided RDMs.
-        e = core_constant + np.sum(one_electron_integrals * one_rdm) + 0.5*np.sum(two_electron_integrals * two_rdm)
-
-        return e.real
+        return core_constant, one_electron_integrals, two_electron_integrals
