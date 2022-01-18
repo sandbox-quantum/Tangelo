@@ -44,12 +44,14 @@ def richardson(energies, coeffs, estimate_exp=False):
         float: Extrapolated energy
     """
     if estimate_exp is False:
+        # If no exponent estimation, run the direct Richardson solution
         return richardson_analytical(energies, coeffs)
     else:
+        # For exponent estimation run the Richardson recursive algorithm
         return richardson_with_exp_estimation(energies, coeffs)
 
 
-def extrapolation(energies, coeffs, N=None):
+def extrapolation(energies, coeffs, taylor_order=None):
     """
     General, DIIS-like extrapolation procedure as found in
     Nature 567, 491-495 (2019) [arXiv:1805.04492]
@@ -57,30 +59,33 @@ def extrapolation(energies, coeffs, N=None):
     Args:
         energies (array-like): Energy expectation values for amplified noise rates
         coeffs (array-like): Noise rate amplification factors
-        N (int): Taylor expanion order; N=None for Richardson extrapolation (order determined from number of datapoints), N=1 for DIIS extrapolation
+        taylor_order (int): Taylor expansion order; None for Richardson extrapolation (order determined from number of datapoints), 1 for DIIS extrapolation
 
     Returns:
         float: Extrapolated energy
     """
     n = len(coeffs)
-    if N is None:
-        N = n-1
+    if taylor_order is None:
+        # Determine the expansion order in case of Richardson extrapolation
+        taylor_order = n-1
     Eh = np.array(energies)
-    ck = np.array(coeffs)
-    ck = np.array([ck**k for k in range(1, N+1)])
+    coeffs = np.array(coeffs)
+    # Setup the linear system matrix
+    ck = np.array([coeffs**k for k in range(1, taylor_order+1)])
     B = np.ones((n+1, n+1))
     B[n, n] = 0
     B[:n, :n] = ck.T @ ck
+    # Setup the free coefficients
     b = np.zeros(n+1)
-    b[n] = 1
+    b[n] = 1 # For the Lagrange multiplier
+    # Solve  the DIIS equations by least squares
     x = np.linalg.lstsq(B, b, rcond=None)[0]
-    x = x[:-1]
-    return np.dot(Eh, x)
+    return np.dot(Eh, x[:-1])
 
 
 def richardson_analytical(energies, coeffs):
     """
-    Richardson extrapolation exlicit result as found in
+    Richardson extrapolation explicit result as found in
     Phys. Rev. Lett. 119, 180509 [arXiv:1612.02058]
 
     Args:
@@ -109,32 +114,36 @@ def richardson_with_exp_estimation(energies, coeffs):
         float: Extrapolated energy
     """
     n = len(coeffs)
-    p = 1
     Eh = np.array(energies)
     c = np.array(coeffs)
     ck = np.array(coeffs)
-    p_old = 0
-    dp = 0
+    p, p_old = 1, 0
+    
+    # Define a helper function for exponent optimization
+    def energy_diff(k, ti, si):
+        tk = np.sign(ti)*np.abs(ti)**k
+        sk = np.sign(si)*np.abs(si)**k
+        Et = (tk*Eh[1] - Eh[0])/(tk - 1)
+        Es = (sk*Eh[2] - Eh[0])/(sk - 1)
+        return (Et - Es)**2
+    
+    # Run the Richardson algorithm with exponent optimization
     for i in range(n-1):
         ti = ck[0]/ck[1]
         si = ck[0]/ck[2]
-        if ((n > 2) & (i < (n-2))):
-            def f(k):
-                tk = np.sign(ti)*np.abs(ti)**k
-                sk = np.sign(si)*np.abs(si)**k
-                A1 = (tk*Eh[1] - Eh[0])/(tk - 1)
-                A2 = (sk*Eh[2] - Eh[0])/(sk - 1)
-                return (A1 - A2)**2
-            p = sp.minimize(f, p+1, method='BFGS', options={'disp': False}).x[0]
+        if ((n > 2) and (i < (n-2))):
+            # Minimize the energy difference to determine the optimal exponent
+            p = sp.minimize(energy_diff, p+1, args=(ti, si), method='BFGS', options={'disp': False}).x[0]
             if (i == 0):
                 ck = c**p
         else:
             break
+        
         for j in range(n-i-1):
             ti = (ck[j]/ck[j+1])
             if (i > 0):
                 dp = p - p_old
-                if (dp == 0):
+                if (np.isclose(dp, 0)):
                     break
                 ck[j] = ck[j]*(c[j]**dp - c[j+1]**dp)/(ti - 1)
                 ti = (ck[j]/ck[j+1])
