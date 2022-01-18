@@ -23,28 +23,6 @@ import warnings
 from openfermion.measurements import group_into_tensor_product_basis_sets
 from tangelo.linq import Simulator
 
-def does_commute(pauli_1, pauli_2):
-    """
-    Args:
-        pauli_1 (tuple): pauli word not including coefficient
-        pauli_2 (tuple): pauli word not including coefficient
-
-    Returns:
-        commutativity (bool): returns whether the two pauli words qubit-wise commute
-    """
-    pauli_1 = dict(pauli_1)
-    pauli_2 = dict(pauli_2)
-
-    for key, value in pauli_1.items():
-        if key not in pauli_1.keys(): continue
-        try:
-            if pauli_1[key] == pauli_2[key]: continue
-        except KeyError:
-            continue
-
-        return False
-    return True
-
 def group_qwc(qb_ham, seed=None):
     """Wrapper around Openfermion functionality that takes as input a
     QubitOperator and yields a collection of mesurement bases defining a
