@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Utililty functions to generate the FermionOperators from Majorana type operators"""
+"""Utililty functions to generate pool of FermionOperators obtained from individual MajoranaOperators in
+unitary coupled cluster expansions."""
 
 from openfermion.transforms.opconversions.conversions import get_fermion_operator
 from openfermion import MajoranaOperator
