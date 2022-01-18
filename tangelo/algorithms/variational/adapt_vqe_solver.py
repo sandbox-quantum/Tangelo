@@ -27,7 +27,6 @@ Ref:
 """
 
 import math
-from numpy import isin
 from openfermion import commutator
 from openfermion import FermionOperator as ofFermionOperator
 from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
