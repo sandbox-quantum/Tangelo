@@ -21,40 +21,76 @@ from numpy import integer
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 
 
-def majorana_uccsd_generator(mol: SecondQuantizedMolecule=None, n_electrons: int=None, n_sos:int=None):
-    """Constructs a list of FermionOperator corresponding to the individual Majorana modes in the UCCSD ansatz
+def majorana_uccsd_list(molecule: SecondQuantizedMolecule = None, n_electrons: int = None, n_sos: int = None):
+    """Construct a list of FermionOperator corresponding to the individual Majorana modes in the UCCSD ansatz
 
     Args:
-        mol (SecondQuantizedMolecule): The molecule to generate the Majorana pool from: Default None
+        molecule (SecondQuantizedMolecule): The molecule to generate the Majorana pool from: Default None
         n_electrons (int): The number of active electrons: Default None
         n_sos (int): The number of active spin orbitals: Default None
 
     Returns:
         list: The list of FermionOperator for each Majorana operator in a UCCD pool"""
 
-    if mol is not None:
-        n_active_electrons = mol.n_active_electrons
-        n_active_sos = mol.n_active_sos
+    if molecule is not None:
+        n_active_electrons = molecule.n_active_electrons
+        n_active_sos = molecule.n_active_sos
     elif isinstance(n_electrons, (int, integer)) and isinstance(n_sos, (int, integer)):
         n_active_electrons = n_electrons
         n_active_sos = n_sos
     else:
         raise ValueError("SecondQuantized mol or ints n_electrons/n_sos must be provided")
-    
 
-    term_set = set()
-    for i in range(mol.n_active_electrons):
-        for j in range(i+1, mol.n_active_electrons):
-            for k in range(mol.n_active_electrons, mol.n_active_sos):
-                for l in range(k+1, mol.n_active_sos):
-                    term_set.add((2*i, 2*j+1, 2*k+1, 2*l+1))
-                    term_set.add((2*i+1, 2*j, 2*k+1, 2*l+1))
-                    term_set.add((2*i+1, 2*j+1, 2*k, 2*l+1))
-                    term_set.add((2*i+1, 2*j+1, 2*k+1, 2*l))
-                    term_set.add((2*i+1, 2*j, 2*k, 2*l))
-                    term_set.add((2*i, 2*j+1, 2*k, 2*l))
-                    term_set.add((2*i, 2*j, 2*k+1, 2*l))
-                    term_set.add((2*i, 2*j, 2*k, 2*l+1))
-    term_list = list(term_set)
-    pool_list = [get_fermion_operator(MajoranaOperator(term)) for term in term_list]
+    def majorana_uccsd_generator():
+        for i in range(n_active_electrons):
+            for k in range(n_active_electrons, n_active_sos):
+                yield (2*i, 2*k)
+                yield (2*i+1, 2*k+1)
+                for j in range(i+1, n_active_electrons):
+                    for l in range(k+1, n_active_sos):
+                        yield (2*i, 2*j+1, 2*k+1, 2*l+1)
+                        yield (2*i+1, 2*j, 2*k+1, 2*l+1)
+                        yield (2*i+1, 2*j+1, 2*k, 2*l+1)
+                        yield (2*i+1, 2*j+1, 2*k+1, 2*l)
+                        yield (2*i+1, 2*j, 2*k, 2*l)
+                        yield (2*i, 2*j+1, 2*k, 2*l)
+                        yield (2*i, 2*j, 2*k+1, 2*l)
+                        yield (2*i, 2*j, 2*k, 2*l+1)
+    pool_list = [get_fermion_operator(MajoranaOperator(term)) for term in majorana_uccsd_generator()]
+    return pool_list
+
+
+def majorana_uccgsd_list(molecule: SecondQuantizedMolecule = None, n_sos: int = None):
+    """Construct a list of FermionOperator corresponding to the individual Majorana modes in the UCCGSD ansatz
+
+    Args:
+        molecule (SecondQuantizedMolecule): The molecule to generate the Majorana pool from: Default None
+        n_sos (int): The number of active spin orbitals: Default None
+
+    Returns:
+        list: The list of FermionOperator for each Majorana operator in a UCCD pool"""
+
+    if molecule is not None:
+        n_active_sos = molecule.n_active_sos
+    elif isinstance(n_sos, (int, integer)):
+        n_active_sos = n_sos
+    else:
+        raise ValueError("SecondQuantized mol or int n_sos must be provided")
+
+    def majorana_uccgsd_generator():
+        for i in range(n_active_sos):
+            for j in range(i+1, n_active_sos):
+                yield (2*i, 2*j)
+                yield (2*i+1, 2*j+1)
+                for k in range(j+1, n_active_sos):
+                    for l in range(k+1, n_active_sos):
+                        yield (2*i, 2*j+1, 2*k+1, 2*l+1)
+                        yield (2*i+1, 2*j, 2*k+1, 2*l+1)
+                        yield (2*i+1, 2*j+1, 2*k, 2*l+1)
+                        yield (2*i+1, 2*j+1, 2*k+1, 2*l)
+                        yield (2*i+1, 2*j, 2*k, 2*l)
+                        yield (2*i, 2*j+1, 2*k, 2*l)
+                        yield (2*i, 2*j, 2*k+1, 2*l)
+                        yield (2*i, 2*j, 2*k, 2*l+1)
+    pool_list = [get_fermion_operator(MajoranaOperator(term)) for term in majorana_uccgsd_generator()]
     return pool_list
