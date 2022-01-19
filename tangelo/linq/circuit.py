@@ -286,4 +286,3 @@ def stack(*circuits):
         stacked_circuit += c_stack
 
     return stacked_circuit
-
