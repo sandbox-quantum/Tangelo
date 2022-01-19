@@ -250,10 +250,8 @@ class ADAPTSolver:
         Args:
             pool_commutators (QubitOperator): Commutator [H, operator] for each
                 generator.
-            circuit (tangelo.linq.Circuit): Circuit for measuring each
-                commutator.
-            backend (tangelo.linq.Simulator): Backend to measure
-                expectation values.
+            circuit (tangelo.linq.Circuit): Circuit for measuring each commutator.
+            backend (tangelo.linq.Simulator): Backend to compute expectation values.
             tolerance (float): Minimum value for gradient to be considered.
 
         Returns:
