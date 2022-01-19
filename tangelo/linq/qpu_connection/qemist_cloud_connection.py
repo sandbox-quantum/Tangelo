@@ -19,10 +19,7 @@ Users are expected to set the environment variables QEMIST_AUTH_TOKEN and
 QEMIST_PROJECT_ID with values retrieved from their QEMIST Cloud dashboard.
 """
 
-try:
-    from qemist_client import util
-except ModuleNotFoundError:
-    print("qemist_client python package not found (optional dependency for hardware experiment submission)")
+error_messsage = "qemist_client python package not found (optional dependency for hardware experiment submission)"
 
 
 def job_submit(circuit, n_shots, backend):
@@ -37,6 +34,10 @@ def job_submit(circuit, n_shots, backend):
         int: A problem handle / job ID that can be used to retrieve the result
             or cancel the problem.
     """
+    try:
+        from qemist_client.util import solve_quantum_circuits_async
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError(error_messsage)
 
     # Serialize circuit data
     circuit_data = circuit.serialize()
@@ -45,8 +46,8 @@ def job_submit(circuit, n_shots, backend):
     job_options = {'shots': n_shots, 'backend': backend}
 
     # Submit the problem
-    qemist_cloud_job_id = util.solve_quantum_circuits_async(serialized_fragment=circuit_data,
-                                                            serialized_solver=job_options)[0]
+    qemist_cloud_job_id = solve_quantum_circuits_async(serialized_fragment=circuit_data,
+                                                       serialized_solver=job_options)[0]
 
     return qemist_cloud_job_id
 
@@ -61,7 +62,12 @@ def job_status(qemist_cloud_job_id):
     Returns:
         str: current status of the problem, as a string.
     """
-    return util.get_problem_status(qemist_cloud_job_id)
+    try:
+        from qemist_client.util import get_problem_status
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError(error_messsage)
+
+    return get_problem_status(qemist_cloud_job_id)
 
 
 def job_cancel(qemist_cloud_job_id):
@@ -75,8 +81,12 @@ def job_cancel(qemist_cloud_job_id):
     Returns:
         dict: cancelled problems / subproblems.
     """
+    try:
+        from qemist_client.util import cancel_problems
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError(error_messsage)
 
-    res = util.cancel_problems(qemist_cloud_job_id)
+    res = cancel_problems(qemist_cloud_job_id)
     # TODO: If res is coming out as an error code, Tangelo should raise an error
 
     return res
@@ -94,9 +104,13 @@ def job_result(qemist_cloud_job_id):
         dict: Histogram of measurement frequencies.
         dict): The cloud provider raw data.
     """
+    try:
+        from qemist_client.util import monitor_problem_status, get_quantum_results
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError(error_messsage)
 
     try:
-        util.monitor_problem_status(problem_handle=qemist_cloud_job_id, verbose=False)
+        monitor_problem_status(problem_handle=qemist_cloud_job_id, verbose=False)
 
     except KeyboardInterrupt:
         print(f"\nYour problem is still running with id {qemist_cloud_job_id}.\n")
@@ -116,7 +130,7 @@ def job_result(qemist_cloud_job_id):
         raise
 
     # Once a result is available, retrieve it
-    output = util.get_quantum_results(problem_handle=qemist_cloud_job_id)[qemist_cloud_job_id]
+    output = get_quantum_results(problem_handle=qemist_cloud_job_id)[qemist_cloud_job_id]
 
     # Amazon Braket: parsing of output
     freqs = output['result']['results']['measurement_probabilities']
