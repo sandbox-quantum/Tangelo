@@ -186,7 +186,7 @@ class TestCircuits(unittest.TestCase):
         c4 = Circuit([Gate("H", 0), Gate("CNOT", 1, control=0), Gate("X", 0), Gate("RX", 1, parameter=2.)])
 
         ref2 = [Gate("H", 0), Gate("CNOT", 1, control=0), Gate("X", 0), Gate("RX", 1, parameter=2.),
-              Gate("H", 2), Gate("CNOT", 3, control=2), Gate("X", 2), Gate("RX", 3, parameter=2.)]
+                Gate("H", 2), Gate("CNOT", 3, control=2), Gate("X", 2), Gate("RX", 3, parameter=2.)]
         # Stacked copies of same circuit
         self.assertTrue(ref2 == stack(c4, c4)._gates)
         self.assertTrue(ref2 == c4.stack(c4)._gates)
