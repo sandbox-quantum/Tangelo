@@ -70,14 +70,17 @@ def extrapolation(energies, coeffs, taylor_order=None):
         taylor_order = n-1
     Eh = np.array(energies)
     coeffs = np.array(coeffs)
+
     # Setup the linear system matrix
     ck = np.array([coeffs**k for k in range(1, taylor_order+1)])
     B = np.ones((n+1, n+1))
     B[n, n] = 0
     B[:n, :n] = ck.T @ ck
+
     # Setup the free coefficients
     b = np.zeros(n+1)
     b[n] = 1  # For the Lagrange multiplier
+
     # Solve  the DIIS equations by least squares
     x = np.linalg.lstsq(B, b, rcond=None)[0]
     return np.dot(Eh, x[:-1])
@@ -139,6 +142,7 @@ def richardson_with_exp_estimation(energies, coeffs):
         else:
             break
 
+        # Run the main Richardson loop
         for j in range(n-i-1):
             ti = (ck[j]/ck[j+1])
             if (i > 0):

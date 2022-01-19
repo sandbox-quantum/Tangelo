@@ -17,7 +17,7 @@ import numpy as np
 
 from tangelo.toolboxes.post_processing import diis, richardson
 
-energies = [-1.0477557352266311, -1.0430228852530665, -1.0336456812527268, -1.0300524502477852]
+energies = [-1.04775574, -1.04302289, -1.03364568, -1.03005245]
 coeffs = [1., 1.1, 1.2, 1.3]
 
 
@@ -27,15 +27,15 @@ class ExtrapolationTest(unittest.TestCase):
         """Test DIIS extrapolation on small sample data
         """
         calculated = diis(energies, coeffs)
-        self.assertAlmostEqual(-1.1104793057724596, calculated, delta=1e-10)
+        self.assertAlmostEqual(-1.11047933, calculated, delta=1e-6)
 
     def test_richardson(self):
         """Test Richardson extrapolation on small sample data
         """
         calculated = richardson(energies, coeffs)
-        self.assertAlmostEqual(-1.4545871813885753, calculated, delta=1e-10)
+        self.assertAlmostEqual(-1.45459036, calculated, delta=1e-6)
         calculated = richardson(energies, coeffs, estimate_exp=True)
-        self.assertAlmostEqual(-1.056015997770032, calculated, delta=1e-10)
+        self.assertAlmostEqual(-1.05601603, calculated, delta=1e-6)
 
 
 if __name__ == "__main__":
