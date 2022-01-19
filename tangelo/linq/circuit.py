@@ -281,7 +281,8 @@ def stack(*circuits):
     # Stack circuits. Reindex each circuit with the proper offset and then concatenate, until done
     stacked_circuit = circuits.pop(0)
     for c in circuits:
-        c.reindex_qubits(list(range(stacked_circuit.width, stacked_circuit.width + c.width)))
-        stacked_circuit += c
+        c_stack = copy.deepcopy(c)
+        c_stack.reindex_qubits(list(range(stacked_circuit.width, stacked_circuit.width + c.width)))
+        stacked_circuit += c_stack
 
     return stacked_circuit
