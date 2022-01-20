@@ -45,8 +45,11 @@ def job_submit(circuit, n_shots, backend):
     job_options = {'shots': n_shots, 'backend': backend}
 
     # Submit the problem
-    qemist_cloud_job_id = util.solve_quantum_circuits_async(serialized_fragment=circuit_data,
-                                                            serialized_solver=job_options)[0]
+    try:
+        qemist_cloud_job_id = util.solve_quantum_circuits_async(serialized_fragment=circuit_data,
+                                                                serialized_solver=job_options)[0]
+    except NameError:
+        raise ModuleNotFoundError("job_submit function needs qemist_client.util module.")
 
     return qemist_cloud_job_id
 
@@ -61,7 +64,10 @@ def job_status(qemist_cloud_job_id):
     Returns:
         str: current status of the problem, as a string.
     """
-    return util.get_problem_status(qemist_cloud_job_id)
+    try:
+        return util.get_problem_status(qemist_cloud_job_id)
+    except NameError:
+        raise ModuleNotFoundError("job_status function needs qemist_client.util module.")
 
 
 def job_cancel(qemist_cloud_job_id):
@@ -75,8 +81,10 @@ def job_cancel(qemist_cloud_job_id):
     Returns:
         dict: cancelled problems / subproblems.
     """
-
-    res = util.cancel_problems(qemist_cloud_job_id)
+    try:
+        res = util.cancel_problems(qemist_cloud_job_id)
+    except NameError:
+        raise ModuleNotFoundError("job_cancel function needs qemist_client.util module.")
     # TODO: If res is coming out as an error code, Tangelo should raise an error
 
     return res
@@ -98,6 +106,9 @@ def job_result(qemist_cloud_job_id):
     try:
         util.monitor_problem_status(problem_handle=qemist_cloud_job_id, verbose=False)
 
+    except NameError:
+        raise ModuleNotFoundError("job_result function needs qemist_client.util module.")
+
     except KeyboardInterrupt:
         print(f"\nYour problem is still running with id {qemist_cloud_job_id}.\n")
         command = input("Type 'cancel' and return to cancel your problem."
@@ -115,7 +126,8 @@ def job_result(qemist_cloud_job_id):
               f"Reconnect and block until the problem is complete with qemist_client.util.monitor_problem_status({qemist_cloud_job_id}).\n\n")
         raise
 
-    # Once a result is available, retrieve it
+    # Once a result is available, retrieve it.
+    # If the util module is not found earlier, an error has been raised.
     output = util.get_quantum_results(problem_handle=qemist_cloud_job_id)[qemist_cloud_job_id]
 
     # Amazon Braket: parsing of output
