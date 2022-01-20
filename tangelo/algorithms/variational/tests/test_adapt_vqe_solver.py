@@ -15,7 +15,9 @@
 import unittest
 
 from tangelo.algorithms.variational import ADAPTSolver
-from tangelo.molecule_library import mol_H2_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, xyz_H4
+from tangelo.toolboxes.ansatz_generator._unitary_majorana_cc import get_majorana_uccgsd_pool, get_majorana_uccsd_pool
+from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 
 
 class ADAPTSolverTest(unittest.TestCase):
@@ -53,6 +55,29 @@ class ADAPTSolverTest(unittest.TestCase):
                      "circuit_var_gates": 8,
                      "vqe_variational_parameters": 1}
         self.assertEqual(adapt_solver.get_resources(), resources)
+
+    def test_multiple_cycle_adapt_majorana_pool(self):
+        """Solve H4 with one frozen orbtial with ADAPTSolver using 4 cycles and operators chosen
+        from a Majorana UCCGSD pool and a Majorana UCCSD pool
+        """
+
+        mol = SecondQuantizedMolecule(xyz_H4, 0, 0, "sto-3g", frozen_orbitals=[0])
+        opt_dict = {"molecule": mol, "max_cycles": 4, "verbose": False, "pool": get_majorana_uccgsd_pool,
+                    "pool_args": {"n_sos": mol.n_active_sos}}
+        adapt_solver = ADAPTSolver(opt_dict)
+        adapt_solver.build()
+        adapt_solver.simulate()
+
+        self.assertAlmostEqual(adapt_solver.optimal_energy, -1.8945, places=3)
+
+        mol = SecondQuantizedMolecule(xyz_H4, 0, 0, "sto-3g", frozen_orbitals=[0])
+        opt_dict = {"molecule": mol, "max_cycles": 4, "verbose": False, "pool": get_majorana_uccsd_pool,
+                    "pool_args": {"n_electrons": mol.n_active_electrons, "n_sos": mol.n_active_sos}}
+        adapt_solver = ADAPTSolver(opt_dict)
+        adapt_solver.build()
+        adapt_solver.simulate()
+
+        self.assertAlmostEqual(adapt_solver.optimal_energy, -1.8945, places=3)
 
 
 if __name__ == "__main__":
