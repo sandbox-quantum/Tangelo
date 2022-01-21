@@ -65,9 +65,11 @@ def job_status(qemist_cloud_job_id):
         str: current status of the problem, as a string.
     """
     try:
-        return util.get_problem_status(qemist_cloud_job_id)
+        res = util.get_problem_status(qemist_cloud_job_id)
     except NameError:
         raise ModuleNotFoundError("job_status function needs qemist_client.util module.")
+        
+    return res
 
 
 def job_cancel(qemist_cloud_job_id):
@@ -85,7 +87,7 @@ def job_cancel(qemist_cloud_job_id):
         res = util.cancel_problems(qemist_cloud_job_id)
     except NameError:
         raise ModuleNotFoundError("job_cancel function needs qemist_client.util module.")
-    # TODO: If res is coming out as an error code, Tangelo should raise an error
+    # TODO: If res is coming out as an error code, we should raise an error
 
     return res
 
@@ -100,7 +102,7 @@ def job_result(qemist_cloud_job_id):
 
     Returns:
         dict: Histogram of measurement frequencies.
-        dict): The cloud provider raw data.
+        dict: The cloud provider raw data.
     """
 
     try:
