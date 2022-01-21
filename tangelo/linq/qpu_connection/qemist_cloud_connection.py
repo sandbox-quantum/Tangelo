@@ -68,7 +68,7 @@ def job_status(qemist_cloud_job_id):
         res = util.get_problem_status(qemist_cloud_job_id)
     except NameError:
         raise ModuleNotFoundError("job_status function needs qemist_client.util module.")
-        
+
     return res
 
 
