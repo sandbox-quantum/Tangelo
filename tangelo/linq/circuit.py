@@ -134,7 +134,13 @@ class Circuit:
         qubit indices...).
         """
         # Add the gate to the list of gates
-        self._gates += [gate]
+        #self._gates += [gate]
+
+        self._gates += [type('Gate', (), gate.__dict__.copy())]
+        #print(id(gate), id(self._gates[-1]))
+
+        # self._gates += [Gate(gate.name, list(gate.target).copy(), list(gate.control).copy(),
+        #                      gate.parameter, gate.is_variational)]
 
         # A circuit is variational as soon as a variational gate is added to it
         if gate.is_variational:
