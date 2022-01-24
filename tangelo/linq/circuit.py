@@ -128,14 +128,14 @@ class Circuit:
         """
         return "MEASURE" in self.counts
 
-    def add_gate(self, gate):
+    def add_gate(self, g):
         """Add a new gate to a circuit object and update other fields of the
         circuit object to gradually keep track of its properties (gate count,
         qubit indices...).
         """
         # Add the gate to the list of gates
-        g = copy.deepcopy(gate)
-        self._gates.append(g)
+        gate = copy.deepcopy(g)
+        self._gates.append(gate)
 
         # g = Gate(gate.name, target=gate.target.copy())
         # for key, value in gate.__dict__.copy().items():
@@ -158,8 +158,8 @@ class Circuit:
         #                      gate.parameter, gate.is_variational)]
 
         # A circuit is variational as soon as a variational gate is added to it
-        if g.is_variational:
-            self._variational_gates.append(g)
+        if gate.is_variational:
+            self._variational_gates.append(gate)
 
         def check_index_valid(index):
             """If circuit size was specified at instantiation, check that qubit
