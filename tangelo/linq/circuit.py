@@ -133,17 +133,9 @@ class Circuit:
         circuit object to gradually keep track of its properties (gate count,
         qubit indices...).
         """
-        # Add the gate to the list of gates
-        #gate = copy.deepcopy(g)
+        # Add a copy of the gate to the list of gates
         gate = Gate(g.name, g.target, g.control, g.parameter, g.is_variational)
         self._gates.append(gate)
-
-        # print(id(gate.name), id(g.name))
-        # print(id(gate.target), id(g.target))
-        # print(id(gate.control), id(g.control))
-        # print(id(gate.parameter), id(g.parameter))
-        # print(id(gate.is_variational), id(g.is_variational))
-        # print('\n')
 
         # A circuit is variational as soon as a variational gate is added to it
         if gate.is_variational:
