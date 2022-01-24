@@ -59,6 +59,21 @@ class TestCircuits(unittest.TestCase):
         self.assertTrue(circuit1.is_variational is False)
         self.assertTrue(circuit3.is_variational is True)
 
+    def test_gate_data_is_copied(self):
+        """ Ensure that the circuit is not referencing mutable variables that could cause it to change after
+        instantiation if the values of the variable are changed by the user """
+
+        mygates2 = copy.deepcopy(mygates)
+        c1 = Circuit(mygates2)
+
+        g = mygates2[0]
+        g.target.append(1)
+        g.name = 'POTATO'
+        g.parameter = -999.
+
+        c2 = Circuit(mygates2)
+        self.assertTrue(c1 != c2)
+
     def test_width(self):
         """ Ensure the width attribute of the circuit object (number of qubits) matches the gate operations
         present in the circuit. """
