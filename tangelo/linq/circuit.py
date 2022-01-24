@@ -134,17 +134,32 @@ class Circuit:
         qubit indices...).
         """
         # Add the gate to the list of gates
-        #self._gates += [gate]
+        g = copy.deepcopy(gate)
+        self._gates.append(g)
 
-        self._gates += [type('Gate', (), gate.__dict__.copy())]
+        # g = Gate(gate.name, target=gate.target.copy())
+        # for key, value in gate.__dict__.copy().items():
+        #     setattr(g, key, value)
+        # self._gates.append(g)
+        #
+        # print(id(gate.name), id(g.name))
+        #
+        # print(gate)
+        # print(g)
+        #
+        # gate.target = [5]
+        # print(gate)
+        # print(g)
+
+        #self._gates += [type(Gate, (), gate.__dict__.copy())]
         #print(id(gate), id(self._gates[-1]))
 
         # self._gates += [Gate(gate.name, list(gate.target).copy(), list(gate.control).copy(),
         #                      gate.parameter, gate.is_variational)]
 
         # A circuit is variational as soon as a variational gate is added to it
-        if gate.is_variational:
-            self._variational_gates.append(gate)
+        if g.is_variational:
+            self._variational_gates.append(g)
 
         def check_index_valid(index):
             """If circuit size was specified at instantiation, check that qubit
@@ -253,7 +268,11 @@ class Circuit:
         Returns:
             Circuit: the inverted circuit
         """
-        gates = [gate.inverse() for gate in reversed(self._gates)]
+        #gates = [gate.inverse() for gate in reversed(self._gates)]
+        gates = []
+        for gate in reversed(self._gates):
+            g = gate.inverse()
+            gates.append(g)
         return Circuit(gates, n_qubits=self.width)
 
     def serialize(self):
