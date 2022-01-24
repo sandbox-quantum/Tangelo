@@ -111,14 +111,6 @@ class Gate(dict):
         """Define inequality (!=) operator on gates"""
         return not (self == other)
 
-    # @classmethod
-    # def from_dict(cls, **kwargs):
-    #     """Build a new Gate object from the underlying dictionary"""
-    #
-    #     Gate
-    #     for key, value in kwargs.items():
-    #         setattr(self, key, value)
-
     def inverse(self):
         """Return the inverse (adjoint) of a gate.
 
