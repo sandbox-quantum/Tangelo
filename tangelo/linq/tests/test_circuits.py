@@ -60,8 +60,8 @@ class TestCircuits(unittest.TestCase):
         self.assertTrue(circuit3.is_variational is True)
 
     def test_gate_data_is_copied(self):
-        """ Ensure that the circuit is not referencing mutable variables that could cause it to change after
-        instantiation if the values of the variable are changed by the user """
+        """ Ensure that circuit is not referencing mutable variables that could cause it to change after
+        instantiation if the values of the variables are later changed in external code. """
 
         mygates2 = copy.deepcopy(mygates)
         c1 = Circuit(mygates2)
