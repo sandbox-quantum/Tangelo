@@ -18,7 +18,7 @@ from openfermion import load_operator
 
 from tangelo.helpers.utils import default_simulator
 from tangelo.linq import translator, Simulator, Circuit
-from tangelo.linq.helpers import string_ham_to_of, measurement_basis_gates
+from tangelo.linq.helpers import measurement_basis_gates
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.measurements import get_measurement_estimate
 
