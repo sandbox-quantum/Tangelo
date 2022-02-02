@@ -140,7 +140,7 @@ def job_result(qemist_cloud_job_id):
     return freqs, raw_data
 
 
-def job_estimate(circuit, n_shots):
+def job_estimate(circuit, n_shots, backend):
     """Returns an estimate of the cost of running an experiment. Some service
     providers care about the complexity / structure of the input quantum
     circuit, some do not.
@@ -148,23 +148,24 @@ def job_estimate(circuit, n_shots):
     Some backends may charge per minute (such as simulators), which is difficult
     to estimate and may be misleading. They are currently not included.
 
-    Braket prices: https://aws.amazon.com/braket/pricing/
-    Azure Quantum prices: TBD
-
     Args:
         circuit (Circuit): the abstract circuit to be run on the target device.
         n_shots (int): number of shots in the expriment.
+        backend (str): the identifier string for the desired backend.
 
     Returns:
         dict: A dictionary of floating-point values (prices) in USD.
     """
 
-    # Compute prices for each available backend (see provider formulas)
-    price_estimate = dict()
-    price_estimate['braket_ionq'] = 0.3 + 0.01 * n_shots
-    price_estimate['braket_rigetti'] = 0.3 + 0.00035 * n_shots
+    # Serialize circuit data
+    circuit_data = circuit.serialize()
 
-    # Round up to a cent for readability
-    price_estimate = {k: round(v, 2) for k, v in price_estimate.items()}
+    # Build option dictionary
+    job_options = {'shots': n_shots, 'backend': backend}
+
+    try:
+        price_estimate = util.check_qpu_cost(circuit_data, job_options)
+    except NameError:
+        raise ModuleNotFoundError("job_estimate function needs qemist_client.util module.")
 
     return price_estimate
