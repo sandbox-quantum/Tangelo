@@ -45,12 +45,8 @@ def job_submit(circuit, n_shots, backend):
     job_options = {'shots': n_shots, 'backend': backend}
 
     # Submit the problem
-    try:
-        qemist_cloud_job_id = util.solve_quantum_circuits_async(serialized_fragment=circuit_data,
-                                                                serialized_solver=job_options)[0]
-    except NameError:
-        raise ModuleNotFoundError("job_submit function needs qemist_client.util module.")
-
+    qemist_cloud_job_id = util.solve_quantum_circuits_async(serialized_fragment=circuit_data,
+                                                            serialized_solver=job_options)[0]
     return qemist_cloud_job_id
 
 
@@ -64,10 +60,7 @@ def job_status(qemist_cloud_job_id):
     Returns:
         str: current status of the problem, as a string.
     """
-    try:
-        res = util.get_problem_status(qemist_cloud_job_id)
-    except NameError:
-        raise ModuleNotFoundError("job_status function needs qemist_client.util module.")
+    res = util.get_problem_status(qemist_cloud_job_id)
 
     return res
 
@@ -83,10 +76,7 @@ def job_cancel(qemist_cloud_job_id):
     Returns:
         dict: cancelled problems / subproblems.
     """
-    try:
-        res = util.cancel_problems(qemist_cloud_job_id)
-    except NameError:
-        raise ModuleNotFoundError("job_cancel function needs qemist_client.util module.")
+    res = util.cancel_problems(qemist_cloud_job_id)
     # TODO: If res is coming out as an error code, we should raise an error
 
     return res
@@ -105,11 +95,7 @@ def job_result(qemist_cloud_job_id):
         dict: The cloud provider raw data.
     """
 
-    try:
-        util.monitor_problem_status(problem_handle=qemist_cloud_job_id, verbose=False)
-
-    except NameError:
-        raise ModuleNotFoundError("job_result function needs qemist_client.util module.")
+    util.monitor_problem_status(problem_handle=qemist_cloud_job_id, verbose=False)
 
     except KeyboardInterrupt:
         print(f"\nYour problem is still running with id {qemist_cloud_job_id}.\n")
@@ -163,9 +149,6 @@ def job_estimate(circuit, n_shots, backend):
     # Build option dictionary
     job_options = {'shots': n_shots, 'backend': backend}
 
-    try:
-        price_estimate = util.check_qpu_cost(circuit_data, job_options)
-    except NameError:
-        raise ModuleNotFoundError("job_estimate function needs qemist_client.util module.")
+    price_estimate = util.check_qpu_cost(circuit_data, job_options)
 
     return price_estimate
