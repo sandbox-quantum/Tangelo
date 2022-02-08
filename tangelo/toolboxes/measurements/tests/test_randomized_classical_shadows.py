@@ -51,12 +51,12 @@ class RandomizedClassicalShadowTest(unittest.TestCase):
     def test_initialization(self):
         """Testing the initialization."""
 
-        RandomizedClassicalShadow(state, bitstrings, unitaries)
+        RandomizedClassicalShadow(state, bitstrings, unitaries, shuffle=False)
 
     def test_shadow_properties(self):
         """Testing of the shadow properties."""
 
-        cs = RandomizedClassicalShadow(state, bitstrings, unitaries)
+        cs = RandomizedClassicalShadow(state, bitstrings, unitaries, shuffle=False)
 
         self.assertEqual(cs.n_qubits, 2)
         self.assertEqual(cs.size, 100)
@@ -65,21 +65,21 @@ class RandomizedClassicalShadowTest(unittest.TestCase):
     def test_get_term_observable(self):
         """Testing the computation of a single qubit term."""
 
-        cs = RandomizedClassicalShadow(state, bitstrings, unitaries)
+        cs = RandomizedClassicalShadow(state, bitstrings, unitaries, shuffle=False)
         obs = cs.get_term_observable([(0, "Y"), (1, "Y")], 1., k=10)
         self.assertAlmostEqual(obs, -0.89999, places=4)
 
     def test_get_observable(self):
         """Testings the computation of an eigenvalue of a QubitOperator."""
 
-        cs = RandomizedClassicalShadow(state, bitstrings, unitaries)
+        cs = RandomizedClassicalShadow(state, bitstrings, unitaries, shuffle=False)
         obs = cs.get_observable(QubitOperator("Y0 Y1", coefficient=1.))
         self.assertAlmostEqual(obs, -0.89999, places=4)
 
     def test_estimate_state(self):
         """Testing of the state estimation method to get the density matrix."""
 
-        cs = RandomizedClassicalShadow(state, bitstrings, unitaries)
+        cs = RandomizedClassicalShadow(state, bitstrings, unitaries, shuffle=False)
         rho_estimate = cs.estimate_state()
 
         # Previously ran with this specific shadow.
