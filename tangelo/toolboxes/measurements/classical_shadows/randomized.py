@@ -53,7 +53,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
     """
 
     def __init__(self, circuit=None, bitstrings=None, unitaries=None, shuffle=True):
-        """Overload of the init method to shuffle the bistrings and unitaries if
+        """Overloads the init method to shuffle the bistrings and unitaries if
         those are provided.
 
         Args:
@@ -63,6 +63,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
         super().__init__(circuit, bitstrings, unitaries)
 
         if bitstrings and shuffle:
+            # Shuffling the order while keeping the bistring to its unitary.
             random_bitstrings = list(zip(bitstrings, unitaries))
             random.shuffle(random_bitstrings)
             new_bistrings, new_unitaries = zip(*random_bitstrings)
