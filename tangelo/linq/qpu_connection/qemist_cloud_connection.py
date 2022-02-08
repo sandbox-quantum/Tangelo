@@ -127,12 +127,14 @@ def job_result(qemist_cloud_job_id):
 
 
 def job_estimate(circuit, n_shots, backend=None):
-    """Returns an estimate of the cost of running an experiment. Some service
-    providers care about the complexity / structure of the input quantum
-    circuit, some do not.
-
-    Some backends may charge per minute (such as simulators), which is difficult
-    to estimate and may be misleading. They are currently not included.
+    """Returns an estimate of the cost of running an experiment, for a specified backend 
+    or all backends available. Some service providers care about the 
+    complexity / structure of the input quantum circuit, some do not.
+    
+    The backend identifier strings that a user can provide as argument can be obtained
+    by calling this function without specifying a backend. They appear as keys in
+    the returned dictionary. These strings may change with time, as we adjust to the
+    growing cloud quantum offer (services and devices).
 
     Args:
         circuit (Circuit): the abstract circuit to be run on the target device.
@@ -140,9 +142,9 @@ def job_estimate(circuit, n_shots, backend=None):
         backend (str): the identifier string for the desired backend.
 
     Returns:
-        dict: Returns dict of prices in USD. If backend is not None, dictrionary
+        dict: Returns dict of prices in USD. If backend is not None, dictionary
         contains the cost for running the desired job. If backend is None,
-        retruns dictionary of prices for all supported backends.
+        returns dictionary of prices for all supported backends.
     """
 
     # Serialize circuit data
