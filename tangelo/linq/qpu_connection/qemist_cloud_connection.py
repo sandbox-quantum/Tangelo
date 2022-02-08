@@ -67,8 +67,7 @@ def job_status(qemist_cloud_job_id):
 
 def job_cancel(qemist_cloud_job_id):
     """Cancels the job matching the input job id, if done in time before it
-    starts. Returns a list of cancelled problems and number of subproblems, if
-    any.
+    starts.
 
     Args:
         qemist_cloud_job_id (int): problem handle / job identifier.
@@ -95,7 +94,8 @@ def job_result(qemist_cloud_job_id):
         dict: The cloud provider raw data.
     """
 
-    util.monitor_problem_status(problem_handle=qemist_cloud_job_id, verbose=False)
+    try:
+        util.monitor_problem_status(problem_handle=qemist_cloud_job_id, verbose=False)
 
     except KeyboardInterrupt:
         print(f"\nYour problem is still running with id {qemist_cloud_job_id}.\n")
@@ -126,7 +126,7 @@ def job_result(qemist_cloud_job_id):
     return freqs, raw_data
 
 
-def job_estimate(circuit, n_shots, backend):
+def job_estimate(circuit, n_shots, backend=None):
     """Returns an estimate of the cost of running an experiment. Some service
     providers care about the complexity / structure of the input quantum
     circuit, some do not.
@@ -140,14 +140,18 @@ def job_estimate(circuit, n_shots, backend):
         backend (str): the identifier string for the desired backend.
 
     Returns:
-        dict: A dictionary of floating-point values (prices) in USD.
+        dict: Returns dict of prices in USD. If backend is not None, dictrionary
+        contains the cost for running the desired job. If backend is None,
+        retruns dictionary of prices for all supported backends.
     """
 
     # Serialize circuit data
     circuit_data = circuit.serialize()
 
     # Build option dictionary
-    job_options = {'shots': n_shots, 'backend': backend}
+    job_options = {'shots': n_shots}
+    if backend:
+        job_options['backend'] = backend
 
     price_estimate = util.check_qpu_cost(circuit_data, job_options)
 
