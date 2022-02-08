@@ -127,10 +127,10 @@ def job_result(qemist_cloud_job_id):
 
 
 def job_estimate(circuit, n_shots, backend=None):
-    """Returns an estimate of the cost of running an experiment, for a specified backend 
-    or all backends available. Some service providers care about the 
+    """Returns an estimate of the cost of running an experiment, for a specified backend
+    or all backends available. Some service providers care about the
     complexity / structure of the input quantum circuit, some do not.
-    
+
     The backend identifier strings that a user can provide as argument can be obtained
     by calling this function without specifying a backend. They appear as keys in
     the returned dictionary. These strings may change with time, as we adjust to the
