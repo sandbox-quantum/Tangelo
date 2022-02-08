@@ -340,14 +340,13 @@ class Simulator:
         if self._target == "qulacs" and not self.n_shots:
             import qulacs
 
-            op = qulacs.quantum_operator.create_quantum_operator_from_openfermion_text(qubit_operator.__repr__())
-            if op.get_qubit_count() == n_qubits:
-                return op.get_expectation_value(self._current_state).real
-            else:
-                operator = qulacs.GeneralQuantumOperator(n_qubits)
-                for i in range(op.get_term_count()):
-                    operator.add_operator(op.get_term(i))
-                return operator.get_expectation_value(self._current_state).real
+            operator = qulacs.Observable(n_qubits)
+            for term, coef in qubit_operator.terms.items():
+                pauli_string = ""
+                for tup in term:
+                    pauli_string += f" {tup[1]} {tup[0]}"
+                operator.add_operator(coef, pauli_string)
+            return operator.get_expectation_value(self._current_state).real
 
         # Use cirq built-in expectation_from_state_vector/epectation_from_density_matrix
         # noise model would require
