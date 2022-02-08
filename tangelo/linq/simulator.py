@@ -342,9 +342,7 @@ class Simulator:
 
             operator = qulacs.Observable(n_qubits)
             for term, coef in qubit_operator.terms.items():
-                pauli_string = ""
-                for qu, op in term:
-                    pauli_string += f" {op} {qu}"
+                pauli_string = "".join(f" {op} {qu}" for qu, op in term)
                 operator.add_operator(coef, pauli_string)
             return operator.get_expectation_value(self._current_state).real
 
