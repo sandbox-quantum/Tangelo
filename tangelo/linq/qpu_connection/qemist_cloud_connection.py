@@ -116,11 +116,12 @@ def job_result(qemist_cloud_job_id):
         command = input("Type 'cancel' and return to cancel your problem."
                         "Type anything else to disconnect but keep the problem running.\n")
         if command.lower() == "cancel":
-            ret = job_cancel()
+            ret = job_cancel(qemist_cloud_job_id)
             print("Problem cancelled.", ret)
         else:
             print(f"Reconnect and block until the problem is complete with "
                   f"qemist_client.util.monitor_problem_status({qemist_cloud_job_id}).\n\n")
+        raise
 
     except Exception:
         print(f"\n\nYour problem is still running with handle {qemist_cloud_job_id}.\n"
