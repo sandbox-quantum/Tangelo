@@ -340,6 +340,9 @@ class Simulator:
         if self._target == "qulacs" and not self.n_shots:
             import qulacs
 
+            # Note: This section previously used qulacs.quantum_operator.create_quantum_operator_from_openfermion_text but was changed
+            # due to a memory leak. We can re-evaluate the implementation if/when Issue #303 (https://github.com/qulacs/qulacs/issues/303)
+            # is fixed.
             operator = qulacs.Observable(n_qubits)
             for term, coef in qubit_operator.terms.items():
                 pauli_string = "".join(f" {op} {qu}" for qu, op in term)
