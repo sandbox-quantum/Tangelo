@@ -29,7 +29,7 @@ class ClassicalShadow(abc.ABC):
     with the fewest measurement possible.
     """
 
-    def __init__(self, circuit, bitstrings=None, unitaries=None):
+    def __init__(self, circuit=None, bitstrings=None, unitaries=None):
         """Default constructor for the ClassicalShadow object. This class is
         the parent class for the different classical shadows flavors. The object
         is defined by the bistrings and unitaries used in the process. Abstract
@@ -37,6 +37,7 @@ class ClassicalShadow(abc.ABC):
         channel.
 
         Args:
+            circuit (Circuit): State to characterize.
             bistrings (list of str): Representation of the outcomes for all
                 snapshots. E.g. ["11011", "10000", ...].
             unitaries (list of str): Representation of the unitary for every
@@ -47,13 +48,15 @@ class ClassicalShadow(abc.ABC):
         self.bitstrings = list() if bitstrings is None else bitstrings
         self.unitaries = list() if unitaries is None else unitaries
 
+        assert len(self.bitstrings) == len(self.unitaries), f"bistrings and unitaries must be the same length."
+
         # If the state has been estimated, it is stored into this attribute.
         self.state_estimate = None
 
     @property
     def n_qubits(self):
         """Returns the number of qubits the shadow represents."""
-        return self.circuit.width
+        return self.circuit.width if self.circuit else len(self.bitstrings[0])
 
     @property
     def size(self):
@@ -113,6 +116,9 @@ class ClassicalShadow(abc.ABC):
 
         if not self.unitaries:
             raise ValueError(f"The build method of {self.__class__.__name__} must be called before simulation.")
+
+        if self.bitstrings:
+            raise NotImplementedError("Appending new simulation results to already defined self.bistrings is not implemented yet.")
 
         if backend.n_shots != 1:
             warnings.warn(f"Changing number of shots to 1 for the backend (classical shadows).")

@@ -52,6 +52,23 @@ class RandomizedClassicalShadow(ClassicalShadow):
     \hat{\rho} = \bigotimes_{j=1}^n \left( 3U_j^{\dagger} |b_j\rangle \langle b_j| U_j - \mathbb{I} \right)
     """
 
+    def __init__(self, circuit=None, bitstrings=None, unitaries=None, shuffle=True):
+        """Overloads the init method to shuffle the bistrings and unitaries if
+        those are provided.
+
+        Args:
+            shuffle (bool): Randomize bitstrings and unitaries. Default = True.
+        """
+
+        super().__init__(circuit, bitstrings, unitaries)
+
+        if bitstrings and shuffle:
+            # Shuffling the order while keeping the bistring to its unitary.
+            random_bitstrings = list(zip(bitstrings, unitaries))
+            random.shuffle(random_bitstrings)
+            new_bistrings, new_unitaries = zip(*random_bitstrings)
+            self.bitstrings, self.unitaries = list(new_bistrings), list(new_unitaries)
+
     def build(self, n_shots):
         """Random sampling of single pauli words.
 
@@ -66,7 +83,7 @@ class RandomizedClassicalShadow(ClassicalShadow):
             single_round_measurement = "".join([random.choice(["X", "Y", "Z"]) for _ in range(self.n_qubits)])
             measurement_procedure.append(single_round_measurement)
 
-        self.unitaries = measurement_procedure
+        self.unitaries += measurement_procedure
         return measurement_procedure
 
     def get_basis_circuits(self, only_unique=False):

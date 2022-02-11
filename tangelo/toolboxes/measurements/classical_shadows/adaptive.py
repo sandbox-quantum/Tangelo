@@ -46,7 +46,7 @@ class AdaptiveClassicalShadow(ClassicalShadow):
 
         measurement_procedure = [self._choose_measurement(qu_op) for _ in range(n_shots)]
 
-        self.unitaries = measurement_procedure
+        self.unitaries += measurement_procedure
         return measurement_procedure
 
     def _choose_measurement(self, qu_op):
