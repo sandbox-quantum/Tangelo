@@ -118,7 +118,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
         # Fill "missing" shots with a set of random (already chosen) basis.
         measurement_procedure += random.choices(measurement_procedure, k=n_shots-len(measurement_procedure))
 
-        self.unitaries = measurement_procedure
+        self.unitaries += measurement_procedure
         return measurement_procedure
 
     def get_basis_circuits(self, only_unique=False):
