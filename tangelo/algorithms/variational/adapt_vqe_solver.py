@@ -53,8 +53,8 @@ class ADAPTSolver:
         pool (func): Function that returns a list of FermionOperator. Each
             element represents excitation/operator that has an effect of the
             total energy.
-        pool_args (tuple) : The arguments for the pool function given as a
-            tuple.
+        pool_args (dict) : The arguments for the pool function. Will be unpacked in
+            function call as pool(**pool_args)
         qubit_mapping (str): One of the supported qubit mapping identifiers.
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         up_then_down (bool): Spin orbitals ordering.
@@ -170,11 +170,11 @@ class ADAPTSolver:
         # are added, this part must be modified and generalized.
         if self.pool_args is None:
             if self.pool == uccgsd_pool:
-                self.pool_args = (self.n_spinorbitals,)
+                self.pool_args = {"n_qubits": self.n_spinorbitals}
             else:
                 raise KeyError('pool_args must be defined if using own pool function')
         # Check if pool function returns a QubitOperator or FermionOperator and populate variables
-        pool_list = self.pool(*self.pool_args)
+        pool_list = self.pool(**self.pool_args)
         if isinstance(pool_list[0], QubitOperator):
             self.pool_type = 'qubit'
             self.pool_operators = pool_list
@@ -250,10 +250,8 @@ class ADAPTSolver:
         Args:
             pool_commutators (QubitOperator): Commutator [H, operator] for each
                 generator.
-            circuit (agnostic_simulator.Circuit): Circuit for measuring each
-                commutator.
-            backend (tangelo.linq.Simulator): Backend to measure
-                expectation values.
+            circuit (tangelo.linq.Circuit): Circuit for measuring each commutator.
+            backend (tangelo.linq.Simulator): Backend to compute expectation values.
             tolerance (float): Minimum value for gradient to be considered.
 
         Returns:

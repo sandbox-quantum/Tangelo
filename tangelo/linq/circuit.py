@@ -128,13 +128,14 @@ class Circuit:
         """
         return "MEASURE" in self.counts
 
-    def add_gate(self, gate):
+    def add_gate(self, g):
         """Add a new gate to a circuit object and update other fields of the
         circuit object to gradually keep track of its properties (gate count,
         qubit indices...).
         """
-        # Add the gate to the list of gates
-        self._gates += [gate]
+        # Add a copy of the gate to the list of gates
+        gate = Gate(g.name, g.target, g.control, g.parameter, g.is_variational)
+        self._gates.append(gate)
 
         # A circuit is variational as soon as a variational gate is added to it
         if gate.is_variational:
@@ -281,7 +282,8 @@ def stack(*circuits):
     # Stack circuits. Reindex each circuit with the proper offset and then concatenate, until done
     stacked_circuit = circuits.pop(0)
     for c in circuits:
-        c.reindex_qubits(list(range(stacked_circuit.width, stacked_circuit.width + c.width)))
-        stacked_circuit += c
+        c_stack = copy.deepcopy(c)
+        c_stack.reindex_qubits(list(range(stacked_circuit.width, stacked_circuit.width + c.width)))
+        stacked_circuit += c_stack
 
     return stacked_circuit

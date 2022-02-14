@@ -51,6 +51,13 @@ class AdaptiveClassicalShadowTest(unittest.TestCase):
 
         AdaptiveClassicalShadow(state, bitstrings, unitaries)
 
+    def test_same_length_check(self):
+        """Testing the case where arguments are not the same length."""
+
+        wrong_bitstrings = bitstrings + ["00"]
+        with self.assertRaises(AssertionError):
+            AdaptiveClassicalShadow(state, wrong_bitstrings, unitaries)
+
     def test_shadow_properties(self):
         """Testing of the shadow properties."""
 
