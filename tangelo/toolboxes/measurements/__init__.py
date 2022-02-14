@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .qubit_terms_grouping import group_qwc, exp_value_from_measurement_bases
+from .grouping import group_sorted_qwc
 from .estimate_measurements import get_measurement_estimate
 from .classical_shadows.classical_shadows import ClassicalShadow
 from .classical_shadows.randomized import RandomizedClassicalShadow
