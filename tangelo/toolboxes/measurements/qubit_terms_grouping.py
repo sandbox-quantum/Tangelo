@@ -23,6 +23,7 @@ import warnings
 from openfermion.measurements import group_into_tensor_product_basis_sets
 from tangelo.linq import Simulator
 
+
 def group_qwc(qb_ham, seed=None):
     """Wrapper around Openfermion functionality that takes as input a
     QubitOperator and yields a collection of mesurement bases defining a
@@ -70,7 +71,7 @@ def exp_value_from_measurement_bases(sub_ops, histograms):
         float or complex: Expectation value of the sum of all suboperators.
     """
 
-    # Warning if dicts dont have exact set of keys
+    # Warning if dicts do not have same exact set of keys
     if set(sub_ops) != set(histograms):
         warnings.warn("Measurement bases are not exactly the same in both dictionaries. Terms may be missing.")
 

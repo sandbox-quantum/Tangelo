@@ -8,6 +8,7 @@ from tangelo.toolboxes.measurements import group_qwc, exp_value_from_measurement
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
+
 def test_sorted_qubitwise_commutativity_of_H2():
     """ The JW Pauli hamiltonian of H2 at optimal geometry is a 15-term operator. Using qubitwise-commutativity,
     it is possible to get the expectation value of all 15 terms by only performing measurements in 5 distinct
@@ -37,6 +38,7 @@ def test_sorted_qubitwise_commutativity_of_H2():
     exp_value = exp_value_from_measurement_bases(group_sorted_qwc, histograms)
     print(exp_value, "/n", sim.get_expectation_value(qb_ham, abs_circ))
 
+
 def group_sorted_qwc(op):
     """
     Args:
@@ -64,6 +66,7 @@ def group_sorted_qwc(op):
 
     return sorted_qwc_groups
 
+
 def does_commute(pauli_1, pauli_2):
     """
     Args:
@@ -77,13 +80,16 @@ def does_commute(pauli_1, pauli_2):
     pauli_2 = dict(pauli_2)
 
     for key, value in pauli_1.items():
-        if key not in pauli_1.keys(): continue
+        if key not in pauli_1.keys():
+            continue
         try:
-            if pauli_1[key] == pauli_2[key]: continue
+            if pauli_1[key] == pauli_2[key]:
+                continue
         except KeyError:
             continue
 
         return False
     return True
+
 
 test_sorted_qubitwise_commutativity_of_H2()
