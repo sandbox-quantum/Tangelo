@@ -91,5 +91,5 @@ def does_commute(pauli_1, pauli_2):
         return False
     return True
 
-
-test_sorted_qubitwise_commutativity_of_H2()
+# VS: Disabled because returning errors and done every time a module imported the contents of this file.
+# test_sorted_qubitwise_commutativity_of_H2()
