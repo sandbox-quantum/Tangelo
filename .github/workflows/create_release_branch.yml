@@ -5,9 +5,6 @@ on:
       versionName:
         description: 'Name of version  (ie 5.5.0)'
         required: true
-      versionCode:
-        description: 'Version number (50500)'
-        required: true
 jobs:
   createrelease:
     runs-on: ubuntu-latest
@@ -22,7 +19,7 @@ jobs:
        git config user.name "GitHub Actions"
        git config user.email noreply@github.com
     - name: Change version number and name
-      run: sed -i 's/__version__ = .*/__version__  = "9.9.9"/' tangelo/_version.py
+      run: sed -i 's/__version__ = .*/__version__  = "${{ github.event.inputs.versionName }}"/' tangelo/_version.py
     - name: Update Changelog
       uses: thomaseizinger/keep-a-changelog-new-release@v1
       with:
