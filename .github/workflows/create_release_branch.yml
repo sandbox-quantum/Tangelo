@@ -22,7 +22,7 @@ jobs:
        git config user.name "GitHub Actions"
        git config user.email noreply@github.com
     - name: Change version number and name
-      run: printf 'ext.version_code = ${{ github.event.inputs.versionCode }}\next.version_name = "${{ github.event.inputs.versionName }}"\n' > app_versions.gradle
+      run: sed -i 's/__version__ = .*/__version__  = "9.9.9"/' tangelo/_version.py
     - name: Update Changelog
       uses: thomaseizinger/keep-a-changelog-new-release@v1
       with:
