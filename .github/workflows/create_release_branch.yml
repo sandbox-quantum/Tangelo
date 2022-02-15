@@ -46,3 +46,4 @@ jobs:
        body: |
          This PR was created in response to "create_release_branch" workflow running.
          I've updated the version name and code commit: ${{ steps.make-commit.outputs.commit }}.
+         Don't forget to update CHANGELOGS.md and then merge back main into develop after this PR goes through.
