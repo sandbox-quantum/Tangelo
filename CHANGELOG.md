@@ -2,13 +2,20 @@
 
 This file documents the main changes between versions of the code.
 
-## [Unreleased]
-
 ## [0.3.0] - 2022-02-15
 
 ### Added
 
+- Circuit operators and methods (repetition, equality, trim, split, stack...)
+- Support for Classical Shadows ((de)randomized, adaptative)
+- Sphinx documentation generator script in dev_tools
+- JKMN qubit mapping
+- QMF, QCC and VSQS ansatze for VQE
+- Controlled-time evolution, Richardson extrapolation method
+
 ### Changed
+
+- Naming (Good Chemistry, Tangelo, linq)
 
 ### Deprecated
 
