@@ -7,27 +7,27 @@ def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 
-with open('README.md', 'r') as f:
+with open("tangelo/_version.py") as f:
+    version = f.readlines()[-1].split()[-1].strip("\"'")
+
+with open('README.rst', 'r') as f:
     long_description = f.read()
 
-__title__ = "1QBit's quantum SDK for quantum chemistry"
-__copyright__ = "1QBit Inc"
-__version__ = "0.2.0"
-__status__ = "beta"
-__authors__ = ["Valentin Senicourt, Alexandre Fleury, Ryan Day, James Brown"]
-
-install('h5py==3.2.0')
+install('wheel')
 install('pyscf')
+install('git+https://github.com/pyscf/semiempirical')
 
 setuptools.setup(
-    name="qSDK",
-    version=__version__,
-    description="1QBit's quantum SDK for quantum chemistry on quantum computers and simulators",
+    name="tangelo",
+    author="The Tangelo developers",
+    version=version,
+    description="Tangelo is a python package developed by Good Chemistry Company, focusing on the development "
+                "of end-to-end materials simulation workflows on quantum computers.",
     long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/quantumsimulation/QEMIST_qSDK",
+    long_description_content_type="text/x-rst",
+    url="https://github.com/goodchemistryco/Tangelo",
     packages=setuptools.find_packages(),
-    test_suite="qsdk",
-    setup_requires=['h5py==3.2.0'],
-    install_requires=['h5py==3.2.0', 'bitarray', 'openfermion', 'openfermionpyscf']
+    test_suite="tangelo",
+    setup_requires=['h5py'],
+    install_requires=['h5py', 'bitarray', 'openfermion', 'openfermionpyscf']
 )
