@@ -35,7 +35,7 @@ jobs:
     - name: Create pull request into main
       uses: thomaseizinger/create-pull-request@1.0.0
       with:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
        head: release/v${{ github.event.inputs.versionName }}
        base: main
        title: v${{ github.event.inputs.versionName }} into main
