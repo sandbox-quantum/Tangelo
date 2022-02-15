@@ -1,6 +1,6 @@
 # Changelog
 
-This file documents the made changes across versions in the code.
+This file documents the main changes between versions of the code.
 
 ## [Unreleased]
 
