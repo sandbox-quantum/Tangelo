@@ -12,25 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module defines the qubit coupled cluster ansatz class for involutory 
-linear combinations (ILC) of anti-commuting Pauli products.
+"""This module defines the coupled cluster ansatz class for involutory
+linear combinations (ILC) of anti-commuting sets (ACS) of Pauli words.
 
 Refs:
     1. R. A. Lang, I. G. Ryabinkin, and A. F. Izmaylov.
+        arXiv:2002.05701v1, 2020, 1–10.
+    2. R. A. Lang, I. G. Ryabinkin, and A. F. Izmaylov.
         J. Chem. Theory Comput. 2021, 17, 1, 66–78.
 """
 
 import warnings
 import numpy as np
 
-from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,\
                                                                fermion_to_qubit_mapping
 from tangelo.linq import Circuit
 from .ansatz import Ansatz
 from .ansatz_utils import exp_pauliword_to_gates
 from ._qubit_mf import init_qmf_from_hf, get_qmf_circuit, purify_qmf_state
-from ._qubit_ilc import construct_ACS, init_ilc_diag
+from ._qubit_ilc import construct_acs, init_ilc_by_diag
 from ._qubit_cc import construct_dis
 
 
@@ -43,31 +44,30 @@ class ILC(Ansatz):
 
     Args:
         molecule (SecondQuantizedMolecule): The molecular system.
-        mapping (str): One of the supported qubit mapping identifiers. Default, "JW".
-        up_then_down (bool): Change basis ordering putting all spin up orbitals first,
-            followed by all spin down. Default, False.
-        qubit_op_list (list of QubitOperator): A list of ILC generators to use for the ansatz.
-            Default, None.
+        mapping (str): One of the supported  mapping identifiers. Default, "JW".
+        up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
+            followed by all spin-down. Default, False.
+        ilc_op_list (list of QubitOperator): Generator list for the ILC ansatz. Default, None.
         qmf_circuit (Circuit): An instance of tangelo.linq Circuit class implementing a QMF state
-            preparation circuit. A variational circuit can be passed from the QMF ansatz class.
-            Otherwise a non-variational circuit is created by default. Default, None.
-        qmf_var_params (list or numpy array of float): The QMF variational parameter set.
+            preparation circuit. If passed from the QMF ansatz class, parameters are variational.
+            If None, one is created with QMF parameters that are not variational. Default, None.
+        qmf_var_params (list or numpy array of float): QMF variational parameter set.
             If None, the values are determined using a Hartree-Fock reference state. Default, None.
-        qubit_mf_ham (QubitOperator): Allows a qubit Hamiltonian to be passed to the ILC ansatz
-            class. If not None, then the fermionic Hamiltonian is ignored. Default, None.
-        ilc_guess (float): Sets the initial guess for all amplitudes in the ILC variational
-            parameter set. Default, 1.e-1 a.u.
-        ilc_deriv_thresh (float): Threshold value of |dEILC/dtau| so that if |dEILC/dtau| >=
-            ilc_deriv_thresh for a generator, add its candidate group to the DIS.
-        max_ilc_gens (int or None): Maximum number of generators allowed for the ansatz.
-            If None, one generator from each DIS group is used. If set to an int, then
-            min(size(DIS), max_ilc_gens) generators are used for the ansatz. Default, None.
-        verbose (bool): Flag for ILC verbosity. Default, False.
+        qubit_ham (QubitOperator): Pass a qubit Hamiltonian to the  ansatz class and ignore
+            the fermionic Hamiltonian in molecule. Default, None.
+        deilc_dtau_thresh (float): Threshold for |dEILC/dtau| so that a candidate group is added
+            to the DIS if |dEILC/dtau| >= deilc_dtau_thresh for a generator. Default, 1.e-3 a.u.
+        ilc_tau_guess (float): The initial guess for all ILC variational parameters.
+            Default, 1.e-2 a.u.
+        max_ilc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
+            one generator from each DIS group is selected. If int, then min(|DIS|, max_ilc_gens)
+            generators are selected in order of decreasing |dEILC/dtau|. Default, None.
+        verbose (bool): Flag for QCC verbosity. Default, False.
     """
 
-    def __init__(self, molecule, mapping="JW", up_then_down=False, qubit_op_list=None,
-                 qmf_circuit=None, qmf_var_params=None, qubit_mf_ham=None, ilc_guess=1.e-1,
-                 ilc_deriv_thresh=1.e-3, max_ilc_gens=None, n_trot=1, verbose=False):
+    def __init__(self, molecule, mapping="JW", up_then_down=False, ilc_op_list=None,
+                 qmf_circuit=None, qmf_var_params=None, qubit_ham=None, ilc_tau_guess=1.e-2,
+                 deilc_dtau_thresh=1.e-3, max_ilc_gens=None, n_trotter=1, verbose=False):
 
         self.molecule = molecule
         self.n_spinorbitals = self.molecule.n_active_sos
@@ -80,26 +80,26 @@ class ILC(Ansatz):
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
         self.up_then_down = up_then_down
         if self.mapping.upper() == "JW" and not self.up_then_down:
-            warnings.warn("The ILC ansatz requires spin-orbital ordering to be all spin-up "
+            warnings.warn("The QCC ansatz requires spin-orbital ordering to be all spin-up "
                           "first followed by all spin-down for the JW mapping.", RuntimeWarning)
             self.up_then_down = True
 
-        self.ilc_guess = ilc_guess
-        self.ilc_deriv_thresh = ilc_deriv_thresh
+        self.ilc_tau_guess = ilc_tau_guess
+        self.deilc_dtau_thresh = deilc_dtau_thresh
         self.max_ilc_gens = max_ilc_gens
-        self.n_trot = n_trot
-        self.qubit_op_list = qubit_op_list
+        self.ilc_op_list = ilc_op_list
         self.qmf_var_params = qmf_var_params
         self.qmf_circuit = qmf_circuit
+        self.n_trotter = n_trotter
         self.verbose = verbose
 
-        if qubit_mf_ham is None:
+        if qubit_ham is None:
             self.fermi_ham = self.molecule.fermionic_hamiltonian
             self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping,
                                                       self.n_spinorbitals, self.n_electrons,
                                                       self.up_then_down, self.spin)
         else:
-            self.qubit_ham = qubit_mf_ham
+            self.qubit_ham = qubit_ham
 
         if self.qmf_var_params is None:
             self.qmf_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
@@ -109,24 +109,29 @@ class ILC(Ansatz):
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError("The number of QMF variational parameters must be 2 * n_qubits.")
 
-        # Get purified QMF parameters and use them to build the DIS or use a list of generators.
-        if self.qubit_op_list is None:
+        # Get purified QMF parameters and build the DIS & ACS or use a list of generators.
+        if self.ilc_op_list is None:
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
                                                self.n_electrons, self.mapping, self.up_then_down,
                                                self.spin, self.verbose)
-            self.dis = construct_dis(pure_var_params, self.qubit_ham, self.ilc_deriv_thresh,
+            print(pure_var_params)
+            self.dis = construct_dis(pure_var_params, self.qubit_ham, self.deilc_dtau_thresh,
                                      self.verbose)
+            print(self.dis)
             self.acs = construct_acs(self.dis, self.max_ilc_gens, self.n_qubits)
+            print(self.acs)
             self.n_var_params = len(self.acs) if self.max_ilc_gens is None\
                                 else min(len(self.acs), self.max_ilc_gens)
+            print(self.n_var_params)
         else:
             self.dis = None
-            self.n_var_params = len(self.qubit_op_list)
+            self.acs = None
+            self.n_var_params = len(self.ilc_op_list)
 
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"zeros", "diag", "ilc_guess"}
+        self.supported_initial_var_params = {"zeros", "diag", "ilc_tau_guess"}
 
         # Default starting parameters for initialization
         self.pauli_to_angles_mapping = {}
@@ -134,6 +139,7 @@ class ILC(Ansatz):
         self.var_params_default = "diag"
         self.var_params = None
         self.rebuild_dis = False
+        self.rebuild_acs = False
         self.ilc_circuit = None
         self.circuit = None
 
@@ -154,11 +160,12 @@ class ILC(Ansatz):
             # Initialize the ILC wave function as |ILC> = |QMF>
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-            # Initialize all tau parameters to the same value specified by self.ilc_guess
+            # Initialize ILC parameters by matrix diagonalization (see Appendix B, Refs. 1 & 2).
             elif var_params == "diag":
-                initial_var_params = init_ilc_diag(self.qubit_ham, self.acs, self.qmf_var_params)
-            elif var_params == "ilc_guess":
-                initial_var_params = self.ilc_guess * np.ones((self.n_var_params,))
+                initial_var_params = init_ilc_by_diag(self.qubit_ham, self.acs, self.qmf_var_params)
+            # Initialize all ILC parameters to the same value specified by self.ilc_tau_guess
+            elif var_params == "ilc_tau_guess":
+                initial_var_params = self.ilc_tau_guess * np.ones((self.n_var_params,))
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:
@@ -170,7 +177,7 @@ class ILC(Ansatz):
     def prepare_reference_state(self):
         """Returns circuit preparing the reference state of the ansatz (e.g prepare reference
         wavefunction with HF, multi-reference state, etc). These preparations must be consistent
-        with the transform used to obtain the qubit operator. """
+        with the transform used to obtain the  operator. """
 
         if self.default_reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
@@ -192,15 +199,15 @@ class ILC(Ansatz):
         if self.qmf_circuit is None:
             self.qmf_circuit = self.prepare_reference_state()
 
-        # Build a qubit operator required for ILC
-        self._get_ilc_qubit_op()
+        # Build create the list of ILC qubit operators
+        self.ilc_op_list = self._get_ilc_op()
 
-        # Obtain quantum circuit through trivial trotterization of the qubit operator
+        # Obtain quantum circuit through trotterization of the list of ILC operators
         pauli_word_gates = []
-        for i in range(self.n_trot):
-            for j, ilc_op in enumerate(self.qubit_op_list):
+        for i in range(self.n_trotter):
+            for ilc_op in self.ilc_op_list:
                 pauli_word, coef = list(ilc_op.terms.items())[0]
-                pauli_word_gates += pauliword_to_circuit(pauli_word, float(coef/self.n_trot), variational=True)
+                pauli_word_gates += exp_pauliword_to_gates(pauli_word, float(coef/self.n_trotter), variational=True)
         self.ilc_circuit = Circuit(pauli_word_gates)
         self.circuit = self.qmf_circuit + self.ilc_circuit if self.qmf_circuit.size != 0\
                        else self.ilc_circuit
@@ -210,19 +217,22 @@ class ILC(Ansatz):
         Preferable to rebuilding your circuit from scratch, which can be an involved process.
         """
 
+        # Update the ILC variational parameters
         self.set_var_params(var_params)
 
-        # Build the qubit operator required for ILC
-        self._get_ilc_qubit_op()
+        # Build the ILC ansatz operator
+        self.ilc_op_list = self._get_ilc_op()
 
-        for pauli_word, coef in qubit_op.terms.items():
-            gate_index = self.pauli_to_angles_mapping[pauli_word]
-            gate_param = 2. * coef if coef >= 0. else 4 * np.pi + 2 * coef
-            self.ilc_circuit._variational_gates[gate_index].parameter = gate_param
+        pauli_word_gates = []
+        for i in range(self.n_trotter):
+            for ilc_op in self.ilc_op_list:
+                pauli_word, coef = list(ilc_op.terms.items())[0]
+                pauli_word_gates += exp_pauliword_to_gates(pauli_word, float(coef/self.n_trotter), variational=True)
+        self.ilc_circuit = Circuit(pauli_word_gates)
         self.circuit = self.qmf_circuit + self.ilc_circuit if self.qmf_circuit.size != 0\
                        else self.ilc_circuit
 
-    def _get_ilc_qubit_op(self):
+    def _get_ilc_op(self):
         """Returns the ILC operator by selecting one generator from n_var_params DIS groups.
         The ILC qubit operator is constructed as a linear combination of generators using the
         parameter set {tau} as coefficients: ILC operator = -0.5 * SUM_k P_k * tau_k.
@@ -230,41 +240,50 @@ class ILC(Ansatz):
         are used to build a ILC circuit.
 
         Args:
-            var_params (numpy array of float): The ILC variational parameter set.
-            n_var_params (int): Size of the ILC variational parameter set.
-            qmf_var_params (numpy array of float): The QMF variational parameter set.
+            rebuild_dis (bool): Rebuilds DIS and sets ilc_op_list to None.
+            rebuild_acs (bool): Rebuilds DIS & ACS and sets ilc_op_list to None.
+            dis (list of list): DIS of QCC generators.
+            acs (list of list): ACS of selected QCC generators from the DIS.
+            ilc_op_list (list of QubitOperator): ACS generator list for the ILC ansatz.
+            var_params (numpy array of float): ILC variational parameter set.
+            n_var_params (int): Number of ILC variational parameters.
+            qmf_var_params (numpy array of float): QMF variational parameter set.
+            n_spinorbitals (int): Number of spin-orbitals in the molecular system.
+            n_electrons (int): Number of electrons in the molecular system.
+            mapping (str) : One of the supported  mapping identifiers.
+            up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
+                followed by all spin-down.
+            spin (int): 2*S = n_alpha - n_beta.
             qubit_ham (QubitOperator): A qubit Hamiltonian.
-            ilc_deriv_thresh (float): Threshold value of |dEILC/dtau| so that if |dEILC/dtau| >=
-                ilc_deriv_thresh for a generator, add its candidate group to the DIS.
-            dis (list of list): The DIS of ILC generators.
-            acs (list of list): The ACS of DIS ILC operators.
-            qubit_op_list (list of QubitOperator): A list of generators to use when building the ILC
-                operator instead of selecting from DIS groups.
-            rebuild_dis (bool): Rebuild the DIS. This is useful if qubit_ham of qmf_var_params have
-                changed (e.g. in iterative methods like iILC or QCC-ILC). If True, qubit_op_list is
-                reset to None.
-            verbose (bool): Flag for ILC verbosity. Default, False.
+            deilc_dtau_thresh (float): Threshold for |dEILC/dtau| so that a candidate group is added
+                to the DIS if |dEILC/dtau| >= deilc_dtau_thresh for a generator.
+            max_ilc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
+                one generator from each DIS group is selected. If int, min(|DIS|, max_ilc_gens)
+                generators are selected in order of decreasing |dEILC/dtau| values.
+            verbose (bool): Flag for QCC verbosity.
 
         Returns:
-            None
+            list of QubitOperator: the list of ILC qubit operators ordered according to the
+                argument of Eq. C1, Appendix C, Ref. 1.
         """
 
         # Rebuild DIS & ACS in case qubit_ham changed or they and qubit_op_list don't exist
-        if self.rebuild_dis or (self.dis is None and self.qubit_op_list is None):
+        if self.rebuild_dis or self.rebuild_acs or ((self.dis is None or self.acs is None) and self.ilc_op_list is None):
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
                                                self.n_electrons, self.mapping, self.up_then_down,
                                                self.spin, self.verbose)
-            self.dis = construct_dis(pure_var_params, self.qubit_ham, self.ilc_deriv_thresh,
+            self.dis = construct_dis(pure_var_params, self.qubit_ham, self.deilc_dtau_thresh,
                                      self.verbose)
             self.acs = construct_acs(self.dis, self.max_ilc_gens, self.n_qubits)
             self.n_var_params = len(self.acs) if self.max_ilc_gens is None\
                                 else min(len(self.acs), self.max_ilc_gens)
-            self.qubit_op_list = None
+            self.ilc_op_list = None
 
-        # Build the ILC qubit operator list 
-        self.qubit_op_list = []
+        # Build the ILC qubit operator list
+        ilc_op_list = []
         for i in range(self.n_var_params - 1, 1, -1):
-            self.qubit_op_list.append(-0.5 * self.var_params[i - 1] * self.acs[i])
-        self.qubit_op_list.append(-1. * self.var_params[0] * self.acs[1])
+            ilc_op_list.append(-0.5 * self.var_params[i - 1] * self.acs[i])
+        ilc_op_list.append(-1. * self.var_params[0] * self.acs[1])
         for i in range(2, self.n_var_params):
-            self.qubit_op_list.append(-0.5 * self.var_params[i - 1] * self.acs[i])
+            ilc_op_list.append(-0.5 * self.var_params[i - 1] * self.acs[i])
+        return ilc_op_list

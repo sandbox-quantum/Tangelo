@@ -36,7 +36,7 @@ from tangelo.toolboxes.operators.operators import QubitOperator
 from ._qubit_mf import get_op_expval
 
 
-def construct_dis(pure_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
+def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh, verbose=False):
     """Construct the DIS of QCC generators, which proceeds as follows:
     1. Identify the flip indices of all Hamiltonian terms and group terms by flip indices.
     2. Construct a representative generator using flip indices from each candidate DIS group
@@ -47,10 +47,10 @@ def construct_dis(pure_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
        odd number of Y operators.
 
     Args:
-        pure_var_params (numpy array of float): A purified QMF variational parameter set.
         qubit_ham (QubitOperator): A qubit Hamiltonian.
-        qcc_deriv_thresh (float): Threshold value of |dEQCC/dtau| so that if |dEQCC/dtau| >=
-            qcc_deriv_thresh for a generator, add its candidate group to the DIS.
+        pure_var_params (numpy array of float): A purified QMF variational parameter set.
+        deqcc_dtau_thresh (float): Threshold for |dEQCC/dtau| so that a candidate group is added
+            to the DIS if |dEQCC/dtau| >= deqcc_dtau_thresh for a generator.
         verbose (bool): Flag for QCC verbosity.
 
     Returns:
@@ -58,7 +58,7 @@ def construct_dis(pure_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
     """
 
     # Use a qubit Hamiltonian and purified QMF parameter set to construct the DIS
-    dis, dis_groups = [], get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh)
+    dis, dis_groups = [], get_dis_groups(qubit_ham, pure_var_params, deqcc_dtau_thresh)
     if dis_groups:
         if verbose:
             print(f"The DIS contains {len(dis_groups)} unique generator group(s).\n")
@@ -72,18 +72,18 @@ def construct_dis(pure_var_params, qubit_ham, qcc_deriv_thresh, verbose=False):
                       f"{abs(dis_group[1])} a.u.\n")
     else:
         raise ValueError(f"The DIS is empty: there are no candidate DIS groups where "
-                         f"|dEQCC/dtau| >= {qcc_deriv_thresh} a.u. Terminate the QCC simulation.\n")
+                         f"|dEQCC/dtau| >= {deqcc_dtau_thresh} a.u. Terminate simulation.\n")
     return dis
 
 
-def get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh):
+def get_dis_groups(qubit_ham, pure_var_params, deqcc_dtau_thresh):
     """Construct unique DIS groups characterized by the flip indices and |dEQCC/dtau|.
 
     Args:
-        pure_var_params (numpy array of float): A purified QMF variational parameter set.
         qubit_ham (QubitOperator): A qubit Hamiltonian.
-        qcc_deriv_thresh (float): Threshold value of |dEQCC/dtau| so that if |dEQCC/dtau| >=
-            qcc_deriv_thresh for a generator, add its candidate group to the DIS.
+        pure_var_params (numpy array of float): A purified QMF variational parameter set.
+        deqcc_dtau_thresh (float): Threshold for |dEQCC/dtau| so that a candidate group is added
+            to the DIS if |dEQCC/dtau| >= deqcc_dtau_thresh for a generator.
 
     Returns:
         list of tuple: the DIS group flip indices (str) and signed value of dEQCC/dtau (float).
@@ -102,7 +102,7 @@ def get_dis_groups(pure_var_params, qubit_ham, qcc_deriv_thresh):
 
     # Return a sorted list of flip indices and signed dEQCC/dtau values for each DIS group
     dis_groups = [idxs_deriv for idxs_deriv in candidates.items()
-                  if abs(idxs_deriv[1]) >= qcc_deriv_thresh]
+                  if abs(idxs_deriv[1]) >= deqcc_dtau_thresh]
     return sorted(dis_groups, key=lambda deriv: abs(deriv[1]), reverse=True)
 
 

@@ -44,7 +44,7 @@ def get_op_expval(qubit_op, qmf_var_params):
 
     Args:
         qubit_op (QubitOperator): A qubit operator to compute the expectation value of.
-        qmf_var_params (numpy array of float): The QMF variational parameter set.
+        qmf_var_params (numpy array of float): QMF variational parameter set.
 
     Returns:
         complex: expectation value of all qubit operator terms.
@@ -138,7 +138,7 @@ def purify_qmf_state(qmf_var_params, n_spinorbitals, n_electrons, mapping, up_th
             vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down, spin)
             pure_var_params[i] = np.pi * vector[i]
         if verbose:
-            print(f"Purified QMF_{i} Bloch angles: (theta, phi) = ({pure_var_params[i]}, {pure_var_params[i + n_qubits]})\n")
+            print(f"Purified |QMF_{i}> Bloch angles: (theta, phi) = ({pure_var_params[i]}, {pure_var_params[i + n_qubits]})\n")
     return pure_var_params
 
 
@@ -148,11 +148,11 @@ def get_qmf_circuit(qmf_var_params, variational=True):
     and the second n_qubit elements in {Omega} are parameters for RZ gates.
 
     Args:
-        qmf_var_params (numpy array of float): The QMF variational parameter set.
-        variational (bool): Flag to treat {Omega} variationally or not.
+        qmf_var_params (numpy array of float): QMF variational parameter set.
+        variational (bool): Flag to treat {Omega} variationally or keep them fixed.
 
     Returns:
-        Circuit: instance of tangelo.linq Circuit class.
+        Circuit: instance of tangelo.linq Circuit class for a QMF state preparation circuit.
     """
 
     n_qubits, gates = qmf_var_params.size // 2, []
