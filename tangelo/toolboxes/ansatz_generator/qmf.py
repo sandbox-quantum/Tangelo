@@ -149,7 +149,7 @@ class QMF(Ansatz):
             # Initialize |QMF> as |00...0>
             if var_params == "zeros":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-            # Initialize |QMF> as (i/sqrt(2))^n_qubits * tensor_prod(|0> + |1>)
+            # Initialize |QMF> as (1/sqrt(2))^n_qubits * tensor_prod(|0> + 1j|1>)
             elif var_params == "half_pi":
                 initial_var_params = 0.5 * np.pi * np.ones((self.n_var_params,))
             # Initialize |QMF> as (-1)^n_qubits |11...1> state
