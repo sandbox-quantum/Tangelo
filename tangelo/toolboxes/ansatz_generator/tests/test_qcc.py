@@ -72,7 +72,7 @@ class QCCTest(unittest.TestCase):
         # Build the QCC ansatz, which sets the QMF parameters automatically if none are passed
         qcc_var_params = [0.22613627]
         qcc_op_list = [QubitOperator("X0 Y1 Y2 Y3")]
-        qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True, qubit_op_list=qcc_op_list)
+        qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True, qcc_op_list=qcc_op_list)
 
         # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()

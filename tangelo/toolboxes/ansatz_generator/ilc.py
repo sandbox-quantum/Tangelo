@@ -62,25 +62,35 @@ class ILC(Ansatz):
         max_ilc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_ilc_gens)
             generators are selected in order of decreasing |dEILC/dtau|. Default, None.
+        n_trotter (int): Number of Trotterization steps for the ILC ansatz. Default, 1.
+        scfdata (tuple): tuple containing an instance of OpenFermion MolecularData and a
+            FermionOperator corresponding to the fermionic Hamiltonian.
         verbose (bool): Flag for QCC verbosity. Default, False.
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, ilc_op_list=None,
                  qmf_circuit=None, qmf_var_params=None, qubit_ham=None, ilc_tau_guess=1.e-2,
-                 deilc_dtau_thresh=1.e-3, max_ilc_gens=None, n_trotter=1, verbose=False):
+                 deilc_dtau_thresh=1.e-3, max_ilc_gens=None, n_trotter=1, scfdata=None, verbose=False):
 
-        self.molecule = molecule
-        self.n_spinorbitals = self.molecule.n_active_sos
-        if self.n_spinorbitals % 2 != 0:
-            raise ValueError("The total number of spin-orbitals should be even.")
+        if molecule:
+            self.molecule = molecule
+            self.n_spinorbitals = self.molecule.n_active_sos
+            if self.n_spinorbitals % 2 != 0:
+                raise ValueError("The total number of spin-orbitals should be even.")
 
-        self.n_electrons = self.molecule.n_active_electrons
-        self.spin = molecule.spin
+            self.spin = molecule.spin
+            self.fermi_ham = self.molecule.fermionic_hamiltonian
+        elif scfdata:
+            self.molecule = scfdata[0]
+            self.n_spinorbitals = 2 * self.molecule.n_orbitals
+            self.spin = self.molecule.multiplicity - 1
+            self.fermi_ham = scfdata[1]
+        self.n_electrons = self.molecule.n_electrons
         self.mapping = mapping
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
         self.up_then_down = up_then_down
         if self.mapping.upper() == "JW" and not self.up_then_down:
-            warnings.warn("The QCC ansatz requires spin-orbital ordering to be all spin-up "
+            warnings.warn("The ILC ansatz requires spin-orbital ordering to be all spin-up "
                           "first followed by all spin-down for the JW mapping.", RuntimeWarning)
             self.up_then_down = True
 
@@ -94,7 +104,6 @@ class ILC(Ansatz):
         self.verbose = verbose
 
         if qubit_ham is None:
-            self.fermi_ham = self.molecule.fermionic_hamiltonian
             self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping,
                                                       self.n_spinorbitals, self.n_electrons,
                                                       self.up_then_down, self.spin)
@@ -115,13 +124,14 @@ class ILC(Ansatz):
                                                self.n_electrons, self.mapping, self.up_then_down,
                                                self.spin, self.verbose)
             print(pure_var_params)
-            self.dis = construct_dis(pure_var_params, self.qubit_ham, self.deilc_dtau_thresh,
+            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh,
                                      self.verbose)
             print(self.dis)
+            self.max_ilc_gens = len(self.dis) if self.max_ilc_gens is None\
+                                else min(len(self.dis), self.max_ilc_gens)
             self.acs = construct_acs(self.dis, self.max_ilc_gens, self.n_qubits)
             print(self.acs)
-            self.n_var_params = len(self.acs) if self.max_ilc_gens is None\
-                                else min(len(self.acs), self.max_ilc_gens)
+            self.n_var_params = len(self.acs)
             print(self.n_var_params)
         else:
             self.dis = None
@@ -204,7 +214,7 @@ class ILC(Ansatz):
 
         # Obtain quantum circuit through trotterization of the list of ILC operators
         pauli_word_gates = []
-        for i in range(self.n_trotter):
+        for _ in range(self.n_trotter):
             for ilc_op in self.ilc_op_list:
                 pauli_word, coef = list(ilc_op.terms.items())[0]
                 pauli_word_gates += exp_pauliword_to_gates(pauli_word, float(coef/self.n_trotter), variational=True)
@@ -224,7 +234,7 @@ class ILC(Ansatz):
         self.ilc_op_list = self._get_ilc_op()
 
         pauli_word_gates = []
-        for i in range(self.n_trotter):
+        for _ in range(self.n_trotter):
             for ilc_op in self.ilc_op_list:
                 pauli_word, coef = list(ilc_op.terms.items())[0]
                 pauli_word_gates += exp_pauliword_to_gates(pauli_word, float(coef/self.n_trotter), variational=True)
@@ -268,11 +278,11 @@ class ILC(Ansatz):
         """
 
         # Rebuild DIS & ACS in case qubit_ham changed or they and qubit_op_list don't exist
-        if self.rebuild_dis or self.rebuild_acs or ((self.dis is None or self.acs is None) and self.ilc_op_list is None):
+        if self.rebuild_dis or self.rebuild_acs or ((not self.dis or not self.acs) and not self.ilc_op_list):
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
                                                self.n_electrons, self.mapping, self.up_then_down,
                                                self.spin, self.verbose)
-            self.dis = construct_dis(pure_var_params, self.qubit_ham, self.deilc_dtau_thresh,
+            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh,
                                      self.verbose)
             self.acs = construct_acs(self.dis, self.max_ilc_gens, self.n_qubits)
             self.n_var_params = len(self.acs) if self.max_ilc_gens is None\
