@@ -79,7 +79,7 @@ def _translate_openqasm2abs(openqasm_str):
         Circuit: corresponding quantum circuit in the abstract format.
     """
 
-    # Get dictionary of gate mapping, as the reverse dictionary of abs -> projectq translation
+    # Get dictionary of gate mapping, as the reverse dictionary of abs -> openqasm translation
     GATE_OPENQASM = get_openqasm_gates()
     gate_mapping = {v: k for k, v in GATE_OPENQASM.items()}
 
