@@ -38,8 +38,8 @@ from ._qubit_mf import get_op_expval
 
 def construct_acs(dis_gens, max_ilc_gens, n_qubits):
     ac_idxs, not_ac_idxs = [], []
-    while max_ilc_gens > len(ac_idxs) and len(ac_idxs) + len(not_ac_idxs) < len(dis_gens):
-        gen_idxs, ilc_gens = [idx for idx in range(len(dis_gens)) if idx not in not_ac_idxs], []
+    while max_ilc_gens > len(ac_idxs) and len(ac_idxs) + len(not_ac_idxs) < max_ilc_gens:
+        gen_idxs, ilc_gens = [idx for idx in range(max_ilc_gens) if idx not in not_ac_idxs], []
         n_gens = len(gen_idxs)
         ng2, ngnq = n_gens * (n_gens + 1) // 2, n_gens * n_qubits
         # cons_mat --> A and z_vec --> z in Appendix A, Refs. 1 & 2.
@@ -169,10 +169,11 @@ def init_ilc_by_diag(qubit_ham, ilc_gens, qmf_var_params):
     n_var_params = len(ilc_gens)
     # Form the Hamiltonian and overlap matrices (see Appendix B, Refs. 1 & 2).
     H = np.zeros((n_var_params, n_var_params), dtype=complex)
-    S = np.ones((n_var_params, n_var_params), dtype=complex)
+    S = np.zeros((n_var_params, n_var_params), dtype=complex)
     for i in range(n_var_params):
         H_i = qubit_ham * ilc_gens[i]
         H[i, i] = get_op_expval(ilc_gens[i] * H_i, qmf_var_params)
+        S[i, i] = 1. + 0j
         for j in range(i + 1, n_var_params):
             H[j, i] = get_op_expval(ilc_gens[j] * H_i, qmf_var_params)
             S[j, i] = get_op_expval(ilc_gens[j] * ilc_gens[i], qmf_var_params)
@@ -182,18 +183,22 @@ def init_ilc_by_diag(qubit_ham, ilc_gens, qmf_var_params):
 
     # Solve the generalized eigenvalue problem
     E, c = scipy.linalg.eigh(a=np.matrix(H), b=np.matrix(S), lower=True, driver="gvd")
+    print(" MCSCF eigenvalues from matrix diagonalization = ", E)
 
     # Compute the ILC parameters according to Appendix C, Ref. 1).
-    c0 = c[:, 0]#.real
+    c0 = c[:, 0]
+    print(" Ground state eigenvector = ", c0)
     denom_sum, ilc_var_params = 0., []
     for i in range(2):
         denom_sum += pow(c0[i].real, 2.) + pow(c0[i].imag, 2.)
-    beta_1 = np.arcsin(c0[1]) / np.sqrt(denom_sum)
-    if c0[0].real < 0.:
+    beta_1 = np.arcsin(c0[1] / np.sqrt(denom_sum))
+    if c0[0].real > 0.:
         beta_1 = np.pi - beta_1
+    ilc_var_params.append(beta_1.real)
     for i in range(2, n_var_params):
         denom_sum += pow(c0[i].real, 2.) + pow(c0[i].imag, 2.)
         beta = np.arcsin(c0[i] / np.sqrt(denom_sum))
         ilc_var_params.append(beta.real)
     del ilc_gens[0]
+    print(" ILC var params (beta's in Appendix C, ref. 1) = ", ilc_var_params)
     return ilc_var_params

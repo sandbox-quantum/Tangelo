@@ -123,16 +123,12 @@ class ILC(Ansatz):
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
                                                self.n_electrons, self.mapping, self.up_then_down,
                                                self.spin, self.verbose)
-            print(pure_var_params)
             self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh,
                                      self.verbose)
-            print(self.dis)
             self.max_ilc_gens = len(self.dis) if self.max_ilc_gens is None\
                                 else min(len(self.dis), self.max_ilc_gens)
             self.acs = construct_acs(self.dis, self.max_ilc_gens, self.n_qubits)
-            print(self.acs)
             self.n_var_params = len(self.acs)
-            print(self.n_var_params)
         else:
             self.dis = None
             self.acs = None
@@ -144,7 +140,6 @@ class ILC(Ansatz):
         self.supported_initial_var_params = {"zeros", "diag", "ilc_tau_guess"}
 
         # Default starting parameters for initialization
-        self.pauli_to_angles_mapping = {}
         self.default_reference_state = "HF"
         self.var_params_default = "diag"
         self.var_params = None
@@ -291,9 +286,9 @@ class ILC(Ansatz):
 
         # Build the ILC qubit operator list
         ilc_op_list = []
-        for i in range(self.n_var_params - 1, 1, -1):
-            ilc_op_list.append(-0.5 * self.var_params[i - 1] * self.acs[i])
-        ilc_op_list.append(-1. * self.var_params[0] * self.acs[1])
-        for i in range(2, self.n_var_params):
-            ilc_op_list.append(-0.5 * self.var_params[i - 1] * self.acs[i])
+        for i in range(self.n_var_params - 1, 0, -1):
+            ilc_op_list.append(-0.5 * self.var_params[i] * self.acs[i])
+        ilc_op_list.append(-1. * self.var_params[0] * self.acs[0])
+        for i in range(1, self.n_var_params):
+            ilc_op_list.append(-0.5 * self.var_params[i] * self.acs[i])
         return ilc_op_list
