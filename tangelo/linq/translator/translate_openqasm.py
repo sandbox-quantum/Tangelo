@@ -36,7 +36,6 @@ def get_openqasm_gates():
     choice here to support well-known gate operations.
     """
 
-#crz, cp, cswap, swap
     GATE_OPENQASM = dict()
     for name in {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "MEASURE",
                  "CZ", "CY", "CRZ", "SWAP", "CSWAP"}:
