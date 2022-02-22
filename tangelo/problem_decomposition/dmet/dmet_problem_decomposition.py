@@ -17,7 +17,7 @@
 from enum import Enum
 from functools import reduce
 import numpy as np
-from pyscf import gto
+from pyscf import gto, scf
 import scipy
 import warnings
 
@@ -130,8 +130,10 @@ class DMETProblemDecomposition(ProblemDecomposition):
             self.fragment_atoms = new_fragment_atoms
 
             # Force recomputing the mean field if the atom ordering has been changed.
-            self.mean_field = None
             warnings.warn("The mean field will be recomputed even if one has been provided by the user.", RuntimeWarning)
+            self.mean_field = scf.RHF(self.molecule)
+            self.mean_field.verbose = 0
+            self.mean_field.scf()
 
         # Check if the number of fragment sites is equal to the number of atoms in the molecule
         if self.molecule.natm != sum(self.fragment_atoms):
