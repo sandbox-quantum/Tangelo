@@ -7,6 +7,9 @@ def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 
+with open("tangelo/_version.py") as f:
+    version = f.readlines()[-1].split()[-1].strip("\"'")
+
 with open('README.rst', 'r') as f:
     long_description = f.read()
 
@@ -17,7 +20,7 @@ install('git+https://github.com/pyscf/semiempirical')
 setuptools.setup(
     name="tangelo",
     author="The Tangelo developers",
-    version="0.3.0",
+    version=version,
     description="Tangelo is a python package developed by Good Chemistry Company, focusing on the development "
                 "of end-to-end materials simulation workflows on quantum computers.",
     long_description=long_description,
