@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# MI-FNO ID # 1, VS = 5, SCBK
+# FNO, VS = 4, SCBK
 #
 # REFERENCE ENERGIES:
 #     EQMF = -14.57233763 Eh
-#     EILC = -14.61590226 Eh
+#     EILC = -14.61588267 Eh
 
 import numpy as np
 
@@ -28,25 +28,23 @@ from tangelo.toolboxes.ansatz_generator.ilc import ILC
 
 sim = Simulator()
 
-file_name = "./Be1_cc-pvdz_singlet_:1.hdf5"
+file_name = "./Be1_cc-pvdz_singlet.hdf5"
 
 # Prepare classical data from SCF calculation
 molecule = MolecularData(filename=file_name)
 fermi_ham = get_fermion_operator(molecule.get_molecular_hamiltonian())
 scfdata = (molecule, fermi_ham)
 
-# Instantiate QMF ansatz -- note that SCBK mapping doesn't work for VS = 5 in Tangelo
-# The short term fix is to manually pass the correct QMF var params
+# Instantiate QMF ansatz -- note that SCBK mapping doesn't work for VS = 4 
 qmf = QMF(molecule=None, mapping="SCBK", up_then_down=True, init_qmf=None, scfdata=scfdata)
-qmf.set_var_params([np.pi, np.pi, np.pi, 0., 0., np.pi, np.pi, np.pi, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+qmf.set_var_params([np.pi, 0., 0., 0., 0., np.pi, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
 qmf.build_circuit()
-#print(qmf.var_params)
-#print(qmf.circuit)
+print(qmf.var_params)
+print(qmf.circuit)
 
 energy = sim.get_expectation_value(qmf.qubit_ham, qmf.circuit)
 print(" EQMF = ", energy)
 print(" EQMF (ref.) = -14.57233763")
-
 
 ilc = ILC(molecule=None, mapping="SCBK", up_then_down=True, qmf_circuit=qmf.circuit, qmf_var_params=qmf.var_params,
           qubit_ham=qmf.qubit_ham, max_ilc_gens=None, n_trotter=1, scfdata=scfdata)
@@ -60,21 +58,14 @@ print(" EILC (n_trot = 1) = ", energy)
 
 ilc.n_trotter = 2
 ilc.build_circuit()
+# n_trotter = 2 is slightly better but not worth doubling the ilc circuit
 energy = sim.get_expectation_value(ilc.qubit_ham, ilc.circuit)
 print(" EILC (n_trot = 2) = ", energy)
 
 ilc.n_trotter = 3
 ilc.build_circuit()
+# n_trotter = 3 is slightly better but not worth doubling the ilc circuit
 energy = sim.get_expectation_value(ilc.qubit_ham, ilc.circuit)
 print(" EILC (n_trot = 3) = ", energy)
+print(" EILC (ref.) = -14.61588267")
 
-ilc.n_trotter = 4
-ilc.build_circuit()
-energy = sim.get_expectation_value(ilc.qubit_ham, ilc.circuit)
-print(" EILC (n_trot = 4) = ", energy)
-
-ilc.n_trotter = 5
-ilc.build_circuit()
-energy = sim.get_expectation_value(ilc.qubit_ham, ilc.circuit)
-print(" EILC (n_trot = 5) = ", energy)
-print(" EILC (ref.) = -14.61590226")

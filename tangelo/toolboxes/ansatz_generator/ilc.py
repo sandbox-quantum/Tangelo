@@ -239,10 +239,6 @@ class ILC(Ansatz):
 
     def _get_ilc_op(self):
         """Returns the ILC operator by selecting one generator from n_var_params DIS groups.
-        The ILC qubit operator is constructed as a linear combination of generators using the
-        parameter set {tau} as coefficients: ILC operator = -0.5 * SUM_k P_k * tau_k.
-        The exponentiated terms of the ILC operator, U = PROD_k exp(-0.5j * tau_k * P_k),
-        are used to build a ILC circuit.
 
         Args:
             rebuild_dis (bool): Rebuilds DIS and sets ilc_op_list to None.
@@ -279,9 +275,9 @@ class ILC(Ansatz):
                                                self.spin, self.verbose)
             self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh,
                                      self.verbose)
+            self.max_ilc_gens = len(self.dis) if self.max_ilc_gens is None\
+                                else min(len(self.dis), self.max_ilc_gens)
             self.acs = construct_acs(self.dis, self.max_ilc_gens, self.n_qubits)
-            self.n_var_params = len(self.acs) if self.max_ilc_gens is None\
-                                else min(len(self.acs), self.max_ilc_gens)
             self.ilc_op_list = None
 
         # Build the ILC qubit operator list

@@ -37,9 +37,11 @@ from ._qubit_mf import get_op_expval
 
 
 def construct_acs(dis_gens, max_ilc_gens, n_qubits):
-    ac_idxs, not_ac_idxs = [], []
-    while max_ilc_gens > len(ac_idxs) and len(ac_idxs) + len(not_ac_idxs) < max_ilc_gens:
-        gen_idxs, ilc_gens = [idx for idx in range(max_ilc_gens) if idx not in not_ac_idxs], []
+    """ DOCSTRING
+    """
+    bad_sln_idxs, good_sln = [], False
+    while not good_sln:
+        gen_idxs, ilc_gens = [idx for idx in range(max_ilc_gens) if idx not in bad_sln_idxs], []
         n_gens = len(gen_idxs)
         ng2, ngnq = n_gens * (n_gens + 1) // 2, n_gens * n_qubits
         # cons_mat --> A and z_vec --> z in Appendix A, Refs. 1 & 2.
@@ -51,29 +53,25 @@ def construct_acs(dis_gens, max_ilc_gens, n_qubits):
                     p_idx, pauli = paulis
                     if 'X' in pauli or 'Y' in pauli:
                         z_vec[idx * n_qubits + p_idx] = 1.
-
-        # Form the triangular matrix A (Appendix A, Refs. 1 & 2).
+        # Form the triangular matrix-vector product A * z; last column is the soln vec (Appendix A, Refs. 1 & 2).
         r_idx = 0
         for i in range(n_gens):
-            cons_matrix[r_idx, i*n_qubits:(i+1)*n_qubits] = z_vec[i*n_qubits:(i+1)*n_qubits]
+            cons_matrix[r_idx, i * n_qubits:(i+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
             cons_matrix[r_idx, ngnq] = 1
             r_idx += 1
             for j in range(i+1, n_gens):
-                cons_matrix[r_idx, i*n_qubits:(i+1)*n_qubits] = z_vec[j*n_qubits:(j+1)*n_qubits]
-                cons_matrix[r_idx, j*n_qubits:(j+1)*n_qubits] = z_vec[i*n_qubits:(i+1)*n_qubits]
+                cons_matrix[r_idx, i * n_qubits:(i+1) * n_qubits] = z_vec[j * n_qubits:(j+1) * n_qubits]
+                cons_matrix[r_idx, j * n_qubits:(j+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
                 cons_matrix[r_idx, ngnq] = 1
                 r_idx += 1
-
-        # Solve Az = 1
+        # Solve A * z = 1
         z_sln = gauss_elim_over_gf2(cons_matrix, ngnq)
-
-        # Check for a bad solutions
-        candidate_gens, good_sln = [], True
+        # Check solution: odd # of Y ops, at least two flip indices, and mutually anti-commutes
+        good_sln = True
         for i in range(n_gens):
-            n_flip, n_y, gen_list = 0, 0, []
+            n_flip, n_y, gen_idx, gen_list = 0, 0, gen_idxs[i], []
             for j in range(n_qubits):
-                gen = None
-                idx = i * n_qubits + j
+                gen, idx = None, i * n_qubits + j
                 if z_vec[idx] == 1.:
                     n_flip += 1
                     if z_sln[idx] == 0.:
@@ -87,42 +85,24 @@ def construct_acs(dis_gens, max_ilc_gens, n_qubits):
                 if gen:
                     gen_list.append(gen)
             if n_flip < 2 or n_y % 2 == 0:
-                good_sln = False
-                gen_idx = gen_idxs.pop(i)
-                if gen_idx not in not_ac_idxs:
-                    not_ac_idxs.append(gen_idx)
-                if gen_idx in gen_idxs:
-                    gen_idxs.remove(gen_idx)
-                if gen_idx in ac_idxs:
-                    ac_idxs.remove(gen_idx)
-            else:
-               candidate_gens.append(QubitOperator(tuple(gen_list), 1.))
-
-        # For good solutions check that they anti-commute and update ilc_gens
-        if good_sln:
-            for i, gen_i in enumerate(candidate_gens):
-                anticommutes = True
-                gen_idx = gen_idxs[i]
+                if good_sln and gen_idx not in bad_sln_idxs:
+                    bad_sln_idxs.append(gen_idx)
+                    good_sln = False
+            elif good_sln:
+                gen_i = QubitOperator(tuple(gen_list), 1.)
                 for gen_j in ilc_gens:
-                    anti_com = gen_i * gen_j + gen_j * gen_i
-                    if anti_com != QubitOperator.zero():
-                        anticommutes = False
-                        if gen_idx not in not_ac_idxs:
-                            not_ac_idxs.append(gen_idx)
-                        if gen_idx in gen_idxs:
-                            gen_idxs.remove(gen_idx)
-                        if gen_idx in ac_idxs:
-                            ac_idxs.remove(gen_idx)
-                if anticommutes:
+                    if gen_i * gen_j != -1. * gen_j * gen_i:
+                        if good_sln and gen_idx not in bad_sln_idxs:
+                            bad_sln_idxs.append(gen_idx)
+                            good_sln = False
+                if good_sln:
                     ilc_gens.append(gen_i)
-                    if gen_idx not in ac_idxs:
-                        ac_idxs.append(gen_idx)
-                    if gen_idx in not_ac_idxs:
-                        not_ac_idxs.remove(gen_idx)
     return ilc_gens
 
 
 def gauss_elim_over_gf2(A, zdim):
+    """ DOCSTRING
+    """
     # Gaussian elimination over GF(2) -- based on Ref. 3.
     n_rows, n_cols = np.shape(A)[0], np.shape(A)[1]
     A, zs, z_sln, piv_idx = np.array(A), [], [-1]*zdim, 0
@@ -165,6 +145,8 @@ def gauss_elim_over_gf2(A, zdim):
 
 
 def init_ilc_by_diag(qubit_ham, ilc_gens, qmf_var_params):
+    """ DOCSTRING
+    """
     ilc_gens.insert(0, QubitOperator.identity())
     n_var_params = len(ilc_gens)
     # Form the Hamiltonian and overlap matrices (see Appendix B, Refs. 1 & 2).
@@ -180,20 +162,18 @@ def init_ilc_by_diag(qubit_ham, ilc_gens, qmf_var_params):
             if i == 0:
                 H[j, i] *= 1j
                 S[j, i] *= 1j
-
     # Solve the generalized eigenvalue problem
     E, c = scipy.linalg.eigh(a=np.matrix(H), b=np.matrix(S), lower=True, driver="gvd")
-    print(" MCSCF eigenvalues from matrix diagonalization = ", E)
-
+    print(" Eigenvalues from matrix diagonalization = ", E)
     # Compute the ILC parameters according to Appendix C, Ref. 1).
     c0 = c[:, 0]
-    print(" Ground state eigenvector = ", c0)
+    if c0[0].real > 0.:
+        c0 *= -1.
+    print(" Ground state eigenvector c0 = ", c0)
     denom_sum, ilc_var_params = 0., []
     for i in range(2):
         denom_sum += pow(c0[i].real, 2.) + pow(c0[i].imag, 2.)
     beta_1 = np.arcsin(c0[1] / np.sqrt(denom_sum))
-    if c0[0].real > 0.:
-        beta_1 = np.pi - beta_1
     ilc_var_params.append(beta_1.real)
     for i in range(2, n_var_params):
         denom_sum += pow(c0[i].real, 2.) + pow(c0[i].imag, 2.)

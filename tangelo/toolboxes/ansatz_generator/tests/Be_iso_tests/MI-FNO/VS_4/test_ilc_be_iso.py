@@ -16,7 +16,7 @@
 #
 # REFERENCE ENERGIES:
 #     EQMF = -14.57233763 Eh
-#     EILC = -14.61629810 Eh
+#     EILC = -14.61580907 Eh
 
 import numpy as np
 
@@ -67,4 +67,4 @@ ilc.n_trotter = 3
 ilc.build_circuit()
 energy = sim.get_expectation_value(ilc.qubit_ham, ilc.circuit)
 print(" EILC (n_trot = 3) = ", energy)
-print(" EILC (ref.) = -14.61629810")
+print(" EILC (ref.) = -14.61580907")
