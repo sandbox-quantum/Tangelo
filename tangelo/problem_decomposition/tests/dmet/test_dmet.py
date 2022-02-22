@@ -16,7 +16,8 @@ import unittest
 import numpy as np
 
 from tangelo.molecule_library import mol_H4_doublecation_minao, mol_H4_doublecation_321g, mol_H10_321g, mol_H10_minao
-from tangelo.problem_decomposition.dmet.dmet_problem_decomposition import Localization, DMETProblemDecomposition
+from tangelo.problem_decomposition import DMETProblemDecomposition
+from tangelo.problem_decomposition.dmet import Localization
 from tangelo.algorithms.variational import VQESolver
 from tangelo.toolboxes.molecular_computation.rdms import matricize_2rdm
 
