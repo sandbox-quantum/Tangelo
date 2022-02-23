@@ -16,8 +16,6 @@
 broken down in several modules if needed.
 """
 
-import copy
-
 # Later on, if needed, we can extract the code for the operators themselves to remove the dependencies and customize
 import openfermion
 
