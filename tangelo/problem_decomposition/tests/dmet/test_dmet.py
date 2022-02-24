@@ -16,7 +16,8 @@ import unittest
 import numpy as np
 
 from tangelo.molecule_library import mol_H4_doublecation_minao, mol_H4_doublecation_321g, mol_H10_321g, mol_H10_minao
-from tangelo.problem_decomposition.dmet.dmet_problem_decomposition import Localization, DMETProblemDecomposition
+from tangelo.problem_decomposition import DMETProblemDecomposition
+from tangelo.problem_decomposition.dmet import Localization
 from tangelo.algorithms.variational import VQESolver
 from tangelo.toolboxes.molecular_computation.rdms import matricize_2rdm
 
@@ -158,6 +159,19 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         solver = DMETProblemDecomposition(opt_dmet)
 
         self.assertEqual(solver.fragment_atoms, [1, 1, 1, 1])
+
+    def test_build_with_atom_indices(self):
+        """Tests if a mean field is recomputed when providing atom indices."""
+
+        opt_dmet = {"molecule": mol_H4_doublecation_321g,
+                    "fragment_atoms": [[0], [1], [2], [3]],
+                    "fragment_solvers": "ccsd",
+                    "electron_localization": Localization.iao,
+                    "verbose": False
+                    }
+
+        solver = DMETProblemDecomposition(opt_dmet)
+        solver.build()
 
     def test_fragment_ids_exceptions(self):
         """Tests exceptions if a bad nested list of atom ids is provided. Two
