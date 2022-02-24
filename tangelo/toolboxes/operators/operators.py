@@ -69,8 +69,8 @@ class QubitHamiltonian(QubitOperator):
         # check is ignored if comparing to a QubitOperator or a bare
         # QubitHamiltonian.
         if self.mapping is not None and self.up_then_down is not None and \
-            other_hamiltonian.mapping is not None and \
-            other_hamiltonian.up_then_down is not None:
+                                other_hamiltonian.mapping is not None and \
+                                other_hamiltonian.up_then_down is not None:
 
             if self.mapping.upper() != other_hamiltonian.mapping.upper():
                 raise RuntimeError("Mapping must be the same for all QubitHamiltonians.")
@@ -85,8 +85,8 @@ class QubitHamiltonian(QubitOperator):
         # Additional checks for == operator. This check is ignored if comparing
         # to a QubitOperator or a bare QubitHamiltonian.
         if self.mapping is not None and self.up_then_down is not None and \
-            other_hamiltonian.mapping is not None and \
-            other_hamiltonian.up_then_down is not None:
+                                other_hamiltonian.mapping is not None and \
+                                other_hamiltonian.up_then_down is not None:
 
             is_eq *= (self.mapping.upper() == other_hamiltonian.mapping.upper())
             is_eq *= (self.up_then_down == other_hamiltonian.up_then_down)
