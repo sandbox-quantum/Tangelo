@@ -284,7 +284,7 @@ class ILC(Ansatz):
         ilc_op_list = []
         for i in range(self.n_var_params - 1, 0, -1):
             ilc_op_list.append(-0.5 * self.var_params[i] * self.acs[i])
-        ilc_op_list.append(-1. * self.var_params[0] * self.acs[0])
+        ilc_op_list.append(-self.var_params[0] * self.acs[0])
         for i in range(1, self.n_var_params):
             ilc_op_list.append(-0.5 * self.var_params[i] * self.acs[i])
         return ilc_op_list
