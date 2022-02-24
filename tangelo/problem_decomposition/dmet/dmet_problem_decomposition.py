@@ -108,7 +108,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             if max(fragment_atoms_flatten) >= self.molecule.natm:
                 raise RuntimeError("An atom id is higher than the number of atom (indices start at 0).")
             elif len(fragment_atoms_flatten) != len(set(fragment_atoms_flatten)):
-                raise RuntimeError("Atom indexes must only appear once.")
+                raise RuntimeError("Atom indices must only appear once.")
 
             # Converting fragment_atoms to an expected list of number of atoms (not atom ids).
             new_fragment_atoms = [len(frag) for frag in self.fragment_atoms]

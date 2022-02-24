@@ -160,8 +160,8 @@ class DMETProblemDecompositionTest(unittest.TestCase):
 
         self.assertEqual(solver.fragment_atoms, [1, 1, 1, 1])
 
-    def test_build_with_atom_indexes(self):
-        """Tests if a mean field is recomputed when providing atom indexes."""
+    def test_build_with_atom_indices(self):
+        """Tests if a mean field is recomputed when providing atom indices."""
 
         opt_dmet = {"molecule": mol_H4_doublecation_321g,
                     "fragment_atoms": [[0], [1], [2], [3]],
