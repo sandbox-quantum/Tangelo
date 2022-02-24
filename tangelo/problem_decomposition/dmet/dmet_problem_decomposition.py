@@ -17,7 +17,7 @@
 from enum import Enum
 from functools import reduce
 import numpy as np
-from pyscf import gto
+from pyscf import gto, scf
 import scipy
 import warnings
 
@@ -108,7 +108,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             if max(fragment_atoms_flatten) >= self.molecule.natm:
                 raise RuntimeError("An atom id is higher than the number of atom (indices start at 0).")
             elif len(fragment_atoms_flatten) != len(set(fragment_atoms_flatten)):
-                raise RuntimeError("Atom indexes must only appear once.")
+                raise RuntimeError("Atom indices must only appear once.")
 
             # Converting fragment_atoms to an expected list of number of atoms (not atom ids).
             new_fragment_atoms = [len(frag) for frag in self.fragment_atoms]
@@ -130,8 +130,10 @@ class DMETProblemDecomposition(ProblemDecomposition):
             self.fragment_atoms = new_fragment_atoms
 
             # Force recomputing the mean field if the atom ordering has been changed.
-            self.mean_field = None
             warnings.warn("The mean field will be recomputed even if one has been provided by the user.", RuntimeWarning)
+            self.mean_field = scf.RHF(self.molecule)
+            self.mean_field.verbose = 0
+            self.mean_field.scf()
 
         # Check if the number of fragment sites is equal to the number of atoms in the molecule
         if self.molecule.natm != sum(self.fragment_atoms):
