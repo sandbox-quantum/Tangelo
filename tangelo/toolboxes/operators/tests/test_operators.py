@@ -72,7 +72,7 @@ class QubitHamiltonianTest(unittest.TestCase):
             QubitOperator(term="X0 Y1 Z2", coefficient=1.))
 
     def test_get_operators(self):
-        """Test exportation of QubitHamiltonian to QubitOperator."""
+        """Test get_operators methods, defined in QubitOperator class."""
 
         terms = [QubitHamiltonian("X0 Y1 Z2", mapping="JW", up_then_down=True),
                  QubitHamiltonian("Z0 X1 Y2", mapping="JW", up_then_down=True),
