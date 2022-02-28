@@ -229,7 +229,7 @@ def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variationa
         for i in range(1, n_trotter_steps):
             final_circuit += circuit
             final_phase *= phase
-        return_value = (final_circuit, final_phase) if return_phase else circuit
+        return_value = (final_circuit, final_phase) if return_phase else final_circuit
     return return_value
 
 
