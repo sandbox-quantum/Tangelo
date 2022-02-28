@@ -221,15 +221,7 @@ def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variationa
     else:
         raise ValueError("Only FermionOperator or QubitOperator allowed")
 
-    if n_trotter_steps == 1:
-        return_value = (circuit, phase) if return_phase else circuit
-    else:
-        final_circuit = deepcopy(circuit)
-        final_phase = deepcopy(phase)
-        for i in range(1, n_trotter_steps):
-            final_circuit += circuit
-            final_phase *= phase
-        return_value = (final_circuit, final_phase) if return_phase else final_circuit
+    return_value = (circuit*n_trotter_steps, phase**n_trotter_steps) if return_phase else circuit*n_trotter_steps
     return return_value
 
 
