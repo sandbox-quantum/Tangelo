@@ -114,6 +114,12 @@ class ansatz_utils_Test(unittest.TestCase):
             wavefunc *= phase
             overlap = np.dot(np.conj(evolve_exact), wavefunc)
             self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
+            # Test to make sure the same circuit is returned when return_phase=False.
+            tcircuit = trotterize(qubit_hamiltonian, time, n_trotter_steps, trotter_order, return_phase=False)
+            _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
+            wavefunc *= phase
+            overlap = np.dot(np.conj(evolve_exact), wavefunc)
+            self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
 
     def test_trotterize_fermionic_input_different_times(self):
         """ Verify that the time evolution is correct for a FermionOperator input with different times
