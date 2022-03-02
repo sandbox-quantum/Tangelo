@@ -37,11 +37,12 @@ def get_openqasm_gates():
     """
 
     GATE_OPENQASM = dict()
-    for name in {"H", "X", "Y", "Z", "S", "T"}:
-        GATE_OPENQASM[name] = name.lower()
-    for name in {"RX", "RY", "RZ", "MEASURE", "PHASE"}:
+    for name in {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "MEASURE",
+                 "CZ", "CY", "CRZ", "SWAP", "CSWAP"}:
         GATE_OPENQASM[name] = name.lower()
     GATE_OPENQASM["CNOT"] = "cx"
+    GATE_OPENQASM["PHASE"] = "p"
+    GATE_OPENQASM["CPHASE"] = "cp"
 
     return GATE_OPENQASM
 
@@ -80,6 +81,10 @@ def _translate_openqasm2abs(openqasm_str):
         Circuit: corresponding quantum circuit in the abstract format.
     """
 
+    # Get dictionary of gate mapping, as the reverse dictionary of abs -> openqasm translation
+    GATE_OPENQASM = get_openqasm_gates()
+    gate_mapping = {v: k for k, v in GATE_OPENQASM.items()}
+
     def parse_param(s):
         """ Parse parameter as either a float or a string if it's not a float """
         try:
@@ -104,14 +109,18 @@ def _translate_openqasm2abs(openqasm_str):
         #  bit_indices = [int(index) for index in re.findall('c\[(\d+)\]', openqasm_gate)]
 
         if gate_name in {"h", "x", "y", "z", "s", "t", "measure"}:
-            gate = Gate(gate_name.upper(), qubit_indices[0])
-        elif gate_name in {"rx", "ry", "rz"}:
-            gate = Gate(gate_name.upper(), qubit_indices[0], parameter=eval(str(parameters[0])))
+            gate = Gate(gate_mapping[gate_name], qubit_indices[0])
+        elif gate_name in {"rx", "ry", "rz", "p"}:
+            gate = Gate(gate_mapping[gate_name], qubit_indices[0], parameter=eval(str(parameters[0])))
         # TODO: Rethink the use of enums for gates to set the equality CX=CNOT and enable other refactoring
-        elif gate_name in {"cx"}:
-            gate = Gate("CNOT", qubit_indices[1], control=qubit_indices[0])
-        elif gate_name in {"p"}:
-            gate = Gate("PHASE", qubit_indices[0], parameter=eval(str(parameters[0])))
+        elif gate_name in {"cx", "cz", "cy"}:
+            gate = Gate(gate_mapping[gate_name], qubit_indices[1], control=qubit_indices[0])
+        elif gate_name in {"crz", "cp"}:
+            gate = Gate(gate_mapping[gate_name], qubit_indices[1], control=qubit_indices[0], parameter=eval(str(parameters[0])))
+        elif gate_name in {"swap"}:
+            gate = Gate(gate_mapping[gate_name], [qubit_indices[0], qubit_indices[1]])
+        elif gate_name in {"cswap"}:
+            gate = Gate(gate_mapping[gate_name], [qubit_indices[1], qubit_indices[2]], control=qubit_indices[0])
         else:
             raise ValueError(f"Gate '{gate_name}' not supported with openqasm translation")
         abs_circ.add_gate(gate)
