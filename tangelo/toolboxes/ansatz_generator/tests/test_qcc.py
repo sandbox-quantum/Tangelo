@@ -45,7 +45,7 @@ class QCCTest(unittest.TestCase):
 
         one_zero = np.zeros((1,), dtype=float)
 
-        qcc_ansatz.set_var_params("zeros")
+        qcc_ansatz.set_var_params("qmf_state")
         np.testing.assert_array_almost_equal(qcc_ansatz.var_params, one_zero, decimal=6)
 
         qcc_ansatz.set_var_params([0.])

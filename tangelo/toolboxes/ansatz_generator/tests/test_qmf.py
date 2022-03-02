@@ -37,7 +37,7 @@ class QMFTest(unittest.TestCase):
 
         eight_zeros = np.zeros((8,), dtype=float)
 
-        qmf_ansatz.set_var_params("zeros")
+        qmf_ansatz.set_var_params("vacuum")
         np.testing.assert_array_almost_equal(qmf_ansatz.var_params, eight_zeros, decimal=6)
 
         qmf_ansatz.set_var_params([0.] * 8)
@@ -45,7 +45,7 @@ class QMFTest(unittest.TestCase):
 
         eight_pis = np.pi * np.ones((8,))
 
-        qmf_ansatz.set_var_params("pis")
+        qmf_ansatz.set_var_params("full_occ")
         np.testing.assert_array_almost_equal(qmf_ansatz.var_params, eight_pis, decimal=6)
 
         qmf_ansatz.set_var_params(np.array([np.pi] * 8))

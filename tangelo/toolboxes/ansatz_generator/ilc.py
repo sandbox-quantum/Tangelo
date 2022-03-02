@@ -137,7 +137,7 @@ class ILC(Ansatz):
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"zeros", "diag", "ilc_tau_guess"}
+        self.supported_initial_var_params = {"qmf_state", "ilc_tau_guess", "random", "diag"}
 
         # Default starting parameters for initialization
         self.default_reference_state = "HF"
@@ -163,14 +163,17 @@ class ILC(Ansatz):
                 raise ValueError(f"Supported keywords for initializing variational parameters: "
                                  f"{self.supported_initial_var_params}")
             # Initialize the ILC wave function as |ILC> = |QMF>
-            if var_params == "zeros":
+            if var_params == "qmf_state":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-            # Initialize ILC parameters by matrix diagonalization (see Appendix B, Refs. 1 & 2).
-            elif var_params == "diag":
-                initial_var_params = init_ilc_by_diag(self.qubit_ham, self.acs, self.qmf_var_params)
             # Initialize all ILC parameters to the same value specified by self.ilc_tau_guess
             elif var_params == "ilc_tau_guess":
                 initial_var_params = self.ilc_tau_guess * np.ones((self.n_var_params,))
+            # Initialize tau parameters randomly over the domain [-ilc_tau_guess, ilc_tau_guess]
+            elif var_params == "random":
+                initial_var_params = 2. * self.ilc_tau_guess * np.random.random((self.n_var_params,)) - self.ilc_tau_guess
+            # Initialize ILC parameters by matrix diagonalization (see Appendix B, Refs. 1 & 2).
+            elif var_params == "diag":
+                initial_var_params = init_ilc_by_diag(self.qubit_ham, self.acs, self.qmf_var_params)
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:

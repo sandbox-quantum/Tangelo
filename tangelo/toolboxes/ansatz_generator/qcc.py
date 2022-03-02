@@ -135,7 +135,7 @@ class QCC(Ansatz):
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"zeros", "qcc_tau_guess"}
+        self.supported_initial_var_params = {"qmf_state", "qcc_tau_guess", "random"}
 
         # Default starting parameters for initialization
         self.pauli_to_angles_mapping = {}
@@ -161,11 +161,14 @@ class QCC(Ansatz):
                 raise ValueError(f"Supported keywords for initializing variational parameters: "
                                  f"{self.supported_initial_var_params}")
             # Initialize the QCC wave function as |QCC> = |QMF>
-            if var_params == "zeros":
+            if var_params == "qmf_state":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
             # Initialize all tau parameters to the same value specified by self.qcc_tau_guess
             elif var_params == "qcc_tau_guess":
                 initial_var_params = self.qcc_tau_guess * np.ones((self.n_var_params,))
+            # Initialize tau parameters randomly over the domain [-qcc_tau_guess, qcc_tau_guess]
+            elif var_params == "random":
+                initial_var_params = 2. * self.qcc_tau_guess * np.random.random((self.n_var_params,)) - self.qcc_tau_guess
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:

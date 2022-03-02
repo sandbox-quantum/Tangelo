@@ -96,7 +96,7 @@ class QMF(Ansatz):
         self.init_qmf = {"init_params": "hf_state"} if init_qmf is None else init_qmf
 
         # Supported var param initialization
-        self.supported_initial_var_params = {"zeros", "half_pi", "pis", "random", "hf_state"}
+        self.supported_initial_var_params = {"vacuum", "full_Q", "full_Qdag", "full_occ", "random", "hf_state"}
 
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
@@ -156,21 +156,24 @@ class QMF(Ansatz):
             if var_params not in self.supported_initial_var_params:
                 raise ValueError(f"Supported keywords for initializing variational parameters: "
                                  f"{self.supported_initial_var_params}")
-            if var_params == "zeros":
-                # Initialize |QMF> as |00...0>
+            # Initialize |QMF> as |00...0>
+            if var_params == "vacuum":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-            elif var_params == "half_pi":
-               # Initialize |QMF> as (1/sqrt(2))^n_qubits * tensor_prod(|0> + 1j|1>)
+            # Initialize |QMF> as (1/sqrt(2))^n_qubits * tensor_prod(|0> + 1j|1>)
+            elif var_params == "full_Q":
                 initial_var_params = 0.5 * np.pi * np.ones((self.n_var_params,))
-            elif var_params == "pis":
-                # Initialize |QMF> as (-1)^n_qubits |11...1>
+            # Initialize |QMF> as (1/sqrt(2))^n_qubits * tensor_prod(|0> - 1j|1>)
+            elif var_params == "full_Qdag":
+                initial_var_params = 1.5 * np.pi * np.ones((self.n_var_params,))
+            # Initialize |QMF> as (-1)^n_qubits |11...1>
+            elif var_params == "full_occ":
                 initial_var_params = np.pi * np.ones((self.n_var_params,))
+            # Random initialization of thetas over [0, pi] and phis over [0, 2 * pi]
             elif var_params == "random":
-                # Random initialization of thetas over [0, pi] and phis over [0, 2 * pi]
                 initial_thetas = np.pi * np.random.random((self.n_qubits,))
                 initial_phis = 2. * np.pi * np.random.random((self.n_qubits,))
                 initial_var_params = np.concatenate((initial_thetas, initial_phis))
-                # Initialize thetas as 0 or pi such that |QMF> = |HF> and set all phis to 0
+            # Initialize thetas as 0 or pi such that |QMF> = |HF> and set all phis to 0
             elif var_params == "hf_state":
                 initial_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                       self.mapping, self.up_then_down, self.spin)
