@@ -56,12 +56,12 @@ class UCCSD(Ansatz):
             alternating spin up/down ordering).
     """
 
-    def __init__(self, molecule, mapping="JW", up_then_down=False):
+    def __init__(self, molecule, mapping="JW", up_then_down=False, spin=None):
 
         self.molecule = molecule
         self.n_spinorbitals = molecule.n_active_sos
         self.n_electrons = molecule.n_active_electrons
-        self.spin = molecule.spin
+        self.spin = molecule.spin if spin is None else spin
         self.mapping = mapping
         self.up_then_down = up_then_down
 
@@ -86,7 +86,7 @@ class UCCSD(Ansatz):
 
         # Supported reference state initialization
         # TODO: support for others
-        self.supported_reference_state = {"HF"}
+        self.supported_reference_state = {"HF", "None"}
         # Supported var param initialization
         self.supported_initial_var_params = {"ones", "random", "mp2"} if self.spin == 0 else {"ones", "random"}
 
@@ -142,6 +142,8 @@ class UCCSD(Ansatz):
                                          mapping=self.mapping,
                                          up_then_down=self.up_then_down,
                                          spin=self.spin)
+        elif self.default_reference_state == "None":
+            return Circuit()
 
     def build_circuit(self, var_params=None):
         """Build and return the quantum circuit implementing the state

@@ -427,3 +427,34 @@ class SecondQuantizedMolecule(Molecule):
         core_constant += core_offset
 
         return core_constant, one_electron_integrals, two_electron_integrals
+
+    def get_full_space_integrals(self, mo_coeff=None):
+        """Computes core constant, one_body, and two-body integrals
+
+        Returns:
+            (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
+        """
+
+        # Pyscf molecule to get integrals.
+        pyscf_mol = self.to_pyscf(self.basis)
+        if mo_coeff is None:
+            mo_coeff = self.mean_field.mo_coeff
+
+        # Corresponding to nuclear repulsion energy and static coulomb energy.
+        core_constant = float(pyscf_mol.energy_nuc())
+
+        # get_hcore is equivalent to int1e_kin + int1e_nuc.
+        one_electron_integrals = mo_coeff.T @ self.mean_field.get_hcore() @ mo_coeff
+
+        # Getting 2-body integrals in atomic and converting to molecular basis.
+        two_electron_integrals = ao2mo.kernel(pyscf_mol.intor("int2e"), mo_coeff)
+        two_electron_integrals = ao2mo.restore(1, two_electron_integrals, len(mo_coeff))
+
+        # PQRS convention in openfermion:
+        # h[p,q]=\int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
+        # h[p,q,r,s]=\int \phi_p(x)* \phi_q(y)* V_{elec-elec} \phi_r(y) \phi_s(x) dxdy
+        # The convention is not the same with PySCF integrals. So, a change is
+        # made before performing the truncation for frozen orbitals.
+        two_electron_integrals = two_electron_integrals.transpose(0, 2, 3, 1)
+
+        return core_constant, one_electron_integrals, two_electron_integrals
