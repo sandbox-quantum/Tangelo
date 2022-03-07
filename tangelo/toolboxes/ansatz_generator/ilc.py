@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module defines the coupled cluster ansatz class for involutory
-linear combinations (ILC) of anti-commuting sets (ACS) of Pauli words.
+"""This module defines the qubit coupled cluster ansatz class for involutory
+linear combinations (ILC) of anti-commuting sets (ACS) of Pauli words
+(generators). Relative to the direct interation set (DIS) of QCC generators,
+which incur an exponential growth of Hamiltonian terms upon dressing, the ACS
+of ILC generators enables Hamiltonian dressing such that the number of terms
+grows quadratically and exact quadratic truncation of the Baker-Campbell-Hausdorff
+expansion. For more information about this ansatz, see references below.
 
 Refs:
     1. R. A. Lang, I. G. Ryabinkin, and A. F. Izmaylov.
@@ -31,8 +36,8 @@ from tangelo.linq import Circuit
 from .ansatz import Ansatz
 from .ansatz_utils import exp_pauliword_to_gates
 from ._qubit_mf import init_qmf_from_hf, get_qmf_circuit, purify_qmf_state
-from ._qubit_ilc import construct_acs, init_ilc_by_diag
 from ._qubit_cc import construct_dis
+from ._qubit_ilc import construct_acs, init_ilc_by_diag
 
 
 class ILC(Ansatz):
@@ -49,7 +54,7 @@ class ILC(Ansatz):
             followed by all spin-down. Default, False.
         ilc_op_list (list of QubitOperator): Generator list for the ILC ansatz. Default, None.
         qmf_circuit (Circuit): An instance of tangelo.linq Circuit class implementing a QMF state
-            preparation circuit. If passed from the QMF ansatz class, parameters are variational.
+            circuit. If passed from the QMF ansatz class, parameters are variational.
             If None, one is created with QMF parameters that are not variational. Default, None.
         qmf_var_params (list or numpy array of float): QMF variational parameter set.
             If None, the values are determined using a Hartree-Fock reference state. Default, None.
@@ -65,12 +70,11 @@ class ILC(Ansatz):
         n_trotter (int): Number of Trotterization steps for the ILC ansatz. Default, 1.
         scfdata (tuple): tuple containing an instance of OpenFermion MolecularData and a
             FermionOperator corresponding to the fermionic Hamiltonian.
-        verbose (bool): Flag for QCC verbosity. Default, False.
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, ilc_op_list=None,
                  qmf_circuit=None, qmf_var_params=None, qubit_ham=None, ilc_tau_guess=1.e-2,
-                 deilc_dtau_thresh=1.e-3, max_ilc_gens=None, n_trotter=1, scfdata=None, verbose=False):
+                 deilc_dtau_thresh=1.e-3, max_ilc_gens=None, n_trotter=1, scfdata=None):
 
         if molecule:
             self.molecule = molecule
@@ -90,8 +94,9 @@ class ILC(Ansatz):
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
         self.up_then_down = up_then_down
         if self.mapping.upper() == "JW" and not self.up_then_down:
-            warnings.warn("The ILC ansatz requires spin-orbital ordering to be all spin-up "
-                          "first followed by all spin-down for the JW mapping.", RuntimeWarning)
+            warnings.warn("Efficient generator screening for the ILC ansatz requires spin-orbital "
+                          "ordering to be all spin-up first followed by all spin-down for the JW "
+                          "mapping.", RuntimeWarning)
             self.up_then_down = True
 
         self.ilc_tau_guess = ilc_tau_guess
@@ -101,7 +106,6 @@ class ILC(Ansatz):
         self.qmf_var_params = qmf_var_params
         self.qmf_circuit = qmf_circuit
         self.n_trotter = n_trotter
-        self.verbose = verbose
 
         if qubit_ham is None:
             self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping,
@@ -121,10 +125,8 @@ class ILC(Ansatz):
         # Get purified QMF parameters and build the DIS & ACS or use a list of generators.
         if self.ilc_op_list is None:
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
-                                               self.n_electrons, self.mapping, self.up_then_down,
-                                               self.spin, self.verbose)
-            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh,
-                                     self.verbose)
+                                               self.n_electrons, self.mapping, self.up_then_down, self.spin)
+            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh)
             self.max_ilc_gens = len(self.dis) if self.max_ilc_gens is None\
                                 else min(len(self.dis), self.max_ilc_gens)
             self.acs = construct_acs(self.dis, self.max_ilc_gens, self.n_qubits)
@@ -264,7 +266,6 @@ class ILC(Ansatz):
             max_ilc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
                 one generator from each DIS group is selected. If int, min(|DIS|, max_ilc_gens)
                 generators are selected in order of decreasing |dEILC/dtau| values.
-            verbose (bool): Flag for QCC verbosity.
 
         Returns:
             list of QubitOperator: the list of ILC qubit operators ordered according to the
@@ -274,10 +275,8 @@ class ILC(Ansatz):
         # Rebuild DIS & ACS in case qubit_ham changed or they and qubit_op_list don't exist
         if self.rebuild_dis or self.rebuild_acs or ((not self.dis or not self.acs) and not self.ilc_op_list):
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
-                                               self.n_electrons, self.mapping, self.up_then_down,
-                                               self.spin, self.verbose)
-            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh,
-                                     self.verbose)
+                                               self.n_electrons, self.mapping, self.up_then_down, self.spin)
+            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh)
             self.max_ilc_gens = len(self.dis) if self.max_ilc_gens is None\
                                 else min(len(self.dis), self.max_ilc_gens)
             self.acs = construct_acs(self.dis, self.max_ilc_gens, self.n_qubits)

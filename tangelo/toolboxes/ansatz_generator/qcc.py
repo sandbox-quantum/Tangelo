@@ -60,7 +60,7 @@ class QCC(Ansatz):
             followed by all spin-down. Default, False.
         qcc_op_list (list of QubitOperator): Generator list for the QCC ansatz. Default, None.
         qmf_circuit (Circuit): An instance of tangelo.linq Circuit class implementing a QMF state
-            preparation circuit. If passed from the QMF ansatz class, parameters are variational.
+            circuit. If passed from the QMF ansatz class, parameters are variational.
             If None, one is created with QMF parameters that are not variational. Default, None.
         qmf_var_params (list or numpy array of float): QMF variational parameter set.
             If None, the values are determined using a Hartree-Fock reference state. Default, None.
@@ -73,27 +73,41 @@ class QCC(Ansatz):
         max_qcc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_qcc_gens)
             generators are selected in order of decreasing |dEQCC/dtau|. Default, None.
-        verbose (bool): Flag for QCC verbosity. Default, False.
+        scfdata (tuple): tuple containing an instance of OpenFermion MolecularData and a
+            FermionOperator corresponding to the fermionic Hamiltonian.
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, qcc_op_list=None,
                  qmf_circuit=None, qmf_var_params=None, qubit_ham=None, qcc_tau_guess=1.e-2,
-                 deqcc_dtau_thresh=1.e-3, max_qcc_gens=None, verbose=False):
+                 deqcc_dtau_thresh=1.e-3, max_qcc_gens=None, scfdata=None):
+
+        if molecule:
+            self.molecule = molecule
+            self.n_spinorbitals = self.molecule.n_active_sos
+            if self.n_spinorbitals % 2 != 0:
+                raise ValueError("The total number of spin-orbitals should be even.")
+
+            self.spin = molecule.spin
+            self.fermi_ham = self.molecule.fermionic_hamiltonian
+        elif scfdata:
+            self.molecule = scfdata[0]
+            self.n_spinorbitals = 2 * self.molecule.n_orbitals
+            self.spin = self.molecule.multiplicity - 1
+            self.fermi_ham = scfdata[1]
+        self.n_electrons = self.molecule.n_electrons
+        self.mapping = mapping
+        self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
+        self.up_then_down = up_then_down
+        if self.mapping.upper() == "JW" and not self.up_then_down:
+            warnings.warn("Efficient generator screening for the QCC ansatz requires spin-orbital "
+                          "ordering to be all spin-up first followed by all spin-down for the JW "
+                          "mapping.", RuntimeWarning)
+            self.up_then_down = True
 
         self.molecule = molecule
         self.n_spinorbitals = self.molecule.n_active_sos
         if self.n_spinorbitals % 2 != 0:
             raise ValueError("The total number of spin-orbitals should be even.")
-
-        self.n_electrons = self.molecule.n_active_electrons
-        self.spin = molecule.spin
-        self.mapping = mapping
-        self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
-        self.up_then_down = up_then_down
-        if self.mapping.upper() == "JW" and not self.up_then_down:
-            warnings.warn("The QCC ansatz requires spin-orbital ordering to be all spin-up "
-                          "first followed by all spin-down for the JW mapping.", RuntimeWarning)
-            self.up_then_down = True
 
         self.qcc_tau_guess = qcc_tau_guess
         self.deqcc_dtau_thresh = deqcc_dtau_thresh
@@ -101,7 +115,6 @@ class QCC(Ansatz):
         self.qcc_op_list = qcc_op_list
         self.qmf_var_params = qmf_var_params
         self.qmf_circuit = qmf_circuit
-        self.verbose = verbose
 
         if qubit_ham is None:
             self.fermi_ham = self.molecule.fermionic_hamiltonian
@@ -122,10 +135,8 @@ class QCC(Ansatz):
         # Get purified QMF parameters and use them to build the DIS or use a list of generators.
         if self.qcc_op_list is None:
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
-                                               self.n_electrons, self.mapping, self.up_then_down,
-                                               self.spin, self.verbose)
-            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deqcc_dtau_thresh,
-                                     self.verbose)
+                                               self.n_electrons, self.mapping, self.up_then_down, self.spin)
+            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deqcc_dtau_thresh)
             self.n_var_params = len(self.dis) if self.max_qcc_gens is None\
                                 else min(len(self.dis), self.max_qcc_gens)
         else:
@@ -266,7 +277,6 @@ class QCC(Ansatz):
             max_qcc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
                 one generator from each DIS group is selected. If int, min(|DIS|, max_qcc_gens)
                 generators are selected in order of decreasing |dEQCC/dtau| values.
-            verbose (bool): Flag for QCC verbosity.
 
         Returns:
             QubitOperator: QCC ansatz qubit operator.
@@ -275,10 +285,8 @@ class QCC(Ansatz):
         # Rebuild DIS if qubit_ham or qmf_var_params changed or if DIS and qcc_op_list are None.
         if self.rebuild_dis or (self.dis is None and self.qcc_op_list is None):
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
-                                               self.n_electrons, self.mapping, self.up_then_down,
-                                               self.spin, self.verbose)
-            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deqcc_dtau_thresh,
-                                     self.verbose)
+                                               self.n_electrons, self.mapping, self.up_then_down, self.spin)
+            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deqcc_dtau_thresh)
             self.n_var_params = len(self.dis) if self.max_qcc_gens is None\
                                 else min(len(self.dis), self.max_qcc_gens)
             self.qcc_op_list = None

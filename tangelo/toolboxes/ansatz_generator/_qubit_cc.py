@@ -36,7 +36,7 @@ from tangelo.toolboxes.operators.operators import QubitOperator
 from ._qubit_mf import get_op_expval
 
 
-def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh, verbose=False):
+def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):
     """Construct the DIS of QCC generators, which proceeds as follows:
     1. Identify the flip indices of all Hamiltonian terms and group terms by flip indices.
     2. Construct a representative generator using flip indices from each candidate DIS group
@@ -51,7 +51,6 @@ def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh, verbose=False):
         pure_var_params (numpy array of float): A purified QMF variational parameter set.
         deqcc_dtau_thresh (float): Threshold for |dEQCC/dtau| so that a candidate group is added
             to the DIS if |dEQCC/dtau| >= deqcc_dtau_thresh for a generator.
-        verbose (bool): Flag for QCC verbosity.
 
     Returns:
         list of list: the DIS of QCC generators.
@@ -60,16 +59,10 @@ def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh, verbose=False):
     # Use a qubit Hamiltonian and purified QMF parameter set to construct the DIS
     dis, dis_groups = [], get_dis_groups(qubit_ham, pure_var_params, deqcc_dtau_thresh)
     if dis_groups:
-        if verbose:
-            print(f"The DIS contains {len(dis_groups)} unique generator group(s).\n")
         for i, dis_group in enumerate(dis_groups):
             dis_group_idxs = [int(idxs) for idxs in dis_group[0].split(" ")]
             dis_group_gens = get_gens_from_idxs(dis_group_idxs)
             dis.append(dis_group_gens)
-            if verbose:
-                print(f"DIS group {i} | group size = {len(dis_group_gens)} | "
-                      f"flip indices = {dis_group_idxs} | |dEQCC/dtau| = "
-                      f"{abs(dis_group[1])} a.u.\n")
     else:
         raise ValueError(f"The DIS is empty: there are no candidate DIS groups where "
                          f"|dEQCC/dtau| >= {deqcc_dtau_thresh} a.u. Terminate simulation.\n")
