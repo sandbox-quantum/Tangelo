@@ -17,7 +17,7 @@ ansatz:
     1. Analytical evaluation of an expectation value of a QubitOperator
        using a QMF wave function;
     2. Initialization of the QMF variational parameter set {Omega} from a
-       Hartree-Fock reference state; 
+       Hartree-Fock reference state;
     3. Purification {Omega} when building and screening the DIS of QCC generators;
     4. Construction of a QMF state circuit using {Omega};
     5. Addition of terms for N, S^2, and Sz that penalize a mean-field Hamiltonian
@@ -153,7 +153,7 @@ def get_qmf_circuit(qmf_var_params, variational=True):
         variational (bool): Flag to treat {Omega} variationally or keep them fixed.
 
     Returns:
-        Circuit: instance of tangelo.linq Circuit class. 
+        Circuit: instance of tangelo.linq Circuit class.
     """
 
     n_qubits, gates = qmf_var_params.size // 2, []

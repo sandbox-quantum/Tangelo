@@ -28,7 +28,6 @@ Refs:
         J. Parallel Distrib. Comput., 1991, 13, 118–122.
 """
 
-#from random import choice
 import scipy
 import numpy as np
 
@@ -138,7 +137,7 @@ def gauss_elim_over_gf2(A, zdim):
         b = z[2]
         for zf in (z[1]):
             if z_sln[zf] == -1:
-                z_sln[zf] = 1. #choice([0., 1.])
+                z_sln[zf] = 1.
             b = (b + z_sln[zf]) % 2
         z_sln[z[0]] = b
     return z_sln

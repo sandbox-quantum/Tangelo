@@ -59,7 +59,7 @@ def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):
     # Use a qubit Hamiltonian and purified QMF parameter set to construct the DIS
     dis, dis_groups = [], get_dis_groups(qubit_ham, pure_var_params, deqcc_dtau_thresh)
     if dis_groups:
-        for i, dis_group in enumerate(dis_groups):
+        for dis_group in dis_groups:
             dis_group_idxs = [int(idxs) for idxs in dis_group[0].split(" ")]
             dis_group_gens = get_gens_from_idxs(dis_group_idxs)
             dis.append(dis_group_gens)
