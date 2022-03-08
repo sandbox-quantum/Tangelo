@@ -269,35 +269,47 @@ class SA_OO_Solver:
                             for xi, x in enumerate(active_indices):
                                 d2ed2x[t, a, u, b] += 2*(two_rdm[ti, ui, vi, xi]*ftwoint[a, b, v, x]+(two_rdm[ti, xi, vi, ui] +
                                                          two_rdm[ti, xi, ui, vi])*ftwoint[a, x, b, v])
-                        d2ed2x[t, a, u, b] += one_rdm[ti, ui]*fi_mat[a, b] - int(a == b)*f_mat[t, u]
+                                for yi, y in enumerate(active_indices):
+                                    d2ed2x[t,a,u,b] -= int(a==b)*(two_rdm[ti,vi,xi,yi]*ftwoint[u,v,x,y]+two_rdm[ui,vi,xi,yi]*ftwoint[t,v,x,y])
+                            d2ed2x[t,a,u,b] += (-1/2)*int(a==b)*(one_rdm[ti,vi]*fi_mat[u,v]+one_rdm[ui,vi]*fi_mat[t,v])
+                        d2ed2x[t,a,u,b] += one_rdm[ti,ui]*fi_mat[a,b]
+                        # d2ed2x[t, a, u, b] += one_rdm[ti, ui]*fi_mat[a, b] - int(a == b)*f_mat[t, u]
 
-        n_params = (n_mos*n_mos-n_mos)//2
+        ivals = occupied_indices + active_indices
+        jvals = active_indices + unoccupied_indices
+        n_params =0
+        for i in ivals:
+            for j in jvals:
+                if (j > i and not (i in active_indices and j in active_indices)):
+                    n_params += 1
         hess = np.zeros((n_params, n_params))
         dedx = np.zeros(n_params)
         p1 = -1
-        for i in range(n_mos):
-            for j in range(i+1, n_mos):
-                p1 += 1
-                dedx[p1] = 2*(f_mat[i, j]-f_mat[j, i])
-                p2 = -1
-                for k in range(n_mos):
-                    for ll in range(k+1, n_mos):
-                        p2 += 1
-                        hess[p1, p2] = d2ed2x[i, j, k, ll]*2
-                        hess[p2, p1] = d2ed2x[i, j, k, ll]*2
+        for i in ivals:
+            for j in jvals:
+                if (j > i and not (i in active_indices and j in active_indices)):
+                    p1 += 1
+                    dedx[p1] = 2*(f_mat[i, j]-f_mat[j, i])
+                    p2 = -1
+                    for k in ivals:
+                        for ll in jvals:
+                            if (ll > k and not (k in active_indices and ll in active_indices)):
+                                p2 += 1
+                                hess[p1, p2] = d2ed2x[i, j, k, ll]*2
+                                hess[p2, p1] = d2ed2x[i, j, k, ll]*2
 
         E, _ = np.linalg.eigh(hess)
-        fac = 10.e-1 #np.sqrt(abs(E[0]))
-        print(fac,E[0],E[-1])
+        fac = abs(E[0])*2 if E[0] < 0 else 0
         hess = hess + np.eye(n_params)*fac
         knew = -np.linalg.solve(hess, dedx)
 
         mat_rep = np.zeros((n_mos,  n_mos))
         p1 = -1
-        for i in range(n_mos):
-            for j in range(i+1, n_mos):
-                p1 += 1
-                mat_rep[i, j] = knew[p1]
-                mat_rep[j, i] = -knew[p1]
+        for i in ivals:
+            for j in jvals:
+                if (j > i and not (i in active_indices and j in active_indices)):
+                    p1 += 1
+                    mat_rep[i, j] = knew[p1]
+                    mat_rep[j, i] = -knew[p1]
 
         return expm(-mat_rep)

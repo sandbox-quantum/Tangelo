@@ -12,37 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module defines the k-UpCCGSD ansatz class. It provides a chemically
-inspired ansatz and is an implementation of the classical unitary CCGSD ansatz.
-Generalized Single and pairwise double excitation determinants, in accordance
+"""This module defines the UCCGD ansatz class. It provides a chemically
+inspired ansatz and is an implementation of the classical unitary CCGD ansatz.
+Generalized double excitation determinants, in accordance
 with the system number of electron and spin, are considered. For more
 information about this ansatz, see references below.
 
 Refs:
-    - Joonho Lee, William J. Huggins, Martin Head-Gordon, and K. Birgitta.
-        "Generalized Unitary Couple Cluster Wavefunctions for Quantum
-        Computation" arxiv:1810.02327.
+
 """
 
 import numpy as np
+from openfermion import hermitian_conjugated
+from openfermion import FermionOperator as ofFermionOperator
 
 from tangelo.linq import Circuit
+from tangelo.toolboxes.operators.operators import FermionOperator
 
 from .ansatz import Ansatz
-from .ansatz_utils import exp_pauliword_to_gates
+from .ansatz_utils import exp_pauliword_to_gates, trotterize
 from ._unitary_cc_paired import get_upccgsd
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 
 
-class UpCCGSD(Ansatz):
+class UCCGD(Ansatz):
     """This class implements the UpCCGSD ansatz. This implies that the
     mean-field is computed with the RHF or ROHF reference integrals.
 
     Args:
         molecule (SecondQuantizedMolecule) : The molecular system.
-        k : parameters for the number of times UpCCGSD is repeated see
-            (arxiv:1810.02327) for details. Default, 2.
         mapping (str) : one of the supported qubit mapping identifiers. Default:
             "JW".
         up_then_down (bool): change basis ordering putting all spin up orbitals
@@ -64,16 +63,21 @@ class UpCCGSD(Ansatz):
         if self.n_spinorbitals % 2 != 0:
             raise ValueError("The total number of spin-orbitals should be even.")
         self.n_spatial_orbitals = self.n_spinorbitals // 2
-        self.n_doubles = self.n_spatial_orbitals * (self.n_spatial_orbitals - 1)//2
-        self.n_singles = 2*self.n_doubles
-        self.n_var_params_per_step = self.n_doubles + self.n_singles
-        self.n_var_params = self.k * (self.n_singles + self.n_doubles)
+        n_mos = self.n_spatial_orbitals
+        p = 0
+        for u in range(n_mos):
+            for w in range(u, n_mos):
+                for v in range(w, n_mos):
+                    for t in range(v, n_mos):
+                        if len(set([u, w, v, t])) >= 1:  # are they not all equal
+                            p = p + 1
+        self.n_var_params = p
 
         # Supported reference state initialization
         # TODO: support for others
         self.supported_reference_state = {"HF", "None"}
         # Supported var param initialization
-        self.var_params_default = "ones"
+        self.var_params_default = "random"
         self.supported_initial_var_params = {"ones", "random"}
 
         # Default initial parameters for initialization
@@ -145,25 +149,13 @@ class UpCCGSD(Ansatz):
         # Build dictionary of ordered pauli words for fast update of parameters intead of rebuilding circuit
         # Initialize dictionary of, dictionaries for each UpCCGSD step (current_k)
         self.pauli_to_angles_mapping = dict()
-        # Initialize array of integers to keep track of starting point in qubit_op for each UpCCGSD step (current_k)
-        sum_prev_qubit_terms = np.zeros(self.k+1, dtype=int)
 
-        pauli_words_gates = list()
-        for current_k in range(self.k):
-            qubit_op = self._get_qubit_operator(current_k)
-            pauli_words = sorted(qubit_op.terms.items(), key=lambda x: len(x[0]))
+        qubit_op = self._get_qubit_operator()
 
-            # Initialize dictionary of qubit_op terms for each UpCCGSD step
-            self.pauli_to_angles_mapping[current_k] = dict()
+        # Initialize dictionary of qubit_op terms for each UpCCGSD step
+        self.pauli_to_angles_mapping = dict()
 
-            # Obtain quantum circuit through trivial trotterization of the qubit operator for each current_k
-            for i, (pauli_word, coef) in enumerate(pauli_words):
-                pauli_words_gates += exp_pauliword_to_gates(pauli_word, coef)
-                self.pauli_to_angles_mapping[current_k][pauli_word] = i + sum_prev_qubit_terms[current_k]
-
-            sum_prev_qubit_terms[current_k + 1] = len(qubit_op.terms.items())
-
-        upccgsd_circuit = Circuit(pauli_words_gates)
+        upccgsd_circuit = trotterize(qubit_op, variational=True)
 
         # skip over the reference state circuit if it is empty
         if reference_state_circuit.size != 0:
@@ -180,30 +172,33 @@ class UpCCGSD(Ansatz):
         self.set_var_params(var_params)
 
         # Loop through each current_k step
-        for current_k in range(self.k):
-            # Build qubit operator required to build UpCCGSD for current_k
-            qubit_op = self._get_qubit_operator(current_k)
+        self.build_circuit(var_params)
 
-            # If qubit operator terms have changed, rebuild circuit. Else, simply update variational gates directly
-            if set(self.pauli_to_angles_mapping[current_k].keys()) != set(qubit_op.terms.keys()):
-                self.build_circuit(var_params)
-                break
-            else:
-                for pauli_word, coef in qubit_op.terms.items():
-                    gate_index = self.pauli_to_angles_mapping[current_k][pauli_word]
-                    self.circuit._variational_gates[gate_index].parameter = 2.*coef if coef >= 0. else 4*np.pi+2*coef
-
-    def _get_qubit_operator(self, current_k):
-        """Construct UpCCGSD FermionOperator for current_k variational
+    def _get_qubit_operator(self):
+        """Construct UpCCGSD FermionOperator for variational
         parameters, and translate to QubitOperator via relevant qubit mapping.
 
         Returns:
-            QubitOperator: qubit-encoded elements of the UpCCGSD ansatz for
-                current_k.
+            QubitOperator: qubit-encoded elements of the UCCGD
         """
-        current_k_params = self.var_params[current_k*self.n_var_params_per_step:(current_k+1)*self.n_var_params_per_step]
+        fermion_op = ofFermionOperator()
+        n_mos = self.n_spinorbitals // 2
+        p = -1
+        for u in range(n_mos):
+            for w in range(u, n_mos):
+                for v in range(w, n_mos):
+                    for t in range(v, n_mos):
+                        if len(set([u, w, v, t])) >= 1:  # are they not all equal
+                            p = p + 1
+                            for sig in range(2):
+                                for tau in range(2):
+                                    c_op = ofFermionOperator(((2*t+sig, 1), (2*v+tau, 1), (2*w+tau, 0), (2*u+sig, 0)), self.var_params[p])
+                                    fermion_op += c_op - hermitian_conjugated(c_op)
+                            for sig in range(2):
+                                for tau in range(2):
+                                    c_op = ofFermionOperator(((2*v+sig, 1), (2*t+tau, 1), (2*u+tau, 0), (2*w+sig, 0)), self.var_params[p])
+                                    fermion_op += c_op - hermitian_conjugated(c_op)
 
-        fermion_op = get_upccgsd(self.n_spatial_orbitals, current_k_params)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
                                             mapping=self.qubit_mapping,
                                             n_spinorbitals=self.n_spinorbitals,
@@ -213,5 +208,5 @@ class UpCCGSD(Ansatz):
         # Cast all coefs to floats (rotations angles are real)
         for key in qubit_op.terms:
             qubit_op.terms[key] = float(qubit_op.terms[key].imag)
-        qubit_op.compress()
+        # qubit_op.compress()
         return qubit_op

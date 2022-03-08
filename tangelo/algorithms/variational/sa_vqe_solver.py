@@ -30,6 +30,7 @@ from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, QCC, VSQS, VariationalCircuitAnsatz
+from tangelo.toolboxes.ansatz_generator.uccgd import UCCGD
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 
@@ -44,6 +45,7 @@ class BuiltInAnsatze(Enum):
     QMF = 5
     QCC = 6
     VSQS = 7
+    UCCGD = 8
 
 
 class SA_VQESolver:
@@ -86,7 +88,7 @@ class SA_VQESolver:
 
         default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
         default_options = {"molecule": None,
-                           "qubit_mapping": "jw", "ansatz": BuiltInAnsatze.UCCSD,
+                           "qubit_mapping": "jw", "ansatz": BuiltInAnsatze.UCCGD,
                            "optimizer": self._default_optimizer,
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
@@ -172,14 +174,6 @@ class SA_VQESolver:
             if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz == BuiltInAnsatze.UCCSD:
                     self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down, self.spins[0])
-                    self.ansatz.default_reference_state = "None"
-                    self.reference_states = list()
-                    for spin in self.spins:
-                        self.reference_states.append(statevector_mapping.get_reference_circuit(n_spinorbitals=self.molecule.n_active_sos,
-                                                                                               n_electrons=self.molecule.n_active_electrons,
-                                                                                               mapping=self.qubit_mapping,
-                                                                                               up_then_down=self.up_then_down,
-                                                                                               spin=spin))
                 elif self.ansatz == BuiltInAnsatze.UCC1:
                     self.ansatz = RUCC(1)
                 elif self.ansatz == BuiltInAnsatze.UCC3:
@@ -194,10 +188,26 @@ class SA_VQESolver:
                     self.ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.VSQS:
                     self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                elif self.ansatz == BuiltInAnsatze.UCCGD:
+                    self.ansatz = UCCGD(self.molecule, self.qubit_mapping, up_then_down=False)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
+
+            self.ansatz.default_reference_state = "None"
+            self.reference_states = list()
+            for spin in self.spins:
+                # self.reference_states.append(statevector_mapping.get_reference_circuit(n_spinorbitals=self.molecule.n_active_sos,
+                #                                                                       n_electrons=self.molecule.n_active_electrons,
+                #                                                                       mapping=self.qubit_mapping,
+                #                                                                       up_then_down=self.up_then_down,
+                #                                                                       spin=spin))
+                if spin == 2:
+                    vector = [1, 0, 1, 1, 1, 0, 0, 0]
+                else:
+                    vector = [1, 1, 1, 0, 1, 0, 0, 0]
+                self.reference_states.append(statevector_mapping.vector_to_circuit(vector, self.qubit_mapping))
 
         # Building with a qubit Hamiltonian.
         elif self.ansatz in [BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS]:
@@ -215,6 +225,10 @@ class SA_VQESolver:
         # Quantum circuit simulation backend options
         self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
                                  noise_model=self.backend_options["noise_model"])
+
+        #self.rdms = list()
+        #for reference_circuit in self.reference_states:
+        #    self.rdms.append(self.get_rdm([0.]*self.ansatz.n_var_params, ref_state=reference_circuit))
 
     def simulate(self):
         """Run the VQE algorithm, using the ansatz, classical optimizer, initial
@@ -439,7 +453,7 @@ class SA_VQESolver:
 
         with HiddenPrints():
             result = minimize(func, var_params, method="SLSQP",
-                              options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
+                              options={"disp": True, "maxiter": 2000, "eps": 1e-7, "ftol": 1e-7})
 
         if self.verbose:
             print(f"VQESolver optimization results:")
