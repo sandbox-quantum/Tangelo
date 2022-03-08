@@ -394,3 +394,25 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=None):
                                        control=control)]
 
     return Circuit(gate_list, n_qubits=n_qubits)
+
+
+def givens_gate(target, theta):
+    """Generates the list of gates corresponding to a givens rotation exp(-theta*(XX+YY))
+
+    Explicitly the two-qubit matrix is
+    [[0,      0,           0,       0],
+     [0,  cos(theta), -sin(theta),  0],
+     [0,  sin(theta),  cos(theta),  0],
+     [0,      0,            0,      0]]
+
+    Args:
+        target (list): list of two integers that indicate which qubits are involved in the givens rotation
+        theta (float): the rotation angle
+
+    Returns:
+        list of Gate: The list of gates corresponding to the givens rotation"""
+    if len(target) != 2:
+        raise ValueError("target must be a list of two integers")
+    return [Gate("CNOT", target=target[0], control=target[1]),
+            Gate("CRY", target=target[1], control=target[0], parameter=-theta),
+            Gate("CNOT", target=target[0], control=target[1])]
