@@ -122,9 +122,9 @@ def gauss_elim_over_gf2(cons_mat, z_dim):
                 cons_mat[[piv_idx, max_idx]] = cons_mat[[max_idx, piv_idx]]
             for j in range(piv_idx + 1, n_rows):
                 if cons_mat[j, i] == 1.:
-                    cons_mat[j, i:n_cols] = np.fmod(cons_mat[j, i : n_cols] + cons_mat[piv_idx, i : n_cols], 2)
+                    cons_mat[j, i:n_cols] = np.fmod(cons_mat[j, i:n_cols] + cons_mat[piv_idx, i:n_cols], 2)
             piv_idx += 1
-    b_vec = cons_mat[0 : n_rows, n_cols-1].tolist()
+    b_vec = cons_mat[0:n_rows, n_cols-1].tolist()
     for i in range(n_rows - 1, -1, -1):
         col_idx, z_free = -1., []
         for j in range(n_cols-1):
