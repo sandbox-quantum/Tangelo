@@ -33,7 +33,7 @@ class SA_OO_Solver:
 
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
-        spins (list): List of integers defining the reference spins used for the system.
+        occupations (list): List of vectors defining the reference state occupations used for the system.
         tol (float): Maximum energy difference before convergence
         max_cycles (int): Maximum number of iterations for sa-oo-vqe
         qubit_mapping (str): One of the supported qubit mapping identifiers.
@@ -47,7 +47,7 @@ class SA_OO_Solver:
 
         default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
         default_options = {"molecule": None,
-                           "spins": None,
+                           "occupations": None,
                            "tol": 1e-3,
                            "max_cycles": 15,
                            "qubit_mapping": "jw",
@@ -71,7 +71,7 @@ class SA_OO_Solver:
         if self.molecule is None:
             raise ValueError(f"A molecule object must be provided when instantiating {self.__class__.__name__}.")
 
-        if self.spins is None:
+        if self.occupations is None:
             raise ValueError(f"spins are required to determine the state")
 
         self.ansatz = None
@@ -90,13 +90,13 @@ class SA_OO_Solver:
 
         # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles.
         self.vqe_options = {"molecule": self.molecule,
-                            "spins": self.spins,
+                            "occupations": self.occupations,
                             "optimizer": self.optimizer,
                             "backend_options": self.backend_options
                             }
 
-        self.vqe_solver = SA_VQESolver(self.vqe_options)
-        self.vqe_solver.build()
+        self.sa_vqe_solver = SA_VQESolver(self.vqe_options)
+        self.sa_vqe_solver.build()
 
     def simulate(self):
         """Performs the ADAPT cycles. Each iteration, a VQE minimization is
@@ -104,15 +104,15 @@ class SA_OO_Solver:
         """
         # run initial sa_vqe
         for iter in range(self.max_cycles):
-            energy_vqe = self.vqe_solver.simulate()
+            energy_vqe = self.sa_vqe_solver.simulate()
             self.energies.append(self.energy_from_rdms())
             print(energy_vqe, self.energies[-1])
             if iter > 0 and abs(self.energies[-1]-self.energies[-2]) < self.tol:
                 break
             u_mat = self.generate_oo_unitary()
-            self.vqe_solver.molecule.mean_field.mo_coeff = self.vqe_solver.molecule.mean_field.mo_coeff @ u_mat
+            self.sa_vqe_solver.molecule.mean_field.mo_coeff = self.sa_vqe_solver.molecule.mean_field.mo_coeff @ u_mat
             print(self.energy_from_rdms())
-            self.vqe_solver.build()
+            self.sa_vqe_solver.build()
             # self.vqe_solver.initial_var_params = copy(self.vqe_solver.optimal_var_params)
 
     def LBFGSB_optimizer(self, func, var_params):
@@ -128,7 +128,7 @@ class SA_OO_Solver:
         # or when the algorithm has converged.
         if self.converged or self.iteration == self.max_cycles:
             self.ansatz.build_circuit(self.optimal_var_params)
-            self.optimal_circuit = self.vqe_solver.ansatz.circuit
+            self.optimal_circuit = self.sa_vqe_solver.ansatz.circuit
 
         if self.verbose:
             print(f"VQESolver optimization results:")
@@ -142,7 +142,7 @@ class SA_OO_Solver:
 
     def energy_from_rdms(self):
         "Calculate energy from rdms generated from SA_VQESolver"
-        fcore, foneint, ftwoint = self.vqe_solver.molecule.get_full_space_integrals()
+        fcore, foneint, ftwoint = self.sa_vqe_solver.molecule.get_full_space_integrals()
         ftwoint = ftwoint.transpose(0, 3, 1, 2)
         occupied_indices = self.molecule.frozen_occupied
         active_indices = self.molecule.active_mos
@@ -163,8 +163,8 @@ class SA_OO_Solver:
                             2 * ftwoint[i, i, t, u] -
                             ftwoint[i, t, i, u])
 
-        one_rdm = (self.vqe_solver.rdms[0][0]+self.vqe_solver.rdms[1][0]).real*0.5
-        two_rdm = (self.vqe_solver.rdms[0][1]+self.vqe_solver.rdms[1][1]).real*0.25
+        one_rdm = (self.sa_vqe_solver.rdms[0][0]+self.sa_vqe_solver.rdms[1][0]).real*0.5
+        two_rdm = (self.sa_vqe_solver.rdms[0][1]+self.sa_vqe_solver.rdms[1][1]).real*0.25
         for ti, t in enumerate(active_indices):
             for ui, u in enumerate(active_indices):
                 active_energy += one_rdm[ti, ui]*(foneint[t, u] + v_mat[t, u])
@@ -177,7 +177,7 @@ class SA_OO_Solver:
     def generate_oo_unitary(self):
         """Generate the orbital optimization unitary that rotates the orbitals. It uses a single Newton-Raphson step
         with the Hessian calculated analytically."""
-        _, foneint, ftwoint = self.vqe_solver.molecule.get_full_space_integrals()
+        _, foneint, ftwoint = self.sa_vqe_solver.molecule.get_full_space_integrals()
         ftwoint = ftwoint.transpose(0, 3, 1, 2)
         occupied_indices = self.molecule.frozen_occupied
         unoccupied_indices = self.molecule.frozen_virtual
@@ -185,8 +185,8 @@ class SA_OO_Solver:
         n_mos = self.molecule.n_mos
         # Determine core constant
 
-        one_rdm = (self.vqe_solver.rdms[0][0]+self.vqe_solver.rdms[1][0]).real*0.5
-        two_rdm = (self.vqe_solver.rdms[0][1]+self.vqe_solver.rdms[1][1]).real*0.25
+        one_rdm = (self.sa_vqe_solver.rdms[0][0]+self.sa_vqe_solver.rdms[1][0]).real*0.5
+        two_rdm = (self.sa_vqe_solver.rdms[0][1]+self.sa_vqe_solver.rdms[1][1]).real*0.25
 
         f_mat = np.zeros((n_mos, n_mos))
         fi_mat = np.zeros((n_mos, n_mos))
@@ -270,14 +270,15 @@ class SA_OO_Solver:
                                 d2ed2x[t, a, u, b] += 2*(two_rdm[ti, ui, vi, xi]*ftwoint[a, b, v, x]+(two_rdm[ti, xi, vi, ui] +
                                                          two_rdm[ti, xi, ui, vi])*ftwoint[a, x, b, v])
                                 for yi, y in enumerate(active_indices):
-                                    d2ed2x[t,a,u,b] -= int(a==b)*(two_rdm[ti,vi,xi,yi]*ftwoint[u,v,x,y]+two_rdm[ui,vi,xi,yi]*ftwoint[t,v,x,y])
-                            d2ed2x[t,a,u,b] += (-1/2)*int(a==b)*(one_rdm[ti,vi]*fi_mat[u,v]+one_rdm[ui,vi]*fi_mat[t,v])
-                        d2ed2x[t,a,u,b] += one_rdm[ti,ui]*fi_mat[a,b]
+                                    d2ed2x[t, a, u, b] -= (int(a == b)*(two_rdm[ti, vi, xi, yi]*ftwoint[u, v, x, y] +
+                                                           two_rdm[ui, vi, xi, yi]*ftwoint[t, v, x, y]))
+                            d2ed2x[t, a, u, b] += (-1/2)*int(a == b)*(one_rdm[ti, vi]*fi_mat[u, v]+one_rdm[ui, vi]*fi_mat[t, v])
+                        d2ed2x[t, a, u, b] += one_rdm[ti, ui]*fi_mat[a, b]
                         # d2ed2x[t, a, u, b] += one_rdm[ti, ui]*fi_mat[a, b] - int(a == b)*f_mat[t, u]
 
         ivals = occupied_indices + active_indices
         jvals = active_indices + unoccupied_indices
-        n_params =0
+        n_params = 0
         for i in ivals:
             for j in jvals:
                 if (j > i and not (i in active_indices and j in active_indices)):

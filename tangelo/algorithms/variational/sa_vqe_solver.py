@@ -97,7 +97,7 @@ class SA_VQESolver:
                            "up_then_down": False,
                            "qubit_hamiltonian": None,
                            "verbose": False,
-                           "spins": [2, -2]}
+                           "occupations": None}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -197,17 +197,8 @@ class SA_VQESolver:
 
             self.ansatz.default_reference_state = "None"
             self.reference_states = list()
-            for spin in self.spins:
-                # self.reference_states.append(statevector_mapping.get_reference_circuit(n_spinorbitals=self.molecule.n_active_sos,
-                #                                                                       n_electrons=self.molecule.n_active_electrons,
-                #                                                                       mapping=self.qubit_mapping,
-                #                                                                       up_then_down=self.up_then_down,
-                #                                                                       spin=spin))
-                if spin == 2:
-                    vector = [1, 0, 1, 1, 1, 0, 0, 0]
-                else:
-                    vector = [1, 1, 1, 0, 1, 0, 0, 0]
-                self.reference_states.append(statevector_mapping.vector_to_circuit(vector, self.qubit_mapping))
+            for occupation in self.occupations:
+                self.reference_states.append(statevector_mapping.vector_to_circuit(occupation, self.qubit_mapping))
 
         # Building with a qubit Hamiltonian.
         elif self.ansatz in [BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS]:
@@ -225,10 +216,6 @@ class SA_VQESolver:
         # Quantum circuit simulation backend options
         self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
                                  noise_model=self.backend_options["noise_model"])
-
-        #self.rdms = list()
-        #for reference_circuit in self.reference_states:
-        #    self.rdms.append(self.get_rdm([0.]*self.ansatz.n_var_params, ref_state=reference_circuit))
 
     def simulate(self):
         """Run the VQE algorithm, using the ansatz, classical optimizer, initial
@@ -282,8 +269,11 @@ class SA_VQESolver:
         # Update variational parameters, compute energy using the hardware backend
         self.ansatz.update_var_params(var_params)
         energy = 0
+        self.state_energies = list()
         for reference_circuit in self.reference_states:
-            energy += 0.5*self.backend.get_expectation_value(self.qubit_hamiltonian, reference_circuit + self.ansatz.circuit)
+            state_energy = self.backend.get_expectation_value(self.qubit_hamiltonian, reference_circuit + self.ansatz.circuit)
+            energy += 0.5*state_energy
+            self.state_energies.append(state_energy)
 
         if self.verbose:
             print(f"\tEnergy = {energy:.7f} ")
