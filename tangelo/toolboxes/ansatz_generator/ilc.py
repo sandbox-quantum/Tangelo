@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module defines the qubit coupled cluster ansatz class for involutory
+"""This module defines the qubit coupled cluster ansatz class with involutory
 linear combinations (ILC) of anti-commuting sets (ACS) of Pauli words
 (generators). Relative to the direct interation set (DIS) of QCC generators,
 which incur an exponential growth of Hamiltonian terms upon dressing, the ACS
@@ -37,7 +37,7 @@ from .ansatz import Ansatz
 from .ansatz_utils import exp_pauliword_to_gates
 from ._qubit_mf import init_qmf_from_hf, get_qmf_circuit, purify_qmf_state
 from ._qubit_cc import construct_dis
-from ._qubit_ilc import construct_acs, init_ilc_by_diag
+from ._qubit_ilc import construct_acs, get_ilc_params_by_diag
 
 
 class ILC(Ansatz):
@@ -99,10 +99,10 @@ class ILC(Ansatz):
                           "mapping.", RuntimeWarning)
             self.up_then_down = True
 
+        self.ilc_op_list = ilc_op_list
         self.ilc_tau_guess = ilc_tau_guess
         self.deilc_dtau_thresh = deilc_dtau_thresh
         self.max_ilc_gens = max_ilc_gens
-        self.ilc_op_list = ilc_op_list
         self.qmf_var_params = qmf_var_params
         self.qmf_circuit = qmf_circuit
         self.n_trotter = n_trotter
@@ -133,7 +133,7 @@ class ILC(Ansatz):
             self.n_var_params = len(self.acs)
         else:
             self.dis = None
-            self.acs = None
+            self.acs = self.ilc_op_list
             self.n_var_params = len(self.ilc_op_list)
 
         # Supported reference state initialization
@@ -143,7 +143,7 @@ class ILC(Ansatz):
 
         # Default starting parameters for initialization
         self.default_reference_state = "HF"
-        self.var_params_default = "diag"
+        self.var_params_default = "ilc_tau_guess"
         self.var_params = None
         self.rebuild_dis = False
         self.rebuild_acs = False
@@ -175,7 +175,7 @@ class ILC(Ansatz):
                 initial_var_params = 2. * self.ilc_tau_guess * np.random.random((self.n_var_params,)) - self.ilc_tau_guess
             # Initialize ILC parameters by matrix diagonalization (see Appendix B, Refs. 1 & 2).
             elif var_params == "diag":
-                initial_var_params = init_ilc_by_diag(self.qubit_ham, self.acs, self.qmf_var_params)
+                initial_var_params = get_ilc_params_by_diag(self.qubit_ham, self.acs, self.qmf_var_params)
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:
@@ -273,7 +273,7 @@ class ILC(Ansatz):
         """
 
         # Rebuild DIS & ACS in case qubit_ham changed or they and qubit_op_list don't exist
-        if self.rebuild_dis or self.rebuild_acs or ((not self.dis or not self.acs) and not self.ilc_op_list):
+        if self.rebuild_dis or self.rebuild_acs or not self.acs:
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
                                                self.n_electrons, self.mapping, self.up_then_down, self.spin)
             self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh)

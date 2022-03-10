@@ -134,8 +134,8 @@ class QCC(Ansatz):
 
         # Get purified QMF parameters and use them to build the DIS or use a list of generators.
         if self.qcc_op_list is None:
-            pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
-                                               self.n_electrons, self.mapping, self.up_then_down, self.spin)
+            pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals, self.n_electrons,
+                                               self.mapping, self.up_then_down, self.spin)
             self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deqcc_dtau_thresh)
             self.n_var_params = len(self.dis) if self.max_qcc_gens is None\
                                 else min(len(self.dis), self.max_qcc_gens)
@@ -284,8 +284,8 @@ class QCC(Ansatz):
 
         # Rebuild DIS if qubit_ham or qmf_var_params changed or if DIS and qcc_op_list are None.
         if self.rebuild_dis or (self.dis is None and self.qcc_op_list is None):
-            pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
-                                               self.n_electrons, self.mapping, self.up_then_down, self.spin)
+            pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals, self.n_electrons,
+                                               self.mapping, self.up_then_down, self.spin)
             self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deqcc_dtau_thresh)
             self.n_var_params = len(self.dis) if self.max_qcc_gens is None\
                                 else min(len(self.dis), self.max_qcc_gens)

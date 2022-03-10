@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module implements a collection of functions related to the ILC
-ansatz:
-    1. Function to create the anti-commuting set (ACS) of generators from
-       the QCC DIS;
-    2. An efficient solver that performs Gaussian elimination over GF(2);
-    3. Function that initializes the ILC parameters via matrix diagonalization.
+"""This module implements a collection of functions related to the ILC ansatz:
+1. Function to create the anti-commuting set (ACS) of generators from the QCC DIS;
+2. An efficient solver that performs Gaussian elimination over GF(2);
+3. Function that computes the ILC parameters via matrix diagonalization.
 
 Refs:
     1. R. A. Lang, I. G. Ryabinkin, and A. F. Izmaylov.
@@ -35,8 +33,17 @@ from tangelo.toolboxes.operators.operators import QubitOperator
 from ._qubit_mf import get_op_expval
 
 
-def construct_acs(dis_gens, max_ilc_gens, n_qubits):
-    """ DOCSTRING
+def construct_acs(dis, max_ilc_gens, n_qubits):
+    """Driver function for constructing the anti-commuting set of generators from
+    the direct interaction set (DIS) of QCC generators.
+
+    Args:
+        dis (list of list): DIS of QCC generators.
+        max_ilc_gens (int): Maximum number of generators allowed in the ansatz.
+        n_qubits (int): number of qubits
+
+    Returns:
+        list of QubitOperator: the anti-commuting set (ACS) of ILC generators
     """
 
     bad_sln_idxs, good_sln = [], False
@@ -47,13 +54,13 @@ def construct_acs(dis_gens, max_ilc_gens, n_qubits):
         # cons_mat --> A and z_vec --> z in Appendix A, Refs. 1 & 2.
         cons_mat, z_vec = np.zeros((ng2, ngnq + 1)), np.zeros(ngnq)
         for idx, gen_idx in enumerate(gen_idxs):
-            gen = dis_gens[gen_idx][-1]
+            gen = dis[gen_idx][-1]
             for term, _ in gen.terms.items():
                 for paulis in term:
                     p_idx, pauli = paulis
                     if 'X' in pauli or 'Y' in pauli:
                         z_vec[idx * n_qubits + p_idx] = 1.
-        # Form the triangular matrix-vector product A * z; last column is the soln vec (Appendix A, Refs. 1 & 2).
+        # Form the rectangular matrix-vector product A * z; last column is the soln vec (Appendix A, Refs. 1 & 2).
         r_idx = 0
         for i in range(n_gens):
             cons_mat[r_idx, i * n_qubits:(i+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
@@ -101,7 +108,18 @@ def construct_acs(dis_gens, max_ilc_gens, n_qubits):
 
 
 def gauss_elim_over_gf2(cons_mat, z_dim):
-    """ For more details see Ref. 3.
+    """Driver function that performs Gaussian elimination to solve A * z = b
+    over the binary field where b is a vector of ones. This routine was adapted
+    based on Ref. 3.
+
+    Args:
+        cons_mat (numpy array of int): the rectangular constraint matrix A (see Refs. 1 & 2).
+            The last column initially holds the vector b.
+        z_dim (int): the dimensionality of the constraint matrix A: number of ILC generators
+            times the number of qubits.
+
+    Returns:
+        list of float: the solution vector
     """
 
     # Gaussian elimination over GF(2)
@@ -145,8 +163,17 @@ def gauss_elim_over_gf2(cons_mat, z_dim):
     return z_sln
 
 
-def init_ilc_by_diag(qubit_ham, ilc_gens, qmf_var_params):
-    """ For more information see Appendix B, Refs. 1 & 2 and Appendix C, Ref. 1.
+def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
+    """Driver function that solves the generalized eigenvalue problem Hc = ESc required
+    to obtain the ground state coefficients (ILC parameters). These are subsequently recast
+    according to Appendix C of Ref. 1 in a form that is suitable for constructing ILC circuits.
+
+    Args:
+        qubit_ham (QubitOperator): the qubit Hamiltonian of the system.
+        ilc_gens (list of QubitOperator): the anti-commuting set of ILC Pauli words.
+
+    Returns:
+        list of float: the ILC parameters corresponding to the ACS of ILC generators
     """
 
     # Temporarily add the identity operator to the ACS

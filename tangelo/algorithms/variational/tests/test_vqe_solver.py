@@ -19,9 +19,6 @@ from tangelo.linq import Simulator
 from tangelo.algorithms import BuiltInAnsatze, VQESolver
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_NaH_sto3g
 from tangelo.toolboxes.ansatz_generator.uccsd import UCCSD
-from tangelo.toolboxes.ansatz_generator.qmf import QMF
-from tangelo.toolboxes.ansatz_generator.qcc import QCC
-from tangelo.toolboxes.ansatz_generator.ilc import ILC
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.molecular_computation.rdms import matricize_2rdm
 

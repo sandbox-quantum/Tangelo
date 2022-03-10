@@ -14,9 +14,10 @@
 
 """Unit tests for closed-shell and restricted open-shell qubit coupled cluster (QCC) ansatze. """
 
+import os
 import unittest
 import numpy as np
-import os
+
 from openfermion import load_operator
 
 from tangelo.linq import Simulator
