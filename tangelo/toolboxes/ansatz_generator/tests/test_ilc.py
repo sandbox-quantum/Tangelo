@@ -21,7 +21,7 @@ import numpy as np
 from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.ilc import ILC
 from tangelo.toolboxes.operators.operators import QubitOperator
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g
 
 sim = Simulator()
 
@@ -78,28 +78,6 @@ class ILCTest(unittest.TestCase):
         ilc_ansatz.update_var_params(ilc_var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.1372697, delta=1e-6)
-
-    def test_ilc_h4(self):
-        """ Verify restricted open-shell functionality when using the ILC class for H4 """
-
-        # Build the ILC ansatz, which sets the QMF parameters automatically if none are passed
-        ilc_op_list = [QubitOperator("Z0 X1 Z3 Y4 Z5"), QubitOperator("X0 X1 Y2 X3 Y4 Y5"), QubitOperator("Z0 X1 Y2 Y4 Y5"),
-                       QubitOperator("Y0 X1 Y2 Y4"), QubitOperator("Y1 X3 Y4 Y5"), QubitOperator("Y0 Y1 X3 Y4 Z5"),
-                       QubitOperator("X0 Y1 X2 Z3 Y4 Y5"), QubitOperator("X0 Y1 Z2 Z3 Y4 Y5"), QubitOperator("Z0 X1 Y2 Y3 Y4 Z5")]
-        ilc_var_params = [ 0.01902128, -0.01425816,  0.68617146,  0.18603782, -0.20042697,  0.07894877,
-                          -0.09087040,  0.06681858, -0.07056268]
-        ilc_ansatz = ILC(mol_H4_sto3g, "SCBK", False, ilc_op_list)
-
-        # Build a QMF + ILC circuit
-        ilc_ansatz.build_circuit()
-
-        # Get qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = ilc_ansatz.qubit_ham
-
-        # Assert energy returned is as expected for given parameters
-        ilc_ansatz.update_var_params(ilc_var_params)
-        energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.9608801, delta=1e-6)
 
     def test_ilc_h4_cation(self):
         """ Verify restricted open-shell functionality when using the ILC class for H4 + """
