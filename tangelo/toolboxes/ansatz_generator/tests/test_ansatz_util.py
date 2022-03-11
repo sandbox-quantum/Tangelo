@@ -305,11 +305,15 @@ class ansatz_utils_Test(unittest.TestCase):
     def test_givens_gate(self):
         """Test of givens gate decomposition into 2 CNOTs and a CRY gate."""
         theta = 0.3
+
+        # Explicit definition of givens rotation gate
         mat_rep = np.eye(4)
         mat_rep[1, 1] = np.cos(theta/2)
         mat_rep[1, 2] = -np.sin(theta/2)
         mat_rep[2, 1] = np.sin(theta/2)
         mat_rep[2, 2] = np.cos(theta/2)
+
+        # Test that explicit definition and circuit return the same state vector
         vec = np.array([np.sqrt(2)/3, 2/3, np.sqrt(2)/3, 1/3])
         gvec = mat_rep@vec
         _, gvec2 = sim.simulate(Circuit(givens_gate([0, 1], theta)), return_statevector=True, initial_statevector=vec)
