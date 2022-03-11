@@ -173,7 +173,7 @@ class SA_VQESolver:
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz == BuiltInAnsatze.UCCSD:
-                    self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down, self.spins[0])
+                    self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down, self.molecule.spin)
                 elif self.ansatz == BuiltInAnsatze.UCC1:
                     self.ansatz = RUCC(1)
                 elif self.ansatz == BuiltInAnsatze.UCC3:
@@ -193,6 +193,7 @@ class SA_VQESolver:
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
+                print(type(self.ansatz))
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
 
             self.ansatz.default_reference_state = "None"
@@ -272,7 +273,7 @@ class SA_VQESolver:
         self.state_energies = list()
         for reference_circuit in self.reference_states:
             state_energy = self.backend.get_expectation_value(self.qubit_hamiltonian, reference_circuit + self.ansatz.circuit)
-            energy += 0.5*state_energy
+            energy += state_energy/len(self.reference_states)
             self.state_energies.append(state_energy)
 
         if self.verbose:

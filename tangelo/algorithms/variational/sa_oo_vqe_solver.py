@@ -23,7 +23,7 @@ import numpy as np
 from scipy.linalg import expm
 from scipy.optimize import minimize
 
-from tangelo.algorithms.variational.sa_vqe_solver import SA_VQESolver
+from tangelo.algorithms.variational.sa_vqe_solver import SA_VQESolver, BuiltInAnsatze
 
 
 class SA_OO_Solver:
@@ -54,7 +54,8 @@ class SA_OO_Solver:
                            "up_then_down": False,
                            "optimizer": self.LBFGSB_optimizer,
                            "backend_options": default_backend_options,
-                           "verbose": False}
+                           "verbose": False,
+                           "ansatz": BuiltInAnsatze.UCCGD}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -74,7 +75,6 @@ class SA_OO_Solver:
         if self.occupations is None:
             raise ValueError(f"spins are required to determine the state")
 
-        self.ansatz = None
         self.converged = False
         self.iteration = 0
         self.energies = list()
@@ -92,7 +92,8 @@ class SA_OO_Solver:
         self.vqe_options = {"molecule": self.molecule,
                             "occupations": self.occupations,
                             "optimizer": self.optimizer,
-                            "backend_options": self.backend_options
+                            "backend_options": self.backend_options,
+                            "ansatz": self.ansatz
                             }
 
         self.sa_vqe_solver = SA_VQESolver(self.vqe_options)
@@ -163,8 +164,13 @@ class SA_OO_Solver:
                             2 * ftwoint[i, i, t, u] -
                             ftwoint[i, t, i, u])
 
-        one_rdm = (self.sa_vqe_solver.rdms[0][0]+self.sa_vqe_solver.rdms[1][0]).real*0.5
-        two_rdm = (self.sa_vqe_solver.rdms[0][1]+self.sa_vqe_solver.rdms[1][1]).real*0.25
+        n_active_mos = self.molecule.n_active_mos
+        one_rdm = np.zeros((n_active_mos, n_active_mos))
+        two_rdm = np.zeros((n_active_mos, n_active_mos, n_active_mos, n_active_mos))
+        num_refs = len(self.occupations)
+        for i in range(len(self.occupations)):
+            one_rdm += self.sa_vqe_solver.rdms[i][0].real/num_refs
+            two_rdm += self.sa_vqe_solver.rdms[i][1].real/num_refs/2
         for ti, t in enumerate(active_indices):
             for ui, u in enumerate(active_indices):
                 active_energy += one_rdm[ti, ui]*(foneint[t, u] + v_mat[t, u])
@@ -183,10 +189,17 @@ class SA_OO_Solver:
         unoccupied_indices = self.molecule.frozen_virtual
         active_indices = self.molecule.active_mos
         n_mos = self.molecule.n_mos
+        n_active_mos = self.molecule.n_active_mos
         # Determine core constant
 
-        one_rdm = (self.sa_vqe_solver.rdms[0][0]+self.sa_vqe_solver.rdms[1][0]).real*0.5
-        two_rdm = (self.sa_vqe_solver.rdms[0][1]+self.sa_vqe_solver.rdms[1][1]).real*0.25
+        one_rdm = np.zeros((n_active_mos, n_active_mos))
+        two_rdm = np.zeros((n_active_mos, n_active_mos, n_active_mos, n_active_mos))
+        num_refs = len(self.occupations)
+        for i in range(len(self.occupations)):
+            one_rdm += self.sa_vqe_solver.rdms[i][0].real/num_refs
+            two_rdm += self.sa_vqe_solver.rdms[i][1].real/num_refs/2
+        # one_rdm = (self.sa_vqe_solver.rdms[0][0]+self.sa_vqe_solver.rdms[1][0]).real*0.5
+        # two_rdm = (self.sa_vqe_solver.rdms[0][1]+self.sa_vqe_solver.rdms[1][1]).real*0.25
 
         f_mat = np.zeros((n_mos, n_mos))
         fi_mat = np.zeros((n_mos, n_mos))
