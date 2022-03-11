@@ -31,7 +31,7 @@ class diagonal_coulomb_Test(unittest.TestCase):
     def test_orbital_rotations(self):
         """test calculating energy expectation value of H4 hamiltonian by decomposing into diagional terms"""
 
-        # Generate ground state wavefunction
+        # Generate ground state wavefunction from JW transformed fermionic_hamiltonian
         ham = get_sparse_operator(mol_H4_sto3g.fermionic_hamiltonian).toarray()
         eigs, vecs = eigh(ham)
         state_vec = vecs[:, 0]
@@ -42,7 +42,9 @@ class diagonal_coulomb_Test(unittest.TestCase):
         # Run each set of gates that diagonalizes the set of terms and calculate energy
         energy = 0
         for i in range(len(orb_rots.constants)):
+            # Generate qubit operator to measure after each rotation
             qu_op = fermion_to_qubit_mapping(orb_rots.fermion_operators[i], "JW")
+            # Rotate state and measure all terms using one set of measurements.
             freqs, _ = sim.simulate(Circuit(orb_rots.rotation_gates[i]), initial_statevector=state_vec)
             for term, coeff in qu_op.terms.items():
                 energy += coeff*sim.get_expectation_value_from_frequencies_oneterm(term, frequencies=freqs)

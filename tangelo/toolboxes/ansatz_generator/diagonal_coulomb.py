@@ -59,10 +59,10 @@ class OrbitalRotations():
 
     Attributes:
         rotation_gates (list): The gates to apply to rotate the basis to a diagonal form for a given operator
-        fermion_operators (list): The fermion operator to measure
-        one_body_coefficients (list): The one-body coefficients corresponding to each rotaiton
-        constants (list): The constants corresponding to each rotation
-        two_body_coefficients (list): The two-body coefficients corresponding to each rotation
+        fermion_operators (list): The fermion operator to measure, diagonal in Z basis after rotation
+        one_body_coefficients (list): The one-body coefficients corresponding to each operator
+        constants (list): The constants corresponding to each operator
+        two_body_coefficients (list): The two-body coefficients corresponding to each operator
     """
 
     def __init__(self):
