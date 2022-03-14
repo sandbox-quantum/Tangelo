@@ -82,6 +82,8 @@ class SA_VQESolver:
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         verbose (bool): Flag for VQE verbosity.
         spins (list): list of spins to optimize states over
+        ref_states (list): The vector occupations of the reference configurations
+        weights (array): The weights of the occupations
     """
 
     def __init__(self, opt_dict):
@@ -97,7 +99,8 @@ class SA_VQESolver:
                            "up_then_down": False,
                            "qubit_hamiltonian": None,
                            "verbose": False,
-                           "occupations": None}
+                           "ref_states": None,
+                           "weights": None}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -189,7 +192,7 @@ class SA_VQESolver:
                 elif self.ansatz == BuiltInAnsatze.VSQS:
                     self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.UCCGD:
-                    self.ansatz = UCCGD(self.molecule, self.qubit_mapping, up_then_down=False)
+                    self.ansatz = UCCGD(self.molecule, self.qubit_mapping, up_then_down=self.up_then_down)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
@@ -197,9 +200,24 @@ class SA_VQESolver:
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
 
             self.ansatz.default_reference_state = "None"
-            self.reference_states = list()
-            for occupation in self.occupations:
-                self.reference_states.append(statevector_mapping.vector_to_circuit(occupation, self.qubit_mapping))
+            self.reference_circuits = list()
+            for ref_state in self.ref_states:
+                vec_to_map = np.concatenate((ref_state[::2], ref_state[1::2])) if self.up_then_down else ref_state
+                if self.qubit_mapping.lower() == "scbk":
+                    mapped_state = statevector_mapping.do_scbk_transform(vec_to_map, self.molecule.n_active_sos)
+                elif self.qubit_mapping.lower() == "bk":
+                    mapped_state = statevector_mapping.do_bk_transform(vec_to_map)
+                else:
+                    mapped_state = vec_to_map
+                self.reference_circuits.append(statevector_mapping.vector_to_circuit(mapped_state, self.qubit_mapping))
+            self.n_states = len(self.ref_states)
+            if self.weights is None:
+                self.weights = np.ones(self.n_states)/self.n_states
+            else:
+                if len(self.weights) != self.n_states:
+                    raise ValueError("Number of elements in weights must equal the number of ref_configs")
+                self.weights = np.array(self.weights)
+                self.weights = self.weights/sum(self.weights)
 
         # Building with a qubit Hamiltonian.
         elif self.ansatz in [BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS]:
@@ -231,7 +249,7 @@ class SA_VQESolver:
         self.ansatz.build_circuit(self.optimal_var_params)
         self.optimal_circuit = self.ansatz.circuit
         self.rdms = list()
-        for reference_circuit in self.reference_states:
+        for reference_circuit in self.reference_circuits:
             self.rdms.append(self.get_rdm(self.optimal_var_params, ref_state=reference_circuit))
         return self.optimal_energy
 
@@ -271,9 +289,9 @@ class SA_VQESolver:
         self.ansatz.update_var_params(var_params)
         energy = 0
         self.state_energies = list()
-        for reference_circuit in self.reference_states:
+        for i, reference_circuit in enumerate(self.reference_circuits):
             state_energy = self.backend.get_expectation_value(self.qubit_hamiltonian, reference_circuit + self.ansatz.circuit)
-            energy += state_energy/len(self.reference_states)
+            energy += state_energy*self.weights[i]
             self.state_energies.append(state_energy)
 
         if self.verbose:

@@ -33,7 +33,7 @@ class SA_OO_Solver:
 
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
-        occupations (list): List of vectors defining the reference state occupations used for the system.
+        ref_states (list): List of vectors defining the reference state occupations used for the system.
         tol (float): Maximum energy difference before convergence
         max_cycles (int): Maximum number of iterations for sa-oo-vqe
         qubit_mapping (str): One of the supported qubit mapping identifiers.
@@ -47,7 +47,7 @@ class SA_OO_Solver:
 
         default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
         default_options = {"molecule": None,
-                           "occupations": None,
+                           "ref_states": None,
                            "tol": 1e-3,
                            "max_cycles": 15,
                            "qubit_mapping": "jw",
@@ -72,7 +72,7 @@ class SA_OO_Solver:
         if self.molecule is None:
             raise ValueError(f"A molecule object must be provided when instantiating {self.__class__.__name__}.")
 
-        if self.occupations is None:
+        if self.ref_states is None:
             raise ValueError(f"spins are required to determine the state")
 
         self.converged = False
@@ -90,10 +90,12 @@ class SA_OO_Solver:
 
         # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles.
         self.vqe_options = {"molecule": self.molecule,
-                            "occupations": self.occupations,
+                            "ref_states": self.ref_states,
                             "optimizer": self.optimizer,
                             "backend_options": self.backend_options,
-                            "ansatz": self.ansatz
+                            "ansatz": self.ansatz,
+                            "qubit_mapping": self.qubit_mapping,
+                            "up_then_down": self.up_then_down
                             }
 
         self.sa_vqe_solver = SA_VQESolver(self.vqe_options)
@@ -167,8 +169,8 @@ class SA_OO_Solver:
         n_active_mos = self.molecule.n_active_mos
         one_rdm = np.zeros((n_active_mos, n_active_mos))
         two_rdm = np.zeros((n_active_mos, n_active_mos, n_active_mos, n_active_mos))
-        num_refs = len(self.occupations)
-        for i in range(len(self.occupations)):
+        num_refs = len(self.ref_states)
+        for i in range(num_refs):
             one_rdm += self.sa_vqe_solver.rdms[i][0].real/num_refs
             two_rdm += self.sa_vqe_solver.rdms[i][1].real/num_refs/2
         for ti, t in enumerate(active_indices):
@@ -194,12 +196,10 @@ class SA_OO_Solver:
 
         one_rdm = np.zeros((n_active_mos, n_active_mos))
         two_rdm = np.zeros((n_active_mos, n_active_mos, n_active_mos, n_active_mos))
-        num_refs = len(self.occupations)
-        for i in range(len(self.occupations)):
-            one_rdm += self.sa_vqe_solver.rdms[i][0].real/num_refs
-            two_rdm += self.sa_vqe_solver.rdms[i][1].real/num_refs/2
-        # one_rdm = (self.sa_vqe_solver.rdms[0][0]+self.sa_vqe_solver.rdms[1][0]).real*0.5
-        # two_rdm = (self.sa_vqe_solver.rdms[0][1]+self.sa_vqe_solver.rdms[1][1]).real*0.25
+        num_refs = len(self.ref_states)
+        for i in range(num_refs):
+            one_rdm += self.sa_vqe_solver.rdms[i][0].real*self.sa_vqe_solver.weights[i]
+            two_rdm += self.sa_vqe_solver.rdms[i][1].real*self.sa_vqe_solver.weights[i]/2
 
         f_mat = np.zeros((n_mos, n_mos))
         fi_mat = np.zeros((n_mos, n_mos))
