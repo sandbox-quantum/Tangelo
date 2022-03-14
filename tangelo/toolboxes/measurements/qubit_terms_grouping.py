@@ -63,7 +63,7 @@ def group_qwc(qb_ham, seed=None, n_repeat=1):
     return res
 
 
-def bases_qwc_commute(b1, b2):
+def check_bases_commute_qwc(b1, b2):
     """ Check whether two bases commute qubitwise.
 
     Args:
@@ -71,38 +71,14 @@ def bases_qwc_commute(b1, b2):
         b2 (tuple of (int, str)): the second measurement basis
 
     Returns:
-        bool: whether or not the basis commute qubitwise
+        bool: whether or not the bases commute qubitwise
     """
-
-    if not (b1 and b2):
-        return False
 
     b1_dict, b2_dict = dict(b1), dict(b2)
     for i in set(b1_dict) & set(b2_dict):
         if b1_dict[i] != b2_dict[i]:
             return False
     return True
-
-# Test
-I0 = ()
-Z1 = ((1, 'Z'),)
-X0Z1 = ((0, 'X'), (1, 'Z'))
-Z0Z1 = ((0, 'Z'), (1, 'Z'))
-print(bases_qwc_commute(I0, Z1), bases_qwc_commute(Z1, X0Z1),
-      bases_qwc_commute(Z1, Z0Z1), bases_qwc_commute(Z0Z1, X0Z1))
-
-
-def get_average_histogram(hists):
-    """ Compute the average of histograms provided as a list, assume identical weights (n_shots) for all of them """
-    from collections import Counter
-
-    sum_hist = sum([Counter(hist) for hist in hists], start=Counter())
-    avg_hist = {k: v / len(hists) for k, v in sum_hist.items()}
-    return avg_hist
-
-
-def sum_counters():
-    pass
 
 
 def map_measurements_qwc(qwc_group_map):
@@ -125,10 +101,9 @@ def map_measurements_qwc(qwc_group_map):
 
     for b1 in bf:
         for b2 in bg:
-            if b1 and bases_qwc_commute(b1, b2):
+            if b1 and check_bases_commute_qwc(b1, b2):
                 meas_map[b1] = meas_map.get(b1, []) + [b2]
 
-    print(meas_map)
     return meas_map
 
 
