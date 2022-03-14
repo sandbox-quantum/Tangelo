@@ -375,6 +375,21 @@ class TestTranslation(unittest.TestCase):
 
         assert(json_ionq_circ == ref_circuit)
 
+    def test_translate_ionq_inverse(self):
+        """ Test that inverse of T and S circuits for ionQ return Tdag and Sdag after translation """
+
+        # Generate [Gate("Tdag", 0), Gate("Sdag", 0)] equivalent, and its hardcoded inverse
+        circ = Circuit([Gate("PHASE", 0, parameter=-np.pi/4), Gate("PHASE", 0, parameter=-np.pi/2)])
+        inverse_circ = Circuit([Gate("S", 0), Gate("T", 0)])
+
+        ionq_circ_inverse = translator.translate_json_ionq(circ.inverse())
+        ionq_inverse_circ = translator.translate_json_ionq(inverse_circ)
+        ionq_circ = translator.translate_json_ionq(circ)
+
+        ionq_ref = {'qubits': 1, 'circuit': [{'gate': 'ti', 'target': 0}, {'gate': 'si', 'target': 0}]}
+        self.assertTrue(ionq_inverse_circ == ionq_circ_inverse)
+        self.assertTrue(ionq_circ == ionq_ref)
+
     @unittest.skipIf("braket" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_braket(self):
         """
@@ -423,24 +438,6 @@ class TestTranslation(unittest.TestCase):
 
         circ = Circuit([Gate("Potato", 0)])
         self.assertRaises(ValueError, translator.translate_qiskit, circ)
-
-    def test_translate_ionq_inverse(self):
-        """ Test that inverse of T and S circuits for ionQ return Tdag and Sdag after translation """
-
-        # Generate [Gate("Tdag", 0), Gate("Sdag", 0)] equivalent
-        circ = Circuit([Gate("PHASE", 0, parameter=-np.pi/4), Gate("PHASE", 0, parameter=-np.pi/2)])
-        # Hard-coded inverse
-        inverse_circ = Circuit([Gate("S", 0), Gate("T", 0)])
-
-        ionq_circ_inverse = translator.translate_json_ionq(circ.inverse())
-        ionq_inverse_circ = translator.translate_json_ionq(inverse_circ)
-        ionq_circ = translator.translate_json_ionq(circ)
-        # Hard-coded circuit dictionary
-        ionq_circ_dict = {'qubits': 1, 'circuit': [{'gate': 'ti', 'target': 0}, {'gate': 'si', 'target': 0}]}
-
-        # ionq uses a dictionary to store circuits, convert to str and compare
-        self.assertEqual(str(ionq_inverse_circ), str(ionq_circ_inverse))
-        self.assertEqual(str(ionq_circ), str(ionq_circ_dict))
 
 
 if __name__ == "__main__":

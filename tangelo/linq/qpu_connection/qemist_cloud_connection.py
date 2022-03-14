@@ -47,7 +47,6 @@ def job_submit(circuit, n_shots, backend):
     # Submit the problem
     qemist_cloud_job_id = util.solve_quantum_circuits_async(serialized_fragment=circuit_data,
                                                             serialized_solver=job_options)[0]
-
     return qemist_cloud_job_id
 
 
@@ -61,13 +60,14 @@ def job_status(qemist_cloud_job_id):
     Returns:
         str: current status of the problem, as a string.
     """
-    return util.get_problem_status(qemist_cloud_job_id)
+    res = util.get_problem_status(qemist_cloud_job_id)
+
+    return res
 
 
 def job_cancel(qemist_cloud_job_id):
     """Cancels the job matching the input job id, if done in time before it
-    starts. Returns a list of cancelled problems and number of subproblems, if
-    any.
+    starts.
 
     Args:
         qemist_cloud_job_id (int): problem handle / job identifier.
@@ -75,9 +75,8 @@ def job_cancel(qemist_cloud_job_id):
     Returns:
         dict: cancelled problems / subproblems.
     """
-
     res = util.cancel_problems(qemist_cloud_job_id)
-    # TODO: If res is coming out as an error code, Tangelo should raise an error
+    # TODO: If res is coming out as an error code, we should raise an error
 
     return res
 
@@ -92,7 +91,7 @@ def job_result(qemist_cloud_job_id):
 
     Returns:
         dict: Histogram of measurement frequencies.
-        dict): The cloud provider raw data.
+        dict: The cloud provider raw data.
     """
 
     try:
@@ -103,11 +102,12 @@ def job_result(qemist_cloud_job_id):
         command = input("Type 'cancel' and return to cancel your problem."
                         "Type anything else to disconnect but keep the problem running.\n")
         if command.lower() == "cancel":
-            ret = job_cancel()
+            ret = job_cancel(qemist_cloud_job_id)
             print("Problem cancelled.", ret)
         else:
             print(f"Reconnect and block until the problem is complete with "
                   f"qemist_client.util.monitor_problem_status({qemist_cloud_job_id}).\n\n")
+        raise
 
     except Exception:
         print(f"\n\nYour problem is still running with handle {qemist_cloud_job_id}.\n"
@@ -115,7 +115,8 @@ def job_result(qemist_cloud_job_id):
               f"Reconnect and block until the problem is complete with qemist_client.util.monitor_problem_status({qemist_cloud_job_id}).\n\n")
         raise
 
-    # Once a result is available, retrieve it
+    # Once a result is available, retrieve it.
+    # If the util module is not found earlier, an error has been raised.
     output = util.get_quantum_results(problem_handle=qemist_cloud_job_id)[qemist_cloud_job_id]
 
     # Amazon Braket: parsing of output
@@ -125,31 +126,35 @@ def job_result(qemist_cloud_job_id):
     return freqs, raw_data
 
 
-def job_estimate(circuit, n_shots):
-    """Returns an estimate of the cost of running an experiment. Some service
-    providers care about the complexity / structure of the input quantum
-    circuit, some do not.
+def job_estimate(circuit, n_shots, backend=None):
+    """Returns an estimate of the cost of running an experiment, for a specified backend
+    or all backends available. Some service providers care about the
+    complexity / structure of the input quantum circuit, some do not.
 
-    Some backends may charge per minute (such as simulators), which is difficult
-    to estimate and may be misleading. They are currently not included.
-
-    Braket prices: https://aws.amazon.com/braket/pricing/
-    Azure Quantum prices: TBD
+    The backend identifier strings that a user can provide as argument can be obtained
+    by calling this function without specifying a backend. They appear as keys in
+    the returned dictionary. These strings may change with time, as we adjust to the
+    growing cloud quantum offer (services and devices).
 
     Args:
         circuit (Circuit): the abstract circuit to be run on the target device.
         n_shots (int): number of shots in the expriment.
+        backend (str): the identifier string for the desired backend.
 
     Returns:
-        dict: A dictionary of floating-point values (prices) in USD.
+        dict: Returns dict of prices in USD. If backend is not None, dictionary
+        contains the cost for running the desired job. If backend is None,
+        returns dictionary of prices for all supported backends.
     """
 
-    # Compute prices for each available backend (see provider formulas)
-    price_estimate = dict()
-    price_estimate['braket_ionq'] = 0.3 + 0.01 * n_shots
-    price_estimate['braket_rigetti'] = 0.3 + 0.00035 * n_shots
+    # Serialize circuit data
+    circuit_data = circuit.serialize()
 
-    # Round up to a cent for readability
-    price_estimate = {k: round(v, 2) for k, v in price_estimate.items()}
+    # Build option dictionary
+    job_options = {'shots': n_shots}
+    if backend:
+        job_options['backend'] = backend
+
+    price_estimate = util.check_qpu_cost(circuit_data, job_options)
 
     return price_estimate

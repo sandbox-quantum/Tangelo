@@ -1,9 +1,24 @@
 Tangelo overview
-=============
+================
+
+|maintainer|
+|licence|
+|build|
+|dev_branch|
+
+.. |maintainer| image:: https://img.shields.io/badge/Maintainer-GoodChemistry-blue
+   :target: https://goodchemistry.com
+.. |licence| image:: https://img.shields.io/badge/License-Apache_2.0-green
+   :target: https://github.com/goodchemistryco/Tangelo/blob/main/LICENSE
+.. |build| image:: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml/badge.svg
+   :target: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml
+.. |dev_branch| image:: https://img.shields.io/badge/DevBranch-staging_0.3.0-yellow
 
 Welcome !
 
-Tangelo is an open-source python package developed by Good Chemistry Company, focused on the development of end-to-end material simulation workflows on quantum computers. Its modular design and ease-of-use enables users to easily assemble custom workflows, tinker and define their own building blocks, while keeping track of quantum resource requirements, such as number of qubits, gates or measurements. Through problem decomposition techniques, users can scale up beyond toy models and study the impact of quantum computing on more industrially-relevant use cases. Tangelo is backend-agnostic and compatible with many existing open-source frameworks, making the integration of third-party tools such as state-of-the-art simulators, circuit compilers or quantum cloud services straightforward. It is our wish to develop a community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
+Tangelo is an open-source python package developed by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of end-to-end material simulation workflows on quantum computers.
+
+Its modular design and ease-of-use enables users to easily assemble custom workflows, tinker and define their own building blocks, while keeping track of quantum resource requirements, such as number of qubits, gates or measurements. Through problem decomposition techniques, users can scale up beyond toy models and study the impact of quantum computing on more industrially-relevant use cases. Tangelo is backend-agnostic and compatible with many existing open-source frameworks, making the integration of third-party tools such as state-of-the-art simulators, circuit compilers or quantum cloud services straightforward. It is our wish to develop a community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
 
 
 Install
@@ -70,9 +85,7 @@ TODO: insert sentence and link to sphinx documentation when its online.
 Tutorials
 ---------
 
-Please check the ``examples`` folder jupyter notebook tutorials and other examples.
-
-
+Please check the ``examples`` folder for jupyter notebook tutorials and other examples.
 
 Tests
 -----
@@ -84,6 +97,12 @@ find and run all tests (assuming you are in the ``tangelo`` subfolder that conta
 
    python -m unittest
 
+
+Contributions
+-------------
+
+Please have a look at the `contributions <./CONTRIBUTIONS.rst>`_ file.
+
 Citations
 ---------
 
@@ -91,4 +110,4 @@ If you use Tangelo in your research, please cite
 
 [TODO: this is a placeholder for our Tangelo paper, to be written and put on arxiv in October]
 
-Copyright Good Chemistry Company 2021. This software is released under the Apache Software License version 2.0.
+© Good Chemistry Company 2021. This software is released under the Apache Software License version 2.0.

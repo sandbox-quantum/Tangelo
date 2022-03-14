@@ -44,9 +44,10 @@ class Circuit:
     the example folder.
     """
 
-    def __init__(self, gates: List[Gate] = None, n_qubits=None):
+    def __init__(self, gates: List[Gate] = None, n_qubits=None, name="no_name"):
         """Initialize gate list and internal variables depending on user input."""
 
+        self.name = name
         self._gates = list()
         self._qubits_simulated = n_qubits
         self._qubit_indices = set() if not n_qubits else set(range(n_qubits))
@@ -127,13 +128,14 @@ class Circuit:
         """
         return "MEASURE" in self.counts
 
-    def add_gate(self, gate):
+    def add_gate(self, g):
         """Add a new gate to a circuit object and update other fields of the
         circuit object to gradually keep track of its properties (gate count,
         qubit indices...).
         """
-        # Add the gate to the list of gates
-        self._gates += [gate]
+        # Add a copy of the gate to the list of gates
+        gate = Gate(g.name, g.target, g.control, g.parameter, g.is_variational)
+        self._gates.append(gate)
 
         # A circuit is variational as soon as a variational gate is added to it
         if gate.is_variational:
@@ -246,11 +248,13 @@ class Circuit:
         Returns:
             Circuit: the inverted circuit
         """
-        gate_list = [gate.inverse() for gate in reversed(self._gates)]
-        return Circuit(gate_list)
+        gates = [gate.inverse() for gate in reversed(self._gates)]
+        return Circuit(gates, n_qubits=self.width)
 
     def serialize(self):
-        return {"type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
+        if not isinstance(self.name, str):
+            return TypeError("Name of circuit object must be a string")
+        return {"name": self.name, "type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
 
 
 def stack(*circuits):
@@ -278,7 +282,8 @@ def stack(*circuits):
     # Stack circuits. Reindex each circuit with the proper offset and then concatenate, until done
     stacked_circuit = circuits.pop(0)
     for c in circuits:
-        c.reindex_qubits(list(range(stacked_circuit.width, stacked_circuit.width + c.width)))
-        stacked_circuit += c
+        c_stack = copy.deepcopy(c)
+        c_stack.reindex_qubits(list(range(stacked_circuit.width, stacked_circuit.width + c.width)))
+        stacked_circuit += c_stack
 
     return stacked_circuit

@@ -83,7 +83,7 @@ def exp_pauliword_to_gates(pauli_word, coef, variational=True, control=None):
 
 
 def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=False, trotter_order=1, control=None,
-                                             return_phase=False):
+                                             return_phase=False, pauli_order=None):
     """Generate the exponentiation of a qubit operator in first- or second-order Trotterized form.
     The algorithm is described in Whitfield 2010 https://arxiv.org/pdf/1001.3855.pdf
 
@@ -94,12 +94,20 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
         variational (bool) : Whether the coefficients are variational
         trotter_order (int): order of trotter approximation, only 1 or 2 are supported.
         return_phase (bool): Return the global-phase generated
+        pauli_order (list): The desired pauli_word order for trotterization defined as a list of (pauli_word, coeff)
+            elements which have matching dictionary elements pauli_word: coeff in QubitOperator terms.items().
+            The coeff in pauli_order is used to generate the exponential.
 
     Returns:
         Circuit: circuit corresponding to exponentiation of qubit operator
         phase : The global phase of the time evolution if return_phase=True else not included
     """
-    pauli_words = list(qubit_op.terms.items())
+    if pauli_order is None:
+        pauli_words = list(qubit_op.terms.items())
+    elif isinstance(pauli_order, list):
+        pauli_words = pauli_order.copy()
+    else:
+        raise ValueError("ordered terms must be a list with elements (keys, values) of qubit_op.terms.items()")
 
     if trotter_order > 2:
         raise ValueError(f"Trotter order of >2 is not supported currently in Tangelo.")
@@ -118,7 +126,7 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
     phase = 1.
     exp_pauli_word_gates = list()
     for i in range(trotter_order):
-        if i == 0:
+        if i == 1:
             pauli_words.reverse()
         for pauli_word, coef in pauli_words:
             if pauli_word:  # identity terms do not contribute to evolution outside of a phase
@@ -213,15 +221,7 @@ def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variationa
     else:
         raise ValueError("Only FermionOperator or QubitOperator allowed")
 
-    if n_trotter_steps == 1:
-        return_value = (circuit, phase) if return_phase else circuit
-    else:
-        final_circuit = deepcopy(circuit)
-        final_phase = deepcopy(phase)
-        for i in range(1, n_trotter_steps):
-            final_circuit += circuit
-            final_phase *= phase
-        return_value = (final_circuit, final_phase) if return_phase else circuit
+    return_value = (circuit*n_trotter_steps, phase**n_trotter_steps) if return_phase else circuit*n_trotter_steps
     return return_value
 
 

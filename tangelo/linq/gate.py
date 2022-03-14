@@ -125,19 +125,10 @@ class Gate(dict):
             new_parameter = -self.parameter
         elif self.name in {"T", "S"}:
             new_parameter = -pi / 2 if self.name == "T" else -pi / 4
-            return Gate(name="PHASE",
-                        target=self.target,
-                        control=self.control,
-                        parameter=new_parameter,
-                        is_variational=self.is_variational)
-
+            return Gate("PHASE", self.target, self.control, new_parameter, self.is_variational)
         else:
             raise AttributeError(f"{self.name} is not an invertible gate when parameter is {self.parameter}")
-        return Gate(name=self.name,
-                    target=self.target,
-                    control=self.control,
-                    parameter=new_parameter,
-                    is_variational=self.is_variational)
+        return Gate(self.name, self.target, self.control, new_parameter, self.is_variational)
 
     def serialize(self):
         return {"type": "Gate",
