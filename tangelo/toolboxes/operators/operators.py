@@ -81,18 +81,15 @@ class QubitHamiltonian(QubitOperator):
 
     def __eq__(self, other_hamiltonian):
 
-        is_eq = 1
         # Additional checks for == operator. This check is ignored if comparing
         # to a QubitOperator or a bare QubitHamiltonian.
         if self.mapping is not None and self.up_then_down is not None and \
                                 other_hamiltonian.mapping is not None and \
                                 other_hamiltonian.up_then_down is not None:
+            if (self.mapping.upper() != other_hamiltonian.mapping.upper()) or (self.up_then_down != other_hamiltonian.up_then_down):
+                return False
 
-            is_eq *= (self.mapping.upper() == other_hamiltonian.mapping.upper())
-            is_eq *= (self.up_then_down == other_hamiltonian.up_then_down)
-
-        is_eq *= super(QubitOperator, self).__eq__(other_hamiltonian)
-        return bool(is_eq)
+        return super(QubitOperator, self).__eq__(other_hamiltonian)
 
     def to_qubitoperator(self):
         qubit_op = QubitOperator()
