@@ -33,7 +33,7 @@ class TestNotebooks(unittest.TestCase):
         run_notebook_as_test('./vqe_custom_ansatz_hamiltonian.ipynb')
 
     def test_oniom_notebook(self):
-        run_notebook_as_test('./problem_decomposition_oniom.ipynb')
+        run_notebook_as_test('./oniom.ipynb')
 
     @unittest.skip("Requires qemist cloud access")
     def test_qemist_cloud_hardware_experiments_notebook(self):
