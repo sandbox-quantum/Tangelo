@@ -36,12 +36,14 @@ class QubitOperator(openfermion.QubitOperator):
 
 class QubitHamiltonian(QubitOperator):
     """QubitHamiltonian objects are essentially openfermion.QubitOperator
-    objects, with extra attributes. The number of qubit (n_qubits), mapping
-    procedure (mapping), the qubit ordering (up_then_down) are incorporated into
-    the class. In addition to QubitOperator, several checks are done when
-    performing arithmetic operations on QubitHamiltonians.
+    objects, with extra attributes. The mapping procedure (mapping) and the
+    qubit ordering (up_then_down) are incorporated into the class. In addition
+    to QubitOperator, several checks are done when performing arithmetic
+    operations on QubitHamiltonians.
 
     Attributes:
+        term (openfermion-like): Same as openfermion term formats.
+        coefficient (complex): Coefficient for this term.
         mapping (string): Mapping procedure for fermionic to qubit encoding
             (ex: "JW", "BK", etc.).
         up_then_down (bool): Whether or not spin ordering is all up then
@@ -51,8 +53,9 @@ class QubitHamiltonian(QubitOperator):
         n_terms (int): Number of terms in this qubit Hamiltonian.
     """
 
-    def __init__(self, mapping, up_then_down, *args, **kwargs):
-        super(QubitOperator, self).__init__(*args, **kwargs)
+    def __init__(self, term=None, coefficient=1., mapping=None, up_then_down=None):
+        super(QubitOperator, self).__init__(term, coefficient)
+
         self.mapping = mapping
         self.up_then_down = up_then_down
 
@@ -60,30 +63,33 @@ class QubitHamiltonian(QubitOperator):
     def n_terms(self):
         return len(self.terms)
 
-    def __add__(self, other_hamiltonian):
-        # Defining addition from +=.
-        self += other_hamiltonian
-        return self
-
     def __iadd__(self, other_hamiltonian):
 
-        # Raise error if attributes are not the same across Hamiltonians.
-        if self.mapping.upper() != other_hamiltonian.mapping.upper():
-            raise RuntimeError("Mapping must be the same for all QubitHamiltonians.")
-        elif self.up_then_down != other_hamiltonian.up_then_down:
-            raise RuntimeError("Spin ordering must be the same for all QubitHamiltonians.")
+        # Raise error if attributes are not the same across Hamiltonians. This
+        # check is ignored if comparing to a QubitOperator or a bare
+        # QubitHamiltonian.
+        if self.mapping is not None and self.up_then_down is not None and \
+                                other_hamiltonian.mapping is not None and \
+                                other_hamiltonian.up_then_down is not None:
+
+            if self.mapping.upper() != other_hamiltonian.mapping.upper():
+                raise RuntimeError("Mapping must be the same for all QubitHamiltonians.")
+            elif self.up_then_down != other_hamiltonian.up_then_down:
+                raise RuntimeError("Spin ordering must be the same for all QubitHamiltonians.")
 
         return super(QubitOperator, self).__iadd__(other_hamiltonian)
 
     def __eq__(self, other_hamiltonian):
 
-        # Additional checks for == operator.
-        is_eq = (self.mapping.upper() == other_hamiltonian.mapping.upper())
-        is_eq *= (self.up_then_down == other_hamiltonian.up_then_down)
+        # Additional checks for == operator. This check is ignored if comparing
+        # to a QubitOperator or a bare QubitHamiltonian.
+        if self.mapping is not None and self.up_then_down is not None and \
+                                other_hamiltonian.mapping is not None and \
+                                other_hamiltonian.up_then_down is not None:
+            if (self.mapping.upper() != other_hamiltonian.mapping.upper()) or (self.up_then_down != other_hamiltonian.up_then_down):
+                return False
 
-        is_eq *= super(QubitOperator, self).__eq__(other_hamiltonian)
-
-        return bool(is_eq)
+        return super(QubitOperator, self).__eq__(other_hamiltonian)
 
     def to_qubitoperator(self):
         qubit_op = QubitOperator()
@@ -161,7 +167,7 @@ def qubitop_to_qubitham(qubit_op, mapping, up_then_down):
     Returns:
         QubitHamiltonian: Self-explanatory.
     """
-    qubit_ham = QubitHamiltonian(mapping, up_then_down)
+    qubit_ham = QubitHamiltonian(mapping=mapping, up_then_down=up_then_down)
     qubit_ham.terms = qubit_op.terms.copy()
 
     return qubit_ham
