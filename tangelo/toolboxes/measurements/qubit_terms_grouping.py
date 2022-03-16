@@ -94,13 +94,13 @@ def map_measurements_qwc(qwc_group_map):
     """
 
     meas_map = dict()
-    bg, bf = list(), list()
+    meas_bases, op_bases = list(), list()
     for k, v in qwc_group_map.items():
-        bg.append(k)
-        bf.extend(v.terms.keys())
+        meas_bases.append(k)
+        op_bases.extend(v.terms.keys())
 
-    for b1 in bf:
-        for b2 in bg:
+    for b1 in op_bases:
+        for b2 in meas_bases:
             if b1 and check_bases_commute_qwc(b1, b2):
                 meas_map[b1] = meas_map.get(b1, []) + [b2]
 
