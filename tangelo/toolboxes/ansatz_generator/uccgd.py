@@ -30,14 +30,13 @@ from tangelo.linq import Circuit
 from tangelo.toolboxes.operators.operators import FermionOperator
 
 from .ansatz import Ansatz
-from .ansatz_utils import exp_pauliword_to_gates, trotterize
-from ._unitary_cc_paired import get_upccgsd
+from .ansatz_utils import trotterize, get_exponentiated_qubit_operator_circuit
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 
 
 class UCCGD(Ansatz):
-    """This class implements the UpCCGSD ansatz. This implies that the
+    """This class implements the UCCGD ansatz. This implies that the
     mean-field is computed with the RHF or ROHF reference integrals.
 
     Args:
@@ -102,7 +101,7 @@ class UCCGD(Ansatz):
             if var_params == "ones":
                 initial_var_params = np.ones((self.n_var_params,), dtype=float)
             elif var_params == "random":
-                initial_var_params = 1.e-1 * (np.random.random((self.n_var_params,)) - 0.5)
+                initial_var_params = 1.e-2 * (np.random.random((self.n_var_params,)) - 0.5)
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:
@@ -144,24 +143,22 @@ class UCCGD(Ansatz):
         # Prepare reference state circuit
         reference_state_circuit = self.prepare_reference_state()
 
-        # Build qubit operator required to build k-UpCCGSD
-
-        # Build dictionary of ordered pauli words for fast update of parameters intead of rebuilding circuit
-        # Initialize dictionary of, dictionaries for each UpCCGSD step (current_k)
-        self.pauli_to_angles_mapping = dict()
-
         qubit_op = self._get_qubit_operator()
 
-        # Initialize dictionary of qubit_op terms for each UpCCGSD step
+        self.qu_op_dict = qubit_op.terms
+        self.pauli_order = list(self.qu_op_dict.items())
+
+        # Initialize dictionary of qubit_op terms for each UCCGD step
         self.pauli_to_angles_mapping = dict()
 
-        upccgsd_circuit = trotterize(qubit_op, variational=True)
+        # uccgd_circuit = trotterize(qubit_op, variational=True)
+        uccgd_circuit = get_exponentiated_qubit_operator_circuit(qubit_op, variational=True, pauli_order=self.pauli_order)
 
         # skip over the reference state circuit if it is empty
         if reference_state_circuit.size != 0:
-            self.circuit = reference_state_circuit + upccgsd_circuit
+            self.circuit = reference_state_circuit + uccgd_circuit
         else:
-            self.circuit = upccgsd_circuit
+            self.circuit = uccgd_circuit
 
     def update_var_params(self, var_params):
         """Shortcut: set value of variational parameters in the already-built
@@ -171,8 +168,15 @@ class UCCGD(Ansatz):
 
         self.set_var_params(var_params)
 
-        # Loop through each current_k step
-        self.build_circuit(var_params)
+        qubit_op = self._get_qubit_operator()
+        qu_op_dict = qubit_op.terms
+
+        if set(qu_op_dict) != set(self.qu_op_dict):
+            self.build_circuit(var_params)
+        else:
+            for i, (term, _) in enumerate(self.pauli_order):
+                value = 2*qu_op_dict[term] if qu_op_dict[term] >= 0. else 4*np.pi+2*qu_op_dict[term]
+                self.circuit._variational_gates[i].parameter = value
 
     def _get_qubit_operator(self):
         """Construct UpCCGSD FermionOperator for variational
@@ -208,5 +212,5 @@ class UCCGD(Ansatz):
         # Cast all coefs to floats (rotations angles are real)
         for key in qubit_op.terms:
             qubit_op.terms[key] = float(qubit_op.terms[key].imag)
-        # qubit_op.compress()
+        qubit_op.compress()
         return qubit_op

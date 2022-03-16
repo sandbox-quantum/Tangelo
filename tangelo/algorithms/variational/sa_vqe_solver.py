@@ -33,19 +33,7 @@ from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, Q
 from tangelo.toolboxes.ansatz_generator.uccgd import UCCGD
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
-
-
-class BuiltInAnsatze(Enum):
-    """Enumeration of the ansatz circuits supported by VQE."""
-    UCCSD = 0
-    UCC1 = 1
-    UCC3 = 2
-    HEA = 3
-    UpCCGSD = 4
-    QMF = 5
-    QCC = 6
-    VSQS = 7
-    UCCGD = 8
+from tangelo.algorithms.variational import BuiltInAnsatze
 
 
 class SA_VQESolver:

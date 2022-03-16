@@ -23,7 +23,7 @@ import numpy as np
 from scipy.linalg import expm
 from scipy.optimize import minimize
 
-from tangelo.algorithms.variational.sa_vqe_solver import SA_VQESolver, BuiltInAnsatze
+from tangelo.algorithms.variational import SA_VQESolver, BuiltInAnsatze
 
 
 class SA_OO_Solver:
@@ -55,7 +55,10 @@ class SA_OO_Solver:
                            "optimizer": self.LBFGSB_optimizer,
                            "backend_options": default_backend_options,
                            "verbose": False,
-                           "ansatz": BuiltInAnsatze.UCCGD}
+                           "ansatz": BuiltInAnsatze,
+                           "ansatz_options": dict(),
+                           "weights": None,
+                           "penalty_terms": None}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -95,7 +98,10 @@ class SA_OO_Solver:
                             "backend_options": self.backend_options,
                             "ansatz": self.ansatz,
                             "qubit_mapping": self.qubit_mapping,
-                            "up_then_down": self.up_then_down
+                            "up_then_down": self.up_then_down,
+                            "ansatz_options": self.ansatz_options,
+                            "weights": self.weights,
+                            "penalty_terms": self.penalty_terms
                             }
 
         self.sa_vqe_solver = SA_VQESolver(self.vqe_options)
@@ -171,8 +177,8 @@ class SA_OO_Solver:
         two_rdm = np.zeros((n_active_mos, n_active_mos, n_active_mos, n_active_mos))
         num_refs = len(self.ref_states)
         for i in range(num_refs):
-            one_rdm += self.sa_vqe_solver.rdms[i][0].real/num_refs
-            two_rdm += self.sa_vqe_solver.rdms[i][1].real/num_refs/2
+            one_rdm += self.sa_vqe_solver.rdms[i][0].real*self.sa_vqe_solver.weights[i]
+            two_rdm += self.sa_vqe_solver.rdms[i][1].real*self.sa_vqe_solver.weights[i]/2
         for ti, t in enumerate(active_indices):
             for ui, u in enumerate(active_indices):
                 active_energy += one_rdm[ti, ui]*(foneint[t, u] + v_mat[t, u])
