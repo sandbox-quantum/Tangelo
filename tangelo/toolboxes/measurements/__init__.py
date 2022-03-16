@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .qubit_terms_grouping import group_qwc, exp_value_from_measurement_bases
+from .qubit_terms_grouping import group_qwc, exp_value_from_measurement_bases,\
+    check_bases_commute_qwc, map_measurements_qwc
 from .estimate_measurements import get_measurement_estimate
 from .classical_shadows.classical_shadows import ClassicalShadow
 from .classical_shadows.randomized import RandomizedClassicalShadow
