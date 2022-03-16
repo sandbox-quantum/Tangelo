@@ -24,13 +24,13 @@ from openfermion.measurements import group_into_tensor_product_basis_sets
 from tangelo.linq import Simulator
 
 
-def group_qwc(qb_ham, seed=None):
+def group_qwc(qb_ham, seed=None, n_repeat=1):
     """Wrapper around Openfermion functionality that takes as input a
-    QubitOperator and yields a collection of mesurement bases defining a
+    QubitOperator and yields a collection of measurement bases defining a
     partition of groups of sub-operators with terms that are diagonal in the
     same tensor product basis. Each sub-operator can be measured using the same
     qubit post-rotations in expectation estimation. This uses the idea of
-    qubitwise commutativity (qwc).
+    qubitwise commutativity (qwc), and the minimum clique cover algorithm.
 
     The resulting dictionary maps the measurement basis (key) to the list of
     qubit operators whose expectation value can be computed using the
@@ -38,11 +38,17 @@ def group_qwc(qb_ham, seed=None):
     quantum circuits need to be executed in order to provide the expectation
     value of the input qubit operator.
 
+    The minimum clique cover algorithm can be initialized with a random seed
+    and can be repeated several times with different seeds in order to return
+    the run that produces the lowest number of groups.
+
     Args:
-        operator (QubitOperator): the operator that will be split into
+        qb_ham (QubitOperator): the operator that will be split into
             sub-operators (tensor product basis sets).
         seed (int): default None. Random seed used to initialize the
             numpy.RandomState pseudo-RNG.
+        n_repeat (int): Repeat with a different random seed, keep the outcome
+            resulting in the lowest number of groups.
 
     Returns:
         dict: a dictionary where each key defines a tensor product basis, and
@@ -50,7 +56,56 @@ def group_qwc(qb_ham, seed=None):
             diagonal in that basis.
     """
 
-    return group_into_tensor_product_basis_sets(qb_ham, seed)
+    res = group_into_tensor_product_basis_sets(qb_ham, seed)
+    for i in range(n_repeat-1):
+        res2 = group_into_tensor_product_basis_sets(qb_ham)
+        if len(res2) < len(res):
+            res = res2
+    return res
+
+
+def check_bases_commute_qwc(b1, b2):
+    """ Check whether two bases commute qubitwise.
+
+    Args:
+        b1 (tuple of (int, str)): the first measurement basis
+        b2 (tuple of (int, str)): the second measurement basis
+
+    Returns:
+        bool: whether or not the bases commute qubitwise
+    """
+
+    b1_dict, b2_dict = dict(b1), dict(b2)
+    for i in set(b1_dict) & set(b2_dict):
+        if b1_dict[i] != b2_dict[i]:
+            return False
+    return True
+
+
+def map_measurements_qwc(qwc_group_map):
+    """ Somewhat reverses a grouping dictionary, linking all measurement bases to the list of
+    group representatives that commute with them qubitwise. Useful to find all the bases
+    whose shots can be used in order to form data for other bases during a hardware experiment.
+
+    Args:
+        qwc_group_map (dict): maps a measurement basis to a qubit operator whose terms commute
+            with said measurement basis qubit-wise.
+    Returns:
+        dict: maps each of the bases to all group representatives that commute with them qubitwise.
+    """
+
+    meas_map = dict()
+    meas_bases, op_bases = list(), list()
+    for k, v in qwc_group_map.items():
+        meas_bases.append(k)
+        op_bases.extend(v.terms.keys())
+
+    for b1 in op_bases:
+        for b2 in meas_bases:
+            if b1 and check_bases_commute_qwc(b1, b2):
+                meas_map[b1] = meas_map.get(b1, []) + [b2]
+
+    return meas_map
 
 
 def exp_value_from_measurement_bases(sub_ops, histograms):
