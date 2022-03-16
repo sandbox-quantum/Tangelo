@@ -40,14 +40,15 @@ def group_qwc(qb_ham, seed=None, n_repeat=1):
 
     The minimum clique cover algorithm can be initialized with a random seed
     and can be repeated several times with different seeds in order to return
-    the best run.
+    the run that produces the lowest number of groups.
 
     Args:
         qb_ham (QubitOperator): the operator that will be split into
             sub-operators (tensor product basis sets).
         seed (int): default None. Random seed used to initialize the
             numpy.RandomState pseudo-RNG.
-        n_repeat (int): Repeat with a different random seed, keep the best outcome
+        n_repeat (int): Repeat with a different random seed, keep the outcome
+            resulting in the lowest number of groups.
 
     Returns:
         dict: a dictionary where each key defines a tensor product basis, and
