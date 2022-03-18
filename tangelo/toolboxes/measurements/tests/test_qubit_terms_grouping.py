@@ -14,16 +14,72 @@
 
 import unittest
 import os
+
 from openfermion import load_operator
+from openfermion.ops import QubitOperator
 
 from tangelo.linq import translator, Simulator, Circuit
 from tangelo.helpers import measurement_basis_gates
-from tangelo.toolboxes.measurements import group_qwc, exp_value_from_measurement_bases
+from tangelo.toolboxes.measurements import group_qwc, exp_value_from_measurement_bases, \
+    check_bases_commute_qwc, map_measurements_qwc
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
 
 class TermsGroupingTest(unittest.TestCase):
+
+    def test_qubitwise_commutativity(self):
+        """ Tests for check_bases_commute_qwc function. """
+
+        I0 = ()
+        Z1 = ((1, 'Z'),)
+        X2 = ((2, 'X'),)
+        X0Z1 = ((0, 'X'), (1, 'Z'))
+        Z0Z1 = ((0, 'Z'), (1, 'Z'))
+
+        self.assertTrue(check_bases_commute_qwc(I0, Z1))
+        self.assertTrue(check_bases_commute_qwc(X2, Z1))
+        self.assertTrue(check_bases_commute_qwc(Z1, X0Z1))
+        self.assertTrue(check_bases_commute_qwc(Z1, Z0Z1))
+        self.assertFalse(check_bases_commute_qwc(Z0Z1, X0Z1))
+
+    def test_mmap_qwc_H2(self):
+        """ From a partitioned Hamiltonian, build reverse dictionary of measurements """
+
+        qb_ham = load_operator("mol_H2_qubitham.data", data_directory=path_data, plain_text=True)
+        partitioned_ham = group_qwc(qb_ham)
+        res = map_measurements_qwc(partitioned_ham)
+
+        for k, v in res.items():
+            if k in {((0, 'X'), (1, 'X'), (2, 'Y'), (3, 'Y')), ((0, 'X'), (1, 'Y'), (2, 'Y'), (3, 'X')),
+                     ((0, 'Y'), (1, 'X'), (2, 'X'), (3, 'Y')), ((0, 'Y'), (1, 'Y'), (2, 'X'), (3, 'X'))}:
+                self.assertTrue(v[0] == k)
+            else:
+                self.assertTrue(v[0] == ((0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'Z')))
+
+    def test_mmap_qwc_H10frag(self):
+        """ From a partitioned Hamiltonian, build reverse dictionary of measurements """
+
+        partitioned_ham = {
+            ((0, 'X'), (1, 'X')): 0.25 * QubitOperator('X0 X1'),
+            ((0, 'X'), (1, 'Z')): 0.25 * (QubitOperator('X0') + QubitOperator('X0 Z1') + QubitOperator('Z1')),
+            ((0, 'Y'), (1, 'Y')): -0.25 * QubitOperator('Y0 Y1'),
+            ((0, 'Z'), (1, 'X')): 0.25 * (QubitOperator('Z0') + QubitOperator('Z0 X1') + QubitOperator('X1')),
+            ((0, 'Z'), (1, 'Z')): 0.25 * QubitOperator('Z0 Z1')
+        }
+        res = map_measurements_qwc(partitioned_ham)
+
+        ref_H10frag = {((0, 'X'), (1, 'X')): [((0, 'X'), (1, 'X'))],
+                       ((0, 'X'),): [((0, 'X'), (1, 'X')), ((0, 'X'), (1, 'Z'))],
+                       ((0, 'X'), (1, 'Z')): [((0, 'X'), (1, 'Z'))],
+                       ((1, 'Z'),): [((0, 'X'), (1, 'Z')), ((0, 'Z'), (1, 'Z'))],
+                       ((0, 'Y'), (1, 'Y')): [((0, 'Y'), (1, 'Y'))],
+                       ((0, 'Z'),): [((0, 'Z'), (1, 'X')), ((0, 'Z'), (1, 'Z'))],
+                       ((0, 'Z'), (1, 'X')): [((0, 'Z'), (1, 'X'))],
+                       ((1, 'X'),): [((0, 'X'), (1, 'X')), ((0, 'Z'), (1, 'X'))],
+                       ((0, 'Z'), (1, 'Z')): [((0, 'Z'), (1, 'Z'))]}
+
+        self.assertDictEqual(res, ref_H10frag)
 
     def test_qubitwise_commutativity_of_H2(self):
         """ The JW Pauli hamiltonian of H2 at optimal geometry is a 15-term operator. Using qubitwise-commutativity,
