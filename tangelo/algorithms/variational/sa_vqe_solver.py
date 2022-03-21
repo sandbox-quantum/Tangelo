@@ -38,12 +38,12 @@ from tangelo.algorithms.variational import BuiltInAnsatze
 
 class SA_VQESolver:
     r"""Solve the electronic structure problem for a molecular system by using
-    the variational quantum eigensolver (VQE) algorithm.
+    the state-averaged variational quantum eigensolver (SA-VQE) algorithm.
 
     This algorithm evaluates the energy of a molecular system by performing
-    classical optimization over a parametrized ansatz circuit.
+    classical optimization over a parametrized ansatz circuit for multiple reference states.
 
-    Users must first set the desired options of the VQESolver object through the
+    Users must first set the desired options of the SA_VQESolver object through the
     __init__ method, and call the "build" method to build the underlying objects
     (mean-field, hardware backend, ansatz...). They are then able to call any of
     the energy_estimation, simulate, or get_rdm methods. In particular, simulate
@@ -104,19 +104,12 @@ class SA_VQESolver:
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
-        # The QCC ansatz requires up_then_down=True when mapping="jw"
-        if isinstance(self.ansatz, BuiltInAnsatze):
-            if self.ansatz == BuiltInAnsatze.QCC and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
-                warnings.warn("The QCC ansatz requires spin-orbital ordering to be all spin-up "
-                              "first followed by all spin-down for the JW mapping.", RuntimeWarning)
-                self.up_then_down = True
-
         self.optimal_energy = None
         self.optimal_var_params = None
-        self.builtin_ansatze = set(BuiltInAnsatze)
+        self.builtin_ansatze = set([BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.UCCGD, BuiltInAnsatze.HEA, BuiltInAnsatze.UCCSD])
 
     def build(self):
-        """Build the underlying objects required to run the VQE algorithm
+        """Build the underlying objects required to run the SA-VQE algorithm
         afterwards.
         """
 
@@ -149,72 +142,51 @@ class SA_VQESolver:
                 pen_qubit = qubitop_to_qubitham(pen_qubit, self.qubit_hamiltonian.mapping, self.qubit_hamiltonian.up_then_down)
                 self.qubit_hamiltonian += pen_qubit
 
-            # Verification of system compatibility with UCC1 or UCC3 circuits.
-            if self.ansatz in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3]:
-                # Mapping should be JW because those ansatz are chemically inspired.
-                if self.qubit_mapping.upper() != "JW":
-                    raise ValueError("Qubit mapping must be JW for {} ansatz.".format(self.ansatz))
-                # They are encoded with this convention.
-                if not self.up_then_down:
-                    raise ValueError("Parameter up_then_down must be set to True for {} ansatz.".format(self.ansatz))
-                # Only HOMO-LUMO systems are relevant.
-                if count_qubits(self.qubit_hamiltonian) != 4:
-                    raise ValueError("The system must be reduced to a HOMO-LUMO problem for {} ansatz.".format(self.ansatz))
-
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz == BuiltInAnsatze.UCCSD:
                     self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down, self.molecule.spin)
-                elif self.ansatz == BuiltInAnsatze.UCC1:
-                    self.ansatz = RUCC(1)
-                elif self.ansatz == BuiltInAnsatze.UCC3:
-                    self.ansatz = RUCC(3)
                 elif self.ansatz == BuiltInAnsatze.HEA:
+                    self.ansatz_options["reference_state"] = "zero"
                     self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.UpCCGSD:
                     self.ansatz = UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.QMF:
-                    self.ansatz = QMF(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.QCC:
-                    self.ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.VSQS:
-                    self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.UCCGD:
                     self.ansatz = UCCGD(self.molecule, self.qubit_mapping, up_then_down=self.up_then_down)
                 else:
-                    raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
+                    raise ValueError(f"Unsupported ansatz for SA_VQESolver. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
                 print(type(self.ansatz))
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
 
-            self.ansatz.default_reference_state = "None"
-            self.reference_circuits = list()
-            for ref_state in self.ref_states:
-                vec_to_map = np.concatenate((ref_state[::2], ref_state[1::2])) if self.up_then_down else ref_state
-                if self.qubit_mapping.lower() == "scbk":
-                    mapped_state = statevector_mapping.do_scbk_transform(vec_to_map, self.molecule.n_active_sos)
-                elif self.qubit_mapping.lower() == "bk":
-                    mapped_state = statevector_mapping.do_bk_transform(vec_to_map)
-                else:
-                    mapped_state = vec_to_map
-                self.reference_circuits.append(statevector_mapping.vector_to_circuit(mapped_state, self.qubit_mapping))
-            self.n_states = len(self.ref_states)
-            if self.weights is None:
-                self.weights = np.ones(self.n_states)/self.n_states
-            else:
-                if len(self.weights) != self.n_states:
-                    raise ValueError("Number of elements in weights must equal the number of ref_configs")
-                self.weights = np.array(self.weights)
-                self.weights = self.weights/sum(self.weights)
-
         # Building with a qubit Hamiltonian.
-        elif self.ansatz in [BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS]:
+        elif self.ansatz in [BuiltInAnsatze.HEA]:
             if self.ansatz == BuiltInAnsatze.HEA:
                 self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-            elif self.ansatz == BuiltInAnsatze.VSQS:
-                self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
         elif not isinstance(self.ansatz, Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
+
+        self.ansatz.default_reference_state = "zero"
+        self.reference_circuits = list()
+        for ref_state in self.ref_states:
+            vec_to_map = np.concatenate((ref_state[::2], ref_state[1::2])) if self.up_then_down else ref_state
+            if self.qubit_mapping.lower() == "scbk":
+                mapped_state = statevector_mapping.do_scbk_transform(vec_to_map, len(ref_state))
+            elif self.qubit_mapping.lower() == "bk":
+                mapped_state = statevector_mapping.do_bk_transform(vec_to_map)
+            else:
+                mapped_state = vec_to_map
+            self.reference_circuits.append(statevector_mapping.vector_to_circuit(mapped_state, self.qubit_mapping))
+            self.reference_circuits[-1].name = str(ref_state)
+
+        self.n_states = len(self.ref_states)
+        if self.weights is None:
+            self.weights = np.ones(self.n_states)/self.n_states
+        else:
+            if len(self.weights) != self.n_states:
+                raise ValueError("Number of elements in weights must equal the number of ref_configs")
+            self.weights = np.array(self.weights)
+            self.weights = self.weights/sum(self.weights)
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
@@ -226,7 +198,7 @@ class SA_VQESolver:
 
     def simulate(self):
         """Run the VQE algorithm, using the ansatz, classical optimizer, initial
-        parameters and hardware backend built in the build method.
+        parameters and hardware backend built in the build method for each reference state.
         """
         if not (self.ansatz and self.backend):
             raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")
@@ -289,8 +261,7 @@ class SA_VQESolver:
 
     def get_rdm(self, var_params,  ref_state=Circuit(), resample=False, sum_spin=True):
         """Compute the 1- and 2- RDM matrices using the VQE energy evaluation.
-        This method allows to combine the DMET problem decomposition technique
-        with the VQE as an electronic structure solver. The RDMs are computed by
+        This method allows state-averaged orbital optimization to occur. The RDMs are computed by
         using each fermionic Hamiltonian term, transforming them and computing
         the elements one-by-one. Note that the Hamiltonian coefficients will not
         be multiplied as in the energy evaluation. The first element of the
@@ -323,11 +294,11 @@ class SA_VQESolver:
 
         # If resampling is requested, check that a previous savefrequencies run has been called
         if resample:
-            if hasattr(self, "rdm_freq_dict"):
-                qb_freq_dict = self.rdm_freq_dict
+            if hasattr(self, "rdm_freq_dict") and str(ref_state).name in self.rdm_freq_dict:
+                qb_freq_dict = self.rdm_freq_dict[ref_state.name]
                 resampled_expect_dict = dict()
             else:
-                raise AttributeError("Need to run RDM calculation with savefrequencies=True")
+                raise AttributeError(f"Need to run RDM calculation with savefrequencies=True for circuit named {ref_state.name}")
         else:
             qb_freq_dict = dict()
             qb_expect_dict = dict()
@@ -388,7 +359,9 @@ class SA_VQESolver:
                 rdm2_spin[iele, lele, jele, kele] += opt_energy2
 
         # save rdm frequency dictionary
-        self.rdm_freq_dict = qb_freq_dict
+        if not hasattr(self, "rdm_freq_dict"):
+            self.rdm_freq_dict = dict()
+        self.rdm_freq_dict[ref_state.name] = qb_freq_dict
 
         if sum_spin:
             rdm1_np = np.zeros((n_mol_orbitals,) * 2, dtype=np.complex128)
@@ -407,13 +380,11 @@ class SA_VQESolver:
         return rdm1_spin, rdm2_spin
 
     def _compute_energy(self, onerdm, twordm):
-        """Calculate the fragment energy.
+        """Calculate the energy given the onerdm and twordm.
 
         Args:
             onerdm (numpy.array): one-particle reduced density matrix (float).
             twordm (numpy.array): two-particle reduced density matrix (float).
-            fock_frag_copy (numpy.array): Fock matrix with the chemical
-                potential subtracted (float).
 
         Returns:
             float: Fragment energy (fragment_energy).

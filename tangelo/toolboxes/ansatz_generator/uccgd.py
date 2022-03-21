@@ -126,7 +126,7 @@ class UCCGD(Ansatz):
                                          mapping=self.qubit_mapping,
                                          up_then_down=self.up_then_down,
                                          spin=self.spin)
-        if self.default_reference_state == "None":
+        if self.default_reference_state == "zero":
             return Circuit()
 
     def build_circuit(self, var_params=None):
