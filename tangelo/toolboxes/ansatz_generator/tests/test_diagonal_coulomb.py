@@ -40,8 +40,7 @@ class diagonal_coulomb_Test(unittest.TestCase):
         # Run each set of gates that diagonalizes the set of terms and calculate energy
         energy = 0
         for i in range(len(orb_rots.constants)):
-            # Generate qubit operator to measure after each rotation.
-            # Use JW and up_then_down=False as the calculated circuits only function in this case
+            # Get appropriate qubit operator to measure after each rotation.
             qu_op = orb_rots.qubit_operators[i]
             # Rotate state and measure all terms using one set of measurements.
             freqs, _ = sim.simulate(Circuit(orb_rots.rotation_gates[i]), initial_statevector=state_vec)
