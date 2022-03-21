@@ -396,7 +396,7 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=None):
     return Circuit(gate_list, n_qubits=n_qubits)
 
 
-def givens_gate(target, theta, variational=False):
+def givens_gate(target, theta, is_variational=False):
     """Generates the list of gates corresponding to a givens rotation exp(-theta*(XX+YY))
 
     Explicitly the two-qubit matrix is
@@ -408,12 +408,12 @@ def givens_gate(target, theta, variational=False):
     Args:
         target (list): list of two integers that indicate which qubits are involved in the givens rotation
         theta (float): the rotation angle
-        variational (bool): Whether the rotation angle is a variational parameter.
+        is_variational (bool): Whether the rotation angle is a variational parameter.
 
     Returns:
         list of Gate: The list of gates corresponding to the givens rotation"""
     if len(target) != 2:
         raise ValueError("target must be a list or array of two integers")
     return [Gate("CNOT", target=target[0], control=target[1]),
-            Gate("CRY", target=target[1], control=target[0], parameter=-theta, variational=variational),
+            Gate("CRY", target=target[1], control=target[0], parameter=-theta, is_variational=is_variational),
             Gate("CNOT", target=target[0], control=target[1])]
