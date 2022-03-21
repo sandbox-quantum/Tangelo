@@ -14,8 +14,7 @@
 
 import unittest
 
-from numpy.linalg import eigh
-from openfermion import get_sparse_operator
+from openfermion import get_sparse_operator, linalg
 
 from tangelo.linq import Simulator, Circuit
 from tangelo.molecule_library import mol_H4_sto3g
@@ -29,12 +28,11 @@ sim = Simulator(target="cirq")
 class diagonal_coulomb_Test(unittest.TestCase):
 
     def test_orbital_rotations(self):
-        """test calculating energy expectation value of H4 hamiltonian by decomposing into diagional terms"""
+        """Test calculating energy expectation value of H4 hamiltonian by decomposing into diagional terms"""
 
         # Generate ground state wavefunction from JW transformed fermionic_hamiltonian
-        ham = get_sparse_operator(mol_H4_sto3g.fermionic_hamiltonian).toarray()
-        eigs, vecs = eigh(ham)
-        state_vec = vecs[:, 0]
+        ham = get_sparse_operator(mol_H4_sto3g.fermionic_hamiltonian)
+        eig, state_vec = linalg.get_ground_state(ham)
 
         # Generate necessary circuits and operators
         orb_rots = get_orbital_rotations(mol_H4_sto3g)
@@ -49,7 +47,7 @@ class diagonal_coulomb_Test(unittest.TestCase):
             for term, coeff in qu_op.terms.items():
                 energy += coeff*sim.get_expectation_value_from_frequencies_oneterm(term, frequencies=freqs)
 
-        self.assertAlmostEqual(energy, eigs[0], places=6)
+        self.assertAlmostEqual(energy, eig, places=6)
 
 
 if __name__ == "__main__":

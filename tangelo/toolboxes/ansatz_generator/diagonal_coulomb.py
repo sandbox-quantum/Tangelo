@@ -31,11 +31,16 @@ from tangelo.toolboxes.operators import FermionOperator
 def bogoliubov_transform(umat, add_phase=True):
     """Generate the gates that implement the orbital rotation defined by a given unitary.
 
+    The given matrix is decomposed into umat=DU where U is unitary D is a diagonal matrix.
+    If umat is unitary, the absolute values of D will be one and can be incorporated using add_phase=True.
+    If umat is non-unitary, the magnitude of each diagonal value of D is ignored with only the phase
+    incorporated.
+
     This implementation uses the circuit outlined in https://arxiv.org/abs/1711.05395
 
     Args:
         umat (array): The unitary matrix that descibes the basis rotation
-        add_phase (bool): If True, adds PHASE gates according to givens decomposition
+        add_phase (bool): If True, adds PHASE gates according to givens decomposition values D
 
     Returns:
         list of Gate: The sequence of Gates that implement the orbital rotation
@@ -73,7 +78,7 @@ class OrbitalRotations():
         self.two_body_coefficients = list()
 
     def add_elements(self, rot_mat, constant=0, one_body_coefs=None, two_body_coefs=None):
-        """add elements to the class for each term to diagonalize a portion of the Hamiltonian
+        """Add elements to the class for each term to diagonalize a portion of the Hamiltonian
 
         Args:
             rot_mat (array): The unitary rotation matrix
@@ -105,7 +110,7 @@ class OrbitalRotations():
 
 
 def get_orbital_rotations(molecule: SecondQuantizedMolecule):
-    """generate the gates that rotate the orbitals such that each operator is diagonal
+    """Generate the gates that rotate the orbitals such that each operator is diagonal
 
     Args:
         molecule (SecondQuantizedMolecule): The molecule for which the diagonal representation is requested
