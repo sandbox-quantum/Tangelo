@@ -23,9 +23,10 @@ from openfermion.circuits.low_rank import low_rank_two_body_decomposition, prepa
 from openfermion.chem.molecular_data import spinorb_from_spatial
 import numpy as np
 
-from tangelo.linq import Gate, Circuit
+from tangelo.linq import Gate
 from tangelo import SecondQuantizedMolecule
 from tangelo.toolboxes.operators import FermionOperator
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 
 
 def bogoliubov_transform(umat, add_phase=True):
@@ -64,7 +65,7 @@ class OrbitalRotations():
 
     Attributes:
         rotation_gates (list): The gates to apply to rotate the basis to a diagonal form for a given operator
-        fermion_operators (list): The fermion operator to measure, diagonal in Z basis after rotation
+        qubit_operators (list): The qubit operators to measure from qubit_mapping="JW" and up_then_down=False. Each is diagonal in the Z basis.
         one_body_coefficients (list): The one-body coefficients corresponding to each operator
         constants (list): The constants corresponding to each operator
         two_body_coefficients (list): The two-body coefficients corresponding to each operator
@@ -72,7 +73,7 @@ class OrbitalRotations():
 
     def __init__(self):
         self.rotation_gates = list()
-        self.fermion_operators = list()
+        self.qubit_operators = list()
         self.one_body_coefficients = list()
         self.constants = list()
         self.two_body_coefficients = list()
@@ -99,7 +100,7 @@ class OrbitalRotations():
                 for q in range(p+1, num_vals):
                     fe_op += FermionOperator(((p, 1), (p, 0), (q, 1), (q, 0)), two_body_coefs[p, q]/2)
                     fe_op += FermionOperator(((q, 1), (q, 0), (p, 1), (p, 0)), two_body_coefs[q, p]/2)
-        self.fermion_operators.append(fe_op)
+        self.qubit_operators.append(fermion_to_qubit_mapping(fe_op, "JW", up_then_down=False))
         self.one_body_coefficients.append(one_body_coefs)
         self.two_body_coefficients.append(two_body_coefs)
         self.constants.append(constant)
@@ -110,7 +111,9 @@ class OrbitalRotations():
 
 
 def get_orbital_rotations(molecule: SecondQuantizedMolecule):
-    """Generate the gates that rotate the orbitals such that each operator is diagonal
+    """Generate the gates that rotate the orbitals such that each operator is diagonal.
+
+    The orbital rotation gates generated are only applicable for qubit_mapping="JW" and up_then_down=False.
 
     Args:
         molecule (SecondQuantizedMolecule): The molecule for which the diagonal representation is requested
