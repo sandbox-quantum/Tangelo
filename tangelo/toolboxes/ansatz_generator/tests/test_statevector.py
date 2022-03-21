@@ -17,8 +17,7 @@ import numpy as np
 
 from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.statevector import StateVector
-
-sim = Simulator()
+from tangelo.helpers.utils import installed_backends
 
 
 class StateVectorTest(unittest.TestCase):
@@ -34,8 +33,28 @@ class StateVectorTest(unittest.TestCase):
         # Test raises ValueError if order does is not "msq_first" or "lsq_first"
         self.assertRaises(ValueError, StateVector, v, "not_msq_first_or_lsq_first")
 
-    def test_circuits_representations(self):
-        """Test initializing and uncomputing circuits"""
+    def test_circuits_representations_lsq(self):
+        """Test initializing and uncomputing circuits with cirq lsq_first order"""
+        sim = Simulator("cirq")
+        v = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]) + 1j*np.array([0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1])
+        v /= np.linalg.norm(v)
+
+        sv = StateVector(v, order=sim.statevector_order)
+
+        init_circ, phase = sv.initializing_circuit(return_phase=True)
+        _, nsv = sim.simulate(init_circ, return_statevector=True)
+        np.testing.assert_array_almost_equal(nsv*np.exp(1j*phase), v)
+
+        uncomp_circ, phase = sv.uncomputing_circuit(return_phase=True)
+        zero_state = np.zeros(8)
+        zero_state[0] = 1
+        _, nsv = sim.simulate(uncomp_circ, initial_statevector=v, return_statevector=True)
+        np.testing.assert_array_almost_equal(nsv*np.exp(1j*phase), zero_state)
+
+    @unittest.skipIf("qulacs" not in installed_backends, "Test Skipped: Backend not available \n")
+    def test_circuits_representations_msq(self):
+        """Test initializing and uncomputing circuits with qulacs msq_first order"""
+        sim = Simulator("qulacs")
         v = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]) + 1j*np.array([0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1])
         v /= np.linalg.norm(v)
 

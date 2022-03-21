@@ -23,6 +23,13 @@ from tangelo.linq import Circuit, Gate
 
 
 class StateVector():
+    """This class provides functions to either compute a statevector (of 2**n_qubits) from the zero state
+    or take that state to the zero state
+
+    Args:
+        state: The list or array of values defining a state of length 2**n_qubits.
+    """
+
     def __init__(self, params, order="msq_first"):
         n_qubits = math.log2(len(params))
         if n_qubits == 0 or not n_qubits.is_integer():
@@ -62,8 +69,10 @@ class StateVector():
 
     def uncomputing_circuit(self, return_phase=False):
         """Create a circuit that takes the desired vector to the zero state.
+
         Args:
             return_phase (bool): Flag to return global_phase
+
         Returns:
             Circuit: circuit to take self.params vector to :math:`|{00\\ldots0}\\rangle`
             float: (if return_phase=True) The angle that defines the global phase not captured by the circuit
@@ -97,15 +106,16 @@ class StateVector():
                 for gate in reversed(ry_mult._gates):
                     circuit.add_gate(gate)
         global_phase = -np.angle(sum(remaining_param))
+
         if self.order == "lsq_first":
             circuit.reindex_qubits([i for i in reversed(range(0, self.num_qubits))])
+
         return_value = circuit if return_phase is False else (circuit, global_phase)
         return return_value
 
     @staticmethod
     def _rotations_to_disentangle(local_param):
-        """
-        Static internal method to work out Ry and Rz rotation angles used
+        """Static internal method to work out Ry and Rz rotation angles used
         to disentangle the LSB qubit.
         These rotations make up the block diagonal matrix U (i.e. multiplexor)
         that disentangles the LSB.
@@ -114,6 +124,14 @@ class StateVector():
                                     .
                                         .
           0         0           Ry(theta_2^n).Rz(phi_2^n)]]
+
+        Args:
+            local_param (array): The parameters of subset of qubits to return the LSB to the zero state.
+
+        Returns:
+            list of float: remaining vector with LSB set to |0>
+            list of float: The necessary RY Gate parameters
+            list of float: The necessary RZ Gate parameters
         """
         remaining_vector = []
         thetas = []
@@ -142,9 +160,16 @@ class StateVector():
 
     @staticmethod
     def _bloch_angles(pair_of_complex):
-        """
-        Static internal method to work out rotation to create the passed-in
+        """Static internal method to work out rotation to create the passed-in
         qubit from the zero vector.
+
+        Args:
+            list of complex: Two complex numbers to calculate rotation from zero vector
+
+        Returns:
+            complex: remaining phase angle not captured by RY and RZ
+            theta: calculated RY rotation angle
+            phi: calculated RZ rotation angle
         """
         [a_complex, b_complex] = pair_of_complex
         # Force a and b to be complex, as otherwise numpy.angle might fail.
@@ -167,16 +192,17 @@ class StateVector():
         return final_r * np.exp(1.0j * final_t / 2), theta, phi
 
     def _multiplex(self, target_gate: str, list_of_angles, last_cnot=True) -> Circuit:
-        """
-        Return a recursive implementation of a multiplexor circuit,
+        """Return a recursive implementation of a multiplexor circuit,
         where each instruction itself has a decomposition based on
         smaller multiplexors.
         The LSB is the multiplexor "data" and the other bits are multiplexor "select".
+
         Args:
             target_gate (Gate): Ry or Rz gate to apply to target qubit, multiplexed
                 over all other "select" qubits
             list_of_angles (list[float]): list of rotation angles to apply Ry and Rz
             last_cnot (bool): add the last cnot if last_cnot = True
+
         Returns:
             Circuit: the circuit implementing the multiplexor's action
         """
