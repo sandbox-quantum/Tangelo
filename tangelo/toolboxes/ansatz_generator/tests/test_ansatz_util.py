@@ -11,8 +11,8 @@ from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_
 from tangelo.molecule_library import mol_H4_sto3g
 from tangelo.linq.tests.test_simulator import assert_freq_dict_almost_equal
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
-from tangelo.toolboxes.ansatz_generator.ansatz_utils import givens_gate, trotterize, get_qft_circuit,
-    controlled_swap_to_XX_gates, derangement_circuit, controlled_pauliwords
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import (givens_gate, trotterize, get_qft_circuit, controlled_swap_to_XX_gates,
+                                                             derangement_circuit, controlled_pauliwords)
 
 # Initiate simulators, Use cirq as it has the same ordering for statevectors as openfermion does for Hamiltonians
 # This is important when converting the openfermion QubitOperator toarray(), propagating exactly and comparing
