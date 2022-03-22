@@ -39,6 +39,9 @@ class TestNotebooks(unittest.TestCase):
     def test_qemist_cloud_hardware_experiments_notebook(self):
         run_notebook_as_test('./qemist_cloud_hardware_experiments_braket.ipynb')
 
+    def test_classical_shadows_notebook(self):
+        run_notebook_as_test('./classical_shadows.ipynb')
+
 
 if __name__ == "__main__":
     unittest.main()
