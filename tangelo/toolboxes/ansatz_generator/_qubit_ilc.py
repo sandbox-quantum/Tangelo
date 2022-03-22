@@ -128,9 +128,9 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
 
     # Gaussian elimination over GF(2)
     n_rows, n_cols = np.shape(a_mat)
-    if not b_vec:
+    if not isinstance(b_vec, np.ndarray):
         b_vec = np.zeros((n_rows, 1))
-    a_mat = np.append(a_mat, b_vec, 1)
+    a_mat = np.append(a_mat, b_vec, axis=1)
     n_cols += 1
     z_vals, z_sln, piv_idx = [], [-1] * n_cols, 0
     for i in range(n_cols):
