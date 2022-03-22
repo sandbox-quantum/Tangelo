@@ -27,18 +27,18 @@ class StateVector():
     or take that state to the zero state
 
     Args:
-        state: The list or array of values defining a state of length 2**n_qubits.
+        coefficients: The list or array of coefficients defining a state. Must have length 2**n_qubits where n_qubits is an integer.
     """
 
-    def __init__(self, params, order="msq_first"):
-        n_qubits = math.log2(len(params))
+    def __init__(self, coefficients, order="msq_first"):
+        n_qubits = math.log2(len(coefficients))
         if n_qubits == 0 or not n_qubits.is_integer():
-            raise ValueError("params is not a power of 2")
-
-        self.num_qubits = int(n_qubits)
-        self.params = params
+            raise ValueError("Length of input state must be a power of 2")
         if order not in ["msq_first", "lsq_first"]:
             raise ValueError(f"order must be 'lsq_first' or 'msq_first'")
+
+        self.n_qubits = int(n_qubits)
+        self.coeffs = coefficients
         self.order = order
 
     def initializing_circuit(self, return_phase=False):
@@ -53,8 +53,8 @@ class StateVector():
             return_phase (bool): Return the global phase that is not captured by the circuit
 
         Returns:
-            Circuit: The circuit that generates the statevector defined in params
-            phase: If return_phase=True, the global phase angle not captured by the Circuit
+            Circuit: The circuit that generates the statevector defined in coeffs
+            float: If return_phase=True, the global phase angle not captured by the Circuit
         """
         # call to generate the circuit that takes the desired vector to zero
         disentangling_circuit, global_phase = self.uncomputing_circuit(return_phase=True)
@@ -64,29 +64,29 @@ class StateVector():
         state_prep_circuit = disentangling_circuit.inverse()
         global_phase = -global_phase
 
-        return_value = state_prep_circuit if return_phase is False else (state_prep_circuit, global_phase)
+        return_value = (state_prep_circuit, global_phase) if return_phase else state_prep_circuit
         return return_value
 
     def uncomputing_circuit(self, return_phase=False):
-        """Create a circuit that takes the desired vector to the zero state.
+        """Generate a circuit that takes the desired state to the zero state.
 
         Args:
             return_phase (bool): Flag to return global_phase
 
         Returns:
-            Circuit: circuit to take self.params vector to :math:`|{00\\ldots0}\\rangle`
+            Circuit: circuit to take self.coeffs vector to :math:`|{00\\ldots0}\\rangle`
             float: (if return_phase=True) The angle that defines the global phase not captured by the circuit
         """
 
-        circuit = Circuit(n_qubits=self.num_qubits)
+        circuit = Circuit(n_qubits=self.n_qubits)
 
         # kick start the peeling loop, and disentangle one-by-one from LSB to MSB
-        remaining_param = self.params
+        remaining_param = self.coeffs
 
-        for i in range(self.num_qubits):
+        for i in range(self.n_qubits):
             # work out which rotations must be done to disentangle the LSB
             # qubit (we peel away one qubit at a time)
-            (remaining_param, thetas, phis) = StateVector._rotations_to_disentangle(remaining_param)
+            remaining_param, thetas, phis = StateVector._rotations_to_disentangle(remaining_param)
 
             # perform the required rotations to decouple the LSB qubit (so that
             # it can be "factored" out, leaving a shorter amplitude vector to peel away)
@@ -96,21 +96,21 @@ class StateVector():
                 add_last_cnot = False
 
             if np.linalg.norm(phis) != 0:
-                rz_mult = self._multiplex("RZ", phis, last_cnot=add_last_cnot)
-                rz_mult.reindex_qubits([j for j in range(i, self.num_qubits)])
+                rz_mult = self._get_multiplex_circuit("RZ", phis, last_cnot=add_last_cnot)
+                rz_mult.reindex_qubits(list(range(i, self.n_qubits)))
                 circuit += rz_mult
 
             if np.linalg.norm(thetas) != 0:
-                ry_mult = self._multiplex("RY", thetas, last_cnot=add_last_cnot)
-                ry_mult.reindex_qubits([j for j in range(i, self.num_qubits)])
+                ry_mult = self._get_multiplex_circuit("RY", thetas, last_cnot=add_last_cnot)
+                ry_mult.reindex_qubits(list(range(i, self.n_qubits)))
                 for gate in reversed(ry_mult._gates):
                     circuit.add_gate(gate)
         global_phase = -np.angle(sum(remaining_param))
 
         if self.order == "lsq_first":
-            circuit.reindex_qubits([i for i in reversed(range(0, self.num_qubits))])
+            circuit.reindex_qubits(list(reversed(range(0, self.n_qubits))))
 
-        return_value = circuit if return_phase is False else (circuit, global_phase)
+        return_value = (circuit, global_phase) if return_phase else circuit
         return return_value
 
     @staticmethod
@@ -146,7 +146,7 @@ class StateVector():
             # and 2*(i+1), corresponding to the select qubits of the
             # multiplexor being in state |i>)
             (remains, add_theta, add_phi) = StateVector._bloch_angles(
-                local_param[2 * i: 2 * (i + 1)]
+                local_param[2*i], local_param[2*i+1]
             )
 
             remaining_vector.append(remains)
@@ -159,29 +159,27 @@ class StateVector():
         return remaining_vector, thetas, phis
 
     @staticmethod
-    def _bloch_angles(pair_of_complex):
+    def _bloch_angles(a_complex, b_complex):
         """Static internal method to work out rotation to create the passed-in
         qubit from the zero vector.
 
         Args:
-            list of complex: Two complex numbers to calculate rotation from zero vector
+            a_complex (complex): First complex number to calculate rotation from zero vector
+            b_complex (complex): Second complex number to calculate rotation from zero vector
 
         Returns:
             complex: remaining phase angle not captured by RY and RZ
-            theta: calculated RY rotation angle
-            phi: calculated RZ rotation angle
+            float: calculated RY rotation angle
+            float: calculated RZ rotation angle
         """
-        [a_complex, b_complex] = pair_of_complex
+
         # Force a and b to be complex, as otherwise numpy.angle might fail.
         a_complex = complex(a_complex)
         b_complex = complex(b_complex)
         mag_a = np.absolute(a_complex)
         final_r = float(np.sqrt(mag_a**2 + np.absolute(b_complex) ** 2))
         if final_r < np.finfo(float).eps:
-            theta = 0
-            phi = 0
-            final_r = 0
-            final_t = 0
+            theta, phi, final_r, final_t = 0, 0, 0, 0
         else:
             theta = float(2 * np.arccos(mag_a / final_r))
             a_arg = np.angle(a_complex)
@@ -191,7 +189,7 @@ class StateVector():
 
         return final_r * np.exp(1.0j * final_t / 2), theta, phi
 
-    def _multiplex(self, target_gate: str, list_of_angles, last_cnot=True) -> Circuit:
+    def _get_multiplex_circuit(self, target_gate, angles, last_cnot=True) -> Circuit:
         """Return a recursive implementation of a multiplexor circuit,
         where each instruction itself has a decomposition based on
         smaller multiplexors.
@@ -200,34 +198,33 @@ class StateVector():
         Args:
             target_gate (Gate): Ry or Rz gate to apply to target qubit, multiplexed
                 over all other "select" qubits
-            list_of_angles (list[float]): list of rotation angles to apply Ry and Rz
+            angles (list[float]): list of rotation angles to apply Ry and Rz
             last_cnot (bool): add the last cnot if last_cnot = True
 
         Returns:
             Circuit: the circuit implementing the multiplexor's action
         """
-        list_len = len(list_of_angles)
-        local_num_qubits = int(math.log2(list_len)) + 1
-
-        circuit = Circuit(n_qubits=local_num_qubits)
-
-        lsb = 0
-        msb = local_num_qubits - 1
+        list_len = len(angles)
+        local_n_qubits = int(math.log2(list_len)) + 1
 
         # case of no multiplexing: base case for recursion
-        if local_num_qubits == 1:
-            circuit.add_gate(Gate(target_gate, 0, parameter=list_of_angles[0]))
-            return circuit
+        if local_n_qubits == 1:
+            return Circuit([Gate(target_gate, 0, parameter=angles[0])], n_qubits=local_n_qubits)
+
+        circuit = Circuit(n_qubits=local_n_qubits)
+
+        lsb = 0
+        msb = local_n_qubits - 1
 
         # calc angle weights, assuming recursion (that is the lower-level
         # requested angles have been correctly implemented by recursion
-        angle_weight = np.kron([[0.5, 0.5], [0.5, -0.5]], np.identity(2 ** (local_num_qubits - 2)))
+        angle_weight = np.kron([[0.5, 0.5], [0.5, -0.5]], np.identity(2 ** (local_n_qubits - 2)))
 
         # calc the combo angles
-        list_of_angles = angle_weight.dot(np.array(list_of_angles)).tolist()
+        angles = angle_weight.dot(np.array(angles)).tolist()
 
         # recursive step on half the angles fulfilling the above assumption
-        multiplex_1 = self._multiplex(target_gate, list_of_angles[0: (list_len // 2)], False)
+        multiplex_1 = self._get_multiplex_circuit(target_gate, angles[0: (list_len // 2)], False)
         circuit += multiplex_1
 
         # attach CNOT as follows, thereby flipping the LSB qubit
@@ -236,7 +233,7 @@ class StateVector():
         # implement extra efficiency from the paper of cancelling adjacent
         # CNOTs (by leaving out last CNOT and reversing (NOT inverting) the
         # second lower-level multiplex)
-        multiplex_2 = self._multiplex(target_gate, list_of_angles[(list_len // 2):], False)
+        multiplex_2 = self._get_multiplex_circuit(target_gate, angles[(list_len // 2):], False)
         if list_len > 1:
             for gate in reversed(multiplex_2._gates):
                 circuit.add_gate(gate)

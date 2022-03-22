@@ -16,7 +16,7 @@ import unittest
 import numpy as np
 
 from tangelo.linq import Simulator
-from tangelo.toolboxes.ansatz_generator.statevector import StateVector
+from tangelo.linq.helpers.circuits import StateVector
 from tangelo.helpers.utils import installed_backends
 
 
@@ -25,11 +25,11 @@ class StateVectorTest(unittest.TestCase):
     def test_init(self):
         """Test initialization of the ansatz class."""
         n_qubits = 3
-        v = np.ones(2**n_qubits) + 1j*np.ones(2**n_qubits)
+        v = np.full((2**n_qubits), 1.+1j)
         v /= np.linalg.norm(v)
 
         # Test raises ValueError for vector of length not equal to 2**(integer)
-        self.assertRaises(ValueError, StateVector, (v[0:7]))
+        self.assertRaises(ValueError, StateVector, v[0:7])
         # Test raises ValueError if order does is not "msq_first" or "lsq_first"
         self.assertRaises(ValueError, StateVector, v, "not_msq_first_or_lsq_first")
 
