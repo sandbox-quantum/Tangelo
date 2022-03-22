@@ -68,27 +68,19 @@ class ILC(Ansatz):
             one generator from each DIS group is selected. If int, then min(|DIS|, max_ilc_gens)
             generators are selected in order of decreasing |dEILC/dtau|. Default, None.
         n_trotter (int): Number of Trotterization steps for the ILC ansatz. Default, 1.
-        scfdata (tuple): tuple containing an instance of OpenFermion MolecularData and a
-            FermionOperator corresponding to the fermionic Hamiltonian.
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, ilc_op_list=None,
                  qmf_circuit=None, qmf_var_params=None, qubit_ham=None, ilc_tau_guess=1.e-2,
-                 deilc_dtau_thresh=1.e-3, max_ilc_gens=None, n_trotter=1, scfdata=None):
+                 deilc_dtau_thresh=1.e-3, max_ilc_gens=None, n_trotter=1):
 
-        if molecule:
-            self.molecule = molecule
-            self.n_spinorbitals = self.molecule.n_active_sos
-            if self.n_spinorbitals % 2 != 0:
-                raise ValueError("The total number of spin-orbitals should be even.")
+        self.molecule = molecule
+        self.n_spinorbitals = self.molecule.n_active_sos
+        if self.n_spinorbitals % 2 != 0:
+            raise ValueError("The total number of spin-orbitals should be even.")
 
-            self.spin = molecule.spin
-            self.fermi_ham = self.molecule.fermionic_hamiltonian
-        elif scfdata:
-            self.molecule = scfdata[0]
-            self.n_spinorbitals = 2 * self.molecule.n_orbitals
-            self.spin = self.molecule.multiplicity - 1
-            self.fermi_ham = scfdata[1]
+        self.spin = molecule.spin
+        self.fermi_ham = self.molecule.fermionic_hamiltonian
         self.n_electrons = self.molecule.n_electrons
         self.mapping = mapping
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)

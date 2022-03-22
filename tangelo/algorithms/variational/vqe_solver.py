@@ -114,7 +114,7 @@ class VQESolver:
         # The QCC & ILC ansatze require up_then_down=True when mapping="jw"
         if isinstance(self.ansatz, BuiltInAnsatze):
             if self.ansatz in (BuiltInAnsatze.QCC, BuiltInAnsatze.ILC) and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
-                warnings.warn("Efficient generator screening for QCC-based ansatze require spin-orbital ordering to be "
+                warnings.warn("Efficient generator screening for QCC-based ansatze requires spin-orbital ordering to be "
                               "all spin-up first followed by all spin-down for the JW mapping.", RuntimeWarning)
                 self.up_then_down = True
 

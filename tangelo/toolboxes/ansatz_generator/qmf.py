@@ -67,27 +67,18 @@ class QMF(Ansatz):
             <N> = n_electrons, <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z, where
             spin_z = spin // 2. Key, value pairs are case sensitive and mu > 0.
             Default, {"init_params": "hf_state"}.
-        scfdata (tuple): tuple containing an instance of OpenFermion MolecularData and a
-            FermionOperator corresponding to the fermionic Hamiltonian.
     """
 
-    def __init__(self, molecule=None, mapping="JW", up_then_down=False, init_qmf=None, scfdata=None):
+    def __init__(self, molecule=None, mapping="JW", up_then_down=False, init_qmf=None):
 
-        if molecule:
-            self.molecule = molecule
-            self.n_spinorbitals = self.molecule.n_active_sos
-            if self.n_spinorbitals % 2 != 0:
-                raise ValueError("The total number of spin-orbitals should be even.")
+        self.molecule = molecule
+        self.n_spinorbitals = self.molecule.n_active_sos
+        if self.n_spinorbitals % 2 != 0:
+            raise ValueError("The total number of spin-orbitals should be even.")
 
-            self.n_orbitals = self.n_spinorbitals // 2
-            self.spin = molecule.spin
-            self.fermi_ham = self.molecule.fermionic_hamiltonian
-        elif scfdata:
-            self.molecule = scfdata[0]
-            self.n_orbitals = self.molecule.n_orbitals
-            self.n_spinorbitals = 2 * self.n_orbitals
-            self.spin = self.molecule.multiplicity - 1
-            self.fermi_ham = scfdata[1]
+        self.n_orbitals = self.n_spinorbitals // 2
+        self.spin = molecule.spin
+        self.fermi_ham = self.molecule.fermionic_hamiltonian
         self.n_electrons = self.molecule.n_electrons
 
         self.mapping = mapping

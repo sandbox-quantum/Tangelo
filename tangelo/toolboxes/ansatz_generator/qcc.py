@@ -73,27 +73,19 @@ class QCC(Ansatz):
         max_qcc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_qcc_gens)
             generators are selected in order of decreasing |dEQCC/dtau|. Default, None.
-        scfdata (tuple): tuple containing an instance of OpenFermion MolecularData and a
-            FermionOperator corresponding to the fermionic Hamiltonian.
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, qcc_op_list=None,
                  qmf_circuit=None, qmf_var_params=None, qubit_ham=None, qcc_tau_guess=1.e-2,
-                 deqcc_dtau_thresh=1.e-3, max_qcc_gens=None, scfdata=None):
+                 deqcc_dtau_thresh=1.e-3, max_qcc_gens=None):
 
-        if molecule:
-            self.molecule = molecule
-            self.n_spinorbitals = self.molecule.n_active_sos
-            if self.n_spinorbitals % 2 != 0:
-                raise ValueError("The total number of spin-orbitals should be even.")
+        self.molecule = molecule
+        self.n_spinorbitals = self.molecule.n_active_sos
+        if self.n_spinorbitals % 2 != 0:
+            raise ValueError("The total number of spin-orbitals should be even.")
 
-            self.spin = molecule.spin
-            self.fermi_ham = self.molecule.fermionic_hamiltonian
-        elif scfdata:
-            self.molecule = scfdata[0]
-            self.n_spinorbitals = 2 * self.molecule.n_orbitals
-            self.spin = self.molecule.multiplicity - 1
-            self.fermi_ham = scfdata[1]
+        self.spin = molecule.spin
+        self.fermi_ham = self.molecule.fermionic_hamiltonian
         self.n_electrons = self.molecule.n_electrons
         self.mapping = mapping
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
