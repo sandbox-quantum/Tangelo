@@ -243,33 +243,11 @@ class ILC(Ansatz):
                        else self.ilc_circuit
 
     def _get_ilc_op(self):
-        """Returns the ILC operator by selecting one generator from n_var_params DIS groups.
-
-        Args:
-            rebuild_dis (bool): Rebuilds DIS and sets ilc_op_list to None.
-            rebuild_acs (bool): Rebuilds DIS & ACS and sets ilc_op_list to None.
-            dis (list of list): DIS of QCC generators.
-            acs (list of list): ACS of selected QCC generators from the DIS.
-            ilc_op_list (list of QubitOperator): ACS generator list for the ILC ansatz.
-            var_params (numpy array of float): ILC variational parameter set.
-            n_var_params (int): Number of ILC variational parameters.
-            qmf_var_params (numpy array of float): QMF variational parameter set.
-            n_spinorbitals (int): Number of spin-orbitals in the molecular system.
-            n_electrons (int): Number of electrons in the molecular system.
-            mapping (str) : One of the supported  mapping identifiers.
-            up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
-                followed by all spin-down.
-            spin (int): 2*S = n_alpha - n_beta.
-            qubit_ham (QubitOperator): A qubit Hamiltonian.
-            deilc_dtau_thresh (float): Threshold for |dEILC/dtau| so that a candidate group is added
-                to the DIS if |dEILC/dtau| >= deilc_dtau_thresh for a generator.
-            max_ilc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
-                one generator from each DIS group is selected. If int, min(|DIS|, max_ilc_gens)
-                generators are selected in order of decreasing |dEILC/dtau| values.
+        """Returns the ILC operators ordered according to the argument of
+            Eq. C1, Appendix C, Ref. 1.
 
         Returns:
-            list of QubitOperator: the list of ILC qubit operators ordered according to the
-                argument of Eq. C1, Appendix C, Ref. 1.
+            list of QubitOperator: the list of ILC qubit operators
         """
 
         # Rebuild DIS & ACS in case qubit_ham changed or they and qubit_op_list don't exist

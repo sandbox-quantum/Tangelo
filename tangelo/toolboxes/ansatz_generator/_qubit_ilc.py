@@ -51,32 +51,34 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
         gen_idxs, ilc_gens = [idx for idx in range(max_ilc_gens) if idx not in bad_sln_idxs], []
         n_gens = len(gen_idxs)
         ng2, ngnq = n_gens * (n_gens + 1) // 2, n_gens * n_qubits
-        # cons_mat --> A and z_vec --> z in Appendix A, Refs. 1 & 2.
-        cons_mat, z_vec = np.zeros((ng2, ngnq + 1)), np.zeros(ngnq)
+
+        # a_mat --> A and z_vec --> z in Appendix A, Refs. 1 & 2.
+        a_mat, z_vec, one_vec = np.zeros((ng2, ngnq)), np.zeros(ngnq), np.ones((ng2, 1))
         for idx, gen_idx in enumerate(gen_idxs):
-            gen = dis[gen_idx][-1]
-            for term, _ in gen.terms.items():
+            gen = dis[gen_idx][0]
+            for term in gen.terms:
                 for paulis in term:
                     p_idx, pauli = paulis
                     if 'X' in pauli or 'Y' in pauli:
                         z_vec[idx * n_qubits + p_idx] = 1.
-        # Form the rectangular matrix-vector product A * z; last column is the soln vec (Appendix A, Refs. 1 & 2).
+
+        # Form the rectangular matrix-vector product A * z (Appendix A, Refs. 1 & 2).
         r_idx = 0
         for i in range(n_gens):
-            cons_mat[r_idx, i * n_qubits:(i+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
-            cons_mat[r_idx, ngnq] = 1
+            a_mat[r_idx, i * n_qubits:(i+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
             r_idx += 1
             for j in range(i+1, n_gens):
-                cons_mat[r_idx, i * n_qubits:(i+1) * n_qubits] = z_vec[j * n_qubits:(j+1) * n_qubits]
-                cons_mat[r_idx, j * n_qubits:(j+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
-                cons_mat[r_idx, ngnq] = 1
+                a_mat[r_idx, i * n_qubits:(i+1) * n_qubits] = z_vec[j * n_qubits:(j+1) * n_qubits]
+                a_mat[r_idx, j * n_qubits:(j+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
                 r_idx += 1
+
         # Solve A * z = 1
-        z_sln = gauss_elim_over_gf2(cons_mat, ngnq)
+        z_sln = gauss_elim_over_gf2(a_mat, b_vec=one_vec)
+
         # Check solution: odd # of Y ops, at least two flip indices, and mutually anti-commutes
         good_sln = True
         for i in range(n_gens):
-            n_flip, n_y, gen_idx, gen_list = 0, 0, gen_idxs[i], []
+            n_flip, n_y, gen_idx, gen_tup = 0, 0, gen_idxs[i], tuple()
             for j in range(n_qubits):
                 gen, idx = None, i * n_qubits + j
                 if z_vec[idx] == 1.:
@@ -90,13 +92,13 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
                     if z_sln[idx] == 1.:
                         gen = (j, 'Z')
                 if gen:
-                    gen_list.append(gen)
+                    gen_tup += (gen, )
             if n_flip < 2 or n_y % 2 == 0:
                 if good_sln and gen_idx not in bad_sln_idxs:
                     bad_sln_idxs.append(gen_idx)
                     good_sln = False
             elif good_sln:
-                gen_i = QubitOperator(tuple(gen_list), 1.)
+                gen_i = QubitOperator(gen_tup, 1.)
                 for gen_j in ilc_gens:
                     if gen_i * gen_j != -1. * gen_j * gen_i:
                         if good_sln and gen_idx not in bad_sln_idxs:
@@ -107,46 +109,52 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
     return ilc_gens
 
 
-def gauss_elim_over_gf2(cons_mat, z_dim):
+def gauss_elim_over_gf2(a_mat, b_vec=None):
     """Driver function that performs Gaussian elimination to solve A * z = b
     over the binary field where b is a vector of ones. This routine was adapted
-    based on Ref. 3.
+    based on Ref. 3. All elements of a_mat and b_vec are assumed to be either
+    the integer 0 or 1.
 
     Args:
-        cons_mat (numpy array of int): the rectangular constraint matrix A (see Refs. 1 & 2).
-            The last column initially holds the vector b.
-        z_dim (int): the dimensionality of the constraint matrix A: number of ILC generators
-            times the number of qubits.
+        a_mat (numpy array of int): rectangular matrix of dimension n x m that
+            holds the action of A * z, where z is a column vector of dimension m x 1.
+            No default.
+        b_vec (numpy array of int): column vector of dimension n x 1 holding the
+            initial solution of A * z. Default, np.zeros(n).
 
     Returns:
         list of float: the solution vector
     """
 
     # Gaussian elimination over GF(2)
-    n_rows, n_cols = np.shape(cons_mat)
-    cons_mat, z_vals, z_sln, piv_idx = np.array(cons_mat), [], [-1] * z_dim, 0
+    n_rows, n_cols = np.shape(a_mat)
+    if not b_vec:
+        b_vec = np.zeros((n_rows, 1))
+    a_mat = np.append(a_mat, b_vec, 1)
+    n_cols += 1
+    z_vals, z_sln, piv_idx = [], [-1] * n_cols, 0
     for i in range(n_cols):
-        cons_mat_max = 0.
+        a_mat_max = 0.
         max_idx = piv_idx
         for j in range(piv_idx, n_rows):
-            if cons_mat[j, i] > cons_mat_max:
+            if a_mat[j, i] > a_mat_max:
                 max_idx = j
-                cons_mat_max = cons_mat[j, i]
-            elif j == n_rows-1 and cons_mat_max == 0.:
+                a_mat_max = a_mat[j, i]
+            elif j == n_rows-1 and a_mat_max == 0.:
                 piv_idx = max_idx
-                cons_mat_max = -1.
-        if cons_mat_max > 0.:
+                a_mat_max = -1.
+        if a_mat_max > 0.:
             if max_idx > piv_idx:
-                cons_mat[[piv_idx, max_idx]] = cons_mat[[max_idx, piv_idx]]
+                a_mat[[piv_idx, max_idx]] = a_mat[[max_idx, piv_idx]]
             for j in range(piv_idx + 1, n_rows):
-                if cons_mat[j, i] == 1.:
-                    cons_mat[j, i:n_cols] = np.fmod(cons_mat[j, i:n_cols] + cons_mat[piv_idx, i:n_cols], 2)
+                if a_mat[j, i] == 1.:
+                    a_mat[j, i:n_cols] = np.fmod(a_mat[j, i:n_cols] + a_mat[piv_idx, i:n_cols], 2)
             piv_idx += 1
-    b_vec = cons_mat[0:n_rows, n_cols-1].tolist()
+    b_vec = a_mat[0:n_rows, n_cols-1].tolist()
     for i in range(n_rows - 1, -1, -1):
         col_idx, z_free = -1., []
         for j in range(n_cols-1):
-            if cons_mat[i, j] == 1.:
+            if a_mat[i, j] == 1.:
                 if col_idx == -1:
                     col_idx = j
                 else:
@@ -155,10 +163,12 @@ def gauss_elim_over_gf2(cons_mat, z_dim):
             z_vals.append([col_idx, z_free, b_vec[i]])
     for z_val in (z_vals):
         b_val = z_val[2]
+        # Here we have to make a choice for the free solns as either 0 or 1;
+        # 0 leads to an I op, while 1 leads to a Z op -- seems 0 is perhaps the better choice.
         for z_free in (z_val[1]):
             if z_sln[z_free] == -1:
-                z_sln[z_free] = 1.
-            b_val = (b_val + z_sln[z_free]) % 2
+                z_sln[z_free] = 0.
+            b_val = np.fmod(b_val + z_sln[z_free], 2)
         z_sln[z_val[0]] = b_val
     return z_sln
 

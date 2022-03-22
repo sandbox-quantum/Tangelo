@@ -257,27 +257,6 @@ class QCC(Ansatz):
         The exponentiated terms of the QCC operator, U = PROD_k exp(-0.5j * tau_k * P_k),
         are used to build a QCC circuit.
 
-        Args:
-            rebuild_dis (bool): Rebuilds dis and sets qcc_op_list to None. This is critical
-                to do when qubit_ham or qmf_var_params have changed.
-            dis (list of list): DIS of QCC generators.
-            qcc_op_list (list of QubitOperator): Generator list for the QCC ansatz.
-            var_params (numpy array of float): QCC variational parameter set.
-            n_var_params (int): Number of QCC variational parameters.
-            qmf_var_params (numpy array of float): QMF variational parameter set.
-            n_spinorbitals (int): Number of spin-orbitals in the molecular system.
-            n_electrons (int): Number of electrons in the molecular system.
-            mapping (str) : One of the supported qubit mapping identifiers.
-            up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
-                followed by all spin-down.
-            spin (int): 2*S = n_alpha - n_beta.
-            qubit_ham (QubitOperator): A qubit Hamiltonian.
-            deqcc_dtau_thresh (float): Threshold for |dEQCC/dtau| so that a candidate group is added
-                to the DIS if |dEQCC/dtau| >= deqcc_dtau_thresh for a generator.
-            max_qcc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
-                one generator from each DIS group is selected. If int, min(|DIS|, max_qcc_gens)
-                generators are selected in order of decreasing |dEQCC/dtau| values.
-
         Returns:
             QubitOperator: QCC ansatz qubit operator.
         """

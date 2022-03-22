@@ -115,8 +115,7 @@ class VQESolverTest(unittest.TestCase):
         parameters, exact simulator.
         """
 
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.QMF, "qubit_mapping": "jw",
-                       "verbose": True}
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.QMF, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -127,8 +126,7 @@ class VQESolverTest(unittest.TestCase):
         """Run VQE on H2 molecule, with QCC ansatz, JW qubit mapping, initial
         parameters, exact simulator.
         """
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.QCC, "qubit_mapping": "jw",
-                       "verbose": True}
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.QCC, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -139,8 +137,7 @@ class VQESolverTest(unittest.TestCase):
         """Run VQE on H2 molecule, with ILC ansatz, JW qubit mapping, initial
         parameters, exact simulator.
         """
-        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.ILC, "qubit_mapping": "jw",
-                       "verbose": True}
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.ILC, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -204,8 +201,7 @@ class VQESolverTest(unittest.TestCase):
         parameters, exact simulator.
         """
 
-        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.QMF, "qubit_mapping": "jw",
-                       "verbose": True}
+        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.QMF, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -216,8 +212,7 @@ class VQESolverTest(unittest.TestCase):
         """Run VQE on H4 molecule, with QCC ansatz, JW qubit mapping, initial
         parameters, exact simulator.
         """
-        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.QCC, "qubit_mapping": "jw",
-                       "verbose": True}
+        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.QCC, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -228,8 +223,7 @@ class VQESolverTest(unittest.TestCase):
         """Run VQE on H4 molecule, with ILC ansatz, JW qubit mapping, initial
         parameters, exact simulator.
         """
-        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.ILC, "qubit_mapping": "jw",
-                       "verbose": True}
+        vqe_options = {"molecule": mol_H4_sto3g, "ansatz": BuiltInAnsatze.ILC, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -251,8 +245,7 @@ class VQESolverTest(unittest.TestCase):
         parameters, exact simulator.
         """
 
-        vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.QMF, "qubit_mapping": "jw",
-                       "verbose": True}
+        vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.QMF, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -264,8 +257,7 @@ class VQESolverTest(unittest.TestCase):
         parameters, exact simulator.
         """
 
-        vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.QCC, "qubit_mapping": "jw",
-                       "verbose": True}
+        vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.QCC, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
@@ -277,8 +269,7 @@ class VQESolverTest(unittest.TestCase):
         parameters, exact simulator.
         """
 
-        vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.ILC, "qubit_mapping": "jw",
-                       "verbose": True}
+        vqe_options = {"molecule": mol_H4_cation_sto3g, "ansatz": BuiltInAnsatze.ILC, "qubit_mapping": "jw"}
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
