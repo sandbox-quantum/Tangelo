@@ -33,14 +33,15 @@ def bogoliubov_transform(umat, add_phase=True):
     """Generate the gates that implement the orbital rotation defined by a given unitary.
 
     The given matrix is decomposed into umat=DU where U is unitary D is a diagonal matrix.
-    If umat is unitary, the absolute values of D will be one and can be incorporated using add_phase=True.
-    If umat is non-unitary, the magnitude of each diagonal value of D is ignored with only the phase
-    incorporated.
+    If umat is unitary, the values of D will be exp(1j*theta) where theta is real
+    and can be incorporated using add_phase=True.
+    If umat is non-unitary, the values of D will be m*exp(1j*theta) where m and theta are real.
+    m is ignored with only the phase (theta) incorporated in the circuit if add_phase=True.
 
     This implementation uses the circuit outlined in https://arxiv.org/abs/1711.05395
 
     Args:
-        umat (array): The unitary matrix that descibes the basis rotation
+        umat (array): The square unitary matrix that descibes the basis rotation
         add_phase (bool): If True, adds PHASE gates according to givens decomposition values D
 
     Returns:
@@ -53,11 +54,10 @@ def bogoliubov_transform(umat, add_phase=True):
             gates += [Gate('PHASE', i, parameter=-np.arctan2(np.imag(phase), np.real(phase)))]
     for ele in reversed(gs[0]):
         for el1 in reversed(ele):
-            i = el1[0]
-            j = el1[1]
+            i, j = el1[0:2]
             gates += [Gate('CNOT', i, j), Gate('CRY', j, i, parameter=2*el1[2]), Gate('CNOT', i, j), Gate('PHASE', j, parameter=-el1[3])]
 
-    return list(reversed(gates))
+    return gates[::-1]
 
 
 class OrbitalRotations():
@@ -78,7 +78,7 @@ class OrbitalRotations():
         self.constants = list()
         self.two_body_coefficients = list()
 
-    def add_elements(self, rot_mat, constant=0, one_body_coefs=None, two_body_coefs=None):
+    def add_elements(self, rot_mat, constant=0., one_body_coefs=None, two_body_coefs=None):
         """Add elements to the class for each term to diagonalize a portion of the Hamiltonian
 
         Args:
@@ -119,7 +119,7 @@ def get_orbital_rotations(molecule: SecondQuantizedMolecule):
         molecule (SecondQuantizedMolecule): The molecule for which the diagonal representation is requested
 
     Returns:
-        OrbitalRotations: The list of transformation gates and operators to measure
+        OrbitalRotations: The class that contains the list of transformation gates and operators to measure
     """
 
     core_constant, one_body, two_body = molecule.get_active_space_integrals()

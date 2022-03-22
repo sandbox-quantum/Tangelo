@@ -18,8 +18,7 @@ from openfermion import get_sparse_operator, linalg
 
 from tangelo.linq import Simulator, Circuit
 from tangelo.molecule_library import mol_H4_sto3g
-from tangelo.toolboxes.ansatz_generator.diagonal_coulomb import get_orbital_rotations
-from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.toolboxes.circuits import get_orbital_rotations
 
 # Initiate simulator using cirq as it has the same ordering as openfermion and we are using an exact eigenvector to test
 sim = Simulator(target="cirq")
@@ -39,7 +38,7 @@ class diagonal_coulomb_Test(unittest.TestCase):
 
         # Run each set of gates that diagonalizes the set of terms and calculate energy
         energy = 0
-        for i in range(len(orb_rots.constants)):
+        for i in range(orb_rots.n_rotations):
             # Get appropriate qubit operator to measure after each rotation.
             qu_op = orb_rots.qubit_operators[i]
             # Rotate state and measure all terms using one set of measurements.
