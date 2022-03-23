@@ -25,12 +25,11 @@ import numpy as np
 from tangelo.helpers.utils import HiddenPrints
 from tangelo.linq import Simulator, Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
-from tangelo.toolboxes.operators import count_qubits, FermionOperator, qubitop_to_qubitham
+from tangelo.toolboxes.operators import FermionOperator, qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
-from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, QCC, VSQS, VariationalCircuitAnsatz
-from tangelo.toolboxes.ansatz_generator.uccgd import UCCGD
+from tangelo.toolboxes.ansatz_generator import UCCSD, HEA, UpCCGSD, VariationalCircuitAnsatz, UCCGD
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from tangelo.algorithms.variational import BuiltInAnsatze

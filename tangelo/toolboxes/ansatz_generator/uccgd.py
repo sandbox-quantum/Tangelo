@@ -74,7 +74,7 @@ class UCCGD(Ansatz):
 
         # Supported reference state initialization
         # TODO: support for others
-        self.supported_reference_state = {"HF", "None"}
+        self.supported_reference_state = {"HF", "zero"}
         # Supported var param initialization
         self.var_params_default = "random"
         self.supported_initial_var_params = {"ones", "random"}

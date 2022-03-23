@@ -86,7 +86,7 @@ class UCCSD(Ansatz):
 
         # Supported reference state initialization
         # TODO: support for others
-        self.supported_reference_state = {"HF", "None"}
+        self.supported_reference_state = {"HF", "zero"}
         # Supported var param initialization
         self.supported_initial_var_params = {"ones", "random", "mp2"} if self.spin == 0 else {"ones", "random"}
 

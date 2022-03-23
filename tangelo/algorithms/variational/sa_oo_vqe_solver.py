@@ -55,10 +55,11 @@ class SA_OO_Solver:
                            "optimizer": self.LBFGSB_optimizer,
                            "backend_options": default_backend_options,
                            "verbose": False,
-                           "ansatz": BuiltInAnsatze,
+                           "ansatz": BuiltInAnsatze.UCCGD,
                            "ansatz_options": dict(),
                            "weights": None,
-                           "penalty_terms": None}
+                           "penalty_terms": None,
+                           "n_oo_per_iter": 1}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -76,11 +77,15 @@ class SA_OO_Solver:
             raise ValueError(f"A molecule object must be provided when instantiating {self.__class__.__name__}.")
 
         if self.ref_states is None:
-            raise ValueError(f"spins are required to determine the state")
+            raise ValueError(f"ref_states are required to perform the calculation")
+
+        self.n_ref_states = len(self.ref_states)
 
         self.converged = False
         self.iteration = 0
         self.energies = list()
+        # vqe_energies could include a penalty term contribution
+        self.vqe_energies = list()
 
         self.optimal_energy = None
         self.optimal_var_params = None
@@ -113,14 +118,18 @@ class SA_OO_Solver:
         """
         # run initial sa_vqe
         for iter in range(self.max_cycles):
-            energy_vqe = self.sa_vqe_solver.simulate()
-            self.energies.append(self.energy_from_rdms())
-            print(energy_vqe, self.energies[-1])
-            if iter > 0 and abs(self.energies[-1]-self.energies[-2]) < self.tol:
+            vqe_energy = self.sa_vqe_solver.simulate()
+            self.vqe_energies.append(vqe_energy)
+            energy_new = self.energy_from_rdms()
+            print(energy_new)
+            if iter > 0 and abs(energy_new-self.energies[-1]) < self.tol:
+                self.energies.append(energy_new)
                 break
-            u_mat = self.generate_oo_unitary()
-            self.sa_vqe_solver.molecule.mean_field.mo_coeff = self.sa_vqe_solver.molecule.mean_field.mo_coeff @ u_mat
+            for _ in range(self.n_oo_per_iter):
+                u_mat = self.generate_oo_unitary()
+                self.sa_vqe_solver.molecule.mean_field.mo_coeff = self.sa_vqe_solver.molecule.mean_field.mo_coeff @ u_mat
             print(self.energy_from_rdms())
+            self.energies.append(self.energy_from_rdms())
             self.sa_vqe_solver.build()
             # self.vqe_solver.initial_var_params = copy(self.vqe_solver.optimal_var_params)
 
@@ -175,10 +184,10 @@ class SA_OO_Solver:
         n_active_mos = self.molecule.n_active_mos
         one_rdm = np.zeros((n_active_mos, n_active_mos))
         two_rdm = np.zeros((n_active_mos, n_active_mos, n_active_mos, n_active_mos))
-        num_refs = len(self.ref_states)
-        for i in range(num_refs):
+        for i in range(self.n_ref_states):
             one_rdm += self.sa_vqe_solver.rdms[i][0].real*self.sa_vqe_solver.weights[i]
             two_rdm += self.sa_vqe_solver.rdms[i][1].real*self.sa_vqe_solver.weights[i]/2
+
         for ti, t in enumerate(active_indices):
             for ui, u in enumerate(active_indices):
                 active_energy += one_rdm[ti, ui]*(foneint[t, u] + v_mat[t, u])
@@ -202,8 +211,8 @@ class SA_OO_Solver:
 
         one_rdm = np.zeros((n_active_mos, n_active_mos))
         two_rdm = np.zeros((n_active_mos, n_active_mos, n_active_mos, n_active_mos))
-        num_refs = len(self.ref_states)
-        for i in range(num_refs):
+
+        for i in range(self.n_ref_states):
             one_rdm += self.sa_vqe_solver.rdms[i][0].real*self.sa_vqe_solver.weights[i]
             two_rdm += self.sa_vqe_solver.rdms[i][1].real*self.sa_vqe_solver.weights[i]/2
 
@@ -233,6 +242,7 @@ class SA_OO_Solver:
                             f_mat[t, q] += 2*two_rdm[ti, ui, vi, xi]*ftwoint[q, u, v, x]
 
         d2ed2x = np.zeros((n_mos, n_mos, n_mos, n_mos))
+        delta = np.eye(n_mos)
         for i in occupied_indices:
             for ti, t in enumerate(active_indices):
                 for j in occupied_indices:
@@ -241,18 +251,18 @@ class SA_OO_Solver:
                             for xi, x in enumerate(active_indices):
                                 d2ed2x[i, t, j, u] += 2*(two_rdm[ui, ti, vi, xi]*ftwoint[v, x, i, j]+(two_rdm[ui, xi, vi, ti] +
                                                          two_rdm[ui, xi, ti, vi])*ftwoint[v, i, x, j])
-                            d2ed2x[i, t, j, u] += ((int(t == v)-one_rdm[ti, vi])*(4*ftwoint[v, i, u, j]-ftwoint[u, i, v, j]-ftwoint[u, v, i, j]) +
-                                                   (int(u == v)-one_rdm[ui, vi])*(4*ftwoint[v, j, t, i]-ftwoint[t, j, v, i]-ftwoint[t, v, i, j]))
-                        d2ed2x[i, t, j, u] += (one_rdm[ti, ui]*fi_mat[i, j]+int(i == j)*(2*fi_mat[t, u]+2*fa_mat[t, u] -
-                                               f_mat[t, u])-2*int(t == u)*(fi_mat[i, j]+fa_mat[i, j]))
+                            d2ed2x[i, t, j, u] += ((delta[t, v]-one_rdm[ti, vi])*(4*ftwoint[v, i, u, j]-ftwoint[u, i, v, j]-ftwoint[u, v, i, j]) +
+                                                   (delta[u, v]-one_rdm[ui, vi])*(4*ftwoint[v, j, t, i]-ftwoint[t, j, v, i]-ftwoint[t, v, i, j]))
+                        d2ed2x[i, t, j, u] += (one_rdm[ti, ui]*fi_mat[i, j]+delta[i, j]*(2*fi_mat[t, u]+2*fa_mat[t, u] -
+                                               f_mat[t, u])-2*delta[t, u]*(fi_mat[i, j]+fa_mat[i, j]))
 
         for i in occupied_indices:
             for ti, t in enumerate(active_indices):
                 for j in occupied_indices:
                     for a in unoccupied_indices:
                         for vi, v in enumerate(active_indices):
-                            d2ed2x[i, t, j, a] += (2*int(t == v)-one_rdm[ti, vi])*(4*ftwoint[a, j, v, i]-ftwoint[a, v, i, j]-ftwoint[a, i, v, j])
-                        d2ed2x[i, t, j, a] += 2*int(i == j)*(fi_mat[a, t]+fa_mat[a, t])-1/2*int(i == j)*f_mat[t, a]
+                            d2ed2x[i, t, j, a] += (2*delta[t, v]-one_rdm[ti, vi])*(4*ftwoint[a, j, v, i]-ftwoint[a, v, i, j]-ftwoint[a, i, v, j])
+                        d2ed2x[i, t, j, a] += 2*delta[i, j]*(fi_mat[a, t]+fa_mat[a, t])-1/2*delta[i, j]*f_mat[t, a]
 
         for i in occupied_indices:
             for ti, t in enumerate(active_indices):
@@ -263,14 +273,14 @@ class SA_OO_Solver:
                                 d2ed2x[i, t, u, a] += (-2)*(two_rdm[ti, ui, vi, xi]*ftwoint[a, i, v, x]+(two_rdm[ti, vi, ui, xi] +
                                                             two_rdm[ti, vi, xi, ui])*ftwoint[a, x, v, i])
                             d2ed2x[i, t, u, a] += one_rdm[ui, vi]*(4*ftwoint[a, v, t, i]-ftwoint[a, i, t, v]-ftwoint[a, t, v, i])
-                        d2ed2x[i, t, u, a] += (-1)*one_rdm[ti, ui]*fi_mat[a, i]+int(t == u)*(fi_mat[a, i]+fa_mat[a, i])
+                        d2ed2x[i, t, u, a] += (-1)*one_rdm[ti, ui]*fi_mat[a, i]+delta[t, u]*(fi_mat[a, i]+fa_mat[a, i])
 
         for i in occupied_indices:
             for a in unoccupied_indices:
                 for j in occupied_indices:
                     for b in unoccupied_indices:
                         d2ed2x[i, a, j, b] += (2*(4*ftwoint[a, i, b, j]-ftwoint[a, b, i, j]-ftwoint[a, j, b, i]) +
-                                               2*int(i == j)*(fi_mat[a, b]+fa_mat[a, b]) - 2*int(a == b)*(fi_mat[i, j]+fa_mat[i, j]))
+                                               2*delta[i, j]*(fi_mat[a, b]+fa_mat[a, b]) - 2*delta[a, b]*(fi_mat[i, j]+fa_mat[i, j]))
 
         for i in occupied_indices:
             for a in unoccupied_indices:
@@ -278,7 +288,7 @@ class SA_OO_Solver:
                     for b in unoccupied_indices:
                         for vi, v in enumerate(active_indices):
                             d2ed2x[i, a, t, b] += one_rdm[ti, vi]*(4*ftwoint[a, i, b, v]-ftwoint[a, v, b, i]-ftwoint[a, b, v, i])
-                        d2ed2x[i, a, t, b] += (-1)*int(a == b)*(fi_mat[t, i]+fa_mat[t, i]) - 1/2*int(a == b)*f_mat[t, i]
+                        d2ed2x[i, a, t, b] += (-1)*delta[a, b]*(fi_mat[t, i]+fa_mat[t, i]) - 1/2*delta[a, b]*f_mat[t, i]
 
         for ti, t in enumerate(active_indices):
             for a in unoccupied_indices:
@@ -289,34 +299,26 @@ class SA_OO_Solver:
                                 d2ed2x[t, a, u, b] += 2*(two_rdm[ti, ui, vi, xi]*ftwoint[a, b, v, x]+(two_rdm[ti, xi, vi, ui] +
                                                          two_rdm[ti, xi, ui, vi])*ftwoint[a, x, b, v])
                                 for yi, y in enumerate(active_indices):
-                                    d2ed2x[t, a, u, b] -= (int(a == b)*(two_rdm[ti, vi, xi, yi]*ftwoint[u, v, x, y] +
+                                    d2ed2x[t, a, u, b] -= (delta[a, b]*(two_rdm[ti, vi, xi, yi]*ftwoint[u, v, x, y] +
                                                            two_rdm[ui, vi, xi, yi]*ftwoint[t, v, x, y]))
-                            d2ed2x[t, a, u, b] += (-1/2)*int(a == b)*(one_rdm[ti, vi]*fi_mat[u, v]+one_rdm[ui, vi]*fi_mat[t, v])
+                            d2ed2x[t, a, u, b] += (-1/2)*delta[a, b]*(one_rdm[ti, vi]*fi_mat[u, v]+one_rdm[ui, vi]*fi_mat[t, v])
                         d2ed2x[t, a, u, b] += one_rdm[ti, ui]*fi_mat[a, b]
-                        # d2ed2x[t, a, u, b] += one_rdm[ti, ui]*fi_mat[a, b] - int(a == b)*f_mat[t, u]
 
         ivals = occupied_indices + active_indices
         jvals = active_indices + unoccupied_indices
-        n_params = 0
+        ij_list = list()
         for i in ivals:
             for j in jvals:
                 if (j > i and not (i in active_indices and j in active_indices)):
-                    n_params += 1
+                    ij_list.append([i, j])
+
+        n_params = len(ij_list)
         hess = np.zeros((n_params, n_params))
         dedx = np.zeros(n_params)
-        p1 = -1
-        for i in ivals:
-            for j in jvals:
-                if (j > i and not (i in active_indices and j in active_indices)):
-                    p1 += 1
-                    dedx[p1] = 2*(f_mat[i, j]-f_mat[j, i])
-                    p2 = -1
-                    for k in ivals:
-                        for ll in jvals:
-                            if (ll > k and not (k in active_indices and ll in active_indices)):
-                                p2 += 1
-                                hess[p1, p2] = d2ed2x[i, j, k, ll]*2
-                                hess[p2, p1] = d2ed2x[i, j, k, ll]*2
+        for p1, (i, j) in enumerate(ij_list):
+            dedx[p1] = 2*(f_mat[i, j]-f_mat[j, i])
+            for p2, (k, ll) in enumerate(ij_list):
+                hess[p1, p2] = d2ed2x[i, j, k, ll]*2
 
         E, _ = np.linalg.eigh(hess)
         fac = abs(E[0])*2 if E[0] < 0 else 0
