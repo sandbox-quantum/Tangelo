@@ -67,7 +67,7 @@ class ILC(Ansatz):
         max_ilc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_ilc_gens)
             generators are selected in order of decreasing |dEILC/dtau|. Default, None.
-        n_trotter (int): Number of Trotterization steps for the ILC ansatz. Default, 1.
+        n_trotter (int): Number of Trotterization steps for the ILC ansatz circuit. Default, 1.
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, ilc_op_list=None,
