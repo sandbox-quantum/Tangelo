@@ -39,7 +39,7 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
 
     Args:
         dis (list of list): DIS of QCC generators.
-        max_ilc_gens (int): Maximum number of generators allowed in the ansatz.
+        max_ilc_gens (int): maximum number of ILC generators allowed in the ansatz.
         n_qubits (int): number of qubits
 
     Returns:
@@ -63,16 +63,16 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
                         z_vec[idx * n_qubits + p_idx] = 1.
 
         # Form the rectangular matrix-vector product A * z (Appendix A, Refs. 1 & 2).
-        r_idx = 0
+        rowdx = 0
         for i in range(n_gens):
-            a_mat[r_idx, i * n_qubits:(i+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
-            r_idx += 1
-            for j in range(i+1, n_gens):
-                a_mat[r_idx, i * n_qubits:(i+1) * n_qubits] = z_vec[j * n_qubits:(j+1) * n_qubits]
-                a_mat[r_idx, j * n_qubits:(j+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
-                r_idx += 1
+            a_mat[rowdx, i * n_qubits:(i+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
+            rowdx += 1
+            for j in range(i + 1, n_gens):
+                a_mat[rowdx, i * n_qubits:(i+1) * n_qubits] = z_vec[j * n_qubits:(j+1) * n_qubits]
+                a_mat[rowdx, j * n_qubits:(j+1) * n_qubits] = z_vec[i * n_qubits:(i+1) * n_qubits]
+                rowdx += 1
 
-        # Solve A * z = 1
+        # Solve A * z = b --> here b = 1
         z_sln = gauss_elim_over_gf2(a_mat, b_vec=one_vec)
 
         # Check solution: odd # of Y ops, at least two flip indices, and mutually anti-commutes
@@ -97,45 +97,42 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
                 if good_sln and gen_idx not in bad_sln_idxs:
                     bad_sln_idxs.append(gen_idx)
                     good_sln = False
-            elif good_sln:
-                gen_i = QubitOperator(gen_tup, 1.)
-                for gen_j in ilc_gens:
-                    if gen_i * gen_j != -1. * gen_j * gen_i:
-                        if good_sln and gen_idx not in bad_sln_idxs:
-                            bad_sln_idxs.append(gen_idx)
-                            good_sln = False
-                if good_sln:
-                    ilc_gens.append(gen_i)
+            gen_i = QubitOperator(gen_tup, 1.)
+            for gen_j in ilc_gens:
+                if gen_i * gen_j != -1. * gen_j * gen_i:
+                    if good_sln and gen_idx not in bad_sln_idxs:
+                        bad_sln_idxs.append(gen_idx)
+                        good_sln = False
+            if good_sln:
+                ilc_gens.append(gen_i)
     return ilc_gens
 
 
 def gauss_elim_over_gf2(a_mat, b_vec=None):
     """Driver function that performs Gaussian elimination to solve A * z = b
     over the binary field where b is a vector of ones. This routine was adapted
-    based on Ref. 3. All elements of a_mat and b_vec are assumed to be either
-    the integer 0 or 1.
+    based on Ref. 3. All elements of a_mat and b_vec are assumed to be the
+    integers 0 or 1.
 
     Args:
         a_mat (numpy array of int): rectangular matrix of dimension n x m that
             holds the action of A * z, where z is a column vector of dimension m x 1.
             No default.
         b_vec (numpy array of int): column vector of dimension n x 1 holding the
-            initial solution of A * z. Default, np.zeros(n).
+            initial solution of A * z. Default, np.zeros((n, 1)).
 
     Returns:
-        list of float: the solution vector
+        numpy array of float: the solution vector of dimension (n, )
     """
 
-    # Gaussian elimination over GF(2)
     n_rows, n_cols = np.shape(a_mat)
     if not isinstance(b_vec, np.ndarray):
         b_vec = np.zeros((n_rows, 1))
     a_mat = np.append(a_mat, b_vec, axis=1)
-    n_cols += 1
     z_vals, z_sln, piv_idx = [], [-1] * n_cols, 0
+    n_cols += 1
     for i in range(n_cols):
-        a_mat_max = 0.
-        max_idx = piv_idx
+        a_mat_max, max_idx = 0., piv_idx
         for j in range(piv_idx, n_rows):
             if a_mat[j, i] > a_mat_max:
                 max_idx = j
@@ -163,14 +160,14 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
             z_vals.append([col_idx, z_free, b_vec[i]])
     for z_val in (z_vals):
         b_val = z_val[2]
-        # Here we have to make a choice for the free solns as either 0 or 1;
-        # 0 leads to an I op, while 1 leads to a Z op -- seems 0 is perhaps the better choice.
+        # Make a choice for the free solns as either 0 or 1;
+        # 0 leads to an I op, while 1 leads to a Z op -- 0 seems to be the slightly better choice.
         for z_free in (z_val[1]):
             if z_sln[z_free] == -1:
                 z_sln[z_free] = 0.
             b_val = np.fmod(b_val + z_sln[z_free], 2)
         z_sln[z_val[0]] = b_val
-    return z_sln
+    return np.array(z_sln)
 
 
 def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
@@ -186,7 +183,7 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
         list of float: the ILC parameters corresponding to the ACS of ILC generators
     """
 
-    # Temporarily add the identity operator to the ACS
+    # Add the identity operator to the local copy of the ACS
     ilc_gens.insert(0, QubitOperator.identity())
     n_var_params = len(ilc_gens)
     qubit_ham_mat = np.zeros((n_var_params, n_var_params), dtype=complex)
@@ -196,13 +193,17 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
     for i in range(n_var_params):
         # H T_i|QMF> = H |psi_i>
         h_psi_i = qubit_ham * ilc_gens[i]
+
         # <QMF|T_i H T_i|QMF> = <psi_i| H | psi_i> = H_ii
         qubit_ham_mat[i, i] = get_op_expval(ilc_gens[i] * h_psi_i, qmf_var_params)
+
         # <QMF|T_i T_i|QMF> = <psi_i|psi_i> = 1
         qubit_overlap_mat[i, i] = 1. + 0j
+
         for j in range(i + 1, n_var_params):
             # <QMF|T_j H T_i|QMF> = <psi_j| H | psi_i> = H_ji
             qubit_ham_mat[j, i] = get_op_expval(ilc_gens[j] * h_psi_i, qmf_var_params)
+
             # <QMF|T_j T_i|QMF> = <psi_j|psi_i> --> exactly zero only for pure QMF states
             qubit_overlap_mat[j, i] = get_op_expval(ilc_gens[j] * ilc_gens[i], qmf_var_params)
             if i == 0:
@@ -225,5 +226,4 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
         denom_sum += pow(gs_coefs[i].real, 2.) + pow(gs_coefs[i].imag, 2.)
         beta = np.arcsin(gs_coefs[i] / np.sqrt(denom_sum))
         ilc_var_params.append(beta.real)
-    del ilc_gens[0]
     return ilc_var_params

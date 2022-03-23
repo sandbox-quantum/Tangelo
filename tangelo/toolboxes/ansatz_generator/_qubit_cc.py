@@ -117,18 +117,18 @@ def get_idxs_deriv(qham_term, *qham_qmf_data):
     """
 
     coef, pure_params = qham_qmf_data
-    idxs, gen_list, idxs_deriv = "", [], None
+    idxs, gen_tup, idxs_deriv = "", tuple(), None
     for pauli_factor in qham_term:
         # The indices of X and Y operators are flip indices
         idx, pauli_op = pauli_factor
         if "X" in pauli_op or "Y" in pauli_op:
             gen = (idx, "Y") if idxs == "" else (idx, "X")
             idxs = idxs + f" {idx}" if idxs != "" else f"{idx}"
-            gen_list.append(gen)
+            gen_tup += (gen, )
     # Generators must have at least two flip indices
-    if len(gen_list) > 1:
+    if len(gen_tup) > 1:
         qham_gen_comm = QubitOperator(qham_term, -1j * coef)
-        qham_gen_comm *= QubitOperator(tuple(gen_list), 1.)
+        qham_gen_comm *= QubitOperator(gen_tup, 1.)
         deriv = get_op_expval(qham_gen_comm, pure_params).real
         idxs_deriv = (idxs, deriv)
     return idxs_deriv
