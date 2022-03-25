@@ -18,7 +18,6 @@ idea is described in H.Y. Huang, R. Kueng, and J. Preskill, Nature Physics 16,
 """
 
 import abc
-import warnings
 import numpy as np
 
 from tangelo.linq.circuit import Circuit
@@ -121,7 +120,7 @@ class ClassicalShadow(abc.ABC):
         if self.bitstrings:
             raise NotImplementedError("Appending new simulation results to an already defined self.bistrings is not implemented yet.")
 
-        self.bitstrings = [None] * len(self.unitaries)
+        self.bitstrings = np.chararray(len(self.unitaries), itemsize=self.n_qubits)
 
         # Different behavior if circuit or initial_statevector is defined.
         circuit_template = self.circuit if self.circuit is not None else Circuit(n_qubits=self.n_qubits)
@@ -129,16 +128,22 @@ class ClassicalShadow(abc.ABC):
         for basis_circuit, pauli_word, n_repeat in self.get_basis_circuits(only_unique=True):
             circuit = circuit_template + basis_circuit if (basis_circuit.size > 0) else circuit_template
 
-            # Frequencies returned by simulate are of the form {'0100...01': 1.0}.
-            # We add the bitstring to the shadow.
+            backend.n_shots = n_repeat
             freqs, _ = backend.simulate(circuit, initial_statevector=initial_statevector)
 
-            indexes = np.where(np.array(self.unitaries) == pauli_word)[0]
-            # Guard rail to ensure that all the unitaries are filled out.
-            assert len(indexes) == n_repeat
+            new_bitstrings = list()
+            for k, v in freqs.items():
+                new_bitstrings += round(v*n_repeat)*[k]
+            assert len(new_bitstrings) == n_repeat
+            np.random.shuffle(new_bitstrings)
 
-            for i in indexes:
-                self.bitstrings[i] = np.random.choice(list(freqs.keys()), p=list(freqs.values()))
+            indices = np.where(np.array(self.unitaries) == pauli_word)[0]
+            # Guard rail to ensure that all the unitaries are filled out.
+            assert len(indices) == n_repeat
+
+            self.bitstrings[indices] = new_bitstrings
+
+        self.bitstrings = list(self.bitstrings.astype(str))
 
     @abc.abstractmethod
     def build(self):
