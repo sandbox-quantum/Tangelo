@@ -130,7 +130,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
 
         Returns:
             list of Circuit or tuple: All basis circuits or a tuple of unique
-                circuits (first) with the numbers of occurence (last).
+                circuits, string representation and numbers of occurence.
         """
 
         if not self.unitaries:
