@@ -21,104 +21,73 @@ from copy import copy
 
 import numpy as np
 from scipy.linalg import expm
-from scipy.optimize import minimize
 
 from tangelo.algorithms.variational import SA_VQESolver, BuiltInAnsatze
 
 
-class SA_OO_Solver:
-    """State Averaged Orbital Optimized Solver class. This is an iterative algorithm that uses VQE. Methods
-    are defined to rank operators with respect to their influence on the total
-    energy.
+def docstring_inherit(parent):
+    def inherit(obj):
+        spaces = "    "
+        if not str(obj.__doc__).__contains__("Attributes:"):
+            obj.__doc__ += "\n" + spaces + "Attributes:\n"
+        obj.__doc__ = str(obj.__doc__).rstrip() + "\n"
+        for attribute in parent.__doc__.split("Attributes:\n")[-1].split("\n"):
+            obj.__doc__ += str(attribute).rstrip() + "\n"
+        return obj
+
+    return inherit
+
+
+@docstring_inherit(SA_VQESolver)
+class SA_OO_Solver(SA_VQESolver):
+    """State Averaged Orbital Optimized Solver class. This is an iterative algorithm that uses SA-VQE alternatively with an
+    orbital optimization step.
 
     Attributes:
-        molecule (SecondQuantizedMolecule): The molecular system.
-        ref_states (list): List of vectors defining the reference state occupations used for the system.
         tol (float): Maximum energy difference before convergence
         max_cycles (int): Maximum number of iterations for sa-oo-vqe
-        qubit_mapping (str): One of the supported qubit mapping identifiers.
-        up_then_down (bool): Spin orbitals ordering.
-        optimizer (func): Optimization function for VQE minimization.
-        backend_options (dict): Backend options for the underlying VQE object.
-        verbose (bool): Flag for verbosity of VQE.
+        n_oo_per_iter (int): Number of orbital optimization Newton-Raphson steps per SA-OO-VQE iteration
      """
 
-    def __init__(self, opt_dict):
+    def __init__(self, opt_dict: dict):
 
-        default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None,
-                           "ref_states": None,
-                           "tol": 1e-3,
-                           "max_cycles": 15,
-                           "qubit_mapping": "jw",
-                           "up_then_down": False,
-                           "optimizer": self.LBFGSB_optimizer,
-                           "backend_options": default_backend_options,
-                           "verbose": False,
-                           "ansatz": BuiltInAnsatze.UCCGD,
-                           "ansatz_options": dict(),
-                           "weights": None,
-                           "penalty_terms": None,
-                           "n_oo_per_iter": 1}
+        oo_options = {"tol": 1e-3,
+                      "max_cycles": 15,
+                      "n_oo_per_iter": 1}
 
-        # Initialize with default values
-        self.__dict__ = default_options
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
+        if "molecule" not in opt_dict:
+            raise ValueError(f"A molecule must be provided for {self.__class__.__name__}")
+
+        # remove SA-OO-VQE specific options before calling SA_VQESolver.__init__() and move values to oo_options
+        opt_dict_sa_vqe = opt_dict.copy()
         for k, v in opt_dict.items():
-            if k in default_options:
-                setattr(self, k, v)
-            else:
-                # TODO Raise a warning instead, that variable will not be used unless user made mods to code
-                raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}")
+            if k in oo_options:
+                value = opt_dict_sa_vqe.pop(k)
+                oo_options[k] = value
 
-        # Raise error/warnings if input is not as expected. Only a single input
-        # must be provided to avoid conflicts.
-        if self.molecule is None:
-            raise ValueError(f"A molecule object must be provided when instantiating {self.__class__.__name__}.")
+        # Initialization of SA_VQESOLVER will check if spurious dictionary items are present
+        super().__init__(opt_dict_sa_vqe)
 
-        if self.ref_states is None:
-            raise ValueError(f"ref_states are required to perform the calculation")
+        # Add oo_options to attributes
+        for k, v in oo_options.items():
+            setattr(self, k, v)
 
         self.n_ref_states = len(self.ref_states)
 
         self.converged = False
         self.iteration = 0
         self.energies = list()
-        # vqe_energies could include a penalty term contribution
+        # vqe_energies could include a penalty term contribution so will be different from energies calculated using rdms
         self.vqe_energies = list()
 
-        self.optimal_energy = None
-        self.optimal_var_params = None
-        self.optimal_circuit = None
+    def iterate(self):
+        """Performs the SA-OO-VQE iterations.
 
-    def build(self):
-        """Builds the underlying objects required to run the SA-OO-VQE
-        algorithm.
+        Each iteration, a SA-VQE minimization is performed followed by an orbital optimization. This process repeats until
+        max_cycles are reached or the change in energy is less than tol.
         """
-
-        # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles.
-        self.vqe_options = {"molecule": self.molecule,
-                            "ref_states": self.ref_states,
-                            "optimizer": self.optimizer,
-                            "backend_options": self.backend_options,
-                            "ansatz": self.ansatz,
-                            "qubit_mapping": self.qubit_mapping,
-                            "up_then_down": self.up_then_down,
-                            "ansatz_options": self.ansatz_options,
-                            "weights": self.weights,
-                            "penalty_terms": self.penalty_terms
-                            }
-
-        self.sa_vqe_solver = SA_VQESolver(self.vqe_options)
-        self.sa_vqe_solver.build()
-
-    def simulate(self):
-        """Performs the ADAPT cycles. Each iteration, a VQE minimization is
-        done.
-        """
-        # run initial sa_vqe
         for iter in range(self.max_cycles):
-            vqe_energy = self.sa_vqe_solver.simulate()
+            vqe_energy = self.simulate()
             self.vqe_energies.append(vqe_energy)
             energy_new = self.energy_from_rdms()
             print(energy_new)
@@ -127,40 +96,15 @@ class SA_OO_Solver:
                 break
             for _ in range(self.n_oo_per_iter):
                 u_mat = self.generate_oo_unitary()
-                self.sa_vqe_solver.molecule.mean_field.mo_coeff = self.sa_vqe_solver.molecule.mean_field.mo_coeff @ u_mat
+                self.molecule.mean_field.mo_coeff = self.molecule.mean_field.mo_coeff @ u_mat
             print(self.energy_from_rdms())
             self.energies.append(self.energy_from_rdms())
-            self.sa_vqe_solver.build()
-            # self.vqe_solver.initial_var_params = copy(self.vqe_solver.optimal_var_params)
-
-    def LBFGSB_optimizer(self, func, var_params):
-        """Default optimizer for ADAPT-VQE."""
-
-        result = minimize(func, var_params, method="L-BFGS-B",
-                          options={"disp": False, "maxiter": 100, "gtol": 1e-10, "iprint": -1})
-
-        self.optimal_var_params = result.x
-        self.optimal_energy = result.fun
-
-        # Reconstructing the optimal circuit at the end of the ADAPT iterations
-        # or when the algorithm has converged.
-        if self.converged or self.iteration == self.max_cycles:
-            self.ansatz.build_circuit(self.optimal_var_params)
-            self.optimal_circuit = self.sa_vqe_solver.ansatz.circuit
-
-        if self.verbose:
-            print(f"VQESolver optimization results:")
-            print(f"\tOptimal VQE energy: {result.fun}")
-            print(f"\tOptimal VQE variational parameters: {result.x}")
-            print(f"\tNumber of Iterations : {result.nit}")
-            print(f"\tNumber of Function Evaluations : {result.nfev}")
-            print(f"\tNumber of Gradient Evaluations : {result.njev}")
-
-        return result.fun, result.x
+            self.initial_var_params = copy(self.optimal_var_params)
+            self.build()
 
     def energy_from_rdms(self):
         "Calculate energy from rdms generated from SA_VQESolver"
-        fcore, foneint, ftwoint = self.sa_vqe_solver.molecule.get_full_space_integrals()
+        fcore, foneint, ftwoint = self.molecule.get_full_space_integrals()
         ftwoint = ftwoint.transpose(0, 3, 1, 2)
         occupied_indices = self.molecule.frozen_occupied
         active_indices = self.molecule.active_mos
@@ -185,8 +129,8 @@ class SA_OO_Solver:
         one_rdm = np.zeros((n_active_mos, n_active_mos))
         two_rdm = np.zeros((n_active_mos, n_active_mos, n_active_mos, n_active_mos))
         for i in range(self.n_ref_states):
-            one_rdm += self.sa_vqe_solver.rdms[i][0].real*self.sa_vqe_solver.weights[i]
-            two_rdm += self.sa_vqe_solver.rdms[i][1].real*self.sa_vqe_solver.weights[i]/2
+            one_rdm += self.rdms[i][0].real*self.weights[i]
+            two_rdm += self.rdms[i][1].real*self.weights[i]/2
 
         for ti, t in enumerate(active_indices):
             for ui, u in enumerate(active_indices):
@@ -198,24 +142,32 @@ class SA_OO_Solver:
         return fcore+core_constant+active_energy
 
     def generate_oo_unitary(self):
-        """Generate the orbital optimization unitary that rotates the orbitals. It uses a single Newton-Raphson step
-        with the Hessian calculated analytically."""
-        _, foneint, ftwoint = self.sa_vqe_solver.molecule.get_full_space_integrals()
+        """Generate the orbital optimization unitary that rotates the orbitals. It uses n_oo_per_iter Newton-Raphson steps
+        with the Hessian calculated analytically.
+
+        The unitary is determined using the method along with the analytic gradient and Hessian elements derived in
+        [1] Per E. M. Siegbahn, Jan Almlof, Anders Heiberg, and Bjorn O. Roos, "The complete active space SCF (CASSCF) method
+        in a Newton-Raphson formulation with application to the HNO molecule", J. Chem. Phys. 74, 2384-2396 (1981)
+
+        Returns:
+            array: The unitary matrix that when applied to the mean-field coefficients reduces the state averaged energy
+        """
+        _, foneint, ftwoint = self.molecule.get_full_space_integrals()
         ftwoint = ftwoint.transpose(0, 3, 1, 2)
         occupied_indices = self.molecule.frozen_occupied
         unoccupied_indices = self.molecule.frozen_virtual
         active_indices = self.molecule.active_mos
         n_mos = self.molecule.n_mos
         n_active_mos = self.molecule.n_active_mos
-        # Determine core constant
 
         one_rdm = np.zeros((n_active_mos, n_active_mos))
         two_rdm = np.zeros((n_active_mos, n_active_mos, n_active_mos, n_active_mos))
 
         for i in range(self.n_ref_states):
-            one_rdm += self.sa_vqe_solver.rdms[i][0].real*self.sa_vqe_solver.weights[i]
-            two_rdm += self.sa_vqe_solver.rdms[i][1].real*self.sa_vqe_solver.weights[i]/2
+            one_rdm += self.rdms[i][0].real*self.weights[i]
+            two_rdm += self.rdms[i][1].real*self.weights[i]/2
 
+        # The following calculation of the analytic Hessian and gradient are derived from [1]
         f_mat = np.zeros((n_mos, n_mos))
         fi_mat = np.zeros((n_mos, n_mos))
         fa_mat = np.zeros((n_mos, n_mos))
@@ -320,9 +272,12 @@ class SA_OO_Solver:
             for p2, (k, ll) in enumerate(ij_list):
                 hess[p1, p2] = d2ed2x[i, j, k, ll]*2
 
+        # Regularization to ensure all hessian eigenvalues are greater than zero
         E, _ = np.linalg.eigh(hess)
         fac = abs(E[0])*2 if E[0] < 0 else 0
         hess = hess + np.eye(n_params)*fac
+
+        # Generate matrix elements for generating the unitary and calculate exponential of Skew-Hermitian matrix (a unitary)
         knew = -np.linalg.solve(hess, dedx)
 
         mat_rep = np.zeros((n_mos,  n_mos))

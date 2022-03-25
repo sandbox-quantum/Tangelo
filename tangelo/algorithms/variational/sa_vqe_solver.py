@@ -53,22 +53,16 @@ class SA_VQESolver:
         molecule (SecondQuantizedMolecule) : the molecular system.
         qubit_mapping (str) : one of the supported qubit mapping identifiers.
         ansatz (Ansatze) : one of the supported ansatze.
-        optimizer (function handle): a function defining the classical optimizer
-            and its behavior.
-        initial_var_params (str or array-like) : initial value for the classical
-            optimizer.
-        backend_options (dict) : parameters to build the tangelo.linq Simulator
-            class.
-        penalty_terms (dict): parameters for penalty terms to append to target
-            qubit Hamiltonian (see penaly_terms for more details).
-        ansatz_options (dict): parameters for the given ansatz (see given ansatz
-            file for details).
-        up_then_down (bool): change basis ordering putting all spin up orbitals
-            first, followed by all spin down. Default, False has alternating
-                spin up/down ordering.
+        optimizer (function handle): a function defining the classical optimizer and its behavior.
+        initial_var_params (str or array-like) : initial value for the classical optimizer.
+        backend_options (dict) : parameters to build the tangelo.linq Simulator class.
+        penalty_terms (dict): parameters for penalty terms to append to target qubit Hamiltonian (see penalty_terms
+            for more details).
+        ansatz_options (dict): parameters for the given ansatz (see given ansatz file for details).
+        up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down.
+            Default, False has alternating spin up/down ordering.
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         verbose (bool): Flag for VQE verbosity.
-        spins (list): list of spins to optimize states over
         ref_states (list): The vector occupations of the reference configurations
         weights (array): The weights of the occupations
     """
@@ -98,6 +92,8 @@ class SA_VQESolver:
             else:
                 raise KeyError(f"Keyword :: {k}, not available in VQESolver")
 
+        if self.ref_states is None:
+            raise ValueError(f"ref_states must be provided when instantiating {self.__class__.__name__}")
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
