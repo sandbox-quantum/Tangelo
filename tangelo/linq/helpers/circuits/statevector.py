@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """ This module defines a class that can be used to generate the circuit that
-returns or uncomputes a given statevector.
+returns or uncomputes a given statevector (takes the given statevector to the zero state).
 """
 
 import numpy as np
