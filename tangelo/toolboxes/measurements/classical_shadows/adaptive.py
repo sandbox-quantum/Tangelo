@@ -167,7 +167,7 @@ class AdaptiveClassicalShadow(ClassicalShadow):
         # Counts each unique circuits (use for reversing to a full shadow from
         # an experiement on hardware).
         if only_unique:
-            unique_basis_circuits = [(basis_circuits[i], self.unitaries.count(u)) for i, u in enumerate(unitaries_to_convert)]
+            unique_basis_circuits = [(basis_circuits[i], u, self.unitaries.count(u)) for i, u in enumerate(unitaries_to_convert)]
             return unique_basis_circuits
         else:
             return basis_circuits

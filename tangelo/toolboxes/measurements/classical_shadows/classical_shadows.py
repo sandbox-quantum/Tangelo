@@ -19,6 +19,7 @@ idea is described in H.Y. Huang, R. Kueng, and J. Preskill, Nature Physics 16,
 
 import abc
 import warnings
+import numpy as np
 
 from tangelo.linq.circuit import Circuit
 
@@ -118,22 +119,26 @@ class ClassicalShadow(abc.ABC):
             raise ValueError(f"The build method of {self.__class__.__name__} must be called before simulation.")
 
         if self.bitstrings:
-            raise NotImplementedError("Appending new simulation results to already defined self.bistrings is not implemented yet.")
+            raise NotImplementedError("Appending new simulation results to an already defined self.bistrings is not implemented yet.")
 
-        if backend.n_shots != 1:
-            warnings.warn(f"Changing number of shots to 1 for the backend (classical shadows).")
-            backend.n_shots = 1
+        self.bitstrings = [None] * len(self.unitaries)
 
         # Different behavior if circuit or initial_statevector is defined.
-        one_shot_circuit_template = self.circuit if self.circuit is not None else Circuit(n_qubits=self.n_qubits)
+        circuit_template = self.circuit if self.circuit is not None else Circuit(n_qubits=self.n_qubits)
 
-        for basis_circuit in self.get_basis_circuits(only_unique=False):
-            one_shot_circuit = one_shot_circuit_template + basis_circuit if (basis_circuit.size > 0) else one_shot_circuit_template
+        for basis_circuit, pauli_word, n_repeat in self.get_basis_circuits(only_unique=True):
+            circuit = circuit_template + basis_circuit if (basis_circuit.size > 0) else circuit_template
 
             # Frequencies returned by simulate are of the form {'0100...01': 1.0}.
             # We add the bitstring to the shadow.
-            freqs, _ = backend.simulate(one_shot_circuit, initial_statevector=initial_statevector)
-            self.bitstrings += [list(freqs.keys())[0]]
+            freqs, _ = backend.simulate(circuit, initial_statevector=initial_statevector)
+
+            indexes = np.where(np.array(self.unitaries) == pauli_word)[0]
+            # Guard rail to ensure that all the unitaries are filled out.
+            assert len(indexes) == n_repeat
+
+            for i in indexes:
+                self.bitstrings[i] = np.random.choice(list(freqs.keys()), p=list(freqs.values()))
 
     @abc.abstractmethod
     def build(self):
