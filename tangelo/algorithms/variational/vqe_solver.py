@@ -345,7 +345,7 @@ class VQESolver:
 
         return expectation
 
-    def get_rdm(self, var_params, resample=False, sum_spin=True):
+    def get_rdm(self, var_params, resample=False, sum_spin=True, state_prep=Circuit()):
         """Compute the 1- and 2- RDM matrices using the VQE energy evaluation.
         This method allows to combine the DMET problem decomposition technique
         with the VQE as an electronic structure solver. The RDMs are computed by
@@ -363,6 +363,7 @@ class VQESolver:
                 qubit terms' frequencies must be set to self.rdm_freq_dict
             sum_spin (bool): If True, the spin-summed 1-RDM and 2-RDM will be
                 returned. If False, the full 1-RDM and 2-RDM will be returned.
+            state_prep (Circuit): A state preparation circuit.
 
         Returns:
             (numpy.array, numpy.array): One & two-particle spin summed RDMs if
@@ -423,7 +424,7 @@ class VQESolver:
                         if resample:
                             warnings.warn(f"Warning: rerunning circuit for missing qubit term {qb_term}")
                         basis_circuit = Circuit(measurement_basis_gates(qb_term))
-                        full_circuit = self.ansatz.circuit + basis_circuit
+                        full_circuit = state_prep + self.ansatz.circuit + basis_circuit
                         qb_freq_dict[qb_term], _ = self.backend.simulate(full_circuit)
                     if resample:
                         if qb_term not in resampled_expect_dict:

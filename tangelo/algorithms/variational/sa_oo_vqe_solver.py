@@ -15,6 +15,9 @@
 """Module that defines the SA-OO-VQE algorithm
 
 Ref:
+[1] Saad Yalouz, Bruno Senjean, Jakob Gunther, Francesco Buda, Thomas E. O'Brien, Lucas Visscher, "A state-averaged
+orbital-optimized hybrid quantum-classical algorithm for a democratic description of ground and excited states",
+2021, Quantum Sci. Technol. 6 024004
 
 """
 from copy import copy
@@ -145,7 +148,7 @@ class SA_OO_Solver(SA_VQESolver):
         """Generate the orbital optimization unitary that rotates the orbitals. It uses n_oo_per_iter Newton-Raphson steps
         with the Hessian calculated analytically.
 
-        The unitary is determined using the method along with the analytic gradient and Hessian elements derived in
+        The unitary is generated using the method outlined in
         [1] Per E. M. Siegbahn, Jan Almlof, Anders Heiberg, and Bjorn O. Roos, "The complete active space SCF (CASSCF) method
         in a Newton-Raphson formulation with application to the HNO molecule", J. Chem. Phys. 74, 2384-2396 (1981)
 

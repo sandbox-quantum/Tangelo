@@ -12,30 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Implements the variational quantum eigensolver (VQE) algorithm to solve
-electronic structure calculations.
+"""Implements the state-averaged variational quantum eigensolver. Also known as the subspace-search variational quantum
+eigensolver.
+
+Ref:
+[1] Saad Yalouz, Bruno Senjean, Jakob Gunther, Francesco Buda, Thomas E. O'Brien, Lucas Visscher, "A state-averaged
+orbital-optimized hybrid quantum-classical algorithm for a democratic description of ground and excited states",
+2021, Quantum Sci. Technol. 6 024004
+[2] Ken M Nakanishi, Kosuke Mitarai, Keisuke Fujii, "Subspace-search variational quantum eigensolver for excited states",
+Phys. Rev. Research 1, 033062 (2019)
 """
 
 import warnings
 import itertools
+from copy import deepcopy
 
-from enum import Enum
 import numpy as np
 
-from tangelo.helpers.utils import HiddenPrints
 from tangelo.linq import Simulator, Circuit
-from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
-from tangelo.toolboxes.operators import FermionOperator, qubitop_to_qubitham
+from tangelo.toolboxes.operators import qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.ansatz_generator import UCCSD, HEA, UpCCGSD, VariationalCircuitAnsatz, UCCGD
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
-from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
-from tangelo.algorithms.variational import BuiltInAnsatze
+from tangelo.algorithms.variational import BuiltInAnsatze, VQESolver
 
 
-class SA_VQESolver:
+class SA_VQESolver(VQESolver):
     r"""Solve the electronic structure problem for a molecular system by using
     the state-averaged variational quantum eigensolver (SA-VQE) algorithm.
 
@@ -99,6 +103,8 @@ class SA_VQESolver:
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
+        if self.qubit_hamiltonian is not None:
+            self.initial_qubit_hamiltonian = deepcopy(self.qubit_hamiltonian)
         self.optimal_energy = None
         self.optimal_var_params = None
         self.builtin_ansatze = set([BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.UCCGD, BuiltInAnsatze.HEA, BuiltInAnsatze.UCCSD])
@@ -205,26 +211,8 @@ class SA_VQESolver:
         self.optimal_circuit = self.ansatz.circuit
         self.rdms = list()
         for reference_circuit in self.reference_circuits:
-            self.rdms.append(self.get_rdm(self.optimal_var_params, ref_state=reference_circuit))
+            self.rdms.append(self.get_rdm(self.optimal_var_params, state_prep=reference_circuit))
         return self.optimal_energy
-
-    def get_resources(self):
-        """Estimate the resources required by VQE, with the current ansatz. This
-        assumes "build" has been run, as it requires the ansatz circuit and the
-        qubit Hamiltonian. Return information that pertains to the user, for the
-        purpose of running an experiment on a classical simulator or a quantum
-        device.
-        """
-
-        resources = dict()
-        resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms)
-        resources["circuit_width"] = self.ansatz.circuit.width
-        resources["circuit_gates"] = self.ansatz.circuit.size
-        # For now, only CNOTs supported.
-        resources["circuit_2qubit_gates"] = self.ansatz.circuit.counts.get("CNOT", 0)
-        resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
-        resources["vqe_variational_parameters"] = len(self.initial_var_params)
-        return resources
 
     def energy_estimation(self, var_params):
         """Estimate energy using the given ansatz, qubit hamiltonian and compute
@@ -253,177 +241,3 @@ class SA_VQESolver:
             print(f"\tEnergy = {energy:.7f} ")
 
         return energy
-
-    def get_rdm(self, var_params,  ref_state=Circuit(), resample=False, sum_spin=True):
-        """Compute the 1- and 2- RDM matrices using the VQE energy evaluation.
-        This method allows state-averaged orbital optimization to occur. The RDMs are computed by
-        using each fermionic Hamiltonian term, transforming them and computing
-        the elements one-by-one. Note that the Hamiltonian coefficients will not
-        be multiplied as in the energy evaluation. The first element of the
-        Hamiltonian is the nuclear repulsion energy term, not the Hamiltonian
-        term.
-
-        Args:
-            var_params (numpy.array or list): variational parameters to use for
-                rdm calculation
-            ref_state (Circuit): The circuit to use for the reference_state
-            resample (bool): Whether to resample saved frequencies. get_rdm with
-                savefrequencies=True must be called or a dictionary for each
-                qubit terms' frequencies must be set to self.rdm_freq_dict
-            sum_spin (bool): If True, the spin-summed 1-RDM and 2-RDM will be
-                returned. If False, the full 1-RDM and 2-RDM will be returned.
-
-        Returns:
-            (numpy.array, numpy.array): One & two-particle spin summed RDMs if
-                sumspin=True or the full One & two-Particle RDMs if
-                sumspin=False.
-        """
-
-        self.ansatz.update_var_params(var_params)
-
-        # Initialize the RDM arrays
-        n_mol_orbitals = self.molecule.n_active_mos
-        n_spin_orbitals = self.molecule.n_active_sos
-        rdm1_spin = np.zeros((n_spin_orbitals,) * 2, dtype=complex)
-        rdm2_spin = np.zeros((n_spin_orbitals,) * 4, dtype=complex)
-
-        # If resampling is requested, check that a previous savefrequencies run has been called
-        if resample:
-            if hasattr(self, "rdm_freq_dict") and str(ref_state).name in self.rdm_freq_dict:
-                qb_freq_dict = self.rdm_freq_dict[ref_state.name]
-                resampled_expect_dict = dict()
-            else:
-                raise AttributeError(f"Need to run RDM calculation with savefrequencies=True for circuit named {ref_state.name}")
-        else:
-            qb_freq_dict = dict()
-            qb_expect_dict = dict()
-
-        # Loop over each element of Hamiltonian (non-zero value)
-        for key in self.molecule.fermionic_hamiltonian.terms:
-            # Ignore constant / empty term
-            if not key:
-                continue
-
-            # Assign indices depending on one- or two-body term
-            length = len(key)
-            if (length == 2):
-                iele, jele = (int(ele[0]) for ele in tuple(key[0:2]))
-            elif (length == 4):
-                iele, jele, kele, lele = (int(ele[0]) for ele in tuple(key[0:4]))
-
-            # Create the Hamiltonian with the correct key (Set coefficient to one)
-            hamiltonian_temp = FermionOperator(key)
-
-            # Obtain qubit Hamiltonian
-            qubit_hamiltonian2 = fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
-                                                          mapping=self.qubit_mapping,
-                                                          n_spinorbitals=self.molecule.n_active_sos,
-                                                          n_electrons=self.molecule.n_active_electrons,
-                                                          up_then_down=self.up_then_down,
-                                                          spin=self.molecule.spin)
-            qubit_hamiltonian2.compress()
-
-            # Run through each qubit term separately, use previously calculated result for the qubit term or
-            # calculate and save results for that qubit term
-            opt_energy2 = 0.
-            for qb_term, qb_coef in qubit_hamiltonian2.terms.items():
-                if qb_term:
-                    if qb_term not in qb_freq_dict:
-                        if resample:
-                            warnings.warn(f"Warning: rerunning circuit for missing qubit term {qb_term}")
-                        basis_circuit = Circuit(measurement_basis_gates(qb_term))
-                        full_circuit = ref_state + self.ansatz.circuit + basis_circuit
-                        qb_freq_dict[qb_term], _ = self.backend.simulate(full_circuit)
-                    if resample:
-                        if qb_term not in resampled_expect_dict:
-                            resampled_freq_dict = get_resampled_frequencies(qb_freq_dict[qb_term], self.backend.n_shots)
-                            resampled_expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, resampled_freq_dict)
-                        expectation = resampled_expect_dict[qb_term]
-                    else:
-                        if qb_term not in qb_expect_dict:
-                            qb_expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, qb_freq_dict[qb_term])
-                        expectation = qb_expect_dict[qb_term]
-                    opt_energy2 += qb_coef * expectation
-                else:
-                    opt_energy2 += qb_coef
-
-            # Put the values in np arrays (differentiate 1- and 2-RDM)
-            if length == 2:
-                rdm1_spin[iele, jele] += opt_energy2
-            elif length == 4:
-                rdm2_spin[iele, lele, jele, kele] += opt_energy2
-
-        # save rdm frequency dictionary
-        if not hasattr(self, "rdm_freq_dict"):
-            self.rdm_freq_dict = dict()
-        self.rdm_freq_dict[ref_state.name] = qb_freq_dict
-
-        if sum_spin:
-            rdm1_np = np.zeros((n_mol_orbitals,) * 2, dtype=np.complex128)
-            rdm2_np = np.zeros((n_mol_orbitals,) * 4, dtype=np.complex128)
-
-            # Construct spin-summed 1-RDM
-            for i, j in itertools.product(range(n_spin_orbitals), repeat=2):
-                rdm1_np[i//2, j//2] += rdm1_spin[i, j]
-
-            # Construct spin-summed 2-RDM
-            for i, j, k, l in itertools.product(range(n_spin_orbitals), repeat=4):
-                rdm2_np[i//2, j//2, k//2, l//2] += rdm2_spin[i, j, k, l]
-
-            return rdm1_np, rdm2_np
-
-        return rdm1_spin, rdm2_spin
-
-    def _compute_energy(self, onerdm, twordm):
-        """Calculate the energy given the onerdm and twordm.
-
-        Args:
-            onerdm (numpy.array): one-particle reduced density matrix (float).
-            twordm (numpy.array): two-particle reduced density matrix (float).
-
-        Returns:
-            float: Fragment energy (fragment_energy).
-            float: Total energy for fragment using RDMs (total_energy_rdm).
-            numpy.array: One-particle RDM for a fragment (one_rdm, float).
-        """
-
-        # Calculate the total energy based on RDMs
-        total_energy_rdm = np.einsum("ij,ij->", self.oneint, onerdm) + 0.5 * np.einsum("ijkl,iljk->", self.twoint, twordm)
-
-        return total_energy_rdm
-
-    def _default_optimizer(self, func, var_params):
-        """Function used as a default optimizer for VQE when user does not
-        provide one. Can be used as an example for users who wish to provide
-        their custom optimizer.
-
-        Should set the attributes "optimal_var_params" and "optimal_energy" to
-        ensure the outcome of VQE is captured at the end of classical
-        optimization, and can be accessed in a standard way.
-
-        Args:
-            func (function handle): The function that performs energy
-                estimation. This function takes var_params as input and returns
-                a float.
-            var_params (list): The variational parameters (float64).
-
-        Returns:
-            float: The optimal energy found by the optimizer.
-            list of floats: Optimal parameters
-        """
-
-        from scipy.optimize import minimize
-
-        with HiddenPrints():
-            result = minimize(func, var_params, method="SLSQP",
-                              options={"disp": True, "maxiter": 2000, "eps": 1e-7, "ftol": 1e-7})
-
-        if self.verbose:
-            print(f"VQESolver optimization results:")
-            print(f"\tOptimal VQE energy: {result.fun}")
-            print(f"\tOptimal VQE variational parameters: {result.x}")
-            print(f"\tNumber of Iterations : {result.nit}")
-            print(f"\tNumber of Function Evaluations : {result.nfev}")
-            print(f"\tNumber of Gradient Evaluations : {result.njev}")
-
-        return result.fun, result.x
