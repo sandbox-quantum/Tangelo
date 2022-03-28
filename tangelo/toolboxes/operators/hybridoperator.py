@@ -60,7 +60,7 @@ class ConvertPauli:
             raise ValueError("Unknown Pauli identification..")
 
 
-class HybridOperator(QubitOperator):
+class HybridOperator():
     """Construct integer and binary representations of the operator, as based on
     the user-specified input. Internal representation is mostly done with an
     integer array. The coversion is defined as:

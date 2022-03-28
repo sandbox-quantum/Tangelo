@@ -31,7 +31,6 @@ Here are some important references:
   https://arxiv.org/pdf/1701.08213.pdf
 """
 
-#import pyscf # Resolve the "AttributeError: module 'importlib' has no attribute 'abc'"" !?
 from itertools import count
 import numpy as np
 from operator import itemgetter
@@ -39,7 +38,26 @@ from operator import itemgetter
 from tangelo.toolboxes.operators import QubitOperator, HybridOperator
 from tangelo.toolboxes.operators.operators import count_qubits
 from tangelo.toolboxes.operators.hybridoperator import ConvertPauli
+from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
 
+def taper_hamiltonian(qubit_hamiltonian, n_qubits, n_electrons, mapping="JW"):
+    """Docs."""
+
+    op1 = HybridOperator(n_qubits, qubit_operator=qubit_hamiltonian)
+
+    kernel = op1.get_kernel()
+    list_of_cliffords, q_indices = get_clifford_operators(kernel)
+    unitary = get_unitary(list_of_cliffords)
+    kernel_operator = HybridOperator(n_qubits, binary_operator=kernel, factors=np.ones(len(kernel)))
+
+    n_symmetry = len(q_indices)
+    eigenvalues = get_eigenvalues(kernel_operator.binary, n_qubits, n_electrons, mapping)
+
+    taper = get_taper(unitary, kernel_operator, q_indices, n_qubits, n_symmetry, eigenvalues)
+
+    tap_H = taper(op1)
+
+    return tap_H.integer_to_qubit(), taper
 
 def get_clifford_operators(kernel):
     """Utilize the kernel of the operator to identify suitable single-pauli gates
@@ -103,7 +121,7 @@ def get_unitary(cliffords):
     elif len(cliffords) == 1:
         return cliffords[0]
 
-def get_eigenvalues(symmetries, n_qubits, n_electrons, mapping='JW'):
+def get_eigenvalues(symmetries, n_qubits, n_electrons, mapping):
     """Get the initial state eigenvalues, as operated on by each of the symmetry
     operators. These are used to capture the action of each Pauli string in the
     Hamiltonian on the tapered qubits.
@@ -118,10 +136,11 @@ def get_eigenvalues(symmetries, n_qubits, n_electrons, mapping='JW'):
         array of +/-1: Eigenvalues of operator with symmetries.
     """
 
-    vector = np.zeros(n_qubits, dtype=bool)
-    vector[:n_electrons] = True
+    #vector = np.zeros(n_qubits, dtype=bool)
+    #vector[:n_electrons] = True
     #if mapping == 'BK':
     #    vector = do_bk_transform(vector).astype(bool)
+    vector = get_vector(n_qubits, n_electrons, mapping)
 
     psi_init = vector
 
@@ -205,20 +224,3 @@ def get_taper(unitary, kernel, q_indices, n_qubits, n_symmetry, eigenvalues=None
         return HybridOperator(n_qubits-n_symmetry, integer_operator=tapered, factors=factors)
 
     return do_taper
-
-def taper_hamiltonian(qubit_hamiltonian, n_qubits, n_electrons):
-    op1 = HybridOperator(n_qubits, qubit_operator=qubit_hamiltonian)
-
-    kernel = op1.get_kernel()
-    list_of_cliffords, q_indices = get_clifford_operators(kernel)
-    unitary = get_unitary(list_of_cliffords)
-    kernel_operator = HybridOperator(n_qubits, binary_operator=kernel, factors=np.ones(len(kernel)))
-
-    n_symmetry = len(q_indices)
-    eigenvalues = get_eigenvalues(kernel_operator.binary, n_qubits, n_electrons, "JW")
-
-    taper = get_taper(unitary, kernel_operator, q_indices, n_qubits, n_symmetry, eigenvalues)
-
-    tap_H = taper(op1)
-
-    return tap_H.integer_to_qubit(), taper
