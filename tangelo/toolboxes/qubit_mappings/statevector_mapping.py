@@ -60,10 +60,7 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
     else:
         vector[:n_electrons] = 1
     if up_then_down:
-        if mapping.upper() == "JKMN":
-            warnings.warn("Tangelo implementation of JKMN only supports up_then_down=False, ignoring up_then_down=True")
-        else:
-            vector = np.concatenate((vector[::2], vector[1::2]))
+        vector = np.concatenate((vector[::2], vector[1::2]))
 
     if mapping.upper() == "JW":
         return vector
