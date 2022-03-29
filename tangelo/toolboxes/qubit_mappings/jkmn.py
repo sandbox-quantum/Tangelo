@@ -213,7 +213,7 @@ def jkmn_prep_circuit(vector):
             state_prep_qu_op *= jkmn_map[2*i]
 
     gate_list = []
-    for k, _ in state_prep_qu_op.terms.items():
+    for k in state_prep_qu_op.terms:
         for i in k:
             gate_list.append(Gate(i[1], i[0]))
     return Circuit(gate_list, n_qubits=n_qubits)
