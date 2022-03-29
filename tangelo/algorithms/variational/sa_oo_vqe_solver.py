@@ -92,6 +92,9 @@ class SA_OO_Solver(SA_VQESolver):
         for iter in range(self.max_cycles):
             vqe_energy = self.simulate()
             self.vqe_energies.append(vqe_energy)
+            self.rdms = list()
+            for reference_circuit in self.reference_circuits:
+                self.rdms.append(self.get_rdm(self.optimal_var_params, ref_state=reference_circuit))
             energy_new = self.energy_from_rdms()
             print(energy_new)
             if iter > 0 and abs(energy_new-self.energies[-1]) < self.tol:

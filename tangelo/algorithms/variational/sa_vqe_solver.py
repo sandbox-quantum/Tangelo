@@ -103,8 +103,7 @@ class SA_VQESolver(VQESolver):
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
-        if self.qubit_hamiltonian is not None:
-            self.initial_qubit_hamiltonian = deepcopy(self.qubit_hamiltonian)
+        self.initial_qubit_hamiltonian = deepcopy(self.qubit_hamiltonian) if self.qubit_hamiltonian is not None else None
         self.optimal_energy = None
         self.optimal_var_params = None
         self.builtin_ansatze = set([BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.UCCGD, BuiltInAnsatze.HEA, BuiltInAnsatze.UCCSD])
@@ -209,13 +208,10 @@ class SA_VQESolver(VQESolver):
         self.optimal_energy = optimal_energy
         self.ansatz.build_circuit(self.optimal_var_params)
         self.optimal_circuit = self.ansatz.circuit
-        self.rdms = list()
-        for reference_circuit in self.reference_circuits:
-            self.rdms.append(self.get_rdm(self.optimal_var_params, state_prep=reference_circuit))
         return self.optimal_energy
 
     def energy_estimation(self, var_params):
-        """Estimate energy using the given ansatz, qubit hamiltonian and compute
+        """Estimate state-averaged energy using the given ansatz, qubit hamiltonian and compute
         backend. Keeps track of optimal energy and variational parameters along
         the way.
 
