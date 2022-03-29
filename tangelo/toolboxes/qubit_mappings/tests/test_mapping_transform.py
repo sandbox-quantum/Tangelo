@@ -23,7 +23,6 @@ from openfermion.linalg import eigenspectrum
 from openfermion.linalg.sparse_tools import qubit_operator_sparse
 
 from tangelo.toolboxes.operators import QubitOperator, FermionOperator
-from tangelo.toolboxes.qubit_mappings import bravyi_kitaev, jordan_wigner
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping, make_up_then_down
 
 
@@ -72,14 +71,14 @@ class MappingTest(unittest.TestCase):
 
     def test_jkmn(self):
         """Check output from JKMN transform"""
-        jkmn_operator = QubitOperator(((0, "Y"), (1, "X"), (3, "X")), -0.125j)
-        jkmn_operator += QubitOperator(((0, "Y"), (1, "X"), (3, "Y")), 0.125)
-        jkmn_operator += QubitOperator(((0, "Y"), (1, "Y"), (3, "X")), -0.125)
-        jkmn_operator += QubitOperator(((0, "Y"), (1, "Y"), (3, "Y")), -0.125j)
-        jkmn_operator += QubitOperator(((0, "Z"), (1, "Z"), (2, "Y")), 0.25j)
-        jkmn_operator += QubitOperator(((0, "Z"), (1, "Z"), (2, "Z")), 0.25)
-        jkmn_operator += QubitOperator(((2, "Y")), -0.25j)
-        jkmn_operator += QubitOperator(((2, "Z")), -0.25)
+        jkmn_operator = QubitOperator(((0, "X"), (2, "Z"), (3, "X")), 0.125)
+        jkmn_operator += QubitOperator(((0, "X"), (2, "Z"), (3, "Y")), 0.125j)
+        jkmn_operator += QubitOperator(((0, "Y"), (1, "Z"), (3, "X")), -0.125j)
+        jkmn_operator += QubitOperator(((0, "Y"), (1, "Z"), (3, "Y")), 0.125)
+        jkmn_operator += QubitOperator(((0, "Z"), (1, "X"), (2, "X")), 0.25j)
+        jkmn_operator += QubitOperator(((0, "Z"), (1, "X"), (2, "Y")), 0.25)
+        jkmn_operator += QubitOperator(((0, "Z"), (1, "Y"), (2, "X")), -0.25)
+        jkmn_operator += QubitOperator(((0, "Z"), (1, "Y"), (2, "Y")), 0.25j)
 
         fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
 
@@ -148,12 +147,15 @@ class MappingTest(unittest.TestCase):
 
         jw_operator = fermion_to_qubit_mapping(fermion, mapping="JW", n_spinorbitals=4, up_then_down=True)
         bk_operator = fermion_to_qubit_mapping(fermion, mapping="BK", n_spinorbitals=4, up_then_down=True)
+        jkmn_operator = fermion_to_qubit_mapping(fermion, mapping="JKMN", n_spinorbitals=4, up_then_down=True)
 
         jw_ground = np.linalg.eigvalsh(qubit_operator_sparse(jw_operator).todense()).min()
         bk_ground = np.linalg.eigvalsh(qubit_operator_sparse(bk_operator, n_qubits=4).todense()).min()
+        jkmn_ground = np.linalg.eigvalsh(qubit_operator_sparse(jkmn_operator, n_qubits=4).todense()).min()
 
         self.assertEqual(ground, jw_ground)
         self.assertEqual(ground, bk_ground)
+        self.assertEqual(ground, jkmn_ground)
 
     def test_scbk_reorder(self):
         """scBK forces spin-orbital ordering to all up then all down. Check that
@@ -168,24 +170,6 @@ class MappingTest(unittest.TestCase):
                                                   up_then_down=True)
         scBK_notreordered = fermion_to_qubit_mapping(fermion_operator=fermion,
                                                      mapping="scBK",
-                                                     n_spinorbitals=4,
-                                                     n_electrons=2,
-                                                     up_then_down=False)
-        self.assertEqual(scBK_reordered, scBK_notreordered)
-
-    def test_jkmn_reorder(self):
-        """Tangelo implementation of JKMN forces spin-orbitals to order alternately. Check that
-        the qubit Hamiltonian returned is the same whether the user passes a
-        FermionOperator with this ordering, or not.
-        """
-        fermion = FermionOperator(((2, 0), (0, 1)), 1.) + FermionOperator(((0, 0), (2, 1)), -1.)
-        scBK_reordered = fermion_to_qubit_mapping(fermion_operator=fermion,
-                                                  mapping="JKMN",
-                                                  n_spinorbitals=4,
-                                                  n_electrons=2,
-                                                  up_then_down=True)
-        scBK_notreordered = fermion_to_qubit_mapping(fermion_operator=fermion,
-                                                     mapping="JKMN",
                                                      n_spinorbitals=4,
                                                      n_electrons=2,
                                                      up_then_down=False)
