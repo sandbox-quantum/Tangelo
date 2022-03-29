@@ -117,6 +117,7 @@ class VQESolver:
                               "first followed by all spin-down for the JW mapping.", RuntimeWarning)
                 self.up_then_down = True
 
+        self.default_backend_options = default_backend_options
         self.optimal_energy = None
         self.optimal_var_params = None
         self.builtin_ansatze = set(BuiltInAnsatze)
@@ -202,8 +203,10 @@ class VQESolver:
         self.ansatz.build_circuit()
 
         # Quantum circuit simulation backend options
-        self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
-                                 noise_model=self.backend_options["noise_model"])
+        t = self.backend_options.get("target", self.default_backend_options["target"])
+        ns = self.backend_options.get("n_shots", self.default_backend_options["n_shots"])
+        nm = self.backend_options.get("noise_model", self.default_backend_options["noise_model"])
+        self.backend = Simulator(target=t, n_shots=ns, noise_model=nm)
 
     def simulate(self):
         """Run the VQE algorithm, using the ansatz, classical optimizer, initial
