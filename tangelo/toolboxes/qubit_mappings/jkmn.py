@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from copy import deepcopy
-
 import numpy as np
 from openfermion.transforms.opconversions.conversions import get_majorana_operator
 
@@ -187,15 +185,12 @@ def _jkmn_vaccuum_indices(n_qubits, jkmn_map=None):
     # generate number operators
     for i in range(n_qubits):
         fock_dict[i] = 0.5 * QubitOperator([]) - 0.5j * jkmn_map[2*i] * jkmn_map[2*i+1]
-        for k, v in fock_dict[i].terms.items():
+        for k in fock_dict[i].terms:
             for i in k:
                 if i[0] not in rot_dict:
                     rot_dict[i[0]] = i[1]
-    h_list = []
-    for k, v in rot_dict.items():
-        if v == "X":
-            h_list.append(int(k))
-    return h_list
+
+    return [int(k) for k, v in rot_dict.items() if v == "X"]
 
 
 def jkmn_prep_circuit(vector):
