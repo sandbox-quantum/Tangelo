@@ -33,7 +33,7 @@ from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, Q
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from tangelo.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
-
+from tangelo.toolboxes.optimizers.roto import rotosolve
 
 class BuiltInAnsatze(Enum):
     """Enumeration of the ansatz circuits supported by VQE."""
@@ -122,6 +122,7 @@ class VQESolver:
         self.optimal_var_params = None
         self.builtin_ansatze = set(BuiltInAnsatze)
 
+
     def build(self):
         """Build the underlying objects required to run the VQE algorithm
         afterwards.
@@ -197,7 +198,7 @@ class VQESolver:
                 self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
         elif not isinstance(self.ansatz, Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
-
+        
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
@@ -212,9 +213,11 @@ class VQESolver:
         """Run the VQE algorithm, using the ansatz, classical optimizer, initial
         parameters and hardware backend built in the build method.
         """
+        #breakpoint()
         if not (self.ansatz and self.backend):
-            raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")
+            raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")   
         optimal_energy, optimal_var_params = self.optimizer(self.energy_estimation, self.initial_var_params)
+                                                    
 
         self.optimal_var_params = optimal_var_params
         self.optimal_energy = optimal_energy
