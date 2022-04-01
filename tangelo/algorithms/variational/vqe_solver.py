@@ -130,6 +130,12 @@ class VQESolver:
 
         if isinstance(self.ansatz, Circuit):
             self.ansatz = VariationalCircuitAnsatz(self.ansatz)
+        
+        # Set optimizer
+        if self.optimizer == rotosolve:
+             if self.ansatz in [BuiltInAnsatze.UCCSD, BuiltInAnsatze.QCC, BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.VSQS, BuiltInAnsatze.QMF ]:
+                 raise ValueError("Objective function of Ansatz Class incompatible with optimizer.")
+
 
         # Building VQE with a molecule as input.
         if self.molecule:
@@ -199,6 +205,7 @@ class VQESolver:
         elif not isinstance(self.ansatz, Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
         
+
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
@@ -213,7 +220,6 @@ class VQESolver:
         """Run the VQE algorithm, using the ansatz, classical optimizer, initial
         parameters and hardware backend built in the build method.
         """
-        #breakpoint()
         if not (self.ansatz and self.backend):
             raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")   
         optimal_energy, optimal_var_params = self.optimizer(self.energy_estimation, self.initial_var_params)
