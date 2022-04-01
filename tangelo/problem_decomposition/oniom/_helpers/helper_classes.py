@@ -18,10 +18,14 @@ which bonds are broken and how to fix them) as well as the solver(s) to use.
 """
 
 import numpy as np
+from scipy.spatial.transform import Rotation as R
+import warnings
+warnings.filterwarnings("ignore")
 
 # Imports of electronic solvers and data structure
 from tangelo.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
 from tangelo import SecondQuantizedMolecule
+from tangelo.problem_decomposition.oniom._helpers.capping_groups import elements, chemical_groups
 
 
 class Fragment:
@@ -212,19 +216,26 @@ class Link:
         methods to generate a new bond, appending the intended species.
 
         Args:
-            index1 (int): Order in the molecular geometry of atom retained in
-                model-unit.
-            leaving (int): Order in mol. Geometry of atom lost.
+            staying (int): Atom id retained.
+            leaving (int): Atom id lost.
             factor (float) optional: Rescale length of bond, from that in the
                 original molecule.
-            species (str) optional: Atomic species of appended atom for new
-                link.
+            species (str) optional: Atomic species or a chemical group
+                identifier for new link.
         """
 
         self.staying = staying
         self.leaving = leaving
         self.factor = factor
-        self.species = species
+
+        if species in elements:
+            self.species = [(species, (0., 0., 0.))]
+        elif species in chemical_groups:
+            self.species = chemical_groups[species]
+        elif isinstance(species, (list, tuple)) and species[0][0].upper() == "X":
+            self
+        else:
+            raise ValueError
 
     def relink(self, geometry):
         """Create atom at location of mended-bond link.
@@ -237,9 +248,26 @@ class Link:
             str: Atomic species.
             tuple: Position (x, y, z) of replacement atom.
         """
+        #
+
+        elements =[a[0] for a in self.species if a[0].upper() != "X"]
+        chem_group_xyz = np.array([[a[1][0], a[1][1], a[1][2]] for a in self.species if a[0].upper() != "X"])
 
         staying = np.array(geometry[self.staying][1])
         leaving = np.array(geometry[self.leaving][1])
-        replacement = self.factor*(leaving-staying) + staying
 
-        return (self.species, (replacement[0], replacement[1], replacement[2]))
+        # Rotation.
+        if len(elements) > 1:
+            axis_old = leaving - staying
+            axis_new = chem_group_xyz[0] - np.array(self.species[0][1])
+
+            rot, _ = R.align_vectors([axis_old], [axis_new])
+            chem_group_xyz = rot.apply(chem_group_xyz)
+
+        # Translation.
+        replacement = self.factor*(leaving-staying) + staying
+        translation = replacement - chem_group_xyz[0]
+
+        chem_group_xyz += translation
+
+        return [(element, (xyz[0], xyz[1], xyz[2])) for element,xyz in zip(elements, chem_group_xyz)]
