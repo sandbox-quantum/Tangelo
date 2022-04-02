@@ -30,7 +30,6 @@ Reference:
     Chemical Reviews 2015 115 (12), 5678-5796. DOI: 10.1021/cr5004419.
 """
 # TODO: Supporting many (3+) layers of different accuracy.
-# TODO: Capping with CH3 or other functional groups.
 
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list
