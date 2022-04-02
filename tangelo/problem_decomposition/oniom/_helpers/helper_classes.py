@@ -228,12 +228,12 @@ class Link:
         self.leaving = leaving
         self.factor = factor
 
-        if species in elements:
+        if isinstance(species, str) and species in elements:
             self.species = [(species, (0., 0., 0.))]
-        elif species in chemical_groups:
+        elif isinstance(species, str) and species in chemical_groups:
             self.species = chemical_groups[species]
         elif isinstance(species, (list, tuple)) and species[0][0].upper() == "X":
-            self
+            self.species = species
         else:
             raise ValueError
 
