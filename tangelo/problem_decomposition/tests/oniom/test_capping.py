@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+import numpy as np
 
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment, Link
 from tangelo.molecule_library import xyz_ethane
@@ -67,8 +68,8 @@ class ONIOMCappingTest(unittest.TestCase):
         for i, atom in enumerate(xyz):
             self.assertEqual(atom[0], ref_capped[i][0])
 
-            for dim in range(3):
-                self.assertAlmostEqual(atom[1][dim], ref_capped[i][1][dim], places=4)
+        # Testing only the position of the central atom in the chemical group.
+        np.testing.assert_almost_equal(xyz[4][1], ref_capped[4][1], decimal=4)
 
     def test_custom_species(self):
         """Test capping with a custom chemical group (here -CFICl)."""
@@ -104,8 +105,8 @@ class ONIOMCappingTest(unittest.TestCase):
         for i, atom in enumerate(xyz):
             self.assertEqual(atom[0], ref_capped[i][0])
 
-            for dim in range(3):
-                self.assertAlmostEqual(atom[1][dim], ref_capped[i][1][dim], places=4)
+        # Testing only the position of the central atom in the chemical group.
+        np.testing.assert_almost_equal(xyz[4][1], ref_capped[4][1], decimal=4)
 
 
 if __name__ == "__main__":
