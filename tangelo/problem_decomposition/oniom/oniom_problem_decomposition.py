@@ -94,9 +94,10 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
             # If there are broken_links (other than an empty list nor None).
             # The whole molecule geometry is needed to compute the position of
-            # the capping atom (or functional group in the future).
+            # the capping atom (or functional group).
             if fragment.broken_links:
-                fragment.geometry += [li.relink(self.geometry) for li in fragment.broken_links]
+                for li in fragment.broken_links:
+                    fragment.geometry += li.relink(self.geometry)
 
     def simulate(self):
         r"""Run the ONIOM core-method. The total energy is defined as

@@ -80,7 +80,7 @@ class ONIOMTest(unittest.TestCase):
             self.assertEqual(atom[0], PHE_backbone_capped[i][0])
 
             for dim in range(3):
-                self.assertAlmostEqual(atom[1][dim], PHE_backbone_capped[i][1][dim])
+                self.assertAlmostEqual(atom[1][dim], PHE_backbone_capped[i][1][dim], places=4)
 
     def test_energy(self):
         """Testing the oniom energy with a low accuraccy method (RHF) and an

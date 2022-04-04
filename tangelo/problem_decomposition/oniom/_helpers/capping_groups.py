@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Docstring.
-
-Geometries taken from https://webbook.nist.gov/chemistry/.
+"""Module to regroup the list of possible atoms and built-in chemical groups for
+broken link capping. The geometries for the capping groups are taken from the
+NIST Chemistry WebBook database (https://webbook.nist.gov/chemistry/).
 """
 
 
@@ -37,18 +37,25 @@ elements = [
 chemical_groups = {
 # From ethane.
 "CH3": [
-    ["X", [ 2.15410,  0.87450,  1.16590]],
-    ["C", [ 0.71660,  0.89800,  0.64250]],
-    ["H", [ 0.53970,  1.76660, -0.00250]],
-    ["H", [ 0.48990,  0.00050,  0.05510]],
-    ["H", [-0.00780,  0.94520,  1.46400]]
+    ["X", [  2.15410,  0.87450,  1.16590]],
+    ["C", [  0.71660,  0.89800,  0.64250]],
+    ["H", [  0.53970,  1.76660, -0.00250]],
+    ["H", [  0.48990,  0.00050,  0.05510]],
+    ["H", [ -0.00780,  0.94520,  1.46400]]
 ],
 # From hexafluoroethane.
 "CF3": [
-    ["X", [ 2.03950,  1.01440,  0.00010]],
-    ["C", [ 0.49550,  1.01460, -0.00010]],
-    ["F", [ 0.04100, -0.24410,  0.00000]],
-    ["F", [ 0.04120,  1.64380, -1.09040]],
-    ["F", [ 0.04080,  1.64420,  1.08980]]
+    ["X", [  2.03950,  1.01440,  0.00010]],
+    ["C", [  0.49550,  1.01460, -0.00010]],
+    ["F", [  0.04100, -0.24410,  0.00000]],
+    ["F", [  0.04120,  1.64380, -1.09040]],
+    ["F", [  0.04080,  1.64420,  1.08980]]
+],
+# From ammonia.
+"NH2": [
+    ["X", [ -0.01300, -0.00270,  0.00580]],
+    ["N", [  0.87140,  0.50430, -0.01000]],
+    ["H", [  1.59990, -0.20890,  0.00580]],
+    ["H", [  0.92660,  0.93550, -0.93240]]
 ]
 }

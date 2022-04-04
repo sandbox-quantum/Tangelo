@@ -221,7 +221,8 @@ class Link:
             factor (float) optional: Rescale length of bond, from that in the
                 original molecule.
             species (str) optional: Atomic species or a chemical group
-                identifier for new link.
+                identifier for new link. Can be a list (first element = "X" to
+                detect the orientation) for a custom chemical group.
         """
 
         self.staying = staying
@@ -235,7 +236,7 @@ class Link:
         elif isinstance(species, (list, tuple)) and species[0][0].upper() == "X":
             self.species = species
         else:
-            raise ValueError
+            raise ValueError(f"{species} is not supported. It must be a string identifier or a list of atoms (with a ghost atom ('X') as the first element).")
 
     def relink(self, geometry):
         """Create atom at location of mended-bond link.
@@ -245,10 +246,9 @@ class Link:
                 [[str,tuple(float,float,float)],...].
 
         Returns:
-            str: Atomic species.
-            tuple: Position (x, y, z) of replacement atom.
+            list: List of atomic species and position (x, y, z) of replacement
+                atom / chemical group.
         """
-        #
 
         elements =[a[0] for a in self.species if a[0].upper() != "X"]
         chem_group_xyz = np.array([[a[1][0], a[1][1], a[1][2]] for a in self.species if a[0].upper() != "X"])
@@ -256,7 +256,7 @@ class Link:
         staying = np.array(geometry[self.staying][1])
         leaving = np.array(geometry[self.leaving][1])
 
-        # Rotation.
+        # Rotation (if not a signle atom).
         if len(elements) > 1:
             axis_old = leaving - staying
             axis_new = chem_group_xyz[0] - np.array(self.species[0][1])
@@ -264,10 +264,9 @@ class Link:
             rot, _ = R.align_vectors([axis_old], [axis_new])
             chem_group_xyz = rot.apply(chem_group_xyz)
 
-        # Translation.
+        # Move the atom / group to the right position in space.
         replacement = self.factor*(leaving-staying) + staying
         translation = replacement - chem_group_xyz[0]
-
         chem_group_xyz += translation
 
         return [(element, (xyz[0], xyz[1], xyz[2])) for element,xyz in zip(elements, chem_group_xyz)]
