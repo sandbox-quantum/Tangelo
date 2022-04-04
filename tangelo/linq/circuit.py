@@ -173,7 +173,9 @@ class Circuit:
         return self
 
     def reindex_qubits(self, new_indices):
-        """Reindex qubit indices according to users labels / new indices.
+        """Reindex qubit indices according to users labels / new indices. The
+        new indices are set according to [new_index_for_qubit0,
+        nex_index_for_qubit1, ..., new_index_for_qubit_N] where new_index < N.
         """
 
         if len(new_indices) != len(self._qubit_indices):
