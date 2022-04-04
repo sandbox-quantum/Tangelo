@@ -18,6 +18,7 @@ from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment
 from tangelo.molecule_library import xyz_ethane
 from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list
 
+
 class ONIOMCappingTest(unittest.TestCase):
 
     def test_unsupported_string_species(self):

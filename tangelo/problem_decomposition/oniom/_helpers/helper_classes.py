@@ -269,4 +269,4 @@ class Link:
         translation = replacement - chem_group_xyz[0]
         chem_group_xyz += translation
 
-        return [(element, (xyz[0], xyz[1], xyz[2])) for element,xyz in zip(elements, chem_group_xyz)]
+        return [(element, (xyz[0], xyz[1], xyz[2])) for element, xyz in zip(elements, chem_group_xyz)]
