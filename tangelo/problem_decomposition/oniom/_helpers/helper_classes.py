@@ -17,15 +17,16 @@ both the constituent geometry (i.e. which atoms from system are in fragment,
 which bonds are broken and how to fix them) as well as the solver(s) to use.
 """
 
+import warnings
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-import warnings
-warnings.filterwarnings("ignore")
 
 # Imports of electronic solvers and data structure
-from tangelo.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
 from tangelo import SecondQuantizedMolecule
+from tangelo.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
 from tangelo.problem_decomposition.oniom._helpers.capping_groups import elements, chemical_groups
+
+warnings.filterwarnings("ignore")
 
 
 class Fragment:
@@ -250,7 +251,7 @@ class Link:
                 atom / chemical group.
         """
 
-        elements =[a[0] for a in self.species if a[0].upper() != "X"]
+        elements = [a[0] for a in self.species if a[0].upper() != "X"]
         chem_group_xyz = np.array([[a[1][0], a[1][1], a[1][2]] for a in self.species if a[0].upper() != "X"])
 
         staying = np.array(geometry[self.staying][1])
