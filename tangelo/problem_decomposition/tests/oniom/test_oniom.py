@@ -83,7 +83,7 @@ class ONIOMTest(unittest.TestCase):
                 self.assertAlmostEqual(atom[1][dim], PHE_backbone_capped[i][1][dim], places=4)
 
     def test_energy(self):
-        """Testing the oniom energy with a low accuraccy method (RHF) and an
+        """Testing the oniom energy with a low accuracy method (RHF) and an
         higher one (CCSD) for PHE molecule. The important fragment is chosen to
         be the backbone. The side chain is computed at the RHF level.
         """
