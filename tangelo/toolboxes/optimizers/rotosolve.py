@@ -15,7 +15,7 @@
 import numpy as np
 
 
-def rotosolve_step(func, var_params, i):
+def rotosolve_step(func, var_params, i, *args):
     """Gradient free optimization step using specific points to
     characterize objective function w.r.t to parameter values. Based on
     formulas in arXiv:1905.09692, Mateusz Ostaszewski
@@ -23,21 +23,22 @@ def rotosolve_step(func, var_params, i):
         Args:
             func (function handle): The function that performs energy
                 estimation. This function takes variational params as input
-                and returnsa float.
-            var_params (list): The variational parameters (float64).
-            i (int): Index of the variational parameter to update (int).
+                and returns a float.
+            var_params (list of float): The variational parameters.
+            i (int): Index of the variational parameter to update.
         Returns:
-            list of floats: Optimal parameters."""
+            list of floats: Optimal parameters.
+    """
 
     # Charaterize sinusoid of objective function using specific parameters
     var_params[i] = 0
-    m_1 = func(var_params)
+    m_1 = func(var_params, *args)
 
     var_params[i] = 0.5 * np.pi
-    m_2 = func(var_params)
+    m_2 = func(var_params, *args)
 
     var_params[i] = -0.5 * np.pi
-    m_3 = func(var_params)
+    m_3 = func(var_params, *args)
 
     # Calculate theta_min based on measured values
     theta_min = -0.5 * np.pi - np.arctan2(2. * m_1 - m_2 - m_3, m_2 - m_3)
@@ -53,7 +54,7 @@ def rotosolve_step(func, var_params, i):
     return var_params
 
 
-def rotosolve(func, var_params, ftol=1e-5, maxiter=100):
+def rotosolve(func, var_params, *args, ftol=1e-5, maxiter=100):
     """Optimization procedure for parameterized quantum circuits whose
      objective function varies sinusoidally with the parameters. Based
      on the work by arXiv:1905.09692, Mateusz Ostaszewski.
@@ -61,23 +62,22 @@ def rotosolve(func, var_params, ftol=1e-5, maxiter=100):
     Args:
         func (function handle): The function that performs energy
             estimation. This function takes variational params as input
-            and returnsa float.
-        var_params (list): The variational parameters (float64).
-        ftol (float): Convergence threshold (float64).
-        maxiter (int): The maxium iterations(int).
+            and returns a float.
+        var_params (list): The variational parameters.
+        ftol (float): Convergence threshold.
+        maxiter (int): The maxium iterations.
 
     Returns:
         float: The optimal energy found by the optimizer.
         list of floats: Optimal parameters.
      """
     # Get intial value, and run rotosolve for maxiteraions
-    energy_old = func(var_params)
+    energy_old = func(var_params, *args)
     for it in range(0, maxiter):
-
         # Update parameters one at a time using rotosolve_step
         for i, theta in enumerate(var_params):
-            var_params = rotosolve_step(func, var_params, i)
-        energy_new = func(var_params)
+            var_params = rotosolve_step(func, var_params, i, *args)
+        energy_new = func(var_params, *args)
 
         # Check if convergence tolerance is met
         if abs(energy_new - energy_old) <= ftol:
