@@ -25,6 +25,7 @@ from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_
 from tangelo.toolboxes.molecular_computation.rdms import matricize_2rdm
 from tangelo.toolboxes.optimizers.rotosolve import rotosolve
 
+
 class VQESolverTest(unittest.TestCase):
 
     def test_instantiation_vqe(self):
