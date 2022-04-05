@@ -33,7 +33,7 @@ from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, Q
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from tangelo.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
-from tangelo.toolboxes.optimizers.roto import rotosolve
+from tangelo.toolboxes.optimizers.rotosolve import rotosolve
 
 class BuiltInAnsatze(Enum):
     """Enumeration of the ansatz circuits supported by VQE."""
@@ -134,7 +134,7 @@ class VQESolver:
         # Set optimizer
         if self.optimizer == rotosolve:
              if self.ansatz in [BuiltInAnsatze.UCCSD, BuiltInAnsatze.QCC, BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.VSQS, BuiltInAnsatze.QMF ]:
-                 raise ValueError("Objective function of Ansatz Class incompatible with optimizer.")
+                 raise ValueError("Objective function of Ansatz class incompatible with optimizer.")
 
 
         # Building VQE with a molecule as input.

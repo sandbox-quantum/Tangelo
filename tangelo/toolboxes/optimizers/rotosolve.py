@@ -18,7 +18,16 @@ import numpy as np
 def rotosolve_step(func, var_params, i):
     """Gradient free optimization step using specific points to
     characterize objective function w.r.t to parameter values. Based on
-    formulas in arXiv:1905.09692, Mateusz Ostaszewski"""
+    formulas in arXiv:1905.09692, Mateusz Ostaszewski
+
+        Args:
+            func (function handle): The function that performs energy
+                estimation. This function takes variational params as input
+                and returnsa float.
+            var_params (list): The variational parameters (float64).
+            i (int): Index of the variational parameter to update (int).
+        Returns:
+            list of floats: Optimal parameters."""
 
     # Charaterize sinusoid of objective function using specific parameters
     var_params[i] = 0

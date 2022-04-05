@@ -14,7 +14,7 @@
 
 import unittest
 
-from tangelo.toolboxes.optimizers.roto import rotosolve
+from tangelo.toolboxes.optimizers.rotosolve import rotosolve
 from tangelo.algorithms import BuiltInAnsatze, VQESolver
 from tangelo.molecule_library import mol_H2_sto3g
 
