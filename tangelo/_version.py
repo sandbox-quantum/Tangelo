@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .dmet.dmet_problem_decomposition import DMETProblemDecomposition
-from .oniom.oniom_problem_decomposition import ONIOMProblemDecomposition
+""" Version number (major.minor.patch[-label]) """
+__version__ = "0.3.0"
