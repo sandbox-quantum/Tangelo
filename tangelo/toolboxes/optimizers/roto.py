@@ -14,56 +14,67 @@
 
 import numpy as np
 
-def rotosolve_step(func, var_params,i):
-        #Gradient free optimization step - choose specific points to characterize
-        #objective function w.r.t to parameter values
-        var_params[i] = 0
-        m_1 = func(var_params)
-        
-        var_params[i] = 0.5 * np.pi
-        m_2 = func(var_params)
-        
-        var_params[i] = -0.5 * np.pi
-        m_3 = func(var_params)
-        
-        #calculate theta_min based on measured values
-        theta = -0.5 * np.pi - np.arctan2(2. * m_1 - m_2 - m_3, m_2 - m_3)
-        
-        if theta < -np.pi:
-            theta += 2 * np.pi
-        elif theta > np.pi:
-            theta -= 2 * np.pi     
-            
-        var_params[i] = theta  
-        return var_params
 
-def rotosolve(func, var_params, tolerance=1e-5, max_iterations=50):
-         """Function to optimize parameterized quantum circuits whose objective
-         function varies sinusoidally with the parameters. Based on the work by
-         arXiv:1905.09692, Mateusz Ostaszewski.
+def rotosolve_step(func, var_params, i):
+    """Gradient free optimization step using specific points to
+    characterize objective function w.r.t to parameter values. Based on
+    formulas in arXiv:1905.09692, Mateusz Ostaszewski"""
 
-        Args:
-            func (function handle): The function that performs energy
-                estimation. This function takes var_params as input and returns
-                a float.
-            var_params (list): The variational parameters (float64).
-            tolerance (float): Convergence threshold (float64).
-            max_iterations (int): The variational parameters (int).
+    # Charaterize sinusoid of objective function using specific parameters
+    var_params[i] = 0
+    m_1 = func(var_params)
 
-        Returns:
-            float: The optimal energy found by the optimizer.
-            list of floats: Optimal parameters.
-   
-         """
-         energy_old=func(var_params)           
-         for it in range(0, max_iterations):            
-            for i, theta in enumerate(var_params):
-                  var_params=rotosolve_step(func, var_params, i)
-            energy_new=func(var_params)     
-            if abs(energy_new-energy_old) <= tolerance:
-                break
-            energy_old=energy_new
-         return energy_new, var_params
+    var_params[i] = 0.5 * np.pi
+    m_2 = func(var_params)
 
-        
-    
+    var_params[i] = -0.5 * np.pi
+    m_3 = func(var_params)
+
+    # Calculate theta_min based on measured values
+    theta_min = -0.5 * np.pi - np.arctan2(2. * m_1 - m_2 - m_3, m_2 - m_3)
+
+    if theta_min < -np.pi:
+        theta_min += 2 * np.pi
+    elif theta_min > np.pi:
+        theta_min -= 2 * np.pi
+
+    # Update parameter to theta_min
+    var_params[i] = theta_min
+
+    return var_params
+
+
+def rotosolve(func, var_params, ftol=1e-5, maxiter=100):
+    """Optimization procedure for parameterized quantum circuits whose
+     objective function varies sinusoidally with the parameters. Based
+     on the work by arXiv:1905.09692, Mateusz Ostaszewski.
+
+    Args:
+        func (function handle): The function that performs energy
+            estimation. This function takes variational params as input
+            and returnsa float.
+        var_params (list): The variational parameters (float64).
+        ftol (float): Convergence threshold (float64).
+        maxiter (int): The maxium iterations(int).
+
+    Returns:
+        float: The optimal energy found by the optimizer.
+        list of floats: Optimal parameters.
+     """
+    # Get intial value, and run rotosolve for maxiteraions
+    energy_old = func(var_params)
+    for it in range(0, maxiter):
+
+        # Update parameters one at a time using rotosolve_step
+        for i, theta in enumerate(var_params):
+            var_params = rotosolve_step(func, var_params, i)
+        energy_new = func(var_params)
+
+        # Check if convergence tolerance is met
+        if abs(energy_new - energy_old) <= ftol:
+            break
+
+        # Update energy value
+        energy_old = energy_new
+
+    return energy_new, var_params
