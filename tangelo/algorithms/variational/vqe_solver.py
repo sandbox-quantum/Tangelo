@@ -35,6 +35,7 @@ from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_freque
 from tangelo.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
 from tangelo.toolboxes.optimizers.rotosolve import rotosolve
 
+
 class BuiltInAnsatze(Enum):
     """Enumeration of the ansatz circuits supported by VQE."""
     UCCSD = 0
@@ -122,7 +123,6 @@ class VQESolver:
         self.optimal_var_params = None
         self.builtin_ansatze = set(BuiltInAnsatze)
 
-
     def build(self):
         """Build the underlying objects required to run the VQE algorithm
         afterwards.
@@ -130,12 +130,11 @@ class VQESolver:
 
         if isinstance(self.ansatz, Circuit):
             self.ansatz = VariationalCircuitAnsatz(self.ansatz)
-        
+
         # Check compatibility of optimizer with Ansatz class
         elif self.optimizer == rotosolve:
-             if self.ansatz not in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.HEA]:
-                 raise ValueError("Objective function of Ansatz class incompatible with optimizer.")
-
+            if self.ansatz not in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.HEA]:
+                raise ValueError("Objective function of Ansatz class incompatible with optimizer.")
 
         # Building VQE with a molecule as input.
         if self.molecule:
@@ -204,7 +203,6 @@ class VQESolver:
                 self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
         elif not isinstance(self.ansatz, Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
-        
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
@@ -221,9 +219,8 @@ class VQESolver:
         parameters and hardware backend built in the build method.
         """
         if not (self.ansatz and self.backend):
-            raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")   
+            raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")
         optimal_energy, optimal_var_params = self.optimizer(self.energy_estimation, self.initial_var_params)
-                                                    
 
         self.optimal_var_params = optimal_var_params
         self.optimal_energy = optimal_energy
