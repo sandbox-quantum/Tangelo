@@ -131,9 +131,9 @@ class VQESolver:
         if isinstance(self.ansatz, Circuit):
             self.ansatz = VariationalCircuitAnsatz(self.ansatz)
         
-        # Set optimizer
-        if self.optimizer == rotosolve:
-             if self.ansatz in [BuiltInAnsatze.UCCSD, BuiltInAnsatze.QCC, BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.VSQS, BuiltInAnsatze.QMF ]:
+        # Check compatibility of optimizer with Ansatz class
+        elif self.optimizer == rotosolve:
+             if self.ansatz not in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.HEA]:
                  raise ValueError("Objective function of Ansatz class incompatible with optimizer.")
 
 
