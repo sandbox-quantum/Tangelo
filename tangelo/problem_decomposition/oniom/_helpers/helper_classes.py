@@ -274,7 +274,7 @@ class Link:
         staying = np.array(geometry[self.staying][1])
         leaving = np.array(geometry[self.leaving][1])
 
-        # Rotation (if not a signle atom).
+        # Rotation (if not a single atom).
         if len(elements) > 1:
             axis_old = leaving - staying
             axis_new = chem_group_xyz[0] - np.array(self.species[0][1])
