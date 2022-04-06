@@ -84,7 +84,7 @@ class ONIOMTest(unittest.TestCase):
                 self.assertAlmostEqual(atom[1][dim], PHE_backbone_capped[i][1][dim], places=4)
 
     def test_energy_hf_ccsd_h4(self):
-        """Testing the oniom energy with a low accuraccy method (HF) and an
+        """Testing the oniom energy with a low accuracy method (HF) and an
         higher one (CCSD) for H4 molecule. The H2-H2 interaction is computed at
         the HF level.
         """
@@ -108,7 +108,7 @@ class ONIOMTest(unittest.TestCase):
         self.assertAlmostEqual(-1.901616, e_oniom_cc, places=5)
 
     def test_energy_hf_ccsd_phe(self):
-        """Testing the oniom energy with a low accuraccy method (HF) and an
+        """Testing the oniom energy with a low accuracy method (HF) and an
         higher one (CCSD) for PHE molecule. The important fragment is chosen to
         be the backbone. The side chain is computed at the HF level.
         """
@@ -130,6 +130,50 @@ class ONIOMTest(unittest.TestCase):
         e_oniom = oniom_solver.simulate()
 
         self.assertAlmostEqual(e_oniom, -544.730619, places=4)
+
+    def test_energy_multilayers(self):
+        """Testing the oniom energy with a low accuracy method (HF), a medium
+        accuracy (CCSD) and an higher one (FCI) for a H9 chain.
+        """
+
+        # H9 chain.
+        xyz_h9 = [
+            ("H", (-2., 0., 0.)),
+            ("H", (-1.5, 0., 0.)),
+            ("H", (-1., 0., 0.)),
+            ("H", (-0.5, 0., 0.)),
+            ("H", (0., 0., 0.)),
+            ("H", (0.5, 0., 0.)),
+            ("H", (1., 0., 0.)),
+            ("H", (1.5, 0., 0.)),
+            ("H", (2., 0., 0.)),
+        ]
+
+        options = {"basis": "sto-3g"}
+
+        # All system in HF.
+        system = Fragment(solver_low="HF", options_low=options, spin=1)
+
+        # Central 3 H energy is computed with FCI.
+        high = Fragment(solver_low="CCSD",
+                        options_low=options,
+                        solver_high="FCI",
+                        options_high=options,
+                        selected_atoms=[3, 4, 5],
+                        spin=1)
+
+        # 2 H "buffer" atoms energy is computed with CCSD.
+        medium = Fragment(solver_low="HF",
+                          options_low=options,
+                          solver_high="CCSD",
+                          options_high=options,
+                          selected_atoms=[2, 3, 4, 5, 6],
+                          spin=1)
+
+        oniom_solver = ONIOMProblemDecomposition({"geometry": xyz_h9, "fragments": [system, medium, high]})
+        e_oniom = oniom_solver.simulate()
+
+        self.assertAlmostEqual(-2.925695, e_oniom, places=5)
 
 
 if __name__ == "__main__":
