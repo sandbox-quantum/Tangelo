@@ -35,8 +35,7 @@ from itertools import count
 import numpy as np
 from operator import itemgetter
 
-from tangelo.toolboxes.operators import QubitOperator, HybridOperator
-from tangelo.toolboxes.operators.operators import count_qubits
+from tangelo.toolboxes.operators import HybridOperator
 from tangelo.toolboxes.operators.hybridoperator import ConvertPauli
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
 
@@ -53,11 +52,11 @@ def taper_hamiltonian(qubit_hamiltonian, n_qubits, n_electrons, mapping="JW"):
     n_symmetry = len(q_indices)
     eigenvalues = get_eigenvalues(kernel_operator.binary, n_qubits, n_electrons, mapping)
 
-    taper = get_taper(unitary, kernel_operator, q_indices, n_qubits, n_symmetry, eigenvalues)
+    taper_function = get_taper(unitary, kernel_operator, q_indices, n_qubits, n_symmetry, eigenvalues)
 
-    tap_H = taper(op1)
+    tap_H = taper_function(op1)
 
-    return tap_H.integer_to_qubit(), taper
+    return tap_H.integer_to_qubit(), taper_function
 
 def get_clifford_operators(kernel):
     """Utilize the kernel of the operator to identify suitable single-pauli gates
