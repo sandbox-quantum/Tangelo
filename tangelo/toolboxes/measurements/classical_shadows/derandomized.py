@@ -130,7 +130,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
 
         Returns:
             list of Circuit or tuple: All basis circuits or a tuple of unique
-                circuits (first) with the numbers of occurence (last).
+                circuits, string representation and numbers of occurence.
         """
 
         if not self.unitaries:
@@ -146,7 +146,7 @@ class DerandomizedClassicalShadow(ClassicalShadow):
 
         # Counting each unique circuits (use for reversing to a full shadow from an experiement on hardware).
         if only_unique:
-            unique_basis_circuits = [(basis_circuits[i], self.unitaries.count(u)) for i, u in enumerate(unitaries_to_convert)]
+            unique_basis_circuits = [(basis_circuits[i], u, self.unitaries.count(u)) for i, u in enumerate(unitaries_to_convert)]
             return unique_basis_circuits
         else:
             return basis_circuits
