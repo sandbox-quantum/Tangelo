@@ -25,21 +25,22 @@ class ONIOMQuantumTest(unittest.TestCase):
     def test_energy_hf_vqe_uccsd_h4(self):
         """Test to verifiy the implementation of VQE (with UCCSD) in ONIOM."""
 
-        options_both = {"basis": "sto-3g"}
+        options_hf = {"basis": "sto-3g"}
+        options_vqe = {"basis": "sto-3g", "ansatz": BuiltInAnsatze.UCCSD}
 
         # With this line, the interaction between H2-H2 is computed with a low
         # accuracy method.
-        system = Fragment(solver_low="HF", options_low=options_both)
+        system = Fragment(solver_low="HF", options_low=options_hf)
         # VQE-UCCSD fragments.
         model_vqe_1 = Fragment(solver_low="HF",
-                               options_low=options_both,
+                               options_low=options_hf,
                                solver_high="VQE",
-                               options_high=options_both,
+                               options_high=options_vqe,
                                selected_atoms=[0, 1])
         model_vqe_2 = Fragment(solver_low="HF",
-                               options_low=options_both,
+                               options_low=options_hf,
                                solver_high="VQE",
-                               options_high=options_both,
+                               options_high=options_vqe,
                                selected_atoms=[2, 3])
         oniom_model_vqe = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model_vqe_1, model_vqe_2]})
 
@@ -57,40 +58,68 @@ class ONIOMQuantumTest(unittest.TestCase):
         # accuracy method.
         system = Fragment(solver_low="HF", options_low=options_both)
         # QITE fragments.
-        model_vqe_1 = Fragment(solver_low="HF",
+        model_qite_1 = Fragment(solver_low="HF",
                                options_low=options_both,
                                solver_high="QITE",
                                options_high=options_both,
                                selected_atoms=[0, 1])
-        model_vqe_2 = Fragment(solver_low="HF",
+        model_qite_2 = Fragment(solver_low="HF",
                                options_low=options_both,
                                solver_high="QITE",
                                options_high=options_both,
                                selected_atoms=[2, 3])
-        oniom_model_vqe = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model_vqe_1, model_vqe_2]})
+        oniom_model_qite = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model_qite_1, model_qite_2]})
 
-        e_oniom_vqe = oniom_model_vqe.simulate()
+        e_oniom_qite = oniom_model_qite.simulate()
 
         # ONIOM + CCSD is tested in test_oniom.ONIOMTest.test_energy_hf_ccsd_h4.
-        self.assertAlmostEqual(-1.901616, e_oniom_vqe, places=5)
+        self.assertAlmostEqual(-1.901616, e_oniom_qite, places=5)
 
-    def test_get_resources(self):
-        """Test to verifiy the implementation of resources estimation in ONIOM."""
+    def test_energy_hf_adapt_h4(self):
+        """Test to verifiy the implementation of ADAPT-VQE in ONIOM."""
 
-        options_both = {"basis": "sto-3g"}
+        options_both = {"basis": "sto-3g", "verbose": False}
 
+        # With this line, the interaction between H2-H2 is computed with a low
+        # accuracy method.
         system = Fragment(solver_low="HF", options_low=options_both)
-
-        # VQE-UCCSD fragments.
-        model_vqe_1 = Fragment(solver_low="HF",
+        # ADAPT fragments.
+        model_adapt_1 = Fragment(solver_low="HF",
                                options_low=options_both,
-                               solver_high="VQE",
+                               solver_high="ADAPT",
                                options_high=options_both,
                                selected_atoms=[0, 1])
-        model_vqe_2 = Fragment(solver_low="HF",
+        model_adapt_2 = Fragment(solver_low="HF",
                                options_low=options_both,
-                               solver_high="VQE",
+                               solver_high="ADAPT",
                                options_high=options_both,
+                               selected_atoms=[2, 3])
+        oniom_model_adapt = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model_adapt_1, model_adapt_2]})
+
+        e_oniom_adapt = oniom_model_adapt.simulate()
+
+        # ONIOM + CCSD is tested in test_oniom.ONIOMTest.test_energy_hf_ccsd_h4.
+        self.assertAlmostEqual(-1.901616, e_oniom_adapt, places=5)
+
+    def test_get_resources_vqe(self):
+        """Test to verifiy the implementation of resources estimation (VQE) in
+        ONIOM. Other quantum solvers should also work if VQE works.
+        """
+
+        options_hf = {"basis": "sto-3g"}
+        options_vqe = {"basis": "sto-3g", "ansatz": BuiltInAnsatze.UCCSD}
+
+        system = Fragment(solver_low="HF", options_low=options_hf)
+        # VQE-UCCSD fragments.
+        model_vqe_1 = Fragment(solver_low="HF",
+                               options_low=options_hf,
+                               solver_high="VQE",
+                               options_high=options_vqe,
+                               selected_atoms=[0, 1])
+        model_vqe_2 = Fragment(solver_low="HF",
+                               options_low=options_hf,
+                               solver_high="VQE",
+                               options_high=options_vqe,
                                selected_atoms=[2, 3])
         oniom_model_vqe = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model_vqe_1, model_vqe_2]})
 
