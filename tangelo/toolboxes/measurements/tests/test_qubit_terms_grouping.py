@@ -18,7 +18,8 @@ from openfermion import load_operator
 
 from tangelo.linq import translator, Simulator, Circuit
 from tangelo.helpers import measurement_basis_gates
-from tangelo.toolboxes.measurements import group_qwc, exp_value_from_measurement_bases
+from tangelo.toolboxes.measurements import group_qwc, group_sorted_qwc, exp_value_from_measurement_bases
+
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
@@ -81,6 +82,31 @@ class TermsGroupingTest(unittest.TestCase):
         # Reconstruct exp value of initial input operator using the histograms corresponding to the suboperators
         exp_value = exp_value_from_measurement_bases(grouped_ops, histograms)
         self.assertAlmostEqual(exp_value, sim.get_expectation_value(qb_ham, abs_circ), places=8)
+
+    def test_sorted_qubitwise_commutativity_of_H2(self):
+        """ Sorted insertion qwc algorithm applied to Hamiltonian grouping for H2, JW. """
+
+        # Load qubit Hamiltonian
+        qb_ham = load_operator("mol_H2_qubitham.data", data_directory=path_data, plain_text=True)
+
+        # Group Hamiltonian terms using qubitwise commutativity
+        sorted_grouped_ops = group_sorted_qwc(qb_ham)
+
+        # Load an optimized quantum circuit (UCCSD) to compute something meaningful in this test
+        with open(f"{path_data}/H2_UCCSD.qasm", "r") as f:
+            openqasm_circ = f.read()
+        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+
+        # Only simulate and measure the wavefunction in the required bases (simulator or QPU), store in dict.
+        histograms = dict()
+        sim = Simulator()
+        for basis, sub_op in sorted_grouped_ops.items():
+            full_circuit = abs_circ + Circuit(measurement_basis_gates(basis))
+            histograms[basis], _ = sim.simulate(full_circuit)
+
+        # Reconstruct exp value of initial input operator using the histograms corresponding to the suboperators
+        energy = exp_value_from_measurement_bases(sorted_grouped_ops, histograms)
+        self.assertAlmostEqual(energy, sim.get_expectation_value(qb_ham, abs_circ), delta=1e-8)
 
 
 if __name__ == "__main__":

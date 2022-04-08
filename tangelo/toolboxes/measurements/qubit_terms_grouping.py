@@ -53,6 +53,52 @@ def group_qwc(qb_ham, seed=None):
     return group_into_tensor_product_basis_sets(qb_ham, seed)
 
 
+def group_sorted_qwc(op):
+    """
+    Partitioning function that identifies measurement bases and maps them to qubit operators that can be measured
+    with it. This partitioning implements the sorted insertion algorithm, and is deterministic.
+
+    Args:
+        op (QubitOperator): Input qubit operator
+
+    Returns:
+        dict: dictionary mapping measurement bases to a corresponding qubit operator
+    """
+
+    # Sort terms in decreasing magnitude for coefficients.
+    terms = [(k, v) for k, v in sorted(op.terms.items(), key=lambda x: abs(x[1]), reverse=True)]
+
+    # Builds measurement bases gradually, grouping terms with largest coefficients when they commute qubitwise
+    sorted_qwc_groups = dict()
+    for pauli_word, coeff in terms:
+        commutes = False
+        for k, v in sorted_qwc_groups.items():
+            if do_bases_commute_qubitwise(pauli_word, k):
+                commutes = True
+                basis = tuple(set(k) | set(pauli_word))
+                q = QubitOperator(); q.terms = {pauli_word: coeff}
+                del sorted_qwc_groups[k]
+                sorted_qwc_groups[basis] = v + q
+                break
+        if not commutes:
+            q = QubitOperator(); q.terms = {pauli_word: coeff}
+            sorted_qwc_groups[pauli_word] = q
+
+    return sorted_qwc_groups
+
+
+def do_bases_commute_qubitwise(b1, b2):
+    """ Helper function. Checks whether two bases b1 and b2 commute qubitwise. """
+    if not (b1 and b2):
+        return False
+
+    b1_dict, b2_dict = dict(b1), dict(b2)
+    for i in set(b1_dict) & set(b2_dict):
+        if b1_dict[i] != b2_dict[i]:
+            return False
+    return True
+
+
 def exp_value_from_measurement_bases(sub_ops, histograms):
     """Computes the expectation value of the sum of all suboperators
     corresponding to the different measurement bases in the input dictionary.
