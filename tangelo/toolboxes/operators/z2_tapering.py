@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Modules that defines functions to taper qubits in a molecular problem with Z2
-tapering.
+"""Modules that defines helper functions to taper qubits in a molecular problem
+with Z2 tapering.
 
 For all problem, there are at least two symmetries (electron number
 and spin conservation) that reduce the qubits count by two. Furthermore,
@@ -36,50 +36,42 @@ from tangelo.toolboxes.operators.hybridoperator import HybridOperator, ConvertPa
 
 
 def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, eigenvalues=None):
-    """Define method for applying taper to an arbitrary operator in this space.
-    The operator is first conditioned against the tapering-operators: terms
-    which do not commute with the Hamiltonian's symmetries are culled, and the
-    remaining operator is rotated against the tapering unitary. After applying
-    the eigenvalues to account for tapered elements, the operator is then finally
-    tapered, with the relevant qubits removed.
-    *return*:
-            - **do_taper**: method for tapering operator
+    """Defines a method for applying taper to an arbitrary operator in this
+    space. The operator is first conditioned against the tapering-operators:
+    terms which do not commute with the Hamiltonian's symmetries are culled, and
+    the remaining operator is rotated against the tapering unitary. After
+    applying the eigenvalues to account for tapered elements, the operator is
+    then finally tapered, with the relevant qubits removed.
+
+    Returns:
+        function: function for tapering operator.
     """
 
     def do_taper(operator, eigenvalues=eigenvalues):
-        """Tapering method.
-
-        Args:
-                - **operator**: HybridOperator to taper
-                - **eigenvalues**: numpy array of float
-
-        Returns:
-                - HybridOperator with qubit number reduced.
-        """
 
         # Remove non-commuting terms.
-        # Minimize # of iterations, use shorter operator.
         commutes = is_commuting(operator, kernel, term_resolved=True)
         indices = np.where(commutes == False)[0]
 
         if len(indices) > 0:
             operator.remove_terms(indices)
+
+        # Apply rotation if the operator is not trivial.
         if operator.n_terms == 0:
             operator_matrix, factors = np.zeros(operator.n_qubits), np.array([0.0])
         else:
-            #apply rotation
             product = operator * unitary
-
             product_reverse = unitary * product
             post, factors =  product_reverse.integer, product_reverse.factors
-            #clean operator
+
+            #Clean operator.
             operator_matrix, factors = collapse(post, factors)
 
         if factors.max() == 0.0:
             return HybridOperator.from_integerop(np.zeros((1, n_qubits-n_symmetries), dtype=int), np.array([0.0]))
 
-        for ii, index in enumerate(q_indices):
-            factors[operator_matrix[:,index]>0] *= eigenvalues[ii]
+        for index, eigenvalue in zip(q_indices, eigenvalues):
+            factors[operator_matrix[:, index] > 0] *= eigenvalue
 
         tapered = np.delete(operator_matrix, q_indices, axis=1)
 
@@ -89,47 +81,49 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
 
 
 def get_clifford_operators(kernel):
-    """Utilize the kernel of the operator to identify suitable single-pauli gates
-    and the related unitary Clifford gates.
+    """Function to identify, with a kernel, suitable single-pauli gates and the
+    related unitary Clifford gates.
 
     Args:
-        kernel (array-like of bool): Numpy array of Mx2N (M: number of terms,
-            N: number of qubits) binary int, symmetries.
+        kernel (array-like of bool): Array of M x 2N booleans, where M is the
+            number of terms and N is the number of qubits. Refers to a qubit
+            operator in the stabilizer notation.
 
     Returns:
-        list of HybridOperator: Encoded binary-encoded Pauli strings.
-        list of int: Symmetry indices.
+        (list of HybridOperator, list of int): Encoded binary-encoded Pauli
+            strings and symmetry indices.
     """
 
-    indices = []
+    indices = list()
     n_qubits = kernel.shape[1] // 2
-    cliffords = []
+    cliffords = list()
     factors = np.array([np.sqrt(0.5), np.sqrt(0.5)])
 
     for row, ki in enumerate(kernel):
-        vector = np.zeros(n_qubits*2,dtype=int)
-        rest = np.delete(kernel,row,axis=0)
+        vector = np.zeros(n_qubits * 2, dtype=int)
+        rest = np.delete(kernel, row, axis=0)
+
         for col in range(n_qubits):
             tau_i = ConvertPauli((ki[col], ki[col+n_qubits])).integer
             tau_j = [ConvertPauli((rj[col], rj[col+n_qubits])).integer for rj in rest]
 
-            # Default value for the conversion (identity).
-            # Find a suitable choice of Pauli-gate which anti-commutes with one
-            # symmetry operator and commutes with all others.
-            pauli = (0,0)
+            # Default value for the conversion (identity). Find a suitable
+            # choice of Pauli gate which anti-commutes with one symmetry
+            # operator and commutes with all others.
+            pauli = (0, 0)
             for pauli_i in range(3):
                 tau_destination = np.delete(np.array([1,2,3]), pauli_i)
                 lookup = [0, pauli_i +1]
 
                 if all(oi in lookup for oi in tau_j):
                     if tau_i in tau_destination:
-                        pauli = ConvertPauli(pauli_i+1).tuple
+                        pauli = ConvertPauli(pauli_i + 1).tuple
                         break
 
             if sum(pauli) > 0:
-                vector[[col,col+n_qubits]] = pauli
+                vector[[col, col + n_qubits]] = pauli
                 indices.append(col)
-                clifford = np.array([vector,ki])
+                clifford = np.array([vector, ki])
                 cliffords.append(HybridOperator.from_binaryop(bin_op=clifford, factors=factors))
                 break
 
@@ -137,20 +131,22 @@ def get_clifford_operators(kernel):
 
 
 def get_unitary(cliffords):
-    """Recursive function for generating the product over multiple Clifford operators
-    as a single unitary. The result is a HybridOperator.
+    """Recursive function for generating the product over multiple Clifford
+    operators as a single unitary. The result is a HybridOperator.
+
     Args:
-        cliffords (list of HybridOperator):  Encoded cliffors operators.
+        cliffords (list of HybridOperator): Encoded cliffors operators.
+
     Returns:
         HybridOperator: Multiplication reflecting the composite operator.
     """
 
-    # Recursion function.
-    if len(cliffords)>2:
+    # Recursion algorithm.
+    if len(cliffords) > 2:
         return cliffords[0] * get_unitary(cliffords[1:])
     elif len(cliffords) == 2:
         return cliffords[0] * cliffords[1]
-    elif len(cliffords) == 1:
+    else:
         return cliffords[0]
 
 
@@ -158,54 +154,58 @@ def get_eigenvalues(symmetries, n_qubits, n_electrons, mapping, up_then_down):
     """Get the initial state eigenvalues, as operated on by each of the symmetry
     operators. These are used to capture the action of each Pauli string in the
     Hamiltonian on the tapered qubits.
-    TODO: (Ryan) Examine plausibility of utilizing z-portion of the symmetry
-        operators.
-    Args
+
+    Args:
         symmetries (array-like of bool): Symmetries in binary encoding.
         n_qubits (int): Self-explanatory.
         n_electrons (int): Self-explanatory.
-        mapping (str): Mapping process used for the fermion->qubit.
+        mapping (str): Qubit mapping.
+        up_then_down (bool): Whether or not spin ordering is all up then
+            all down.
+
     Returns:
         array of +/-1: Eigenvalues of operator with symmetries.
     """
 
-    #vector = np.zeros(n_qubits, dtype=bool)
-    #vector[:n_electrons] = True
-    #if mapping == 'BK':
-    #    vector = do_bk_transform(vector).astype(bool)
-    vector = get_vector(n_qubits, n_electrons, mapping, up_then_down)
-
-    psi_init = vector
+    psi_init = get_vector(n_qubits, n_electrons, mapping, up_then_down)
 
     if len(symmetries.shape) == 1:
         symmetries = np.reshape(symmetries, (-1, len(symmetries)))
 
-    each_qubit = np.einsum('ij,j->ij', symmetries[:,n_qubits:].astype(bool), psi_init)
-    eigenvalues = np.product(-2*each_qubit+1, axis=1)
+    each_qubit = np.einsum("ij,j->ij", symmetries[:,n_qubits:].astype(bool), psi_init)
+    eigenvalues = np.product(-2 * each_qubit + 1, axis=1)
 
     return eigenvalues
 
 
 def collapse(operator, factors):
-    """Identify and sum over duplicate terms in an operator, to collapse
-    a set of PauliStrings to their minimal representation.
-    Returns the unique array of integer-encoded PauliStrings, their factors
-    in the operator, and their indices
+    """Function to identify and sum over duplicate terms in an operator, to
+    collapse a set of Pauli words to their minimal representation.
+
+    Returns:
+    (array of int, arrays of float):A rray of unique integer-encoded
+        Pauli words, their factors in the operator.
     """
-    all_terms = np.concatenate((operator, np.linspace(0, len(operator)-1, len(operator), dtype=int).reshape(len(operator), -1)), axis=1)
-    qubits = np.linspace(0, np.shape(operator)[1]-1, np.shape(operator)[1], dtype=int)
+
+    all_terms = np.concatenate((operator, np.linspace(0, len(operator) - 1, len(operator), dtype=int).reshape(len(operator), -1)), axis=1)
+
+    qubits = np.linspace(0, operator.shape[1] - 1, operator.shape[1], dtype=int)
+
     sorted_terms = np.array(sorted(all_terms, key=itemgetter(*qubits)))
     sorted_factors = factors[sorted_terms[:,-1]]
-    unique, _, inverse = np.unique(sorted_terms[:,:-1], axis=0, return_inverse=True, return_index=True)
-    unique = unique.astype(int)
+
+    unique, inverse = np.unique(sorted_terms[:,:-1], axis=0, return_inverse=True)
+
     factors = np.zeros(len(unique), dtype=complex)
+
     for index in range(len(sorted_terms)):
         factors[inverse[index]] += sorted_factors[index]
 
     nonzero = np.where(abs(factors) > 0)
     unique = unique[nonzero]
     factors = factors[nonzero]
+
     if len(np.shape(unique)) == 1:
         unique = np.reshape(unique, (-1, len(unique)))
 
-    return unique, factors
+    return unique.astype(int), factors

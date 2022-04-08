@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Docdocdoc.
+"""Module defining the HybridOperator class. It stores the a qubit operator in
+many forms: tuples, numpy array of int and stabilizer formalism. Most of the
+internal methods use the numpy array of int. The main application for this
+class is to identify commuation relation faster with the stabilizer notation.
 """
 
 import numpy as np
@@ -48,13 +51,17 @@ class HybridOperator(QubitOperator):
 
     Properties:
         n_terms (int): Number of terms in this qubit Hamiltonian.
+        qubit_operator (QubitOperator): Self-explanatory.
     """
 
     def __init__(self, terms, n_qubits, factors, integer, binary):
+        """docs
+        """
 
         # Parent class definition.
         super(QubitOperator, self).__init__()
         self.terms = terms
+
         self.n_qubits = n_qubits
 
         self.factors = factors
@@ -77,7 +84,7 @@ class HybridOperator(QubitOperator):
     @property
     def qubitoperator(self):
         qubit_op = QubitOperator()
-        qubit_op.terms = self.terms
+        qubit_op.terms = self.terms.copy()
         return qubit_op
 
     @classmethod
@@ -124,7 +131,7 @@ class HybridOperator(QubitOperator):
             HybridOperator: Product of the multiplication.
         """
 
-        # (Guess from Alexandre): Matrix to take into account the order of pauli multiplication.
+        # Matrix to take into account the order of pauli multiplication.
         levi = np.zeros((4, 4, 4), dtype=complex)
         levi[0, 0, 0] = 1
         levi[0, 1, 1] = 1
@@ -155,7 +162,7 @@ class HybridOperator(QubitOperator):
             factors[term_i * increment:(term_i + 1) * increment] = self.factors[term_i] * \
                                                                    other_operator.factors * \
                                                                    np.product(levi_term[non_zero].reshape((increment, self.n_qubits)), axis=1)
-        print(factors)
+
         return HybridOperator.from_integerop(product, factors=factors)
 
     def get_kernel(self):
@@ -310,10 +317,11 @@ def integer_to_qubit_terms(integer_op, factors):
 def is_commuting(hybrid_op_a, hybrid_op_b, term_resolved=False):
     """Check if two operators commute, using stabilizer model. With the
     *term_resolved* flag, the user can identify which terms in the parent
-    operator do or do not commute with the target operator. In stabilizer
-    notation, (ax|az)(bz|bx) = -1^(ax.bz + az.bx) (bz|bx)(ax|az) define the
-    commutation relations. By evaluating sign of (ax.bz + az.bx), we recover
-    commutation relation. For a given pair of terms in the operators,
+    operator do or do not commute with the target operator.
+
+    In stabilizer notation, (ax|az)(bz|bx) = -1^(ax.bz + az.bx) (bz|bx)(ax|az)
+    define the commutation relations. By evaluating sign of (ax.bz + az.bx), we
+    recover commutation relation. For a given pair of terms in the operators,
     ax.bz + az.bx = sum(XOR (AND (a' . b))) where a' is the z-x swapped
     a-vector. We then apply an OR reduction over all of the b-terms to
     identify whether term a_i commutes with all of b_j. Applying once again,
@@ -321,12 +329,13 @@ def is_commuting(hybrid_op_a, hybrid_op_b, term_resolved=False):
     a,b.
 
     Args:
-        other_operator: other HybridOperator.
+        hybrid_op_a: First HybridOperator.
+        hybrid_op_b: Second HybridOperator.
         term_resolved (bool): If True, get commutator for each term.
 
     Returns:
-        bool or numpy array of bool: If operators commutes or array of bool
-            describing which terms are commuting.
+        bool or array of bool: If operators commutes or array of bool describing
+            which terms are commuting.
     """
 
     term_bool = np.zeros(hybrid_op_a.n_terms, dtype=bool)

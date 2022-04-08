@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Docs.
+"""Module defining a class to store object related to qubit tapering, i.e.
+resource reduction through symmetries.
 """
 
 import numpy as np
@@ -20,10 +21,41 @@ import numpy as np
 from tangelo.toolboxes.operators.hybridoperator import HybridOperator
 from tangelo.toolboxes.operators.z2_tapering import get_clifford_operators, get_unitary, get_eigenvalues, get_z2_taper_function
 
+
 class QubitTapering:
+    """Class keeping track of symmetries and operation to taper qubits in qubit
+    operators. The taper function is kept as an attribute to make is easier to
+    taper generator Pauli words (Hamiltonian dessing, ansatz construction, etc).
+    Z2 tapering is implemented, but other tapering methods could be added in
+    the core of this class.
+
+    Attributes:
+        initial_op (HybridOperator): Qubit operator to be analyzed for
+            symmetries.
+        initial_n_qubits (int): Number of qubits before tapering.
+        z2_taper (func): Function handle for tapering a HybridOperator.
+        z2_tapered_op (HybridOperator): Tapered operator with z2 symmetries.
+        z2_properties (dict): Relevant quantities used to define the z2 taper
+            function. Needed to back track a z2 tapered operator to the full
+            operator.
+    """
 
     def __init__(self, qubit_operator, n_qubits, n_electrons, mapping="JW", up_then_down=False):
-        """Docs."""
+        """Class keeping track of symmetries and operation to taper qubits in qubit
+        operators. The taper function is kept as an attribute to make is easier to
+        taper generator Pauli words (Hamiltonian dessing, ansatz construction, etc).
+
+        Args:
+            qubit_operator (QubitOperator): Self-explanatory.
+            n_qubits (int): Number of qubits the initial operator acts on.
+            n-electrons (int): Number of electrons.
+            mapping (str): Qubit mapping.
+            up_then_down (bool): Whether or not spin ordering is all up then
+                all down.
+        """
+
+        if mapping.upper() not in {"JW", "BK"}:
+            raise NotImplementedError(f"Qubit mapping {mapping} not supported. Tapering only supports JW and BK qubit encoding.")
 
         self.initial_op = HybridOperator.from_qubitop(qubit_operator, n_qubits)
         self.initial_n_qubits = n_qubits
@@ -35,24 +67,34 @@ class QubitTapering:
         self.z2_tapered_op = None
         self.z2_properties = dict()
 
-        self.compute_z2_symmetries()
+        self._compute_z2_symmetries()
 
     def z2_tapering(self, qubit_operator, n_qubits=None):
-        """Docs."""
+        """Function to taper a qubit operator from symmetries found in
+        self.initial_op.
+
+        Returns:
+            QubitOperator: Tapered qubit operator.
+        """
 
         hybrid_op = HybridOperator.from_qubitop(qubit_operator, n_qubits)
         z2_tapered_op = self.z2_taper(hybrid_op)
 
         return z2_tapered_op.qubitoperator
 
-    def compute_z2_symmetries(self):
-        """Docs."""
+    def _compute_z2_symmetries(self):
+        """Computes the underlying z2 symmetries in elf.initial_op. The
+        procedure is described in
+        Tapering off qubits to simulate fermionic Hamiltonians
+        Sergey Bravyi, Jay M. Gambetta, Antonio Mezzacapo, Kristan Temme.
+        arXiv:1701.08213
+        """
 
         kernel = self.initial_op.get_kernel()
 
-        list_of_cliffords, q_indices = get_clifford_operators(kernel)
+        cliffords, q_indices = get_clifford_operators(kernel)
         n_symmetries = len(q_indices)
-        unitary = get_unitary(list_of_cliffords)
+        unitary = get_unitary(cliffords)
 
         kernel_operator = HybridOperator.from_binaryop(kernel, factors=np.ones(kernel.shape[0]))
         eigenvalues = get_eigenvalues(kernel_operator.binary, self.initial_n_qubits, self.n_electrons, self.mapping, self.up_then_down)
