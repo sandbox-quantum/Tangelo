@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This file provides utility functions to perform math operation, mainloy on
-matrix and arrays.
-"""
+"""This file provides utility functions to perform math operations."""
 
 import numpy as np
 

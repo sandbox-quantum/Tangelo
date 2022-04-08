@@ -186,7 +186,7 @@ class HybridOperator(QubitOperator):
         # Extracting the kernel.
         kernel = np.array([E_prime[self.binary.shape[0]:, i] for i in range(self.n_qubits)
                            if not E_prime[:self.binary.shape[0], i].max()])
-        kernel = np.concatenate((kernel[:, self.n_qubits:], kernel[:,: self.n_qubits]), axis=1)
+        kernel = np.concatenate((kernel[:, self.n_qubits:], kernel[:, : self.n_qubits]), axis=1)
 
         self.kernel = kernel
         return kernel
@@ -231,11 +231,12 @@ class ConvertPauli:
     """
 
     def __init__(self, pauli_id):
-        pauli_translation = [["I", 0, (0, 0)],
-                             ["Z", 1, (0, 1)],
-                             ["X", 2, (1, 0)],
-                             ["Y", 3, (1, 1)]
-                            ]
+        pauli_translation = [
+            ["I", 0, (0, 0)],
+            ["Z", 1, (0, 1)],
+            ["X", 2, (1, 0)],
+            ["Y", 3, (1, 1)]
+            ]
 
         self.char = None
         self.integer = None

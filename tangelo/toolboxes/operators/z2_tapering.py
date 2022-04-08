@@ -51,7 +51,7 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
 
         # Remove non-commuting terms.
         commutes = is_commuting(operator, kernel, term_resolved=True)
-        indices = np.where(commutes == False)[0]
+        indices = np.where(commutes is False)[0]
 
         if len(indices) > 0:
             operator.remove_terms(indices)
@@ -62,9 +62,9 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
         else:
             product = operator * unitary
             product_reverse = unitary * product
-            post, factors =  product_reverse.integer, product_reverse.factors
+            post, factors = product_reverse.integer, product_reverse.factors
 
-            #Clean operator.
+            # Clean operator.
             operator_matrix, factors = collapse(post, factors)
 
         if factors.max() == 0.0:
@@ -112,8 +112,8 @@ def get_clifford_operators(kernel):
             # operator and commutes with all others.
             pauli = (0, 0)
             for pauli_i in range(3):
-                tau_destination = np.delete(np.array([1,2,3]), pauli_i)
-                lookup = [0, pauli_i +1]
+                tau_destination = np.delete(np.array([1, 2, 3]), pauli_i)
+                lookup = [0, pauli_i + 1]
 
                 if all(oi in lookup for oi in tau_j):
                     if tau_i in tau_destination:
@@ -172,7 +172,7 @@ def get_eigenvalues(symmetries, n_qubits, n_electrons, mapping, up_then_down):
     if len(symmetries.shape) == 1:
         symmetries = np.reshape(symmetries, (-1, len(symmetries)))
 
-    each_qubit = np.einsum("ij,j->ij", symmetries[:,n_qubits:].astype(bool), psi_init)
+    each_qubit = np.einsum("ij,j->ij", symmetries[:, n_qubits:].astype(bool), psi_init)
     eigenvalues = np.product(-2 * each_qubit + 1, axis=1)
 
     return eigenvalues
@@ -183,8 +183,8 @@ def collapse(operator, factors):
     collapse a set of Pauli words to their minimal representation.
 
     Returns:
-    (array of int, arrays of float):A rray of unique integer-encoded
-        Pauli words, their factors in the operator.
+        (array of int, arrays of float): Array of unique integer-encoded
+            Pauli words, their factors in the operator.
     """
 
     all_terms = np.concatenate((operator, np.linspace(0, len(operator) - 1, len(operator), dtype=int).reshape(len(operator), -1)), axis=1)
@@ -192,9 +192,9 @@ def collapse(operator, factors):
     qubits = np.linspace(0, operator.shape[1] - 1, operator.shape[1], dtype=int)
 
     sorted_terms = np.array(sorted(all_terms, key=itemgetter(*qubits)))
-    sorted_factors = factors[sorted_terms[:,-1]]
+    sorted_factors = factors[sorted_terms[:, -1]]
 
-    unique, inverse = np.unique(sorted_terms[:,:-1], axis=0, return_inverse=True)
+    unique, inverse = np.unique(sorted_terms[:, :-1], axis=0, return_inverse=True)
 
     factors = np.zeros(len(unique), dtype=complex)
 
