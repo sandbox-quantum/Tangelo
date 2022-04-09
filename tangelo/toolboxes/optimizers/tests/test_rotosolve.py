@@ -13,6 +13,9 @@
 # limitations under the License.
 
 import unittest
+
+import numpy as np
+
 from tangelo.linq import Simulator, Gate, Circuit
 from tangelo.toolboxes.optimizers.rotosolve import rotosolve
 from tangelo.molecule_library import mol_H2_sto3g
@@ -26,7 +29,7 @@ class OptimizerTest(unittest.TestCase):
         """Test rotosovle on H2 without VQE, using custom variational circuit
         and qubit Hamiltonian with JW qubit mapping on an exact simulator.
         """
-        sim = Simulator('qulacs')
+        sim = Simulator()
         # Create qubit Hamiltonian compatible with UCC1 Ansatz
         qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=mol_H2_sto3g.fermionic_hamiltonian,
                                                      mapping="jw",
@@ -35,23 +38,16 @@ class OptimizerTest(unittest.TestCase):
 
         # Manual input of UCC1 circuit with extra variational parameters
         circuit = Circuit()
-        circuit.add_gate(Gate("X", 0))
-        circuit.add_gate(Gate("X", 2))
-        circuit.add_gate(Gate("RX", 0, parameter=1.5707963267948966, is_variational=True))
-        circuit.add_gate(Gate("H", 1))
-        circuit.add_gate(Gate("H", 2))
-        circuit.add_gate(Gate("H", 3))
-        circuit.add_gate(Gate("CNOT", 1, 0))
-        circuit.add_gate(Gate("CNOT", 2, 1))
-        circuit.add_gate(Gate("CNOT", 3, 2))
+        # Create excitation ladder circuit used to build entangler
+        excit_gates = [Gate("RX", 0, parameter=np.pi/2, is_variational=True)]
+        excit_gates += [Gate("H", i) for i in {1, 2, 3}]
+        excit_gates += [Gate("CNOT", i+1, i) for i in range(3)]
+        excit_circuit = Circuit(excit_gates)
+        # Build UCC1 circuit: mean field + entangler circuits
+        circuit = Circuit([Gate("X", i) for i in {0, 2}])
+        circuit += excit_circuit
         circuit.add_gate(Gate("RZ", 3, parameter=0, is_variational=True))
-        circuit.add_gate(Gate("CNOT", 3, 2))
-        circuit.add_gate(Gate("CNOT", 2, 1))
-        circuit.add_gate(Gate("CNOT", 1, 0))
-        circuit.add_gate(Gate("RX", 0, parameter=-1.5707963267948966, is_variational=True))
-        circuit.add_gate(Gate("H", 1))
-        circuit.add_gate(Gate("H", 2))
-        circuit.add_gate(Gate("H", 3))
+        circuit += excit_circuit.inverse()
         # Translate circuit into variational ansatz
         ansatz = VariationalCircuitAnsatz(circuit)
 

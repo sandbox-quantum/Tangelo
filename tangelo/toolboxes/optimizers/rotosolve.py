@@ -61,21 +61,21 @@ def rotosolve(func, var_params, *args, ftol=1e-5, maxiter=100):
 
     Args:
         func (function handle): The function that performs energy
-            estimation. This function takes variational params as input
+            estimation. This function takes variational parameters as input
             and returns a float.
         var_params (list): The variational parameters.
         ftol (float): Convergence threshold.
-        maxiter (int): The maxium iterations.
+        maxiter (int): The maximum number of iterations.
 
     Returns:
         float: The optimal energy found by the optimizer.
         list of floats: Optimal parameters.
      """
-    # Get intial value, and run rotosolve for maxiteraions
+    # Get intial value, and run rotosolve for up to maxiter iterations
     energy_old = func(var_params, *args)
-    for it in range(0, maxiter):
+    for it in range(maxiter):
         # Update parameters one at a time using rotosolve_step
-        for i, theta in enumerate(var_params):
+        for i in range(len(var_params)):
             var_params = rotosolve_step(func, var_params, i, *args)
         energy_new = func(var_params, *args)
 

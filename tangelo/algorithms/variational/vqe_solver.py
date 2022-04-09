@@ -134,7 +134,7 @@ class VQESolver:
         # Check compatibility of optimizer with Ansatz class
         elif self.optimizer == rotosolve:
             if self.ansatz not in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.HEA]:
-                raise ValueError("Objective function of Ansatz class incompatible with optimizer.")
+                raise ValueError(f"{self.ansatz} not compatible with rotosolve optimizer.")
 
         # Building VQE with a molecule as input.
         if self.molecule:
