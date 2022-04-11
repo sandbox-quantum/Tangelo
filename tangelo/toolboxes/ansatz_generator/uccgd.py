@@ -48,12 +48,11 @@ class UCCGD(Ansatz):
             alternating spin up/down ordering).
     """
 
-    def __init__(self, molecule, mapping="JW", up_then_down=False, k=2):
+    def __init__(self, molecule, mapping="JW", up_then_down=False):
 
         self.n_spinorbitals = molecule.n_active_sos
         self.n_electrons = molecule.n_active_electrons
         self.spin = molecule.spin
-        self.k = k
 
         self.qubit_mapping = mapping
         self.up_then_down = up_then_down
@@ -179,7 +178,7 @@ class UCCGD(Ansatz):
                 self.circuit._variational_gates[i].parameter = value
 
     def _get_qubit_operator(self):
-        """Construct UpCCGSD FermionOperator for variational
+        """Construct UCCGD FermionOperator for variational
         parameters, and translate to QubitOperator via relevant qubit mapping.
 
         Returns:

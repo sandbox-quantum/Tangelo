@@ -21,7 +21,7 @@ Li2 = [('Li', (0, 0, 0)), ('Li', (3.5, 0, 0))]
 mol = SecondQuantizedMolecule(Li2, q=0, spin=0, basis="6-31g(d,p)", frozen_orbitals=[0, 1]+[i for i in range(4, 28)])
 
 
-class ADAPTSolverTest(unittest.TestCase):
+class SAOOSolverTest(unittest.TestCase):
 
     def test_build_sa_oo_solver(self):
         """Try instantiating SA_OO_Solver with basic input."""

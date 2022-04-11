@@ -22,7 +22,7 @@ from tangelo.toolboxes.ansatz_generator.uccgd import UCCGD
 from tangelo.linq import Simulator
 
 
-class UpCCGSDTest(unittest.TestCase):
+class UCCGDTest(unittest.TestCase):
 
     def test_uccgd_set_var_params(self):
         """Verify behavior of set_var_params for different inputs (keyword,

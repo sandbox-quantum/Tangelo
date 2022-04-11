@@ -23,10 +23,6 @@ orbital-optimized hybrid quantum-classical algorithm for a democratic descriptio
 Phys. Rev. Research 1, 033062 (2019)
 """
 
-import warnings
-import itertools
-from copy import deepcopy
-
 import numpy as np
 
 from tangelo.linq import Simulator, Circuit
@@ -73,40 +69,35 @@ class SA_VQESolver(VQESolver):
 
     def __init__(self, opt_dict):
 
-        default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None,
-                           "qubit_mapping": "jw", "ansatz": BuiltInAnsatze.UCCGD,
-                           "optimizer": self._default_optimizer,
-                           "initial_var_params": None,
-                           "backend_options": default_backend_options,
-                           "penalty_terms": None,
-                           "ansatz_options": dict(),
-                           "up_then_down": False,
-                           "qubit_hamiltonian": None,
-                           "verbose": False,
-                           "ref_states": None,
-                           "weights": None}
+        sa_vqe_options = {"ref_states": None, "weights": None, "ansatz": BuiltInAnsatze.UCCGD}
 
-        # Initialize with default values
-        self.__dict__ = default_options
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
+        # remove SA-OO-VQE specific options before calling SA_VQESolver.__init__() and move values to oo_options
+        opt_dict_vqe = opt_dict.copy()
         for k, v in opt_dict.items():
-            if k in default_options:
-                setattr(self, k, v)
-            else:
-                raise KeyError(f"Keyword :: {k}, not available in VQESolver")
+            if k in sa_vqe_options:
+                value = opt_dict_vqe.pop(k)
+                sa_vqe_options[k] = value
+
+        # Initialization of VQESolver will check if spurious dictionary items are present
+        super().__init__(opt_dict_vqe)
+
+        self.builtin_ansatze = set([BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.UCCGD, BuiltInAnsatze.HEA, BuiltInAnsatze.UCCSD])
+
+        # Add oo_options to attributes
+        for k, v in sa_vqe_options.items():
+            setattr(self, k, v)
 
         if self.ref_states is None:
             raise ValueError(f"ref_states must be provided when instantiating {self.__class__.__name__}")
-        # Raise error/warnings if input is not as expected. Only a single input
-        # must be provided to avoid conflicts.
-        if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
-            raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
-        self.initial_qubit_hamiltonian = deepcopy(self.qubit_hamiltonian) if self.qubit_hamiltonian is not None else None
-        self.optimal_energy = None
-        self.optimal_var_params = None
-        self.builtin_ansatze = set([BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.UCCGD, BuiltInAnsatze.HEA, BuiltInAnsatze.UCCSD])
+        self.n_states = len(self.ref_states)
+        if self.weights is None:
+            self.weights = np.ones(self.n_states)/self.n_states
+        else:
+            if len(self.weights) != self.n_states:
+                raise ValueError("Number of elements in weights must equal the number of ref_states")
+            self.weights = np.array(self.weights)
+            self.weights = self.weights/sum(self.weights)
 
     def build(self):
         """Build the underlying objects required to run the SA-VQE algorithm
@@ -179,22 +170,15 @@ class SA_VQESolver(VQESolver):
             self.reference_circuits.append(statevector_mapping.vector_to_circuit(mapped_state, self.qubit_mapping))
             self.reference_circuits[-1].name = str(ref_state)
 
-        self.n_states = len(self.ref_states)
-        if self.weights is None:
-            self.weights = np.ones(self.n_states)/self.n_states
-        else:
-            if len(self.weights) != self.n_states:
-                raise ValueError("Number of elements in weights must equal the number of ref_configs")
-            self.weights = np.array(self.weights)
-            self.weights = self.weights/sum(self.weights)
-
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
 
         # Quantum circuit simulation backend options
-        self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
-                                 noise_model=self.backend_options["noise_model"])
+        t = self.backend_options.get("target", self.default_backend_options["target"])
+        ns = self.backend_options.get("n_shots", self.default_backend_options["n_shots"])
+        nm = self.backend_options.get("noise_model", self.default_backend_options["noise_model"])
+        self.backend = Simulator(target=t, n_shots=ns, noise_model=nm)
 
     def simulate(self):
         """Run the VQE algorithm, using the ansatz, classical optimizer, initial

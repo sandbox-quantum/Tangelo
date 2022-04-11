@@ -20,36 +20,42 @@ orbital-optimized hybrid quantum-classical algorithm for a democratic descriptio
 2021, Quantum Sci. Technol. 6 024004
 
 """
-from copy import copy
 
 import numpy as np
 from scipy.linalg import expm
 
-from tangelo.algorithms.variational import SA_VQESolver, BuiltInAnsatze
+from tangelo.algorithms.variational import SA_VQESolver
 
 
-def docstring_inherit(parent):
-    def inherit(obj):
-        spaces = "    "
-        if not str(obj.__doc__).__contains__("Attributes:"):
-            obj.__doc__ += "\n" + spaces + "Attributes:\n"
-        obj.__doc__ = str(obj.__doc__).rstrip() + "\n"
-        for attribute in parent.__doc__.split("Attributes:\n")[-1].split("\n"):
-            obj.__doc__ += str(attribute).rstrip() + "\n"
-        return obj
-
-    return inherit
-
-
-@docstring_inherit(SA_VQESolver)
 class SA_OO_Solver(SA_VQESolver):
     """State Averaged Orbital Optimized Solver class. This is an iterative algorithm that uses SA-VQE alternatively with an
     orbital optimization step.
+
+    Users must first set the desired options of the SA_OO_Solver object through the
+    __init__ method, and call the "build" method to build the underlying objects
+    (mean-field, hardware backend, ansatz...). They are then able to call any of
+    the energy_estimation, simulate, get_rdm, or iterate methods. In particular, iterate
+    runs the SA-OO algorithm, alternating calls to the SA_VQESolver and orbital optimization.
 
     Attributes:
         tol (float): Maximum energy difference before convergence
         max_cycles (int): Maximum number of iterations for sa-oo-vqe
         n_oo_per_iter (int): Number of orbital optimization Newton-Raphson steps per SA-OO-VQE iteration
+        molecule (SecondQuantizedMolecule) : the molecular system.
+        qubit_mapping (str) : one of the supported qubit mapping identifiers.
+        ansatz (Ansatze) : one of the supported ansatze.
+        optimizer (function handle): a function defining the classical optimizer and its behavior.
+        initial_var_params (str or array-like) : initial value for the classical optimizer.
+        backend_options (dict) : parameters to build the tangelo.linq Simulator class.
+        penalty_terms (dict): parameters for penalty terms to append to target qubit Hamiltonian (see penalty_terms
+            for more details).
+        ansatz_options (dict): parameters for the given ansatz (see given ansatz file for details).
+        up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down.
+            Default, False has alternating spin up/down ordering.
+        qubit_hamiltonian (QubitOperator-like): Self-explanatory.
+        verbose (bool): Flag for VQE verbosity.
+        ref_states (list): The vector occupations of the reference configurations
+        weights (array): The weights of the occupations
      """
 
     def __init__(self, opt_dict: dict):
@@ -96,16 +102,17 @@ class SA_OO_Solver(SA_VQESolver):
             for reference_circuit in self.reference_circuits:
                 self.rdms.append(self.get_rdm(self.optimal_var_params, ref_state=reference_circuit))
             energy_new = self.energy_from_rdms()
-            print(energy_new)
+            if self.verbose:
+                print(f"The State-Averaged VQE energy for iteration {iter} is: {energy_new}")
             if iter > 0 and abs(energy_new-self.energies[-1]) < self.tol:
                 self.energies.append(energy_new)
                 break
             for _ in range(self.n_oo_per_iter):
                 u_mat = self.generate_oo_unitary()
                 self.molecule.mean_field.mo_coeff = self.molecule.mean_field.mo_coeff @ u_mat
-            print(self.energy_from_rdms())
             self.energies.append(self.energy_from_rdms())
-            self.initial_var_params = copy(self.optimal_var_params)
+            if self.verbose:
+                print(f"The State-Averaged Orbital Optimized energy for iteration {iter} is: {self.energies[-1]}")
             self.build()
 
     def energy_from_rdms(self):
