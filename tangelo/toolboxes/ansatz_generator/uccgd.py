@@ -186,9 +186,7 @@ class UCCGD(Ansatz):
                 p = p + 1
                 for sig, tau in product(range(2), repeat=2):
                     c_op = ofFermionOperator(((2*t+sig, 1), (2*v+tau, 1), (2*w+tau, 0), (2*u+sig, 0)), self.var_params[p])
-                    fermion_op += c_op - hermitian_conjugated(c_op)
-                for sig, tau in product(range(2), repeat=2):
-                    c_op = ofFermionOperator(((2*v+sig, 1), (2*t+tau, 1), (2*u+tau, 0), (2*w+sig, 0)), self.var_params[p])
+                    c_op += ofFermionOperator(((2*v+sig, 1), (2*t+tau, 1), (2*u+tau, 0), (2*w+sig, 0)), self.var_params[p])
                     fermion_op += c_op - hermitian_conjugated(c_op)
 
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
