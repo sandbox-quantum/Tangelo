@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import unittest
 
 import numpy as np
@@ -20,6 +21,9 @@ from openfermion.utils import load_operator
 
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.operators.taper_qubits import QubitTapering
+
+# For openfermion.load_operator function.
+pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
 
 class QubitTaperingTest(unittest.TestCase):
@@ -33,7 +37,7 @@ class QubitTaperingTest(unittest.TestCase):
     def test_z2taper_h2_jw_occupied_first(self):
         """Test Z2 tapering of H2 JW up_then_down=False."""
 
-        qu_op = load_operator("H2_JW_occfirst.data", data_directory="data", plain_text=True)
+        qu_op = load_operator("H2_JW_occfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
 
         tapering = QubitTapering(qu_op, 4, 2, "JW", False)
@@ -45,7 +49,7 @@ class QubitTaperingTest(unittest.TestCase):
     def test_z2taper_h2_jw_spinup_first(self):
         """Test Z2 tapering of H2 JW up_then_down=True."""
 
-        qu_op = load_operator("H2_JW_spinupfirst.data", data_directory="data", plain_text=True)
+        qu_op = load_operator("H2_JW_spinupfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
 
         tapering = QubitTapering(qu_op, 4, 2, "JW", True)
@@ -57,7 +61,7 @@ class QubitTaperingTest(unittest.TestCase):
     def test_z2taper_h2_bk_occupied_first(self):
         """Test Z2 tapering of H2 BK up_then_down=False."""
 
-        qu_op = load_operator("H2_BK_occfirst.data", data_directory="data", plain_text=True)
+        qu_op = load_operator("H2_BK_occfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
 
         tapering = QubitTapering(qu_op, 4, 2, "BK", False)
@@ -69,7 +73,7 @@ class QubitTaperingTest(unittest.TestCase):
     def test_z2taper_h2_bk_spinup_first(self):
         """Test Z2 tapering of H2 BK up_then_down=True."""
 
-        qu_op = load_operator("H2_BK_spinupfirst.data", data_directory="data", plain_text=True)
+        qu_op = load_operator("H2_BK_spinupfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
 
         tapering = QubitTapering(qu_op, 4, 2, "BK", True)
