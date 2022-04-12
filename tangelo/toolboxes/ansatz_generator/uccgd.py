@@ -25,7 +25,7 @@ Refs:
 import numpy as np
 from openfermion import hermitian_conjugated
 from openfermion import FermionOperator as ofFermionOperator
-from itertools import combinations_with_replacement
+from itertools import combinations_with_replacement, product
 
 from tangelo.linq import Circuit
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
@@ -61,11 +61,8 @@ class UCCGD(Ansatz):
             raise ValueError("The total number of spin-orbitals should be even.")
         self.n_spatial_orbitals = self.n_spinorbitals // 2
         n_mos = self.n_spatial_orbitals
-        p = 0
-        for indices in combinations_with_replacement(range(n_mos), 4):
-            if len(set(indices)) >= 2:  # are they not all equal
-                p = p + 1
-        self.n_var_params = p
+
+        self.n_var_params = len(list(combinations_with_replacement(range(n_mos), 4))) - n_mos
 
         # Supported reference state initialization
         # TODO: support for others
@@ -187,14 +184,12 @@ class UCCGD(Ansatz):
             if len(set(indices)) >= 2:  # are they not all equal
                 u, w, v, t = indices
                 p = p + 1
-                for sig in range(2):
-                    for tau in range(2):
-                        c_op = ofFermionOperator(((2*t+sig, 1), (2*v+tau, 1), (2*w+tau, 0), (2*u+sig, 0)), self.var_params[p])
-                        fermion_op += c_op - hermitian_conjugated(c_op)
-                for sig in range(2):
-                    for tau in range(2):
-                        c_op = ofFermionOperator(((2*v+sig, 1), (2*t+tau, 1), (2*u+tau, 0), (2*w+sig, 0)), self.var_params[p])
-                        fermion_op += c_op - hermitian_conjugated(c_op)
+                for sig, tau in product(range(2), repeat=2):
+                    c_op = ofFermionOperator(((2*t+sig, 1), (2*v+tau, 1), (2*w+tau, 0), (2*u+sig, 0)), self.var_params[p])
+                    fermion_op += c_op - hermitian_conjugated(c_op)
+                for sig, tau in product(range(2), repeat=2):
+                    c_op = ofFermionOperator(((2*v+sig, 1), (2*t+tau, 1), (2*u+tau, 0), (2*w+sig, 0)), self.var_params[p])
+                    fermion_op += c_op - hermitian_conjugated(c_op)
 
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
                                             mapping=self.qubit_mapping,
