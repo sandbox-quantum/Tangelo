@@ -22,12 +22,9 @@ import warnings
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-# Imports of electronic solvers and data structure
 from tangelo import SecondQuantizedMolecule
 from tangelo.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
 from tangelo.problem_decomposition.oniom._helpers.capping_groups import elements, chemical_groups
-
-warnings.filterwarnings("ignore")
 
 
 class Fragment:
@@ -263,7 +260,9 @@ class Link:
             axis_old = leaving - staying
             axis_new = chem_group_xyz[0] - np.array(self.species[0][1])
 
-            rot, _ = R.align_vectors([axis_old], [axis_new])
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                rot, _ = R.align_vectors([axis_old], [axis_new])
             chem_group_xyz = rot.apply(chem_group_xyz)
 
         # Move the atom / group to the right position in space.
