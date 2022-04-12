@@ -18,6 +18,7 @@ which bonds are broken and how to fix them) as well as the solver(s) to use.
 """
 
 import warnings
+
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
