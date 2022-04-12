@@ -30,7 +30,6 @@ Reference:
     Chemical Reviews 2015 115 (12), 5678-5796. DOI: 10.1021/cr5004419.
 """
 # TODO: Supporting many (3+) layers of different accuracy.
-# TODO: Capping with CH3 or other functional groups.
 
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list
@@ -95,9 +94,10 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
 
             # If there are broken_links (other than an empty list nor None).
             # The whole molecule geometry is needed to compute the position of
-            # the capping atom (or functional group in the future).
+            # the capping atom (or functional group).
             if fragment.broken_links:
-                fragment.geometry += [li.relink(self.geometry) for li in fragment.broken_links]
+                for li in fragment.broken_links:
+                    fragment.geometry += li.relink(self.geometry)
 
     def simulate(self):
         r"""Run the ONIOM core-method. The total energy is defined as
