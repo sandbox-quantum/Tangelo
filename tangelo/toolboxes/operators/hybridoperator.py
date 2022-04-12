@@ -212,6 +212,41 @@ class HybridOperator(QubitOperator):
         # Update the terms attribute.
         self.terms = integer_to_qubit_terms(self.integer, self.factors)
 
+    def _update(self):
+        """Updates attributes according to self.terms."""
+
+        # Updating attributes.
+        self.n_qubits = count_qubits(self)
+        self.factors = np.array([coeff for coeff in self.terms.values()])
+        self.integer = qubit_to_integer(self, self.n_qubits)
+        self.binary = integer_to_binary(self.integer)
+
+        # Updating the binary_swap from the new binary.
+        list_col_swap = [n_column for n_column in range(2 * self.n_qubits)]
+        list_col_swap = list_col_swap[self.n_qubits:] + list_col_swap[:self.n_qubits]
+        self.binary_swap = self.binary[:, list_col_swap]
+
+        # Resetting the kernel attribute.
+        self.kernel = None
+
+    def compress(self, abs_tol=None):
+        """Overloads the QubitOperator.compress method. It adds an update for
+            the attributes.
+
+        Args:
+            abs_tol (float): Tolerance for the coefficients to be discarded or
+                not. By default, it is EQ_TOLERANCE=1e-8 (in openfermion).
+        """
+
+        # If an update is done to EQ_TOLERANCE in openfermion, it will be
+        # consistent in this implementation.
+        if abs_tol is None:
+            super(QubitOperator, self).compress()
+        else:
+            super(QubitOperator, self).compress(abs_tol)
+
+        self._update()
+
 
 class ConvertPauli:
     """Helper class to help convert from/to string <-> int <-> stabilizer. It

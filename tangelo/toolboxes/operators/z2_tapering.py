@@ -193,6 +193,10 @@ def collapse(operator, factors):
     """Function to identify and sum over duplicate terms in an operator, to
     collapse a set of Pauli words to their minimal representation.
 
+    Args:
+        operator (array of int): Operator in integer notation.
+        factors (array of complex): Self-explanatory.
+
     Returns:
         (array of int, arrays of float): Array of unique integer-encoded
             Pauli words, their factors in the operator.
