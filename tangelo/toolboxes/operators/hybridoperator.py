@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module defining the HybridOperator class. It stores the a qubit operator in
-many forms: tuples, numpy array of int and stabilizer formalism. Most of the
-internal methods use the numpy array of int. The main application for this
-class is to identify commuation relation faster with the stabilizer notation.
+"""Module defining the HybridOperator class. It stores a qubit operator in many
+forms: tuples, numpy array of int and stabilizer formalism. Most of the internal
+methods use the numpy array of int. The main application for this class is to
+identify commutation relation faster with the stabilizer notation.
 """
 
 import numpy as np
@@ -28,25 +28,26 @@ class HybridOperator(QubitOperator):
     """Construct integer and binary representations of the operator, as based on
     the user-specified input. Internal operations are mostly done with an
     integer array. The conversion is defined as:
-      Letter | Integer | Binary
+    Letter | Integer | Binary
     -    I   |    0    | (0,0)
     -    Z   |    1    | (0,1)
     -    X   |    2    | (1,0)
     -    Y   |    3    | (1,1)
-    Most of the algorithm use the integer representation to detect symmetries
+    Most of the algorithms use the integer representation to detect symmetries
     and performed operation (ex: multiplication). At the end, the operator can
     be output as a QubitOperator.
 
     Attributes:
         terms (dict): Qubit terms.
         n_qubits (int): Number of qubits for this operator.
-        factors (array-like): Factors fopr each term. Without that, information
-            would be lost when converting from a QubitOperator.
-        integer (array-like): Array of 0s, 1s, 2s and 3s. Each line represents a
-            term, and each term is a Pauli word.
-        binary (array-like): Array of 0s (false) and 1s (true). Binary
+        factors (array-like of complex): Factors for each term. Without that,
+            information would be lost when converting from a QubitOperator.
+        integer (array-like of np.int8): Array of 0s, 1s, 2s and 3s. Each line
+            represents a term, and each term is a Pauli word.
+        binary (array-like of bool): Array of 0s (false) and 1s (true). Binary
             representation of the integer array.
-        binary_swap (array-like): Copy of self.binary but with swapped columns.
+        binary_swap (array-like of bool): Copy of self.binary but with swapped
+            columns.
         kernel (array-like): Null space of the binary representation + identity.
 
     Properties:
@@ -55,8 +56,6 @@ class HybridOperator(QubitOperator):
     """
 
     def __init__(self, terms, n_qubits, factors, integer, binary):
-        """docs
-        """
 
         # Parent class definition.
         super(QubitOperator, self).__init__()
@@ -89,7 +88,7 @@ class HybridOperator(QubitOperator):
 
     @classmethod
     def from_qubitop(cls, qubit_op, n_qubits=None):
-        "Initialize HybridOperator from a qubit operator."
+        """Initialize HybridOperator from a qubit operator."""
 
         n_qubits = n_qubits if n_qubits is not None else count_qubits(qubit_op)
         factors = np.array([coeff for coeff in qubit_op.terms.values()])
@@ -100,38 +99,40 @@ class HybridOperator(QubitOperator):
 
     @classmethod
     def from_integerop(cls, int_op, factors):
-        "Initialize HybridOperator from an integer operator."
+        """Initialize HybridOperator from an integer operator."""
 
-        assert len(factors) == int_op.shape[0]
+        assert len(factors) == int_op.shape[0], \
+             f"The number of factors ({len(factors)}) must be the same as the number of terms ({int_op.shape[0]})."
         terms = integer_to_qubit_terms(int_op, factors)
         bin_op = integer_to_binary(int_op)
 
-        return cls(terms, int_op.shape[1], factors, int_op, bin_op)
+        return cls(terms, int_op.shape[1], factors, int_op.astype(np.int8), bin_op)
 
     @classmethod
     def from_binaryop(cls, bin_op, factors):
-        "Initialize HybridOperator from a binary operator."
+        """Initialize HybridOperator from a binary operator."""
 
-        assert len(factors) == bin_op.shape[0]
+        assert len(factors) == bin_op.shape[0], \
+            f"The number of factors ({len(factors)}) must be the same as the number of terms ({bin_op.shape[0]})."
         n_qubits = bin_op.shape[1] // 2
         # The integer array is defined trivially with the binary array.
-        int_op = 2 * bin_op[:, :n_qubits] + bin_op[:, n_qubits:]
+        int_op = 2 * bin_op[:, :n_qubits].astype(np.int8) + bin_op[:, n_qubits:].astype(np.int8)
         terms = integer_to_qubit_terms(int_op, factors)
 
-        return cls(terms, n_qubits, factors, int_op, bin_op)
+        return cls(terms, n_qubits, factors, int_op, bin_op.astype(bool))
 
     def __mul__(self, other_operator):
         """Multiply two HybridOperators together, return a HybridOperator
         corresponding to the product.
 
         Args:
-            other_operator (HybridOperator): Other operator to multiply self.
+            other_operator (HybridOperator): Another operator to multiply self.
 
         Returns:
             HybridOperator: Product of the multiplication.
         """
 
-        # Matrix to take into account the order of pauli multiplication.
+        # Take into account the order of Pauli matrices multiplication.
         levi = np.zeros((4, 4, 4), dtype=complex)
         levi[0, 0, 0] = 1
         levi[0, 1, 1] = 1
@@ -166,12 +167,12 @@ class HybridOperator(QubitOperator):
         return HybridOperator.from_integerop(product, factors=factors)
 
     def get_kernel(self):
-        """Get the kernel for a matrix of binary integer. Identity matrix is
-        appended, and the extended matrix is then reduced to column-echelon
+        """Get the kernel for a matrix of binary integers. The identity matrix
+        is appended, and the extended matrix is then reduced to column-echelon
         form. The null space is then extracted.
 
         Returns:
-            Array-like: 2d numpy array of binary integer.
+            Array-like: 2d numpy array of binary integers.
         """
 
         identity_to_append = np.identity(2*self.n_qubits)
@@ -196,8 +197,8 @@ class HybridOperator(QubitOperator):
         factors, integer, binary and binary_swap.
 
         Args:
-            indices (int or list of int): Remove all terms corresponding to the
-                indices.
+            indices (int or list of int): Remove all the terms corresponding to
+                the indices.
         """
 
         if isinstance(indices, int):
@@ -213,12 +214,12 @@ class HybridOperator(QubitOperator):
 
 
 class ConvertPauli:
-    """Helper class to help converting from/to string <-> int <-> stabilizer. It
+    """Helper class to help convert from/to string <-> int <-> stabilizer. It
     aims to replace multiple dictionaries. It performs the conversion of
-    I <-> 0 <-> (0, 0)
-    Z <-> 1 <-> (0, 1)
-    X <-> 2 <-> (1, 0)
-    Y <-> 3 <-> (1, 1)
+        I <-> 0 <-> (0, 0)
+        Z <-> 1 <-> (0, 1)
+        X <-> 2 <-> (1, 0)
+        Y <-> 3 <-> (1, 1)
     The input can be whatever found in the previous conversion table.
 
     Args:
@@ -236,7 +237,7 @@ class ConvertPauli:
             ["Z", 1, (0, 1)],
             ["X", 2, (1, 0)],
             ["Y", 3, (1, 1)]
-            ]
+        ]
 
         self.char = None
         self.integer = None
@@ -266,7 +267,7 @@ def qubit_to_integer(qubit_op, n_qubits=None):
     """
 
     n_qubits = n_qubits if n_qubits is not None else count_qubits(qubit_op)
-    integer = np.zeros((len(qubit_op.terms), n_qubits), dtype=int)
+    integer = np.zeros((len(qubit_op.terms), n_qubits), dtype=np.int8)
 
     for index, term in enumerate(qubit_op.terms):
         for n_qubit, pauli_letter in term:
@@ -300,7 +301,7 @@ def integer_to_qubit_terms(integer_op, factors):
     """Perform conversion from integer array to qubit terms.
 
     Returns:
-        dict: Pauli terms and coefficient.
+        dict: Pauli terms and coefficients.
     """
 
     qubit_operator = QubitOperator()
@@ -316,13 +317,13 @@ def integer_to_qubit_terms(integer_op, factors):
 
 
 def is_commuting(hybrid_op_a, hybrid_op_b, term_resolved=False):
-    """Check if two operators commute, using stabilizer model. With the
+    """Check if two operators commute, using the stabilizer notation. With the
     *term_resolved* flag, the user can identify which terms in the parent
     operator do or do not commute with the target operator.
 
     In stabilizer notation, (ax|az)(bz|bx) = -1^(ax.bz + az.bx) (bz|bx)(ax|az)
-    define the commutation relations. By evaluating sign of (ax.bz + az.bx), we
-    recover commutation relation. For a given pair of terms in the operators,
+    define the commutation relations. By evaluating the sign of (ax.bz + az.bx),
+    we recover commutation relation. For a given pair of terms in the operators,
     ax.bz + az.bx = sum(XOR (AND (a' . b))) where a' is the z-x swapped
     a-vector. We then apply an OR reduction over all of the b-terms to
     identify whether term a_i commutes with all of b_j. Applying once again,
@@ -335,8 +336,8 @@ def is_commuting(hybrid_op_a, hybrid_op_b, term_resolved=False):
         term_resolved (bool): If True, get commutator for each term.
 
     Returns:
-        bool or array of bool: If operators commutes or array of bool describing
-            which terms are commuting.
+        bool or array of bool: If the operators commute or array of bool
+            describing which terms are commuting.
     """
 
     term_bool = np.zeros(hybrid_op_a.n_terms, dtype=bool)

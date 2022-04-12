@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Modules that defines helper functions to taper qubits in a molecular problem
+"""Module that defines helper functions to taper qubits in a molecular problem
 with Z2 tapering.
 
-For all problem, there are at least two symmetries (electron number
-and spin conservation) that reduce the qubits count by two. Furthermore,
+For all chemical Hamiltonians, there are at least two symmetries (electron
+number and spin conservation) that reduce the qubits count by two. Furthermore,
 molecular symmetries can lead to a reduction of the qubit required for a problem.
-Thoses symmetries can be interpreted as degenerated eigenvalues. In the real
+Those symmetries can be interpreted as degenerated eigenvalues. In the real
 space, symmetry operations lead to the same total energy.
 
 Ref:
-Tapering off qubits to simulate fermionic Hamiltonians
-Sergey Bravyi, Jay M. Gambetta, Antonio Mezzacapo, Kristan Temme.
-arXiv:1701.08213
+    Tapering off qubits to simulate fermionic Hamiltonians
+    Sergey Bravyi, Jay M. Gambetta, Antonio Mezzacapo, Kristan Temme.
+    arXiv:1701.08213
 """
 
 from operator import itemgetter
@@ -43,6 +43,17 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
     applying the eigenvalues to account for tapered elements, the operator is
     then finally tapered, with the relevant qubits removed.
 
+    Args:
+        unitary (array of float): Unitary matrix to perform U*HU.
+        kernel (array of bool): Kernel representing the NULL space for the
+            operator.
+        q_indices (array of int): Indices for the relevant columns in the
+            operator array representation.
+        n_qubits (int): Self-explanatory.
+        n_symmetries (int): Number of qubits to remove.
+        eigenvalues (array of int): Initial state eigenvalues for the qubits
+            to be removed.
+
     Returns:
         function: function for tapering operator.
     """
@@ -60,6 +71,7 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
         if operator.n_terms == 0:
             operator_matrix, factors = np.zeros(operator.n_qubits), np.array([0.0])
         else:
+            # TODO: This part is the bottleneck when tapering bigger operators.
             product = operator * unitary
             product_reverse = unitary * product
             post, factors = product_reverse.integer, product_reverse.factors
@@ -81,7 +93,7 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
 
 
 def get_clifford_operators(kernel):
-    """Function to identify, with a kernel, suitable single-pauli gates and the
+    """Function to identify, with a kernel, suitable single-Pauli gates and the
     related unitary Clifford gates.
 
     Args:
@@ -135,13 +147,12 @@ def get_unitary(cliffords):
     operators as a single unitary. The result is a HybridOperator.
 
     Args:
-        cliffords (list of HybridOperator): Encoded cliffors operators.
+        cliffords (list of HybridOperator): Encoded Clifford operators.
 
     Returns:
         HybridOperator: Multiplication reflecting the composite operator.
     """
 
-    # Recursion algorithm.
     if len(cliffords) > 2:
         return cliffords[0] * get_unitary(cliffords[1:])
     elif len(cliffords) == 2:
@@ -164,7 +175,7 @@ def get_eigenvalues(symmetries, n_qubits, n_electrons, mapping, up_then_down):
             all down.
 
     Returns:
-        array of +/-1: Eigenvalues of operator with symmetries.
+        array of +/-1: Eigenvalues of an operator with symmetries.
     """
 
     psi_init = get_vector(n_qubits, n_electrons, mapping, up_then_down)

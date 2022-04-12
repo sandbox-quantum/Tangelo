@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module defining a class to store object related to qubit tapering, i.e.
+"""Module defining a class to store objects related to qubit tapering, i.e.
 resource reduction through symmetries.
 """
 
@@ -24,10 +24,10 @@ from tangelo.toolboxes.operators.z2_tapering import get_clifford_operators, get_
 
 class QubitTapering:
     """Class keeping track of symmetries and operation to taper qubits in qubit
-    operators. The taper function is kept as an attribute to make is easier to
-    taper generator Pauli words (Hamiltonian dessing, ansatz construction, etc).
-    Z2 tapering is implemented, but other tapering methods could be added in
-    the core of this class.
+    operators. The taper function is kept as an attribute to taper other Pauli
+    word generators (Hamiltonian dressing, ansatz construction, etc). Z2
+    tapering is implemented, but other tapering methods could be added in the
+    core of this class.
 
     Attributes:
         initial_op (HybridOperator): Qubit operator to be analyzed for
@@ -41,9 +41,8 @@ class QubitTapering:
     """
 
     def __init__(self, qubit_operator, n_qubits, n_electrons, mapping="JW", up_then_down=False):
-        """Class keeping track of symmetries and operation to taper qubits in qubit
-        operators. The taper function is kept as an attribute to make is easier to
-        taper generator Pauli words (Hamiltonian dessing, ansatz construction, etc).
+        """Class keeping track of symmetries and operation to taper qubits in
+        qubit operators.
 
         Args:
             qubit_operator (QubitOperator): Self-explanatory.
@@ -73,8 +72,12 @@ class QubitTapering:
         """Function to taper a qubit operator from symmetries found in
         self.initial_op.
 
+        Args:
+            qubit_operator (QubitOperator): Self-explanatory.
+            n_qubits (int): Self-explanatory.
+
         Returns:
-            QubitOperator: Tapered qubit operator.
+            QubitOperator: The tapered qubit operator.
         """
 
         hybrid_op = HybridOperator.from_qubitop(qubit_operator, n_qubits)
@@ -91,7 +94,6 @@ class QubitTapering:
         """
 
         kernel = self.initial_op.get_kernel()
-
         cliffords, q_indices = get_clifford_operators(kernel)
         n_symmetries = len(q_indices)
         unitary = get_unitary(cliffords)

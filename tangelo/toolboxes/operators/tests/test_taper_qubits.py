@@ -22,16 +22,16 @@ from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.operators.taper_qubits import QubitTapering
 
 
-class Z2TaperingTest(unittest.TestCase):
+class QubitTaperingTest(unittest.TestCase):
 
-    def test_unsupported_mapping(self):
-        """Test unsupported mapping for qubit z2 tapering."""
+    def test_notsupported_mapping(self):
+        """Test not supported mapping for qubit for tapering."""
 
         with self.assertRaises(NotImplementedError):
             QubitTapering(QubitOperator(), 4, 2, "scBK", True)
 
-    def test_taper_h2_jw_occupied_first(self):
-        """Test tapering of H2 JW up_then_down=False."""
+    def test_z2taper_h2_jw_occupied_first(self):
+        """Test Z2 tapering of H2 JW up_then_down=False."""
 
         qu_op = load_operator("H2_JW_occfirst.data", data_directory="data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
@@ -42,8 +42,8 @@ class Z2TaperingTest(unittest.TestCase):
 
         self.assertAlmostEqual(e, e_taper, places=5)
 
-    def test_taper_h2_jw_spinup_first(self):
-        """Test tapering of H2 JW up_then_down=True."""
+    def test_z2taper_h2_jw_spinup_first(self):
+        """Test Z2 tapering of H2 JW up_then_down=True."""
 
         qu_op = load_operator("H2_JW_spinupfirst.data", data_directory="data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
@@ -54,8 +54,8 @@ class Z2TaperingTest(unittest.TestCase):
 
         self.assertAlmostEqual(e, e_taper, places=5)
 
-    def test_taper_h2_bk_occupied_first(self):
-        """Test tapering of H2 BK up_then_down=False."""
+    def test_z2taper_h2_bk_occupied_first(self):
+        """Test Z2 tapering of H2 BK up_then_down=False."""
 
         qu_op = load_operator("H2_BK_occfirst.data", data_directory="data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
@@ -66,8 +66,8 @@ class Z2TaperingTest(unittest.TestCase):
 
         self.assertAlmostEqual(e, e_taper, places=5)
 
-    def test_taper_h2_bk_spinup_first(self):
-        """Test tapering of H2 BK up_then_down=True."""
+    def test_z2taper_h2_bk_spinup_first(self):
+        """Test Z2 tapering of H2 BK up_then_down=True."""
 
         qu_op = load_operator("H2_BK_spinupfirst.data", data_directory="data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
