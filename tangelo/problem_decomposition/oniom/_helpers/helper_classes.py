@@ -74,14 +74,15 @@ class Fragment:
         self.solver_high = solver_high.upper() if solver_high is not None else solver_high
         self.options_high = options_high if options_high is not None else default_solver_options
 
-        # Check if the solvers are implemented in ONIOM.
-        self.builtin_solvers = {"HF", "CCSD", "FCI", "MINDO3", "VQE", "ADAPT", "QITE"}
-        if self.solver_low not in self.builtin_solvers:
-            raise NotImplementedError(f"This {self.solver_low} solver has not been implemented yet in {self.__class__.__name__}")
-        elif self.solver_high and self.solver_high not in self.builtin_solvers:
-            raise NotImplementedError(f"This {self.solver_high} solver has not been implemented yet in {self.__class__.__name__}")
-
+        self.supported_classical_solvers = {"HF": "HF", "CCSD": CCSDSolver, "FCI": FCISolver, "MINDO3": MINDO3Solver}
         self.supported_quantum_solvers = {"VQE": VQESolver, "ADAPT": ADAPTSolver, "QITE": QITESolver}
+
+        # Check if the solvers are implemented in ONIOM.
+        builtin_solvers = self.supported_classical_solvers.keys() | self.supported_quantum_solvers.keys()
+        if self.solver_low not in builtin_solvers:
+            raise NotImplementedError(f"This {self.solver_low} solver has not been implemented yet in {self.__class__.__name__}")
+        elif self.solver_high and self.solver_high not in builtin_solvers:
+            raise NotImplementedError(f"This {self.solver_high} solver has not been implemented yet in {self.__class__.__name__}")
 
         # For this fragment (not the whole molecule).
         self.spin = spin
