@@ -178,8 +178,8 @@ class SA_VQESolver(VQESolver):
         self.backend = Simulator(target=t, n_shots=ns, noise_model=nm)
 
     def simulate(self):
-        """Run the VQE algorithm, using the ansatz, classical optimizer, initial
-        parameters and hardware backend built in the build method for each reference state.
+        """Run the SA-VQE algorithm, using the ansatz, classical optimizer, initial
+        parameters and hardware backend built in the build method.
         """
         if not (self.ansatz and self.backend):
             raise RuntimeError(f"No ansatz circuit or hardware backend built. Have you called {self.__class__.build} ?")
