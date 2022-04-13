@@ -74,7 +74,7 @@ class Fragment:
         self.solver_high = solver_high.upper() if solver_high is not None else solver_high
         self.options_high = options_high if options_high is not None else default_solver_options
 
-        self.supported_classical_solvers = {"HF": "HF", "CCSD": CCSDSolver, "FCI": FCISolver, "MINDO3": MINDO3Solver}
+        self.supported_classical_solvers = {"HF": None, "CCSD": CCSDSolver, "FCI": FCISolver, "MINDO3": MINDO3Solver}
         self.supported_quantum_solvers = {"VQE": VQESolver, "ADAPT": ADAPTSolver, "QITE": QITESolver}
 
         # Check if the solvers are implemented in ONIOM.
@@ -186,12 +186,8 @@ class Fragment:
 
         if solver_string == "HF":
             return "HF"
-        elif solver_string == "CCSD":
-            return CCSDSolver(molecule, **options_solver)
-        elif solver_string == "FCI":
-            return FCISolver(molecule, **options_solver)
-        elif solver_string == "MINDO3":
-            return MINDO3Solver(molecule, **options_solver)
+        elif solver_string in self.supported_classical_solvers:
+            return self.supported_classical_solvers[solver_string](molecule, **options_solver)
         elif solver_string in self.supported_quantum_solvers:
             molecule_options = {"molecule": molecule}
             solver = self.supported_quantum_solvers[solver_string]({**molecule_options, **options_solver})
