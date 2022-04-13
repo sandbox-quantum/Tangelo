@@ -30,8 +30,7 @@ class ONIOMTest(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             ONIOMProblemDecomposition({"geometry": xyz_H4,
-                                       "fragments": [Fragment(solver_low="HF", solver_high="CCSD", selected_atoms=[3.1415])]
-                                    })
+                                       "fragments": [Fragment(solver_low="HF", solver_high="CCSD", selected_atoms=[3.1415])]})
 
     def test_not_implemented_solver(self):
         # Definition of simple fragments to test the error raising.
