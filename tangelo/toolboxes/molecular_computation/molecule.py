@@ -19,10 +19,9 @@ functionalities.
 import copy
 from dataclasses import dataclass, field
 import numpy as np
-from pyscf import gto, scf, ao2mo
+from pyscf import gto, scf, ao2mo, symm
 import openfermion
 import openfermion.ops.representations as reps
-from openfermionpyscf import run_pyscf
 from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 
@@ -60,7 +59,8 @@ def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals
 
     converted_mol = SecondQuantizedMolecule(mol.xyz, mol.q, mol.spin,
                                             basis=basis_set,
-                                            frozen_orbitals=frozen_orbitals)
+                                            frozen_orbitals=frozen_orbitals,
+                                            symmetry=mol.symmetry)
     return converted_mol
 
 
@@ -94,7 +94,7 @@ class Molecule:
 
     def __post_init__(self):
         self.xyz = atom_string_to_list(self.xyz) if isinstance(self.xyz, str) else self.xyz
-        mol = self.to_pyscf(basis="sto-3g")
+        mol = self.to_pyscf(basis="sto-3g", symmetry=False)
         self.n_atoms = mol.natm
         self.n_electrons = mol.nelectron
         self.n_min_orbitals = mol.nao_nr()
@@ -107,7 +107,7 @@ class Molecule:
     def coords(self):
         return np.array([self.xyz[i][1] for i in range(self.n_atoms)])
 
-    def to_pyscf(self, basis="sto-3g"):
+    def to_pyscf(self, basis="sto-3g", symmetry=False):
         """Method to return a pyscf.gto.Mole object.
 
         Args:
@@ -122,6 +122,7 @@ class Molecule:
         mol.basis = basis
         mol.charge = self.q
         mol.spin = self.spin
+        mol.symmetry = symmetry
         mol.build()
 
         return mol
@@ -147,6 +148,9 @@ class SecondQuantizedMolecule(Molecule):
 
     Attributes:
         basis (string): Basis set.
+        symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.
+            Can also specify point group using pyscf allowed string.
+            e.g. "Dooh", "D2v", "C3v", ...
         mf_energy (float): Mean-field energy (RHF or ROHF energy depending
             on the spin).
         mo_energies (list of float): Molecular orbital energies.
@@ -178,6 +182,7 @@ class SecondQuantizedMolecule(Molecule):
         actives_mos (list): Active MOs indexes.
     """
     basis: str = "sto-3g"
+    symmetry: bool = False
     frozen_orbitals: list or int = field(default="frozen_core", repr=False)
 
     # Defined in __post_init__.
@@ -254,18 +259,28 @@ class SecondQuantizedMolecule(Molecule):
         It is also used for defining attributes related to the mean-field
         (mf_energy, mo_energies, mo_occ, n_mos and n_sos).
         """
-        of_molecule = self.to_openfermion(self.basis)
-        of_molecule = run_pyscf(of_molecule, run_scf=True, run_mp2=False,
-                                run_cisd=False, run_ccsd=False, run_fci=False)
 
-        self.mf_energy = of_molecule.hf_energy
-        self.mo_energies = of_molecule.orbital_energies
-        self.mo_occ = of_molecule._pyscf_data["scf"].mo_occ
+        molecule = self.to_pyscf(self.basis, self.symmetry)
 
-        self.n_mos = of_molecule._pyscf_data["mol"].nao_nr()
+        self.mean_field = scf.RHF(molecule)
+        self.mean_field.verbose = 0
+        self.mean_field.kernel()
+
+        if self.symmetry:
+            self.mo_symm_ids = list(symm.label_orb_symm(self.mean_field.mol, self.mean_field.mol.irrep_id,
+                                                        self.mean_field.mol.symm_orb, self.mean_field.mo_coeff))
+            irrep_map = {i: s for s, i in zip(molecule.irrep_name, molecule.irrep_id)}
+            self.mo_symm_labels = [irrep_map[i] for i in self.mo_symm_ids]
+        else:
+            self.mo_symm_ids = None
+            self.mo_symm_labels = None
+
+        self.mf_energy = self.mean_field.e_tot
+        self.mo_energies = self.mean_field.mo_energy
+        self.mo_occ = self.mean_field.mo_occ
+
+        self.n_mos = molecule.nao_nr()
         self.n_sos = 2*self.n_mos
-
-        self.mean_field = of_molecule._pyscf_data["scf"]
 
     def _get_fermionic_hamiltonian(self):
         """This method returns the fermionic hamiltonian. It written to take
@@ -304,7 +319,7 @@ class SecondQuantizedMolecule(Molecule):
         """
 
         if frozen_orbitals == "frozen_core":
-            frozen_orbitals = get_frozen_core(self.to_pyscf(self.basis))
+            frozen_orbitals = get_frozen_core(self.to_pyscf(self.basis, self.symmetry))
         elif frozen_orbitals is None:
             frozen_orbitals = 0
 
@@ -406,7 +421,7 @@ class SecondQuantizedMolecule(Molecule):
         """
 
         # Pyscf molecule to get integrals.
-        pyscf_mol = self.to_pyscf(self.basis)
+        pyscf_mol = self.to_pyscf(self.basis, self.symmetry)
 
         # Corresponding to nuclear repulsion energy and static coulomb energy.
         core_constant = float(pyscf_mol.energy_nuc())

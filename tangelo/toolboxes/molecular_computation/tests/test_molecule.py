@@ -15,7 +15,7 @@
 import unittest
 
 from tangelo import SecondQuantizedMolecule
-from tangelo.molecule_library import mol_H2_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, xyz_H2O
 from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list
 
 
@@ -150,6 +150,14 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
 
         e_rdms = mol_H2_sto3g.energy_from_rdms(rdm1, rdm2)
         self.assertAlmostEqual(e_rdms, -1.1372701, delta=1e-5)
+
+    def test_symmetry_label(self):
+        """Verify that the symmetry labels are correct"""
+        molecule = SecondQuantizedMolecule(xyz=xyz_H2O, q=0, spin=0, symmetry=True, basis="sto-3g")
+        mo_symm_labels = ['A1', 'A1', 'B1', 'A1', 'B2', 'A1', 'B1']
+        mo_symm_ids = [0, 0, 2, 0, 3, 0, 2]
+        assert(mo_symm_labels == molecule.mo_symm_labels)
+        assert(mo_symm_ids == molecule.mo_symm_ids)
 
 
 if __name__ == "__main__":
