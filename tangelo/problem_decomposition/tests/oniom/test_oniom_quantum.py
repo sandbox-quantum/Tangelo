@@ -123,17 +123,13 @@ class ONIOMQuantumTest(unittest.TestCase):
                                selected_atoms=[2, 3])
         oniom_model_vqe = ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model_vqe_1, model_vqe_2]})
 
-        vqe_resources = {"qubit_hamiltonian_terms": 15,
-                         "circuit_width": 4,
-                         "circuit_gates": 158,
-                         "circuit_2qubit_gates": 64,
-                         "circuit_var_gates": 12,
-                         "vqe_variational_parameters": 2}
-
         res = oniom_model_vqe.get_resources()
 
-        self.assertEqual(res[1], vqe_resources)
-        self.assertEqual(res[2], vqe_resources)
+        self.assertEqual(res[1]["circuit_width"], 4)
+        self.assertEqual(res[1]["qubit_hamiltonian_terms"], 15)
+
+        self.assertEqual(res[2]["circuit_width"], 4)
+        self.assertEqual(res[2]["qubit_hamiltonian_terms"], 15)
 
 
 if __name__ == "__main__":

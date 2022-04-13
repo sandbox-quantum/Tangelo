@@ -23,7 +23,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 from tangelo import SecondQuantizedMolecule
-from tangelo.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
+from tangelo.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver, ADAPTSolver, QITESolver
 from tangelo.problem_decomposition.oniom._helpers.capping_groups import elements, chemical_groups
 
 
@@ -78,8 +78,10 @@ class Fragment:
         self.builtin_solvers = {"HF", "CCSD", "FCI", "MINDO3", "VQE", "ADAPT", "QITE"}
         if self.solver_low not in self.builtin_solvers:
             raise NotImplementedError(f"This {self.solver_low} solver has not been implemented yet in {self.__class__.__name__}")
-        elif self.solver_high is not None and self.solver_high not in self.builtin_solvers:
+        elif self.solver_high and self.solver_high not in self.builtin_solvers:
             raise NotImplementedError(f"This {self.solver_high} solver has not been implemented yet in {self.__class__.__name__}")
+
+        self.supported_quantum_solvers = {"VQE": VQESolver, "ADAPT": ADAPTSolver, "QITE": QITESolver}
 
         # For this fragment (not the whole molecule).
         self.spin = spin
@@ -102,7 +104,7 @@ class Fragment:
             # retrieved it from the molecule object).
             self.options_low = {i: self.options_low[i] for i in self.options_low if i not in ["basis", "frozen_orbitals"]}
 
-        self.solver_low = Fragment.get_solver(self.mol_low, self.solver_low, self.options_low)
+        self.solver_low = self.get_solver(self.mol_low, self.solver_low, self.options_low)
 
         # Higher accuracy solver.
         if self.solver_high is not None:
@@ -113,7 +115,7 @@ class Fragment:
                 # Same process done as in low accuracy process.
                 self.options_high = {i: self.options_high[i] for i in self.options_high if i not in ["basis", "frozen_orbitals"]}
 
-            self.solver_high = Fragment.get_solver(self.mol_high, self.solver_high, self.options_high)
+            self.solver_high = self.get_solver(self.mol_high, self.solver_high, self.options_high)
 
     def simulate(self):
         """Get the energy for this fragment.
@@ -168,8 +170,7 @@ class Fragment:
 
         return energy
 
-    @staticmethod
-    def get_solver(molecule, solver_string, options_solver):
+    def get_solver(self, molecule, solver_string, options_solver):
         """Get the solver object (or string for RHF) for this layer.
 
         Args:
@@ -190,19 +191,9 @@ class Fragment:
             return FCISolver(molecule, **options_solver)
         elif solver_string == "MINDO3":
             return MINDO3Solver(molecule, **options_solver)
-        elif solver_string == "VQE":
+        elif solver_string in self.supported_quantum_solvers:
             molecule_options = {"molecule": molecule}
-            solver = VQESolver({**molecule_options, **options_solver})
-            solver.build()
-            return solver
-        elif solver_string == "ADAPT":
-            molecule_options = {"molecule": molecule}
-            solver = ADAPTSolver({**molecule_options, **options_solver})
-            solver.build()
-            return solver
-        elif solver_string == "QITE":
-            molecule_options = {"molecule": molecule}
-            solver = QITESolver({**molecule_options, **options_solver})
+            solver = self.supported_quantum_solvers[solver_string]({**molecule_options, **options_solver})
             solver.build()
             return solver
 
@@ -215,10 +206,12 @@ class Fragment:
         # are VQE, the solver_high overrides the solver_low resources.
         resources = {}
 
-        if isinstance(self.solver_low, (VQESolver, ADAPTSolver, QITESolver)):
+        quantum_solvers = tuple(self.supported_quantum_solvers.values())
+
+        if isinstance(self.solver_low, quantum_solvers):
             resources = self.solver_low.get_resources()
 
-        if isinstance(self.solver_high, (VQESolver, ADAPTSolver, QITESolver)):
+        if isinstance(self.solver_high, quantum_solvers):
             resources = self.solver_high.get_resources()
 
         return resources

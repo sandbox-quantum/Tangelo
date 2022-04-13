@@ -14,6 +14,8 @@
 
 import unittest
 
+from numpy import linspace
+
 from tangelo.problem_decomposition.oniom.oniom_problem_decomposition import ONIOMProblemDecomposition
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment, Link
 from tangelo.molecule_library import xyz_H4, xyz_PHE
@@ -26,25 +28,20 @@ class ONIOMTest(unittest.TestCase):
         error should be raised.
         """
 
-        # Definition of simple fragments to test the error raising.
-        system = Fragment(solver_low="HF")
-        model = Fragment(solver_low="HF",
-                         solver_high="HF",
-                         # Next line should be problematic (float number).
-                         selected_atoms=[3.1415])
-
         with self.assertRaises(TypeError):
-            ONIOMProblemDecomposition({"geometry": xyz_H4, "fragments": [system, model]})
+            ONIOMProblemDecomposition({"geometry": xyz_H4,
+                                       "fragments": [Fragment(solver_low="HF", solver_high="CCSD", selected_atoms=[3.1415])]
+                                    })
 
     def test_not_implemented_solver(self):
         # Definition of simple fragments to test the error raising.
 
         with self.assertRaises(NotImplementedError):
-            Fragment(solver_low="BANANA")
+            Fragment(solver_low="UNSUPPORTED")
 
         with self.assertRaises(NotImplementedError):
             Fragment(solver_low="HF",
-                     solver_high="BANANA",
+                     solver_high="UNSUPPORTED",
                      selected_atoms=[0, 1])
 
     def test_capping_broken_link(self):
@@ -137,17 +134,7 @@ class ONIOMTest(unittest.TestCase):
         """
 
         # H9 chain.
-        xyz_h9 = [
-            ("H", (-2., 0., 0.)),
-            ("H", (-1.5, 0., 0.)),
-            ("H", (-1., 0., 0.)),
-            ("H", (-0.5, 0., 0.)),
-            ("H", (0., 0., 0.)),
-            ("H", (0.5, 0., 0.)),
-            ("H", (1., 0., 0.)),
-            ("H", (1.5, 0., 0.)),
-            ("H", (2., 0., 0.)),
-        ]
+        xyz_h9 = [("H", (x, 0., 0.)) for x in linspace(-2., 2., num=9)]
 
         options = {"basis": "sto-3g"}
 

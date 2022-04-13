@@ -16,7 +16,7 @@ import unittest
 
 import numpy as np
 
-from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment, Link
+from tangelo.problem_decomposition.oniom._helpers.helper_classes import Link
 from tangelo.molecule_library import xyz_ethane
 from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list
 
