@@ -107,7 +107,7 @@ class ONIOMQuantumTest(unittest.TestCase):
         """
 
         options_hf = {"basis": "sto-3g"}
-        options_vqe = {"basis": "sto-3g", "ansatz": BuiltInAnsatze.UCCSD}
+        options_vqe = {"basis": "sto-3g", "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "JW"}
 
         system = Fragment(solver_low="HF", options_low=options_hf)
         # VQE-UCCSD fragments.
