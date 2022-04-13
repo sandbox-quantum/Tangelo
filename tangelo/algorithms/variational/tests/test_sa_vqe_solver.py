@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+
 import numpy as np
 
 from tangelo.algorithms import BuiltInAnsatze, SA_VQESolver
@@ -43,7 +44,7 @@ class SA_VQESolverTest(unittest.TestCase):
         self.assertRaises(ValueError, SA_VQESolver, options)
 
     def test_instantiation_sa_vqe_missing_ref_states(self):
-        """Instantiating with no molecule should return an error."""
+        """Instantiating with no ref_states should return an error."""
 
         options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw"}
         self.assertRaises(ValueError, SA_VQESolver, options)

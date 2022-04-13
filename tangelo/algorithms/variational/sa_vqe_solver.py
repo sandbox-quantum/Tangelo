@@ -30,7 +30,7 @@ from tangelo.toolboxes.operators import qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
-from tangelo.toolboxes.ansatz_generator import UCCSD, HEA, UpCCGSD, VariationalCircuitAnsatz, UCCGD
+from tangelo.toolboxes.ansatz_generator import UCCSD, HEA, UpCCGSD, UCCGD, VariationalCircuitAnsatz
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.algorithms.variational import BuiltInAnsatze, VQESolver
 
@@ -71,19 +71,18 @@ class SA_VQESolver(VQESolver):
 
         sa_vqe_options = {"ref_states": None, "weights": None, "ansatz": BuiltInAnsatze.UCCGD}
 
-        # remove SA-OO-VQE specific options before calling SA_VQESolver.__init__() and move values to oo_options
+        # remove SA-VQE specific options before calling VQESolver.__init__() and generate new sa_vqe_options
         opt_dict_vqe = opt_dict.copy()
         for k, v in opt_dict.items():
             if k in sa_vqe_options:
-                value = opt_dict_vqe.pop(k)
-                sa_vqe_options[k] = value
+                sa_vqe_options[k] = opt_dict_vqe.pop(k)
 
         # Initialization of VQESolver will check if spurious dictionary items are present
         super().__init__(opt_dict_vqe)
 
         self.builtin_ansatze = set([BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.UCCGD, BuiltInAnsatze.HEA, BuiltInAnsatze.UCCSD])
 
-        # Add oo_options to attributes
+        # Add sa_vqe_options to attributes
         for k, v in sa_vqe_options.items():
             setattr(self, k, v)
 
@@ -147,13 +146,11 @@ class SA_VQESolver(VQESolver):
                 else:
                     raise ValueError(f"Unsupported ansatz for SA_VQESolver. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
-                print(type(self.ansatz))
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
 
         # Building with a qubit Hamiltonian.
-        elif self.ansatz in [BuiltInAnsatze.HEA]:
-            if self.ansatz == BuiltInAnsatze.HEA:
-                self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+        elif self.ansatz == BuiltInAnsatze.HEA:
+            self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
         elif not isinstance(self.ansatz, Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
@@ -185,7 +182,7 @@ class SA_VQESolver(VQESolver):
         parameters and hardware backend built in the build method for each reference state.
         """
         if not (self.ansatz and self.backend):
-            raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")
+            raise RuntimeError(f"No ansatz circuit or hardware backend built. Have you called {self.__class__.build} ?")
         optimal_energy, optimal_var_params = self.optimizer(self.energy_estimation, self.initial_var_params)
 
         self.optimal_var_params = optimal_var_params
