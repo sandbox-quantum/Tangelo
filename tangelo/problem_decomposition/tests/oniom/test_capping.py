@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+
 import numpy as np
 
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment, Link
@@ -26,7 +27,7 @@ class ONIOMCappingTest(unittest.TestCase):
         """Test unsupported built-in chemical group (raise ValueError)."""
 
         with self.assertRaises(ValueError):
-            Link(0, 4, factor=1., species="BLABLA")
+            Link(0, 4, factor=1., species="UNSUPPORTED")
 
     def test_unsupported_custom_species(self):
         """Test unsupported custom chemical group (raise ValueError)."""
