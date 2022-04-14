@@ -32,7 +32,7 @@ class QubitTaperingTest(unittest.TestCase):
         """Test not supported mapping for qubit for tapering."""
 
         with self.assertRaises(NotImplementedError):
-            QubitTapering(QubitOperator(), 4, 2, "scBK", True)
+            QubitTapering(QubitOperator(), 4, 2, 0, "scBK", True)
 
     def test_z2taper_h2_jw_occupied_first(self):
         """Test Z2 tapering of H2 JW up_then_down=False."""
@@ -40,7 +40,7 @@ class QubitTaperingTest(unittest.TestCase):
         qu_op = load_operator("H2_JW_occfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
 
-        tapering = QubitTapering(qu_op, 4, 2, "JW", False)
+        tapering = QubitTapering(qu_op, 4, 2, 0, "JW", False)
         tapered_qu_op = tapering.z2_tapered_op.qubitoperator
         e_taper = np.min(np.linalg.eigvalsh(qubit_operator_sparse(tapered_qu_op).todense()))
 
@@ -52,7 +52,7 @@ class QubitTaperingTest(unittest.TestCase):
         qu_op = load_operator("H2_JW_spinupfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
 
-        tapering = QubitTapering(qu_op, 4, 2, "JW", True)
+        tapering = QubitTapering(qu_op, 4, 2, 0, "JW", True)
         tapered_qu_op = tapering.z2_tapered_op.qubitoperator
         e_taper = np.min(np.linalg.eigvalsh(qubit_operator_sparse(tapered_qu_op).todense()))
 
@@ -64,7 +64,7 @@ class QubitTaperingTest(unittest.TestCase):
         qu_op = load_operator("H2_BK_occfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
 
-        tapering = QubitTapering(qu_op, 4, 2, "BK", False)
+        tapering = QubitTapering(qu_op, 4, 2, 0, "BK", False)
         tapered_qu_op = tapering.z2_tapered_op.qubitoperator
         e_taper = np.min(np.linalg.eigvalsh(qubit_operator_sparse(tapered_qu_op).todense()))
 
@@ -76,7 +76,21 @@ class QubitTaperingTest(unittest.TestCase):
         qu_op = load_operator("H2_BK_spinupfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
 
-        tapering = QubitTapering(qu_op, 4, 2, "BK", True)
+        tapering = QubitTapering(qu_op, 4, 2, 0, "BK", True)
+        tapered_qu_op = tapering.z2_tapered_op.qubitoperator
+        e_taper = np.min(np.linalg.eigvalsh(qubit_operator_sparse(tapered_qu_op).todense()))
+
+        self.assertAlmostEqual(e, e_taper, places=5)
+
+    def test_z2taper_h2_triplet(self):
+        """Test Z2 tapering of H2 JW up_then_down=False."""
+
+        qu_op = load_operator("H2_JW_occfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
+
+        # Triplet state is the second lowest energy after the groud state.
+        e = np.sort(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))[1]
+
+        tapering = QubitTapering(qu_op, 4, 2, 2, "JW", False)
         tapered_qu_op = tapering.z2_tapered_op.qubitoperator
         e_taper = np.min(np.linalg.eigvalsh(qubit_operator_sparse(tapered_qu_op).todense()))
 

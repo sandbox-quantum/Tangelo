@@ -133,36 +133,24 @@ class HybridOperator(QubitOperator):
         """
 
         # Take into account the order of Pauli matrices multiplication.
-        levi = np.zeros((4, 4, 4), dtype=complex)
-        levi[0, 0, 0] = 1
-        levi[0, 1, 1] = 1
-        levi[1, 0, 1] = 1
-        levi[0, 2, 2] = 1
-        levi[2, 0, 2] = 1
-        levi[3, 0, 3] = 1
-        levi[0, 3, 3] = 1
-        levi[1, 1, 0] = 1
-        levi[2, 2, 0] = 1
-        levi[3, 3, 0] = 1
-        levi[1, 2, 3] = 1j
-        levi[1, 3, 2] = -1j
-        levi[2, 1, 3] = -1j
-        levi[2, 3, 1] = 1j
-        levi[3, 2, 1] = -1j
-        levi[3, 1, 2] = 1j
+        i_calc = np.array([[0, 1, 2, 3],
+                           [1, 0, 3, 2],
+                           [2, 3, 0, 1],
+                           [3, 2, 1, 0]], dtype=int)
+        c_calc = np.array([[1, 1, 1, 1],
+                           [1, 1, 1j, -1j],
+                           [1, -1j, 1, 1j],
+                           [1, 1j, -1j, 1]], dtype=complex)
 
         factors = np.zeros((self.n_terms * other_operator.n_terms), dtype=complex)
         product = np.zeros((factors.shape[0], self.n_qubits), dtype=int)
         increment = other_operator.n_terms
 
         for term_i in range(self.n_terms):
-            levi_term = levi[self.integer[term_i], other_operator.integer]
-            non_zero = np.where(levi_term != 0)
-
-            product[term_i * increment:(term_i + 1) * increment] = non_zero[2].reshape((increment, self.n_qubits))
-            factors[term_i * increment:(term_i + 1) * increment] = self.factors[term_i] * \
-                                                                   other_operator.factors * \
-                                                                   np.product(levi_term[non_zero].reshape((increment, self.n_qubits)), axis=1)
+            new_is = i_calc[self.integer[term_i], other_operator.integer]
+            new_cs = c_calc[self.integer[term_i], other_operator.integer]
+            product[term_i * increment: (term_i + 1) * increment] = new_is
+            factors[term_i * increment: (term_i + 1) * increment] = self.factors[term_i] * other_operator.factors * np.product(new_cs, axis=1)
 
         return HybridOperator.from_integerop(product, factors=factors)
 
@@ -255,7 +243,7 @@ class ConvertPauli:
         Z <-> 1 <-> (0, 1)
         X <-> 2 <-> (1, 0)
         Y <-> 3 <-> (1, 1)
-    The input can be whatever found in the previous conversion table.
+    The input can be anything found in the previous conversion table.
 
     Args:
         pauli_id (string, int or tuple of bool): Single Pauli.

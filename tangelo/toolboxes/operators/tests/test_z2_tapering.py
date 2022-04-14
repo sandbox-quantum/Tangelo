@@ -94,10 +94,10 @@ class Z2TaperingHelperFunctionsTest(unittest.TestCase):
         ])
         kernel_op = HybridOperator.from_integerop(integers, np.ones(integers.shape[0]))
 
-        np.testing.assert_array_equal([-1, 1, -1], get_eigenvalues(kernel_op.binary, 4, 2, "JW", False))
-        np.testing.assert_array_equal([-1, -1, 1], get_eigenvalues(kernel_op.binary, 4, 2, "JW", True))
-        np.testing.assert_array_equal([-1, -1, -1], get_eigenvalues(kernel_op.binary, 4, 2, "BK", False))
-        np.testing.assert_array_equal([-1, 1, 1], get_eigenvalues(kernel_op.binary, 4, 2, "BK", True))
+        np.testing.assert_array_equal([-1, 1, -1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "JW", False))
+        np.testing.assert_array_equal([-1, -1, 1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "JW", True))
+        np.testing.assert_array_equal([-1, -1, -1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "BK", False))
+        np.testing.assert_array_equal([-1, 1, 1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "BK", True))
 
     def test_collapse(self):
         """Test collapse function with a given operator with duplicate terms."""

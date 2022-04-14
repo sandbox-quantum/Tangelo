@@ -161,7 +161,7 @@ def get_unitary(cliffords):
         return cliffords[0]
 
 
-def get_eigenvalues(symmetries, n_qubits, n_electrons, mapping, up_then_down):
+def get_eigenvalues(symmetries, n_qubits, n_electrons, spin, mapping, up_then_down):
     """Get the initial state eigenvalues, as operated on by each of the symmetry
     operators. These are used to capture the action of each Pauli string in the
     Hamiltonian on the tapered qubits.
@@ -178,7 +178,7 @@ def get_eigenvalues(symmetries, n_qubits, n_electrons, mapping, up_then_down):
         array of +/-1: Eigenvalues of an operator with symmetries.
     """
 
-    psi_init = get_vector(n_qubits, n_electrons, mapping, up_then_down)
+    psi_init = get_vector(n_qubits, n_electrons, mapping, up_then_down, spin)
 
     if len(symmetries.shape) == 1:
         symmetries = np.reshape(symmetries, (-1, len(symmetries)))

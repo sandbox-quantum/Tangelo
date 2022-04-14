@@ -18,8 +18,13 @@ import numpy as np
 
 
 def bool_col_echelon(bool_array):
+    """Function to transform a boolean array into its column echelon form
+    (transpose of the row-echelon form).
 
-    bool_array = bool_array.astype(bool)
+    Args:
+        bool_array (array of bool): Self-explanatory.
+    """
+
     pivot = bool_array.shape[1] - 1
     active_rows = bool_array.shape[0] - bool_array.shape[1] - 1
 

@@ -40,7 +40,7 @@ class QubitTapering:
             operator.
     """
 
-    def __init__(self, qubit_operator, n_qubits, n_electrons, mapping="JW", up_then_down=False):
+    def __init__(self, qubit_operator, n_qubits, n_electrons, spin=0, mapping="JW", up_then_down=False):
         """Class keeping track of symmetries and operation to taper qubits in
         qubit operators.
 
@@ -59,6 +59,7 @@ class QubitTapering:
         self.initial_op = HybridOperator.from_qubitop(qubit_operator, n_qubits)
         self.initial_n_qubits = n_qubits
         self.n_electrons = n_electrons
+        self.spin = spin
         self.mapping = mapping
         self.up_then_down = up_then_down
 
@@ -99,7 +100,7 @@ class QubitTapering:
         unitary = get_unitary(cliffords)
 
         kernel_operator = HybridOperator.from_binaryop(kernel, factors=np.ones(kernel.shape[0]))
-        eigenvalues = get_eigenvalues(kernel_operator.binary, self.initial_n_qubits, self.n_electrons, self.mapping, self.up_then_down)
+        eigenvalues = get_eigenvalues(kernel_operator.binary, self.initial_n_qubits, self.n_electrons, self.spin, self.mapping, self.up_then_down)
 
         self.z2_taper = get_z2_taper_function(unitary, kernel_operator, q_indices, self.initial_n_qubits, n_symmetries, eigenvalues)
         self.z2_tapered_op = self.z2_taper(self.initial_op)
