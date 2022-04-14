@@ -150,7 +150,7 @@ class SecondQuantizedMolecule(Molecule):
         basis (string): Basis set.
         symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.
             Can also specify point group using pyscf allowed string.
-            e.g. "Dooh", "D2v", "C3v", ...
+            e.g. "Dooh", "D2h", "C2v", ...
         mf_energy (float): Mean-field energy (RHF or ROHF energy depending
             on the spin).
         mo_energies (list of float): Molecular orbital energies.
@@ -319,7 +319,7 @@ class SecondQuantizedMolecule(Molecule):
         """
 
         if frozen_orbitals == "frozen_core":
-            frozen_orbitals = get_frozen_core(self.to_pyscf(self.basis, self.symmetry))
+            frozen_orbitals = get_frozen_core(self.to_pyscf(self.basis))
         elif frozen_orbitals is None:
             frozen_orbitals = 0
 
