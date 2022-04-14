@@ -328,10 +328,16 @@ class SecondQuantizedMolecule(Molecule):
         active_occupied = [i for i in occupied if i not in frozen_occupied]
         active_virtual = [i for i in virtual if i not in frozen_virtual]
 
-        # Exception raised here if n_occupied <= frozen_orbitals (int), because it means that there is no active electron.
-        # An exception is raised also if all occupied orbitals are in the frozen_orbitals (list).
-        if (len(active_occupied) == 0) or (len(active_virtual) == 0):
-            raise ValueError("All electrons or virtual orbitals are frozen in the system.")
+        # Calculate number of active electrons and active_mos
+        n_active_electrons = round(sum([self.mo_occ[i] for i in active_occupied]))
+        n_active_mos = len(active_occupied + active_virtual)
+
+        # Exception raised here if there is no active electron.
+        # An exception is raised also if all active orbitals are fully occupied.
+        if n_active_electrons == 0:
+            raise ValueError("There are no active electrons.")
+        if n_active_electrons == 2*n_active_mos:
+            raise ValueError("All active orbitals are fully occupied.")
 
         return active_occupied, frozen_occupied, active_virtual, frozen_virtual
 

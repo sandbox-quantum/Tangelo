@@ -117,6 +117,13 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             SecondQuantizedMolecule(H2O_list, frozen_orbitals=[5, 6])
 
+    def test_all_active_orbitals_occupied_but_some_not_fully(self):
+        """Verify that having all active orbitals occupied but only partially occupied is permitted"""
+        try:
+            SecondQuantizedMolecule(H2O_list, frozen_orbitals=[0, 1, 2, 3, 6], spin=2)
+        except ValueError:
+            self.fail("Unexpected ValueError raised")
+
     def test_get_fermionic_hamiltonian(self):
         """Verify energy shift in molecular hamiltonian."""
 
