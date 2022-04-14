@@ -152,10 +152,15 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         self.assertAlmostEqual(e_rdms, -1.1372701, delta=1e-5)
 
     def test_symmetry_label(self):
-        """Verify that the symmetry labels are correct"""
-        molecule = SecondQuantizedMolecule(xyz=xyz_H2O, q=0, spin=0, symmetry=True, basis="sto-3g")
-        mo_symm_labels = ['A1', 'A1', 'B1', 'A1', 'B2', 'A1', 'B1']
+        """Verify that the symmetry labels are correct when symmetry=True or symmetry="C2v"."""
+        mo_symm_labels = ["A1", "A1", "B1", "A1", "B2", "A1", "B1"]
         mo_symm_ids = [0, 0, 2, 0, 3, 0, 2]
+
+        molecule = SecondQuantizedMolecule(xyz=xyz_H2O, q=0, spin=0, symmetry=True, basis="sto-3g")
+        assert(mo_symm_labels == molecule.mo_symm_labels)
+        assert(mo_symm_ids == molecule.mo_symm_ids)
+
+        molecule = SecondQuantizedMolecule(xyz=xyz_H2O, q=0, spin=0, symmetry="C2v", basis="sto-3g")
         assert(mo_symm_labels == molecule.mo_symm_labels)
         assert(mo_symm_ids == molecule.mo_symm_ids)
 
