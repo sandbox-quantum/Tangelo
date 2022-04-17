@@ -33,6 +33,7 @@ from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, Q
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from tangelo.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
+from tangelo.toolboxes.optimizers.rotosolve import rotosolve
 
 
 class BuiltInAnsatze(Enum):
@@ -129,6 +130,11 @@ class VQESolver:
 
         if isinstance(self.ansatz, Circuit):
             self.ansatz = VariationalCircuitAnsatz(self.ansatz)
+
+        # Check compatibility of optimizer with Ansatz class
+        elif self.optimizer == rotosolve:
+            if self.ansatz not in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.HEA]:
+                raise ValueError(f"{self.ansatz} not compatible with rotosolve optimizer.")
 
         # Building VQE with a molecule as input.
         if self.molecule:
