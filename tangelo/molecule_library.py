@@ -35,6 +35,7 @@ xyz_H4 = [
     ("H", [0.0, -1.0071067811865476, 0.0])
 ]
 mol_H4_sto3g = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g")
+mol_H4_sto3g_symm = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g", symmetry=True)
 mol_H4_minao = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="minao")
 mol_H4_cation_sto3g = SecondQuantizedMolecule(xyz_H4, q=1, spin=1, basis="sto-3g")
 mol_H4_doublecation_minao = SecondQuantizedMolecule(xyz_H4, q=2, spin=0, basis="minao")
