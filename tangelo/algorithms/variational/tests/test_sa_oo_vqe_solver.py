@@ -21,9 +21,9 @@ Li2 = [('Li', (0, 0, 0)), ('Li', (3.5, 0, 0))]
 mol = SecondQuantizedMolecule(Li2, q=0, spin=0, basis="6-31g(d,p)", frozen_orbitals=[0, 1]+[i for i in range(4, 28)])
 
 
-class SAOOSolverTest(unittest.TestCase):
+class SA_OO_SolverTest(unittest.TestCase):
 
-    def test_build_sa_oo_solver(self):
+    def test_build(self):
         """Try instantiating SA_OO_Solver with basic input."""
 
         opt_dict = {"molecule": mol, "ref_states": [[1, 1, 0, 0], [1, 0, 1, 0]], "max_cycles": 5}
@@ -34,7 +34,7 @@ class SAOOSolverTest(unittest.TestCase):
         opt_dict = {"max_cycles": 15}
         self.assertRaises(ValueError, SA_OO_Solver, opt_dict)
 
-    def test_so_oo_vqe_solver_li2(self):
+    def test_li2(self):
         """Try reproducing Li2 2 electrons in 2 orbitals casscf for both states from pyscf
         """
 
@@ -64,7 +64,7 @@ class SAOOSolverTest(unittest.TestCase):
                      "circuit_gates": 178,
                      "circuit_2qubit_gates": 78,
                      "circuit_var_gates": 20,
-                     "vqe_variational_parameters": 5}
+                     "vqe_variational_parameters": 3}
         self.assertEqual(sa_oo_solver.get_resources(), resources)
 
 

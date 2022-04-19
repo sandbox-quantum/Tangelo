@@ -71,8 +71,7 @@ class SA_OO_Solver(SA_VQESolver):
         opt_dict_sa_vqe = opt_dict.copy()
         for k, v in opt_dict.items():
             if k in oo_options:
-                value = opt_dict_sa_vqe.pop(k)
-                oo_options[k] = value
+                oo_options[k] = opt_dict_sa_vqe.pop(k)
 
         # Initialization of SA_VQESOLVER will check if spurious dictionary items are present
         super().__init__(opt_dict_sa_vqe)
@@ -167,11 +166,15 @@ class SA_OO_Solver(SA_VQESolver):
         """
         _, foneint, ftwoint = self.molecule.get_full_space_integrals()
         ftwoint = ftwoint.transpose(0, 3, 1, 2)
-        occupied_indices = self.molecule.frozen_occupied
-        unoccupied_indices = self.molecule.frozen_virtual
-        active_indices = self.molecule.active_mos
-        n_mos = self.molecule.n_mos
         n_active_mos = self.molecule.n_active_mos
+        n_mos = self.molecule.n_mos
+        f = list(range(n_mos))
+        oc = self.molecule.frozen_occupied
+        ac = self.molecule.active_mos
+        un = self.molecule.frozen_virtual
+        n_oc = len(oc)
+        n_ac = len(ac)
+        n_un = len(un)
 
         one_rdm = np.zeros((n_active_mos, n_active_mos))
         two_rdm = np.zeros((n_active_mos, n_active_mos, n_active_mos, n_active_mos))
@@ -182,99 +185,88 @@ class SA_OO_Solver(SA_VQESolver):
 
         # The following calculation of the analytic Hessian and gradient are derived from [1]
         f_mat = np.zeros((n_mos, n_mos))
-        fi_mat = np.zeros((n_mos, n_mos))
-        fa_mat = np.zeros((n_mos, n_mos))
+        fi_mat = foneint.copy()
+        fi_mat += 2*np.einsum("ijkk->ij", ftwoint[np.ix_(f, f, oc, oc)])-np.einsum("ikjk->ij", ftwoint[np.ix_(f, oc, f, oc)])
+        fa_mat = np.einsum("tu,pqtu->pq", one_rdm, ftwoint[np.ix_(f, f, ac, ac)]) - 1/2*np.einsum("tu,ptqu->pq", one_rdm, ftwoint[np.ix_(f, ac, f, ac)])
 
-        for p in range(n_mos):
-            for q in range(n_mos):
-                fi_mat[p, q] = foneint[p, q]
-                for i in occupied_indices:
-                    fi_mat[p, q] += 2*ftwoint[p, q, i, i]-ftwoint[p, i, q, i]
-                for ti, t in enumerate(active_indices):
-                    for ui, u in enumerate(active_indices):
-                        fa_mat[p, q] += one_rdm[ti, ui]*(ftwoint[p, q, t, u]-1/2*ftwoint[p, t, q, u])
-
-        for i in occupied_indices:
-            for q in range(n_mos):
-                f_mat[i, q] = 2*(fa_mat[i, q]+fi_mat[i, q])
-
-        for ti, t in enumerate(active_indices):
-            for ui, u in enumerate(active_indices):
-                for q in range(n_mos):
-                    f_mat[t, q] += one_rdm[ti, ui]*fi_mat[q, u]
-                    for vi, v in enumerate(active_indices):
-                        for xi, x in enumerate(active_indices):
-                            f_mat[t, q] += 2*two_rdm[ti, ui, vi, xi]*ftwoint[q, u, v, x]
+        inds = np.ix_(oc, f)
+        f_mat[inds] = 2*(fa_mat[inds]+fi_mat[inds])
+        f_mat[np.ix_(ac, f)] += (np.einsum("tu,qu->tq", one_rdm, fi_mat[np.ix_(f, ac)])
+                                 + 2*np.einsum("tuvx,quvx->tq", two_rdm, ftwoint[np.ix_(f, ac, ac, ac)]))
 
         d2ed2x = np.zeros((n_mos, n_mos, n_mos, n_mos))
-        delta = np.eye(n_mos)
-        for i in occupied_indices:
-            for ti, t in enumerate(active_indices):
-                for j in occupied_indices:
-                    for ui, u in enumerate(active_indices):
-                        for vi, v in enumerate(active_indices):
-                            for xi, x in enumerate(active_indices):
-                                d2ed2x[i, t, j, u] += 2*(two_rdm[ui, ti, vi, xi]*ftwoint[v, x, i, j]+(two_rdm[ui, xi, vi, ti] +
-                                                         two_rdm[ui, xi, ti, vi])*ftwoint[v, i, x, j])
-                            d2ed2x[i, t, j, u] += ((delta[t, v]-one_rdm[ti, vi])*(4*ftwoint[v, i, u, j]-ftwoint[u, i, v, j]-ftwoint[u, v, i, j]) +
-                                                   (delta[u, v]-one_rdm[ui, vi])*(4*ftwoint[v, j, t, i]-ftwoint[t, j, v, i]-ftwoint[t, v, i, j]))
-                        d2ed2x[i, t, j, u] += (one_rdm[ti, ui]*fi_mat[i, j]+delta[i, j]*(2*fi_mat[t, u]+2*fa_mat[t, u] -
-                                               f_mat[t, u])-2*delta[t, u]*(fi_mat[i, j]+fa_mat[i, j]))
 
-        for i in occupied_indices:
-            for ti, t in enumerate(active_indices):
-                for j in occupied_indices:
-                    for a in unoccupied_indices:
-                        for vi, v in enumerate(active_indices):
-                            d2ed2x[i, t, j, a] += (2*delta[t, v]-one_rdm[ti, vi])*(4*ftwoint[a, j, v, i]-ftwoint[a, v, i, j]-ftwoint[a, i, v, j])
-                        d2ed2x[i, t, j, a] += 2*delta[i, j]*(fi_mat[a, t]+fa_mat[a, t])-1/2*delta[i, j]*f_mat[t, a]
+        inds = np.ix_(oc, ac, oc, ac)
+        indsoo = np.ix_(oc, oc)
+        eye_m_one_rdm = np.eye(one_rdm.shape[0]) - one_rdm
+        ftwointaoao = ftwoint[np.ix_(ac, oc, ac, oc)]
+        ftwointaaoo = ftwoint[np.ix_(ac, ac, oc, oc)]
+        d2ed2x[inds] += (2*(np.einsum("utvx,vxij->itju", two_rdm, ftwointaaoo)
+                         + np.einsum("uxvt,vixj->itju", two_rdm + two_rdm.transpose([0, 1, 3, 2]), ftwointaoao))
+                         + np.einsum("tv,viuj->itju", eye_m_one_rdm, 4*ftwointaoao-ftwointaoao.transpose([2, 1, 0, 3]) -
+                                     ftwointaaoo.transpose([1, 2, 0, 3]))
+                         + np.einsum("uv,vjti->itju", eye_m_one_rdm, 4*ftwointaoao-ftwointaoao.transpose([2, 1, 0, 3]) -
+                                     ftwointaaoo.transpose([1, 3, 0, 2]))
+                         + np.einsum("tu,ij->itju", one_rdm, fi_mat[indsoo]))
+        indsaa = np.ix_(ac, ac)
+        for i in oc:
+            d2ed2x[np.ix_([i], ac, [i], ac)] += (2*fi_mat[indsaa]+2*fa_mat[indsaa]-f_mat[indsaa]).reshape((1, n_ac, 1, n_ac))
+        for t in ac:
+            d2ed2x[np.ix_(oc, [t], oc, [t])] -= 2*(fi_mat[indsoo] + fa_mat[indsoo]).reshape((n_oc, 1, n_oc, 1))
 
-        for i in occupied_indices:
-            for ti, t in enumerate(active_indices):
-                for ui, u in enumerate(active_indices):
-                    for a in unoccupied_indices:
-                        for vi, v in enumerate(active_indices):
-                            for xi, x in enumerate(active_indices):
-                                d2ed2x[i, t, u, a] += (-2)*(two_rdm[ti, ui, vi, xi]*ftwoint[a, i, v, x]+(two_rdm[ti, vi, ui, xi] +
-                                                            two_rdm[ti, vi, xi, ui])*ftwoint[a, x, v, i])
-                            d2ed2x[i, t, u, a] += one_rdm[ui, vi]*(4*ftwoint[a, v, t, i]-ftwoint[a, i, t, v]-ftwoint[a, t, v, i])
-                        d2ed2x[i, t, u, a] += (-1)*one_rdm[ti, ui]*fi_mat[a, i]+delta[t, u]*(fi_mat[a, i]+fa_mat[a, i])
+        inds = np.ix_(oc, ac, oc, un)
+        eye_m_one_rdm = 2*np.eye(one_rdm.shape[0]) - one_rdm
+        d2ed2x[inds] = np.einsum("tv,ajvi->itja", eye_m_one_rdm, 4*ftwoint[np.ix_(un, oc, ac, oc)] - ftwoint[np.ix_(un, ac, oc, oc)].transpose([0, 3, 1, 2])
+                                 - ftwoint[np.ix_(un, oc, ac, oc)].transpose([0, 3, 2, 1]))
+        indsua = np.ix_(un, ac)
+        for i in oc:
+            d2ed2x[np.ix_([i], ac, [i], un)] += (2*(fi_mat[indsua] + fa_mat[indsua]).transpose() - 1/2*f_mat[np.ix_(ac, un)]).reshape([1, n_ac, 1, n_un])
 
-        for i in occupied_indices:
-            for a in unoccupied_indices:
-                for j in occupied_indices:
-                    for b in unoccupied_indices:
-                        d2ed2x[i, a, j, b] += (2*(4*ftwoint[a, i, b, j]-ftwoint[a, b, i, j]-ftwoint[a, j, b, i]) +
-                                               2*delta[i, j]*(fi_mat[a, b]+fa_mat[a, b]) - 2*delta[a, b]*(fi_mat[i, j]+fa_mat[i, j]))
+        inds = np.ix_(oc, ac, ac, un)
+        ftwointuoaa = ftwoint[np.ix_(un, oc, ac, ac)]
+        ftwointuaao = ftwoint[np.ix_(un, ac, ac, oc)]
+        d2ed2x[inds] += ((-2)*(np.einsum("tuvx,aivx->itua", two_rdm, ftwointuoaa)
+                         + np.einsum("tvux,axvi->itua", two_rdm+two_rdm.transpose([0, 1, 3, 2]), ftwointuaao))
+                         + np.einsum("uv,avti->itua", one_rdm, 4*ftwointuaao - ftwointuoaa.transpose([0, 3, 2, 1]) -
+                                     ftwointuaao.transpose([0, 2, 1, 3]))
+                         - np.einsum("tu,ai->itua", one_rdm, fi_mat[np.ix_(un, oc)]))
+        for t in ac:
+            d2ed2x[np.ix_(oc, [t], [t], un)] += (fi_mat[np.ix_(un, oc)] + fa_mat[np.ix_(un, oc)]).transpose().reshape([n_oc, 1, 1, n_un])
 
-        for i in occupied_indices:
-            for a in unoccupied_indices:
-                for ti, t in enumerate(active_indices):
-                    for b in unoccupied_indices:
-                        for vi, v in enumerate(active_indices):
-                            d2ed2x[i, a, t, b] += one_rdm[ti, vi]*(4*ftwoint[a, i, b, v]-ftwoint[a, v, b, i]-ftwoint[a, b, v, i])
-                        d2ed2x[i, a, t, b] += (-1)*delta[a, b]*(fi_mat[t, i]+fa_mat[t, i]) - 1/2*delta[a, b]*f_mat[t, i]
+        d2ed2x[np.ix_(oc, un, oc, un)] = 2*(4*ftwoint[np.ix_(un, oc, un, oc)].transpose([1, 0, 3, 2])
+                                            - ftwoint[np.ix_(un, un, oc, oc)].transpose([2, 0, 3, 1])
+                                            - ftwoint[np.ix_(un, oc, un, oc)].transpose([3, 0, 1, 2]))
+        for i in oc:
+            d2ed2x[np.ix_([i], un, [i], un)] += 2*(fi_mat[np.ix_(un, un)] + fa_mat[np.ix_(un, un)]).reshape([1, n_un, 1, n_un])
+        for a in un:
+            d2ed2x[np.ix_(oc, [a], oc, [a])] -= 2*(fi_mat[indsoo] + fa_mat[indsoo]).reshape([n_oc, 1, n_oc, 1])
 
-        for ti, t in enumerate(active_indices):
-            for a in unoccupied_indices:
-                for ui, u in enumerate(active_indices):
-                    for b in unoccupied_indices:
-                        for vi, v in enumerate(active_indices):
-                            for xi, x in enumerate(active_indices):
-                                d2ed2x[t, a, u, b] += 2*(two_rdm[ti, ui, vi, xi]*ftwoint[a, b, v, x]+(two_rdm[ti, xi, vi, ui] +
-                                                         two_rdm[ti, xi, ui, vi])*ftwoint[a, x, b, v])
-                                for yi, y in enumerate(active_indices):
-                                    d2ed2x[t, a, u, b] -= (delta[a, b]*(two_rdm[ti, vi, xi, yi]*ftwoint[u, v, x, y] +
-                                                           two_rdm[ui, vi, xi, yi]*ftwoint[t, v, x, y]))
-                            d2ed2x[t, a, u, b] += (-1/2)*delta[a, b]*(one_rdm[ti, vi]*fi_mat[u, v]+one_rdm[ui, vi]*fi_mat[t, v])
-                        d2ed2x[t, a, u, b] += one_rdm[ti, ui]*fi_mat[a, b]
+        inds = np.ix_(oc, un, ac, un)
+        d2ed2x[inds] = np.einsum("tv,aibv->iatb", one_rdm, 4*ftwoint[np.ix_(un, oc, un, ac)] -
+                                 ftwoint[np.ix_(un, ac, un, oc)].transpose([0, 3, 2, 1]) -
+                                 ftwoint[np.ix_(un, un, ac, oc)].transpose([0, 3, 1, 2]))
+        for a in un:
+            d2ed2x[np.ix_(oc, [a], ac, [a])] -= (fi_mat[np.ix_(ac, oc)] + fa_mat[np.ix_(ac, oc)] +
+                                                 1/2*f_mat[np.ix_(ac, oc)]).transpose().reshape([n_oc, 1, n_ac, 1])
 
-        ivals = occupied_indices + active_indices
-        jvals = active_indices + unoccupied_indices
+        inds = np.ix_(ac, un, ac, un)
+        d2ed2x[inds] = (2*(np.einsum("tuvx,abvx->taub", two_rdm, ftwoint[np.ix_(un, un, ac, ac)]) +
+                           np.einsum("txvu,axbv->taub", two_rdm+two_rdm.transpose([0, 1, 3, 2]), ftwoint[np.ix_(un, ac, un, ac)])) +
+                        np.einsum("tu,ab->taub", one_rdm, fi_mat[np.ix_(un, un)]))
+        ftwointaaaa = ftwoint[np.ix_(ac, ac, ac, ac)]
+        fi_mataa = fi_mat[np.ix_(ac, ac)]
+        for a in un:
+            d2ed2x[np.ix_(ac, [a], ac, [a])] -= (np.einsum("tvxy,uvxy->tu", two_rdm, ftwointaaaa) +
+                                                 np.einsum("uvxy,tvxy->tu", two_rdm, ftwointaaaa) +
+                                                 1/2*(np.einsum("tv,uv->tu", one_rdm, fi_mataa) +
+                                                      np.einsum("uv,tv->tu", one_rdm, fi_mataa))).reshape([n_ac, 1, n_ac, 1])
+
+        ivals = oc + ac
+        jvals = ac + un
         ij_list = list()
         for i in ivals:
             for j in jvals:
-                if (j > i and not (i in active_indices and j in active_indices)):
+                if (j > i and not (i in ac and j in ac)):
                     ij_list.append([i, j])
 
         n_params = len(ij_list)
@@ -294,12 +286,8 @@ class SA_OO_Solver(SA_VQESolver):
         knew = -np.linalg.solve(hess, dedx)
 
         mat_rep = np.zeros((n_mos,  n_mos))
-        p1 = -1
-        for i in ivals:
-            for j in jvals:
-                if (j > i and not (i in active_indices and j in active_indices)):
-                    p1 += 1
-                    mat_rep[i, j] = knew[p1]
-                    mat_rep[j, i] = -knew[p1]
+        for p1, (i, j) in enumerate(ij_list):
+            mat_rep[i, j] = knew[p1]
+            mat_rep[j, i] = -knew[p1]
 
         return expm(-mat_rep)
