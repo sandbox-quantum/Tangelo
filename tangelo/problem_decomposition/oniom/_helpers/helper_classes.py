@@ -17,11 +17,14 @@ both the constituent geometry (i.e. which atoms from system are in fragment,
 which bonds are broken and how to fix them) as well as the solver(s) to use.
 """
 
-import numpy as np
+import warnings
 
-# Imports of electronic solvers and data structure
-from tangelo.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver
+import numpy as np
+from scipy.spatial.transform import Rotation as R
+
 from tangelo import SecondQuantizedMolecule
+from tangelo.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver, ADAPTSolver, QITESolver
+from tangelo.problem_decomposition.oniom._helpers.capping_groups import elements, chemical_groups
 
 
 class Fragment:
@@ -33,10 +36,10 @@ class Fragment:
 
         Args:
             solver_low (str): Specification of low accuracy solver for fragment.
-            options_low (str): Specification of low accuracy solver options.
+            options_low (dict): Specification of low accuracy solver options.
             solver_high (str): Specification of higher accuracy solver for
                 fragment.
-            options_high (str): Specification of higher accuracy solver options.
+            options_high (dict): Specification of higher accuracy solver options.
             selected_atoms (list of int or int): Which atoms from molecule are
                 in fragment. int counts from start of xyz.
             spin (int): Spin associated witht this fragment.
@@ -70,6 +73,16 @@ class Fragment:
         # Solver with higher accuracy.
         self.solver_high = solver_high.upper() if solver_high is not None else solver_high
         self.options_high = options_high if options_high is not None else default_solver_options
+
+        self.supported_classical_solvers = {"HF": None, "CCSD": CCSDSolver, "FCI": FCISolver, "MINDO3": MINDO3Solver}
+        self.supported_quantum_solvers = {"VQE": VQESolver, "ADAPT": ADAPTSolver, "QITE": QITESolver}
+
+        # Check if the solvers are implemented in ONIOM.
+        builtin_solvers = self.supported_classical_solvers.keys() | self.supported_quantum_solvers.keys()
+        if self.solver_low not in builtin_solvers:
+            raise NotImplementedError(f"This {self.solver_low} solver has not been implemented yet in {self.__class__.__name__}")
+        elif self.solver_high and self.solver_high not in builtin_solvers:
+            raise NotImplementedError(f"This {self.solver_high} solver has not been implemented yet in {self.__class__.__name__}")
 
         # For this fragment (not the whole molecule).
         self.spin = spin
@@ -113,12 +126,12 @@ class Fragment:
         """
 
         # Low accuracy solver.
-        e_low = self.get_energy(self.mol_low, self.solver_low)
+        e_low = Fragment.get_energy(self.mol_low, self.solver_low)
 
         # Higher accuracy solver.
         e_high = 0.
         if self.solver_high is not None:
-            e_high = self.get_energy(self.mol_high, self.solver_high)
+            e_high = Fragment.get_energy(self.mol_high, self.solver_high)
 
             # Contribution from low accuracy is substracted, as defined by ONIOM.
             e_low *= -1
@@ -135,7 +148,8 @@ class Fragment:
 
         return SecondQuantizedMolecule(self.geometry, self.charge, self.spin, basis, frozen_orbitals=frozen)
 
-    def get_energy(self, molecule, solver):
+    @staticmethod
+    def get_energy(molecule, solver):
         """Get the energy for a specific solver.
 
         Args:
@@ -170,21 +184,15 @@ class Fragment:
             ElectronicStructureSolver: Solver object or string.
         """
 
-        if solver_string == "RHF":
-            return "RHF"
-        elif solver_string == "CCSD":
-            return CCSDSolver(molecule, **options_solver)
-        elif solver_string == "FCI":
-            return FCISolver(molecule, **options_solver)
-        elif solver_string == "MINDO3":
-            return MINDO3Solver(molecule, **options_solver)
-        elif solver_string == "VQE":
+        if solver_string == "HF":
+            return "HF"
+        elif solver_string in self.supported_classical_solvers:
+            return self.supported_classical_solvers[solver_string](molecule, **options_solver)
+        elif solver_string in self.supported_quantum_solvers:
             molecule_options = {"molecule": molecule}
-            solver = VQESolver({**molecule_options, **options_solver})
+            solver = self.supported_quantum_solvers[solver_string]({**molecule_options, **options_solver})
             solver.build()
             return solver
-        else:
-            raise NotImplementedError(f"This {solver_string} solver has not been implemented yet in ONIOMProblemDecomposition")
 
     def get_resources(self):
         """ Estimate the quantum esources required for this fragment Only
@@ -195,10 +203,12 @@ class Fragment:
         # are VQE, the solver_high overrides the solver_low resources.
         resources = {}
 
-        if isinstance(self.solver_low, VQESolver):
+        quantum_solvers = tuple(self.supported_quantum_solvers.values())
+
+        if isinstance(self.solver_low, quantum_solvers):
             resources = self.solver_low.get_resources()
 
-        if isinstance(self.solver_high, VQESolver):
+        if isinstance(self.solver_high, quantum_solvers):
             resources = self.solver_high.get_resources()
 
         return resources
@@ -212,19 +222,27 @@ class Link:
         methods to generate a new bond, appending the intended species.
 
         Args:
-            index1 (int): Order in the molecular geometry of atom retained in
-                model-unit.
-            leaving (int): Order in mol. Geometry of atom lost.
+            staying (int): Atom id retained.
+            leaving (int): Atom id lost.
             factor (float) optional: Rescale length of bond, from that in the
                 original molecule.
-            species (str) optional: Atomic species of appended atom for new
-                link.
+            species (str) optional: Atomic species or a chemical group
+                identifier for new link. Can be a list (first element = "X" to
+                detect the orientation) for a custom chemical group.
         """
 
         self.staying = staying
         self.leaving = leaving
         self.factor = factor
-        self.species = species
+
+        if isinstance(species, str) and species in elements:
+            self.species = [(species, (0., 0., 0.))]
+        elif isinstance(species, str) and species in chemical_groups:
+            self.species = chemical_groups[species]
+        elif isinstance(species, (list, tuple)) and species[0][0].upper() == "X":
+            self.species = species
+        else:
+            raise ValueError(f"{species} is not supported. It must be a string identifier or a list of atoms (with a ghost atom ('X') as the first element).")
 
     def relink(self, geometry):
         """Create atom at location of mended-bond link.
@@ -234,12 +252,29 @@ class Link:
                 [[str,tuple(float,float,float)],...].
 
         Returns:
-            str: Atomic species.
-            tuple: Position (x, y, z) of replacement atom.
+            list: List of atomic species and position (x, y, z) of replacement
+                atom / chemical group.
         """
+
+        elements = [a[0] for a in self.species if a[0].upper() != "X"]
+        chem_group_xyz = np.array([[a[1][0], a[1][1], a[1][2]] for a in self.species if a[0].upper() != "X"])
 
         staying = np.array(geometry[self.staying][1])
         leaving = np.array(geometry[self.leaving][1])
-        replacement = self.factor*(leaving-staying) + staying
 
-        return (self.species, (replacement[0], replacement[1], replacement[2]))
+        # Rotation (if not a single atom).
+        if len(elements) > 1:
+            axis_old = leaving - staying
+            axis_new = chem_group_xyz[0] - np.array(self.species[0][1])
+
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                rot, _ = R.align_vectors([axis_old], [axis_new])
+            chem_group_xyz = rot.apply(chem_group_xyz)
+
+        # Move the atom / group to the right position in space.
+        replacement = self.factor*(leaving-staying) + staying
+        translation = replacement - chem_group_xyz[0]
+        chem_group_xyz += translation
+
+        return [(element, (xyz[0], xyz[1], xyz[2])) for element, xyz in zip(elements, chem_group_xyz)]
