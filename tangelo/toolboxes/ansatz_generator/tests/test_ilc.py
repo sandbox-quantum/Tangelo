@@ -62,7 +62,7 @@ class ILCTest(unittest.TestCase):
         self.assertRaises(ValueError, ilc_ansatz.set_var_params, np.array([1.] * 2))
 
     @staticmethod
-    def test_gauss_elim_over_gf2():
+    def test_gauss_elim_over_gf2_sqrmat():
         """ Verify behavior of the Gaussian elimination over the binary field function. """
 
         # a_matrix stores the action of A * z over GF(2); dimension is n x m
@@ -73,6 +73,42 @@ class ILCTest(unittest.TestCase):
 
         # z_ref stores the serves as the reference for the output of gauss_elim_over_gf2
         z_ref = np.array([0, 1, 0, 1])
+
+        # solve A * z = b and compare to reference solution
+        z_sln = gauss_elim_over_gf2(a_matrix, b_vec)
+
+        np.testing.assert_array_almost_equal(z_sln, z_ref, decimal=6)
+
+    @staticmethod
+    def test_gauss_elim_over_gf2_rectmat():
+        """ Verify behavior of the Gaussian elimination over the binary field function. """
+
+        # a_matrix stores the action of A * z over GF(2); dimension is n x m
+        a_matrix = np.array([[0, 0, 1, 0, 1], [1, 1, 0, 0, 0], [0, 0, 0, 1, 1]])
+
+        # b_vec stores the solution vector for the equation A * z = b_vec; dimension is n x 1
+        b_vec = np.array([1, 1, 0]).reshape((3, 1))
+
+        # z_ref stores the serves as the reference for the output of gauss_elim_over_gf2
+        z_ref = np.array([1, 0, 1, 0, 0])
+
+        # solve A * z = b and compare to reference solution
+        z_sln = gauss_elim_over_gf2(a_matrix, b_vec)
+
+        np.testing.assert_array_almost_equal(z_sln, z_ref, decimal=6)
+
+    @staticmethod
+    def test_gauss_elim_over_gf2_lindep():
+        """ Verify behavior of the Gaussian elimination over the binary field function. """
+
+        # a_matrix stores the action of A * z over GF(2); dimension is n x m
+        a_matrix = np.array([[0, 0, 1, 0, 1], [0, 0, 1, 0, 1], [0, 0, 0, 1, 1]])
+
+        # b_vec stores the solution vector for the equation A * z = b_vec; dimension is n x 1
+        b_vec = np.array([1, 0, 1]).reshape((3, 1))
+
+        # z_ref stores the serves as the reference for the output of gauss_elim_over_gf2
+        z_ref = np.array([-1, -1, 1, 1, 0])
 
         # solve A * z = b and compare to reference solution
         z_sln = gauss_elim_over_gf2(a_matrix, b_vec)
