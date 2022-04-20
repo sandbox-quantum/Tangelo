@@ -72,6 +72,10 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
             vector = np.concatenate((vector[::2], vector[1::2]))
         return do_scbk_transform(vector, n_spinorbitals)
     elif mapping.upper() == "JKMN":
+        gates = jkmn_prep_circuit(vector)._gates
+        vector[:] = 0
+        for g in gates:
+            vector[g.target[0]] = 1 if g.name in ["X", "Y"] else 0
         return vector
 
 
@@ -119,16 +123,13 @@ def vector_to_circuit(vector, mapping=None):
         Circuit: instance of tangelo.linq Circuit class.
     """
 
-    if mapping is not None and mapping.upper() == "JKMN":
-        return jkmn_prep_circuit(vector)
-    else:
-        n_qubits = len(vector)
-        circuit = Circuit(n_qubits=n_qubits)
+    n_qubits = len(vector)
+    circuit = Circuit(n_qubits=n_qubits)
 
-        for index, occupation in enumerate(vector):
-            if occupation:
-                gate = Gate("X", target=index)
-                circuit.add_gate(gate)
+    for index, occupation in enumerate(vector):
+        if occupation:
+            gate = Gate("X", target=index)
+            circuit.add_gate(gate)
 
     return circuit
 

@@ -46,6 +46,19 @@ class QubitTaperingTest(unittest.TestCase):
 
         self.assertAlmostEqual(e, e_taper, places=5)
 
+    def test_z2taper_h2_jkmn_occupied_first(self):
+        """Test Z2 tapering of H2 JW up_then_down=False."""
+        from tangelo.molecule_library import mol_H2_sto3g
+        from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+        qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "JKMN", 4, 2, False, 0)
+        e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
+
+        tapering = QubitTapering(qu_op, 4, 2, 0, "JKMN", False)
+        tapered_qu_op = tapering.z2_tapered_op.qubitoperator
+        e_taper = np.min(np.linalg.eigvalsh(qubit_operator_sparse(tapered_qu_op).todense()))
+
+        self.assertAlmostEqual(e, e_taper, places=5)
+
     def test_z2taper_h2_jw_spinup_first(self):
         """Test Z2 tapering of H2 JW up_then_down=True."""
 
@@ -93,7 +106,6 @@ class QubitTaperingTest(unittest.TestCase):
         tapering = QubitTapering(qu_op, 4, 2, 2, "JW", False)
         tapered_qu_op = tapering.z2_tapered_op.qubitoperator
         e_taper = np.min(np.linalg.eigvalsh(qubit_operator_sparse(tapered_qu_op).todense()))
-
         self.assertAlmostEqual(e, e_taper, places=5)
 
 
