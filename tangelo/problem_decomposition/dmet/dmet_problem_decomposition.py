@@ -218,7 +218,13 @@ class DMETProblemDecomposition(ProblemDecomposition):
         self.orb_list, self.orb_list2, _ = helpers._fragment_constructor(self.molecule, self.fragment_atoms, 0)
 
         # Calculate the 1-RDM for the entire molecule.
-        self.onerdm_low = helpers._low_rdm(self.orbitals.active_fock, self.orbitals.number_active_electrons)
+        if self.molecule.spin == 0:
+            self.onerdm_low = helpers._low_rdm(self.orbitals.active_fock, self.orbitals.number_active_electrons)
+        else:
+            self.onerdm_low = helpers._low_rdm_rohf(self.orbitals.active_fock_alpha,
+                                                    self.orbitals.active_fock_beta,
+                                                    self.orbitals.number_active_electrons_alpha,
+                                                    self.orbitals.number_active_electrons_beta)
 
     def simulate(self):
         """Perform DMET loop to optimize the chemical potential. It converges
@@ -326,12 +332,17 @@ class DMETProblemDecomposition(ProblemDecomposition):
             one_ele, fock, two_ele = self.orbitals.dmet_fragment_hamiltonian(bath_orb, norb_high, onerdm_high)
 
             # Construct guess orbitals for fragment SCF calculations.
-            guess_orbitals = helpers._fragment_guess(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
-                                                     self.orbitals.active_fock)
-
             # Carry out SCF calculation for a fragment.
-            mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf(t_list, two_ele, fock, nelec_high, norb_high,
-                                                                          guess_orbitals, chemical_potential)
+            if self.molecule.spin == 0:
+                guess_orbitals = helpers._fragment_guess(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
+                                                        self.orbitals.active_fock)
+                mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf(t_list, two_ele, fock, nelec_high, norb_high,
+                                                                            guess_orbitals, chemical_potential)
+            else:
+                guess_orbitals, nelec_high_ab = helpers._fragment_guess_rohf(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
+                    self.orbitals.active_fock_alpha, self.orbitals.active_fock_beta, self.orbitals.number_active_electrons_alpha, self.orbitals.number_active_electrons_beta)
+
+                mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf_rohf(nelec_high_ab, two_ele, fock, nelec_high, norb_high, guess_orbitals, chemical_potential)
 
             scf_fragments.append([mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock])
 
@@ -370,7 +381,6 @@ class DMETProblemDecomposition(ProblemDecomposition):
         Returns:
             float: The new chemical potential.
         """
-
         self.n_iter += 1
         if self.verbose:
             print(" \tIteration = ", self.n_iter)

@@ -68,36 +68,78 @@ class dmet_orbitals:
             localization_function (string): Localization scheme.
         """
 
-        # TODO: Is active space always claculated from the molecule?
+        if mol.spin == 0:
+            # TODO: Is active space always claculated from the molecule?
 
-        # Obtain the elements from the low-level SCF calculations
-        self.mol_full = mol
-        self.mf_full = mf
-        self.low_scf_energy = mf.e_tot
-        low_scf_dm = reduce(np.dot, (mf.mo_coeff, np.diag(mf.mo_occ), mf.mo_coeff.T))
-        low_scf_twoint = scf.hf.get_veff(mf.mol, low_scf_dm, 0, 0, 1)
-        self.low_scf_fock = mf.mol.intor("cint1e_kin_sph") + mf.mol.intor("cint1e_nuc_sph") + low_scf_twoint
+            # Obtain the elements from the low-level SCF calculations
+            self.mol_full = mol
+            self.mf_full = mf
+            self.low_scf_energy = mf.e_tot
+            low_scf_dm = reduce(np.dot, (mf.mo_coeff, np.diag(mf.mo_occ), mf.mo_coeff.T))
+            low_scf_twoint = scf.hf.get_veff(mf.mol, low_scf_dm, 0, 0, 1)
+            self.low_scf_fock = mf.mol.intor("cint1e_kin_sph") + mf.mol.intor("cint1e_nuc_sph") + low_scf_twoint
 
-        # Define the active space if possible
-        self.dmet_active_orbitals = np.zeros([mf.mol.nao_nr()], dtype=int)
-        self.dmet_active_orbitals[active_space] = 1
-        self.number_active_orbitals = np.sum(self.dmet_active_orbitals)
-        self.number_active_electrons = int(np.rint(mf.mol.nelectron - np.sum(mf.mo_occ[self.dmet_active_orbitals == 0])))
+            # Define the active space if possible
+            self.dmet_active_orbitals = np.zeros([mf.mol.nao_nr()], dtype=int)
+            self.dmet_active_orbitals[active_space] = 1
+            self.number_active_orbitals = np.sum(self.dmet_active_orbitals)
+            self.number_active_electrons = int(np.rint(mf.mol.nelectron - np.sum(mf.mo_occ[self.dmet_active_orbitals == 0])))
 
-        # Localize the orbitals (IAO)
-        self.localized_mo = localization_function(mol, mf)
+            # Localize the orbitals (IAO)
+            self.localized_mo = localization_function(mol, mf)
 
-        # Define the core space if possible (Initial calculations treat the entire molecule ...)
-        core_mo_dm = np.array(mf.mo_occ, copy=True)
-        core_mo_dm[self.dmet_active_orbitals == 1] = 0
-        core_ao_dm = reduce(np.dot, (mf.mo_coeff, np.diag(core_mo_dm), mf.mo_coeff.T))
-        core_twoint = scf.hf.get_veff(mf.mol, core_ao_dm, 0, 0, 1)
-        core_oneint = self.low_scf_fock - low_scf_twoint + core_twoint
+            # Define the core space if possible (Initial calculations treat the entire molecule ...)
+            core_mo_dm = np.array(mf.mo_occ, copy=True)
+            core_mo_dm[self.dmet_active_orbitals == 1] = 0
+            core_ao_dm = reduce(np.dot, (mf.mo_coeff, np.diag(core_mo_dm), mf.mo_coeff.T))
+            core_twoint = scf.hf.get_veff(mf.mol, core_ao_dm, 0, 0, 1)
+            core_oneint = self.low_scf_fock - low_scf_twoint + core_twoint
 
-        # Define the energies and matrix elements based on the localized orbitals
-        self.core_constant_energy = mf.mol.energy_nuc() + np.einsum("ij,ij->", core_oneint - 0.5*core_twoint, core_ao_dm)
-        self.active_oneint = reduce(np.dot, (self.localized_mo.T, core_oneint, self.localized_mo))
-        self.active_fock = reduce(np.dot, (self.localized_mo.T, self.low_scf_fock, self.localized_mo))
+            # Define the energies and matrix elements based on the localized orbitals
+            self.core_constant_energy = mf.mol.energy_nuc() + np.einsum("ij,ij->", core_oneint - 0.5*core_twoint, core_ao_dm)
+            self.active_oneint = reduce(np.dot, (self.localized_mo.T, core_oneint, self.localized_mo))
+            self.active_fock = reduce(np.dot, (self.localized_mo.T, self.low_scf_fock, self.localized_mo))
+        else:
+            self.mol_full = mol
+            self.mf_full = mf
+            self.low_scf_energy = mf.e_tot
+            low_scf_rdm = mf.make_rdm1()
+            low_scf_twoint=mf.get_veff(mol,low_scf_rdm,0,0,1)
+
+            core_oneint = mf.get_hcore()
+            low_scf_fock_alpha = core_oneint + low_scf_twoint[0]
+            low_scf_fock_beta = core_oneint + low_scf_twoint[1]
+
+            # Define the active space if possible
+            self.dmet_active_orbitals = np.zeros([mf.mol.nao_nr()], dtype=int)
+            self.dmet_active_orbitals[active_space] = 1
+            self.number_active_orbitals = np.sum(self.dmet_active_orbitals)
+            self.number_active_electrons = int(np.rint(mf.mol.nelectron - np.sum(mf.mo_occ[self.dmet_active_orbitals==0])))
+
+            elec_paired = self.number_active_electrons - mol.spin
+            orbital_paired = elec_paired // 2
+            self.number_active_electrons_alpha = orbital_paired + mol.spin
+            self.number_active_electrons_beta = orbital_paired
+
+            self.localized_mo = localization_function(mol, mf)
+
+            # Define the energies and matrix elements based on the localized orbitals
+            self.core_constant_energy = mf.mol.energy_nuc()
+            self.active_oneint = reduce(np.dot, (self.localized_mo.T, core_oneint, self.localized_mo))
+
+            self.active_fock_alpha = reduce(np.dot, (self.localized_mo.T, low_scf_fock_alpha, self.localized_mo))
+            self.active_fock_beta = reduce(np.dot, (self.localized_mo.T, low_scf_fock_beta, self.localized_mo))
+
+            rdm_a = reduce(np.dot, (self.localized_mo.T, low_scf_rdm[0], self.localized_mo))
+            rdm_b = reduce(np.dot, (self.localized_mo.T, low_scf_rdm[1], self.localized_mo))
+            rdm_total = np.array((rdm_a, rdm_b))
+
+            overlap = np.eye(self.number_active_orbitals)
+            two_int = scf.hf.get_veff(self.mol_full, rdm_total, 0, 0, 1)
+            new_fock_alpha = self.active_oneint + reduce(np.dot, ((self.localized_mo.T, two_int[0], self.localized_mo)))
+            new_fock_beta = self.active_oneint + reduce(np.dot, ((self.localized_mo.T, two_int[1], self.localized_mo)))
+            fock_total = np.array((new_fock_alpha, new_fock_beta))
+            self.active_fock = scf.rohf.get_roothaan_fock(fock_total, rdm_total, overlap)
 
     def dmet_fragment_hamiltonian(self, bath_orb, norb_high, onerdm_core):
         """Construct the Hamiltonian for a DMET fragment.
