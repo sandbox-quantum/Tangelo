@@ -47,7 +47,7 @@ class QubitTapering:
         Args:
             qubit_operator (QubitOperator): Self-explanatory.
             n_qubits (int): Number of qubits the initial operator acts on.
-            n-electrons (int): Number of electrons.
+            n_electrons (int): Number of electrons.
             mapping (str): Qubit mapping.
             up_then_down (bool): Whether or not spin ordering is all up then
                 all down.

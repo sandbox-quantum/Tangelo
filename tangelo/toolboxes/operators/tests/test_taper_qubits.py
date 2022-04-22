@@ -28,8 +28,8 @@ pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
 class QubitTaperingTest(unittest.TestCase):
 
-    def test_notsupported_mapping(self):
-        """Test not supported mapping for qubit for tapering."""
+    def test_unsupported_mapping(self):
+        """Test unsupported mapping for qubit for tapering."""
 
         with self.assertRaises(NotImplementedError):
             QubitTapering(QubitOperator(), 4, 2, 0, "scBK", True)

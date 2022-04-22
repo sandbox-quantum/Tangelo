@@ -17,9 +17,10 @@ with Z2 tapering.
 
 For all chemical Hamiltonians, there are at least two symmetries (electron
 number and spin conservation) that reduce the qubits count by two. Furthermore,
-molecular symmetries can lead to a reduction of the qubit required for a problem.
-Those symmetries can be interpreted as degenerated eigenvalues. In the real
-space, symmetry operations lead to the same total energy.
+molecular symmetries can lead to a reduction of the number of qubits required to
+encode a problem. Those symmetries can be interpreted as degenerated
+eigenvalues. In the real space, symmetry operations lead to the same total
+energy.
 
 Ref:
     Tapering off qubits to simulate fermionic Hamiltonians
@@ -32,7 +33,7 @@ from operator import itemgetter
 import numpy as np
 
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
-from tangelo.toolboxes.operators.hybridoperator import HybridOperator, ConvertPauli, is_commuting
+from tangelo.toolboxes.operators.hybridoperator import HybridOperator, ConvertPauli, do_commute
 
 
 def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, eigenvalues=None):
@@ -61,7 +62,7 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
     def do_taper(operator, eigenvalues=eigenvalues):
 
         # Remove non-commuting terms.
-        commutes = is_commuting(operator, kernel, term_resolved=True)
+        commutes = do_commute(operator, kernel, term_resolved=True)
         indices = np.where(commutes is False)[0]
 
         if len(indices) > 0:
@@ -109,7 +110,7 @@ def get_clifford_operators(kernel):
     indices = list()
     n_qubits = kernel.shape[1] // 2
     cliffords = list()
-    factors = np.array([np.sqrt(0.5), np.sqrt(0.5)])
+    factors = np.full(2, np.sqrt(0.5))
 
     for row, ki in enumerate(kernel):
         vector = np.zeros(n_qubits * 2, dtype=int)

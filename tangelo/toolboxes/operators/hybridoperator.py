@@ -169,8 +169,7 @@ class HybridOperator(QubitOperator):
         E_prime = np.concatenate((self.binary, identity_to_append), axis=0)
 
         # Put the matrix into column-echelon form.
-        E_prime = E_prime.astype(bool)
-        E_prime = bool_col_echelon(E_prime)
+        E_prime = bool_col_echelon(E_prime.astype(bool))
 
         # Extracting the kernel.
         kernel = np.array([E_prime[self.binary.shape[0]:, i] for i in range(self.n_qubits)
@@ -210,7 +209,7 @@ class HybridOperator(QubitOperator):
         self.binary = integer_to_binary(self.integer)
 
         # Updating the binary_swap from the new binary.
-        list_col_swap = [n_column for n_column in range(2 * self.n_qubits)]
+        list_col_swap = list(range(2 * self.n_qubits))
         list_col_swap = list_col_swap[self.n_qubits:] + list_col_swap[:self.n_qubits]
         self.binary_swap = self.binary[:, list_col_swap]
 
@@ -270,9 +269,7 @@ class ConvertPauli:
         # defined.
         for equiv in pauli_translation:
             if pauli_id in equiv:
-                self.char = equiv[0]
-                self.integer = equiv[1]
-                self.tuple = equiv[2]
+                self.char, self.integer, self.tuple = equiv[:]
 
         # When the input is wrong (ex: "x", "G", (3,4), 42, ...), it raises an error.
         if self.char is None:
@@ -284,6 +281,9 @@ def qubit_to_integer(qubit_op, n_qubits=None):
     attribute is instantiated, and populated from the QubitOperator attribute.
 
     Args:
+        QubitOperator: self-explanatory.
+
+    Returns:
         array-like of int: 2-D numpy array of 0s (I), 1s (Z), 2s (X) and 3s (Y)
             representing a qubit operator (shape[0] = number of terms, shape[1]
             = number of qubits.
@@ -301,6 +301,11 @@ def qubit_to_integer(qubit_op, n_qubits=None):
 
 def integer_to_binary(integer_op):
     """Perform conversion from integer array to binary (stabilizer) array.
+
+    Args:
+        interger_op (array-like of int): 2-D numpy array of 0s (I), 1s (Z), 2s
+            (X) and 3s (Y) representing a qubit operator (shape[0] = number of
+            terms, shape[1] = number of qubits.
 
     Returns:
         array-like of bool: Array of 0s and 1s representing the operator with
@@ -323,6 +328,12 @@ def integer_to_binary(integer_op):
 def integer_to_qubit_terms(integer_op, factors):
     """Perform conversion from integer array to qubit terms.
 
+    Args:
+        interger_op (array-like of int): 2-D numpy array of 0s (I), 1s (Z), 2s
+            (X) and 3s (Y) representing a qubit operator (shape[0] = number of
+            terms, shape[1] = number of qubits.
+        factors (array-like of float): Coefficients for the qubit terms.
+
     Returns:
         dict: Pauli terms and coefficients.
     """
@@ -339,7 +350,7 @@ def integer_to_qubit_terms(integer_op, factors):
     return qubit_operator.terms
 
 
-def is_commuting(hybrid_op_a, hybrid_op_b, term_resolved=False):
+def do_commute(hybrid_op_a, hybrid_op_b, term_resolved=False):
     """Check if two operators commute, using the stabilizer notation. With the
     *term_resolved* flag, the user can identify which terms in the parent
     operator do or do not commute with the target operator.
@@ -372,6 +383,6 @@ def is_commuting(hybrid_op_a, hybrid_op_b, term_resolved=False):
             axis=1))
 
     if not term_resolved:
-        return not np.logical_or.reduce(term_bool)
+        return not np.all(term_bool)
     else:
         return np.logical_not(term_bool)

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This file provides utility functions to perform math operations."""
+"""This file provides utility functions to perform mathematical operations."""
 
 import numpy as np
 
@@ -26,17 +26,28 @@ def bool_col_echelon(bool_array):
     """
 
     pivot = bool_array.shape[1] - 1
+
+    # This is done on matrix where the number of rows > number of columns.
     active_rows = bool_array.shape[0] - bool_array.shape[1] - 1
 
+    # Column by column, starting from the last one, perform gaussian elimination
+    # on the columns.
     for row in range(active_rows, -1, -1):
+
+        # Identify if there is a 1 in the selected row and columns.
         if bool_array[row, :pivot+1].max():
             indices = np.where(bool_array[row, :pivot+1])[0]
 
+            # If there are more than one 1 in the selected part, perform
+            # gaussian elimination (done with a XOR because the input is a
+            # boolean array.
             if len(indices) > 1:
                 for i in range(1, len(indices)):
                     bool_array[:, indices[i]] = np.logical_xor(bool_array[:, indices[i]],
                                                                bool_array[:, indices[0]])
 
+            # If there is only one 1 in the selected part, the pivot is
+            # decremented.
             if len(indices) > 0:
                 bool_array[:, (indices[0], pivot)] = bool_array[:, (pivot, indices[0])]
                 pivot -= 1

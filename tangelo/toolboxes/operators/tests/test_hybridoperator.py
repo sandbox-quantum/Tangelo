@@ -17,7 +17,7 @@ import unittest
 import numpy as np
 
 from tangelo.toolboxes.operators import QubitOperator, HybridOperator
-from tangelo.toolboxes.operators.hybridoperator import is_commuting
+from tangelo.toolboxes.operators.hybridoperator import do_commute
 
 qu_op_xyz = QubitOperator("X0 Y1 Z2", 1.)
 qu_op_zyz = QubitOperator("Z0 Y1 Z2", 1.)
@@ -28,14 +28,14 @@ bin_op_xyz = np.array([[1, 1, 0, 0, 1, 1]])
 
 class HybridOperatorUtilitiesTest(unittest.TestCase):
 
-    def test_is_commutating(self):
+    def test_do_commute(self):
         """Test is_commuting function."""
 
-        commute_xyz_xyz = is_commuting(HybridOperator.from_qubitop(qu_op_xyz),
+        commute_xyz_xyz = do_commute(HybridOperator.from_qubitop(qu_op_xyz),
                                        HybridOperator.from_qubitop(qu_op_xyz))
         self.assertTrue(commute_xyz_xyz)
 
-        commute_xyz_zyz = is_commuting(HybridOperator.from_qubitop(qu_op_xyz),
+        commute_xyz_zyz = do_commute(HybridOperator.from_qubitop(qu_op_xyz),
                                        HybridOperator.from_qubitop(qu_op_zyz))
         self.assertFalse(commute_xyz_zyz)
 
