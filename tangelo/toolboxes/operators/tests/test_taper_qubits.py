@@ -83,7 +83,7 @@ class QubitTaperingTest(unittest.TestCase):
         self.assertAlmostEqual(e, e_taper, places=5)
 
     def test_z2taper_h2_jkmn_occupied_first(self):
-        """Test Z2 tapering of H2 JW up_then_down=False."""
+        """Test Z2 tapering of H2 JKMN up_then_down=False."""
 
         qu_op = load_operator("H2_JKMN_occfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
@@ -95,7 +95,7 @@ class QubitTaperingTest(unittest.TestCase):
         self.assertAlmostEqual(e, e_taper, places=5)
 
     def test_z2taper_h2_jkmn_spinup_first(self):
-        """Test Z2 tapering of H2 JW up_then_down=True."""
+        """Test Z2 tapering of H2 JKMN up_then_down=True."""
 
         qu_op = load_operator("H2_JKMN_spinupfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         e = np.min(np.linalg.eigvalsh(qubit_operator_sparse(qu_op).todense()))
@@ -107,7 +107,7 @@ class QubitTaperingTest(unittest.TestCase):
         self.assertAlmostEqual(e, e_taper, places=5)
 
     def test_z2taper_h2_triplet(self):
-        """Test Z2 tapering of H2 JW up_then_down=False."""
+        """Test Z2 tapering of H2 triplet JW up_then_down=False."""
 
         qu_op = load_operator("H2_JW_occfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
