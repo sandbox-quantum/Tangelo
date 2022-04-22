@@ -74,10 +74,9 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
                 rowdx += 1
 
         # Solve A * z = b --> here b = 1
-        z_sln = gauss_elim_over_gf2(a_mat, b_vec=one_vec)
+        z_sln, _ = gauss_elim_over_gf2(a_mat, b_vec=one_vec)
 
         # Check solution: odd # of Y ops, at least two flip indices, and mutually anti-commutes
-        good_sln = True
         for i in range(n_gens):
             n_flip, n_y, gen_idx, gen_tup = 0, 0, gen_idxs[i], tuple()
             for j in range(n_qubits):
@@ -94,16 +93,20 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
                         gen = (j, 'Z')
                 if gen:
                     gen_tup += (gen, )
-            if n_flip < 2 or n_y % 2 == 0:
-                if good_sln and gen_idx not in bad_sln_idxs:
+            # check number of flip indices and number of Y Pauli ops
+            if n_flip > 1 and n_y % 2 == 1:
+                gen_i = QubitOperator(gen_tup, 1.)
+                good_sln = True
+                # check mutual anti-commutativity of each new ILC generator with all the rest
+                for gen_j in ilc_gens:
+                    if gen_i * gen_j != -1. * gen_j * gen_i:
+                        if gen_idx not in bad_sln_idxs:
+                            bad_sln_idxs.append(gen_idx)
+                            good_sln = False
+            else:
+                if gen_idx not in bad_sln_idxs:
                     bad_sln_idxs.append(gen_idx)
                     good_sln = False
-            gen_i = QubitOperator(gen_tup, 1.)
-            for gen_j in ilc_gens:
-                if gen_i * gen_j != -1. * gen_j * gen_i:
-                    if good_sln and gen_idx not in bad_sln_idxs:
-                        bad_sln_idxs.append(gen_idx)
-                        good_sln = False
             if good_sln:
                 ilc_gens.append(gen_i)
     return ilc_gens
@@ -178,10 +181,12 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
             b_val = np.fmod(b_val + z_sln[z_free], 2)
         z_sln[z_val[0]] = b_val
     # check that z_sln does not have any -1 values left -- if so, a solution was not found.
+    sln_found = True
     for z_val in z_sln:
         if z_val == -1:
             warnings.warn("Gaussian elimination over GF(2) failed to find a solution.", RuntimeWarning)
-    return np.array(z_sln)
+            sln_found = False
+    return np.array(z_sln), sln_found
 
 
 def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
