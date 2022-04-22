@@ -54,7 +54,7 @@ class QubitTapering:
         """
 
         if mapping.upper() not in {"JW", "BK", "JKMN"}:
-            raise NotImplementedError(f"Qubit mapping {mapping} not supported. Tapering only supports JW and BK qubit encoding.")
+            raise NotImplementedError(f"Qubit mapping {mapping} not supported. Tapering supports JW, BK and JKMN qubit encoding.")
 
         self.initial_op = HybridOperator.from_qubitop(qubit_operator, n_qubits)
         self.initial_n_qubits = n_qubits
