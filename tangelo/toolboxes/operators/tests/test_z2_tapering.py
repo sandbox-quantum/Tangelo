@@ -17,7 +17,7 @@ import unittest
 import numpy as np
 
 from tangelo.toolboxes.operators import HybridOperator
-from tangelo.toolboxes.operators.z2_tapering import get_clifford_operators, get_unitary, get_eigenvalues, collapse
+from tangelo.toolboxes.operators.z2_tapering import get_clifford_operators, get_unitary, get_eigenvalues
 
 
 class Z2TaperingHelperFunctionsTest(unittest.TestCase):
@@ -98,19 +98,8 @@ class Z2TaperingHelperFunctionsTest(unittest.TestCase):
         np.testing.assert_array_equal([-1, -1, 1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "JW", True))
         np.testing.assert_array_equal([-1, -1, -1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "BK", False))
         np.testing.assert_array_equal([-1, 1, 1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "BK", True))
-
-    def test_collapse(self):
-        """Test collapse function with a given operator with duplicate terms."""
-
-        int_op = np.array([
-            [0, 1, 2, 3],
-            [0, 1, 2, 3]
-        ])
-
-        collapsed_int_op, collapsed_factors = collapse(int_op, factors=np.ones(int_op.shape[0]))
-
-        np.testing.assert_array_equal([[0, 1, 2, 3]], collapsed_int_op)
-        np.testing.assert_array_equal([2.], collapsed_factors)
+        np.testing.assert_array_equal([1, -1, 1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "JKMN", False))
+        np.testing.assert_array_equal([1, 1, -1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "JKMN", True))
 
 
 if __name__ == "__main__":

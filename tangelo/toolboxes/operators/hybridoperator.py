@@ -18,6 +18,8 @@ methods use the numpy array of int. The main application for this class is to
 identify commutation relation faster with the stabilizer notation.
 """
 
+from operator import itemgetter
+
 import numpy as np
 
 from tangelo.helpers.math import bool_col_echelon
@@ -133,10 +135,6 @@ class HybridOperator(QubitOperator):
         """
 
         # Take into account the order of Pauli matrices multiplication.
-        i_calc = np.array([[0, 1, 2, 3],
-                           [1, 0, 3, 2],
-                           [2, 3, 0, 1],
-                           [3, 2, 1, 0]], dtype=int)
         c_calc = np.array([[1, 1, 1, 1],
                            [1, 1, 1j, -1j],
                            [1, -1j, 1, 1j],
@@ -146,11 +144,12 @@ class HybridOperator(QubitOperator):
         product = np.zeros((factors.shape[0], self.n_qubits), dtype=int)
         increment = other_operator.n_terms
 
-        for term_i in range(self.n_terms):
-            new_is = i_calc[self.integer[term_i], other_operator.integer]
+        for term_i, integer in enumerate(self.integer):
             new_cs = c_calc[self.integer[term_i], other_operator.integer]
-            product[term_i * increment: (term_i + 1) * increment] = new_is
+            product[term_i * increment: (term_i + 1) * increment] = integer ^ other_operator.integer
             factors[term_i * increment: (term_i + 1) * increment] = self.factors[term_i] * other_operator.factors * np.product(new_cs, axis=1)
+
+        product, factors = HybridOperator.collapse(product, factors)
 
         return HybridOperator.from_integerop(product, factors=factors)
 
@@ -233,6 +232,43 @@ class HybridOperator(QubitOperator):
             super(QubitOperator, self).compress(abs_tol)
 
         self._update()
+
+    @staticmethod
+    def collapse(operator, factors):
+        """Function to identify and sum over duplicate terms in an operator, to
+        collapse a set of Pauli words to their minimal representation.
+
+        Args:
+            operator (array of int): Operator in integer notation.
+            factors (array of complex): Self-explanatory.
+
+        Returns:
+            (array of int, arrays of float): Array of unique integer-encoded
+                Pauli words, their factors in the operator.
+        """
+
+        all_terms = np.concatenate((operator, np.linspace(0, len(operator) - 1, len(operator), dtype=int).reshape(len(operator), -1)), axis=1)
+
+        qubits = np.linspace(0, operator.shape[1] - 1, operator.shape[1], dtype=int)
+
+        sorted_terms = np.array(sorted(all_terms, key=itemgetter(*qubits)))
+        sorted_factors = factors[sorted_terms[:, -1]]
+
+        unique, inverse = np.unique(sorted_terms[:, :-1], axis=0, return_inverse=True)
+
+        factors = np.zeros(len(unique), dtype=complex)
+
+        for index in range(len(sorted_terms)):
+            factors[inverse[index]] += sorted_factors[index]
+
+        nonzero = np.where(abs(factors) > 0)
+        unique = unique[nonzero]
+        factors = factors[nonzero]
+
+        if len(np.shape(unique)) == 1:
+            unique = np.reshape(unique, (-1, len(unique)))
+
+        return unique.astype(np.int8), factors
 
 
 class ConvertPauli:
@@ -379,8 +415,8 @@ def do_commute(hybrid_op_a, hybrid_op_b, term_resolved=False):
     # Binary_swap is used to check the commuation relation.
     for index, term in enumerate(hybrid_op_a.binary_swap):
         term_bool[index] = np.logical_or.reduce(
-            np.logical_xor.reduce(np.bitwise_and(term, hybrid_op_b.binary),
-            axis=1))
+            np.logical_xor.reduce(term & hybrid_op_b.binary, axis=1)
+            )
 
     if not term_resolved:
         return not np.all(term_bool)

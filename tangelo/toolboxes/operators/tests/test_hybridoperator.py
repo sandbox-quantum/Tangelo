@@ -87,6 +87,19 @@ class HybridOperatorTest(unittest.TestCase):
         np.testing.assert_allclose(ba.integer, np.array([[3, 0, 0]]))
         np.testing.assert_allclose(ba.factors, np.array([1.j]))
 
+    def test_collapse(self):
+        """Test collapse function with a given operator with duplicate terms."""
+
+        int_op = np.array([
+            [0, 1, 2, 3],
+            [0, 1, 2, 3]
+        ])
+
+        collapsed_int_op, collapsed_factors = HybridOperator.collapse(int_op, factors=np.ones(int_op.shape[0]))
+
+        np.testing.assert_array_equal([[0, 1, 2, 3]], collapsed_int_op)
+        np.testing.assert_array_equal([2.], collapsed_factors)
+
 
 if __name__ == "__main__":
     unittest.main()

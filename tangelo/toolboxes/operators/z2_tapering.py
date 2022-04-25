@@ -28,8 +28,6 @@ Ref:
     arXiv:1701.08213
 """
 
-from operator import itemgetter
-
 import numpy as np
 
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
@@ -74,19 +72,21 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
         else:
             # TODO: This part is the bottleneck when tapering bigger operators.
             product = operator * unitary
+            product.compress()
             product_reverse = unitary * product
+            product_reverse.compress()
             post, factors = product_reverse.integer, product_reverse.factors
 
             # Clean operator.
-            operator_matrix, factors = collapse(post, factors)
+            #operator_matrix, factors = collapse(post, factors)
 
         if factors.max() == 0.0:
             return HybridOperator.from_integerop(np.zeros((1, n_qubits-n_symmetries), dtype=int), np.array([0.0]))
 
         for index, eigenvalue in zip(q_indices, eigenvalues):
-            factors[operator_matrix[:, index] > 0] *= eigenvalue
+            factors[post[:, index] > 0] *= eigenvalue
 
-        tapered = np.delete(operator_matrix, q_indices, axis=1)
+        tapered = np.delete(post, q_indices, axis=1)
 
         return HybridOperator.from_integerop(tapered, factors)
 
@@ -188,40 +188,3 @@ def get_eigenvalues(symmetries, n_qubits, n_electrons, spin, mapping, up_then_do
     eigenvalues = np.product(-2 * each_qubit + 1, axis=1)
 
     return eigenvalues
-
-
-def collapse(operator, factors):
-    """Function to identify and sum over duplicate terms in an operator, to
-    collapse a set of Pauli words to their minimal representation.
-
-    Args:
-        operator (array of int): Operator in integer notation.
-        factors (array of complex): Self-explanatory.
-
-    Returns:
-        (array of int, arrays of float): Array of unique integer-encoded
-            Pauli words, their factors in the operator.
-    """
-
-    all_terms = np.concatenate((operator, np.linspace(0, len(operator) - 1, len(operator), dtype=int).reshape(len(operator), -1)), axis=1)
-
-    qubits = np.linspace(0, operator.shape[1] - 1, operator.shape[1], dtype=int)
-
-    sorted_terms = np.array(sorted(all_terms, key=itemgetter(*qubits)))
-    sorted_factors = factors[sorted_terms[:, -1]]
-
-    unique, inverse = np.unique(sorted_terms[:, :-1], axis=0, return_inverse=True)
-
-    factors = np.zeros(len(unique), dtype=complex)
-
-    for index in range(len(sorted_terms)):
-        factors[inverse[index]] += sorted_factors[index]
-
-    nonzero = np.where(abs(factors) > 0)
-    unique = unique[nonzero]
-    factors = factors[nonzero]
-
-    if len(np.shape(unique)) == 1:
-        unique = np.reshape(unique, (-1, len(unique)))
-
-    return unique.astype(int), factors
