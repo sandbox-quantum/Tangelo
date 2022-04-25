@@ -77,9 +77,6 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
             product_reverse.compress()
             post, factors = product_reverse.integer, product_reverse.factors
 
-            # Clean operator.
-            #operator_matrix, factors = collapse(post, factors)
-
         if factors.max() == 0.0:
             return HybridOperator.from_integerop(np.zeros((1, n_qubits-n_symmetries), dtype=int), np.array([0.0]))
 
