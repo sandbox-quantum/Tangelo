@@ -79,6 +79,8 @@ def translate_qulacs(source_circuit, noise_model=None):
     GATE_QULACS = get_qulacs_gates()
     target_circuit = qulacs.QuantumCircuit(source_circuit.width)
 
+    measure_count = 0
+
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
@@ -121,8 +123,9 @@ def translate_qulacs(source_circuit, noise_model=None):
         elif gate.name in {"CNOT"}:
             (GATE_QULACS[gate.name])(target_circuit, gate.control[0], gate.target[0])
         elif gate.name in {"MEASURE"}:
-            gate = (GATE_QULACS[gate.name])(gate.target[0], gate.target[0])
+            gate = (GATE_QULACS[gate.name])(gate.target[0], measure_count)
             target_circuit.add_gate(gate)
+            measure_count += 1
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qulacs")
 

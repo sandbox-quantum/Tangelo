@@ -72,7 +72,10 @@ def translate_qiskit(source_circuit):
     import qiskit
 
     GATE_QISKIT = get_qiskit_gates()
-    target_circuit = qiskit.QuantumCircuit(source_circuit.width, source_circuit.width)
+    num_measures = source_circuit._gate_counts.get("MEASURE", 0) + source_circuit.width
+    target_circuit = qiskit.QuantumCircuit(source_circuit.width, num_measures)
+
+    measurement = 0
 
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
@@ -94,7 +97,8 @@ def translate_qiskit(source_circuit):
         elif gate.name in {"XX"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.target[0], gate.target[1])
         elif gate.name in {"MEASURE"}:
-            (GATE_QISKIT[gate.name])(target_circuit, gate.target[0], gate.target[0])
+            (GATE_QISKIT[gate.name])(target_circuit, gate.target[0], measurement)
+            measurement += 1
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qiskit")
     return target_circuit
