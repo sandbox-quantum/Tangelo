@@ -284,12 +284,12 @@ class Simulator:
             import qsharp
             qsharp.reload()
             from MyNamespace import EstimateFrequencies
-            frequencies_list = EstimateFrequencies.simulate(nQubits=source_circuit.width, nShots=self.n_shots)
+            frequencies_list = EstimateFrequencies.simulate(nQubits=source_circuit.width+num_meas, nShots=self.n_shots)
             print("Q# frequency estimation with {0} shots: \n {1}".format(self.n_shots, frequencies_list))
 
             # Convert Q# output to frequency dictionary, apply threshold
             frequencies = {bin(i).split('b')[-1]: frequencies_list[i] for i, freq in enumerate(frequencies_list)}
-            frequencies = {("0"*(source_circuit.width-len(k))+k)[::-1]: v for k, v in frequencies.items()
+            frequencies = {("0"*(num_meas+source_circuit.width-len(k))+k)[::-1]: v for k, v in frequencies.items()
                            if v > self.freq_threshold}
             return (frequencies, None)
 

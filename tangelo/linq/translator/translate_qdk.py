@@ -62,12 +62,15 @@ def translate_qsharp(source_circuit, operation="MyQsharpOperation"):
 
     GATE_QDK = get_qdk_gates()
 
+    n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+    n_c = n_meas + source_circuit.width
+    measurement = 0
     # Prepare Q# operation header
     qsharp_string = ""
     qsharp_string += "@EntryPoint()\n"
     qsharp_string += f"operation {operation}() : Result[] {{\n"
 #    qsharp_string += "body (...) {\n\n"
-    qsharp_string += f"\tmutable c = new Result[{source_circuit.width}];\n"
+    qsharp_string += f"\tmutable c = new Result[{n_c}];\n"
     qsharp_string += f"\tusing (qreg = Qubit[{source_circuit.width}]) {{\n"
 
     # Generate Q# strings with the right syntax, order and values for the gate inputs
@@ -94,10 +97,12 @@ def translate_qsharp(source_circuit, operation="MyQsharpOperation"):
         elif gate.name in {"CSWAP"}:
             body_str += f"\t\tControlled {GATE_QDK[gate.name]}({control_string}, (qreg[{gate.target[0]}], qreg[{gate.target[1]}]));\n"
         elif gate.name in {"MEASURE"}:
-            body_str += f"\t\tset c w/= {gate.target[0]} <- {GATE_QDK[gate.name]}(qreg[{gate.target[0]}]);\n"
+            body_str += f"\t\tset c w/= {measurement} <- {GATE_QDK[gate.name]}(qreg[{gate.target[0]}]);\n"
+            measurement += 1
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qdk")
-    qsharp_string += body_str + "\n\t\treturn ForEach(MResetZ, qreg);\n"
+    return_str = f"\n\t\tfor index in 0 .. Length(qreg) - 1 {{\n\t\t\tset c w/= {n_meas} + index <- MResetZ(qreg[index]);\n\t\t}}\n"
+    qsharp_string += body_str + return_str + "\n\t\treturn c;\n"
     qsharp_string += "\t}\n"
 #    qsharp_string += "}\n adjoint auto;\n"
     qsharp_string += "}\n"
