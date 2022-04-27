@@ -238,6 +238,30 @@ class Simulator:
                     frequencies = {state[::-1]: count/self.n_shots for state, count in frequencies.items()}
                 else:
                     frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
+                self._current_state = None
+            elif desired_meas_result is not None:
+                from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
+                backend = qiskit.Aer.get_backend("aer_simulator", method='statevector')
+                qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
+                opt_level = 0 if self._noise_model else None
+                translated_circuit = qiskit.transpile(translated_circuit, backend)
+                translated_circuit.save_statevector()
+                self.measurements = dict()
+                samples = list()
+                successful_measures = 0
+                self._current_state = None
+
+                for _ in range(self.n_shots):
+                    sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
+                    measurement = next(iter(qiskit.result.marginal_counts(sim_results, indices=list(range(num_meas))).get_counts()))[::-1]
+                    self.measurements[measurement] = self.measurements.get(measurement, 0) + 1
+                    if measurement == desired_meas_result:
+                        self._current_state = sim_results.get_statevector(translated_circuit)
+                        successful_measures += 1
+                        (sample, _) = qiskit.quantum_info.states.Statevector(self._current_state).measure()
+                        samples += [sample[::-1]]
+                frequencies = {k: v/successful_measures for k, v in Counter(samples).items()}
+                self.success_probability = successful_measures / self.n_shots
             # Noiseless simulation using the statevector simulator otherwise
             else:
                 backend = qiskit.Aer.get_backend("aer_simulator", method='statevector')
@@ -247,7 +271,7 @@ class Simulator:
                 self._current_state = sim_results.get_statevector(translated_circuit)
                 frequencies = self._statevector_to_frequencies(self._current_state)
 
-            return (frequencies, np.array(sim_results.get_statevector())) if return_statevector else (frequencies, None)
+            return (frequencies, np.array(self._current_state)) if (return_statevector and self._current_state is not None) else (frequencies, None)
 
         elif self._target == "qdk":
 
