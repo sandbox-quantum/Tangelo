@@ -129,6 +129,39 @@ class TestSimulateAllBackends(unittest.TestCase):
             results[b], _ = sim.simulate(circuit_mixed)
             assert_freq_dict_almost_equal(results[b], reference_mixed, 1e-2)
 
+    def test_simulate_mixed_state_save_measures(self):
+        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
+        Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
+        Simulating individual shots is suitable.
+
+        Some simulators are NOT good at this, by design
+        """
+
+        results = dict()
+        for b in installed_simulator:
+            tstart = time.time()
+            sim = Simulator(target=b, n_shots=10 ** 3)
+            results[b], _ = sim.simulate(circuit_mixed, save_mid_circuit_meas=True)
+            tend = time.time()
+            print(b, tend-tstart)
+            assert_freq_dict_almost_equal(results[b], reference_mixed, 1e-1)
+
+    def test_simulate_mixed_state_desired_state(self):
+        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
+        Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
+        Simulating individual shots is suitable.
+
+        Some simulators are NOT good at this, by design
+        """
+
+        results = dict()
+        for b in installed_simulator:
+            tstart = time.time()
+            sim = Simulator(target=b, n_shots=10 ** 3)
+            results[b], _ = sim.simulate(circuit_mixed, desired_meas_result="0")
+            tend = time.time()
+            print(b, results[b], tend-tstart)
+
     def test_get_exp_value_mixed_state(self):
         """ Test expectation value for mixed-state simulation. Computation done by drawing individual shots.
         Some simulators are NOT good at this, by design (ProjectQ). """
