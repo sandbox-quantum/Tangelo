@@ -19,6 +19,7 @@
 import unittest
 
 from openfermion.ops import QubitOperator
+import numpy as np
 
 from tangelo.linq import Gate, Circuit, Simulator, backend_info
 from tangelo.linq.noisy_simulation import NoiseModel, get_qiskit_noise_dict
@@ -27,8 +28,9 @@ from tangelo.helpers.utils import default_simulator, installed_backends
 # Noisy simulation: circuits, noise models, references
 cn1 = Circuit([Gate('X', target=0)])
 cn2 = Circuit([Gate('CNOT', target=1, control=0)])
+circuit_mixed = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
 
-nmp, nmd, nmc = NoiseModel(), NoiseModel(), NoiseModel()
+nmp, nmd, nmc, nmm = NoiseModel(), NoiseModel(), NoiseModel(), NoiseModel()
 # nmp: pauli noise with equal probabilities, on X and CNOT gates
 nmp.add_quantum_error("X", 'pauli', [1 / 3] * 3)
 nmp.add_quantum_error("CNOT", 'pauli', [1 / 3] * 3)
@@ -38,12 +40,16 @@ nmd.add_quantum_error("CNOT", 'depol', 1.)
 # nmc: cumulates 2 Pauli noises (here, is equivalent to no noise, as it applies Y twice when X is ran)
 nmc.add_quantum_error("X", 'pauli', [0., 1., 0.])
 nmc.add_quantum_error("X", 'depol', 4/3)
+# nmm: only apply noise to X gate
+nmm.add_quantum_error("X", 'pauli', [0.2, 0., 0.])
 
 ref_pauli1 = {'1': 1 / 3, '0': 2 / 3}
 ref_pauli2 = {'01': 2 / 9, '11': 4 / 9, '10': 2 / 9, '00': 1 / 9}
 ref_depol1 = {'1': 1 / 2, '0': 1 / 2}
 ref_depol2 = {'01': 1 / 4, '11': 1 / 4, '10': 1 / 4, '00': 1 / 4}
 ref_cumul = {'0': 1/3, '1': 2/3}
+ref_mixed = {'10': 0.2876, '11': 0.0844, '01': 0.1472, '00': 0.4808}
+ref_mixed_0 = {'00': 0.1488, '10': 0.6113, '01': 0.0448, '11': 0.1950}
 
 
 def assert_freq_dict_almost_equal(d1, d2, atol):
@@ -135,6 +141,14 @@ class TestSimulate(unittest.TestCase):
         res_cumul, _ = s_nmc.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
+        s_nmm = Simulator(target="qulacs", n_shots=10**4, noise_model=nmm)
+        res_mixed, _ = s_nmm.simulate(circuit_mixed)
+        assert_freq_dict_almost_equal(res_mixed, ref_mixed, 7.e-2)
+
+        s_nmm = Simulator(target="qulacs", n_shots=10**4, noise_model=nmm)
+        res_mixed, _ = s_nmm.simulate(circuit_mixed, desired_meas_result="0")
+        assert_freq_dict_almost_equal(ref_mixed_0, res_mixed, 7.e-2)
+
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_noisy_simulation_qiskit(self):
         """
@@ -161,6 +175,14 @@ class TestSimulate(unittest.TestCase):
         res_cumul, _ = s_nmp.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
+        s_nmm = Simulator(target="qiskit", n_shots=10**4, noise_model=nmm)
+        res_mixed, _ = s_nmm.simulate(circuit_mixed)
+        assert_freq_dict_almost_equal(ref_mixed, res_mixed, 7.e-2)
+
+        s_nmm = Simulator(target="qiskit", n_shots=10**4, noise_model=nmm)
+        res_mixed, _ = s_nmm.simulate(circuit_mixed, desired_meas_result="0")
+        assert_freq_dict_almost_equal(ref_mixed_0, res_mixed, 7.e-2)
+
     @unittest.skipIf("cirq" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_noisy_simulation_cirq(self):
         """
@@ -186,6 +208,26 @@ class TestSimulate(unittest.TestCase):
         s_nmc = Simulator(target='cirq', n_shots=10**6, noise_model=nmc)
         res_cumul, _ = s_nmc.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
+
+        # Noisy mixed state without returning mid-circuit measurements
+        s_nmm = Simulator(target="cirq", n_shots=10**4, noise_model=nmm)
+        res_mixed, _ = s_nmm.simulate(circuit_mixed)
+        assert_freq_dict_almost_equal(ref_mixed, res_mixed, 7.e-2)
+
+        # Noisy mixed-state with specified measurement result
+        s_nmm = Simulator(target="cirq", n_shots=10**4, noise_model=nmm)
+        res_mixed, _ = s_nmm.simulate(circuit_mixed, desired_meas_result="0")
+        assert_freq_dict_almost_equal(ref_mixed_0, res_mixed, 7.e-2)
+
+        # Noisy mixed-state with specified measurement result and returning density matrix
+        s_nmm = Simulator(target="cirq", n_shots=10**4, noise_model=nmm)
+        res_mixed, sv = s_nmm.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
+        assert_freq_dict_almost_equal(ref_mixed_0, res_mixed, 7.e-2)
+        exact_sv = np.array([[ 0.15403023+0.j, -0.0841471 -0.j,  0.        +0.j,  0.        -0.j],
+                             [-0.0841471 -0.j,  0.04596977+0.j,  0.        -0.j,  0.        +0.j],
+                             [ 0.        +0.j,  0.        -0.j,  0.61612092+0.j, -0.33658839-0.j],
+                             [ 0.        -0.j,  0.        +0.j, -0.33658839-0.j,  0.18387908+0.j]])
+        np.testing.assert_array_almost_equal(sv, exact_sv)
 
     def test_get_expectation_value_noisy(self):
         """Test of the get_expectation_value function with a noisy simulator"""

@@ -139,12 +139,9 @@ class TestSimulateAllBackends(unittest.TestCase):
 
         results = dict()
         for b in installed_simulator:
-            tstart = time.time()
             sim = Simulator(target=b, n_shots=10 ** 3)
             results[b], _ = sim.simulate(circuit_mixed, save_mid_circuit_meas=True)
-            tend = time.time()
-            print(b, tend-tstart)
-            assert_freq_dict_almost_equal(results[b], reference_mixed, 1e-1)
+            assert_freq_dict_almost_equal(results[b], reference_mixed, 8e-2)
 
     def test_simulate_mixed_state_desired_state(self):
         """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
@@ -155,12 +152,11 @@ class TestSimulateAllBackends(unittest.TestCase):
         """
 
         results = dict()
+        exact = {'11': 0.23046888414227926, '10': 0.7695311158577207}
         for b in installed_simulator:
-            tstart = time.time()
             sim = Simulator(target=b, n_shots=10 ** 3)
             results[b], _ = sim.simulate(circuit_mixed, desired_meas_result="0")
-            tend = time.time()
-            print(b, results[b], tend-tstart)
+            assert_freq_dict_almost_equal(results[b], exact, 8.e-2)
 
     def test_get_exp_value_mixed_state(self):
         """ Test expectation value for mixed-state simulation. Computation done by drawing individual shots.
@@ -183,6 +179,25 @@ class TestSimulateStatevector(unittest.TestCase):
             for i, circuit in enumerate(circuits):
                 frequencies, _ = simulator.simulate(circuit)
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
+
+    def test_simulate_mixed_state_desired_statevector(self):
+        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
+        Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
+        Simulating individual shots is suitable.
+
+        Some simulators are NOT good at this, by design
+        """
+
+        results = dict()
+        results["qulacs"] = np.array([0.+0.j,  0.87758256+0.j,  0.+0.j, -0.47942554+0.j])
+        results["qiskit"] = np.array([0.+0.j,  0.87758256+0.j,  0.+0.j, -0.47942554+0.j])
+        results["cirq"] = np.array([0.+0.j, 0.+0.j, 0.87758256+0.j, -0.47942554+0.j])
+        for b in installed_sv_simulator:
+            sim = Simulator(target=b, n_shots=10 ** 3)
+            _, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
+            np.testing.assert_array_almost_equal(sv, results[b])
+            print(b, sim.success_probability)
+            print(b, sim.all_frequencies)
 
     def test_simulate_nshots_from_statevector(self):
         """

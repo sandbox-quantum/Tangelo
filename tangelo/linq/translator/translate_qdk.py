@@ -54,7 +54,7 @@ def translate_qsharp(source_circuit, operation="MyQsharpOperation", label_measur
     Args:
         source_circuit: quantum circuit in the abstract format.
         operation (str), optional: name of the Q# operation.
-        label_measurements (bool), optional: return all mid-circuit measurement results. 
+        label_measurements (bool), optional: return all mid-circuit measurement results.
 
     Returns:
         str: The Q# code (operation + template). This needs to be written into a

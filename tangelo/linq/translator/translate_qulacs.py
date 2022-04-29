@@ -123,8 +123,8 @@ def translate_qulacs(source_circuit, noise_model=None):
         elif gate.name in {"CNOT"}:
             (GATE_QULACS[gate.name])(target_circuit, gate.control[0], gate.target[0])
         elif gate.name in {"MEASURE"}:
-            gate = (GATE_QULACS[gate.name])(gate.target[0], measure_count)
-            target_circuit.add_gate(gate)
+            m_gate = (GATE_QULACS[gate.name])(gate.target[0], measure_count)
+            target_circuit.add_gate(m_gate)
             measure_count += 1
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qulacs")
