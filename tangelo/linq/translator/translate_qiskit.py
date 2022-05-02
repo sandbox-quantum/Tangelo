@@ -58,13 +58,14 @@ def get_qiskit_gates():
     return GATE_QISKIT
 
 
-def translate_qiskit(source_circuit, label_measurements=False):
+def translate_qiskit(source_circuit, save_measurements=False):
     """Take in an abstract circuit, return an equivalent qiskit QuantumCircuit
     instance
 
     Args:
         source_circuit (Circuit): quantum circuit in the abstract format.
-        label_measurements (bool): Return mid circuit measurements
+        save_measurements (bool): Return mid-circuit measurements in the order
+            they appear in the circuit in the classical registers
 
     Returns:
         qiskit.QuantumCircuit: the corresponding qiskit quantum circuit.
@@ -73,9 +74,9 @@ def translate_qiskit(source_circuit, label_measurements=False):
     import qiskit
 
     GATE_QISKIT = get_qiskit_gates()
-    n_meas = source_circuit._gate_counts.get("MEASURE", 0) if label_measurements else 0
-    num_measures = n_meas + source_circuit.width
-    target_circuit = qiskit.QuantumCircuit(source_circuit.width, num_measures)
+    n_meas = source_circuit._gate_counts.get("MEASURE", 0) if save_measurements else 0
+    n_measures = n_meas + source_circuit.width
+    target_circuit = qiskit.QuantumCircuit(source_circuit.width, n_measures)
 
     measurement = 0
 
@@ -100,7 +101,7 @@ def translate_qiskit(source_circuit, label_measurements=False):
             (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.target[0], gate.target[1])
         elif gate.name in {"MEASURE"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.target[0], measurement)
-            if label_measurements:
+            if save_measurements:
                 measurement += 1
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qiskit")

@@ -120,11 +120,11 @@ class Simulator:
             raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state."
                              "Please set the Simulator.n_shots attribute to an appropriate value.")
 
-        num_meas = source_circuit._gate_counts.get("MEASURE", 0)
+        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
         if desired_meas_result is not None:
-            if len(desired_meas_result) != num_meas:
-                raise ValueError("Circuit does not contain the same number of measurements as included in"
-                                 "desired_meas_result.")
+            if len(desired_meas_result) != n_meas or not isinstance(desired_meas_result, str):
+                raise ValueError("desired_meas result is not a string with the same length as the number of measurements"
+                                 "in the circuit.")
             save_mid_circuit_meas = True
 
         if source_circuit.width == 0:
@@ -173,7 +173,7 @@ class Simulator:
                 python_statevector = None
                 for _ in range(self.n_shots):
                     translated_circuit.update_quantum_state(state)
-                    measurement = "".join([str(state.get_classical_value(i)) for i in range(num_meas)])
+                    measurement = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
                     measurements.append(measurement)
                     sample = self.__int_to_binstr(state.sampling(1)[0], source_circuit.width)
                     full_samples += [measurement+sample]
@@ -212,7 +212,7 @@ class Simulator:
         elif self._target == "qiskit":
             import qiskit
 
-            translated_circuit = translator.translate_qiskit(source_circuit, label_measurements=save_mid_circuit_meas)
+            translated_circuit = translator.translate_qiskit(source_circuit, save_measurements=save_mid_circuit_meas)
 
             # If requested, set initial state
             if initial_statevector is not None:
@@ -228,7 +228,7 @@ class Simulator:
             # Drawing individual shots with the qasm simulator, for noisy simulation or simulating mixed states
             if self._noise_model or source_circuit.is_mixed_state and (desired_meas_result is None or not return_statevector):
                 from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
-                meas_start = num_meas if save_mid_circuit_meas else 0
+                meas_start = n_meas if save_mid_circuit_meas else 0
                 meas_range = range(meas_start, meas_start+source_circuit.width)
                 translated_circuit.measure(range(source_circuit.width), meas_range)
                 return_statevector = False
@@ -244,7 +244,7 @@ class Simulator:
                 self.all_frequencies = frequencies.copy()
                 if source_circuit.is_mixed_state and save_mid_circuit_meas:
                     self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                         list(range(num_meas)),
+                                                                                         list(range(n_meas)),
                                                                                          desired_measurement=desired_meas_result)
                 self._current_state = None
             # desired_meas_result is not None and return_statevector is requested so loop shot by shot (much slower)
@@ -264,7 +264,7 @@ class Simulator:
                 for _ in range(self.n_shots):
                     sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
                     current_state = sim_results.get_statevector(translated_circuit)
-                    measurement = next(iter(qiskit.result.marginal_counts(sim_results, indices=list(range(num_meas))).get_counts()))[::-1]
+                    measurement = next(iter(qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
                     (sample, _) = qiskit.quantum_info.states.Statevector(current_state).measure()
                     key = measurement+sample[::-1]
                     self.all_frequencies[key] = self.all_frequencies.get(key, 0) + 1
@@ -289,11 +289,11 @@ class Simulator:
 
         elif self._target == "qdk":
 
-            translated_circuit = translator.translate_qsharp(source_circuit, label_measurements=save_mid_circuit_meas)
+            translated_circuit = translator.translate_qsharp(source_circuit, save_measurements=save_mid_circuit_meas)
             with open('tmp_circuit.qs', 'w+') as f_out:
                 f_out.write(translated_circuit)
 
-            key_length = num_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
+            key_length = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
             # Compile, import and call Q# operation to compute frequencies. Only import qsharp module if qdk is running
             # TODO: A try block to catch an exception at compile time, for Q#? Probably as an ImportError.
             import qsharp
@@ -310,7 +310,7 @@ class Simulator:
             # Post process if needed
             if save_mid_circuit_meas:
                 self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                     list(range(num_meas)),
+                                                                                     list(range(n_meas)),
                                                                                      desired_measurement=desired_meas_result)
             return (frequencies, None)
 
@@ -344,22 +344,22 @@ class Simulator:
                 frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
             # Run all shots at once and post-process to return measured frequencies on qubits only
             elif save_mid_circuit_meas and not return_statevector:
-                translated_circuit = translator.translate_cirq(source_circuit, self._noise_model, label_measurements=True)
+                translated_circuit = translator.translate_cirq(source_circuit, self._noise_model, save_measurements=True)
                 qubit_list = cirq.LineQubit.range(source_circuit.width)
                 for i, qubit in enumerate(qubit_list):
-                    translated_circuit.append(cirq.measure(qubit, key=str(i+num_meas)))
+                    translated_circuit.append(cirq.measure(qubit, key=str(i+n_meas)))
                 job_sim = cirq_simulator.run(translated_circuit, repetitions=self.n_shots)
                 samples = list()
                 for j in range(self.n_shots):
-                    samples += ["".join([str(job_sim.measurements[str(i)][j, 0]) for i in range(num_meas+source_circuit.width)])]
+                    samples += ["".join([str(job_sim.measurements[str(i)][j, 0]) for i in range(n_meas+source_circuit.width)])]
                 self.all_frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
 
                 self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                     list(range(num_meas)),
+                                                                                     list(range(n_meas)),
                                                                                      desired_measurement=desired_meas_result)
             # Run shot by shot and keep track of desired_meas_result only (generally slower)
             elif save_mid_circuit_meas and return_statevector:
-                translated_circuit = translator.translate_cirq(source_circuit, self._noise_model, label_measurements=True)
+                translated_circuit = translator.translate_cirq(source_circuit, self._noise_model, save_measurements=True)
                 successful_measures = 0 if desired_meas_result is not None else self.n_shots
                 samples = list()
                 measurements = list()
@@ -368,7 +368,7 @@ class Simulator:
                 indices = list(range(source_circuit.width))
                 for _ in range(self.n_shots):
                     job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
-                    measure = "".join([str(job_sim.measurements[str(i)][0]) for i in range(num_meas)])
+                    measure = "".join([str(job_sim.measurements[str(i)][0]) for i in range(n_meas)])
                     measurements.append(measure)
                     current_state = job_sim.final_density_matrix if self._noise_model else job_sim.final_state_vector
                     isamples = (cirq.sample_density_matrix(current_state, indices, repetitions=1) if self._noise_model

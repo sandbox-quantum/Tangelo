@@ -58,16 +58,19 @@ def get_qulacs_gates():
     return GATE_QULACS
 
 
-def translate_qulacs(source_circuit, noise_model=None):
+def translate_qulacs(source_circuit, noise_model=None, save_measurements=False):
     """Take in an abstract circuit, return an equivalent qulacs QuantumCircuit
     instance. If provided with a noise model, will add noisy gates at
     translation. Not very useful to look at, as qulacs does not provide much
     information about the noisy gates added when printing the "noisy circuit".
 
     Args:
-        source_circuit: quantum circuit in the abstract format.
-        noise_model: A NoiseModel object from this package, located in the
+        source_circuit (Circuit): quantum circuit in the abstract format.
+        noise_model (NoiseModel): A NoiseModel object from this package, located in the
             noisy_simulation subpackage.
+        save_measurements (bool): If True, each nth measurement in the circuit is saved in
+            the nth classical register. Otherwise each measurement overwrites
+            the first classical register.
 
     Returns:
         qulacs.QuantumCircuit: the corresponding qulacs quantum circuit.
@@ -125,7 +128,8 @@ def translate_qulacs(source_circuit, noise_model=None):
         elif gate.name in {"MEASURE"}:
             m_gate = (GATE_QULACS[gate.name])(gate.target[0], measure_count)
             target_circuit.add_gate(m_gate)
-            measure_count += 1
+            if save_measurements:
+                measure_count += 1
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qulacs")
 

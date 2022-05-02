@@ -57,13 +57,16 @@ def get_cirq_gates():
     return GATE_CIRQ
 
 
-def translate_cirq(source_circuit, noise_model=None, label_measurements=False):
+def translate_cirq(source_circuit, noise_model=None, save_measurements=False):
     """Take in an abstract circuit, return an equivalent cirq QuantumCircuit
     instance.
 
     Args:
         source_circuit (Circuit): quantum circuit in the abstract format.
         noise_model (NoiseModel): The noise model to use
+        save_measurements (bool): If True, all measurements in the circuit are saved
+            with the key 'n' for the nth measurement in the Circuit. If False, no
+            measurements are saved.
 
     Returns:
         cirq.Circuit: a corresponding cirq Circuit. Right now, the structure is
@@ -99,7 +102,7 @@ def translate_cirq(source_circuit, noise_model=None, label_measurements=False):
         elif gate.name in {"CNOT"}:
             target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.control[0]], qubit_list[gate.target[0]]))
         elif gate.name in {"MEASURE"}:
-            key = str(measure_count) if label_measurements else None
+            key = str(measure_count) if save_measurements else None
             target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]], key=key))
             measure_count += 1
         elif gate.name in {"CRZ", "CRX", "CRY"}:

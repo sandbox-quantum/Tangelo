@@ -46,7 +46,7 @@ def get_qdk_gates():
     return GATE_QDK
 
 
-def translate_qsharp(source_circuit, operation="MyQsharpOperation", label_measurements=False):
+def translate_qsharp(source_circuit, operation="MyQsharpOperation", save_measurements=False):
     """Take in an abstract circuit, generate the corresponding Q# operation
     (state prep + measurement) string, in the appropriate Q# template. The Q#
     output can be written to file and will be compiled at runtime.
@@ -54,7 +54,9 @@ def translate_qsharp(source_circuit, operation="MyQsharpOperation", label_measur
     Args:
         source_circuit: quantum circuit in the abstract format.
         operation (str), optional: name of the Q# operation.
-        label_measurements (bool), optional: return all mid-circuit measurement results.
+        save_measurements (bool), optional: True, return all mid-circuit measurement results.
+            This returns a frequency vector that is of size 2^(n_meas+n_qubits). False,
+            all measurements are overwritten.
 
     Returns:
         str: The Q# code (operation + template). This needs to be written into a
@@ -63,7 +65,7 @@ def translate_qsharp(source_circuit, operation="MyQsharpOperation", label_measur
 
     GATE_QDK = get_qdk_gates()
 
-    n_meas = source_circuit._gate_counts.get("MEASURE", 0) if label_measurements else 0
+    n_meas = source_circuit._gate_counts.get("MEASURE", 0) if save_measurements else 0
     n_c = n_meas + source_circuit.width
     measurement = 0
     # Prepare Q# operation header
@@ -99,7 +101,7 @@ def translate_qsharp(source_circuit, operation="MyQsharpOperation", label_measur
             body_str += f"\t\tControlled {GATE_QDK[gate.name]}({control_string}, (qreg[{gate.target[0]}], qreg[{gate.target[1]}]));\n"
         elif gate.name in {"MEASURE"}:
             body_str += f"\t\tset c w/= {measurement} <- {GATE_QDK[gate.name]}(qreg[{gate.target[0]}]);\n"
-            if label_measurements:
+            if save_measurements:
                 measurement += 1
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qdk")
