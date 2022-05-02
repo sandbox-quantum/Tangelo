@@ -19,9 +19,10 @@ functionalities.
 import copy
 from dataclasses import dataclass, field
 import numpy as np
-from pyscf import gto, scf, ao2mo, symm
+from pyscf import gto, scf, ao2mo
 import openfermion
 import openfermion.ops.representations as reps
+from openfermionpyscf import run_pyscf
 from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 
@@ -59,8 +60,7 @@ def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals
 
     converted_mol = SecondQuantizedMolecule(mol.xyz, mol.q, mol.spin,
                                             basis=basis_set,
-                                            frozen_orbitals=frozen_orbitals,
-                                            symmetry=mol.symmetry)
+                                            frozen_orbitals=frozen_orbitals)
     return converted_mol
 
 
@@ -94,7 +94,7 @@ class Molecule:
 
     def __post_init__(self):
         self.xyz = atom_string_to_list(self.xyz) if isinstance(self.xyz, str) else self.xyz
-        mol = self.to_pyscf(basis="sto-3g", symmetry=False)
+        mol = self.to_pyscf(basis="sto-3g")
         self.n_atoms = mol.natm
         self.n_electrons = mol.nelectron
         self.n_min_orbitals = mol.nao_nr()
@@ -107,7 +107,7 @@ class Molecule:
     def coords(self):
         return np.array([self.xyz[i][1] for i in range(self.n_atoms)])
 
-    def to_pyscf(self, basis="sto-3g", symmetry=False):
+    def to_pyscf(self, basis="sto-3g"):
         """Method to return a pyscf.gto.Mole object.
 
         Args:
@@ -122,7 +122,6 @@ class Molecule:
         mol.basis = basis
         mol.charge = self.q
         mol.spin = self.spin
-        mol.symmetry = symmetry
         mol.build()
 
         return mol
@@ -148,9 +147,6 @@ class SecondQuantizedMolecule(Molecule):
 
     Attributes:
         basis (string): Basis set.
-        symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.
-            Can also specify point group using pyscf allowed string.
-            e.g. "Dooh", "D2h", "C2v", ...
         mf_energy (float): Mean-field energy (RHF or ROHF energy depending
             on the spin).
         mo_energies (list of float): Molecular orbital energies.
@@ -182,7 +178,6 @@ class SecondQuantizedMolecule(Molecule):
         actives_mos (list): Active MOs indexes.
     """
     basis: str = "sto-3g"
-    symmetry: bool = False
     frozen_orbitals: list or int = field(default="frozen_core", repr=False)
 
     # Defined in __post_init__.
@@ -259,28 +254,18 @@ class SecondQuantizedMolecule(Molecule):
         It is also used for defining attributes related to the mean-field
         (mf_energy, mo_energies, mo_occ, n_mos and n_sos).
         """
+        of_molecule = self.to_openfermion(self.basis)
+        of_molecule = run_pyscf(of_molecule, run_scf=True, run_mp2=False,
+                                run_cisd=False, run_ccsd=False, run_fci=False)
 
-        molecule = self.to_pyscf(self.basis, self.symmetry)
+        self.mf_energy = of_molecule.hf_energy
+        self.mo_energies = of_molecule.orbital_energies
+        self.mo_occ = of_molecule._pyscf_data["scf"].mo_occ
 
-        self.mean_field = scf.RHF(molecule)
-        self.mean_field.verbose = 0
-        self.mean_field.kernel()
-
-        if self.symmetry:
-            self.mo_symm_ids = list(symm.label_orb_symm(self.mean_field.mol, self.mean_field.mol.irrep_id,
-                                                        self.mean_field.mol.symm_orb, self.mean_field.mo_coeff))
-            irrep_map = {i: s for s, i in zip(molecule.irrep_name, molecule.irrep_id)}
-            self.mo_symm_labels = [irrep_map[i] for i in self.mo_symm_ids]
-        else:
-            self.mo_symm_ids = None
-            self.mo_symm_labels = None
-
-        self.mf_energy = self.mean_field.e_tot
-        self.mo_energies = self.mean_field.mo_energy
-        self.mo_occ = self.mean_field.mo_occ
-
-        self.n_mos = molecule.nao_nr()
+        self.n_mos = of_molecule._pyscf_data["mol"].nao_nr()
         self.n_sos = 2*self.n_mos
+
+        self.mean_field = of_molecule._pyscf_data["scf"]
 
     def _get_fermionic_hamiltonian(self):
         """This method returns the fermionic hamiltonian. It written to take
@@ -343,16 +328,10 @@ class SecondQuantizedMolecule(Molecule):
         active_occupied = [i for i in occupied if i not in frozen_occupied]
         active_virtual = [i for i in virtual if i not in frozen_virtual]
 
-        # Calculate number of active electrons and active_mos
-        n_active_electrons = round(sum([self.mo_occ[i] for i in active_occupied]))
-        n_active_mos = len(active_occupied + active_virtual)
-
-        # Exception raised here if there is no active electron.
-        # An exception is raised also if all active orbitals are fully occupied.
-        if n_active_electrons == 0:
-            raise ValueError("There are no active electrons.")
-        if n_active_electrons == 2*n_active_mos:
-            raise ValueError("All active orbitals are fully occupied.")
+        # Exception raised here if n_occupied <= frozen_orbitals (int), because it means that there is no active electron.
+        # An exception is raised also if all occupied orbitals are in the frozen_orbitals (list).
+        if (len(active_occupied) == 0) or (len(active_virtual) == 0):
+            raise ValueError("All electrons or virtual orbitals are frozen in the system.")
 
         return active_occupied, frozen_occupied, active_virtual, frozen_virtual
 
@@ -420,18 +399,42 @@ class SecondQuantizedMolecule(Molecule):
             (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
         """
 
+        return self.get_integrals()
+
+    def get_full_space_integrals(self, mo_coeff=None):
+        """Computes core constant, one_body, and two-body integrals for all orbitals
+
+        Returns:
+            (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
+        """
+
+        return self.get_integrals(mo_coeff, consider_frozen=False)
+
+    def get_integrals(self, mo_coeff=None, consider_frozen=True):
+        """Computes core constant, one_body, and two-body coefficients for a given active space and mo_coeff
+
+        Args:
+            mo_coeff (array): The molecular orbital coefficients to use to generate the integrals
+            consider_frozen (bool): If True, the frozen orbitals are folded into the one_body and core constant terms.
+
+        Returns:
+            (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
+        """
+
         # Pyscf molecule to get integrals.
-        pyscf_mol = self.to_pyscf(self.basis, self.symmetry)
+        pyscf_mol = self.to_pyscf(self.basis)
+        if mo_coeff is None:
+            mo_coeff = self.mean_field.mo_coeff
 
         # Corresponding to nuclear repulsion energy and static coulomb energy.
         core_constant = float(pyscf_mol.energy_nuc())
 
         # get_hcore is equivalent to int1e_kin + int1e_nuc.
-        one_electron_integrals = self.mean_field.mo_coeff.T @ self.mean_field.get_hcore() @ self.mean_field.mo_coeff
+        one_electron_integrals = mo_coeff.T @ self.mean_field.get_hcore() @ mo_coeff
 
         # Getting 2-body integrals in atomic and converting to molecular basis.
-        two_electron_integrals = ao2mo.kernel(pyscf_mol.intor("int2e"), self.mean_field.mo_coeff)
-        two_electron_integrals = ao2mo.restore(1, two_electron_integrals, len(self.mean_field.mo_coeff))
+        two_electron_integrals = ao2mo.kernel(pyscf_mol.intor("int2e"), mo_coeff)
+        two_electron_integrals = ao2mo.restore(1, two_electron_integrals, len(mo_coeff))
 
         # PQRS convention in openfermion:
         # h[p,q]=\int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
@@ -439,12 +442,13 @@ class SecondQuantizedMolecule(Molecule):
         # The convention is not the same with PySCF integrals. So, a change is
         # made before performing the truncation for frozen orbitals.
         two_electron_integrals = two_electron_integrals.transpose(0, 2, 3, 1)
-        core_offset, one_electron_integrals, two_electron_integrals = of_get_active_space_integrals(one_electron_integrals,
-                                                                                                    two_electron_integrals,
-                                                                                                    self.frozen_occupied,
-                                                                                                    self.active_mos)
+        if consider_frozen:
+            core_offset, one_electron_integrals, two_electron_integrals = of_get_active_space_integrals(one_electron_integrals,
+                                                                                                        two_electron_integrals,
+                                                                                                        self.frozen_occupied,
+                                                                                                        self.active_mos)
 
-        # Adding frozen electron contribution to core constant.
-        core_constant += core_offset
+            # Adding frozen electron contribution to core constant.
+            core_constant += core_offset
 
         return core_constant, one_electron_integrals, two_electron_integrals
