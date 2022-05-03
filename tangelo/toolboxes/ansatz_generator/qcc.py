@@ -55,7 +55,7 @@ class QCC(Ansatz):
 
     Args:
         molecule (SecondQuantizedMolecule): The molecular system.
-        mapping (str): One of the supported qubit mapping identifiers. Default, "JW".
+        mapping (str): One of the supported qubit mapping identifiers. Default, "jw".
         up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
             followed by all spin-down. Default, False.
         qcc_op_list (list of QubitOperator): Generator list for the QCC ansatz. Default, None.
@@ -75,7 +75,7 @@ class QCC(Ansatz):
             generators are selected in order of decreasing |dEQCC/dtau|. Default, None.
     """
 
-    def __init__(self, molecule, mapping="JW", up_then_down=False, qcc_op_list=None,
+    def __init__(self, molecule, mapping="jw", up_then_down=False, qcc_op_list=None,
                  qmf_circuit=None, qmf_var_params=None, qubit_ham=None, qcc_tau_guess=1.e-2,
                  deqcc_dtau_thresh=1.e-3, max_qcc_gens=None):
 
@@ -90,7 +90,7 @@ class QCC(Ansatz):
         self.mapping = mapping
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
         self.up_then_down = up_then_down
-        if self.mapping.upper() == "JW" and not self.up_then_down:
+        if self.mapping.lower() == "jw" and not self.up_then_down:
             warnings.warn("Efficient generator screening for the QCC ansatz requires spin-orbital "
                           "ordering to be all spin-up first followed by all spin-down for the JW "
                           "mapping.", RuntimeWarning)
@@ -268,7 +268,7 @@ class QCC(Ansatz):
             self.qcc_op_list = []
             for i in range(self.n_var_params):
                 # Instead of randomly choosing a generator, get the last one.
-                qcc_gen = self.dis[i][-1]
+                qcc_gen = self.dis[i][0]
                 qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen
                 self.qcc_op_list.append(qcc_gen)
         else:

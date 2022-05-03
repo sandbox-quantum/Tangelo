@@ -54,7 +54,7 @@ class QMF(Ansatz):
 
     Args:
         molecule (SecondQuantizedMolecule): The molecular system.
-        mapping (str): One of the supported qubit mapping identifiers. Default, "JW".
+        mapping (str): One of the supported qubit mapping identifiers. Default, "jw".
         up_then_down (bool): Change basis ordering putting all spin up orbitals first,
             followed by all spin down. Default, False.
         init_qmf (dict): Controls for QMF variational parameter initialization and mean-field
@@ -69,7 +69,7 @@ class QMF(Ansatz):
             Default, {"init_params": "hf_state"}.
     """
 
-    def __init__(self, molecule=None, mapping="JW", up_then_down=False, init_qmf=None):
+    def __init__(self, molecule=None, mapping="jw", up_then_down=False, init_qmf=None):
 
         self.molecule = molecule
         self.n_spinorbitals = self.molecule.n_active_sos
@@ -79,7 +79,7 @@ class QMF(Ansatz):
         self.n_orbitals = self.n_spinorbitals // 2
         self.spin = molecule.spin
         self.fermi_ham = self.molecule.fermionic_hamiltonian
-        self.n_electrons = self.molecule.n_electrons
+        self.n_electrons = self.molecule.n_active_electrons
 
         self.mapping = mapping
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)

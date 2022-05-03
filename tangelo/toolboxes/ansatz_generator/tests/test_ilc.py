@@ -75,7 +75,7 @@ class ILCTest(unittest.TestCase):
         z_ref = np.array([0, 1, 0, 1])
 
         # solve A * z = b and compare to reference solution
-        z_sln, _ = gauss_elim_over_gf2(a_matrix, b_vec)
+        z_sln = gauss_elim_over_gf2(a_matrix, b_vec)
 
         np.testing.assert_array_almost_equal(z_sln, z_ref, decimal=6)
 
@@ -93,7 +93,7 @@ class ILCTest(unittest.TestCase):
         z_ref = np.array([1, 0, 1, 0, 0])
 
         # solve A * z = b and compare to reference solution
-        z_sln, _ = gauss_elim_over_gf2(a_matrix, b_vec)
+        z_sln = gauss_elim_over_gf2(a_matrix, b_vec)
 
         np.testing.assert_array_almost_equal(z_sln, z_ref, decimal=6)
 
@@ -111,7 +111,7 @@ class ILCTest(unittest.TestCase):
         z_ref = np.array([-1, -1, 1, 1, 0])
 
         # solve A * z = b and compare to reference solution
-        z_sln, _ = gauss_elim_over_gf2(a_matrix, b_vec)
+        z_sln = gauss_elim_over_gf2(a_matrix, b_vec)
 
         np.testing.assert_array_almost_equal(z_sln, z_ref, decimal=6)
 

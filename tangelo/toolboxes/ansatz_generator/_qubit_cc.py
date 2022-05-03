@@ -87,7 +87,7 @@ def get_dis_groups(qubit_ham, pure_var_params, deqcc_dtau_thresh):
                  for qham_items in qubit_ham.terms.items())
     flip_idxs = list(filter(None, (get_idxs_deriv(q_gen[0], *q_gen[1]) for q_gen in qham_gen)))
 
-    # Group Hamiltonian terms with the same flip indices and sum signed dEQCC/tau values
+    # Group Hamiltonian terms with the same flip indices and sum of the signed dEQCC/tau values
     candidates = dict()
     for idxs in flip_idxs:
         deriv_old = candidates.get(idxs[0], 0.)
