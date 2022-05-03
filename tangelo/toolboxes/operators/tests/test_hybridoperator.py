@@ -32,11 +32,11 @@ class HybridOperatorUtilitiesTest(unittest.TestCase):
         """Test is_commuting function."""
 
         commute_xyz_xyz = do_commute(HybridOperator.from_qubitop(qu_op_xyz),
-                                       HybridOperator.from_qubitop(qu_op_xyz))
+                                     HybridOperator.from_qubitop(qu_op_xyz))
         self.assertTrue(commute_xyz_xyz)
 
         commute_xyz_zyz = do_commute(HybridOperator.from_qubitop(qu_op_xyz),
-                                       HybridOperator.from_qubitop(qu_op_zyz))
+                                     HybridOperator.from_qubitop(qu_op_zyz))
         self.assertFalse(commute_xyz_zyz)
 
 
