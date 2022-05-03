@@ -34,12 +34,12 @@ H2O_list = [("O", (0., 0., 0.11779)),
 
 def atom_list_close(atom1, atom2, atol):
 
-    for i, (a0, xyz) in enumerate(atom1):
-        if a0 != atom2[i][0]:
-            raise AssertionError(f"Atoms are not the same {a0} != {atom2[i][0]}")
-        for j, x in enumerate(xyz):
-            if abs(x-atom2[i][1][j]) > atol:
-                raise AssertionError(f"geometries for atom {a0} are different. {x} != {atom2[i][1][j]}")
+    for (a0, xyz0), (a1, xyz1) in zip(atom1, atom2):
+        if a0 != a1:
+            raise AssertionError(f"Atoms are not the same {a0} != {a1}")
+        for x0, x1 in zip(xyz0, xyz1):
+            if abs(x0 - x1) > atol:
+                raise AssertionError(f"geometries for atom {a0} are different. {x0} != {x1}")
 
 
 class CoordsTest(unittest.TestCase):

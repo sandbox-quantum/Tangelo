@@ -15,7 +15,7 @@
 """Module containing datastructures for interfacing with this package
 functionalities.
 """
-import os
+
 import copy
 from dataclasses import dataclass, field
 
@@ -129,6 +129,16 @@ class Molecule:
             self.xyz += [tuple([sym, tuple([x*lib.parameters.BOHR for x in xyz])])]
 
         return mol
+
+    def to_file(self, filename, format=None):
+        """Write molecule geometry to filename in specified format
+
+        Args:
+            filename (str): The name of the file to output the geometry.
+            format (str): The output type of "raw", "xyz", or "zmat". If None, will be inferred by the filename
+        """
+        mol = self.to_pyscf(basis="sto-3g")
+        mol.tofile(filename, format)
 
     def to_openfermion(self, basis="sto-3g"):
         """Method to return a openfermion.MolecularData object.
