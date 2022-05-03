@@ -22,9 +22,9 @@ import os
 import time
 import numpy as np
 from openfermion.ops import QubitOperator
-from openfermion import load_operator
+from openfermion import load_operator, get_sparse_operator
 
-from tangelo.linq import Gate, Circuit, translator, Simulator
+from tangelo.linq import Gate, Circuit, simulator, translator, Simulator
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
 
@@ -356,6 +356,18 @@ class TestSimulateStatevector(unittest.TestCase):
 
         energy = simulator.get_expectation_value(qubit_operator, abs_circ)
         self.assertAlmostEqual(energy, expected, delta=1e-3)
+
+    def test_get_exp_value_mixed_state_desired_measurement_with_shots(self):
+        """ Get expectation value of mixed state post-selecting on desired measurement"""
+        qubit_operator = QubitOperator("X0 X1") + QubitOperator("Y0 Y1") + QubitOperator("Z0 Z1")
+
+        ham = get_sparse_operator(qubit_operator).toarray()
+        exact_sv = np.array([0.+0.j, 0.+0.j, 0.87758256+0.j, -0.47942554+0.j])
+        exact_exp = np.vdot(exact_sv, ham @ exact_sv)
+
+        simulator = Simulator(n_shots=10**4)
+        sim_exp = simulator.get_expectation_value(qubit_operator, circuit_mixed, desired_meas_result="0")
+        self.assertAlmostEquals(exact_exp, sim_exp, delta=1.e-1)
 
     def test_get_exp_value_empty_circuit(self):
         """ If the circuit is empty and we have a non-zero number of qubits, frequencies just only show all-|0> state

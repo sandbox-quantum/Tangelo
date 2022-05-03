@@ -29,7 +29,6 @@ Some backends may only support a subset of the above. This information is
 contained in a separate data-structure.
 """
 
-import enum
 import os
 import math
 from collections import Counter
@@ -107,7 +106,8 @@ class Simulator:
             desired_meas_result (str): The binary string of the desired measurement.
                 Must have the same length as the number of MEASURE gates in circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
-                self.mid_circuit_meas_freqs
+                self.mid_circuit_meas_freqs. All measurements will be save to
+                self.all_frequencies
 
         Returns:
             dict: A dictionary mapping multi-qubit states to their corresponding
@@ -255,7 +255,7 @@ class Simulator:
                 opt_level = 0 if self._noise_model else None
                 translated_circuit = qiskit.transpile(translated_circuit, backend)
                 translated_circuit.save_statevector()
-                self.measurements = dict()
+                self.mid_circuit_meas_freqs = dict()
                 self.all_frequencies = dict()
                 samples = list()
                 successful_measures = 0
@@ -268,12 +268,13 @@ class Simulator:
                     (sample, _) = qiskit.quantum_info.states.Statevector(current_state).measure()
                     key = measurement+sample[::-1]
                     self.all_frequencies[key] = self.all_frequencies.get(key, 0) + 1
-                    self.measurements[measurement] = self.measurements.get(measurement, 0) + 1
+                    self.mid_circuit_meas_freqs[measurement] = self.mid_circuit_meas_freqs.get(measurement, 0) + 1
                     if measurement == desired_meas_result:
                         self._current_state = current_state
                         successful_measures += 1
                         samples += [sample[::-1]]
                 self.all_frequencies = {k: v / self.n_shots for k, v in self.all_frequencies.items()}
+                self.mid_circuit_meas_freqs = {k: v / self.n_shots for k, v in self.mid_circuit_meas_freqs.items()}
                 frequencies = {k: v/successful_measures for k, v in Counter(samples).items()}
                 self.success_probability = successful_measures / self.n_shots
             # Noiseless simulation using the statevector simulator otherwise
@@ -424,7 +425,7 @@ class Simulator:
 
         return new_dict, other_dict
 
-    def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None):
+    def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a quantum circuit preparing a
         state |\psi>. Return the expectation value <\psi | H | \psi>.
 
@@ -438,7 +439,9 @@ class Simulator:
         Args:
             qubit_operator(openfermion-style QubitOperator class): a qubit
                 operator.
-            state_prep_circuit: an abstract circuit used for state preparation.
+            state_prep_circuit (Circuit): an abstract circuit used for state preparation.
+            initial_statevector (array): The initial statevector for the simulation
+            desired_meas_result (str): The mid-circuit measurement results to select for.
 
         Returns:
             complex: The expectation value of this operator with regards to the
@@ -461,7 +464,8 @@ class Simulator:
         if are_coefficients_real:
             if self._noise_model or not self.statevector_available \
                     or state_prep_circuit.is_mixed_state or state_prep_circuit.size == 0:
-                return self._get_expectation_value_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
+                return self._get_expectation_value_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector,
+                                                                    desired_meas_result=desired_meas_result)
             elif self.statevector_available:
                 return self._get_expectation_value_from_statevector(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
 
@@ -485,8 +489,9 @@ class Simulator:
         Args:
             qubit_operator(openfermion-style QubitOperator class): a qubit
                 operator.
-            state_prep_circuit: an abstract circuit used for state preparation
+            state_prep_circuit (Circuit): an abstract circuit used for state preparation
                 (only pure states).
+            initial_statevector (array): The initial state of the system
 
         Returns:
             complex: The expectation value of this operator with regards to the
@@ -557,7 +562,7 @@ class Simulator:
 
         return expectation_value
 
-    def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None):
+    def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a state preparation returning a
         ket |\psi>. Return the expectation value <\psi | H | \psi> computed
         using the frequencies of observable states.
@@ -565,7 +570,10 @@ class Simulator:
         Args:
             qubit_operator(openfermion-style QubitOperator class): a qubit
                 operator.
-            state_prep_circuit: an abstract circuit used for state preparation.
+            state_prep_circuit (Circuit): an abstract circuit used for state preparation.
+            initial_statevector (array): The initial state of the system
+            desired_meas_result (str): The expectation value is taken for over the frequencies
+                derived when the mid-circuit measurements match this string.
 
         Returns:
             complex: The expectation value of this operator with regards to the
@@ -593,7 +601,7 @@ class Simulator:
 
             basis_circuit = Circuit(measurement_basis_gates(term))
             full_circuit = initial_circuit + basis_circuit if (basis_circuit.size > 0) else initial_circuit
-            frequencies, _ = self.simulate(full_circuit, initial_statevector=updated_statevector)
+            frequencies, _ = self.simulate(full_circuit, initial_statevector=updated_statevector, desired_meas_result=desired_meas_result)
             expectation_term = self.get_expectation_value_from_frequencies_oneterm(term, frequencies)
             expectation_value += coef * expectation_term
 
