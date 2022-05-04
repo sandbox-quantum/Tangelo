@@ -16,7 +16,7 @@ import unittest
 
 import numpy as np
 
-from tangelo.toolboxes.operators import HybridOperator
+from tangelo.toolboxes.operators import MultiformOperator
 from tangelo.toolboxes.operators.z2_tapering import get_clifford_operators, get_unitary, get_eigenvalues
 
 
@@ -74,9 +74,9 @@ class Z2TaperingHelperFunctionsTest(unittest.TestCase):
         ])
 
         cliff_ops = [
-            HybridOperator.from_integerop(clif1, factors),
-            HybridOperator.from_integerop(clif2, factors),
-            HybridOperator.from_integerop(clif3, factors),
+            MultiformOperator.from_integerop(clif1, factors),
+            MultiformOperator.from_integerop(clif2, factors),
+            MultiformOperator.from_integerop(clif3, factors),
         ]
 
         U = get_unitary(cliff_ops)
@@ -92,7 +92,7 @@ class Z2TaperingHelperFunctionsTest(unittest.TestCase):
             [1, 1, 0, 0],
             [1, 0, 1, 0]
         ])
-        kernel_op = HybridOperator.from_integerop(integers, np.ones(integers.shape[0]))
+        kernel_op = MultiformOperator.from_integerop(integers, np.ones(integers.shape[0]))
 
         np.testing.assert_array_equal([-1, 1, -1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "JW", False))
         np.testing.assert_array_equal([-1, -1, 1], get_eigenvalues(kernel_op.binary, 4, 2, 0, "JW", True))

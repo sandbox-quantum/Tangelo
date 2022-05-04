@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module defining the HybridOperator class. It stores a qubit operator in many
-forms: tuples, numpy array of int and stabilizer formalism. Most of the internal
-methods use the numpy array of int. The main application for this class is to
-identify commutation relation faster with the stabilizer notation.
+"""Module defining the MultiformOperator class. It stores a qubit operator in
+many forms: tuples, numpy array of int and stabilizer formalism. Most of the
+internal methods use the numpy array of int. The main application for this class
+is to identify commutation relation faster with the stabilizer notation.
 """
 
 from operator import itemgetter
@@ -26,7 +26,7 @@ from tangelo.helpers.math import bool_col_echelon
 from tangelo.toolboxes.operators import QubitOperator, count_qubits
 
 
-class HybridOperator(QubitOperator):
+class MultiformOperator(QubitOperator):
     """Construct integer and binary representations of the operator, as based on
     the user-specified input. Internal operations are mostly done with an
     integer array. The conversion is defined as:
@@ -90,7 +90,7 @@ class HybridOperator(QubitOperator):
 
     @classmethod
     def from_qubitop(cls, qubit_op, n_qubits=None):
-        """Initialize HybridOperator from a qubit operator."""
+        """Initialize MultiformOperator from a qubit operator."""
 
         n_qubits = n_qubits if n_qubits is not None else count_qubits(qubit_op)
         factors = np.array([coeff for coeff in qubit_op.terms.values()])
@@ -101,7 +101,7 @@ class HybridOperator(QubitOperator):
 
     @classmethod
     def from_integerop(cls, int_op, factors):
-        """Initialize HybridOperator from an integer operator."""
+        """Initialize MultiformOperator from an integer operator."""
 
         assert len(factors) == int_op.shape[0], \
              f"The number of factors ({len(factors)}) must be the same as the number of terms ({int_op.shape[0]})."
@@ -112,7 +112,7 @@ class HybridOperator(QubitOperator):
 
     @classmethod
     def from_binaryop(cls, bin_op, factors):
-        """Initialize HybridOperator from a binary operator."""
+        """Initialize MultiformOperator from a binary operator."""
 
         assert len(factors) == bin_op.shape[0], \
             f"The number of factors ({len(factors)}) must be the same as the number of terms ({bin_op.shape[0]})."
@@ -124,14 +124,14 @@ class HybridOperator(QubitOperator):
         return cls(terms, n_qubits, factors, int_op, bin_op.astype(bool))
 
     def __mul__(self, other_operator):
-        """Multiply two HybridOperators together, return a HybridOperator
+        """Multiply two MultiformOperators together, return a MultiformOperator
         corresponding to the product.
 
         Args:
-            other_operator (HybridOperator): Another operator to multiply self.
+            other_operator (MultiformOperator): Another operator to multiply self.
 
         Returns:
-            HybridOperator: Product of the multiplication.
+            MultiformOperator: Product of the multiplication.
         """
 
         # Take into account the order of Pauli matrices multiplication.
@@ -149,9 +149,9 @@ class HybridOperator(QubitOperator):
             product[term_i * increment: (term_i + 1) * increment] = integer ^ other_operator.integer
             factors[term_i * increment: (term_i + 1) * increment] = self.factors[term_i] * other_operator.factors * np.product(new_cs, axis=1)
 
-        product, factors = HybridOperator.collapse(product, factors)
+        product, factors = MultiformOperator.collapse(product, factors)
 
-        return HybridOperator.from_integerop(product, factors=factors)
+        return MultiformOperator.from_integerop(product, factors=factors)
 
     def get_kernel(self):
         """Get the kernel for a matrix of binary integers. The identity matrix
@@ -401,8 +401,8 @@ def do_commute(hybrid_op_a, hybrid_op_b, term_resolved=False):
     a,b.
 
     Args:
-        hybrid_op_a: First HybridOperator.
-        hybrid_op_b: Second HybridOperator.
+        hybrid_op_a: First MultiformOperator.
+        hybrid_op_b: Second MultiformOperator.
         term_resolved (bool): If True, get commutator for each term.
 
     Returns:

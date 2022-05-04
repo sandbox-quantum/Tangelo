@@ -31,7 +31,7 @@ Ref:
 import numpy as np
 
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
-from tangelo.toolboxes.operators.hybridoperator import HybridOperator, ConvertPauli, do_commute
+from tangelo.toolboxes.operators.multiformoperator import MultiformOperator, ConvertPauli, do_commute
 
 
 def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, eigenvalues=None):
@@ -78,14 +78,14 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
             post, factors = product_reverse.integer, product_reverse.factors
 
         if factors.max() == 0.0:
-            return HybridOperator.from_integerop(np.zeros((1, n_qubits-n_symmetries), dtype=int), np.array([0.0]))
+            return MultiformOperator.from_integerop(np.zeros((1, n_qubits-n_symmetries), dtype=int), np.array([0.0]))
 
         for index, eigenvalue in zip(q_indices, eigenvalues):
             factors[post[:, index] > 0] *= eigenvalue
 
         tapered = np.delete(post, q_indices, axis=1)
 
-        return HybridOperator.from_integerop(tapered, factors)
+        return MultiformOperator.from_integerop(tapered, factors)
 
     return do_taper
 
@@ -100,7 +100,7 @@ def get_clifford_operators(kernel):
             operator in the stabilizer notation.
 
     Returns:
-        (list of HybridOperator, list of int): Encoded binary-encoded Pauli
+        (list of MultiformOperator, list of int): Encoded binary-encoded Pauli
             strings and symmetry indices.
     """
 
@@ -134,7 +134,7 @@ def get_clifford_operators(kernel):
                 vector[[col, col + n_qubits]] = pauli
                 indices.append(col)
                 clifford = np.array([vector, ki])
-                cliffords.append(HybridOperator.from_binaryop(bin_op=clifford, factors=factors))
+                cliffords.append(MultiformOperator.from_binaryop(bin_op=clifford, factors=factors))
                 break
 
     return cliffords, np.array(indices)
@@ -142,13 +142,13 @@ def get_clifford_operators(kernel):
 
 def get_unitary(cliffords):
     """Recursive function for generating the product over multiple Clifford
-    operators as a single unitary. The result is a HybridOperator.
+    operators as a single unitary. The result is a MultiformOperator.
 
     Args:
-        cliffords (list of HybridOperator): Encoded Clifford operators.
+        cliffords (list of MultiformOperator): Encoded Clifford operators.
 
     Returns:
-        HybridOperator: Multiplication reflecting the composite operator.
+        MultiformOperator: Multiplication reflecting the composite operator.
     """
 
     if len(cliffords) > 2:

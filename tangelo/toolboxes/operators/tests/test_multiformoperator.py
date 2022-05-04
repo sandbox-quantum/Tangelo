@@ -16,8 +16,8 @@ import unittest
 
 import numpy as np
 
-from tangelo.toolboxes.operators import QubitOperator, HybridOperator
-from tangelo.toolboxes.operators.hybridoperator import do_commute
+from tangelo.toolboxes.operators import QubitOperator, MultiformOperator
+from tangelo.toolboxes.operators.multiformoperator import do_commute
 
 qu_op_xyz = QubitOperator("X0 Y1 Z2", 1.)
 qu_op_zyz = QubitOperator("Z0 Y1 Z2", 1.)
@@ -26,54 +26,54 @@ int_op_xyz = np.array([[2, 3, 1]])
 bin_op_xyz = np.array([[1, 1, 0, 0, 1, 1]])
 
 
-class HybridOperatorUtilitiesTest(unittest.TestCase):
+class MultiformOperatorUtilitiesTest(unittest.TestCase):
 
     def test_do_commute(self):
         """Test is_commuting function."""
 
-        commute_xyz_xyz = do_commute(HybridOperator.from_qubitop(qu_op_xyz),
-                                     HybridOperator.from_qubitop(qu_op_xyz))
+        commute_xyz_xyz = do_commute(MultiformOperator.from_qubitop(qu_op_xyz),
+                                     MultiformOperator.from_qubitop(qu_op_xyz))
         self.assertTrue(commute_xyz_xyz)
 
-        commute_xyz_zyz = do_commute(HybridOperator.from_qubitop(qu_op_xyz),
-                                     HybridOperator.from_qubitop(qu_op_zyz))
+        commute_xyz_zyz = do_commute(MultiformOperator.from_qubitop(qu_op_xyz),
+                                     MultiformOperator.from_qubitop(qu_op_zyz))
         self.assertFalse(commute_xyz_zyz)
 
 
-class HybridOperatorTest(unittest.TestCase):
+class MultiformOperatorTest(unittest.TestCase):
 
     def test_instantiate_from_QubitOperator(self):
-        """Test initialization of HybridOperator class with a QubitOperator."""
+        """Test initialization of MultiformOperator class with a QubitOperator."""
 
-        hydrib_op = HybridOperator.from_qubitop(qu_op_xyz)
+        hydrib_op = MultiformOperator.from_qubitop(qu_op_xyz)
 
         self.assertDictEqual(hydrib_op.terms, qu_op_xyz.terms)
         np.testing.assert_allclose(hydrib_op.integer, int_op_xyz)
         np.testing.assert_allclose(hydrib_op.binary, bin_op_xyz)
 
     def test_instantiate_from_integers(self):
-        """Test initialization of HybridOperator class with integers."""
+        """Test initialization of MultiformOperator class with integers."""
 
-        hydrib_op = HybridOperator.from_integerop(int_op_xyz, [1.])
+        hydrib_op = MultiformOperator.from_integerop(int_op_xyz, [1.])
 
         self.assertDictEqual(hydrib_op.terms, qu_op_xyz.terms)
         np.testing.assert_allclose(hydrib_op.integer, int_op_xyz)
         np.testing.assert_allclose(hydrib_op.binary, bin_op_xyz)
 
     def test_instantiate_from_binary(self):
-        """Test initialization of HybridOperator class with binary numbers."""
+        """Test initialization of MultiformOperator class with binary numbers."""
 
-        hydrib_op = HybridOperator.from_binaryop(bin_op_xyz, [1.])
+        hydrib_op = MultiformOperator.from_binaryop(bin_op_xyz, [1.])
 
         self.assertDictEqual(hydrib_op.terms, qu_op_xyz.terms)
         np.testing.assert_allclose(hydrib_op.integer, int_op_xyz)
         np.testing.assert_allclose(hydrib_op.binary, bin_op_xyz)
 
     def test_multiply(self):
-        """Test multiplication of 2 HybridOperators."""
+        """Test multiplication of 2 MultiformOperators."""
 
-        hydrib_op_a = HybridOperator.from_qubitop(qu_op_xyz)
-        hydrib_op_b = HybridOperator.from_qubitop(qu_op_zyz)
+        hydrib_op_a = MultiformOperator.from_qubitop(qu_op_xyz)
+        hydrib_op_b = MultiformOperator.from_qubitop(qu_op_zyz)
 
         aa = hydrib_op_a * hydrib_op_a
         np.testing.assert_allclose(aa.integer, np.array([[0, 0, 0]]))
@@ -95,7 +95,7 @@ class HybridOperatorTest(unittest.TestCase):
             [0, 1, 2, 3]
         ])
 
-        collapsed_int_op, collapsed_factors = HybridOperator.collapse(int_op, factors=np.ones(int_op.shape[0]))
+        collapsed_int_op, collapsed_factors = MultiformOperator.collapse(int_op, factors=np.ones(int_op.shape[0]))
 
         np.testing.assert_array_equal([[0, 1, 2, 3]], collapsed_int_op)
         np.testing.assert_array_equal([2.], collapsed_factors)

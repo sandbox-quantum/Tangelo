@@ -18,7 +18,7 @@ resource reduction through symmetries.
 
 import numpy as np
 
-from tangelo.toolboxes.operators.hybridoperator import HybridOperator
+from tangelo.toolboxes.operators import MultiformOperator
 from tangelo.toolboxes.operators.z2_tapering import get_clifford_operators, get_unitary, get_eigenvalues, get_z2_taper_function
 
 
@@ -30,11 +30,11 @@ class QubitTapering:
     core of this class.
 
     Attributes:
-        initial_op (HybridOperator): Qubit operator to be analyzed for
+        initial_op (MultiformOperator): Qubit operator to be analyzed for
             symmetries.
         initial_n_qubits (int): Number of qubits before tapering.
-        z2_taper (func): Function handle for tapering a HybridOperator.
-        z2_tapered_op (HybridOperator): Tapered operator with z2 symmetries.
+        z2_taper (func): Function handle for tapering a MultiformOperator.
+        z2_tapered_op (MultiformOperator): Tapered operator with z2 symmetries.
         z2_properties (dict): Relevant quantities used to define the z2 taper
             function. Needed to back track a z2 tapered operator to the full
             operator.
@@ -56,7 +56,7 @@ class QubitTapering:
         if mapping.upper() not in {"JW", "BK", "JKMN"}:
             raise NotImplementedError(f"Qubit mapping {mapping} not supported. Tapering supports JW, BK and JKMN qubit encoding.")
 
-        self.initial_op = HybridOperator.from_qubitop(qubit_operator, n_qubits)
+        self.initial_op = MultiformOperator.from_qubitop(qubit_operator, n_qubits)
         self.initial_n_qubits = n_qubits
         self.n_electrons = n_electrons
         self.spin = spin
@@ -81,7 +81,7 @@ class QubitTapering:
             QubitOperator: The tapered qubit operator.
         """
 
-        hybrid_op = HybridOperator.from_qubitop(qubit_operator, n_qubits)
+        hybrid_op = MultiformOperator.from_qubitop(qubit_operator, n_qubits)
         z2_tapered_op = self.z2_taper(hybrid_op)
 
         return z2_tapered_op.qubitoperator
@@ -99,7 +99,7 @@ class QubitTapering:
         n_symmetries = len(q_indices)
         unitary = get_unitary(cliffords)
 
-        kernel_operator = HybridOperator.from_binaryop(kernel, factors=np.ones(kernel.shape[0]))
+        kernel_operator = MultiformOperator.from_binaryop(kernel, factors=np.ones(kernel.shape[0]))
         eigenvalues = get_eigenvalues(kernel_operator.binary, self.initial_n_qubits, self.n_electrons, self.spin, self.mapping, self.up_then_down)
 
         self.z2_taper = get_z2_taper_function(unitary, kernel_operator, q_indices, self.initial_n_qubits, n_symmetries, eigenvalues)
