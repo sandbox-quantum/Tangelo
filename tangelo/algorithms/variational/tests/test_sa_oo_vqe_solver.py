@@ -18,7 +18,7 @@ from tangelo.algorithms.variational import SA_OO_Solver, BuiltInAnsatze
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 
 Li2 = [('Li', (0, 0, 0)), ('Li', (3.5, 0, 0))]
-mol = SecondQuantizedMolecule(Li2, q=0, spin=0, basis="6-31g(d,p)", frozen_orbitals=[0, 1]+[i for i in range(4, 28)])
+mol = SecondQuantizedMolecule(Li2, q=0, spin=0, basis="6-31g(d,p)", frozen_orbitals=[0, 1]+list(range(4, 28)))
 
 
 class SA_OO_SolverTest(unittest.TestCase):
@@ -59,13 +59,9 @@ class SA_OO_SolverTest(unittest.TestCase):
         self.assertAlmostEqual(sa_oo_solver.state_energies[0], exact_energies[0], places=4)
         self.assertAlmostEqual(sa_oo_solver.state_energies[1], exact_energies[1], places=4)
 
-        resources = {"qubit_hamiltonian_terms": 15,
-                     "circuit_width": 4,
-                     "circuit_gates": 178,
-                     "circuit_2qubit_gates": 78,
-                     "circuit_var_gates": 20,
-                     "vqe_variational_parameters": 3}
-        self.assertEqual(sa_oo_solver.get_resources(), resources)
+        oo_resources = sa_oo_solver.get_resources()
+        self.assertEqual(oo_resources["circuit_width"], 4)
+        self.assertEqual(oo_resources["vqe_variational_parameters"], 3)
 
 
 if __name__ == "__main__":

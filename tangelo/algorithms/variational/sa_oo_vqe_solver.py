@@ -23,6 +23,7 @@ orbital-optimized hybrid quantum-classical algorithm for a democratic descriptio
 
 import numpy as np
 from scipy.linalg import expm
+from itertools import product
 
 from tangelo.algorithms.variational import SA_VQESolver
 
@@ -125,17 +126,13 @@ class SA_OO_Solver(SA_VQESolver):
         for i in occupied_indices:
             core_constant += 2 * foneint[i, i]
             for j in occupied_indices:
-                core_constant += (2 * ftwoint[i, i, j, j] -
-                                  ftwoint[i, j, i, j])
+                core_constant += (2 * ftwoint[i, i, j, j] - ftwoint[i, j, i, j])
 
         active_energy = 0
         v_mat = np.zeros((foneint.shape[0], foneint.shape[0]))
-        for t in active_indices:
-            for u in active_indices:
-                for i in occupied_indices:
-                    v_mat[u, t] += (
-                            2 * ftwoint[i, i, t, u] -
-                            ftwoint[i, t, i, u])
+        for t, u in product(active_indices, repeat=2):
+            for i in occupied_indices:
+                v_mat[u, t] += 2 * ftwoint[i, i, t, u] - ftwoint[i, t, i, u]
 
         n_active_mos = self.molecule.n_active_mos
         one_rdm = np.zeros((n_active_mos, n_active_mos))
@@ -146,12 +143,12 @@ class SA_OO_Solver(SA_VQESolver):
 
         for ti, t in enumerate(active_indices):
             for ui, u in enumerate(active_indices):
-                active_energy += one_rdm[ti, ui]*(foneint[t, u] + v_mat[t, u])
+                active_energy += one_rdm[ti, ui] * (foneint[t, u] + v_mat[t, u])
                 for vi, v in enumerate(active_indices):
                     for wi, w in enumerate(active_indices):
-                        active_energy += two_rdm[ti, ui, vi, wi]*ftwoint[t, u, v, w]
+                        active_energy += two_rdm[ti, ui, vi, wi] * ftwoint[t, u, v, w]
 
-        return fcore+core_constant+active_energy
+        return fcore + core_constant + active_energy
 
     def generate_oo_unitary(self):
         """Generate the orbital optimization unitary that rotates the orbitals. It uses n_oo_per_iter Newton-Raphson steps
