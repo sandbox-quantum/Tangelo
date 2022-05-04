@@ -28,6 +28,9 @@ Ref:
     arXiv:1701.08213
 """
 
+from functools import reduce
+import operator
+
 import numpy as np
 
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
@@ -68,22 +71,21 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
 
         # Apply rotation if the operator is not trivial.
         if operator.n_terms == 0:
-            operator_matrix, factors = np.zeros(operator.n_qubits), np.array([0.0])
+            op_matrix, factors = np.zeros(operator.n_qubits), np.array([0.0])
         else:
-            # TODO: This part is the bottleneck when tapering bigger operators.
             product = operator * unitary
             product.compress()
             product_reverse = unitary * product
             product_reverse.compress()
-            post, factors = product_reverse.integer, product_reverse.factors
+            op_matrix, factors = product_reverse.integer, product_reverse.factors
 
         if factors.max() == 0.0:
             return MultiformOperator.from_integerop(np.zeros((1, n_qubits-n_symmetries), dtype=int), np.array([0.0]))
 
         for index, eigenvalue in zip(q_indices, eigenvalues):
-            factors[post[:, index] > 0] *= eigenvalue
+            factors[op_matrix[:, index] > 0] *= eigenvalue
 
-        tapered = np.delete(post, q_indices, axis=1)
+        tapered = np.delete(op_matrix, q_indices, axis=1)
 
         return MultiformOperator.from_integerop(tapered, factors)
 
@@ -150,13 +152,7 @@ def get_unitary(cliffords):
     Returns:
         MultiformOperator: Multiplication reflecting the composite operator.
     """
-
-    if len(cliffords) > 2:
-        return cliffords[0] * get_unitary(cliffords[1:])
-    elif len(cliffords) == 2:
-        return cliffords[0] * cliffords[1]
-    else:
-        return cliffords[0]
+    return reduce(operator.mul, cliffords[1:], cliffords[0])
 
 
 def get_eigenvalues(symmetries, n_qubits, n_electrons, spin, mapping, up_then_down):

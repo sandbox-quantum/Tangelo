@@ -71,8 +71,7 @@ class MultiformOperator(QubitOperator):
 
         # Swapping the binary representation. Example: instead of (0,1), write
         # (1,0). This is useful to detect commutation between terms.
-        list_col_swap = [n_column for n_column in range(2 * n_qubits)]
-        list_col_swap = list_col_swap[n_qubits:] + list_col_swap[:n_qubits]
+        list_col_swap = list(range(n_qubits, 2*n_qubits)) + list(range(n_qubits))
         self.binary_swap = self.binary[:, list_col_swap]
 
         # Attribute to be defined when symmetries will be computed.
@@ -92,8 +91,9 @@ class MultiformOperator(QubitOperator):
     def from_qubitop(cls, qubit_op, n_qubits=None):
         """Initialize MultiformOperator from a qubit operator."""
 
-        n_qubits = n_qubits if n_qubits is not None else count_qubits(qubit_op)
-        factors = np.array([coeff for coeff in qubit_op.terms.values()])
+        if n_qubits is None:
+            n_qubits = count_qubits(qubit_op)
+        factors = np.array(list(qubit_op.terms.values()))
         int_op = qubit_to_integer(qubit_op, n_qubits)
         bin_op = integer_to_binary(int_op)
 
@@ -208,8 +208,7 @@ class MultiformOperator(QubitOperator):
         self.binary = integer_to_binary(self.integer)
 
         # Updating the binary_swap from the new binary.
-        list_col_swap = list(range(2 * self.n_qubits))
-        list_col_swap = list_col_swap[self.n_qubits:] + list_col_swap[:self.n_qubits]
+        list_col_swap = list(range(self.n_qubits, 2*self.n_qubits)) + list(range(self.n_qubits))
         self.binary_swap = self.binary[:, list_col_swap]
 
         # Resetting the kernel attribute.
@@ -325,7 +324,8 @@ def qubit_to_integer(qubit_op, n_qubits=None):
             = number of qubits.
     """
 
-    n_qubits = n_qubits if n_qubits is not None else count_qubits(qubit_op)
+    if n_qubits is None:
+        n_qubits = count_qubits(qubit_op)
     integer = np.zeros((len(qubit_op.terms), n_qubits), dtype=np.int8)
 
     for index, term in enumerate(qubit_op.terms):
