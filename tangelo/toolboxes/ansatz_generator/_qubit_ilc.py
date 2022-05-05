@@ -184,6 +184,7 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
             warnings.warn("Gaussian elimination over GF(2) failed to find a solution.", RuntimeWarning)
     return np.array(z_sln)
 
+
 def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
     """Driver function that solves the generalized eigenvalue problem Hc = ESc required
     to obtain the ground state coefficients (ILC parameters). These are subsequently recast
