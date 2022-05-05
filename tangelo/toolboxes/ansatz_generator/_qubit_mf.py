@@ -39,8 +39,8 @@ import numpy as np
 from tangelo.linq import Circuit, Gate
 from tangelo.toolboxes.operators.operators import FermionOperator
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
-from .penalty_terms import combined_penalty, number_operator_penalty, spin2_operator_penalty,\
-                           spin_operator_penalty
+from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty, number_operator_penalty,\
+                                                             spin2_operator_penalty, spin_operator_penalty
 
 
 def get_op_expval(qubit_op, qmf_var_params):

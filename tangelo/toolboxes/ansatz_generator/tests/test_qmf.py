@@ -15,6 +15,7 @@
 """Unit tests for closed-shell and restricted open-shell qubit mean field (QMF) ansatz. """
 
 import unittest
+
 import numpy as np
 
 from tangelo.linq import Simulator

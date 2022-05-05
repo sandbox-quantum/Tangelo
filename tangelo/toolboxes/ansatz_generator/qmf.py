@@ -30,12 +30,14 @@ Refs:
 """
 
 import warnings
+
 import numpy as np
 
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,\
                                                                fermion_to_qubit_mapping
-from .ansatz import Ansatz
-from ._qubit_mf import get_qmf_circuit, init_qmf_from_hf, penalize_mf_ham
+from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
+from tangelo.toolboxes.ansatz_generator._qubit_mf import get_qmf_circuit, init_qmf_from_hf,\
+                                                         penalize_mf_ham
 
 
 class QMF(Ansatz):

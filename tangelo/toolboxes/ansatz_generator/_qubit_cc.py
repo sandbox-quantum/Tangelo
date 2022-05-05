@@ -33,7 +33,7 @@ Refs:
 from itertools import combinations
 
 from tangelo.toolboxes.operators.operators import QubitOperator
-from ._qubit_mf import get_op_expval
+from tangelo.toolboxes.ansatz_generator._qubit_mf import get_op_expval
 
 
 def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):

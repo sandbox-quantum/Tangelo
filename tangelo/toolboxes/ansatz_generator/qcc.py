@@ -34,16 +34,17 @@ Refs:
 """
 
 import warnings
+
 import numpy as np
 
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,\
                                                                fermion_to_qubit_mapping
 from tangelo.linq import Circuit
-from .ansatz import Ansatz
-from .ansatz_utils import exp_pauliword_to_gates
-from ._qubit_mf import init_qmf_from_hf, get_qmf_circuit, purify_qmf_state
-from ._qubit_cc import construct_dis
+from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import exp_pauliword_to_gates
+from tangelo.toolboxes.ansatz_generator._qubit_mf import init_qmf_from_hf, get_qmf_circuit, purify_qmf_state
+from tangelo.toolboxes.ansatz_generator._qubit_cc import construct_dis
 
 
 class QCC(Ansatz):
@@ -267,7 +268,7 @@ class QCC(Ansatz):
         if self.qcc_op_list is None:
             self.qcc_op_list = []
             for i in range(self.n_var_params):
-                # Instead of randomly choosing a generator, get the last one.
+                # Instead of randomly choosing a generator, grab the first one.
                 qcc_gen = self.dis[i][0]
                 qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen
                 self.qcc_op_list.append(qcc_gen)

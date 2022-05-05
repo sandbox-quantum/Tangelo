@@ -27,11 +27,12 @@ Refs:
 """
 
 import warnings
+
 import scipy
 import numpy as np
 
 from tangelo.toolboxes.operators.operators import QubitOperator
-from ._qubit_mf import get_op_expval
+from tangelo.toolboxes.ansatz_generator._qubit_mf import get_op_expval
 
 
 def construct_acs(dis, max_ilc_gens, n_qubits):
@@ -97,7 +98,7 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
             if n_flip > 1 and n_y % 2 == 1:
                 gen_i = QubitOperator(gen_tup, 1.)
                 good_sln = True
-                # check mutual anti-commutativity of each new ILC generator with all previous ones
+                # check mutual anti-commutativity of each new ILC generator with all the rest
                 for gen_j in ilc_gens:
                     if gen_i * gen_j != -1. * gen_j * gen_i:
                         if gen_idx not in bad_sln_idxs:
@@ -135,6 +136,7 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
     if not isinstance(b_vec, np.ndarray):
         b_vec = np.zeros((n_rows, 1))
     a_mat = np.append(a_mat, b_vec, axis=1)
+    n_cols += 1
     for i in range(n_cols):
         a_mat_max, max_idx = 0., piv_idx
         # locate the pivot index by searching each row for a non-zero value.
@@ -156,6 +158,7 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
                     a_mat[j, i:n_cols] = np.fmod(a_mat[j, i:n_cols] + a_mat[piv_idx, i:n_cols], 2)
             piv_idx += 1
     # extract the solution from the bottom to the top since it is now in row echelon form
+    b_vec = a_mat[0:n_rows, n_cols-1].tolist()
     for i in range(n_rows - 1, -1, -1):
         col_idx, z_free = -1., []
         for j in range(n_cols-1):
@@ -165,7 +168,7 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
                 else:
                     z_free.append(j)
         if col_idx >= 0.:
-            z_vals.append([col_idx, z_free, a_mat[i][n_cols-1]])
+            z_vals.append([col_idx, z_free, b_vec[i]])
     # check for free solutions -- select 0 for the free solution
     # for the ILC generator screening procedure, 0 leads to an I op and 1 leads to a Z Pauli op
     for z_val in (z_vals):
@@ -173,66 +176,6 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
         for z_free in (z_val[1]):
             if z_sln[z_free] == -1:
                 z_sln[z_free] = 0.
-            b_val = np.fmod(b_val + z_sln[z_free], 2)
-        z_sln[z_val[0]] = b_val
-    # check that z_sln does not have any -1 values left -- if so, a solution was not found.
-    for z_val in z_sln:
-        if z_val == -1:
-            warnings.warn("Gaussian elimination over GF(2) failed to find a solution.", RuntimeWarning)
-    return np.array(z_sln)
-
-    n_rows, n_cols = np.shape(a_mat)
-    z_vals, z_sln, piv_idx = [], [-1] * n_cols, 0
-    # check that b_vec was properly supplied; ortherwise initialize as a vector of zeros
-    if not isinstance(b_vec, np.ndarray):
-        b_vec = np.zeros((n_rows, 1))
-    a_mat = np.append(a_mat, b_vec, axis=1)
-    n_cols += 1
-    print("start a_mat = ", a_mat)
-    for i in range(n_cols):
-        a_mat_max, max_idx = 0., piv_idx
-        # locate the pivot index by searching each row for a non-zero value.
-        for j in range(piv_idx, n_rows):
-            # if a pivot index is found, set the value to the col index for the row in which it was found
-            if a_mat[j, i] > a_mat_max:
-                max_idx = j
-                a_mat_max = a_mat[j, i]
-            # if a pivot index is not found in a given row, reset a_mat_max to -1 and move to the next row
-            elif j == n_rows-1 and a_mat_max == 0.:
-                piv_idx = max_idx
-                a_mat_max = -1.
-        # update the matrix by flipping the row and columns to achieve row echelon form
-        if a_mat_max > 0.:
-            if max_idx > piv_idx:
-                a_mat[[piv_idx, max_idx]] = a_mat[[max_idx, piv_idx]]
-            for j in range(piv_idx + 1, n_rows):
-                if a_mat[j, i] == 1.:
-                    a_mat[j, i:n_cols] = np.fmod(a_mat[j, i:n_cols] + a_mat[piv_idx, i:n_cols], 2)
-            piv_idx += 1
-    # extract the solution from the bottom to the top since it is now in row echelon form
-    print("end a_mat = ", a_mat)
-    z_free, z_not_free = list(range(n_cols-1)), []
-    for i in range(n_rows):#-1, -1, -1):
-#        col_idx, z_free = -1., list(range(n_cols-1))
-        col_idx = -1
-        for j in range(n_cols-1):
-            if a_mat[i, j] == 1.:
-                if col_idx == -1:
-                    col_idx = j
-                    z_not_free.append(z_free.pop(j))
-                elif col_idx > -1 and j in z_not_free:
-                    z_free.pop(j)
-        if col_idx >= 0.:
-            print("col_idx = ", col_idx, z_free)
-            z_vals.append([col_idx, z_free, a_mat[i][n_cols-1]])
-    # check for free solutions -- select 0 for the free solution
-    # for the ILC generator screening procedure, 0 leads to an I op and 1 leads to a Z Pauli op
-    print("z_not_free = ", z_not_free)
-    for z_val in (z_vals):
-        b_val = z_val[2]
-        for z_free in (z_val[1]):
-            if z_sln[z_free] == -1:
-                z_sln[z_free] = 1.
             b_val = np.fmod(b_val + z_sln[z_free], 2)
         z_sln[z_val[0]] = b_val
     # check that z_sln does not have any -1 values left -- if so, a solution was not found.

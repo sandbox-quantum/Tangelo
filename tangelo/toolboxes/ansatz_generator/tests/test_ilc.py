@@ -16,6 +16,7 @@
 with involutory linear combinations (ILC) of anti-commuting sets (ACS) of Pauli words."""
 
 import unittest
+
 import numpy as np
 
 from tangelo.linq import Simulator
@@ -29,7 +30,7 @@ sim = Simulator()
 
 class ILCTest(unittest.TestCase):
     """Unit tests for various functionalities of the ILC ansatz class. Examples for both closed-
-    and restricted open-shell ILC are provided using H2, H4, and H4 +.
+    and restricted open-shell ILC are provided using H2, H4, and H4+.
     """
 
     @staticmethod
@@ -135,7 +136,7 @@ class ILCTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.1372697, delta=1e-6)
 
     def test_ilc_h4_cation(self):
-        """ Verify restricted open-shell functionality when using the ILC class for H4 + """
+        """ Verify restricted open-shell functionality when using the ILC class for H4+ """
 
         # Build the ILC ansatz, which sets the QMF parameters automatically if none are passed
         ilc_op_list = [QubitOperator("Y0 Z2 X4 Z6"), QubitOperator("Y1 Y2 Z4 X5 Y6"), QubitOperator("X0 Z2 Z4 Y6"),
