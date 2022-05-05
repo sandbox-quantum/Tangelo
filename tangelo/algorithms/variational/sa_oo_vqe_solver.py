@@ -21,9 +21,10 @@ orbital-optimized hybrid quantum-classical algorithm for a democratic descriptio
 
 """
 
+from itertools import product
+
 import numpy as np
 from scipy.linalg import expm
-from itertools import product
 
 from tangelo.algorithms.variational import SA_VQESolver
 
