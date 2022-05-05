@@ -143,7 +143,7 @@ def get_clifford_operators(kernel):
 
 
 def get_unitary(cliffords):
-    """Recursive function for generating the product over multiple Clifford
+    """Function generating the product over multiple Clifford
     operators as a single unitary. The result is a MultiformOperator.
 
     Args:
