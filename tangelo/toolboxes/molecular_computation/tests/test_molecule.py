@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+import os
 
 from tangelo import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H2_sto3g, xyz_H2O
@@ -24,10 +25,21 @@ H2_string = """
 H       0.0        0.0        0.0
 H       0.0        0.0        0.7414
 """
+H2_file_xyz = os.path.dirname(os.path.abspath(__file__))+"/data/h2.xyz"
 
 H2O_list = [("O", (0., 0., 0.11779)),
             ("H", (0., 0.75545, -0.47116)),
             ("H", (0., -0.75545, -0.47116))]
+
+
+def atom_list_close(atom1, atom2, atol):
+
+    for (a0, xyz0), (a1, xyz1) in zip(atom1, atom2):
+        if a0 != a1:
+            raise AssertionError(f"Atoms are not the same {a0} != {a1}")
+        for x0, x1 in zip(xyz0, xyz1):
+            if abs(x0 - x1) > atol:
+                raise AssertionError(f"geometries for atom {a0} are different. {x0} != {x1}")
 
 
 class CoordsTest(unittest.TestCase):
@@ -51,6 +63,14 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         assert(molecule.spin == 0)
         assert(molecule.q == 0)
         assert(molecule.n_electrons == 2)
+
+        molecule = SecondQuantizedMolecule(H2_file_xyz, 0, 0, "sto-3g")
+        assert(molecule.elements == ["H"]*2)
+        assert(molecule.basis == "sto-3g")
+        assert(molecule.spin == 0)
+        assert(molecule.q == 0)
+        assert(molecule.n_electrons == 2)
+        atom_list_close(molecule.xyz, H2_list, 1.e-14)
 
     def test_freezing_orbitals(self):
         """Verify freezing orbitals functionalities."""

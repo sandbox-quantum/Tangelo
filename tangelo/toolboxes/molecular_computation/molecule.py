@@ -18,8 +18,9 @@ functionalities.
 
 import copy
 from dataclasses import dataclass, field
+
 import numpy as np
-from pyscf import gto, scf, ao2mo, symm
+from pyscf import gto, scf, ao2mo, symm, lib
 import openfermion
 import openfermion.ops.representations as reps
 from openfermion.chem.molecular_data import spinorb_from_spatial
@@ -93,7 +94,6 @@ class Molecule:
     n_min_orbitals: int = field(init=False)
 
     def __post_init__(self):
-        self.xyz = atom_string_to_list(self.xyz) if isinstance(self.xyz, str) else self.xyz
         mol = self.to_pyscf(basis="sto-3g", symmetry=False)
         self.n_atoms = mol.natm
         self.n_electrons = mol.nelectron
@@ -117,15 +117,28 @@ class Molecule:
             pyscf.gto.Mole: PySCF compatible object.
         """
 
-        mol = gto.Mole()
-        mol.atom = self.xyz
+        mol = gto.Mole(atom=self.xyz)
         mol.basis = basis
         mol.charge = self.q
         mol.spin = self.spin
         mol.symmetry = symmetry
         mol.build()
 
+        self.xyz = list()
+        for sym, xyz in mol._atom:
+            self.xyz += [tuple([sym, tuple([x*lib.parameters.BOHR for x in xyz])])]
+
         return mol
+
+    def to_file(self, filename, format=None):
+        """Write molecule geometry to filename in specified format
+
+        Args:
+            filename (str): The name of the file to output the geometry.
+            format (str): The output type of "raw", "xyz", or "zmat". If None, will be inferred by the filename
+        """
+        mol = self.to_pyscf(basis="sto-3g")
+        mol.tofile(filename, format)
 
     def to_openfermion(self, basis="sto-3g"):
         """Method to return a openfermion.MolecularData object.
