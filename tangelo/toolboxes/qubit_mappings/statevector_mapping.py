@@ -21,7 +21,7 @@ import numpy as np
 import warnings
 
 from tangelo.linq import Gate, Circuit
-from tangelo.toolboxes.qubit_mappings.jkmn import jkmn_prep_circuit
+from tangelo.toolboxes.qubit_mappings.jkmn import jkmn_prep_vector
 
 from openfermion.transforms import bravyi_kitaev_code
 
@@ -72,7 +72,7 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
             vector = np.concatenate((vector[::2], vector[1::2]))
         return do_scbk_transform(vector, n_spinorbitals)
     elif mapping.upper() == "JKMN":
-        return vector
+        return jkmn_prep_vector(vector)
 
 
 def do_bk_transform(vector):
@@ -119,16 +119,13 @@ def vector_to_circuit(vector, mapping=None):
         Circuit: instance of tangelo.linq Circuit class.
     """
 
-    if mapping is not None and mapping.upper() == "JKMN":
-        return jkmn_prep_circuit(vector)
-    else:
-        n_qubits = len(vector)
-        circuit = Circuit(n_qubits=n_qubits)
+    n_qubits = len(vector)
+    circuit = Circuit(n_qubits=n_qubits)
 
-        for index, occupation in enumerate(vector):
-            if occupation:
-                gate = Gate("X", target=index)
-                circuit.add_gate(gate)
+    for index, occupation in enumerate(vector):
+        if occupation:
+            gate = Gate("X", target=index)
+            circuit.add_gate(gate)
 
     return circuit
 
