@@ -29,7 +29,8 @@ from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_ga
 from tangelo.toolboxes.operators import count_qubits, FermionOperator, qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
-from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, QCC, VSQS, UCCGD, VariationalCircuitAnsatz
+from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, QCC, VSQS, UCCGD,  ILC,\
+                                               VariationalCircuitAnsatz
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from tangelo.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
@@ -47,6 +48,7 @@ class BuiltInAnsatze(Enum):
     QCC = 6
     VSQS = 7
     UCCGD = 8
+    ILC = 9
 
 
 class VQESolver:
@@ -112,11 +114,11 @@ class VQESolver:
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
-        # The QCC ansatz requires up_then_down=True when mapping="jw"
+        # The QCC & ILC ansatze require up_then_down=True when mapping="jw"
         if isinstance(self.ansatz, BuiltInAnsatze):
-            if self.ansatz == BuiltInAnsatze.QCC and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
-                warnings.warn("The QCC ansatz requires spin-orbital ordering to be all spin-up "
-                              "first followed by all spin-down for the JW mapping.", RuntimeWarning)
+            if self.ansatz in (BuiltInAnsatze.QCC, BuiltInAnsatze.ILC) and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
+                warnings.warn("Efficient generator screening for QCC-based ansatze requires spin-orbital ordering to be "
+                              "all spin-up first followed by all spin-down for the JW mapping.", RuntimeWarning)
                 self.up_then_down = True
 
         self.default_backend_options = default_backend_options
@@ -193,6 +195,8 @@ class VQESolver:
                     self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.UCCGD:
                     self.ansatz = UCCGD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                elif self.ansatz == BuiltInAnsatze.ILC:
+                    self.ansatz = ILC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):

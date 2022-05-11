@@ -14,9 +14,10 @@
 
 """Unit tests for closed-shell and restricted open-shell qubit coupled cluster (QCC) ansatze. """
 
-import unittest
-import numpy as np
 import os
+import unittest
+
+import numpy as np
 from openfermion import load_operator
 
 from tangelo.linq import Simulator
@@ -33,7 +34,7 @@ pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
 class QCCTest(unittest.TestCase):
     """Unit tests for various functionalities of the QCC ansatz class. Examples for both closed-
-    and restricted open-shell QCC are provided using H2, H4 +, and H4 2+ as well as for using the
+    and restricted open-shell QCC are provided using H2, H4+, and H4+2 as well as for using the
     QMF and QCC classes together.
     """
 
@@ -45,7 +46,7 @@ class QCCTest(unittest.TestCase):
 
         one_zero = np.zeros((1,), dtype=float)
 
-        qcc_ansatz.set_var_params("zeros")
+        qcc_ansatz.set_var_params("qmf_state")
         np.testing.assert_array_almost_equal(qcc_ansatz.var_params, one_zero, decimal=6)
 
         qcc_ansatz.set_var_params([0.])
@@ -72,7 +73,7 @@ class QCCTest(unittest.TestCase):
         # Build the QCC ansatz, which sets the QMF parameters automatically if none are passed
         qcc_var_params = [0.22613627]
         qcc_op_list = [QubitOperator("X0 Y1 Y2 Y3")]
-        qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True, qubit_op_list=qcc_op_list)
+        qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True, qcc_op_list=qcc_op_list)
 
         # Build a QMF + QCC circuit
         qcc_ansatz.build_circuit()
@@ -111,7 +112,7 @@ class QCCTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.137270174660901, delta=1e-6)
 
     def test_qcc_h4_cation(self):
-        """ Verify restricted open-shell functionality when using the QCC class for H4 + """
+        """ Verify restricted open-shell functionality when using the QCC class for H4+ """
 
         # Build the QCC ansatz, which sets the QMF parameters automatically if none are passed
         qcc_op_list = [QubitOperator("X0 Y1 Y2 X3 X4 Y5"), QubitOperator("Y1 X3 X4 X5"),
@@ -135,7 +136,7 @@ class QCCTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.6380901, delta=1e-6)
 
     def test_qmf_qcc_h4_cation(self):
-        """ Verify restricted open-shell functionality when using QMF + QCC ansatze for H4 + """
+        """ Verify restricted open-shell functionality when using QMF + QCC ansatze for H4+ """
 
         # Build the QMF ansatz with optimized parameters
         qmf_var_params = [3.14159302e+00,  6.20193478e-07,  1.51226426e-06,  3.14159350e+00,
@@ -166,7 +167,7 @@ class QCCTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.6382913, delta=1e-6)
 
     def test_qcc_h4_double_cation(self):
-        """ Verify restricted open-shell functionality when using the QCC class for H4 2+ """
+        """ Verify restricted open-shell functionality when using the QCC class for H4+2 """
 
         # Build the QCC ansatz, which sets the QMF parameters automatically if none are passed
         qcc_op_list = [QubitOperator("X0 Y2"),    QubitOperator("Y0 X4"), QubitOperator("X0 Y6"),
@@ -186,7 +187,7 @@ class QCCTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -0.8547019, delta=1e-6)
 
     def test_qmf_qcc_h4_double_cation(self):
-        """ Verify restricted open-shell functionality when using QMF + QCC ansatze for H4 2+ """
+        """ Verify restricted open-shell functionality when using QMF + QCC ansatze for H4+2 """
 
         # Build the QMF ansatz with optimized parameters
         qmf_var_params = [3.14159247e+00,  3.14158884e+00,  1.37660700e-06,  3.14159264e+00,

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .vsqs import VSQS
+from .ilc import ILC
 from .qcc import QCC
 from .qmf import QMF
 from .uccsd import UCCSD

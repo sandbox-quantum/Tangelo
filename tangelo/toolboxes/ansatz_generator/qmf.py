@@ -30,12 +30,14 @@ Refs:
 """
 
 import warnings
+
 import numpy as np
 
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,\
                                                                fermion_to_qubit_mapping
-from .ansatz import Ansatz
-from ._qubit_mf import get_qmf_circuit, init_qmf_from_hf, penalize_mf_ham
+from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
+from tangelo.toolboxes.ansatz_generator._qubit_mf import get_qmf_circuit, init_qmf_from_hf,\
+                                                         penalize_mf_ham
 
 
 class QMF(Ansatz):
@@ -49,27 +51,27 @@ class QMF(Ansatz):
     especially when a random initial guess is used. It is recommended that penalty terms are
     added to the mean-field Hamiltonian to enforce appropriate electron number and spin angular
     momentum symmetries on the QMF wave function during optimization (see Ref. 4). If using
-    penalty terms is to be avoided, an inital guess based on a Hartree-Fock reference state will
+    penalty terms is to be avoided, an initial guess based on a Hartree-Fock reference state will
     likely converge quickly to the desired state, but this is not guaranteed.
 
     Args:
         molecule (SecondQuantizedMolecule): The molecular system.
-        mapping (str): One of the supported qubit mapping identifiers. Default, "JW".
+        mapping (str): One of the supported qubit mapping identifiers. Default, "jw".
         up_then_down (bool): Change basis ordering putting all spin up orbitals first,
             followed by all spin down. Default, False.
-        init_qmf (dict): Parameters for initializing the QMF variational parameter set and
-            mean-field Hamiltonian penalization. The keys are "init_params", "N", "S^2", or "Sz"
-            (str). The value of "init_params" must be in self.supported_initial_var_params (str).
-            The value of "N", "S^2", or "Sz" is (tuple or None). If a tuple, its elements are
-            the penalty term coefficient, mu (float), and target value of a penalty operator
-            (int). Example - "key": (mu, target). If "N", "S^2", or "Sz" is None, a penalty term
-            is added with default mu and target values: mu = 1.5 and target is derived
-            from molecule as <N> = n_electrons, <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z,
-            where spin_z = spin // 2. Key, value pairs are case sensitive and mu > 0.
+        init_qmf (dict): Controls for QMF variational parameter initialization and mean-field
+            Hamiltonian penalization. Supported keys are "init_params", "N", "S^2", or "Sz" (str).
+            Values of "init_params" must be in self.supported_initial_var_params (str). Values of
+            "N", "S^2", or "Sz" are (tuple or None). If tuple, the elements are a penalty
+            term coefficient, mu (float), and a target value of the penalty operator (int).
+            Example - "key": (mu, target). If "N", "S^2", or "Sz" is None, a penalty term is added
+            with default mu and target values: mu = 1.5 and target is derived from molecule as
+            <N> = n_electrons, <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z, where
+            spin_z = spin // 2. Key, value pairs are case sensitive and mu > 0.
             Default, {"init_params": "hf_state"}.
     """
 
-    def __init__(self, molecule, mapping="JW", up_then_down=False, init_qmf=None):
+    def __init__(self, molecule=None, mapping="jw", up_then_down=False, init_qmf=None):
 
         self.molecule = molecule
         self.n_spinorbitals = self.molecule.n_active_sos
@@ -77,8 +79,9 @@ class QMF(Ansatz):
             raise ValueError("The total number of spin-orbitals should be even.")
 
         self.n_orbitals = self.n_spinorbitals // 2
-        self.n_electrons = self.molecule.n_active_electrons
         self.spin = molecule.spin
+        self.fermi_ham = self.molecule.fermionic_hamiltonian
+        self.n_electrons = self.molecule.n_active_electrons
 
         self.mapping = mapping
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
@@ -86,13 +89,13 @@ class QMF(Ansatz):
         self.init_qmf = {"init_params": "hf_state"} if init_qmf is None else init_qmf
 
         # Supported var param initialization
-        self.supported_initial_var_params = {"zeros", "half_pi", "pis", "random", "hf_state"}
+        self.supported_initial_var_params = {"vacuum", "half_pi", "minus_half_pi", "full_pi",
+                                             "random", "hf_state"}
 
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
 
-        # Get the mean-field fermionic Hamiltonian and check for penalty terms
-        self.fermi_ham = self.molecule.fermionic_hamiltonian
+        # Add any penalty terms to the fermionic Hamiltonian
         if isinstance(self.init_qmf, dict):
             if "init_params" not in self.init_qmf.keys():
                 raise KeyError(f"Missing key 'init_params' in {self.init_qmf}. "
@@ -114,7 +117,7 @@ class QMF(Ansatz):
                     self.fermi_ham += penalize_mf_ham(self.init_qmf, self.n_orbitals)
                 else:
                     if self.var_params_default != "hf_state":
-                        warnings.warn("It is recommended that the QMF parameters are intialized "
+                        warnings.warn("It is recommended that the QMF parameters are initialized "
                                       "using a Hartree-Fock reference state if penalty terms are "
                                       "not added to the mean-field Hamiltonian.", RuntimeWarning)
             else:
@@ -123,6 +126,7 @@ class QMF(Ansatz):
         else:
             raise TypeError(f"{self.init_qmf} must be dictionary type.")
 
+        # Get the qubit Hamiltonian
         self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping, self.n_spinorbitals,
                                                   self.n_electrons, self.up_then_down, self.spin)
 
@@ -147,20 +151,23 @@ class QMF(Ansatz):
                 raise ValueError(f"Supported keywords for initializing variational parameters: "
                                  f"{self.supported_initial_var_params}")
             # Initialize |QMF> as |00...0>
-            if var_params == "zeros":
+            if var_params == "vacuum":
                 initial_var_params = np.zeros((self.n_var_params,), dtype=float)
-            # Initialize |QMF> as (i/sqrt(2))^n_qubits * tensor_prod(|0> + |1>)
+            # Initialize |QMF> as (1/sqrt(2))^n_qubits * tensor_prod(|0> + 1j|1>)
             elif var_params == "half_pi":
                 initial_var_params = 0.5 * np.pi * np.ones((self.n_var_params,))
-            # Initialize |QMF> as (-1)^n_qubits |11...1> state
-            elif var_params == "pis":
+            # Initialize |QMF> as (1/sqrt(2))^n_qubits * tensor_prod(|0> - 1j|1>)
+            elif var_params == "minus_half_pi":
+                initial_var_params = -0.5 * np.pi * np.ones((self.n_var_params,))
+            # Initialize |QMF> as (i)^n_qubits * |11...1>
+            elif var_params == "full_pi":
                 initial_var_params = np.pi * np.ones((self.n_var_params,))
-            # Initialize theta and phi angles randomly over [0, pi] and [0, 2*pi], respectively
+            # Random initialization of thetas over [0, pi] and phis over [0, 2 * pi]
             elif var_params == "random":
                 initial_thetas = np.pi * np.random.random((self.n_qubits,))
                 initial_phis = 2. * np.pi * np.random.random((self.n_qubits,))
                 initial_var_params = np.concatenate((initial_thetas, initial_phis))
-            # Initialize theta angles so that |QMF> = |HF> state and set all phi angles to 0.
+            # Initialize thetas as 0 or pi such that |QMF> = |HF> and set all phis to 0
             elif var_params == "hf_state":
                 initial_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                       self.mapping, self.up_then_down, self.spin)
