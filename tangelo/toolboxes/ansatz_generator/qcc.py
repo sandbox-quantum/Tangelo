@@ -55,7 +55,7 @@ class QCC(Ansatz):
 
     Args:
         molecule (SecondQuantizedMolecule): The molecular system.
-        mapping (str): One of the supported qubit mapping identifiers. Default, "JW".
+        mapping (str): One of the supported qubit mapping identifiers. Default, "jw".
         up_then_down (bool): Change basis ordering putting all spin up orbitals first,
             followed by all spin down. Default, False.
         qubit_op_list (list of QubitOperator): A list of QCC generators to use for the ansatz.
@@ -77,7 +77,7 @@ class QCC(Ansatz):
         verbose (bool): Flag for QCC verbosity. Default, False.
     """
 
-    def __init__(self, molecule, mapping="JW", up_then_down=False, qubit_op_list=None,
+    def __init__(self, molecule, mapping="jw", up_then_down=False, qubit_op_list=None,
                  qmf_circuit=None, qmf_var_params=None, qubit_mf_ham=None, qcc_guess=1.e-1,
                  qcc_deriv_thresh=1.e-3, max_qcc_gens=None, verbose=False):
 
@@ -91,7 +91,7 @@ class QCC(Ansatz):
         self.mapping = mapping
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
         self.up_then_down = up_then_down
-        if self.mapping.upper() == "JW" and not self.up_then_down:
+        if self.mapping.upper() == "jw" and not self.up_then_down:
             warnings.warn("The QCC ansatz requires spin-orbital ordering to be all spin-up "
                           "first followed by all spin-down for the JW mapping.", RuntimeWarning)
             self.up_then_down = True
