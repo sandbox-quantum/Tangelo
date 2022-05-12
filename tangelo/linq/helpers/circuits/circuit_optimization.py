@@ -43,8 +43,9 @@ def remove_redundant_gates(circuit):
                 previous_gate_i, previous_gate = last_gates.get(qubit_i, (None, None))
 
                 if previous_gate is None or previous_gate.inverse() != gate:
-                    last_gates[qubit_i] = (gi, gate)
                     to_remove = False
+
+                last_gates[qubit_i] = (gi, gate)
 
             if to_remove:
                 gate_indices_to_remove.extend([previous_gate_i, gi])
