@@ -26,7 +26,7 @@ Phys. Rev. Research 1, 033062 (2019)
 import numpy as np
 
 from tangelo.linq import Simulator, Circuit
-from tangelo.toolboxes.operators import qubitop_to_qubitham
+from tangelo.toolboxes.operators import qubitop_to_qubitham, QubitOperator
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
@@ -211,6 +211,10 @@ class SA_VQESolver(VQESolver):
         self.state_energies = list()
         for i, reference_circuit in enumerate(self.reference_circuits):
             state_energy = self.backend.get_expectation_value(self.qubit_hamiltonian, reference_circuit + self.ansatz.circuit)
+            if self.deflation is not None:
+                for circ in self.deflation:
+                    f_dict, _ = self.backend.simulate(circ + self.ansatz.circuit.inverse() + reference_circuit.inverse())
+                    state_energy += self.deflation_coeff*f_dict.get("0"*self.ansatz.circuit.width, 0)
             energy += state_energy*self.weights[i]
             self.state_energies.append(state_energy)
 

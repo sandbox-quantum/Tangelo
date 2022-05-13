@@ -21,6 +21,7 @@ from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.ansatz_generator import UCCSD
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.molecular_computation.rdms import matricize_2rdm
+from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 
 
 class SA_VQESolverTest(unittest.TestCase):
@@ -107,6 +108,7 @@ class SA_VQESolverTest(unittest.TestCase):
 
     def test_simulate_h2(self):
         """Run SA-VQE on H2 molecule, with UpCCGSD ansatz, JW qubit mapping, ref_states and exact simulator.
+        Followed by deflation of two states calculated to determine next excited state.
         """
 
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UpCCGSD, "qubit_mapping": "jw",
@@ -122,6 +124,18 @@ class SA_VQESolverTest(unittest.TestCase):
 
         _ = sa_vqe_solver.simulate()
         np.testing.assert_array_almost_equal(exact_energies, sa_vqe_solver.state_energies, decimal=3)
+
+        mol_H2_spin = SecondQuantizedMolecule(mol_H2_sto3g.xyz, mol_H2_sto3g.q, mol_H2_sto3g.spin, mol_H2_sto3g.basis)
+        mol_H2_spin.spin = 2
+        vqe_options = {"molecule": mol_H2_spin, "ansatz": BuiltInAnsatze.UpCCGSD, "qubit_mapping": "jw",
+                       "verbose": True, "deflation": [sa_vqe_solver.reference_circuits[0] + sa_vqe_solver.optimal_circuit,
+                                                      sa_vqe_solver.reference_circuits[1] + sa_vqe_solver.optimal_circuit],
+                       "deflation_coeff": 1.5, "ref_states": [[0, 0, 1, 1]]}
+        vqe_solver_2 = SA_VQESolver(vqe_options)
+        vqe_solver_2.build()
+
+        energy = vqe_solver_2.simulate()
+        self.assertAlmostEqual(-0.1699, energy, delta=1.e-3)
 
     def test_get_rdm_h2(self):
         """Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized

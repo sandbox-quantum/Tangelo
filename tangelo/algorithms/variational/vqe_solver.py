@@ -76,7 +76,9 @@ class VQESolver:
         backend_options (dict) : parameters to build the tangelo.linq Simulator
             class.
         penalty_terms (dict): parameters for penalty terms to append to target
-            qubit Hamiltonian (see penaly_terms for more details).
+            qubit Hamiltonian (see penalty_terms for more details).
+        deflation (list[Circuit]): Deflation circuits to orthogonalize with
+        deflation_coeff (float): The coefficient of the deflation.
         ansatz_options (dict): parameters for the given ansatz (see given ansatz
             file for details).
         up_then_down (bool): change basis ordering putting all spin up orbitals
@@ -95,6 +97,8 @@ class VQESolver:
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
                            "penalty_terms": None,
+                           "deflation": None,
+                           "deflation_coeff": 1,
                            "ansatz_options": dict(),
                            "up_then_down": False,
                            "qubit_hamiltonian": None,
@@ -270,6 +274,11 @@ class VQESolver:
         # Update variational parameters, compute energy using the hardware backend
         self.ansatz.update_var_params(var_params)
         energy = self.backend.get_expectation_value(self.qubit_hamiltonian, self.ansatz.circuit)
+
+        if self.deflation is not None:
+            for circ in self.deflation:
+                f_dict, _ = self.backend.simulate(circ + self.ansatz.circuit.inverse())
+                energy += self.deflation_coeff*f_dict.get("0"*self.ansatz.circuit.width, 0)
 
         if self.verbose:
             print(f"\tEnergy = {energy:.7f} ")
