@@ -96,7 +96,7 @@ def simplify_trotterization_with_ancilla(circuit):
 
         # Loop through the updated list of gates.
         for gi, gate in enumerate(gates):
-            print(gi, gate)
+
             # On which qubits this gate is acting on?
             previous_gate_i, previous_gate = last_gates.get(gate.target[0], (None, None))
 
