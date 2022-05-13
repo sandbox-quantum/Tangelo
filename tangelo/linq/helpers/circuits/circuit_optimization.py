@@ -18,7 +18,10 @@ from tangelo.linq import  Circuit
 
 
 def remove_redundant_gates(circuit):
-    """Docstring"""
+    """Docstring
+
+    NOTE: Only works with adjacent gates.
+    """
 
     # Initial set of gates is the original one.
     gates = circuit._gates
@@ -76,5 +79,52 @@ def remove_small_rotations(circuit, param_threshold=0.05):
 
     # Removal of the small rotation gates.
     gates = [gate for gate_i, gate in enumerate(circuit._gates) if gate_i not in gate_indices_to_remove]
+
+    return Circuit(gates)
+
+
+def simplify_trotterization_with_ancilla(circuit):
+    """Docstring"""
+
+    # Initial set of gates is the original one.
+    gates = circuit._gates
+
+    # Perform gate cancellation until no more is detected.
+    while True:
+        gate_indices_to_remove = list()
+        last_gates = dict()
+
+        # Loop through the updated list of gates.
+        for gi, gate in enumerate(gates):
+            print(gi, gate)
+            # On which qubits this gate is acting on?
+            previous_gate_i, previous_gate = last_gates.get(gate.target[0], (None, None))
+
+            # Remove the gate if the previous single-qubit gate is the inverse.
+            if previous_gate is not None and previous_gate.inverse() == gate and not gate.control:
+                del last_gates[gate.target[0]]
+
+                # Detect previous/after CNOT gates to remove them.
+                for gj, gate_before in enumerate(gates[gi::-1]):
+                    if gate_before.control == gate.target:
+                        previous_cnot_i = gi - gj
+                        break
+                for gj, gate_after in enumerate(gates[gi:]):
+                    if gate_after.control == gate.target:
+                        after_cnot_i = gi + gj
+                        break
+
+                gate_indices_to_remove.extend([previous_gate_i, gi, previous_cnot_i, after_cnot_i])
+
+            last_gates[gate.target[0]] = (gi, gate)
+            if gate.control:
+                last_gates[gate.control[0]] = (gi, gate)
+
+        # If no redundant gates are detected, break the loop.
+        if len(gate_indices_to_remove) == 0:
+            break
+
+        # Remove the redundant gates for this pass.
+        gates = [gate for gate_i, gate in enumerate(gates) if gate_i not in gate_indices_to_remove]
 
     return Circuit(gates)
