@@ -58,12 +58,14 @@ class SA_VQESolver(VQESolver):
         backend_options (dict) : parameters to build the tangelo.linq Simulator class.
         penalty_terms (dict): parameters for penalty terms to append to target qubit Hamiltonian (see penalty_terms
             for more details).
+        deflation_circuits (list[Circuit]): Deflation circuits to add an orthogonalization penalty with.
+        deflation_coeff (float): The coefficient of the deflation.
         ansatz_options (dict): parameters for the given ansatz (see given ansatz file for details).
         up_then_down (bool): change basis ordering putting all spin up orbitals first, followed by all spin down.
             Default, False has alternating spin up/down ordering.
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         verbose (bool): Flag for VQE verbosity.
-        ref_states (list): The vector occupations of the reference configurations
+        ref_states (list): The vector occupations of the reference configurations or the reference circuits.
         weights (array): The weights of the occupations
     """
 
@@ -157,15 +159,20 @@ class SA_VQESolver(VQESolver):
         self.ansatz.default_reference_state = "zero"
         self.reference_circuits = list()
         for ref_state in self.ref_states:
-            vec_to_map = np.concatenate((ref_state[::2], ref_state[1::2])) if self.up_then_down else ref_state
-            if self.qubit_mapping.lower() == "scbk":
-                mapped_state = statevector_mapping.do_scbk_transform(vec_to_map, len(ref_state))
-            elif self.qubit_mapping.lower() == "bk":
-                mapped_state = statevector_mapping.do_bk_transform(vec_to_map)
+            if isinstance(ref_state, Circuit):
+                self.reference_circuits.append(ref_state)
             else:
-                mapped_state = vec_to_map
-            self.reference_circuits.append(statevector_mapping.vector_to_circuit(mapped_state, self.qubit_mapping))
-            self.reference_circuits[-1].name = str(ref_state)
+                vec_to_map = np.concatenate((ref_state[::2], ref_state[1::2])) if self.up_then_down else ref_state
+                if self.qubit_mapping.lower() == "scbk":
+                    mapped_state = statevector_mapping.do_scbk_transform(vec_to_map, len(ref_state))
+                elif self.qubit_mapping.lower() == "bk":
+                    mapped_state = statevector_mapping.do_bk_transform(vec_to_map)
+                elif self.qubit_mapping.lower() == "jkmn":
+                    mapped_state = statevector_mapping.do_jkmn_transform(vec_to_map)
+                else:
+                    mapped_state = vec_to_map
+                self.reference_circuits.append(statevector_mapping.vector_to_circuit(mapped_state, self.qubit_mapping))
+                self.reference_circuits[-1].name = str(ref_state)
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
@@ -211,8 +218,8 @@ class SA_VQESolver(VQESolver):
         self.state_energies = list()
         for i, reference_circuit in enumerate(self.reference_circuits):
             state_energy = self.backend.get_expectation_value(self.qubit_hamiltonian, reference_circuit + self.ansatz.circuit)
-            if self.deflation is not None:
-                for circ in self.deflation:
+            if self.deflation_circuits is not None:
+                for circ in self.deflation_circuits:
                     f_dict, _ = self.backend.simulate(circ + self.ansatz.circuit.inverse() + reference_circuit.inverse())
                     state_energy += self.deflation_coeff*f_dict.get("0"*self.ansatz.circuit.width, 0)
             energy += state_energy*self.weights[i]

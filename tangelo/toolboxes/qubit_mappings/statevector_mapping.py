@@ -107,6 +107,18 @@ def do_scbk_transform(vector, n_spinorbitals):
     return vector
 
 
+def do_jkmn_transform(vector):
+    """Instantiate qubit vector for JKMN transformation.
+
+    Args:
+        vector (numpy array of int): fermion occupation vector.
+
+    Returns:
+        numpy array of int: qubit-encoded occupation vector.
+    """
+    return jkmn_prep_vector(vector)
+
+
 def vector_to_circuit(vector, mapping=None):
     """Translate occupation vector into a circuit. Each occupied state
     corresponds to an X-gate on the associated qubit index.

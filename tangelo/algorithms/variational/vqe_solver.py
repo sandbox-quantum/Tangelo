@@ -77,7 +77,8 @@ class VQESolver:
             class.
         penalty_terms (dict): parameters for penalty terms to append to target
             qubit Hamiltonian (see penalty_terms for more details).
-        deflation (list[Circuit]): Deflation circuits to orthogonalize with
+        deflation_circuits (list[Circuit]): Deflation circuits to add an
+            orthogonalization penalty with.
         deflation_coeff (float): The coefficient of the deflation.
         ansatz_options (dict): parameters for the given ansatz (see given ansatz
             file for details).
@@ -97,7 +98,7 @@ class VQESolver:
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
                            "penalty_terms": None,
-                           "deflation": None,
+                           "deflation_circuits": None,
                            "deflation_coeff": 1,
                            "ansatz_options": dict(),
                            "up_then_down": False,
@@ -275,8 +276,8 @@ class VQESolver:
         self.ansatz.update_var_params(var_params)
         energy = self.backend.get_expectation_value(self.qubit_hamiltonian, self.ansatz.circuit)
 
-        if self.deflation is not None:
-            for circ in self.deflation:
+        if self.deflation_circuits is not None:
+            for circ in self.deflation_circuits:
                 f_dict, _ = self.backend.simulate(circ + self.ansatz.circuit.inverse())
                 energy += self.deflation_coeff*f_dict.get("0"*self.ansatz.circuit.width, 0)
 

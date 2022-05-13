@@ -115,7 +115,7 @@ class VQESolverTest(unittest.TestCase):
         mol_H2_spin = SecondQuantizedMolecule(mol_H2_sto3g.xyz, mol_H2_sto3g.q, mol_H2_sto3g.spin, mol_H2_sto3g.basis)
         mol_H2_spin.spin = 2
         vqe_options = {"molecule": mol_H2_spin, "ansatz": BuiltInAnsatze.UpCCGSD, "qubit_mapping": "jw",
-                       "verbose": True, "deflation": [vqe_solver.optimal_circuit],
+                       "verbose": True, "deflation_circuits": [vqe_solver.optimal_circuit],
                        "deflation_coeff": 1.0}
         vqe_solver_2 = VQESolver(vqe_options)
         vqe_solver_2.build()
