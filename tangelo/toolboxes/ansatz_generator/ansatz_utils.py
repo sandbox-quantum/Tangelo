@@ -137,7 +137,7 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
         Circuit: circuit corresponding to exponentiation of qubit operator
         phase : The global phase of the time evolution if return_phase=True else not included
     """
-    exp_pauliword_to_gates = exp_pauliword_to_gates_with_ancilla if ancilla else exp_pauliword_to_gates
+    exp_pauliword_to_gates_function = exp_pauliword_to_gates_with_ancilla if ancilla else exp_pauliword_to_gates
 
     if pauli_order is None:
         pauli_words = list(qubit_op.terms.items())
@@ -168,10 +168,10 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
         for pauli_word, coef in pauli_words:
             if pauli_word:  # identity terms do not contribute to evolution outside of a phase
                 if abs(np.real(coef)*evolve_time[pauli_word]) > 1.e-10:
-                    exp_pauli_word_gates += exp_pauliword_to_gates(pauli_word,
-                                                                   np.real(coef)*evolve_time[pauli_word],
-                                                                   variational=variational,
-                                                                   control=control)
+                    exp_pauli_word_gates += exp_pauliword_to_gates_function(pauli_word,
+                                                                            np.real(coef)*evolve_time[pauli_word],
+                                                                            variational=variational,
+                                                                            control=control)
             else:
                 if control is None:
                     phase *= np.exp(-1j * coef * evolve_time[pauli_word])
