@@ -30,7 +30,11 @@ Refs:
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 """
 
+from cmath import sin, cos, sqrt
+from collections import OrderedDict
 from itertools import combinations
+
+from openfermion import commutator
 
 from tangelo.toolboxes.operators.operators import QubitOperator
 from ._qubit_mf import get_op_expval
@@ -161,3 +165,47 @@ def get_gens_from_idxs(group_idxs):
             gen_list = [(idx, "Y") if idx in xy_idx else (idx, "X") for idx in group_idxs]
             dis_group_gens.append(QubitOperator(tuple(gen_list), 1.))
     return dis_group_gens
+
+
+def qcc_op_dress(qubit_op, qcc_var_params, qcc_op_list):
+    """
+    Function to perform a canonical QCC dressing of an arbitrary qubit operator with the
+    current set of QCC Pauli word generators and corresponding amplitudes.
+
+    Args:
+
+
+    Returns:
+
+    """
+
+    for i in range(len(qcc_op_list)):
+        comm = commutator(qubit_op, qcc_op_list[i])
+        qubit_op -= .5j * sin(qcc_var_params[i]) * comm
+        qubit_op += .5 * (1. - cos(qcc_var_params[i])) * qcc_op_list[i] * comm
+    return qubit_op 
+
+
+def qcc_op_compress(qubit_op, eps, n_qubits):
+    """
+    Function to reduce the number of terms for an arbitrary qubit operator that has been
+    canonically dressed with QCC Pauli word generators and amplitudes according to a user-
+    defined threshold epsilon for the Frobenius norm of the qubit operator.
+    See Ref. 1 for more details.
+
+    Args:
+        eps (float): parameter required for compressing intermediate iQCC Hamiltonians
+            using the Froebenius norm. Discarding terms in this manner will not alter the
+            eigenspeectrum of intermediate Hamiltonians by more than eps.
+
+    Returns:
+
+    """
+
+    compressed_op, frob_norm = dict(), 0.
+    qubit_op.terms = OrderedDict(sorted(qubit_op.terms.items(), key=lambda x: abs(x[1]), reverse=False))
+    for term, coef in qubit_op.terms.items():
+        frob_norm += coef * coef
+        if sqrt(frob_norm) * pow(2., n_qubits / 2.) > eps:
+            compressed_op[term] = coef
+    return QubitOperator(compressed_op)

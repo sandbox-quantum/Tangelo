@@ -14,14 +14,18 @@
 
 """
 
-Ref:
-
+Refs:
+    1. I. G. Ryabinkin, R. A. Lang, S. N. Genin, and A. F. Izmaylov.
+        J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 """
 
-from tangelo.toolboxes.ansatz_generator.qmf import QMF
+
+from openfermion import commutator
+
+from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
-from tangelo.toolboxes.ansatz_generator._qubit_cc import 
 from tangelo.algorithms.variational.vqe_solver import VQESolver
+from tangelo.toolboxes.ansatz_generator._qubit_cc import qcc_op_dress, qcc_op_compress
 
 
 class iQCCSolver:
@@ -92,10 +96,13 @@ class iQCCSolver:
             raise ValueError("An instance of SecondQuantizedMolecule is required for initializing iQCCSolver.")
 
         self.converged = False
-        self.iteration = 1
-        self.iqcc_energies = list()
-        self.iqcc_generators = list()
-        self.hqubit_terms = list()
+        self.iteration = 0
+        self.energies = list()
+        self.circuits = list()
+        self.resources = list()
+        self.generators = list()
+        self.amplitudes = list()
+        self.n_qubit_ham_terms = list()
 
         self.optimal_energy = None
         self.optimal_var_params = None
@@ -105,9 +112,6 @@ class iQCCSolver:
         """Builds the underlying objects required to run the iQCC-VQE algorithm."""
 
         if ""
-        self.qmf_ansatz = QMF(self.molecule, self.qubit_mapping, self.up_then_down)
-        self.qmf_ansatz.build()
-
         self.qcc_ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
         self.qcc_ansatz.build()
 
@@ -126,82 +130,81 @@ class iQCCSolver:
         self.vqe_solver.build()
 
     def simulate(self):
-        """Performs iQCC-VQE cycles. Each iteration, a VQE minimization is
-        done.
+        """Performs iQCC-VQE cycles. During each iteration, a VQE minimization is
+        performed with the current set of QCC Pauli word generators and corresponding
+        amplitudes.
         """
 
-        params = self.vqe_solver.ansatz.var_params
-        e_qcc, eqcc_old, delta_eqcc = 0., 0., self.deqcc_thresh 
-
+        # initialize quantities; initialize eqcc_old as the reference mean-field energy
+        sim, e_qcc, delta_eqcc = Simulator(), 0., self.deqcc_thresh 
+        qmf_qubit_ham, qmf_circuit = self.qmf_ansatz.qubit_ham, qmf_ansatz.circuit
+        eqcc_old = sim.get_expectation_value(qmf_qubit_ham, qmf_circuit)
+        n_gen = len(self.qcc_ansatz.qcc_op_list)
         while abs(delta_eqcc) >= self.deqcc_thresh and self.iteration < self.max_iqcc_iter:
-            if :
-                
-                delta_eqcc = EQCC - eqcc_old
+            # check for at least one Pauli word generator and amplitude
+            if self.qcc_ansatz.qcc_op_list and self.qcc_ansatz.var_params:
+                # get the QCC energy at the current iter & compute difference with previous iter
+                e_qcc = self.vqe_solver.simulate()
+                delta_eqcc = e_qcc - eqcc_old
+            # if there are none, then terminate the iQCC loop
             else:
                 delta_eqcc = 0.
-            if (abs(delta_eqcc) >= deqcc_thresh and delta_eqcc < 0.0):
-                eqcc_old = EQCC
-                H_qubit, QMF_angles = iQCC_Update(H_qubit, N_qubit, S2_qubit, Sz_qubit, QMF_angles, QCC_gens, QCC_taus, NQb, NGen, EQMF, EQCC, delta_eqcc, iqcc_iter, scfdata)
+            if delta_eqcc < 0.:
+                eqcc_old = e_qcc
+                self._update_iqcc_solver()
                 self.iteration += 1
-            elif (abs(delta_eqcc) >= deqcc_thresh and delta_eqcc > 0.0):
-                NGuess = 1
-                while(abs(delta_eqcc) >= deqcc_thresh and delta_eqcc > 0.0 and NGuess <= QCC_max_guess):
-                    EQCC_iter_old = eqcc_old
-                    QCC_taus = list(Init_QMFState(scfdata))
-                    for i in range(NGen):
-                        QCC_taus.append(random_uniform(-0.1, 0.1))
-                    EQCC, QCC_taus, QCC_success = QCC_Solver(H_qubit, QCC_gens, QCC_taus, NGen, NQb)
-                    delta_eqcc = EQCC - EQCC_iter_old
-                    NGuess += 1
-                if (abs(delta_eqcc) >= deqcc_thresh and delta_eqcc < 0.0):
-                    eqcc_old = EQCC
-                    H_qubit, QMF_angles = iQCC_Update(H_qubit, N_qubit, S2_qubit, Sz_qubit, QMF_angles, QCC_gens, QCC_taus, NQb, NGen, EQMF, EQCC, delta_eqcc, iqcc_iter, scfdata)
-                    iqcc_iter += 1
-                elif (abs(delta_eqcc) >= deqcc_thresh and delta_eqcc > 0.0):
-                    QCC_taus = list(QMF_angles)[:]
-                    for i in range(NGen):
-                        QCC_taus.append(0.0)
-
-        # Construction of the ansatz. self.max_cycles terms are added, unless
-        # all operator gradients are less than self.tol.
-        while self.iteration < self.max_cycles:
-            self.iteration += 1
-            if self.verbose:
-                print(f"Iteration {self.iteration} of ADAPT-VQE.")
-
-            pool_select = self.rank_pool(self.pool_commutators, self.vqe_solver.ansatz.circuit,
-                                         backend=self.vqe_solver.backend, tolerance=self.tol)
-
-            # If pool selection returns an operator that changes the energy by
-            # more than self.tol. Else, the loop is complete and the energy is
-            # considered as converged.
-            if pool_select > -1:
-
-                # Adding a new operator + initializing its parameters to 0.
-                # Previous parameters are kept as they were.
-                params += [0.]
-                if self.pool_type == 'fermion':
-                    ielf.vqe_solver.ansatz.add_operator(self.pool_operators[pool_select], self.fermionic_operators[pool_select])
-                else:
-                    self.vqe_solver.ansatz.add_operator(self.pool_operators[pool_select])
-                self.vqe_solver.initial_var_params = params
-
-                # Performs a VQE simulation and append the energy to a list.
-                # Also, forcing params to be a list to make it easier to append
-                # new parameters. The behavior with a np.array is multiplication
-                # with broadcasting (not wanted).
-                self.vqe_solver.simulate()
-                opt_energy = self.vqe_solver.optimal_energy
-                params = list(self.vqe_solver.optimal_var_params)
-                self.energies.append(opt_energy)
+                self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham,
+                                                         self.qcc_ansatz.var_params,
+                                                         self.qcc_ansatz.qcc_op_list)
+                if self.compress_qubit_ham:
+                    self.qcc_ansatz.qubit_ham = qcc_op_compress(self.qcc_ansatz.qubit_ham,
+                                                                self.qcc_ansatz.n_qubits,
+                                                                self.compress_epsilon)
+                                                  
             else:
-                self.converged = True
-                break
-
+                n_retry = 0
+                while delta_eqcc >= 0.0 and n_retry < self.max_iqcc_retries:
+                    for i in range(n_gen):
+                        qcc_taus.append(random_uniform(-0.1, 0.1))
+                    e_qcc = self.vqe_solver.simulate()
+                    delta_eqcc = e_qcc - eqcc_old
+                    n_retry += 1
+                if delta_eqcc < 0.:
+                else:
+                    self.qcc_ansatz.set_var_params([0.] * n_gen)
         return self.energies[-1]
 
     def get_resources(self):
-        """Returns an estimate of quantum resources required by the circuit at the current
-        iQCC-VQE iteration."""
+        """Returns a dictionary containing the optimal QCC energy, set of Pauli word
+        generators, amplitudes, circuit, number of qubit Hamiltonian terms, and quantum
+        resource estimations at each iteration of the iQCC-VQE solver."""
 
-        return self.vqe_solver.get_resources()
+        iqcc_resources = dict()
+        iqcc_resources["energies"] = self.energies
+        iqcc_resources["circuits"] = self.circuits
+        iqcc_resources["resources"] = self.resources
+        iqcc_resources["generators"] = self.generators
+        iqcc_resources["amplitudes"] = self.amplitudes
+        iqcc_resources["n_qham_terms"] = self.n_qubit_ham_terms
+        return iqcc_resources
+
+    def _update_iqcc_solver(self):
+        """ Update the lists for the optimal QCC energy, set of Pauli word
+        generators, amplitudes, circuit, number of qubit Hamiltonian terms, and quantum
+        resource estimation at each iteration of the iQCC-VQE solver."""
+
+        self.qcc_ansatz.var_params = self.vqe_solver.optimal_var_params
+        self.qcc_ansatz.circuit = self.vqe_solver.optimal_circuit
+
+        self.energies.append(self.vqe_solver.optimal_energy)
+        self.circuits.append(self.qcc_ansatz.circuit)
+        self.resources.append(self.vqe_solver.get_resources())
+        self.generators.append(self.qcc_ansatz.qcc_op_list)
+        self.amplitudes.append(self.qcc_ansatz.var_params)
+        self.n_qubit_ham_terms.append(len(self.qcc_ansatz.qubit_ham.terms))
+
+        self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham, self.qcc_ansatz.var_params,
+                                                 self.qcc_ansatz.qcc_op_list)
+        if self.compress_qubit_ham:
+            self.qcc_ansatz.qubit_ham = qcc_op_compress(self.qcc_ansatz.qubit_ham, self.compress_epsilon,
+                                                        self.qcc_ansatz.n_qubits)
