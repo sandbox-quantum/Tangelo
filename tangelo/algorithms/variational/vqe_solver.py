@@ -32,6 +32,7 @@ from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_mapped_vect
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, QCC, VSQS, UCCGD,  ILC,\
                                                VariationalCircuitAnsatz
+from tangelo.toolboxes.ansatz_generator._qubit_mf import init_qmf_from_vector
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from tangelo.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
@@ -130,7 +131,7 @@ class VQESolver:
                 self.up_then_down = True
             if isinstance(self.ref_state, Circuit) and (self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.QMF]):
                 raise ValueError("Circuit reference state is not supported for QCC or QMF")
-            if (self.ref_state is not None) and (self.ansatz == BuiltInAnsatze.QCC):
+            if (self.ref_state is not None) and (self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.ILC]):
                 self.ansatz_options["qmf_var_params"] = init_qmf_from_vector(self.ref_state, self.qubit_mapping, self.up_then_down)
                 self.ref_state = None
             if (self.ref_state is not None) and (self.ansatz in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.QMF, BuiltInAnsatze.VSQS]):
