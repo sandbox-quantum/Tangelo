@@ -29,7 +29,8 @@ from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_ga
 from tangelo.toolboxes.operators import count_qubits, FermionOperator, qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
-from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, QCC, VSQS, VariationalCircuitAnsatz
+from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, QCC, VSQS, UCCGD,  ILC,\
+                                               VariationalCircuitAnsatz
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 from tangelo.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
@@ -46,6 +47,8 @@ class BuiltInAnsatze(Enum):
     QMF = 5
     QCC = 6
     VSQS = 7
+    UCCGD = 8
+    ILC = 9
 
 
 class VQESolver:
@@ -111,11 +114,11 @@ class VQESolver:
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
-        # The QCC ansatz requires up_then_down=True when mapping="jw"
+        # The QCC & ILC ansatze require up_then_down=True when mapping="jw"
         if isinstance(self.ansatz, BuiltInAnsatze):
-            if self.ansatz == BuiltInAnsatze.QCC and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
-                warnings.warn("The QCC ansatz requires spin-orbital ordering to be all spin-up "
-                              "first followed by all spin-down for the JW mapping.", RuntimeWarning)
+            if self.ansatz in (BuiltInAnsatze.QCC, BuiltInAnsatze.ILC) and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
+                warnings.warn("Efficient generator screening for QCC-based ansatze requires spin-orbital ordering to be "
+                              "all spin-up first followed by all spin-down for the JW mapping.", RuntimeWarning)
                 self.up_then_down = True
 
         self.default_backend_options = default_backend_options
@@ -190,6 +193,10 @@ class VQESolver:
                     self.ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.VSQS:
                     self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                elif self.ansatz == BuiltInAnsatze.UCCGD:
+                    self.ansatz = UCCGD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                elif self.ansatz == BuiltInAnsatze.ILC:
+                    self.ansatz = ILC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
@@ -269,7 +276,7 @@ class VQESolver:
 
         return energy
 
-    def operator_expectation(self, operator, var_params=None, n_active_mos=None, n_active_electrons=None, n_active_sos=None, spin=None):
+    def operator_expectation(self, operator, var_params=None, n_active_mos=None, n_active_electrons=None, n_active_sos=None, spin=None, ref_state=Circuit()):
         """Obtains the operator expectation value of a given operator.
 
            Args:
@@ -292,6 +299,7 @@ class VQESolver:
                     mapping used is scbk and vqe_solver was initiated using a
                     QubitHamiltonian.
                 spin (int): Spin (n_alpha - n_beta)
+                ref_state (Circuit): A reference state preparation circuit
 
            Returns:
                 float: operator expectation value computed by VQE using the
@@ -341,14 +349,15 @@ class VQESolver:
                                                               up_then_down=self.qubit_hamiltonian.up_then_down,
                                                               spin=spin)
 
-        expectation = self.energy_estimation(var_params)
+        self.ansatz.update_var_params(var_params)
+        expectation = self.backend.get_expectation_value(self.qubit_hamiltonian, ref_state+self.ansatz.circuit)
 
         # Restore the current target hamiltonian
         self.qubit_hamiltonian = tmp_hamiltonian
 
         return expectation
 
-    def get_rdm(self, var_params, resample=False, sum_spin=True):
+    def get_rdm(self, var_params, resample=False, sum_spin=True, ref_state=Circuit()):
         """Compute the 1- and 2- RDM matrices using the VQE energy evaluation.
         This method allows to combine the DMET problem decomposition technique
         with the VQE as an electronic structure solver. The RDMs are computed by
@@ -366,6 +375,7 @@ class VQESolver:
                 qubit terms' frequencies must be set to self.rdm_freq_dict
             sum_spin (bool): If True, the spin-summed 1-RDM and 2-RDM will be
                 returned. If False, the full 1-RDM and 2-RDM will be returned.
+            ref_state (Circuit): A reference state preparation circuit.
 
         Returns:
             (numpy.array, numpy.array): One & two-particle spin summed RDMs if
@@ -426,7 +436,7 @@ class VQESolver:
                         if resample:
                             warnings.warn(f"Warning: rerunning circuit for missing qubit term {qb_term}")
                         basis_circuit = Circuit(measurement_basis_gates(qb_term))
-                        full_circuit = self.ansatz.circuit + basis_circuit
+                        full_circuit = ref_state + self.ansatz.circuit + basis_circuit
                         qb_freq_dict[qb_term], _ = self.backend.simulate(full_circuit)
                     if resample:
                         if qb_term not in resampled_expect_dict:

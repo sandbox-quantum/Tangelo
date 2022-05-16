@@ -14,3 +14,5 @@
 
 from .adapt_vqe_solver import ADAPTSolver
 from .vqe_solver import VQESolver, BuiltInAnsatze
+from .sa_vqe_solver import SA_VQESolver
+from .sa_oo_vqe_solver import SA_OO_Solver
