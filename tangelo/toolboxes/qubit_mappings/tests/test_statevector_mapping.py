@@ -115,7 +115,7 @@ class TestVector(unittest.TestCase):
             circuit_bk = vector_to_circuit(vector_bk)
             circuit_scbk = vector_to_circuit(vector_scbk)
             circuit_jw = vector_to_circuit(vector_jw)
-            circuit_jkmn = vector_to_circuit(vector_jkmn, "JKMN")
+            circuit_jkmn = vector_to_circuit(vector_jkmn)
 
             qu_op_scbk = fermion_to_qubit_mapping(ferm_op,
                                                   'SCBK',
@@ -176,7 +176,7 @@ class TestVector(unittest.TestCase):
             circuit_bk = vector_to_circuit(vector_bk)
             circuit_scbk = vector_to_circuit(vector_scbk)
             circuit_jw = vector_to_circuit(vector_jw)
-            circuit_jkmn = vector_to_circuit(vector_jkmn, "JKMN")
+            circuit_jkmn = vector_to_circuit(vector_jkmn)
 
             qu_op_scbk = fermion_to_qubit_mapping(ferm_op,
                                                   'SCBK',

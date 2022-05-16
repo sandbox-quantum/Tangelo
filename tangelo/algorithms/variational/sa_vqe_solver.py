@@ -26,7 +26,7 @@ Phys. Rev. Research 1, 033062 (2019)
 import numpy as np
 
 from tangelo.linq import Simulator, Circuit
-from tangelo.toolboxes.operators import qubitop_to_qubitham, QubitOperator
+from tangelo.toolboxes.operators import qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
@@ -162,16 +162,8 @@ class SA_VQESolver(VQESolver):
             if isinstance(ref_state, Circuit):
                 self.reference_circuits.append(ref_state)
             else:
-                vec_to_map = np.concatenate((ref_state[::2], ref_state[1::2])) if self.up_then_down else ref_state
-                if self.qubit_mapping.lower() == "scbk":
-                    mapped_state = statevector_mapping.do_scbk_transform(vec_to_map, len(ref_state))
-                elif self.qubit_mapping.lower() == "bk":
-                    mapped_state = statevector_mapping.do_bk_transform(vec_to_map)
-                elif self.qubit_mapping.lower() == "jkmn":
-                    mapped_state = statevector_mapping.do_jkmn_transform(vec_to_map)
-                else:
-                    mapped_state = vec_to_map
-                self.reference_circuits.append(statevector_mapping.vector_to_circuit(mapped_state, self.qubit_mapping))
+                mapped_state = statevector_mapping.get_mapped_vector(ref_state, self.qubit_mapping, self.up_then_down)
+                self.reference_circuits.append(statevector_mapping.vector_to_circuit(mapped_state))
                 self.reference_circuits[-1].name = str(ref_state)
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit

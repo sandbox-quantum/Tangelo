@@ -38,7 +38,7 @@ import numpy as np
 
 from tangelo.linq import Circuit, Gate
 from tangelo.toolboxes.operators.operators import FermionOperator
-from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
+from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector, get_mapped_vector
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty, number_operator_penalty,\
                                                              spin2_operator_penalty, spin_operator_penalty
 
@@ -107,6 +107,26 @@ def init_qmf_from_hf(n_spinorbitals, n_electrons, mapping, up_then_down=False, s
 
     # Get thetas from HF vec and arrange Bloch angles so all thetas are first then phis
     thetas = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down, spin)
+    return np.concatenate((np.pi * thetas, np.zeros((len(thetas),), dtype=float)))
+
+
+def init_qmf_from_vector(vector, mapping, up_then_down=False):
+    """Function to initialize the QMF variational parameter set from a Hartree-Fock state
+    occupation vector. The theta Bloch angles are set to 0. or np.pi if the molecular orbital is
+    unoccupied or occupied, respectively. The phi Bloch angles are set to 0.
+
+    Args:
+        vector (array): Up then down occupation vector
+        mapping (str): One of the supported qubit mapping identifiers.
+        up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
+            followed by all spin-down.
+
+    Returns:
+        numpy array of float: QMF variational parameter set.
+    """
+
+    # Get thetas from HF vec and arrange Bloch angles so all thetas are first then phis
+    thetas = get_mapped_vector(vector, mapping, up_then_down)
     return np.concatenate((np.pi * thetas, np.zeros((len(thetas),), dtype=float)))
 
 

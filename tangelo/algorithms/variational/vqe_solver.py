@@ -28,6 +28,7 @@ from tangelo.linq import Simulator, Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
 from tangelo.toolboxes.operators import count_qubits, FermionOperator, qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_mapped_vector, vector_to_circuit
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, QCC, VSQS, UCCGD,  ILC,\
                                                VariationalCircuitAnsatz
@@ -87,6 +88,7 @@ class VQESolver:
                 spin up/down ordering.
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         verbose (bool): Flag for VQE verbosity.
+        ref_state (array or Circuit): The reference configuration to use. Replaces HF state
     """
 
     def __init__(self, opt_dict):
@@ -103,7 +105,8 @@ class VQESolver:
                            "ansatz_options": dict(),
                            "up_then_down": False,
                            "qubit_hamiltonian": None,
-                           "verbose": False}
+                           "verbose": False,
+                           "ref_state": None}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -125,6 +128,21 @@ class VQESolver:
                 warnings.warn("Efficient generator screening for QCC-based ansatze requires spin-orbital ordering to be "
                               "all spin-up first followed by all spin-down for the JW mapping.", RuntimeWarning)
                 self.up_then_down = True
+            if isinstance(self.ref_state, Circuit) and (self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.QMF]):
+                raise ValueError("Circuit reference state is not supported for QCC or QMF")
+            if (self.ref_state is not None) and (self.ansatz == BuiltInAnsatze.QCC):
+                self.ansatz_options["qmf_var_params"] = init_qmf_from_vector(self.ref_state, self.qubit_mapping, self.up_then_down)
+                self.ref_state = None
+            if (self.ref_state is not None) and (self.ansatz in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.QMF, BuiltInAnsatze.VSQS]):
+                raise ValueError("UCC1, UCC3 and QMF do not support reference states other than Hartree-Fock")
+
+        if self.ref_state is not None:
+            if isinstance(self.ref_state, Circuit):
+                self.reference_circuit = self.ref_state
+            else:
+                self.reference_circuit = vector_to_circuit(get_mapped_vector(self.ref_state, self.qubit_mapping, self.up_then_down))
+        else:
+            self.reference_circuit = Circuit()
 
         self.default_backend_options = default_backend_options
         self.optimal_energy = None
@@ -184,14 +202,18 @@ class VQESolver:
             if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz == BuiltInAnsatze.UCCSD:
                     self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down)
+                    self.ansatz.default_reference_state = "HF" if self.ref_state is None else "zero"
                 elif self.ansatz == BuiltInAnsatze.UCC1:
                     self.ansatz = RUCC(1)
                 elif self.ansatz == BuiltInAnsatze.UCC3:
                     self.ansatz = RUCC(3)
                 elif self.ansatz == BuiltInAnsatze.HEA:
+                    if self.ref_state is not None:
+                        self.ansatz_options["reference_state"] = "zero"
                     self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.UpCCGSD:
                     self.ansatz = UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                    self.ansatz.default_reference_state = "HF" if self.ref_state is None else "zero"
                 elif self.ansatz == BuiltInAnsatze.QMF:
                     self.ansatz = QMF(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.QCC:
@@ -200,6 +222,7 @@ class VQESolver:
                     self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.UCCGD:
                     self.ansatz = UCCGD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                    self.ansatz.default_reference_state = "HF" if self.ref_state is None else "zero"
                 elif self.ansatz == BuiltInAnsatze.ILC:
                     self.ansatz = ILC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
@@ -237,7 +260,7 @@ class VQESolver:
         self.optimal_var_params = optimal_var_params
         self.optimal_energy = optimal_energy
         self.ansatz.build_circuit(self.optimal_var_params)
-        self.optimal_circuit = self.ansatz.circuit
+        self.optimal_circuit = self.reference_circuit+self.ansatz.circuit if self.ref_state is not None else self.ansatz.circuit
         return self.optimal_energy
 
     def get_resources(self):
@@ -274,11 +297,11 @@ class VQESolver:
 
         # Update variational parameters, compute energy using the hardware backend
         self.ansatz.update_var_params(var_params)
-        energy = self.backend.get_expectation_value(self.qubit_hamiltonian, self.ansatz.circuit)
+        energy = self.backend.get_expectation_value(self.qubit_hamiltonian, self.reference_circuit+self.ansatz.circuit)
 
         if self.deflation_circuits is not None:
             for circ in self.deflation_circuits:
-                f_dict, _ = self.backend.simulate(circ + self.ansatz.circuit.inverse())
+                f_dict, _ = self.backend.simulate(circ + self.ansatz.circuit.inverse()+self.reference_circuit.inverse())
                 energy += self.deflation_coeff*f_dict.get("0"*self.ansatz.circuit.width, 0)
 
         if self.verbose:
