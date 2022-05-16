@@ -39,7 +39,7 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
         n_electrons (int): number of electrons in system.
         mapping (string): specify mapping, see mapping_transform.py for options
             "JW" (Jordan Wigner), or "BK" (Bravyi Kitaev), or "SCBK"
-            (symmetry-conserving Bravyi Kitaev) or "JKMN" 
+            (symmetry-conserving Bravyi Kitaev) or "JKMN"
             (Jiang Kalev Mruczkiewicz Neven)
         up_then_down (boolean): if True, all up, then all down, if False,
             alternating spin up/down.
