@@ -298,11 +298,12 @@ class VQESolver:
 
         # Update variational parameters, compute energy using the hardware backend
         self.ansatz.update_var_params(var_params)
-        energy = self.backend.get_expectation_value(self.qubit_hamiltonian, self.reference_circuit+self.ansatz.circuit)
+        circuit = self.ansatz.circuit if self.ref_state is None else self.reference_circuit + self.ansatz.circuit
+        energy = self.backend.get_expectation_value(self.qubit_hamiltonian, circuit)
 
         if self.deflation_circuits is not None:
             for circ in self.deflation_circuits:
-                f_dict, _ = self.backend.simulate(circ + self.ansatz.circuit.inverse()+self.reference_circuit.inverse())
+                f_dict, _ = self.backend.simulate(circ + circuit.inverse())
                 energy += self.deflation_coeff*f_dict.get("0"*self.ansatz.circuit.width, 0)
 
         if self.verbose:
