@@ -258,6 +258,28 @@ class Circuit:
             return TypeError("Name of circuit object must be a string")
         return {"name": self.name, "type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
 
+    def remove_small_rotations(self, param_threshold=0.05):
+        """Convenience method to remove small rotations from the circuit.
+        See separate remove_small_rotations function.
+
+        Args:
+            param_threshold (float): Max absolute value to be considered a small
+                rotation.
+
+        Returns:
+            Circuit: The circuit without small rotations.
+        """
+        return remove_small_rotations(self, param_threshold)
+
+    def remove_redundant_gates(self):
+        """Convenience method to remove redundant gates from the circuit.
+        See separate remove_redundant_gates function.
+
+        Returns:
+            Circuit: The circuit without redundant gates.
+        """
+        return remove_redundant_gates(self)
+
 
 def stack(*circuits):
     """ Take list of circuits as input, and stack them (e.g concatenate them along the
@@ -289,3 +311,83 @@ def stack(*circuits):
         stacked_circuit += c_stack
 
     return stacked_circuit
+
+
+def remove_small_rotations(circuit, param_threshold=0.05):
+    """Remove small rotation gates, up to a parameter threshold, from the
+    circuit. Rotations from the set {"RX", "RY", "RZ", "CRX", "CRY", "CRZ"} are
+    considered.
+
+    Args:
+        circuit (Circuit): the circuits to trim and stack into a single one
+        param_threshold (float): Max absolute value to be considered a small
+            rotation.
+
+    Returns:
+        Circuit: The circuit without small-rotation gates.
+    """
+    gate_indices_to_remove = list()
+
+    # Looping through the gates. Only one pass is needed.
+    for gate_i, gate in enumerate(circuit._gates):
+        # If it is a rotation gate, and the angle is below the param_threshold,
+        # the gate is removed.
+        if gate.name in {"RX", "RY", "RZ", "CRX", "CRY", "CRZ"} and abs(gate.parameter) < param_threshold:
+            gate_indices_to_remove.append(gate_i)
+
+    # Removal of the small rotation gates.
+    gates = [gate for gate_i, gate in enumerate(circuit._gates) if gate_i not in gate_indices_to_remove]
+
+    return Circuit(gates)
+
+
+def remove_redundant_gates(circuit):
+    """Remove redundant gates in a circuit. Redundant gates are adjacent gates
+    that can be cancelled as their global effect is the identity. The function
+    can perform many loops if a gate cancellation enables another one. This
+    function also works with many-qubit gates.
+
+    Args:
+        circuit (Circuit): the circuits to trim and stack into a single one
+
+    Returns:
+        Circuit: The circuit without redundant gates.
+    """
+    # Initial set of gates.
+    gates = circuit._gates
+
+    # Perform gate cancellation until no more cancellation is detected.
+    while True:
+        gate_indices_to_remove = list()
+        last_gates = dict()
+
+        # Loop through the updated list of gates.
+        for gi, gate in enumerate(gates):
+
+            # On which qubits this gate is acting on?
+            qubits = gate.target if gate.control is None else gate.target + gate.control
+
+            # Looping through the relevant qubits for this gate. If the last
+            # gate acting on those qubits is the inverse (same target and
+            # control qubit(s)), the gates can be removed. Otherwise, we store
+            # this gate as the new last gate.
+            to_remove = True
+            for qubit_i in qubits:
+                previous_gate_i, previous_gate = last_gates.get(qubit_i, (None, None))
+
+                if previous_gate is None or previous_gate.inverse() != gate:
+                    to_remove = False
+
+                last_gates[qubit_i] = (gi, gate)
+
+            if to_remove:
+                gate_indices_to_remove.extend([previous_gate_i, gi])
+
+        # If no redundant gate is detected, break the loop.
+        if len(gate_indices_to_remove) == 0:
+            break
+
+        # Remove the redundant gates for this pass.
+        gates = [gate for gate_i, gate in enumerate(gates) if gate_i not in gate_indices_to_remove]
+
+    return Circuit(gates)
