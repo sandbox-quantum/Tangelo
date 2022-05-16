@@ -58,9 +58,9 @@ class iQCCSolver:
         compress_qubit_ham (bool): controls whether the qubit Hamiltonian is compressed
             after dressing with the current set of generators at the end of each iQCC iteration.
             Default, False.
-        compress_epsilon (float): parameter required for compressing intermediate iQCC Hamiltonians
+        compress_eps (float): parameter required for compressing intermediate iQCC Hamiltonians
             using the Froebenius norm. Discarding terms in this manner will not alter the
-            eigenspeectrum of intermediate Hamiltonians by more than compress_epsilon.
+            eigenspeectrum of intermediate Hamiltonians by more than compress_eps.
             Default, 1.59e-3 Hartree.
         verbose (bool): Flag for iQCC-VQE verbosity. Default, False.
      """
@@ -80,7 +80,7 @@ class iQCCSolver:
                            "max_iqcc_iter": 100,
                            "max_iqcc_retries": 10,
                            "compress_qubit_ham": False,
-                           "compress_epsilon": 1.59e-3,
+                           "compress_eps": 1.59e-3,
                            "verbose": False}
 
         # Initialize with default values
@@ -153,25 +153,19 @@ class iQCCSolver:
                 eqcc_old = e_qcc
                 self._update_iqcc_solver()
                 self.iteration += 1
-                self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham,
-                                                         self.qcc_ansatz.var_params,
-                                                         self.qcc_ansatz.qcc_op_list)
-                if self.compress_qubit_ham:
-                    self.qcc_ansatz.qubit_ham = qcc_op_compress(self.qcc_ansatz.qubit_ham,
-                                                                self.qcc_ansatz.n_qubits,
-                                                                self.compress_epsilon)
-                                                  
             else:
-                n_retry = 0
-                while delta_eqcc >= 0.0 and n_retry < self.max_iqcc_retries:
-                    for i in range(n_gen):
-                        qcc_taus.append(random_uniform(-0.1, 0.1))
+                n_retry, self.qcc_ansatz.rebuild_dis = 0, False
+                while e_qcc >= eqcc_old and n_retry < self.max_iqcc_retries:
+                    self.qcc_ansatz.build_circuit(var_params="random")
                     e_qcc = self.vqe_solver.simulate()
-                    delta_eqcc = e_qcc - eqcc_old
                     n_retry += 1
-                if delta_eqcc < 0.:
+                if e_qcc < eqcc_old:
+                    delta_eqcc = e_qcc - eqcc_old
+                    eqcc_old = e_qcc
+                    self._update_iqcc_solver()
+                    self.iteration += 1
                 else:
-                    self.qcc_ansatz.set_var_params([0.] * n_gen)
+                    self.qcc_ansatz.build_circuit(var_params="qmf_state")
         return self.energies[-1]
 
     def get_resources(self):
@@ -193,18 +187,24 @@ class iQCCSolver:
         generators, amplitudes, circuit, number of qubit Hamiltonian terms, and quantum
         resource estimation at each iteration of the iQCC-VQE solver."""
 
-        self.qcc_ansatz.var_params = self.vqe_solver.optimal_var_params
-        self.qcc_ansatz.circuit = self.vqe_solver.optimal_circuit
+        optimal_var_params = self.vqe_solver.optimal_var_params
+        optimal_circuit = self.vqe_solver.optimal_circuit
 
-        self.energies.append(self.vqe_solver.optimal_energy)
-        self.circuits.append(self.qcc_ansatz.circuit)
-        self.resources.append(self.vqe_solver.get_resources())
+        self.qcc_ansatz.var_params = optimal_var_params 
+        self.qcc_ansatz.circuit = optimal_circuit
+
+        self.circuits.append(optimal_circuit)
+        self.amplitudes.append(optimal_var_params)
         self.generators.append(self.qcc_ansatz.qcc_op_list)
-        self.amplitudes.append(self.qcc_ansatz.var_params)
+        self.energies.append(self.vqe_solver.optimal_energy)
+        self.resources.append(self.vqe_solver.get_resources())
         self.n_qubit_ham_terms.append(len(self.qcc_ansatz.qubit_ham.terms))
 
-        self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham, self.qcc_ansatz.var_params,
+        self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham, optimal_var_params,
                                                  self.qcc_ansatz.qcc_op_list)
         if self.compress_qubit_ham:
-            self.qcc_ansatz.qubit_ham = qcc_op_compress(self.qcc_ansatz.qubit_ham, self.compress_epsilon,
+            self.qcc_ansatz.qubit_ham = qcc_op_compress(self.qcc_ansatz.qubit_ham, self.compress_eps,
                                                         self.qcc_ansatz.n_qubits)
+
+        self.qcc_ansatz.rebuild_dis = True
+        self.qcc_ansatz.build_circuit(var_params=optimal_var_params)
