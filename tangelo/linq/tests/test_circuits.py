@@ -42,6 +42,10 @@ entangle_circuit = Circuit([Gate("CSWAP", target=[2, 5], control=[0]),
                             Gate("CSWAP", target=[3, 7], control=[4]),
                             Gate("H", 6)], n_qubits=10)
 
+circuit5 = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
+                    Gate("RZ", 1, parameter=0.01), Gate("CNOT", 1, control=0),
+                    Gate("RX", 0, parameter=2.).inverse()])
+
 
 class TestCircuits(unittest.TestCase):
 
@@ -243,6 +247,21 @@ class TestCircuits(unittest.TestCase):
         ts_circuit = Circuit([Gate("T", 0), Gate("S", 1)])
         ts_circuit_inverse = Circuit([Gate("PHASE", 0, parameter=-pi/4), Gate("PHASE", 0, parameter=-pi/2)])
         self.assertTrue(ts_circuit.inverse(), ts_circuit_inverse)
+
+    def test_simple_optimization_functions(self):
+        """ Test if removing small rotations and redundant gates return the
+        proper set of gates.
+        """
+
+        test_circuit = circuit5.remove_small_rotations(param_threshold=0.05)
+        ref_circuit = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
+                               Gate("CNOT", 1, control=0), Gate("RX", 0, parameter=2.).inverse()])
+
+        self.assertTrue(ref_circuit, test_circuit)
+
+        test2_circuit = ref_circuit.remove_redundant_gates()
+
+        self.assertTrue(Circuit(), test2_circuit)
 
 
 if __name__ == "__main__":
