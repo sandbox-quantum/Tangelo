@@ -79,6 +79,17 @@ class ADAPTSolverTest(unittest.TestCase):
 
         self.assertAlmostEqual(adapt_solver.optimal_energy, -1.8945, places=3)
 
+        deflation_circuits = [adapt_solver.optimal_circuit]
+        ref_state = [0, 1, 0, 0, 0, 1]
+        opt_dict = {"molecule": mol, "max_cycles": 1, "verbose": False, "pool": get_majorana_uccgsd_pool,
+                    "pool_args": {"n_sos": mol.n_active_sos},
+                    "deflation_circuits": deflation_circuits, "ref_state": ref_state, "deflation_coeff": 1}
+        adapt_solver = ADAPTSolver(opt_dict)
+        adapt_solver.build()
+        optimal_energy = adapt_solver.simulate()
+
+        self.assertAlmostEqual(optimal_energy, -1.91062, places=3)
+
 
 if __name__ == "__main__":
     unittest.main()
