@@ -82,43 +82,8 @@ def exp_pauliword_to_gates(pauli_word, coef, variational=True, control=None):
     return gates
 
 
-def exp_pauliword_to_gates_with_ancilla(pauli_word, coef, variational=True, control=None):
-    """TODO: Docstring."""
-    gates = []
-
-    # Before CNOT ladder
-    for index, op in pauli_word:
-        if op in {"X", "Y"}:
-            gates += [pauli_op_to_gate(index, op, inverse=False)]
-
-    # CNOT and rotation
-    indices = sorted([index for index, op in pauli_word])
-
-    # Appending an ancilla qubit, so it should be compatible (same expectation
-    # values from a qubit operator) vs circuit without an ancilla qubit.
-    ancilla_qubit = max(indices) + 1
-
-    cnot_gates = [Gate("CNOT", target=ancilla_qubit, control=qubit_i) for qubit_i in indices]
-    gates += cnot_gates
-
-    angle = 2.*coef if coef >= 0. else 4*np.pi+2*coef
-    if control is None:
-        gates += [Gate("RZ", target=ancilla_qubit, parameter=angle, is_variational=variational)]
-    else:
-        gates += [Gate("CRZ", target=ancilla_qubit, control=control, parameter=angle)]
-
-    gates += cnot_gates[::-1]
-
-    # After CNOT
-    for index, op in pauli_word[::-1]:
-        if op in {"X", "Y"}:
-            gates += [pauli_op_to_gate(index, op, inverse=True)]
-
-    return gates
-
-
 def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=False, trotter_order=1, control=None,
-                                             return_phase=False, pauli_order=None, ancilla=False):
+                                             return_phase=False, pauli_order=None):
     """Generate the exponentiation of a qubit operator in first- or second-order Trotterized form.
     The algorithm is described in Whitfield 2010 https://arxiv.org/pdf/1001.3855.pdf
 
@@ -137,8 +102,6 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
         Circuit: circuit corresponding to exponentiation of qubit operator
         phase : The global phase of the time evolution if return_phase=True else not included
     """
-    exp_pauliword_to_gates_function = exp_pauliword_to_gates_with_ancilla if ancilla else exp_pauliword_to_gates
-
     if pauli_order is None:
         pauli_words = list(qubit_op.terms.items())
     elif isinstance(pauli_order, list):
@@ -168,10 +131,10 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
         for pauli_word, coef in pauli_words:
             if pauli_word:  # identity terms do not contribute to evolution outside of a phase
                 if abs(np.real(coef)*evolve_time[pauli_word]) > 1.e-10:
-                    exp_pauli_word_gates += exp_pauliword_to_gates_function(pauli_word,
-                                                                            np.real(coef)*evolve_time[pauli_word],
-                                                                            variational=variational,
-                                                                            control=control)
+                    exp_pauli_word_gates += exp_pauliword_to_gates(pauli_word,
+                                                                   np.real(coef)*evolve_time[pauli_word],
+                                                                   variational=variational,
+                                                                   control=control)
             else:
                 if control is None:
                     phase *= np.exp(-1j * coef * evolve_time[pauli_word])
