@@ -263,8 +263,8 @@ class Circuit:
         See separate remove_small_rotations function.
 
         Args:
-            param_threshold (float): Max absolute value to be considered a small
-                rotation.
+            param_threshold (float): Max absolute value to consider a rotation
+                as a small one.
 
         Returns:
             Circuit: The circuit without small rotations.
@@ -320,8 +320,8 @@ def remove_small_rotations(circuit, param_threshold=0.05):
 
     Args:
         circuit (Circuit): the circuits to trim and stack into a single one
-        param_threshold (float): Max absolute value to be considered a small
-            rotation.
+        param_threshold (float): Max absolute value to consider a rotation as
+            a small one.
 
     Returns:
         Circuit: The circuit without small-rotation gates.
@@ -345,10 +345,11 @@ def remove_redundant_gates(circuit):
     """Remove redundant gates in a circuit. Redundant gates are adjacent gates
     that can be cancelled as their global effect is the identity. The function
     can perform many loops if a gate cancellation enables another one. This
-    function also works with many-qubit gates.
+    function also works with many-qubit gates. However, it does not perform
+    reordering of commutating gates to perform additional cancellations.
 
     Args:
-        circuit (Circuit): the circuits to trim and stack into a single one
+        circuit (Circuit): the circuits to remove redundant gates.
 
     Returns:
         Circuit: The circuit without redundant gates.
