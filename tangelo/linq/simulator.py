@@ -104,9 +104,9 @@ class Simulator:
             initial_statevector(list/array) : A valid statevector in the format
                 supported by the target backend.
             desired_meas_result (str): The binary string of the desired measurement.
-                Must have the same length as the number of MEASURE gates in circuit
+                Must have the same length as the number of MEASURE gates in source_circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
-                self.mid_circuit_meas_freqs. All measurements will be save to
+                self.mid_circuit_meas_freqs. All measurements will be saved to
                 self.all_frequencies
 
         Returns:
@@ -145,7 +145,7 @@ class Simulator:
         if self._target == "qulacs":
             import qulacs
 
-            translated_circuit = translator.translate_qulacs(source_circuit, self._noise_model)
+            translated_circuit = translator.translate_qulacs(source_circuit, self._noise_model, save_measurements=save_mid_circuit_meas)
 
             # Initialize state on GPU if available and desired. Default to CPU otherwise.
             if ('QuantumStateGpu' in dir(qulacs)) and (int(os.getenv("QULACS_USE_GPU", 0)) != 0):
@@ -169,30 +169,24 @@ class Simulator:
                 samples = list()
                 full_samples = list()
                 successful_measures = 0 if desired_meas_result is not None else self.n_shots
-                measurements = list()
                 python_statevector = None
                 for _ in range(self.n_shots):
                     translated_circuit.update_quantum_state(state)
                     measurement = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
-                    measurements.append(measurement)
                     sample = self.__int_to_binstr(state.sampling(1)[0], source_circuit.width)
                     full_samples += [measurement+sample]
-                    if desired_meas_result is not None:
-                        if measurement == desired_meas_result:
-                            samples.append(sample)
-                            successful_measures += 1
-                            if return_statevector and python_statevector is None:
-                                python_statevector = state.get_vector()
-                    else:
-                        samples.append(sample)
+                    if desired_meas_result is not None and python_statevector is None and measurement == desired_meas_result:
+                        python_statevector = state.get_vector()
+                        self._current_state = python_statevector
                     if initial_statevector is not None:
                         state.load(initial_statevector)
                     else:
                         state.set_zero_state()
                 self.all_frequencies = {k: v / self.n_shots for k, v in Counter(full_samples).items()}
-                self.mid_circuit_meas_freqs = {k: v / self.n_shots for k, v in Counter(measurements).items()}
-                frequencies = {k: v / successful_measures for k, v in Counter(samples).items()}
-                self.success_probability = successful_measures / self.n_shots
+                self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
+                                                                                     list(range(n_meas)),
+                                                                                     desired_measurement=desired_meas_result)
+                self.success_probability = self.mid_circuit_meas_freqs.get(desired_meas_result, 0)
                 return (frequencies, python_statevector)
             elif self.n_shots is not None:
                 translated_circuit.update_quantum_state(state)
@@ -361,16 +355,12 @@ class Simulator:
             # Run shot by shot and keep track of desired_meas_result only (generally slower)
             elif save_mid_circuit_meas and return_statevector:
                 translated_circuit = translator.translate_cirq(source_circuit, self._noise_model, save_measurements=True)
-                successful_measures = 0 if desired_meas_result is not None else self.n_shots
-                samples = list()
-                measurements = list()
                 all_measurements = list()
                 self._current_state = None
                 indices = list(range(source_circuit.width))
                 for _ in range(self.n_shots):
                     job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
                     measure = "".join([str(job_sim.measurements[str(i)][0]) for i in range(n_meas)])
-                    measurements.append(measure)
                     current_state = job_sim.final_density_matrix if self._noise_model else job_sim.final_state_vector
                     isamples = (cirq.sample_density_matrix(current_state, indices, repetitions=1) if self._noise_model
                                 else cirq.sample_state_vector(current_state, indices, repetitions=1))
@@ -378,14 +368,11 @@ class Simulator:
                     all_measurements += [measure+sample]
                     if measure == desired_meas_result:
                         self._current_state = current_state
-                        samples += [sample]
-                        successful_measures += 1
-                    elif desired_meas_result is None:
-                        samples += [sample]
                 self.all_frequencies = {k: v / self.n_shots for k, v in Counter(all_measurements).items()}
-                frequencies = {k: v / successful_measures for k, v in Counter(samples).items()}
-                self.mid_circuit_meas_freqs = {k: v / self.n_shots for k, v in Counter(measurements).items()}
-                self.success_probability = successful_measures / self.n_shots
+                self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
+                                                                                     list(range(n_meas)),
+                                                                                     desired_measurement=desired_meas_result)
+                self.success_probability = self.mid_circuit_meas_freqs.get(desired_meas_result, 0)
             # Noiseless simulation using the statevector simulator otherwise
             else:
                 translated_circuit = translator.translate_cirq(source_circuit, self._noise_model)

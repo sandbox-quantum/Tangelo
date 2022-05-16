@@ -24,7 +24,7 @@ import numpy as np
 from openfermion.ops import QubitOperator
 from openfermion import load_operator, get_sparse_operator
 
-from tangelo.linq import Gate, Circuit, simulator, translator, Simulator
+from tangelo.linq import Gate, Circuit, translator, Simulator
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
 
