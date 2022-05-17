@@ -384,8 +384,9 @@ class Simulator:
 
     @staticmethod
     def marginal_frequencies(frequencies, indices, desired_measurement=None):
-        """Return the marginal frequencies on given indices. If desired_measurement
-        is given, frequencies on other indices are conditional on indices measurement being the desired measurement
+        """Return the marginal frequencies for indices. If desired_measurement
+        is given, frequencies returned for the other indices are conditional on the
+        measurement of the indices being the desired measurement.
 
         Args:
             frequencies (dict): The frequency dictionary to perform the marginal computation
