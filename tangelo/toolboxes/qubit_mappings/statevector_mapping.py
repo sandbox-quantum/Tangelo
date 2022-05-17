@@ -132,7 +132,7 @@ def get_mapped_vector(vector, mapping, up_then_down=False):
             vector = np.concatenate((vector[::2], vector[1::2]))
         return do_scbk_transform(vector, len(vector))
     elif mapping.upper() == "JKMN":
-        return jkmn_prep_vector(vector)
+        return do_jkmn_transform(vector)
 
 
 def vector_to_circuit(vector):

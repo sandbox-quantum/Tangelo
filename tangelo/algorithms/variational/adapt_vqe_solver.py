@@ -27,11 +27,9 @@ Ref:
 """
 
 import math
-from weakref import ref
+
 from openfermion import commutator
 from openfermion import FermionOperator as ofFermionOperator
-from sympy import re
-from tangelo.algorithms.variational import vqe_solver
 from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
 from scipy.optimize import minimize
 import warnings
