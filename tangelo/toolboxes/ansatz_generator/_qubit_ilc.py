@@ -241,4 +241,5 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
         denom_sum += pow(gs_coefs[i].real, 2.) + pow(gs_coefs[i].imag, 2.)
         beta = np.arcsin(gs_coefs[i] / np.sqrt(denom_sum))
         ilc_var_params.append(beta.real)
+    del ilc_gens[0]
     return ilc_var_params

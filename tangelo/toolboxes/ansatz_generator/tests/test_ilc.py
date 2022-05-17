@@ -121,8 +121,8 @@ class ILCTest(unittest.TestCase):
 
         # Build the ILC ansatz, which sets the QMF parameters automatically if none are passed
         ilc_var_params = [0.11360304]
-        ilc_op_list = [QubitOperator("X0 Y1 Y2 Y3")]
-        ilc_ansatz = ILC(mol_H2_sto3g, up_then_down=True, ilc_op_list=ilc_op_list)
+        acs = [QubitOperator("X0 Y1 Y2 Y3")]
+        ilc_ansatz = ILC(mol_H2_sto3g, up_then_down=True, acs=acs)
 
         # Build a QMF + ILC circuit
         ilc_ansatz.build_circuit()
@@ -139,11 +139,11 @@ class ILCTest(unittest.TestCase):
         """ Verify restricted open-shell functionality when using the ILC class for H4+ """
 
         # Build the ILC ansatz, which sets the QMF parameters automatically if none are passed
-        ilc_op_list = [QubitOperator("Y0 Z2 X4 Z6"), QubitOperator("Y1 Y2 Z4 X5 Y6"), QubitOperator("X0 Z2 Z4 Y6"),
+        acs = [QubitOperator("Y0 Z2 X4 Z6"), QubitOperator("Y1 Y2 Z4 X5 Y6"), QubitOperator("X0 Z2 Z4 Y6"),
                        QubitOperator("X1 Y2 X4 Z6"), QubitOperator("Y1 Y2 X4 Y5 Z6"), QubitOperator("Y1 Y2 Z4 Z5 Y6"),
                        QubitOperator("Y0 Z1 Z2 Y5 Y6"), QubitOperator("Y0 Z1 Z2 Y4 Y5 Z6")]
         ilc_var_params = [ 0.14017492, -0.10792805, -0.05835484,  0.12468933,  0.07173118,  0.04683807,  0.02852163, -0.03133538]
-        ilc_ansatz = ILC(mol_H4_cation_sto3g, "BK", False, ilc_op_list)
+        ilc_ansatz = ILC(mol_H4_cation_sto3g, "BK", False, acs)
 
         # Build a QMF + ILC circuit
         ilc_ansatz.build_circuit()

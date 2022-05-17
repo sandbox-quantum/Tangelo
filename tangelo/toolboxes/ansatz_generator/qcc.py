@@ -80,16 +80,11 @@ class QCC(Ansatz):
                  qmf_circuit=None, qmf_var_params=None, qubit_ham=None, qcc_tau_guess=1.e-2,
                  deqcc_dtau_thresh=1.e-3, max_qcc_gens=None):
 
+        if not molecule:
+            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing "
+                             "the QCC ansatz class.")
         self.molecule = molecule
-        self.n_spinorbitals = self.molecule.n_active_sos
-        if self.n_spinorbitals % 2 != 0:
-            raise ValueError("The total number of spin-orbitals should be even.")
-
-        self.spin = molecule.spin
-        self.fermi_ham = self.molecule.fermionic_hamiltonian
-        self.n_electrons = self.molecule.n_electrons
         self.mapping = mapping
-        self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
         self.up_then_down = up_then_down
         if self.mapping.lower() == "jw" and not self.up_then_down:
             warnings.warn("Efficient generator screening for the QCC ansatz requires spin-orbital "
@@ -97,26 +92,23 @@ class QCC(Ansatz):
                           "mapping.", RuntimeWarning)
             self.up_then_down = True
 
-        self.molecule = molecule
         self.n_spinorbitals = self.molecule.n_active_sos
         if self.n_spinorbitals % 2 != 0:
             raise ValueError("The total number of spin-orbitals should be even.")
 
-        self.qcc_tau_guess = qcc_tau_guess
-        self.deqcc_dtau_thresh = deqcc_dtau_thresh
-        self.max_qcc_gens = max_qcc_gens
-        self.qcc_op_list = qcc_op_list
-        self.qmf_var_params = qmf_var_params
-        self.qmf_circuit = qmf_circuit
-
+        self.spin = molecule.spin
+        self.fermi_ham = self.molecule.fermionic_hamiltonian
+        self.n_electrons = self.molecule.n_electrons
+        self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
+      
+        self.qubit_ham = qubit_ham
         if qubit_ham is None:
             self.fermi_ham = self.molecule.fermionic_hamiltonian
             self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping,
                                                       self.n_spinorbitals, self.n_electrons,
                                                       self.up_then_down, self.spin)
-        else:
-            self.qubit_ham = qubit_ham
 
+        self.qmf_var_params = qmf_var_params
         if self.qmf_var_params is None:
             self.qmf_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                    self.mapping, self.up_then_down, self.spin)
@@ -124,6 +116,13 @@ class QCC(Ansatz):
             self.qmf_var_params = np.array(self.qmf_var_params)
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError("The number of QMF variational parameters must be 2 * n_qubits.")
+
+        self.qmf_circuit = qmf_circuit
+
+        self.qcc_op_list = qcc_op_list
+        self.qcc_tau_guess = qcc_tau_guess
+        self.deqcc_dtau_thresh = deqcc_dtau_thresh
+        self.max_qcc_gens = max_qcc_gens
 
         # Get purified QMF parameters and use them to build the DIS or use a list of generators.
         if self.qcc_op_list is None:
@@ -144,7 +143,7 @@ class QCC(Ansatz):
         # Default starting parameters for initialization
         self.pauli_to_angles_mapping = {}
         self.default_reference_state = "HF"
-        self.var_params_default = "qcc_tau_guess"
+        self.var_params_default = "random"
         self.var_params = None
         self.rebuild_dis = False
         self.qcc_circuit = None
@@ -255,7 +254,7 @@ class QCC(Ansatz):
         """
 
         # Rebuild DIS if qubit_ham or qmf_var_params changed or if DIS and qcc_op_list are None.
-        if self.rebuild_dis or (self.dis is None and self.qcc_op_list is None):
+        if self.rebuild_dis or (not self.dis and not self.qcc_op_list):
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals, self.n_electrons,
                                                self.mapping, self.up_then_down, self.spin)
             self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deqcc_dtau_thresh)

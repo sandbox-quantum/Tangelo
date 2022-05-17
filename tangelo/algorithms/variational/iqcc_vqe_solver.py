@@ -111,7 +111,6 @@ class iQCCSolver:
     def build(self):
         """Builds the underlying objects required to run the iQCC-VQE algorithm."""
 
-        if ""
         self.qcc_ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
         self.qcc_ansatz.build()
 

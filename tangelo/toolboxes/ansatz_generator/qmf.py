@@ -71,9 +71,13 @@ class QMF(Ansatz):
             Default, {"init_params": "hf_state"}.
     """
 
-    def __init__(self, molecule=None, mapping="jw", up_then_down=False, init_qmf=None):
+    def __init__(self, molecule, mapping="jw", up_then_down=False, init_qmf=None):
 
+        if not molecule:
+            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing "
+                             "the QMF ansatz class.")
         self.molecule = molecule
+
         self.n_spinorbitals = self.molecule.n_active_sos
         if self.n_spinorbitals % 2 != 0:
             raise ValueError("The total number of spin-orbitals should be even.")
