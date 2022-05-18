@@ -269,7 +269,8 @@ class Circuit:
         Returns:
             Circuit: The circuit without small rotations.
         """
-        return remove_small_rotations(self, param_threshold)
+        opt_circuit = remove_small_rotations(self, param_threshold)
+        self.__dict__ = opt_circuit.__dict__
 
     def remove_redundant_gates(self):
         """Convenience method to remove redundant gates from the circuit.
@@ -278,7 +279,8 @@ class Circuit:
         Returns:
             Circuit: The circuit without redundant gates.
         """
-        return remove_redundant_gates(self)
+        opt_circuit = remove_redundant_gates(self)
+        self.__dict__ = opt_circuit.__dict__
 
 
 def stack(*circuits):
@@ -326,17 +328,9 @@ def remove_small_rotations(circuit, param_threshold=0.05):
     Returns:
         Circuit: The circuit without small-rotation gates.
     """
-    gate_indices_to_remove = list()
 
-    # Looping through the gates. Only one pass is needed.
-    for gate_i, gate in enumerate(circuit._gates):
-        # If it is a rotation gate, and the angle is below the param_threshold,
-        # the gate is removed.
-        if gate.name in {"RX", "RY", "RZ", "CRX", "CRY", "CRZ"} and abs(gate.parameter) < param_threshold:
-            gate_indices_to_remove.append(gate_i)
-
-    # Removal of the small rotation gates.
-    gates = [gate for gate_i, gate in enumerate(circuit._gates) if gate_i not in gate_indices_to_remove]
+    rot_gates = {"RX", "RY", "RZ", "CRX", "CRY", "CRZ"}
+    gates = [g for g in circuit._gates if not (g.name in rot_gates and abs(g.parameter) < param_threshold)]
 
     return Circuit(gates)
 

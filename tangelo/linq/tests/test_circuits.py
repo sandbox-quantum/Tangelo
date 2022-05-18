@@ -21,7 +21,8 @@ import unittest
 import copy
 from math import pi
 from collections import Counter
-from tangelo.linq import Gate, Circuit, stack
+
+from tangelo.linq import Gate, Circuit, stack, remove_small_rotations, remove_redundant_gates
 
 # Create several abstract circuits with different features
 mygates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1),
@@ -253,13 +254,13 @@ class TestCircuits(unittest.TestCase):
         proper set of gates.
         """
 
-        test_circuit = circuit5.remove_small_rotations(param_threshold=0.05)
+        test_circuit = remove_small_rotations(circuit5, param_threshold=0.05)
         ref_circuit = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
                                Gate("CNOT", 1, control=0), Gate("RX", 0, parameter=2.).inverse()])
 
         self.assertTrue(ref_circuit, test_circuit)
 
-        test2_circuit = ref_circuit.remove_redundant_gates()
+        test2_circuit = remove_redundant_gates(ref_circuit)
 
         self.assertTrue(Circuit(), test2_circuit)
 
