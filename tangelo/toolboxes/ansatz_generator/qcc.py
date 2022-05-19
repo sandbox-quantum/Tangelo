@@ -59,7 +59,7 @@ class QCC(Ansatz):
         mapping (str): One of the supported qubit mapping identifiers. Default, "jw".
         up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
             followed by all spin-down. Default, False.
-        qcc_op_list (list of QubitOperator): Generator list for the QCC ansatz. Default, None.
+        dis (list of QubitOperator): DIS generator list for the QCC ansatz. Default, None.
         qmf_circuit (Circuit): An instance of tangelo.linq Circuit class implementing a QMF state
             circuit. If passed from the QMF ansatz class, parameters are variational.
             If None, one is created with QMF parameters that are not variational. Default, None.
@@ -68,17 +68,17 @@ class QCC(Ansatz):
         qubit_ham (QubitOperator): Pass a qubit Hamiltonian to the QCC ansatz class and ignore
             the fermionic Hamiltonian in molecule. Default, None.
         deqcc_dtau_thresh (float): Threshold for |dEQCC/dtau| so that a candidate group is added
-            to the DIS if |dEQCC/dtau| >= deqcc_dtau_thresh for a generator. Default, 1.e-3 a.u.
+            to the DIS if |dEQCC/dtau| >= deqcc_dtau_thresh for a generator. Default, 1e-3 a.u.
         qcc_tau_guess (float): The initial guess for all QCC variational parameters.
-            Default, 1.e-2 a.u.
+            Default, 1e-1 a.u.
         max_qcc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_qcc_gens)
             generators are selected in order of decreasing |dEQCC/dtau|. Default, None.
     """
 
-    def __init__(self, molecule, mapping="jw", up_then_down=False, qcc_op_list=None,
-                 qmf_circuit=None, qmf_var_params=None, qubit_ham=None, qcc_tau_guess=1.e-2,
-                 deqcc_dtau_thresh=1.e-3, max_qcc_gens=None):
+    def __init__(self, molecule, mapping="jw", up_then_down=False, dis=None,
+                 qmf_circuit=None, qmf_var_params=None, qubit_ham=None, qcc_tau_guess=1e-1,
+                 deqcc_dtau_thresh=1e-3, max_qcc_gens=None):
 
         if not molecule:
             raise ValueError("An instance of SecondQuantizedMolecule is required for initializing "
@@ -102,14 +102,14 @@ class QCC(Ansatz):
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
       
         self.qubit_ham = qubit_ham
-        if qubit_ham is None:
+        if not qubit_ham:
             self.fermi_ham = self.molecule.fermionic_hamiltonian
             self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping,
                                                       self.n_spinorbitals, self.n_electrons,
                                                       self.up_then_down, self.spin)
 
         self.qmf_var_params = qmf_var_params
-        if self.qmf_var_params is None:
+        if not self.qmf_var_params:
             self.qmf_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                    self.mapping, self.up_then_down, self.spin)
         elif isinstance(self.qmf_var_params, list):
@@ -119,21 +119,23 @@ class QCC(Ansatz):
 
         self.qmf_circuit = qmf_circuit
 
-        self.qcc_op_list = qcc_op_list
+        self.dis = dis
         self.qcc_tau_guess = qcc_tau_guess
         self.deqcc_dtau_thresh = deqcc_dtau_thresh
         self.max_qcc_gens = max_qcc_gens
 
         # Get purified QMF parameters and use them to build the DIS or use a list of generators.
-        if self.qcc_op_list is None:
+        if not self.dis:
             pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals, self.n_electrons,
                                                self.mapping, self.up_then_down, self.spin)
             self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deqcc_dtau_thresh)
-            self.n_var_params = len(self.dis) if self.max_qcc_gens is None\
-                                else min(len(self.dis), self.max_qcc_gens)
+            if self.max_qcc_gens:
+                self.n_var_params = min(len(self.dis), self.max_qcc_gens)
+                del self.dis[self.n_var_params:]
+            else:
+                self.n_var_params = len(self.dis)
         else:
-            self.dis = None
-            self.n_var_params = len(self.qcc_op_list)
+            self.n_var_params = len(self.dis)
 
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
@@ -143,9 +145,8 @@ class QCC(Ansatz):
         # Default starting parameters for initialization
         self.pauli_to_angles_mapping = {}
         self.default_reference_state = "HF"
-        self.var_params_default = "random"
+        self.var_params_default = "qcc_tau_guess"
         self.var_params = None
-        self.rebuild_dis = False
         self.qcc_circuit = None
         self.circuit = None
 
@@ -171,7 +172,7 @@ class QCC(Ansatz):
                 initial_var_params = self.qcc_tau_guess * np.ones((self.n_var_params,))
             # Initialize tau parameters randomly over the domain [-qcc_tau_guess, qcc_tau_guess]
             elif var_params == "random":
-                initial_var_params = 2. * self.qcc_tau_guess * np.random.random((self.n_var_params,)) - self.qcc_tau_guess
+                initial_var_params = 2. * np.pi * np.random.random((self.n_var_params,)) #2. * self.qcc_tau_guess * np.random.random((self.n_var_params,)) - self.qcc_tau_guess
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:
@@ -196,17 +197,31 @@ class QCC(Ansatz):
         """Build and return the quantum circuit implementing the state preparation ansatz
          (with currently specified initial_state and var_params). """
 
+        # Get purified QMF parameters and use them to build the DIS or use a list of generators.
+        if not self.dis:
+            pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals, self.n_electrons,
+                                               self.mapping, self.up_then_down, self.spin)
+            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deqcc_dtau_thresh)
+            if self.max_qcc_gens:
+                self.n_var_params = min(len(self.dis), self.max_qcc_gens)
+                del self.dis[self.n_var_params:]
+            else:
+                self.n_var_params = len(self.dis)
+        else:
+            self.n_var_params = len(self.dis)
+
+        # Get the variational parameters needed for the QCC unitary operator and circuit
         if var_params is not None:
             self.set_var_params(var_params)
         elif self.var_params is None:
             self.set_var_params()
 
-        # Build a qubit operator required for QCC
-        qubit_op = self._get_qcc_qubit_op()
-
         # Build a QMF state preparation circuit
         if self.qmf_circuit is None:
             self.qmf_circuit = self.prepare_reference_state()
+
+        # Build the QCC ansatz qubit operator
+        qubit_op = self._get_qcc_qubit_op()
 
         # Obtain quantum circuit through trivial trotterization of the qubit operator
         # Track the order in which pauli words have been visited for fast parameter updates
@@ -253,29 +268,8 @@ class QCC(Ansatz):
             QubitOperator: QCC ansatz qubit operator.
         """
 
-        # Rebuild DIS if qubit_ham or qmf_var_params changed or if DIS and qcc_op_list are None.
-        if self.rebuild_dis or (not self.dis and not self.qcc_op_list):
-            pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals, self.n_electrons,
-                                               self.mapping, self.up_then_down, self.spin)
-            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deqcc_dtau_thresh)
-            self.n_var_params = len(self.dis) if self.max_qcc_gens is None\
-                                else min(len(self.dis), self.max_qcc_gens)
-            self.qcc_op_list = None
-
-        # Build the QCC operator using the DIS or a list of generators
-        qcc_qubit_op = QubitOperator.zero()
-        if self.qcc_op_list is None:
-            self.qcc_op_list = []
-            for i in range(self.n_var_params):
-                # Instead of randomly choosing a generator, grab the first one.
-                qcc_gen = self.dis[i][0]
-                qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen
-                self.qcc_op_list.append(qcc_gen)
-        else:
-            if len(self.qcc_op_list) == self.n_var_params:
-                for i, qcc_gen in enumerate(self.qcc_op_list):
-                    qcc_qubit_op -= 0.5 * self.var_params[i] * qcc_gen
-            else:
-                raise ValueError(f"Expected {self.n_var_params} generators in "
-                                 f"{self.qcc_op_list} but received {len(self.qcc_op_list)}.\n")
-        return qcc_qubit_op
+        qubit_op = QubitOperator.zero()
+        for i in range(self.n_var_params):
+            qubit_op -= 0.5 * self.var_params[i] * self.dis[i]
+        qubit_op.compress()
+        return qubit_op

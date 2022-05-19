@@ -66,7 +66,8 @@ def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):
         for dis_group in dis_groups:
             dis_group_idxs = [int(idxs) for idxs in dis_group[0].split(" ")]
             dis_group_gens = get_gens_from_idxs(dis_group_idxs)
-            dis.append(dis_group_gens)
+             # Instead of randomly choosing a generator, grab the first one.
+            dis.append(dis_group_gens[0])
     else:
         raise ValueError(f"The DIS is empty: there are no candidate DIS groups where "
                          f"|dEQCC/dtau| >= {deqcc_dtau_thresh} a.u. Terminate simulation.\n")
@@ -160,7 +161,7 @@ def get_gens_from_idxs(group_idxs):
     return dis_group_gens
 
 
-def qcc_op_dress(qubit_op, qcc_var_params, qcc_op_list):
+def qcc_op_dress(qubit_op, dis_gens, amplitudes):
     """
     Function to perform a canonical QCC dressing of an arbitrary qubit operator with the
     current set of QCC Pauli word generators and corresponding amplitudes.
@@ -172,10 +173,11 @@ def qcc_op_dress(qubit_op, qcc_var_params, qcc_op_list):
 
     """
 
-    for i in range(len(qcc_op_list)):
-        comm = commutator(qubit_op, qcc_op_list[i])
-        qubit_op -= .5j * sin(qcc_var_params[i]) * comm
-        qubit_op += .5 * (1. - cos(qcc_var_params[i])) * qcc_op_list[i] * comm
+    for i in range(len(dis_gens)):
+        comm = commutator(qubit_op, dis_gens[i])
+        qubit_op -= .5j * sin(amplitudes[i]) * comm
+        qubit_op += .5 * (1. - cos(amplitudes[i])) * dis_gens[i] * comm
+    qubit_op.compress()
     return qubit_op 
 
 
@@ -201,4 +203,6 @@ def qcc_op_compress(qubit_op, eps, n_qubits):
         frob_norm += coef * coef
         if sqrt(frob_norm) * pow(2., n_qubits / 2.) > eps:
             compressed_op[term] = coef
-    return QubitOperator(compressed_op)
+    qubit_op = QubitOperator(compressed_op)
+    qubit_op.compress()
+    return qubit_op
