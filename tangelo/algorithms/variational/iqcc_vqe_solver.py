@@ -144,7 +144,6 @@ class iQCC_Solver:
             if self.qcc_ansatz.dis and self.qcc_ansatz.var_params.any():
                 e_qcc = self.vqe_solver.simulate()
                 delta_eqcc = e_qcc - eqcc_old
-                print(self.iteration, e_qcc, delta_eqcc)
             else:
                 delta_eqcc = 0.
             if delta_eqcc < 0.:
@@ -152,17 +151,13 @@ class iQCC_Solver:
                 self._update_iqcc_solver()
                 self.iteration += 1
             elif delta_eqcc > 0. and delta_eqcc >= self.deqcc_thresh:
-#            else:
                 n_retry = 0
                 while e_qcc >= eqcc_old and n_retry < self.max_iqcc_retries:
-                    print(self.qcc_ansatz.dis)
                     self.qcc_ansatz.var_params = None
                     self.qcc_ansatz.update_var_params("random")
-                    #self.qcc_ansatz.build_circuit()
                     self.vqe_solver.initial_var_params = self.qcc_ansatz.var_params
                     e_qcc = self.vqe_solver.simulate()
                     n_retry += 1
-                    print(n_retry, self.iteration, e_qcc, e_qcc-eqcc_old)
                 if e_qcc < eqcc_old:
                     delta_eqcc = e_qcc - eqcc_old
                     eqcc_old = e_qcc
@@ -171,12 +166,9 @@ class iQCC_Solver:
                 else:
                     self.qcc_ansatz.var_params = None
                     self.qcc_ansatz.update_var_params("qmf_state")
-                    #print(self.qcc_ansatz.var_params)
-                    #self.qcc_ansatz.build_circuit()
                     self.vqe_solver.initial_var_params = self.qcc_ansatz.var_params
                     e_qcc = self.vqe_solver.simulate()
                     delta_eqcc = e_qcc - eqcc_old
-                    print(self.iteration, e_qcc, delta_eqcc, "10-qmfstate")
                     self._update_iqcc_solver()
                     self.iteration += 1
 
