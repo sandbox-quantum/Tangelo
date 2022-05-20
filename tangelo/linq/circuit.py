@@ -348,41 +348,35 @@ def remove_redundant_gates(circuit):
     Returns:
         Circuit: The circuit without redundant gates.
     """
-    # Initial set of gates.
-    gates = circuit._gates
+    gate_qubits = [[]] * circuit.width
+    indices_to_remove = list()
 
-    # Perform gate cancellation until no more cancellation is detected.
-    while True:
-        gate_indices_to_remove = list()
-        last_gates = dict()
+    for gi, gate in enumerate(circuit._gates):
+        remove_gate = True
 
-        # Loop through the updated list of gates.
-        for gi, gate in enumerate(gates):
+        # On which qubits this gate is acting on?
+        qubits = gate.target if gate.control is None else gate.target + gate.control
 
-            # On which qubits this gate is acting on?
-            qubits = gate.target if gate.control is None else gate.target + gate.control
+        # Check if the last gate is the inverse (on all relevant qubits).
+        for qubit_i in qubits:
+            if not gate_qubits[qubit_i] or gate_qubits[qubit_i][-1][1].inverse() != gate:
+                remove_gate = False
+                break
 
-            # Looping through the relevant qubits for this gate. If the last
-            # gate acting on those qubits is the inverse (same target and
-            # control qubit(s)), the gates can be removed. Otherwise, we store
-            # this gate as the new last gate.
-            to_remove = True
+        # Pop the last gate if the gate is to be removed.
+        # If not, append the gate to the gate_qubits list.
+        if remove_gate:
+            indices_to_remove += [gi]
             for qubit_i in qubits:
-                previous_gate_i, previous_gate = last_gates.get(qubit_i, (None, None))
+                previous_gi, _ = gate_qubits[qubit_i].pop()
+                indices_to_remove += [previous_gi]
+        else:
+            for qubit_i in qubits:
+                gate_qubits[qubit_i] += [(gi, gate)]
 
-                if previous_gate is None or previous_gate.inverse() != gate:
-                    to_remove = False
+    indices_to_remove = set(indices_to_remove)
 
-                last_gates[qubit_i] = (gi, gate)
-
-            if to_remove:
-                gate_indices_to_remove.extend([previous_gate_i, gi])
-
-        # If no redundant gate is detected, break the loop.
-        if len(gate_indices_to_remove) == 0:
-            break
-
-        # Remove the redundant gates for this pass.
-        gates = [gate for gate_i, gate in enumerate(gates) if gate_i not in gate_indices_to_remove]
+    # Remove the redundant gates for this pass.
+    gates = [gate for gate_i, gate in enumerate(circuit._gates) if gate_i not in indices_to_remove]
 
     return Circuit(gates)
