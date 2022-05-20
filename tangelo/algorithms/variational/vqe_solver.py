@@ -131,19 +131,21 @@ class VQESolver:
                 self.up_then_down = True
             # QCC and QMF and ILC require a reference state that can be represented by a single layer of RZ-RX gates on each qubit.
             # This decomposition can not be determined from a general Circuit reference state.
-            if isinstance(self.ref_state, Circuit) and (self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.ILC, BuiltInAnsatze.QMF]):
-                raise ValueError("Circuit reference state is not supported for QCC or QMF")
-            if (self.ref_state is not None) and (self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.ILC]):
-                self.ansatz_options["qmf_var_params"] = init_qmf_from_vector(self.ref_state, self.qubit_mapping, self.up_then_down)
-                self.ref_state = None
-            if (self.ref_state is not None) and (self.ansatz == BuiltInAnsatze.QMF):
-                self.ansatz_options["init_qmf"] = {"init_params": "vector", "vector": self.ref_state}
-                self.ref_state = None
-            # UCC1, UCC3, QMF and VSQS require the initial state to be Hartree-Fock.
-            # UCC1 and UCC3 use a special structure
-            # VSQS is only defined for a Hartree-Fock reference at this time
-            if (self.ref_state is not None) and (self.ansatz in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.VSQS]):
-                raise ValueError("UCC1, UCC3, and VSQS do not support reference states other than Hartree-Fock at this time in Tangelo")
+            if isinstance(self.ref_state, Circuit):
+                if self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.ILC, BuiltInAnsatze.QMF]:
+                    raise ValueError("Circuit reference state is not supported for QCC or QMF")
+            elif self.ref_state is not None:
+                if self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.ILC]:
+                    self.ansatz_options["qmf_var_params"] = init_qmf_from_vector(self.ref_state, self.qubit_mapping, self.up_then_down)
+                    self.ref_state = None
+                elif self.ansatz == BuiltInAnsatze.QMF:
+                    self.ansatz_options["init_qmf"] = {"init_params": "vector", "vector": self.ref_state}
+                    self.ref_state = None
+                # UCC1, UCC3, QMF and VSQS require the initial state to be Hartree-Fock.
+                # UCC1 and UCC3 use a special structure
+                # VSQS is only defined for a Hartree-Fock reference at this time
+                elif self.ansatz in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.VSQS]:
+                    raise ValueError("UCC1, UCC3, and VSQS do not support reference states other than Hartree-Fock at this time in Tangelo")
 
         if self.ref_state is not None:
             if isinstance(self.ref_state, Circuit):
