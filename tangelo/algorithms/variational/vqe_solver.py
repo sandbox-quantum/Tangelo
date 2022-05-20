@@ -90,6 +90,8 @@ class VQESolver:
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         verbose (bool): Flag for VQE verbosity.
         ref_state (array or Circuit): The reference configuration to use. Replaces HF state
+            QMF, QCC, ILC require ref_state to be an array. UCC1, UCC3, VSQS can not use a
+            different ref_state than HF by construction.
     """
 
     def __init__(self, opt_dict):
