@@ -330,7 +330,7 @@ def remove_small_rotations(circuit, param_threshold=0.05):
     """
 
     rot_gates = {"RX", "RY", "RZ", "CRX", "CRY", "CRZ"}
-    gates = [g for g in circuit._gates if not (g.name in rot_gates and abs(g.parameter) < param_threshold)]
+    gates = [g for g in circuit._gates if not (g.name in rot_gates and abs(g.parameter) % (2*np.pi) < param_threshold)]
 
     return Circuit(gates)
 
