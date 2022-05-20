@@ -116,18 +116,20 @@ def init_qmf_from_vector(vector, mapping, up_then_down=False):
     unoccupied or occupied, respectively. The phi Bloch angles are set to 0.
 
     Args:
-        vector (array): Up then down occupation vector
+        vector (array): Occupation vector of orbitals using alternating up and down electrons (i.e. up_then_down=False)
         mapping (str): One of the supported qubit mapping identifiers.
         up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
-            followed by all spin-down.
+            followed by all spin-down when applying the qubit mapping.
 
     Returns:
         numpy array of float: QMF variational parameter set.
     """
 
     # Get thetas from HF vec and arrange Bloch angles so all thetas are first then phis
-    thetas = get_mapped_vector(vector, mapping, up_then_down)
-    return np.concatenate((np.pi * thetas, np.zeros((len(thetas),), dtype=float)))
+    thetas = np.array(get_mapped_vector(vector, mapping, up_then_down))
+    var_params = np.zeros(2*len(thetas))
+    var_params[:len(thetas)] = thetas
+    return var_params
 
 
 def purify_qmf_state(qmf_var_params, n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=None):

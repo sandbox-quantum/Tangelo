@@ -101,7 +101,7 @@ class VQESolver:
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
                            "penalty_terms": None,
-                           "deflation_circuits": None,
+                           "deflation_circuits": list(),
                            "deflation_coeff": 1,
                            "ansatz_options": dict(),
                            "up_then_down": False,
@@ -129,13 +129,21 @@ class VQESolver:
                 warnings.warn("Efficient generator screening for QCC-based ansatze requires spin-orbital ordering to be "
                               "all spin-up first followed by all spin-down for the JW mapping.", RuntimeWarning)
                 self.up_then_down = True
-            if isinstance(self.ref_state, Circuit) and (self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.QMF]):
+            # QCC and QMF and ILC require a reference state that can be represented by a single layer of RZ-RX gates on each qubit.
+            # This decomposition can not be determined from a general Circuit reference state.
+            if isinstance(self.ref_state, Circuit) and (self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.ILC, BuiltInAnsatze.QMF]):
                 raise ValueError("Circuit reference state is not supported for QCC or QMF")
             if (self.ref_state is not None) and (self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.ILC]):
                 self.ansatz_options["qmf_var_params"] = init_qmf_from_vector(self.ref_state, self.qubit_mapping, self.up_then_down)
                 self.ref_state = None
-            if (self.ref_state is not None) and (self.ansatz in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.QMF, BuiltInAnsatze.VSQS]):
-                raise ValueError("UCC1, UCC3 and QMF do not support reference states other than Hartree-Fock")
+            if (self.ref_state is not None) and (self.ansatz == BuiltInAnsatze.QMF):
+                self.ansatz_options["init_qmf"] = {"init_params": "vector", "vector": self.ref_state}
+                self.ref_state = None
+            # UCC1, UCC3, QMF and VSQS require the initial state to be Hartree-Fock.
+            # UCC1 and UCC3 use a special structure
+            # VSQS is only defined for a Hartree-Fock reference at this time
+            if (self.ref_state is not None) and (self.ansatz in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3, BuiltInAnsatze.VSQS]):
+                raise ValueError("UCC1, UCC3, and VSQS do not support reference states other than Hartree-Fock at this time in Tangelo")
 
         if self.ref_state is not None:
             if isinstance(self.ref_state, Circuit):
@@ -301,10 +309,9 @@ class VQESolver:
         circuit = self.ansatz.circuit if self.ref_state is None else self.reference_circuit + self.ansatz.circuit
         energy = self.backend.get_expectation_value(self.qubit_hamiltonian, circuit)
 
-        if self.deflation_circuits is not None:
-            for circ in self.deflation_circuits:
-                f_dict, _ = self.backend.simulate(circ + circuit.inverse())
-                energy += self.deflation_coeff*f_dict.get("0"*self.ansatz.circuit.width, 0)
+        for circ in self.deflation_circuits:
+            f_dict, _ = self.backend.simulate(circ + circuit.inverse())
+            energy += self.deflation_coeff*f_dict.get("0"*self.ansatz.circuit.width, 0)
 
         if self.verbose:
             print(f"\tEnergy = {energy:.7f} ")

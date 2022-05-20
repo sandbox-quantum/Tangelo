@@ -210,10 +210,9 @@ class SA_VQESolver(VQESolver):
         self.state_energies = list()
         for i, reference_circuit in enumerate(self.reference_circuits):
             state_energy = self.backend.get_expectation_value(self.qubit_hamiltonian, reference_circuit + self.ansatz.circuit)
-            if self.deflation_circuits is not None:
-                for circ in self.deflation_circuits:
-                    f_dict, _ = self.backend.simulate(circ + self.ansatz.circuit.inverse() + reference_circuit.inverse())
-                    state_energy += self.deflation_coeff*f_dict.get("0"*self.ansatz.circuit.width, 0)
+            for circ in self.deflation_circuits:
+                f_dict, _ = self.backend.simulate(circ + self.ansatz.circuit.inverse() + reference_circuit.inverse())
+                state_energy += self.deflation_coeff * f_dict.get("0"*self.ansatz.circuit.width, 0)
             energy += state_energy*self.weights[i]
             self.state_energies.append(state_energy)
 

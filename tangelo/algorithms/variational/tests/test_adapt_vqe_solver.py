@@ -90,6 +90,31 @@ class ADAPTSolverTest(unittest.TestCase):
 
         self.assertAlmostEqual(optimal_energy, -1.91062, places=3)
 
+    def test_multiple_cycle_adapt_majorana_pool_with_deflation(self):
+        """Solve H4 with one frozen orbtial with ADAPTSolver using 4 cycles and operators chosen
+        from a Majorana UCCGSD pool followed by deflation for an orthogonal state triplet state.
+        """
+
+        mol = SecondQuantizedMolecule(xyz_H4, 0, 0, "sto-3g", frozen_orbitals=[0])
+        opt_dict = {"molecule": mol, "max_cycles": 4, "verbose": False, "pool": get_majorana_uccgsd_pool,
+                    "pool_args": {"n_sos": mol.n_active_sos}}
+        adapt_solver = ADAPTSolver(opt_dict)
+        adapt_solver.build()
+        adapt_solver.simulate()
+
+        self.assertAlmostEqual(adapt_solver.optimal_energy, -1.8945, places=3)
+
+        deflation_circuits = [adapt_solver.optimal_circuit]
+        ref_state = [0, 1, 0, 0, 0, 1]
+        opt_dict = {"molecule": mol, "max_cycles": 1, "verbose": False, "pool": get_majorana_uccgsd_pool,
+                    "pool_args": {"n_sos": mol.n_active_sos},
+                    "deflation_circuits": deflation_circuits, "ref_state": ref_state, "deflation_coeff": 1}
+        adapt_solver = ADAPTSolver(opt_dict)
+        adapt_solver.build()
+        optimal_energy = adapt_solver.simulate()
+
+        self.assertAlmostEqual(optimal_energy, -1.91062, places=3)
+
 
 if __name__ == "__main__":
     unittest.main()

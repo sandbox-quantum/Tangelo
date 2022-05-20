@@ -88,7 +88,7 @@ class ADAPTSolver:
                            "backend_options": default_backend_options,
                            "verbose": False,
                            "ref_state": None,
-                           "deflation_circuits": None,
+                           "deflation_circuits": list(),
                            "deflation_coeff": 1}
 
         # Initialize with default values
@@ -275,16 +275,15 @@ class ADAPTSolver:
         """
 
         gradient = [abs(backend.get_expectation_value(element, circuit)) for element in pool_commutators]
-        if self.deflation_circuits is not None:
-            for deflate_circuit in self.deflation_circuits:
-                for i, pool_op in enumerate(self.pool_operators):
-                    op_circuit = Circuit([Gate(op[1], op[0]) for tuple in pool_op.terms for op in tuple])
-                    pool_over = deflate_circuit.inverse() + op_circuit + circuit
-                    f_dict, _ = backend.simulate(pool_over)
-                    grad = f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
-                    pool_over = deflate_circuit.inverse() + circuit
-                    f_dict, _ = backend.simulate(pool_over)
-                    gradient[i] += self.deflation_coeff*grad*f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
+        for deflate_circuit in self.deflation_circuits:
+            for i, pool_op in enumerate(self.pool_operators):
+                op_circuit = Circuit([Gate(op[1], op[0]) for tuple in pool_op.terms for op in tuple])
+                pool_over = deflate_circuit.inverse() + op_circuit + circuit
+                f_dict, _ = backend.simulate(pool_over)
+                grad = f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
+                pool_over = deflate_circuit.inverse() + circuit
+                f_dict, _ = backend.simulate(pool_over)
+                gradient[i] += self.deflation_coeff * grad * f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
         max_partial = max(gradient)
 
         if self.verbose:
