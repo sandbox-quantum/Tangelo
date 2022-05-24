@@ -3,22 +3,25 @@ Tangelo overview
 
 |maintainer|
 |licence|
-|build|
+|systems|
 |dev_branch|
+|build|
 
 .. |maintainer| image:: https://img.shields.io/badge/Maintainer-GoodChemistry-blue
    :target: https://goodchemistry.com
 .. |licence| image:: https://img.shields.io/badge/License-Apache_2.0-green
    :target: https://github.com/goodchemistryco/Tangelo/blob/main/LICENSE
+.. |systems| image:: https://img.shields.io/badge/OS-Linux%20MacOS%20Windows-7373e3
+.. |dev_branch| image:: https://img.shields.io/badge/DevBranch-develop-yellow
 .. |build| image:: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml/badge.svg
    :target: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml
-.. |dev_branch| image:: https://img.shields.io/badge/DevBranch-staging_0.3.0-yellow
 
 Welcome !
 
-Tangelo is an open-source python package developed by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of end-to-end material simulation workflows on quantum computers.
+Tangelo is an open-source and free Python package developed by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of end-to-end material simulation workflows on quantum computers.
 
-Its modular design and ease-of-use enables users to easily assemble custom workflows, tinker and define their own building blocks, while keeping track of quantum resource requirements, such as number of qubits, gates or measurements. Through problem decomposition techniques, users can scale up beyond toy models and study the impact of quantum computing on more industrially-relevant use cases. Tangelo is backend-agnostic and compatible with many existing open-source frameworks, making the integration of third-party tools such as state-of-the-art simulators, circuit compilers or quantum cloud services straightforward. It is our wish to develop a community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
+Easy to pick up, it facilitates the exploration of end-to-end workflows leveraging reusable building blocks or your own custom code, while keeping track of quantum resource requirements, such as number of qubits, gates or measurements.
+Through problem decomposition techniques, users can scale up beyond toy models and study the impact of quantum computing on more industrially-relevant use cases. Tangelo is backend-agnostic and compatible with many existing open-source frameworks (Cirq, Qulacs, Qiskit, Braket ...). It is our wish to develop a community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
 
 
 Install
@@ -30,6 +33,23 @@ This package requires a Python 3 environment. We recommend:
 * installing the "dev" version of Python3 if you encounter missing header errors, such as ``python.h file not found``.
 * having good C/C++ compilers and BLAS libraries to ensure good overall performance of computation-intensive code.
 
+Quick note for Windows users
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Our installation instructions will work on Linux and MacOS systems. If you are using Windows, we recommend
+you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/installhttps:/>`_, which allows you
+to run Ubuntu as an application. Once it has been installed, you can type ``explorer.exe`` in your Ubuntu terminal to
+drag and drop files between your Windows and Linux environment.
+
+Here are a few essentials to install inside a brand new Ubuntu environment, before trying to install Tangelo:
+
+.. code-block::
+
+   sudo apt update && sudo apt upgrade
+   sudo apt-get install python3-dev
+   sudo apt-get install python3-venv
+   sudo apt-get install cmake unzip
+
 Using pip
 ^^^^^^^^^
 
@@ -38,8 +58,8 @@ TODO: once this package is available on pypi, give the command.
 From source, using setuptools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package can be installed by downloading or cloning the contents of this repository, and typing the following command in the
-root directory:
+This package can be installed locally by copying the contents of this repository to any machine.
+Type the following command in the root directory:
 
 .. code-block::
 
@@ -85,7 +105,21 @@ TODO: insert sentence and link to sphinx documentation when its online.
 Tutorials
 ---------
 
-Please check the ``examples`` folder for jupyter notebook tutorials and other examples.
+The ``examples`` folder of this repository contains various Jupyter notebook tutorials, and other examples.
+We wrote a number of them, but nothing prevents users from contributing more notebook content !
+You can visualize a number of pre-run notebooks directly on Github or in our Sphinx documentation. If you'd like to be able to run
+them locally, we suggest you use `Jupyter notebooks inside a virtual environment <https://janakiev.com/blog/jupyter-virtual-envs/>`_.
+
+- Install Jupyter in your environment:
+.. code-block::
+
+   pip install jupyter
+
+- To make sure the notebooks allow you to set the kernel corresponding to your virtual environment:
+.. code-block::
+
+   pip install --user ipykernel
+   python -m ipykernel install --user --name=myenv
 
 Tests
 -----
@@ -106,7 +140,7 @@ Please have a look at the `contributions <./CONTRIBUTIONS.rst>`_ file.
 Citations
 ---------
 
-If you use Tangelo in your research, please cite
+If you use Tangelo in your research, please cite:
 
 [TODO: this is a placeholder for our Tangelo paper, to be written and put on arxiv in October]
 
