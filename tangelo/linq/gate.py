@@ -106,17 +106,15 @@ class Gate(dict):
     def __eq__(self, other):
         """Define equality (==) operator on gates"""
 
-        if not {k: v for k, v in self.__dict__.items() if k not in {"parameter"}} == \
-               {k: v for k, v in other.__dict__.items() if k not in {"parameter"}}:
+        ds, do = self.__dict__, other.__dict__
+
+        if any (ds[k] != do[k] for k in ds if k != "parameter"):
             return False
 
-        parameter = self.__dict__["parameter"] % (2 * pi) if isinstance(self.__dict__["parameter"], (float, int)) else self.__dict__["parameter"]
-        other_parameter = other.__dict__["parameter"] % (2 * pi) if isinstance(other.__dict__["parameter"], (float, int)) else other.__dict__["parameter"]
+        parameter = round(ds["parameter"] % (2 * pi), 7) if isinstance(ds["parameter"], (float, int)) else ds["parameter"]
+        other_parameter = round(do["parameter"] % (2 * pi), 7) if isinstance(do["parameter"], (float, int)) else do["parameter"]
 
-        if not parameter == other_parameter:
-            return False
-
-        return True
+        return parameter == other_parameter
 
     def __ne__(self, other):
         """Define inequality (!=) operator on gates"""

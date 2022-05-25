@@ -256,13 +256,13 @@ class TestCircuits(unittest.TestCase):
 
         test_circuit = remove_small_rotations(circuit5, param_threshold=0.05)
         ref_circuit = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
-                               Gate("CNOT", 1, control=0), Gate("RX", 0, parameter=2.).inverse()])
+                               Gate("CNOT", 1, control=0), Gate("RX", 0, parameter=-2.)])
 
-        self.assertTrue(ref_circuit, test_circuit)
+        self.assertTrue(ref_circuit == test_circuit)
 
         test2_circuit = remove_redundant_gates(ref_circuit)
 
-        self.assertTrue(Circuit(), test2_circuit)
+        self.assertTrue(Circuit() == test2_circuit)
 
 
 if __name__ == "__main__":

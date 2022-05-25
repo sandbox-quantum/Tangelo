@@ -337,10 +337,9 @@ def remove_small_rotations(circuit, param_threshold=0.05):
 
 def remove_redundant_gates(circuit):
     """Remove redundant gates in a circuit. Redundant gates are adjacent gates
-    that can be cancelled as their global effect is the identity. The function
-    can perform many loops if a gate cancellation enables another one. This
-    function also works with many-qubit gates. However, it does not perform
-    reordering of commutating gates to perform additional cancellations.
+    that can be cancelled as their global effect is the identity. This function
+    also works with many-qubit gates. However, it does not perform reordering of
+    commutating gates to perform additional cancellations.
 
     Args:
         circuit (Circuit): the circuits to remove redundant gates.
@@ -348,16 +347,16 @@ def remove_redundant_gates(circuit):
     Returns:
         Circuit: The circuit without redundant gates.
     """
-    gate_qubits = [[]] * circuit.width
+    gate_qubits = {i:list() for i in range(circuit.width)}
     indices_to_remove = list()
 
     for gi, gate in enumerate(circuit._gates):
         remove_gate = True
 
-        # On which qubits this gate is acting on?
+        # Identify qubits the current gate acts on.
         qubits = gate.target if gate.control is None else gate.target + gate.control
 
-        # Check if the last gate is the inverse (on all relevant qubits).
+        # Check if the last gate cancels the current gate.
         for qubit_i in qubits:
             if not gate_qubits[qubit_i] or gate_qubits[qubit_i][-1][1].inverse() != gate:
                 remove_gate = False
@@ -366,17 +365,14 @@ def remove_redundant_gates(circuit):
         # Pop the last gate if the gate is to be removed.
         # If not, append the gate to the gate_qubits list.
         if remove_gate:
-            indices_to_remove += [gi]
+            indices_to_remove += [gi, gate_qubits[qubits[0]][-1][0]]
             for qubit_i in qubits:
-                previous_gi, _ = gate_qubits[qubit_i].pop()
-                indices_to_remove += [previous_gi]
+                del gate_qubits[qubit_i][-1]
         else:
             for qubit_i in qubits:
                 gate_qubits[qubit_i] += [(gi, gate)]
 
-    indices_to_remove = set(indices_to_remove)
-
-    # Remove the redundant gates for this pass.
+    # Remove gates that can be cancelled.
     gates = [gate for gate_i, gate in enumerate(circuit._gates) if gate_i not in indices_to_remove]
 
     return Circuit(gates)
