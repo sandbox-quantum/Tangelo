@@ -45,7 +45,7 @@ entangle_circuit = Circuit([Gate("CSWAP", target=[2, 5], control=[0]),
 
 circuit5 = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
                     Gate("RZ", 1, parameter=0.01), Gate("CNOT", 1, control=0),
-                    Gate("RX", 0, parameter=2.).inverse()])
+                    Gate("RX", 0, parameter=-2.)])
 
 
 class TestCircuits(unittest.TestCase):
