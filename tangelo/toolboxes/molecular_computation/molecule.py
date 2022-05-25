@@ -107,7 +107,7 @@ class Molecule:
     def coords(self):
         return np.array([self.xyz[i][1] for i in range(self.n_atoms)])
 
-    def to_pyscf(self, basis="CRENBL", symmetry=False, ecp=dict()):
+    def to_pyscf(self, basis="CRENBL", symmetry=False, ecp=None):
         """Method to return a pyscf.gto.Mole object.
 
         Args:
@@ -118,6 +118,8 @@ class Molecule:
         Returns:
             pyscf.gto.Mole: PySCF compatible object.
         """
+        if ecp is None:
+            ecp = dict()
 
         mol = gto.Mole(atom=self.xyz)
         mol.basis = basis
