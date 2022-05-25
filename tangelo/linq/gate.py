@@ -108,7 +108,7 @@ class Gate(dict):
 
         ds, do = self.__dict__, other.__dict__
 
-        if any (ds[k] != do[k] for k in ds if k != "parameter"):
+        if any(ds[k] != do[k] for k in ds if k != "parameter"):
             return False
 
         parameter = round(ds["parameter"] % (2 * pi), 7) if isinstance(ds["parameter"], (float, int)) else ds["parameter"]

@@ -347,7 +347,7 @@ def remove_redundant_gates(circuit):
     Returns:
         Circuit: The circuit without redundant gates.
     """
-    gate_qubits = {i:list() for i in range(circuit.width)}
+    gate_qubits = {i: list() for i in range(circuit.width)}
     indices_to_remove = list()
 
     for gi, gate in enumerate(circuit._gates):
