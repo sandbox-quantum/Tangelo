@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """Module that defines the ADAPT-VQE algorithm framework. ADAPT-VQE is a
-variational  approach that builds an ansatz iteratively, until a convergence
+variational approach that builds an ansatz iteratively, until a convergence
 criteria or a maximum number of cycles is reached. Each iteration ("cycle")
 of ADAPT consists in drawing an operator from a pre-defined operator pool,
 selecting the one that impacts the energy the most, growing the ansatz circuit
@@ -27,13 +27,13 @@ Ref:
 """
 
 import math
-
-from openfermion import commutator
-from openfermion import FermionOperator as ofFermionOperator
-from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
-from scipy.optimize import minimize
 import warnings
 
+from scipy.optimize import minimize
+from openfermion import commutator
+from openfermion import FermionOperator as ofFermionOperator
+
+from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
@@ -186,6 +186,7 @@ class ADAPTSolver:
                 self.pool_args = {"n_qubits": self.n_spinorbitals}
             else:
                 raise KeyError('pool_args must be defined if using own pool function')
+        
         # Check if pool function returns a QubitOperator or FermionOperator and populate variables
         pool_list = self.pool(**self.pool_args)
         if isinstance(pool_list[0], QubitOperator):
