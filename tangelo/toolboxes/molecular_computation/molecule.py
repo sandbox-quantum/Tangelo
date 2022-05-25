@@ -107,11 +107,13 @@ class Molecule:
     def coords(self):
         return np.array([self.xyz[i][1] for i in range(self.n_atoms)])
 
-    def to_pyscf(self, basis="CRENBL", symmetry=False, ecp=False):
+    def to_pyscf(self, basis="CRENBL", symmetry=False, ecp=dict()):
         """Method to return a pyscf.gto.Mole object.
 
         Args:
             basis (string): Basis set.
+            symmetry (bool): Flag to turn symmetry on
+            ecp (dict): Dictionary with ecp definition for each atom e.g. {"Cu": "crenbl"}
 
         Returns:
             pyscf.gto.Mole: PySCF compatible object.
@@ -198,7 +200,7 @@ class SecondQuantizedMolecule(Molecule):
         actives_mos (list): Active MOs indexes.
     """
     basis: str = "sto-3g"
-    ecp: bool = False
+    ecp: dict = field(default_factory=dict)
     symmetry: bool = False
     frozen_orbitals: list or int = field(default="frozen_core", repr=False)
 
