@@ -186,7 +186,7 @@ class ADAPTSolver:
                 self.pool_args = {"n_qubits": self.n_spinorbitals}
             else:
                 raise KeyError('pool_args must be defined if using own pool function')
-        
+
         # Check if pool function returns a QubitOperator or FermionOperator and populate variables
         pool_list = self.pool(**self.pool_args)
         if isinstance(pool_list[0], QubitOperator):

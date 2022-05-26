@@ -315,7 +315,7 @@ class VQESolver:
 
         for circ in self.deflation_circuits:
             f_dict, _ = self.backend.simulate(circ + circuit.inverse())
-            energy += self.deflation_coeff*f_dict.get("0"*self.ansatz.circuit.width, 0)
+            energy += self.deflation_coeff * f_dict.get("0"*self.ansatz.circuit.width, 0)
 
         if self.verbose:
             print(f"\tEnergy = {energy:.7f} ")
