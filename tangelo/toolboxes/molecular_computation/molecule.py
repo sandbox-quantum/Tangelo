@@ -339,8 +339,8 @@ class SecondQuantizedMolecule(Molecule):
                 virtual and frozen virtual orbital indexes.
         """
 
-        if frozen_orbitals == "frozen_core" and not self.ecp:
-            frozen_orbitals = get_frozen_core(self.to_pyscf(self.basis))
+        if frozen_orbitals == "frozen_core":
+            frozen_orbitals = get_frozen_core(self.to_pyscf(self.basis)) if not self.ecp else 0
         elif frozen_orbitals is None:
             frozen_orbitals = 0
 
