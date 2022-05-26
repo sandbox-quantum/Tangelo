@@ -118,15 +118,13 @@ class Molecule:
         Returns:
             pyscf.gto.Mole: PySCF compatible object.
         """
-        if ecp is None:
-            ecp = dict()
 
         mol = gto.Mole(atom=self.xyz)
         mol.basis = basis
         mol.charge = self.q
         mol.spin = self.spin
         mol.symmetry = symmetry
-        mol.ecp = ecp
+        mol.ecp = ecp if ecp else dict()
         mol.build()
 
         self.xyz = list()
