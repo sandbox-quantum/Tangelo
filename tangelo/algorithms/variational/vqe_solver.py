@@ -313,6 +313,7 @@ class VQESolver:
         circuit = self.ansatz.circuit if self.ref_state is None else self.reference_circuit + self.ansatz.circuit
         energy = self.backend.get_expectation_value(self.qubit_hamiltonian, circuit)
 
+        # Additional computation for deflation (optional)
         for circ in self.deflation_circuits:
             f_dict, _ = self.backend.simulate(circ + circuit.inverse())
             energy += self.deflation_coeff * f_dict.get("0"*self.ansatz.circuit.width, 0)
