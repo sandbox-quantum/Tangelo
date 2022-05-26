@@ -194,8 +194,7 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
 
         molecule = SecondQuantizedMolecule(xyz="Cu", q=0, spin=1, basis="cc-pvdz", ecp="crenbl",
                                            frozen_orbitals=list(range(8)))
-        # "Cu" has 29 electrons but the ecp reduces this to 19
-        assert(molecule.n_electrons == 19)
+        # "Cu" has 29 electrons but the ecp reduces this to 19. The active electrons are 19 - 8 * 2 = 3
         assert(molecule.n_active_electrons == 3)
         assert(molecule.n_active_mos == 35)
 
