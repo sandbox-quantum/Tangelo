@@ -39,7 +39,8 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
         n_electrons (int): number of electrons in system.
         mapping (string): specify mapping, see mapping_transform.py for options
             "JW" (Jordan Wigner), or "BK" (Bravyi Kitaev), or "SCBK"
-            (symmetry-conserving Bravyi Kitaev).
+            (symmetry-conserving Bravyi Kitaev) or "JKMN"
+            (Jiang Kalev Mruczkiewicz Neven)
         up_then_down (boolean): if True, all up, then all down, if False,
             alternating spin up/down.
 
@@ -59,20 +60,7 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
         vector[1:2*n_beta+1:2] = 1
     else:
         vector[:n_electrons] = 1
-    if up_then_down:
-        vector = np.concatenate((vector[::2], vector[1::2]))
-
-    if mapping.upper() == "JW":
-        return vector
-    elif mapping.upper() == "BK":
-        return do_bk_transform(vector)
-    elif mapping.upper() == "SCBK":
-        if not up_then_down:
-            warnings.warn("Symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.", RuntimeWarning)
-            vector = np.concatenate((vector[::2], vector[1::2]))
-        return do_scbk_transform(vector, n_spinorbitals)
-    elif mapping.upper() == "JKMN":
-        return jkmn_prep_vector(vector)
+    return get_mapped_vector(vector, mapping, up_then_down)
 
 
 def do_bk_transform(vector):
@@ -107,13 +95,52 @@ def do_scbk_transform(vector, n_spinorbitals):
     return vector
 
 
-def vector_to_circuit(vector, mapping=None):
+def do_jkmn_transform(vector):
+    """Instantiate qubit vector for JKMN transformation.
+
+    Args:
+        vector (numpy array of int): fermion occupation vector.
+
+    Returns:
+        numpy array of int: qubit-encoded occupation vector.
+    """
+    return jkmn_prep_vector(vector)
+
+
+def get_mapped_vector(vector, mapping, up_then_down=False):
+    """Return vector to generate circuit for a given occupation vector and mapping
+
+    Args:
+        vector (array of int): fermion occupation vector with up_then_down=False ordering.
+            Number of spin-orbitals is assumed by length of array.
+        mapping (str): One of the supported qubit mappings
+        up_then_down (bool): if True, all up, then all down, if False,
+            alternating spin up/down.
+
+    Returns:
+        array: The vector that generates the mapping occupations"""
+
+    if up_then_down:
+        vector = np.concatenate((vector[::2], vector[1::2]))
+    if mapping.upper() == "JW":
+        return vector
+    elif mapping.upper() == "BK":
+        return do_bk_transform(vector)
+    elif mapping.upper() == "SCBK":
+        if not up_then_down:
+            warnings.warn("Symmetry-conserving Bravyi-Kitaev enforces all spin-up followed by all spin-down ordering.", RuntimeWarning)
+            vector = np.concatenate((vector[::2], vector[1::2]))
+        return do_scbk_transform(vector, len(vector))
+    elif mapping.upper() == "JKMN":
+        return do_jkmn_transform(vector)
+
+
+def vector_to_circuit(vector):
     """Translate occupation vector into a circuit. Each occupied state
     corresponds to an X-gate on the associated qubit index.
 
     Args:
         vector (numpy array of int): occupation vector.
-        mapping (str) : qubit mapping that defines circuit preparation.
 
     Returns:
         Circuit: instance of tangelo.linq Circuit class.
@@ -148,5 +175,5 @@ def get_reference_circuit(n_spinorbitals, n_electrons, mapping, up_then_down=Fal
         Circuit: instance of tangelo.linq Circuit class.
     """
     vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=up_then_down, spin=spin)
-    circuit = vector_to_circuit(vector, mapping)
+    circuit = vector_to_circuit(vector)
     return circuit
