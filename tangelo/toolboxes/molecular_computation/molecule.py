@@ -295,7 +295,7 @@ class SecondQuantizedMolecule(Molecule):
         self.n_mos = molecule.nao_nr()
         self.n_sos = 2*self.n_mos
 
-    def _get_fermionic_hamiltonian(self):
+    def _get_fermionic_hamiltonian(self, mo_coeff=None):
         """This method returns the fermionic hamiltonian. It written to take
         into account calls for this function is without argument, and attributes
         are parsed into it.
@@ -304,7 +304,7 @@ class SecondQuantizedMolecule(Molecule):
             FermionOperator: Self-explanatory.
         """
 
-        core_constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals()
+        core_constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals(mo_coeff)
 
         one_body_coefficients, two_body_coefficients = spinorb_from_spatial(one_body_integrals, two_body_integrals)
 
@@ -425,7 +425,7 @@ class SecondQuantizedMolecule(Molecule):
 
         return e.real
 
-    def get_active_space_integrals(self):
+    def get_active_space_integrals(self, mo_coeff=None):
         """Computes core constant, one_body, and two-body coefficients with frozen orbitals folded into one-body coefficients
         and core constant
 
@@ -433,7 +433,7 @@ class SecondQuantizedMolecule(Molecule):
             (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
         """
 
-        return self.get_integrals()
+        return self.get_integrals(mo_coeff, True)
 
     def get_full_space_integrals(self, mo_coeff=None):
         """Computes core constant, one_body, and two-body integrals for all orbitals
@@ -442,7 +442,7 @@ class SecondQuantizedMolecule(Molecule):
             (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
         """
 
-        return self.get_integrals(mo_coeff, consider_frozen=False)
+        return self.get_integrals(mo_coeff, False)
 
     def get_integrals(self, mo_coeff=None, consider_frozen=True):
         """Computes core constant, one_body, and two-body coefficients for a given active space and mo_coeff
