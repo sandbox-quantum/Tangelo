@@ -43,9 +43,6 @@ class QCCTest(unittest.TestCase):
 
         nine_zeros = np.zeros((9,), dtype=float)
 
-        qcc_ansatz.set_var_params("qmf_state")
-        np.testing.assert_array_almost_equal(qcc_ansatz.var_params, nine_zeros, decimal=6)
-
         qcc_ansatz.set_var_params([0.]*9)
         np.testing.assert_array_almost_equal(qcc_ansatz.var_params, nine_zeros, decimal=6)
 
