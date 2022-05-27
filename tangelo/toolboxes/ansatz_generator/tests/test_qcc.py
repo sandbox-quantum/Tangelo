@@ -43,15 +43,15 @@ class QCCTest(unittest.TestCase):
 
         nine_zeros = np.zeros((9,), dtype=float)
 
-        qcc_ansatz.set_var_params([0.]*9)
+        qcc_ansatz.set_var_params([0.] * 9)
         np.testing.assert_array_almost_equal(qcc_ansatz.var_params, nine_zeros, decimal=6)
 
         nine_tenths = 0.1 * np.ones((9,))
 
-        qcc_ansatz.set_var_params([0.1]*9)
+        qcc_ansatz.set_var_params([0.1] * 9)
         np.testing.assert_array_almost_equal(qcc_ansatz.var_params, nine_tenths, decimal=6)
 
-        qcc_ansatz.set_var_params(np.array([0.1]))
+        qcc_ansatz.set_var_params(np.array([0.1] * 9))
         np.testing.assert_array_almost_equal(qcc_ansatz.var_params, nine_tenths, decimal=6)
 
     def test_qcc_incorrect_number_var_params(self):
