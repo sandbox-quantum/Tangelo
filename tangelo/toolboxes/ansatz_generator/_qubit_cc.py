@@ -66,10 +66,9 @@ def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):
         for dis_group in dis_groups:
             dis_group_idxs = [int(idxs) for idxs in dis_group[0].split(" ")]
             dis_group_gens = get_gens_from_idxs(dis_group_idxs)
-             # Instead of randomly choosing a generator, grab the first one.
+            # for now just grab the first generator; eventually add capability to
+            # allow the user to select which generators to use.
             dis.append(dis_group_gens[0])
-            #print("gradients = ")
-            #print(dis_group[1])
     else:
         raise ValueError(f"The DIS is empty: there are no candidate DIS groups where "
                          f"|dEQCC/dtau| >= {deqcc_dtau_thresh} a.u. Terminate simulation.\n")
