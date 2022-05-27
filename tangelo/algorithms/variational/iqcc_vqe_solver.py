@@ -31,8 +31,6 @@ Refs:
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 """
 
-from openfermion import commutator
-
 from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.algorithms.variational.vqe_solver import VQESolver
@@ -216,7 +214,7 @@ class iQCCsolver:
 
     def get_sim_data(self):
         """Returns a dictionary containing the number of iterations,
-        the QMF energy, and []s of the energy, generators, amplitudes,
+        the QMF energy, and lists of the energy, generators, amplitudes,
         circuits, number of qubit Hamiltonian terms, and quantum resource
         estimates from each iQCC-VQE iteration."""
 

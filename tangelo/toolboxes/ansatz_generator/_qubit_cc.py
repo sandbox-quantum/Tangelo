@@ -162,7 +162,7 @@ def get_gens_from_idxs(group_idxs):
     return dis_group_gens
 
 
-def build_qcc_qubit_op(dis_gens, amplitudes, n_qubits):
+def build_qcc_qubit_op(dis_gens, amplitudes):
     """Returns the QCC operator by selecting n_var_params generators from the DIS.
     The QCC operator is constructed as a linear combination of generators using the
     parameter set {tau} as coefficients: QCC operator = -0.5 * SUM_k P_k * tau_k.
@@ -174,7 +174,6 @@ def build_qcc_qubit_op(dis_gens, amplitudes, n_qubits):
             selected from a user-specified number of characteristic DIS groups.
         amplitudes (list or numpy array of float): The QCC variational parameters
             arranged such that their ordering matches the order of dis_gens.
-        n_qubits (int): Number of qubits in the register.
 
     Returns:
         QubitOperator: QCC ansatz operator.
@@ -182,7 +181,7 @@ def build_qcc_qubit_op(dis_gens, amplitudes, n_qubits):
 
     qubit_op = QubitOperator.zero()
     for i, dis_gen in enumerate(dis_gens):
-        qubit_op -= 0.5 * amplitudes[2 * n_qubits + i] * dis_gen
+        qubit_op -= 0.5 * amplitudes[i] * dis_gen
     qubit_op.compress()
     return qubit_op
 
@@ -208,7 +207,7 @@ def qcc_op_dress(qubit_op, dis_gens, amplitudes):
     """
 
     for i, gen in enumerate(dis_gens):
-        comm = commutator(gen, qubit_op)
+        comm = commutator(qubit_op, gen)
         qubit_op -= .5j * sin(amplitudes[i]) * comm
         qubit_op += .5 * (1. - cos(amplitudes[i])) * dis_gens[i] * comm
     return qubit_op

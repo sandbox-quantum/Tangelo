@@ -224,7 +224,7 @@ class QCC(Ansatz):
             self.qmf_circuit = self.prepare_reference_state()
 
         # Build the QCC ansatz qubit operator
-        qubit_op = build_qcc_qubit_op(self.dis, self.var_params, self.n_qubits)
+        qubit_op = build_qcc_qubit_op(self.dis, self.var_params[2*self.n_qubits:])
 
         # Obtain quantum circuit through trivial trotterization of the qubit operator
         # Track the order in which pauli words have been visited for fast parameter updates
@@ -246,7 +246,7 @@ class QCC(Ansatz):
         self.set_var_params(var_params)
 
         # Build the QCC ansatz qubit operator
-        qubit_op = build_qcc_qubit_op(self.dis, self.var_params, self.n_qubits)
+        qubit_op = build_qcc_qubit_op(self.dis, self.var_params[2*self.n_qubits:])
 
         # If qubit_op terms have changed, rebuild circuit
         if set(self.pauli_to_angles_mapping.keys()) != set(qubit_op.terms.keys()):
