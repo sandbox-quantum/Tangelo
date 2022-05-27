@@ -111,6 +111,29 @@ class VQESolverTest(unittest.TestCase):
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
 
+    def test_simulate_h2_with_deflation(self):
+        """Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial
+        parameters, exact simulator. Followed by UpCCGSD with deflation of ground state.
+        """
+
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
+                        "initial_var_params": [0.1, 0.1], "verbose": True}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
+
+        # Use deflation to get first excited state.
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UpCCGSD, "qubit_mapping": "jw",
+                       "verbose": True, "deflation_circuits": [vqe_solver.optimal_circuit],
+                       "deflation_coeff": 1.0, "ref_state": [0, 1, 0, 1]}
+        vqe_solver_2 = VQESolver(vqe_options)
+        vqe_solver_2.build()
+
+        energy = vqe_solver_2.simulate()
+        self.assertAlmostEqual(energy, -0.53247, delta=1e-4)
+
     def test_simulate_qmf_h2(self):
         """Run VQE on H2 molecule, with QMF ansatz, JW qubit mapping, initial
         parameters, exact simulator.

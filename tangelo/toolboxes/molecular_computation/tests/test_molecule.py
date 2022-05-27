@@ -184,6 +184,20 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         assert(mo_symm_labels == molecule.mo_symm_labels)
         assert(mo_symm_ids == molecule.mo_symm_ids)
 
+    def test_ecp(self):
+        """Verify that the number of electrons is reduced when ecp is called."""
+
+        molecule = SecondQuantizedMolecule(xyz="Yb", q=0, spin=0, basis="crenbl", ecp="crenbl")
+        # "Yb" has 70 electrons but the ecp reduces this to 16
+        assert(molecule.n_active_electrons == 16)
+        assert(molecule.n_active_mos == 96)
+
+        molecule = SecondQuantizedMolecule(xyz="Cu", q=0, spin=1, basis="cc-pvdz", ecp="crenbl",
+                                           frozen_orbitals=list(range(8)))
+        # "Cu" has 29 electrons but the ecp reduces this to 19. The active electrons are 19 - 8 * 2 = 3
+        assert(molecule.n_active_electrons == 3)
+        assert(molecule.n_active_mos == 35)
+
 
 if __name__ == "__main__":
     unittest.main()

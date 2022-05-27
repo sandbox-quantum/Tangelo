@@ -42,7 +42,7 @@ def get_frozen_core(molecule):
 
     # Counting how many of each element is in the molecule.
     elements = {i: molecule.elements.count(i) for i in molecule.elements}
-    frozen_core = sum([v * core_orbitals[k] for k, v in elements.items()])
+    frozen_core = sum([v * core_orbitals.get(k, 0) for k, v in elements.items()])
 
     return frozen_core
 

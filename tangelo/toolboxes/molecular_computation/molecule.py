@@ -94,7 +94,7 @@ class Molecule:
     n_min_orbitals: int = field(init=False)
 
     def __post_init__(self):
-        mol = self.to_pyscf(basis="sto-3g", symmetry=False)
+        mol = self.to_pyscf()
         self.n_atoms = mol.natm
         self.n_electrons = mol.nelectron
         self.n_min_orbitals = mol.nao_nr()
@@ -107,11 +107,13 @@ class Molecule:
     def coords(self):
         return np.array([self.xyz[i][1] for i in range(self.n_atoms)])
 
-    def to_pyscf(self, basis="sto-3g", symmetry=False):
+    def to_pyscf(self, basis="CRENBL", symmetry=False, ecp=None):
         """Method to return a pyscf.gto.Mole object.
 
         Args:
             basis (string): Basis set.
+            symmetry (bool): Flag to turn symmetry on
+            ecp (dict): Dictionary with ecp definition for each atom e.g. {"Cu": "crenbl"}
 
         Returns:
             pyscf.gto.Mole: PySCF compatible object.
@@ -122,6 +124,7 @@ class Molecule:
         mol.charge = self.q
         mol.spin = self.spin
         mol.symmetry = symmetry
+        mol.ecp = ecp if ecp else dict()
         mol.build()
 
         self.xyz = list()
@@ -137,7 +140,7 @@ class Molecule:
             filename (str): The name of the file to output the geometry.
             format (str): The output type of "raw", "xyz", or "zmat". If None, will be inferred by the filename
         """
-        mol = self.to_pyscf(basis="sto-3g")
+        mol = self.to_pyscf()
         mol.tofile(filename, format)
 
     def to_openfermion(self, basis="sto-3g"):
@@ -161,6 +164,8 @@ class SecondQuantizedMolecule(Molecule):
 
     Attributes:
         basis (string): Basis set.
+        ecp (dict): The effective core potential (ecp) for any atoms in the molecule.
+            e.g. {"C": "crenbl"} use CRENBL ecp for Carbon atoms.
         symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.
             Can also specify point group using pyscf allowed string.
             e.g. "Dooh", "D2h", "C2v", ...
@@ -195,6 +200,7 @@ class SecondQuantizedMolecule(Molecule):
         actives_mos (list): Active MOs indexes.
     """
     basis: str = "sto-3g"
+    ecp: dict = field(default_factory=dict)
     symmetry: bool = False
     frozen_orbitals: list or int = field(default="frozen_core", repr=False)
 
@@ -273,7 +279,7 @@ class SecondQuantizedMolecule(Molecule):
         (mf_energy, mo_energies, mo_occ, n_mos and n_sos).
         """
 
-        molecule = self.to_pyscf(self.basis, self.symmetry)
+        molecule = self.to_pyscf(self.basis, self.symmetry, self.ecp)
 
         self.mean_field = scf.RHF(molecule)
         self.mean_field.verbose = 0
@@ -332,7 +338,7 @@ class SecondQuantizedMolecule(Molecule):
         """
 
         if frozen_orbitals == "frozen_core":
-            frozen_orbitals = get_frozen_core(self.to_pyscf(self.basis))
+            frozen_orbitals = get_frozen_core(self.to_pyscf(self.basis)) if not self.ecp else 0
         elif frozen_orbitals is None:
             frozen_orbitals = 0
 
@@ -456,7 +462,7 @@ class SecondQuantizedMolecule(Molecule):
         """
 
         # Pyscf molecule to get integrals.
-        pyscf_mol = self.to_pyscf(self.basis, self.symmetry)
+        pyscf_mol = self.to_pyscf(self.basis, self.symmetry, self.ecp)
         if mo_coeff is None:
             mo_coeff = self.mean_field.mo_coeff
 
