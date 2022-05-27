@@ -16,7 +16,6 @@ import numpy as np
 from openfermion.transforms.opconversions.conversions import get_majorana_operator
 
 from tangelo.toolboxes.operators import QubitOperator
-from tangelo.linq import Circuit, Gate
 
 sigma_map = {"0": "X", "1": "Y", "2": "Z"}
 
