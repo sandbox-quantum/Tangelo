@@ -13,12 +13,23 @@
 # limitations under the License.
 
 """
+This module implements the iterative qubit coupled cluster (iQCC)-VQE
+procedure as described in Ref. 1. This is a variational approach that
+utilizes the cost-effective QCC methodology to afford shallow circuits.
+The iterative procedure allows a small number (1—10) of generators to
+be used for each energy evaluation. This further reduces the quantum
+resources required by the iQCC approach, but it is done at the expense
+of additional classical expense. The additional classical effort arises
+from the canonical transformation of the qubit Hamiltonian after each
+iQCC-VQE iteration, which yields an exponential explosion in the number
+of terms present in the qubit Hamiltonian. A technique described in
+Ref. 1 for mitigating this explosive growth by discarding terms based on
+the Frobenius norm is implemented and can be deployed.
 
 Refs:
     1. I. G. Ryabinkin, R. A. Lang, S. N. Genin, and A. F. Izmaylov.
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 """
-
 
 from openfermion import commutator
 
@@ -27,9 +38,29 @@ from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.algorithms.variational.vqe_solver import VQESolver
 from tangelo.toolboxes.ansatz_generator._qubit_cc import qcc_op_dress, qcc_op_compress
 
+sim = Simulator()
 
-class iQCC_Solver:
-    """
+
+class iQCCsolver:
+    """The iQCC-VQE solver class that combines the QCC ansatz and VQESolver
+    classes to perform an iterative and variational procedure to compute the
+    total QCC energy for a given Hamiltonian. The algorithm is outlined below:
+
+    (0) Prepare a qubit Hamiltonian, initialize QMF parameters, construct the
+        DIS, select QCC generators, and initialize QCC amplitudes.
+    (1) Simulate the QCC energy through VQE minimization.
+    (2) Check if the energy is lowered relative to the previous iteration.
+    (3) If the energy is lowered, proceed to (4); else, keep the QCC generators,
+        re-initialize the amplitudes, and re-compute the energy. If after several
+        attempts the energy is not lowered, set all QCC amplitudes to zero and
+        use the QMF parameters from the previous iteration to compute the energy.
+        This is guaranteed to yield a lower energy.
+    (4) Check termination criteria: terminate if the change in energy is below a
+        threshold, the DIS is empty, or the maximum number of iterations is reached.
+    (5) If not terminated, dress the qubit Hamiltonian with the current QCC
+        generators and optimal amplitudes.
+    (6) Purify the QMF parameters, rebuild the DIS, and select generators for
+        the next iteration; return to (1) and repeat until termination.
 
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
@@ -47,7 +78,7 @@ class iQCC_Solver:
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         deqcc_thresh (float): threshold for the difference in iQCC energies between
             consecutive iterations required for convergence of the algorithm.
-            Default, 1e-6 Hartree.
+            Default, 1e-5 Hartree.
         max_iqcc_iter (int): maximum number of iQCC iterations allowed before termination.
             Default, 100.
         max_iqcc_retries (int): if the iQCC energy for a given iteration is not lower than
@@ -62,7 +93,7 @@ class iQCC_Solver:
             using the Froebenius norm. Discarding terms in this manner will not alter the
             eigenspeectrum of intermediate Hamiltonians by more than compress_eps.
             Default, 1.59e-3 Hartree.
-        verbose (bool): Flag for verbosity of iQCCSolver. Default, False.
+        verbose (bool): Flag for verbosity of iQCCsolver. Default, False.
      """
 
     def __init__(self, opt_dict):
@@ -76,7 +107,7 @@ class iQCC_Solver:
                            "penalty_terms": None,
                            "ansatz_options": dict(),
                            "qubit_hamiltonian": None,
-                           "deqcc_thresh": 1e-6,
+                           "deqcc_thresh": 1e-5,
                            "max_iqcc_iter": 100,
                            "max_iqcc_retries": 10,
                            "compress_qubit_ham": False,
@@ -90,34 +121,37 @@ class iQCC_Solver:
             if k in default_options:
                 setattr(self, k, v)
             else:
-                raise KeyError(f"Keyword :: {k}, not available in iQCCSolver")
+                raise KeyError(f"Keyword :: {k}, not available in iQCCsolver")
 
         if not self.molecule:
-            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing iQCCSolver.")
+            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing iQCCsolver.")
 
         self.converged = False
         self.iteration = 0
-        self.energies = list()
-        self.circuits = list()
-        self.resources = list()
-        self.generators = list()
-        self.amplitudes = list()
-        self.n_qubit_ham_terms = list()
+        self.final_optimal_energy = None
+        self.final_optimal_circuit = None
+        self.final_optimal_qmf_params = None
+        self.final_optimal_qcc_params = None
 
-        self.optimal_energy = None
-        self.optimal_var_params = None
-        self.optimal_circuit = None
+        # lists for useful data to store for each iQCC-VQE iteration
+        self.circuits = []
+        self.resources = []
+        self.generators = []
+        self.qmf_params = []
+        self.qcc_params = []
+        self.qcc_energies = []
+        self.n_qham_terms = []
 
     def build(self):
         """Builds the underlying objects required to run the iQCC-VQE algorithm."""
 
+        # Build the QCC ansatz; do not run qcc_ansatz.build() as vqe_solver.build() does it
         self.qcc_ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-#        self.qcc_ansatz.build_circuit()
 
         # Build an instance of VQESolver with options that remain fixed during the iQCC-VQE process.
         self.vqe_solver_options = {"molecule": self.molecule,
                                    "qubit_mapping": self.qubit_mapping,
-                                   "ansatz": self.qcc_ansatz, 
+                                   "ansatz": self.qcc_ansatz,
                                    "initial_var_params": self.initial_var_params,
                                    "backend_options": self.backend_options,
                                    "penalty_terms": self.penalty_terms,
@@ -129,30 +163,28 @@ class iQCC_Solver:
         self.vqe_solver.build()
 
     def simulate(self):
-        """Performs iQCC-VQE cycles. During each iteration, a VQE minimization is
-        performed with the current set of QCC Pauli word generators and corresponding
-        amplitudes.
+        """Execute the iQCC-VQE algorithm. During each iteration, a QCC-VQE minimization
+        is performed with the current set of QCC Pauli word generators, amplitudes, and
+        qubit Hamiltonian.
         """
 
         # initialize quantities; initialize eqcc_old as the reference mean-field energy
-        sim, e_qcc, delta_eqcc = Simulator(), 0., self.deqcc_thresh 
-        qmf_qubit_ham, qmf_circuit = self.qcc_ansatz.qubit_ham, self.qcc_ansatz.circuit
-        eqcc_old = sim.get_expectation_value(qmf_qubit_ham, qmf_circuit)
-        n_gen = len(self.qcc_ansatz.dis)
+        # Compute the QMF energy for the initial, undressed qubit Hamiltonian
+        self.qmf_energy = sim.get_expectation_value(self.qcc_ansatz.qubit_ham, self.qcc_ansatz.qmf_circuit)
+        e_qcc, eqcc_old, delta_eqcc = 0., self.qmf_energy, self.deqcc_thresh
         while abs(delta_eqcc) >= self.deqcc_thresh and self.iteration < self.max_iqcc_iter:
             # check for at least one Pauli word generator and amplitude; if None, terminate.
             if self.qcc_ansatz.dis and self.qcc_ansatz.var_params.any():
                 e_qcc = self.vqe_solver.simulate()
                 delta_eqcc = e_qcc - eqcc_old
+                eqcc_old = e_qcc
             else:
                 delta_eqcc = 0.
-            if delta_eqcc < 0.:
-                eqcc_old = e_qcc
+            if delta_eqcc < 0. or (delta_eqcc > 0. and delta_eqcc < self.deqcc_thresh):
                 self._update_iqcc_solver()
-                self.iteration += 1
-            elif delta_eqcc > 0. and delta_eqcc >= self.deqcc_thresh:
+            else:
                 n_retry = 0
-                while e_qcc >= eqcc_old and n_retry < self.max_iqcc_retries:
+                while e_qcc > eqcc_old and n_retry < self.max_iqcc_retries:
                     self.qcc_ansatz.var_params = None
                     self.qcc_ansatz.update_var_params("random")
                     self.vqe_solver.initial_var_params = self.qcc_ansatz.var_params
@@ -162,54 +194,76 @@ class iQCC_Solver:
                     delta_eqcc = e_qcc - eqcc_old
                     eqcc_old = e_qcc
                     self._update_iqcc_solver()
-                    self.iteration += 1
                 else:
                     self.qcc_ansatz.var_params = None
                     self.qcc_ansatz.update_var_params("qmf_state")
                     self.vqe_solver.initial_var_params = self.qcc_ansatz.var_params
+                    eqcc_old = e_qcc
                     e_qcc = self.vqe_solver.simulate()
                     delta_eqcc = e_qcc - eqcc_old
                     self._update_iqcc_solver()
-                    self.iteration += 1
+        if self.converged:
+            self.final_optimal_energy = self.qcc_energies[-1]
+            self.final_optimal_circuit = self.circuits[-1]
+            self.final_optimal_qmf_params = self.qmf_params[-1]
+            self.final_optimal_qcc_params = self.qcc_params[-1]
+        return self.qcc_energies[-1]
 
+    def get_sim_data(self):
+        """Returns a dictionary containing the number of iterations,
+        the QMF energy, and []s of the energy, generators, amplitudes,
+        circuits, number of qubit Hamiltonian terms, and quantum resource
+        estimates from each iQCC-VQE iteration."""
 
-        return self.energies[-1]
-
-    def get_resources(self):
-        """Returns a dictionary containing the optimal QCC energy, set of Pauli word
-        generators, amplitudes, circuit, number of qubit Hamiltonian terms, and quantum
-        resource estimations at each iteration of the iQCC-VQE solver."""
-
-        iqcc_resources = dict()
-        iqcc_resources["energies"] = self.energies
-        iqcc_resources["circuits"] = self.circuits
-        iqcc_resources["resources"] = self.resources
-        iqcc_resources["generators"] = self.generators
-        iqcc_resources["amplitudes"] = self.amplitudes
-        iqcc_resources["n_qham_terms"] = self.n_qubit_ham_terms
-        return iqcc_resources
+        sim_data = dict()
+        sim_data["n_iter"] = self.iteration
+        sim_data["circuits"] = self.circuits
+        sim_data["resources"] = self.resources
+        sim_data["generators"] = self.generators
+        sim_data["qmf_params"] = self.qmf_params
+        sim_data["qcc_params"] = self.qcc_params
+        sim_data["qmf_energy"] = self.qmf_energy
+        sim_data["qcc_energies"] = self.qcc_energies
+        sim_data["n_qham_terms"] = self.n_qham_terms
+        return sim_data
 
     def _update_iqcc_solver(self):
-        """ Update the lists for the optimal QCC energy, set of Pauli word
-        generators, amplitudes, circuit, number of qubit Hamiltonian terms, and quantum
-        resource estimation at each iteration of the iQCC-VQE solver."""
+        """This function serves several purposes after successful iQCC-VQE
+        iterations:
+            (1) updates/stores the energy, generators, QMF Bloch angles,
+                QCC amplitudes, circuits, number of qubit Hamiltonian terms,
+                and quantum resource estimates;
+            (2) dresses/compresses the qubit Hamiltonian with the current
+                generators and optimal amplitudes;
+            (3) prepares for the next iteration by rebuilding the DIS,
+                re-initializing the amplitudes for a new set of generators,
+                generating the circuit, and updates the classical optimizer."""
 
-        optimal_var_params = self.vqe_solver.optimal_var_params
+        # get the optimal variational parameters and split them for qmf and qcc
+        n_qubits = self.qcc_ansatz.n_qubits
+        optimal_qmf_var_params = self.vqe_solver.optimal_var_params[:2*n_qubits]
+        optimal_qcc_var_params = self.vqe_solver.optimal_var_params[2*n_qubits:]
 
+        # update all []s with data from the current iteration
         self.circuits.append(self.vqe_solver.optimal_circuit)
-        self.amplitudes.append(optimal_var_params)
-        self.generators.append(self.qcc_ansatz.dis)
-        self.energies.append(self.vqe_solver.optimal_energy)
         self.resources.append(self.vqe_solver.get_resources())
-        self.n_qubit_ham_terms.append(len(self.qcc_ansatz.qubit_ham.terms))
+        self.generators.append(self.qcc_ansatz.dis)
+        self.qmf_params.append(optimal_qmf_var_params)
+        self.qcc_params.append(optimal_qcc_var_params)
+        self.qcc_energies.append(self.vqe_solver.optimal_energy)
+        self.n_qham_terms.append(len(self.qcc_ansatz.qubit_ham.terms))
 
+        # dress / compress the qubit Hamiltonian
         self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham, self.qcc_ansatz.dis,
-                                                 optimal_var_params)
+                                                       optimal_qcc_var_params)
         if self.compress_qubit_ham:
             self.qcc_ansatz.qubit_ham = qcc_op_compress(self.qcc_ansatz.qubit_ham, self.compress_eps,
-                                                        self.qcc_ansatz.n_qubits)
+                                                              self.qcc_ansatz.n_qubits)
+        self.qcc_ansatz.qubit_ham.compress()
 
+        # set dis and var_params to none to rebuild the dis and initialize new amplitudes
         self.qcc_ansatz.dis = None
-        self.qcc_ansatz.var_params = None 
+        self.qcc_ansatz.var_params = None
         self.qcc_ansatz.build_circuit()
         self.vqe_solver.initial_var_params = self.qcc_ansatz.var_params
+        self.iteration += 1

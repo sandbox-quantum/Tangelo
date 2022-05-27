@@ -30,7 +30,7 @@ Refs:
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 """
 
-from cmath import sin, cos, sqrt
+from math import sin, cos, sqrt
 from collections import OrderedDict
 from itertools import combinations
 
@@ -68,6 +68,8 @@ def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):
             dis_group_gens = get_gens_from_idxs(dis_group_idxs)
              # Instead of randomly choosing a generator, grab the first one.
             dis.append(dis_group_gens[0])
+            #print("gradients = ")
+            #print(dis_group[1])
     else:
         raise ValueError(f"The DIS is empty: there are no candidate DIS groups where "
                          f"|dEQCC/dtau| >= {deqcc_dtau_thresh} a.u. Terminate simulation.\n")
@@ -161,48 +163,81 @@ def get_gens_from_idxs(group_idxs):
     return dis_group_gens
 
 
-def qcc_op_dress(qubit_op, dis_gens, amplitudes):
-    """
-    Function to perform a canonical QCC dressing of an arbitrary qubit operator with the
-    current set of QCC Pauli word generators and corresponding amplitudes.
+def build_qcc_qubit_op(dis_gens, amplitudes, n_qubits):
+    """Returns the QCC operator by selecting n_var_params generators from the DIS.
+    The QCC operator is constructed as a linear combination of generators using the
+    parameter set {tau} as coefficients: QCC operator = -0.5 * SUM_k P_k * tau_k.
+    The exponentiated QCC operator, U = PROD_k exp(-0.5j * tau_k * P_k), is used to
+    build the circuit.
 
     Args:
-
+        dis_gens (list of QubitOperator): The list of QCC Pauli word generators
+            selected from a user-specified number of characteristic DIS groups.
+        amplitudes (list or numpy array of float): The QCC variational parameters
+            arranged such that their ordering matches the order of dis_gens.
+        n_qubits (int): Number of qubits in the register.
 
     Returns:
-
+        QubitOperator: QCC ansatz operator.
     """
 
-    for i in range(len(dis_gens)):
-        comm = commutator(qubit_op, dis_gens[i])
+    qubit_op = QubitOperator.zero()
+    for i, dis_gen in enumerate(dis_gens):
+        qubit_op -= 0.5 * amplitudes[2 * n_qubits + i] * dis_gen
+    qubit_op.compress()
+    return qubit_op
+
+
+def qcc_op_dress(qubit_op, dis_gens, amplitudes):
+    """Performs canonical transformation of a qubit operator with the set of QCC
+    generators and amplitudes for the current iteration. For an operator with M terms
+    each transformation results in exponential growth of the number terms. This growth
+    can be approximated as M * (3 / 2) ^ n_g, where n_g is the number of QCC generators
+    selected for the ansatz at the current iteration.
+
+    Args:
+        qubit_op (QubitOperator): A qubit operator (e.g., a molecular Hamiltonian or the
+            electronic spin and number operators) that was previously dressed by canonical
+            transformation with the QCC generators and amplitudes at the current iteration.
+        dis_gens (list of QubitOperator): The list of QCC Pauli word generators
+            selected from a user-specified number of characteristic DIS groups.
+        amplitudes (list or numpy array of float): The QCC variational parameters
+            arranged such that their ordering matches the ordering of dis_gens.
+
+    Returns:
+        QubitOperator: Dressed qubit operator.
+    """
+
+    for i, gen in enumerate(dis_gens):
+        comm = commutator(gen, qubit_op)
         qubit_op -= .5j * sin(amplitudes[i]) * comm
         qubit_op += .5 * (1. - cos(amplitudes[i])) * dis_gens[i] * comm
-    qubit_op.compress()
-    return qubit_op 
+    return qubit_op
 
 
 def qcc_op_compress(qubit_op, eps, n_qubits):
-    """
-    Function to reduce the number of terms for an arbitrary qubit operator that has been
-    canonically dressed with QCC Pauli word generators and amplitudes according to a user-
-    defined threshold epsilon for the Frobenius norm of the qubit operator.
-    See Ref. 1 for more details.
+    """Reduces the number of terms for a qubit operator based on the Frobenius
+    norm of the operator and a user-defined threshold, eps (see Ref. 1). The
+    eigenspectrum of the compressed operator will not deviate more than eps.
 
     Args:
-        eps (float): parameter required for compressing intermediate iQCC Hamiltonians
-            using the Froebenius norm. Discarding terms in this manner will not alter the
-            eigenspeectrum of intermediate Hamiltonians by more than eps.
+        qubit_op (QubitOperator): A qubit operator (e.g., a molecular Hamiltonian or the
+            electronic spin and number operators).
+        eps (float): Parameter controlling the degree of compression and resulting accuracy
+            of the compressed operator.
+        n_qubits (int): Number of qubits in the register.
 
     Returns:
-
+        QubitOperator: The compressed qubit operator.
     """
 
-    compressed_op, frob_norm = dict(), 0.
+    compressed_op, coef2_sum, frob_factor = dict(), 0., pow(2., n_qubits / 2.)
+    # Arrange the terms of the qubit operator in ascending order
     qubit_op.terms = OrderedDict(sorted(qubit_op.terms.items(), key=lambda x: abs(x[1]), reverse=False))
     for term, coef in qubit_op.terms.items():
-        frob_norm += coef * coef
-        if sqrt(frob_norm) * pow(2., n_qubits / 2.) > eps:
+        coef2_sum += pow(coef.real, 2.) + pow(coef.imag, 2.)
+        # while the sum is less than eps / factor, discard the terms
+        if sqrt(coef2_sum) > eps / frob_factor:
             compressed_op[term] = coef
-    qubit_op = QubitOperator(compressed_op)
-    qubit_op.compress()
+    qubit_op.terms = compressed_op
     return qubit_op

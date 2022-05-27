@@ -57,7 +57,7 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
         # a_mat --> A and z_vec --> z in Appendix A, Refs. 1 & 2.
         a_mat, z_vec, one_vec = np.zeros((ng2, ngnq)), np.zeros(ngnq), np.ones((ng2, 1))
         for idx, gen_idx in enumerate(gen_idxs):
-            gen = dis[gen_idx][0]
+            gen = dis[gen_idx]
             for term in gen.terms:
                 for paulis in term:
                     p_idx, pauli = paulis
