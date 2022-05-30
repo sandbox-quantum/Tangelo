@@ -43,10 +43,6 @@ entangle_circuit = Circuit([Gate("CSWAP", target=[2, 5], control=[0]),
                             Gate("CSWAP", target=[3, 7], control=[4]),
                             Gate("H", 6)], n_qubits=10)
 
-circuit5 = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
-                    Gate("RZ", 1, parameter=0.01), Gate("CNOT", 1, control=0),
-                    Gate("RX", 0, parameter=-2.)])
-
 
 class TestCircuits(unittest.TestCase):
 
@@ -254,15 +250,19 @@ class TestCircuits(unittest.TestCase):
         proper set of gates.
         """
 
-        test_circuit = remove_small_rotations(circuit5, param_threshold=0.05)
-        ref_circuit = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
-                               Gate("CNOT", 1, control=0), Gate("RX", 0, parameter=-2.)])
+        test_circuit = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
+                    Gate("RZ", 2, parameter=0.01), Gate("CNOT", 1, control=0),
+                    Gate("RX", 0, parameter=-2.)])
+        test_circuit.remove_small_rotations(param_threshold=0.05)
 
-        self.assertTrue(ref_circuit == test_circuit)
+        ref_gates = [Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
+                     Gate("CNOT", 1, control=0), Gate("RX", 0, parameter=-2.)]
 
-        test2_circuit = remove_redundant_gates(ref_circuit)
+        self.assertTrue(ref_gates == test_circuit._gates)
 
-        self.assertTrue(Circuit() == test2_circuit)
+        test_circuit.remove_redundant_gates()
+
+        self.assertTrue([] == test_circuit._gates)
 
 
 if __name__ == "__main__":
