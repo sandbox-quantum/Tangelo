@@ -16,24 +16,24 @@ import unittest
 import os
 import json
 
-from tangelo.toolboxes.molecular_computation.fno_fragments import FNOFragments
+from tangelo.toolboxes.molecular_computation.mifno_link import MIFNOFragment
 
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
 # Dictionary containing all the results.
-with open("/home/alex/scratch/BeH2_STO3G_3MIFNO_FCI.json", "r") as f:
+with open(os.path.join(pwd_this_test, "data", "BeH2_STO3G_3MIFNO_FCI.json"), "r") as f:
     res = json.loads(f.read())
 
-# json export convertsed some int keys to string.
+# json export converted some int keys to string (not wanted).
 res["subproblem_data"] = {int(k): v for k, v in res["subproblem_data"].items()}
 
 
-class FnoFragmentsTest(unittest.TestCase):
+class MIFNOFragmentTest(unittest.TestCase):
 
     def test_init(self):
         """Verify initialization."""
 
-        test = FNOFragments(res)
+        test = MIFNOFragment(res)
 
         self.assertAlmostEquals(test.e_tot, -15.595176868)
         self.assertAlmostEquals(test.e_corr, -0.034864526)
@@ -48,7 +48,7 @@ class FnoFragmentsTest(unittest.TestCase):
     def test_fragment_ids(self):
         """Verify if the fragment_ids property returns all the fragment ids.."""
 
-        test = FNOFragments(res)
+        test = MIFNOFragment(res)
         frag_ids = test.fragment_ids
 
         self.assertEquals(frag_ids, ["(0,)", "(1,)", "(2,)", "(0, 1)", "(0, 2)", "(1, 2)", "(0, 1, 2)"])
@@ -56,8 +56,8 @@ class FnoFragmentsTest(unittest.TestCase):
     def test_mi_summation(self):
         """Verify that the energy can be recomputed with the incremental method."""
 
-        test = FNOFragments(res)
-        test.get_mo_coeff(os.path.join(pwd_this_test, "data"))
+        test = MIFNOFragment(res)
+        test.retrieve_mo_coeff(os.path.join(pwd_this_test, "data"))
 
         e_mi = test.mi_summation()
 

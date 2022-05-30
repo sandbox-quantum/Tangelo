@@ -28,9 +28,9 @@ import numpy as np
 import pandas as pd
 
 
-class FNOFragments():
+class MIFNOFragment():
     """Python object to post-process, fetch and manipulate QEMIST Cloud MI-FNO
-    results. The use-case for this is to map MI-FNO subproblems into
+    results. The use case for this is to map MI-FNO subproblems into
     fermionic Hamiltonians acting as inputs. This object keeps track of the
     classical results.
 
@@ -39,14 +39,17 @@ class FNOFragments():
         e_corr (float): Correlation energy (e_tot - e_mf).
         e_mf (float): Mean-field energy.
         frag_info (dict): Information about each fragment. The keys are related
-            to the sampled active space (e.g. '(1,)' or '(0, 2)'). It contains
-            informations about the correction term, epsilon, list of truncated
-            orbitals and more.
+            to the truncation number (int) . The nested dictionaries have keys
+             refering to the sampled active space (e.g. '(1,)' or '(0, 2)') They
+            contain information about the correction term, epsilon, list of
+            truncated orbitals and more.
 
     Properties:
         dataframe (pandas.DataFrame): Converted frag_info dict into a pandas
             DataFrame.
         fragment_ids (list of string): List of all fragment identifiers.
+        frag_info_flattened (dictionary): The nested frag_info without the first
+            layer (keys = truncation number).
     """
 
     def __init__(self, result):
@@ -79,30 +82,35 @@ class FNOFragments():
 
     @property
     def dataframe(self):
-        """Outputting the fragment informations as a pandas.DataFrame."""
+        """Outputs the fragment informations as a pandas.DataFrame."""
         df = pd.DataFrame.from_dict(self.frag_info_flattened, orient="index")
+
+        # Replace frozen_orbitals_truncated=None with an empty list.
+        df["frozen_orbitals_truncated"] = df["frozen_orbitals_truncated"].apply(lambda d: d if isinstance(d, list) else [])
+
         return df.drop(["mo_coefficients"], axis=1)
 
     @property
     def fragment_ids(self):
-        """Outputting the fragment ids in a list."""
+        """Outputs the fragment ids in a list."""
         return list(itertools.chain.from_iterable([d.keys() for d in self.frag_info.values()]))
 
     @property
     def frag_info_flattened(self):
+        """Outputs the nested frag_info without the first layer."""
         return reduce(lambda a, b: {**a, **b}, self.frag_info.values())
 
-    def get_mo_coeff(self, download_path=os.path.expanduser("~")):
+    def retrieve_mo_coeff(self, download_path=os.getcwd()):
         """Function to fetch molecular orbital coefficients. A download path can
         be provided to change the directory where the files will be downloaded.
         If the files already exist, the function skips the download step. The
-        array is stored in the _frag_info[frag_id]["mo_coefficients"]["array"]
-        attribute.
+        array is stored in the ["mo_coefficients"]["array"] entry in the
+        frag_info dictionary attribute.
 
         Args:
             download_path (string): Path where to download the HDF5 files
                 containing the molecular coefficient array. Default is set to
-                the user's HOME directory.
+                the current work directory.
         """
         absolute_path = os.path.abspath(download_path)
 
@@ -123,7 +131,7 @@ class FNOFragments():
 
                 n_body_fragments[frag_id]["mo_coefficients"]["array"] = mo_coeff
 
-    def get_fermionoperator(self, molecule, frag_id):
+    def compute_fermionoperator(self, molecule, frag_id):
         """Computes the fermionic Hamiltonian for a MI-FNO fragment.
 
         Args:
@@ -150,15 +158,12 @@ class FNOFragments():
     def mi_summation(self, outside_energies=None):
         """Recomputes the total energy for the method of increments (MI).
         Each increment corresponds to "new" correlation energy from the n-body
-        problem.
-
-        The list of energies will be updated with new input energies. This makes
-        computing the total energy fwith new calculation for a or many
-        fragment(s).
+        problem. This method makes computing the total energy with new
+        results possible.
 
         Args:
-            outside_energies (dict): New enegy for a or many fragment(s). E.g.
-                {"(0, )": -1.234} or {"(1, )": -1.234, "(0, 1)": -5.678}.
+            outside_energies (dict): New energies for a or many fragment(s).
+                E.g. {"(0, )": -1.234} or {"(1, )": -1.234, "(0, 1)": -5.678}.
         """
         if outside_energies is None:
             outside_energies = dict()
@@ -189,12 +194,9 @@ class FNOFragments():
                         for c in itertools.combinations(eval(frag_id), b):
                             epsilons[frag_id] -= epsilons[str(c)]
 
-        # Checks if epsilon < 0, i.e. positive correlation energy.
+        # Checks if epsilon < 0, i.e. positive correlation energy increment.
         for frag_id, eps in epsilons.items():
             if eps > 0.:
-                warnings.warn(f"Epsilon for frag_id {frag_id} is positive ({eps}). Setting it to 0.", RuntimeWarning)
-                # TODO: setting this to 0. makes the final result differs from
-                # the QEMIST Cloud value.
-                #epsilons[frag_id] = 0.
+                warnings.warn(f"Epsilon for frag_id {frag_id} is positive ({eps}).", RuntimeWarning)
 
         return self.e_mf + sum(epsilons.values())
