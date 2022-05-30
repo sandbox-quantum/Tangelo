@@ -71,7 +71,7 @@ class MIFNOFragment():
             "correction",
             "frozen_orbitals_truncated",
             "mo_coefficients"
-         }
+        }
 
         # Selecting only the FNO keys found in 'relevant_info'.
         self.frag_info = dict()
