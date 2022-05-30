@@ -22,7 +22,7 @@ import copy
 from math import pi
 from collections import Counter
 
-from tangelo.linq import Gate, Circuit, stack, remove_small_rotations, remove_redundant_gates
+from tangelo.linq import Gate, Circuit, stack
 
 # Create several abstract circuits with different features
 mygates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1),
@@ -263,6 +263,14 @@ class TestCircuits(unittest.TestCase):
         test_circuit.remove_redundant_gates()
 
         self.assertTrue([] == test_circuit._gates)
+
+    def test_simple_optimization_minus_a_qubit(self):
+        """ Test if removing redundant gates deletes a qubit."""
+
+        test_circuit = Circuit([Gate("X", 0), Gate("H", 1), Gate("H", 1)])
+        test_circuit.remove_redundant_gates()
+
+        self.assertEqual(test_circuit.width, 1)
 
 
 if __name__ == "__main__":
