@@ -105,7 +105,16 @@ class Gate(dict):
 
     def __eq__(self, other):
         """Define equality (==) operator on gates"""
-        return self.__dict__ == other.__dict__
+
+        ds, do = self.__dict__, other.__dict__
+
+        if any(ds[k] != do[k] for k in ds if k != "parameter"):
+            return False
+
+        parameter = round(ds["parameter"] % (2 * pi), 7) if isinstance(ds["parameter"], (float, int)) else ds["parameter"]
+        other_parameter = round(do["parameter"] % (2 * pi), 7) if isinstance(do["parameter"], (float, int)) else do["parameter"]
+
+        return parameter == other_parameter
 
     def __ne__(self, other):
         """Define inequality (!=) operator on gates"""
@@ -118,7 +127,7 @@ class Gate(dict):
             Gate: the inverse of the gate.
         """
         if self.name not in INVERTIBLE_GATES:
-            raise AttributeError(f"{self.gate} is not an invertible gate")
+            raise AttributeError(f"{self.name} is not an invertible gate")
         if self.parameter == "":
             new_parameter = ""
         elif isinstance(self.parameter, (float, floating, int, integer)):

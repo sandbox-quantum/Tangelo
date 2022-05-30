@@ -13,6 +13,6 @@
 # limitations under the License.
 
 from .gate import *
-from .circuit import Circuit, stack
+from .circuit import Circuit, stack, remove_small_rotations, remove_redundant_gates
 from .translator import *
 from .simulator import Simulator, backend_info
