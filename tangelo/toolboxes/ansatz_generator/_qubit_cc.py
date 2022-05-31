@@ -210,7 +210,7 @@ def qcc_op_dress(qubit_op, dis_gens, amplitudes):
         comm = commutator(qubit_op, gen)
         qubit_op -= .5j * sin(amplitudes[i]) * comm
         qubit_op += .5 * (1. - cos(amplitudes[i])) * dis_gens[i] * comm
-    return qubit_op
+    return qubit_op.compress()
 
 
 def qcc_op_compress(qubit_op, eps, n_qubits):
@@ -238,4 +238,4 @@ def qcc_op_compress(qubit_op, eps, n_qubits):
         if sqrt(coef2_sum) > eps / frob_factor:
             compressed_op[term] = coef
     qubit_op.terms = compressed_op
-    return qubit_op
+    return qubit_op.compress()

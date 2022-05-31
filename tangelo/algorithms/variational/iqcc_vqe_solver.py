@@ -260,7 +260,6 @@ class iQCC_solver:
         if self.compress_qubit_ham:
             self.qcc_ansatz.qubit_ham = qcc_op_compress(self.qcc_ansatz.qubit_ham, self.compress_eps,
                                                         n_qubits)
-        self.qcc_ansatz.qubit_ham.compress()
 
         # set dis and var_params to none to rebuild the dis and initialize new amplitudes
         self.qcc_ansatz.dis = None
