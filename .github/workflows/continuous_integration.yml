@@ -65,11 +65,11 @@ jobs:
     - name: tangelo tests
       run: |
         cd tangelo
-        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml --cov-report=html
       if: always()
 
     - name: tangelo notebooks as tests
       run: |
         cd examples
-        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html test_notebooks.py
+        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml --cov-report=html test_notebooks.py
       if: always()
