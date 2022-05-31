@@ -21,6 +21,7 @@ import unittest
 import copy
 from math import pi
 from collections import Counter
+
 from tangelo.linq import Gate, Circuit, stack
 
 # Create several abstract circuits with different features
@@ -243,6 +244,33 @@ class TestCircuits(unittest.TestCase):
         ts_circuit = Circuit([Gate("T", 0), Gate("S", 1)])
         ts_circuit_inverse = Circuit([Gate("PHASE", 0, parameter=-pi/4), Gate("PHASE", 0, parameter=-pi/2)])
         self.assertTrue(ts_circuit.inverse(), ts_circuit_inverse)
+
+    def test_simple_optimization_functions(self):
+        """ Test if removing small rotations and redundant gates return the
+        proper set of gates.
+        """
+
+        test_circuit = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
+                    Gate("RZ", 2, parameter=0.01), Gate("CNOT", 1, control=0),
+                    Gate("RX", 0, parameter=-2.)])
+        test_circuit.remove_small_rotations(param_threshold=0.05)
+
+        ref_gates = [Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
+                     Gate("CNOT", 1, control=0), Gate("RX", 0, parameter=-2.)]
+
+        self.assertTrue(ref_gates == test_circuit._gates)
+
+        test_circuit.remove_redundant_gates()
+
+        self.assertTrue([] == test_circuit._gates)
+
+    def test_simple_optimization_minus_a_qubit(self):
+        """ Test if removing redundant gates deletes a qubit."""
+
+        test_circuit = Circuit([Gate("X", 0), Gate("H", 1), Gate("H", 1)])
+        test_circuit.remove_redundant_gates()
+
+        self.assertEqual(test_circuit.width, 1)
 
 
 if __name__ == "__main__":
