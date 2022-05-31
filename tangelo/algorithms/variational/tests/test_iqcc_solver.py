@@ -16,13 +16,13 @@
 
 import unittest
 
-from tangelo.algorithms.variational import iQCCsolver
+from tangelo.algorithms.variational import iQCC_solver
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g,\
                                      mol_H4_doublecation_minao
 
 
-class iQCCsolver_test(unittest.TestCase):
-    """Unit tests for the iQCCsolver class. Examples for both closed-shell
+class iQCC_solver_test(unittest.TestCase):
+    """Unit tests for the iQCC_solver class. Examples for both closed-shell
     and restricted open-shell iQCC are provided via H4, H4+, and H4+2.
     """
 
@@ -39,14 +39,14 @@ class iQCCsolver_test(unittest.TestCase):
                         "compress_qubit_ham": True,
                         "compress_eps": 1e-4}
 
-        iqcc_solver = iQCCsolver(iqcc_options)
-        iqcc_solver.build()
+        iqcc = iQCC_solver(iqcc_options)
+        iqcc.build()
 
     def test_build_fail(self):
         """Test that instantation of iQCC solver fails without input of a molecule."""
 
         iqcc_options = {"max_iqcc_iter": 15}
-        self.assertRaises(ValueError, iQCCsolver, iqcc_options)
+        self.assertRaises(ValueError, iQCC_solver, iqcc_options)
 
     def test_iqcc_h4(self):
         """Test the energy after 1 iteration for H4 using the maximum
@@ -63,9 +63,9 @@ class iQCCsolver_test(unittest.TestCase):
                         "compress_qubit_ham": True,
                         "compress_eps": 1e-4}
 
-        iqcc_solver = iQCCsolver(iqcc_options)
-        iqcc_solver.build()
-        iqcc_energy = iqcc_solver.simulate()
+        iqcc = iQCC_solver(iqcc_options)
+        iqcc.build()
+        iqcc_energy = iqcc.simulate()
 
         self.assertAlmostEqual(iqcc_energy, -1.977348, places=4)
 
@@ -81,9 +81,9 @@ class iQCCsolver_test(unittest.TestCase):
                         "deqcc_thresh": 1e-5,
                         "max_iqcc_iter": 3}
 
-        iqcc_solver = iQCCsolver(iqcc_options)
-        iqcc_solver.build()
-        iqcc_energy = iqcc_solver.simulate()
+        iqcc = iQCC_solver(iqcc_options)
+        iqcc.build()
+        iqcc_energy = iqcc.simulate()
 
         self.assertAlmostEqual(iqcc_energy, -1.638526, places=4)
 
@@ -99,9 +99,9 @@ class iQCCsolver_test(unittest.TestCase):
                         "deqcc_thresh": 1e-5,
                         "max_iqcc_iter": 1}
 
-        iqcc_solver = iQCCsolver(iqcc_options)
-        iqcc_solver.build()
-        iqcc_energy = iqcc_solver.simulate()
+        iqcc = iQCC_solver(iqcc_options)
+        iqcc.build()
+        iqcc_energy = iqcc.simulate()
 
         self.assertAlmostEqual(iqcc_energy, -0.854647, places=4)
 
