@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """This module defines the qubit coupled cluster ansatz class with involutory
-linear combinations (ILC) of anti-commuting sets (ACS) of Pauli words
+linear combinations (ILC) of anticommuting sets (ACS) of Pauli words
 (generators). Relative to the direct interation set (DIS) of QCC generators,
 which incur an exponential growth of Hamiltonian terms upon dressing, the ACS
 of ILC generators enables Hamiltonian dressing such that the number of terms
@@ -77,14 +77,14 @@ class ILC(Ansatz):
 
         if not molecule:
             raise ValueError("An instance of SecondQuantizedMolecule is required for initializing "
-                             "the ILC ansatz class.")
+                             "the self.__class__.__name__ ansatz class.")
         self.molecule = molecule
         self.mapping = mapping
         self.up_then_down = up_then_down
         if self.mapping.lower() == "jw" and not self.up_then_down:
-            warnings.warn("Efficient generator screening for the ILC ansatz requires spin-orbital "
-                          "ordering to be all spin-up first followed by all spin-down for the JW "
-                          "mapping.", RuntimeWarning)
+            warnings.warn("Spin-orbital ordering shifted to all spin-up first then down to "
+                          "ensure efficient generator screening for the Jordan-Wigner mapping "
+                          "with the self.__class__.__name__ ansatz.", RuntimeWarning)
             self.up_then_down = True
 
         self.n_spinorbitals = self.molecule.n_active_sos
@@ -166,9 +166,9 @@ class ILC(Ansatz):
             # Initialize all ILC parameters to the same value specified by self.ilc_tau_guess
             elif var_params == "ilc_tau_guess":
                 initial_var_params = self.ilc_tau_guess * np.ones((self.n_var_params,))
-            # Initialize tau parameters randomly over the domain [-ilc_tau_guess, ilc_tau_guess]
+            # Initialize tau parameters randomly over the domain [0., 2 pi)
             elif var_params == "random":
-                initial_var_params = 2. * self.ilc_tau_guess * np.random.random((self.n_var_params,)) - self.ilc_tau_guess
+                initial_var_params = 2. * np.pi * np.random.random((self.n_var_params,))
             # Initialize ILC parameters by matrix diagonalization (see Appendix B, Refs. 1 & 2).
             elif var_params == "diag":
                 initial_var_params = get_ilc_params_by_diag(self.qubit_ham, self.acs, self.qmf_var_params)

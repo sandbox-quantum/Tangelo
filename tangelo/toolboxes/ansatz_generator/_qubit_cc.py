@@ -41,7 +41,7 @@ from tangelo.toolboxes.ansatz_generator._qubit_mf import get_op_expval
 
 
 def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):
-    """Construct the DIS of QCC generators, which proceeds as follows:
+    """ Construct the direct interaction set (DIS) of QCC generators as follows:
     1. Identify the flip indices of all Hamiltonian terms and group terms by flip indices.
     2. Construct a representative generator using flip indices from each candidate DIS group
        and evaluate dEQCC/dtau for all Hamiltonian terms.
@@ -229,11 +229,11 @@ def qcc_op_compress(qubit_op, eps, n_qubits):
         QubitOperator: The compressed qubit operator.
     """
 
-    compressed_op, coef2_sum, frob_factor = dict(), 0., pow(2., n_qubits / 2.)
+    compressed_op, coef2_sum, frob_factor = dict(), 0., 2**(n_qubits // 2)
     # Arrange the terms of the qubit operator in ascending order
     qubit_op.terms = OrderedDict(sorted(qubit_op.terms.items(), key=lambda x: abs(x[1]), reverse=False))
     for term, coef in qubit_op.terms.items():
-        coef2_sum += pow(coef.real, 2.) + pow(coef.imag, 2.)
+        coef2_sum += abs(coef)**2
         # while the sum is less than eps / factor, discard the terms
         if sqrt(coef2_sum) > eps / frob_factor:
             compressed_op[term] = coef

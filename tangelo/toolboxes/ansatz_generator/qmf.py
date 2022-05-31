@@ -75,7 +75,7 @@ class QMF(Ansatz):
 
         if not molecule:
             raise ValueError("An instance of SecondQuantizedMolecule is required for initializing "
-                             "the QMF ansatz class.")
+                             "the self.__class__.__name__ ansatz class.")
         self.molecule = molecule
 
         self.n_spinorbitals = self.molecule.n_active_sos
