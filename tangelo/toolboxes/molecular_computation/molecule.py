@@ -306,6 +306,9 @@ class SecondQuantizedMolecule(Molecule):
         into account calls for this function is without argument, and attributes
         are parsed into it.
 
+        Args:
+            mo_coeff (array): The molecular orbital coefficients to use to generate the integrals.
+
         Returns:
             FermionOperator: Self-explanatory.
         """
@@ -435,6 +438,9 @@ class SecondQuantizedMolecule(Molecule):
         """Computes core constant, one_body, and two-body coefficients with frozen orbitals folded into one-body coefficients
         and core constant
 
+        Args:
+            mo_coeff (array): The molecular orbital coefficients to use to generate the integrals
+
         Returns:
             (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
         """
@@ -443,6 +449,9 @@ class SecondQuantizedMolecule(Molecule):
 
     def get_full_space_integrals(self, mo_coeff=None):
         """Computes core constant, one_body, and two-body integrals for all orbitals
+
+        Args:
+            mo_coeff (array): The molecular orbital coefficients to use to generate the integrals.
 
         Returns:
             (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
@@ -454,7 +463,7 @@ class SecondQuantizedMolecule(Molecule):
         """Computes core constant, one_body, and two-body coefficients for a given active space and mo_coeff
 
         Args:
-            mo_coeff (array): The molecular orbital coefficients to use to generate the integrals
+            mo_coeff (array): The molecular orbital coefficients to use to generate the integrals.
             consider_frozen (bool): If True, the frozen orbitals are folded into the one_body and core constant terms.
 
         Returns:

@@ -22,13 +22,14 @@ import itertools
 import os
 import requests
 import warnings
+import json
 
 import h5py
 import numpy as np
 import pandas as pd
 
 
-class MIFNOFragment():
+class MIFNOHelper():
     """Python object to post-process, fetch and manipulate QEMIST Cloud MI-FNO
     results. The use case for this is to map MI-FNO subproblems into
     fermionic Hamiltonians acting as inputs. This object keeps track of the
@@ -45,24 +46,37 @@ class MIFNOFragment():
             truncated orbitals and more.
 
     Properties:
-        dataframe (pandas.DataFrame): Converted frag_info dict into a pandas
+        to_dataframe (pandas.DataFrame): Converted frag_info dict into a pandas
             DataFrame.
         fragment_ids (list of string): List of all fragment identifiers.
         frag_info_flattened (dictionary): The nested frag_info without the first
             layer (keys = truncation number).
     """
 
-    def __init__(self, result):
+    def __init__(self, json_file=None, results_object=None):
         """Initialization method to process the classical results.
 
         Args:
             results (dict): Classical computation results (QEMIST Cloud output).
         """
 
-        # IncrementalDecompositon quantities.
-        self.e_tot = result["energy_total"]
-        self.e_corr = result["energy_correlation"]
-        self.e_mf = result["mean_field_energy"]
+        # Raise error/warnings if input is not as expected. Only a single input
+        # must be provided to avoid conflicts.
+        if not (bool(json_file) ^ bool(results_object)):
+            raise ValueError(f"A json file path OR a dictionary object must be provided when instantiating {self.__class__.__name__}.")
+
+        if json_file:
+            assert os.path.isfile(json_file), f"The file {json_file} does not exist."
+
+            with open(json_file, "r") as f:
+                results_object = json.loads(f.read())
+
+            results_object["subproblem_data"] = {int(k): v for k, v in results_object["subproblem_data"].items()}
+
+        # Incremental (problem decomposition) quantities.
+        self.e_tot = results_object["energy_total"]
+        self.e_corr = results_object["energy_correlation"]
+        self.e_mf = results_object["mean_field_energy"]
 
         relevant_info = {
             "energy_total",
@@ -75,13 +89,13 @@ class MIFNOFragment():
 
         # Selecting only the FNO keys found in 'relevant_info'.
         self.frag_info = dict()
-        for n_body, fragments_per_truncation in result["subproblem_data"].items():
+        for n_body, fragments_per_truncation in results_object["subproblem_data"].items():
             self.frag_info[n_body] = dict()
             for frag_id, frag_result in fragments_per_truncation.items():
                 self.frag_info[n_body][frag_id] = {k: frag_result.get(k, None) for k in relevant_info}
 
     @property
-    def dataframe(self):
+    def to_dataframe(self):
         """Outputs the fragment informations as a pandas.DataFrame."""
         df = pd.DataFrame.from_dict(self.frag_info_flattened, orient="index")
 
@@ -100,7 +114,7 @@ class MIFNOFragment():
         """Outputs the nested frag_info without the first layer."""
         return reduce(lambda a, b: {**a, **b}, self.frag_info.values())
 
-    def retrieve_mo_coeff(self, download_path=os.getcwd()):
+    def retrieve_mo_coeff(self, destination_folder=os.getcwd()):
         """Function to fetch molecular orbital coefficients. A download path can
         be provided to change the directory where the files will be downloaded.
         If the files already exist, the function skips the download step. The
@@ -108,11 +122,12 @@ class MIFNOFragment():
         frag_info dictionary attribute.
 
         Args:
-            download_path (string): Path where to download the HDF5 files
-                containing the molecular coefficient array. Default is set to
-                the current work directory.
+            destination_folder (string): Users can specify a path to a
+                destination folder, where the files containing the coefficients
+                will be downloaded. The default value is the directory where the
+                user's python script is run.
         """
-        absolute_path = os.path.abspath(download_path)
+        absolute_path = os.path.abspath(destination_folder)
 
         # For each fragment, fetch the molecular orbital coefficients from the
         # HDF5 files.
@@ -148,39 +163,46 @@ class MIFNOFragment():
 
         # Something is wrong if the molecule provided does not have the same
         # mean-field energy.
-        assert round(molecule.mf_energy, 6) == round(self.e_mf, 6)
+        assert round(molecule.mf_energy, 6) == round(self.e_mf, 6),  \
+            "The molecule's mean-field energy is different than the one from " \
+            "the results. Please verify that the molecular quantities are "\
+            "the same as the one in the MI-FNO computation."
 
         # Returning a new molecule with the right frozen orbital.
         new_molecule = molecule.freeze_mos(frozen_orbitals, inplace=False)
 
         return new_molecule._get_fermionic_hamiltonian(mo_coeff)
 
-    def mi_summation(self, outside_energies=None):
-        """Recomputes the total energy for the method of increments (MI).
+    def mi_summation(self, user_provided_energies=None):
+        r"""Recomputes the total energy for the method of increments (MI).
         Each increment corresponds to "new" correlation energy from the n-body
         problem. This method makes computing the total energy with new
         results possible.
 
+        It computes the epsilons with the MP2 correction:
+        \epsilon_{i} = E_c(i)
+        \epsilon_{ij} = E_c(ij) - \epsilon_{i} - \epsilon_{i}
+        \epsilon_{ijk} = E_c(ijk) - \epsilon_{ij} - \epsilon_{ik}
+            - \epsilon_{jk} - \epsilon_{i} - \epsilon_{j} - \epsilon_{k}
+        etc.
+
+
         Args:
-            outside_energies (dict): New energies for a or many fragment(s).
-                E.g. {"(0, )": -1.234} or {"(1, )": -1.234, "(0, 1)": -5.678}.
+            user_provided_energies (dict): New energy values provided by the
+                user, used instead of the corresponding pre-computed ones. E.g.
+                {"(0, )": -1.234} or {"(1, )": -1.234, "(0, 1)": -5.678}.
         """
-        if outside_energies is None:
-            outside_energies = dict()
+        if user_provided_energies is None:
+            user_provided_energies = dict()
 
         fragment_energies = {k: v["energy_total"] for k, v in self.frag_info_flattened.items()}
 
         # Update to consider energies taken from a calculation.
-        fragment_energies.update(outside_energies)
+        fragment_energies.update(user_provided_energies)
 
         n_body_max = max(self.frag_info.keys())
 
-        # Computing the epsilon with the MP2 correction.
-        # \epsilon_{i} = E_c(i)
-        # \epsilon_{ij} = E_c(ij) - \epsilon_{i} - \epsilon_{i}
-        # \epsilon_{ijk} = E_c(ijk) - \epsilon_{ij} - \epsilon_{ik}
-        #   - \epsilon_{jk} - \epsilon_{i} - \epsilon_{j} - \epsilon_{k}
-        # etc.
+        # Perform the incremental sumamtion.
         epsilons = dict()
         for n_body in range(1, n_body_max + 1):
             for frag_id, result in self.frag_info[n_body].items():
@@ -190,9 +212,9 @@ class MIFNOFragment():
                 epsilons[frag_id] = corr_energy
 
                 if n_body > 1:
-                    for b in range(1, n_body):
-                        for c in itertools.combinations(eval(frag_id), b):
-                            epsilons[frag_id] -= epsilons[str(c)]
+                    for n_increment in range(1, n_body):
+                        for frag_increment in itertools.combinations(eval(frag_id), n_increment):
+                            epsilons[frag_id] -= epsilons[str(frag_increment)]
 
         # Checks if epsilon < 0, i.e. positive correlation energy increment.
         for frag_id, eps in epsilons.items():
