@@ -85,3 +85,6 @@ jobs:
         name: tangelo-results
         path: tangelo/junit/tangelo-test-results.xml
       if: always()
+    - name: Download all workflow run artifacts
+      uses: actions/download-artifact@v3
+      if: always()
