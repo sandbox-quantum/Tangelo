@@ -39,7 +39,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: tangelo-results
-        path: junit/pycodestyle-test-results.xml
+        path: dev_tools/junit/pycodestyle-test-results.xml
       if: always()
 
     - name: Install backends except qsharp/qdk
@@ -83,5 +83,5 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: tangelo-results
-        path: junit/tangelo-test-results.xml
+        path: tangelo/junit/tangelo-test-results.xml
       if: always()
