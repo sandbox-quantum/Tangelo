@@ -106,8 +106,8 @@ class MIFNOHelper():
 
             # Verify if the MO coefficients are there.
             if "mo_coefficients" not in frag_result:
-                raise KeyError(f"MO coefficient not found in the {frag_id} "\
-                    "results. Verify that the export_fragment_data flag is set "\
+                raise KeyError(f"MO coefficient not found in the {frag_id} "
+                    "results. Verify that the export_fragment_data flag is set "
                     "to True for the MI-FNO calculation in QEMIST Cloud.")
 
     @property
@@ -243,9 +243,9 @@ class MIFNOHelper():
         # Check if epsilon < 0, i.e. positive correlation energy increment.
         for frag_id, eps in epsilons.items():
             if eps > 0.:
-                warnings.warn(f"Epsilon for frag_id {frag_id} is positive " \
-                    f"({eps}). With MI, there is no reason to consider a " \
-                    "fragment returning a positive correlation energy. Please " \
+                warnings.warn(f"Epsilon for frag_id {frag_id} is positive "
+                    f"({eps}). With MI, there is no reason to consider a "
+                    "fragment returning a positive correlation energy. Please "
                     "check your calculations.", RuntimeWarning)
 
         return self.e_mf + sum(epsilons.values())
