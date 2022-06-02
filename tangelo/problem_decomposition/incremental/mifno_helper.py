@@ -110,6 +110,19 @@ class MIFNOHelper():
                     "results. Verify that the export_fragment_data flag is set "
                     "to True for the MI-FNO calculation in QEMIST Cloud.")
 
+    def __repr__(self):
+        """Format the object to print the energies and the fragment information
+        as a pandas.DataFrame.
+        """
+
+        str_rep = f"(All the energy values are in hartree)\n" \
+                  f"Total MI-FNO energy = {self.e_tot}\n" \
+                  f"Correlation energy = {self.e_corr}\n" \
+                  f"Mean-field energy = {self.e_mf}\n" \
+                  f"{self.to_dataframe}"
+
+        return str_rep
+
     @property
     def to_dataframe(self):
         """Outputs the fragment informations as a pandas.DataFrame."""
