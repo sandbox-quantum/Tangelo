@@ -40,9 +40,6 @@ class MIFNOHelperTest(unittest.TestCase):
         # Testing the number of detected increments.
         self.assertEqual(len(beh2_mifno.frag_info), 3)
 
-        # Testing the total number of fragments.
-        self.assertEqual(len(beh2_mifno.frag_info_flattened), 7)
-
     def test_init_from_dict(self):
         """Verify initialization with a dict object."""
 
@@ -54,9 +51,6 @@ class MIFNOHelperTest(unittest.TestCase):
 
         # Testing the number of detected increments.
         self.assertEqual(len(beh2_mifno.frag_info), 3)
-
-        # Testing the total number of fragments.
-        self.assertEqual(len(beh2_mifno.frag_info_flattened), 7)
 
     def test_fragment_ids(self):
         """Verify if the fragment_ids property returns all the fragment ids.."""
