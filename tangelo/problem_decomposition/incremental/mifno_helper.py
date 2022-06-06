@@ -245,7 +245,7 @@ class MIFNOHelper():
         # Perform the incremental sumamtion.
         epsilons = dict()
         for n_body in range(1, n_body_max + 1):
-            for frag_id, result in self.frag_info[n_body].items():
+            for frag_id in self.frag_info[n_body].keys():
                 corr_energy = fragment_energies[frag_id] - self.e_mf
                 epsilons[frag_id] = corr_energy
 
