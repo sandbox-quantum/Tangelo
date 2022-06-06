@@ -231,6 +231,9 @@ class MIFNOHelper():
         """
         if user_provided_energies is None:
             user_provided_energies = dict()
+        else:
+            fragment_correction = {k: v["correction"] for k, v in self.frag_info_flattened.items()}
+            user_provided_energies = {frag_id: e + fragment_correction[frag_id] for frag_id, e in user_provided_energies.items()}
 
         fragment_energies = {k: v["energy_total"] for k, v in self.frag_info_flattened.items()}
 
@@ -244,8 +247,6 @@ class MIFNOHelper():
         for n_body in range(1, n_body_max + 1):
             for frag_id, result in self.frag_info[n_body].items():
                 corr_energy = fragment_energies[frag_id] - self.e_mf
-                corr_energy += result["correction"]
-
                 epsilons[frag_id] = corr_energy
 
                 if n_body > 1:
