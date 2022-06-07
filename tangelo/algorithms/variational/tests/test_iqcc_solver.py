@@ -49,7 +49,7 @@ class iQCC_solver_test(unittest.TestCase):
         self.assertRaises(ValueError, iQCC_solver, iqcc_options)
 
     def test_iqcc_h4(self):
-        """Test the energy after 3 iterations for H4 using the maximum
+        """Test the energy after 1 iteration for H4 using the maximum
         number of generators and compressing the qubit Hamiltonian"""
 
         ansatz_options = {"max_qcc_gens": None}
@@ -59,7 +59,7 @@ class iQCC_solver_test(unittest.TestCase):
                         "up_then_down": True,
                         "ansatz_options": ansatz_options,
                         "deqcc_thresh": 1e-5,
-                        "max_iqcc_iter": 3,
+                        "max_iqcc_iter": 1,
                         "compress_qubit_ham": True,
                         "compress_eps": 1e-4}
 
@@ -67,7 +67,7 @@ class iQCC_solver_test(unittest.TestCase):
         iqcc_solver.build()
         iqcc_energy = iqcc_solver.simulate()
 
-        self.assertAlmostEqual(iqcc_energy, -1.977348, places=4)
+        self.assertAlmostEqual(iqcc_energy, -1.96259, places=4)
 
     def test_iqcc_h4_cation(self):
         """Test the energy after 3 iterations for H4+"""
@@ -85,7 +85,7 @@ class iQCC_solver_test(unittest.TestCase):
         iqcc.build()
         iqcc_energy = iqcc.simulate()
 
-        self.assertAlmostEqual(iqcc_energy, -1.638526, places=4)
+        self.assertAlmostEqual(iqcc_energy, -1.638524, places=4)
 
     def test_iqcc_h4_double_cation(self):
         """Test the energy after 1 iteration for H4+2"""
