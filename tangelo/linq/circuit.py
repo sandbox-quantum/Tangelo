@@ -160,7 +160,8 @@ class Circuit:
         self._gate_counts[gate.name] = self._gate_counts.get(gate.name, 0) + 1
 
     def depth(self):
-        """ Returns the depth of the quantum circuit
+        """ Return the depth of the quantum circuit, by computing the number of moments. Does not count
+        qubit initialization as a moment (unlike Cirq, for example).
         """
         moments = list()
 
@@ -170,15 +171,18 @@ class Circuit:
             if not moments:
                 moments.append(qubits)
             else:
-                for i, m in enumerate(moments[::-1]):
-                    for q in qubits:
-                        if q in m:
-                            if i < len(moments):
-                                moments[i+1].add(qubits)
-                            else:
-                                moments.append(qubits)
-                            break
-                    break
+                # Find latest moment involving at least one of the qubits targeted by the current gate
+                # The current gate is part of the moment following that one
+                for i, m in reversed(list(enumerate(moments))):
+                    if m & qubits:
+                        if (i+1) < len(moments):
+                            moments[i+1] = moments[i+1] | qubits
+                        else:
+                            moments.append(qubits)
+                        break
+                    # Case where none of the target qubits have been used before
+                    elif i == 0:
+                        moments[0] = moments[0] | qubits
 
         return len(moments)
 
