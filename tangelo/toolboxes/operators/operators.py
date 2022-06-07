@@ -12,9 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 """This module defines various kinds of operators used in vqe. It can later be
 broken down in several modules if needed.
 """
+
+from math import sqrt
+from collections import OrderedDict
 
 # Later on, if needed, we can extract the code for the operators themselves to remove the dependencies and customize
 import openfermion
@@ -171,3 +175,32 @@ def qubitop_to_qubitham(qubit_op, mapping, up_then_down):
     qubit_ham.terms = qubit_op.terms.copy()
 
     return qubit_ham
+
+
+def compress_qubit_op(qubit_op, eps, n_qubits):
+    """Reduces the number of terms for a qubit operator based on the Frobenius
+    norm of the operator and a user-defined threshold, eps (see Ref. 1). The
+    eigenspectrum of the compressed operator will not deviate more than eps.
+
+    Args:
+        qubit_op (QubitOperator): A qubit operator (e.g., a molecular Hamiltonian or the
+            electronic spin and number operators).
+        eps (float): Parameter controlling the degree of compression and resulting accuracy
+            of the compressed operator.
+        n_qubits (int): Number of qubits in the register.
+
+    Returns:
+        QubitOperator: The compressed qubit operator.
+    """
+
+    compressed_op, coef2_sum, frob_factor = dict(), 0., 2**(n_qubits // 2)
+    # Arrange the terms of the qubit operator in ascending order
+    qubit_op.terms = OrderedDict(sorted(qubit_op.terms.items(), key=lambda x: abs(x[1]), reverse=False))
+    for term, coef in qubit_op.terms.items():
+        coef2_sum += abs(coef)**2
+        # while the sum is less than eps / factor, discard the terms
+        if sqrt(coef2_sum) > eps / frob_factor:
+            compressed_op[term] = coef
+    qubit_op.terms = compressed_op
+    qubit_op.compress()
+    return qubit_op

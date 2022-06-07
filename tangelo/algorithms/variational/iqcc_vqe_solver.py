@@ -33,31 +33,30 @@ Refs:
 from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.algorithms.variational.vqe_solver import VQESolver
-from tangelo.toolboxes.ansatz_generator._qubit_cc import qcc_op_dress, qcc_op_compress
+from tangelo.toolboxes.ansatz_generator._qubit_cc import qcc_op_dress
+from tangelo.toolboxes.operators.operators import compress_qubit_op
 
 
 class iQCC_solver:
-    """The iQCC-VQE solver class combines the QCC ansatz and VQESolver
+    """The iQCC-VQE solver class that combines the QCC ansatz and VQESolver
     classes to perform an iterative and variational procedure to compute the
     total QCC energy for a given Hamiltonian. The algorithm is outlined below:
 
-    (1) Prepare a pure QMF state, construct the direct interaction set (DIS)
-        of generators, select the top N generators with largest gradient,
-        magnitudes, and prepare the QCC amplitudes.
-    (2) Compute the QCC energy for the current iteration by VQE simulations.
-    (3) Check if the energy is lowered relative to the previous iteration.
-        If the energy is lowered, proceed to (4); else, keep the generators,
+    (0) Prepare a qubit Hamiltonian, initialize QMF parameters, construct the
+        DIS, select QCC generators, and initialize QCC amplitudes.
+    (1) Simulate the QCC energy through VQE minimization.
+    (2) Check if the energy is lowered relative to the previous iteration.
+    (3) If the energy is lowered, proceed to (4); else, keep the QCC generators,
         re-initialize the amplitudes, and re-compute the energy. If after several
         attempts the energy is not lowered, set all QCC amplitudes to zero and
         use the QMF parameters from the previous iteration to compute the energy.
         This is guaranteed to yield a lower energy.
-    (4) Check the termination criteria -- terminate if (a) the change in energy
-        is below a threshold; (b) the DIS is empty; (c) or the maximum number of
-        iterations is reached; else continue to (5).
-    (5) Dress the qubit Hamiltonian with the enerators and optimal amplitudes.
-    (6) Purify the QMF parameters, rebuild the DIS with the dressed Hamiltonian,
-        and select generators for the next iteration; return to (1) and repeat
-        until termination condition(s) are met.
+    (4) Check termination criteria: terminate if the change in energy is below a
+        threshold, the DIS is empty, or the maximum number of iterations is reached.
+    (5) If not terminated, dress the qubit Hamiltonian with the current QCC
+        generators and optimal amplitudes.
+    (6) Purify the QMF parameters, rebuild the DIS, and select generators for
+        the next iteration; return to (1) and repeat until termination.
 
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
@@ -70,22 +69,27 @@ class iQCC_solver:
             class.
         penalty_terms (dict): Parameters for penalty terms to append to target
             qubit Hamiltonian (see penaly_terms for more details).
-        ansatz_options (dict): Parameters for the QCC ansatz (see QCC ansatz class
-            for details).
-        qubit_hamiltonian (QubitOperator): The qubit Hamiltonian of the system. Default, None.
-        deqcc_thresh (float): iQCC energy convergence criterion; threshold between consecutive
-            iterations. Default, 1e-6 Hartree.
-        max_iqcc_iter (int): Maximum number of iterations allowed before termination.
+        ansatz_options (dict): Parameters for the chosen ansatz (see given ansatz
+            file for details).
+        qubit_hamiltonian (QubitOperator-like): Self-explanatory.
+        deqcc_thresh (float): threshold for the difference in iQCC energies between
+            consecutive iterations required for convergence of the algorithm.
+            Default, 1e-5 Hartree.
+        max_iqcc_iter (int): maximum number of iQCC iterations allowed before termination.
             Default, 100.
-        max_iqcc_retries (int): Controls the number of attempts to obtain a lower energy
-            in the event that the energy was not lowered between two consecutive iterations.
-            Default, 10.
-        compress_qubit_ham (bool): Controls whether the qubit Hamiltonian is compressed
-            after qubit Hamiltonian dressing. Default, False.
-        compress_eps (float): Threshold used for discarding Hamiltonian terms with the
-            Froebenius norm. The eigenspectrum of compressed Hamiltonians will not deviate
-            by more than this value. Default, 1.59e-3 Hartree.
-        verbose (bool): Flag for verbosity of iQCC_solver. Default, False.
+        max_iqcc_retries (int): if the iQCC energy for a given iteration is not lower than
+            the value from the previous iteration, the iQCC parameters are reinitialized
+            and the VQE procedure will be attempted up to max_iqcc_retries times. If unsuccessful
+            after max_iqcc_retries attempts, the iQCC parameters are all set to 0 and the QMF
+            Bloch angles from the previous iteration are used. Default, 10.
+        compress_qubit_ham (bool): controls whether the qubit Hamiltonian is compressed
+            after dressing with the current set of generators at the end of each iQCC iteration.
+            Default, False.
+        compress_eps (float): parameter required for compressing intermediate iQCC Hamiltonians
+            using the Froebenius norm. Discarding terms in this manner will not alter the
+            eigenspeectrum of intermediate Hamiltonians by more than compress_eps.
+            Default, 1.59e-3 Hartree.
+        verbose (bool): Flag for verbosity of iQCCsolver. Default, False.
      """
 
     def __init__(self, opt_dict):
@@ -113,10 +117,10 @@ class iQCC_solver:
             if k in default_options:
                 setattr(self, k, v)
             else:
-                raise KeyError(f"Keyword :: {k}, not available in self.__class__.__name__.")
+                raise KeyError(f"Keyword :: {k}, not available in iQCCsolver")
 
         if not self.molecule:
-            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing self.__class__.__name__.")
+            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing iQCCsolver.")
 
         self.iteration = 0
         self.converged = False
@@ -125,7 +129,11 @@ class iQCC_solver:
         self.final_optimal_qmf_params = None
         self.final_optimal_qcc_params = None
 
-        # initialize lists to store useful data from each iQCC-VQE iteration
+        # initialize variables and lists to store useful data from each iQCC-VQE iteration
+        self.qmf_energy = None
+        self.qcc_ansatz = None
+        self.vqe_solver = None
+        self.vqe_solver_options = None
         self.circuits = []
         self.resources = []
         self.generators = []
@@ -174,8 +182,8 @@ class iQCC_solver:
             # check if unsuccessful: energy not lowered and energy not converged.
             if delta_eqcc > 0. and delta_eqcc >= self.deqcc_thresh:
                 n_retry = 0
-                # make several attempts to obtain a lower energy
 
+                # make several attempts to obtain a lower energy
                 while e_qcc > eqcc_old and n_retry < self.max_iqcc_retries:
                     self.qcc_ansatz.var_params = None
                     self.qcc_ansatz.update_var_params("random")
@@ -183,11 +191,10 @@ class iQCC_solver:
                     e_qcc = self.vqe_solver.simulate()
                     n_retry += 1
 
-                # check if energy was lowered
+                # check if energy was lowered; else zero the amplitudes and recompute
                 if e_qcc < eqcc_old:
                     delta_eqcc = e_qcc - eqcc_old
                     eqcc_old = e_qcc
-                # if not, set amplitudes to zero and recompute; resulting energy will be lower
                 else:
                     self.qcc_ansatz.var_params = None
                     self.qcc_ansatz.update_var_params("qmf_state")
@@ -210,6 +217,14 @@ class iQCC_solver:
             self.final_optimal_qcc_params = self.qcc_params[-1]
         return self.qcc_energies[-1]
 
+    def get_resources(self):
+        """Returns a dictionary containing the quantum resource estimates
+        from each iQCC-VQE iteration."""
+
+        sim_resources = dict()
+        sim_resources["resources"] = self.resources
+        return sim_resources
+
     def get_sim_data(self):
         """Returns a dictionary containing the number of iterations,
         the QMF energy, and lists of the energy, generators, amplitudes,
@@ -219,7 +234,6 @@ class iQCC_solver:
         sim_data = dict()
         sim_data["n_iter"] = self.iteration
         sim_data["circuits"] = self.circuits
-        sim_data["resources"] = self.resources
         sim_data["generators"] = self.generators
         sim_data["qmf_params"] = self.qmf_params
         sim_data["qcc_params"] = self.qcc_params
@@ -258,8 +272,8 @@ class iQCC_solver:
         self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham, self.qcc_ansatz.dis,
                                                  optimal_qcc_var_params)
         if self.compress_qubit_ham:
-            self.qcc_ansatz.qubit_ham = qcc_op_compress(self.qcc_ansatz.qubit_ham, self.compress_eps,
-                                                        n_qubits)
+            self.qcc_ansatz.qubit_ham = compress_qubit_op(self.qcc_ansatz.qubit_ham, self.compress_eps,
+                                                          n_qubits)
 
         # set dis and var_params to none to rebuild the dis and initialize new amplitudes
         self.qcc_ansatz.dis = None

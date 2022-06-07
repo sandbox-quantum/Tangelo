@@ -49,7 +49,7 @@ class iQCC_solver_test(unittest.TestCase):
         self.assertRaises(ValueError, iQCC_solver, iqcc_options)
 
     def test_iqcc_h4(self):
-        """Test the energy after 1 iteration for H4 using the maximum
+        """Test the energy after 3 iterations for H4 using the maximum
         number of generators and compressing the qubit Hamiltonian"""
 
         ansatz_options = {"max_qcc_gens": None}
@@ -63,9 +63,9 @@ class iQCC_solver_test(unittest.TestCase):
                         "compress_qubit_ham": True,
                         "compress_eps": 1e-4}
 
-        iqcc = iQCC_solver(iqcc_options)
-        iqcc.build()
-        iqcc_energy = iqcc.simulate()
+        iqcc_solver = iQCC_solver(iqcc_options)
+        iqcc_solver.build()
+        iqcc_energy = iqcc_solver.simulate()
 
         self.assertAlmostEqual(iqcc_energy, -1.977348, places=4)
 

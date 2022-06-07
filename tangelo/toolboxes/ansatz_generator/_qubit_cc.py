@@ -30,8 +30,7 @@ Refs:
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 """
 
-from math import sin, cos, sqrt
-from collections import OrderedDict
+from math import sin, cos
 from itertools import combinations
 
 from openfermion import commutator
@@ -208,34 +207,6 @@ def qcc_op_dress(qubit_op, dis_gens, amplitudes):
 
     for i, gen in enumerate(dis_gens):
         comm = commutator(qubit_op, gen)
-        qubit_op -= .5j * sin(amplitudes[i]) * comm
-        qubit_op += .5 * (1. - cos(amplitudes[i])) * dis_gens[i] * comm
-    return qubit_op.compress()
-
-
-def qcc_op_compress(qubit_op, eps, n_qubits):
-    """Reduces the number of terms for a qubit operator based on the Frobenius
-    norm of the operator and a user-defined threshold, eps (see Ref. 1). The
-    eigenspectrum of the compressed operator will not deviate more than eps.
-
-    Args:
-        qubit_op (QubitOperator): A qubit operator (e.g., a molecular Hamiltonian or the
-            electronic spin and number operators).
-        eps (float): Parameter controlling the degree of compression and resulting accuracy
-            of the compressed operator.
-        n_qubits (int): Number of qubits in the register.
-
-    Returns:
-        QubitOperator: The compressed qubit operator.
-    """
-
-    compressed_op, coef2_sum, frob_factor = dict(), 0., 2**(n_qubits // 2)
-    # Arrange the terms of the qubit operator in ascending order
-    qubit_op.terms = OrderedDict(sorted(qubit_op.terms.items(), key=lambda x: abs(x[1]), reverse=False))
-    for term, coef in qubit_op.terms.items():
-        coef2_sum += abs(coef)**2
-        # while the sum is less than eps / factor, discard the terms
-        if sqrt(coef2_sum) > eps / frob_factor:
-            compressed_op[term] = coef
-    qubit_op.terms = compressed_op
-    return qubit_op.compress()
+        qubit_op -= .5j * sin(amplitudes[i]) * comm + .5 * (1. - cos(amplitudes[i])) * gen * comm
+    qubit_op.compress()
+    return qubit_op
