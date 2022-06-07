@@ -180,6 +180,10 @@ def compress_qubit_op(qubit_op, eps, n_qubits):
     """Reduces the number of terms for a qubit operator based on the Frobenius
     norm of the operator and a user-defined threshold, eps (see Ref. 1). The
     eigenspectrum of the compressed operator will not deviate more than eps.
+    
+    Refs:
+        1. I. G. Ryabinkin, R. A. Lang, S. N. Genin, and A. F. Izmaylov.
+        J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 
     Args:
         qubit_op (QubitOperator): A qubit operator (e.g., a molecular Hamiltonian or the
