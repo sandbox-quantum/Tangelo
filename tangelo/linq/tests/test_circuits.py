@@ -244,6 +244,12 @@ class TestCircuits(unittest.TestCase):
         ts_circuit_inverse = Circuit([Gate("PHASE", 0, parameter=-pi/4), Gate("PHASE", 0, parameter=-pi/2)])
         self.assertTrue(ts_circuit.inverse(), ts_circuit_inverse)
 
+    def test_depth(selfself):
+        """ Test depth function on a few circuits """
+
+        c1 = [Gate("H", 0)]*3 + [Gate("X", 1)]
+        print(c1.depth())
+
 
 if __name__ == "__main__":
     unittest.main()

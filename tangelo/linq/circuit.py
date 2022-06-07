@@ -159,6 +159,29 @@ class Circuit:
         # Keep track of the total gate count
         self._gate_counts[gate.name] = self._gate_counts.get(gate.name, 0) + 1
 
+    def depth(self):
+        """ Returns the depth of the quantum circuit
+        """
+        moments = list()
+
+        for g in self._gates:
+            qubits = set(g.target) if g.control is None else set(g.target + g.control)
+
+            if not moments:
+                moments.append(qubits)
+            else:
+                for i, m in enumerate(moments[::-1]):
+                    for q in qubits:
+                        if q in m:
+                            if i < len(moments):
+                                moments[i+1].add(qubits)
+                            else:
+                                moments.append(qubits)
+                            break
+                    break
+
+        return len(moments)
+
     def trim_qubits(self):
         """Trim unnecessary qubits and update indices with the lowest values possible.
         """
