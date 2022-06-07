@@ -162,16 +162,19 @@ class MIFNOHelper():
 
         # For each fragment, fetch the molecular orbital coefficients from the
         # HDF5 files.
+        n_files = len(self.fragment_ids)
+        i_file = 1
         for n_body_fragments in self.frag_info.values():
             for frag_id, frag in n_body_fragments.items():
                 file_path = os.path.join(absolute_path, frag["mo_coefficients"]["key"] + ".hdf5")
 
                 if not os.path.exists(file_path):
-                    print(f"Downloading and writing MO coefficients for {frag_id} to {file_path}")
+                    print(f"Downloading and writing MO coefficients file to {file_path} ({i_file} / {n_files})")
                     response = requests.get(frag["mo_coefficients"]["s3_url"])
 
                     with open(file_path, "wb") as file:
                         file.write(response.content)
+                    i_file += 1
 
                 with h5py.File(file_path, "r") as file:
                     mo_coeff = np.array(file["mo_coefficients"])
