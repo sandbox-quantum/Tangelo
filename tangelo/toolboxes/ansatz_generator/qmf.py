@@ -37,7 +37,7 @@ from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,
                                                                fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.ansatz_generator._qubit_mf import get_qmf_circuit, init_qmf_from_hf,\
-                                                         penalize_mf_ham
+                                                         penalize_mf_ham, init_qmf_from_vector
 
 
 class QMF(Ansatz):
@@ -90,7 +90,7 @@ class QMF(Ansatz):
 
         # Supported var param initialization
         self.supported_initial_var_params = {"vacuum", "half_pi", "minus_half_pi", "full_pi",
-                                             "random", "hf_state"}
+                                             "random", "hf_state", "vector"}
 
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
@@ -103,6 +103,8 @@ class QMF(Ansatz):
             if self.init_qmf["init_params"] in self.supported_initial_var_params:
                 # Set the default QMF parameter procedure
                 self.var_params_default = self.init_qmf.pop("init_params")
+                if self.var_params_default == "vector":
+                    self.vector = self.init_qmf.pop("vector")
                 # Check for at least one penalty term
                 if self.init_qmf:
                     # Set default penalty term values
@@ -171,6 +173,8 @@ class QMF(Ansatz):
             elif var_params == "hf_state":
                 initial_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                       self.mapping, self.up_then_down, self.spin)
+            elif var_params == "vector":
+                initial_var_params = init_qmf_from_vector(self.vector, self.mapping, self.up_then_down)
         else:
             initial_var_params = np.array(var_params)
             if initial_var_params.size != self.n_var_params:

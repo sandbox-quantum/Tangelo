@@ -104,8 +104,10 @@ class ADAPTAnsatz(Ansatz):
 
     def prepare_reference_state(self):
         """Prepare a circuit generating the HF reference state."""
-
-        return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.mapping, up_then_down=self.up_then_down)
+        if self.reference_state.upper() == "HF":
+            return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.mapping, up_then_down=self.up_then_down)
+        else:
+            return Circuit(n_qubits=self.n_spinorbitals)
 
     def build_circuit(self, var_params=None):
         """Construct the variational circuit to be used as our ansatz."""

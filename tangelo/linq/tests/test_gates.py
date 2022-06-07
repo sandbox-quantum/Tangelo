@@ -84,6 +84,16 @@ class TestGates(unittest.TestCase):
         self.assertTrue(g1 == g3)
         self.assertTrue(g1 != g2)
 
+    def test_gate_equality_modulo_twopi(self):
+        """ Test behaviour of == with parameter outside [0, 2pi]. """
+        g1 = Gate("POTATO", target=0, parameter=np.pi, is_variational=True)
+        g2 = Gate("POTATO", target=0, parameter=3*np.pi, is_variational=True)
+        g3 = Gate("POTATO", target=0, parameter=-np.pi, is_variational=True)
+
+        self.assertTrue(g1 == g2)
+        self.assertTrue(g1 == g3)
+        self.assertTrue(g2 == g3)
+
 
 if __name__ == "__main__":
     unittest.main()
