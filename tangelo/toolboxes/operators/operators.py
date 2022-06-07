@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 """This module defines various kinds of operators used in vqe. It can later be
 broken down in several modules if needed.
 """
