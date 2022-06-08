@@ -207,6 +207,6 @@ def qcc_op_dress(qubit_op, dis_gens, amplitudes):
 
     for i, gen in enumerate(dis_gens):
         comm = commutator(qubit_op, gen)
-        qubit_op -= .5j * sin(amplitudes[i]) * comm + .5 * (1. - cos(amplitudes[i])) * gen * comm
+        qubit_op += .5 * ((1. - cos(amplitudes[i])) * gen - 1j * sin(amplitudes[i])) * comm
     qubit_op.compress()
     return qubit_op
