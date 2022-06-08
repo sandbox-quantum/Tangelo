@@ -182,6 +182,10 @@ def frobenius_norm_compression(qubit_op, eps, n_qubits):
     of the compressed operator will not deviate more than eps. For more details,
     see J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 
+    Refs:
+        1. I. G. Ryabinkin, R. A. Lang, S. N. Genin, and A. F. Izmaylov.
+        J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
+
     Args:
         qubit_op (QubitOperator): A qubit operator (e.g., a molecular Hamiltonian or the
             electronic spin and number operators).
