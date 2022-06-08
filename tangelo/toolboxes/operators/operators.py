@@ -197,14 +197,19 @@ def frobenius_norm_compression(qubit_op, eps, n_qubits):
         QubitOperator: The compressed qubit operator.
     """
 
-    compressed_op, coef2_sum, frob_factor = dict(), 0., 2**(n_qubits // 2)
+    compressed_op = dict()
+    coef2_sum = 0.
+    frob_factor = 2**(n_qubits // 2)
+
     # Arrange the terms of the qubit operator in ascending order
     qubit_op.terms = OrderedDict(sorted(qubit_op.terms.items(), key=lambda x: abs(x[1]), reverse=False))
+
     for term, coef in qubit_op.terms.items():
         coef2_sum += abs(coef)**2
         # while the sum is less than eps / factor, discard the terms
         if sqrt(coef2_sum) > eps / frob_factor:
             compressed_op[term] = coef
+
     qubit_op.terms = compressed_op
     qubit_op.compress()
     return qubit_op
