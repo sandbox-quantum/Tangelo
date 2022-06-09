@@ -34,7 +34,6 @@ from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.algorithms.variational.vqe_solver import VQESolver
 from tangelo.toolboxes.ansatz_generator._qubit_cc import qcc_op_dress
-from tangelo.toolboxes.operators.operators import frobenius_norm_compression
 
 
 class iQCC_solver:
@@ -241,8 +240,7 @@ class iQCC_solver:
         self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham, self.qcc_ansatz.dis,
                                                  optimal_qcc_var_params)
         if self.compress_qubit_ham:
-            self.qcc_ansatz.qubit_ham = frobenius_norm_compression(self.qcc_ansatz.qubit_ham, self.compress_eps,
-                                                          n_qubits)
+            self.qcc_ansatz.qubit_ham.frobenius_norm_compression(self.compress_eps, n_qubits)
 
         # set dis and var_params to none to rebuild the dis and initialize new amplitudes
         self.qcc_ansatz.dis = None

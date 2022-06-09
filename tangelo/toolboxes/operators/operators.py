@@ -34,6 +34,37 @@ class QubitOperator(openfermion.QubitOperator):
     """Currently, this class is coming from openfermion. Can be later on be
     replaced by our own implementation.
     """
+
+    def frobenius_norm_compression(self, epsilon, n_qubits):
+        """Reduces the number of operator terms based on its Frobenius norm
+        and a user-defined threshold, epsilon. The eigenspectrum of the
+        compressed operator will not deviate more than epsilon. For more
+        details, see J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
+
+        Args:
+            epsilon (float): Parameter controlling the degree of compression
+                and resulting accuracy.
+            n_qubits (int): Number of qubits in the register.
+
+        Returns:
+            QubitOperator: The compressed qubit operator.
+        """
+
+        compressed_op = dict()
+        coef2_sum = 0.
+        frob_factor = 2**(n_qubits // 2)
+
+        # Arrange the terms of the qubit operator in ascending order
+        self.terms = OrderedDict(sorted(self.terms.items(), key=lambda x: abs(x[1]), reverse=False))
+
+        for term, coef in self.terms.items():
+            coef2_sum += abs(coef)**2
+            # while the sum is less than epsilon / factor, discard the terms
+            if sqrt(coef2_sum) > epsilon / frob_factor:
+                compressed_op[term] = coef
+        self.terms = compressed_op
+        self.compress()
+
     pass
 
 
@@ -174,42 +205,3 @@ def qubitop_to_qubitham(qubit_op, mapping, up_then_down):
     qubit_ham.terms = qubit_op.terms.copy()
 
     return qubit_ham
-
-
-def frobenius_norm_compression(qubit_op, eps, n_qubits):
-    """Reduces the number of terms for a qubit operator based on the Frobenius
-    norm of the operator and a user-defined threshold, eps. The eigenspectrum
-    of the compressed operator will not deviate more than eps. For more details,
-    see J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
-
-    Refs:
-        1. I. G. Ryabinkin, R. A. Lang, S. N. Genin, and A. F. Izmaylov.
-        J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
-
-    Args:
-        qubit_op (QubitOperator): A qubit operator (e.g., a molecular Hamiltonian or the
-            electronic spin and number operators).
-        eps (float): Parameter controlling the degree of compression and resulting accuracy
-            of the compressed operator.
-        n_qubits (int): Number of qubits in the register.
-
-    Returns:
-        QubitOperator: The compressed qubit operator.
-    """
-
-    compressed_op = dict()
-    coef2_sum = 0.
-    frob_factor = 2**(n_qubits // 2)
-
-    # Arrange the terms of the qubit operator in ascending order
-    qubit_op.terms = OrderedDict(sorted(qubit_op.terms.items(), key=lambda x: abs(x[1]), reverse=False))
-
-    for term, coef in qubit_op.terms.items():
-        coef2_sum += abs(coef)**2
-        # while the sum is less than eps / factor, discard the terms
-        if sqrt(coef2_sum) > eps / frob_factor:
-            compressed_op[term] = coef
-
-    qubit_op.terms = compressed_op
-    qubit_op.compress()
-    return qubit_op
