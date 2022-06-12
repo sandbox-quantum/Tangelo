@@ -233,8 +233,19 @@ class iQCC_solver:
         optimal_qmf_var_params = self.vqe_solver.optimal_var_params[:2*n_qubits]
         optimal_qcc_var_params = self.vqe_solver.optimal_var_params[2*n_qubits:]
 
-        # update all lists with data from the current iteration
+        # update energy list and iteration number
         self.energies.append(self.vqe_solver.optimal_energy)
+        self.iteration += 1
+
+        if self.verbose:
+            print(f"Iteration # {self.iteration}")
+            print(f"iQCC total energy = {self.vqe_solver.optimal_energy} Eh")
+            print(f"iQCC correlation energy = {self.vqe_solver.optimal_energy-self.qmf_energy} Eh")
+            print(f"Optimal QMF variational parameters = {optimal_qmf_var_params}")
+            print(f"Optimal QCC variational parameters = {optimal_qcc_var_params}")
+            print(f"Number of iQCC generators = {len(self.qcc_ansatz.dis)}")
+            print(f"iQCC generators = {self.qcc_ansatz.dis}")
+            print(f"iQCC resource estimates = {self.get_resources()}")
 
         # dress and (optionally) compress the qubit Hamiltonian
         self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham, self.qcc_ansatz.dis,
@@ -247,18 +258,6 @@ class iQCC_solver:
         self.qcc_ansatz.var_params = None
         self.qcc_ansatz.build_circuit()
         self.vqe_solver.initial_var_params = self.qcc_ansatz.var_params
-
-        self.iteration += 1
-
-        if self.verbose:
-            print(f"Iteration # {self.iteration}")
-            print(f"iQCC total energy = {self.vqe_solver.optimal_energy} Eh")
-            print(f"iQCC correlation energy = {self.vqe_solver.optimal_energy-self.qmf_energy} Eh")
-            print(f"Optimal QMF variational parameters = {optimal_qmf_var_params}")
-            print(f"Optimal QCC variational parameters = {optimal_qcc_var_params}")
-            print(f"Number of iQCC generators = {len(self.qcc_ansatz.dis)}")
-            print(f"iQCC generators = {self.qcc_ansatz.dis}")
-            print(f"iQCC resource estimates = {self.get_resources()}")
 
         if abs(delta_eqcc) < self.deqcc_thresh or self.iteration == self.max_iqcc_iter:
             self.converged = True
