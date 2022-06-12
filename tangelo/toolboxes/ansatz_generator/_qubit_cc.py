@@ -30,14 +30,17 @@ Refs:
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 """
 
+from math import sin, cos
 from itertools import combinations
+
+from openfermion import commutator
 
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.ansatz_generator._qubit_mf import get_op_expval
 
 
 def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):
-    """Construct the DIS of QCC generators, which proceeds as follows:
+    """ Construct the direct interaction set (DIS) of QCC generators as follows:
     1. Identify the flip indices of all Hamiltonian terms and group terms by flip indices.
     2. Construct a representative generator using flip indices from each candidate DIS group
        and evaluate dEQCC/dtau for all Hamiltonian terms.
@@ -62,7 +65,9 @@ def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):
         for dis_group in dis_groups:
             dis_group_idxs = [int(idxs) for idxs in dis_group[0].split(" ")]
             dis_group_gens = get_gens_from_idxs(dis_group_idxs)
-            dis.append(dis_group_gens)
+            # for now just grab the first generator; eventually add capability to
+            # allow the user to select which generators to use.
+            dis.append(dis_group_gens[0])
     else:
         raise ValueError(f"The DIS is empty: there are no candidate DIS groups where "
                          f"|dEQCC/dtau| >= {deqcc_dtau_thresh} a.u. Terminate simulation.\n")
@@ -154,3 +159,54 @@ def get_gens_from_idxs(group_idxs):
             gen_list = [(idx, "Y") if idx in xy_idx else (idx, "X") for idx in group_idxs]
             dis_group_gens.append(QubitOperator(tuple(gen_list), 1.))
     return dis_group_gens
+
+
+def build_qcc_qubit_op(dis_gens, amplitudes):
+    """Returns the QCC operator by selecting n_var_params generators from the DIS.
+    The QCC operator is constructed as a linear combination of generators using the
+    parameter set {tau} as coefficients: QCC operator = -0.5 * SUM_k P_k * tau_k.
+    The exponentiated QCC operator, U = PROD_k exp(-0.5j * tau_k * P_k), is used to
+    build the circuit.
+
+    Args:
+        dis_gens (list of QubitOperator): The list of QCC Pauli word generators
+            selected from a user-specified number of characteristic DIS groups.
+        amplitudes (list or numpy array of float): The QCC variational parameters
+            arranged such that their ordering matches the order of dis_gens.
+
+    Returns:
+        QubitOperator: QCC ansatz operator.
+    """
+
+    qubit_op = QubitOperator.zero()
+    for i, dis_gen in enumerate(dis_gens):
+        qubit_op -= 0.5 * amplitudes[i] * dis_gen
+    qubit_op.compress()
+    return qubit_op
+
+
+def qcc_op_dress(qubit_op, dis_gens, amplitudes):
+    """Performs canonical transformation of a qubit operator with the set of QCC
+    generators and amplitudes for the current iteration. For an operator with M terms
+    each transformation results in exponential growth of the number terms. This growth
+    can be approximated as M * (3 / 2) ^ n_g, where n_g is the number of QCC generators
+    selected for the ansatz at the current iteration.
+
+    Args:
+        qubit_op (QubitOperator): A qubit operator (e.g., a molecular Hamiltonian or the
+            electronic spin and number operators) that was previously dressed by canonical
+            transformation with the QCC generators and amplitudes at the current iteration.
+        dis_gens (list of QubitOperator): The list of QCC Pauli word generators
+            selected from a user-specified number of characteristic DIS groups.
+        amplitudes (list or numpy array of float): The QCC variational parameters
+            arranged such that their ordering matches the ordering of dis_gens.
+
+    Returns:
+        QubitOperator: Dressed qubit operator.
+    """
+
+    for i, gen in enumerate(dis_gens):
+        comm = commutator(qubit_op, gen)
+        qubit_op += .5 * ((1. - cos(amplitudes[i])) * gen - 1j * sin(amplitudes[i])) * comm
+    qubit_op.compress()
+    return qubit_op

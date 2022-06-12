@@ -16,6 +16,9 @@
 broken down in several modules if needed.
 """
 
+from math import sqrt
+from collections import OrderedDict
+
 # Later on, if needed, we can extract the code for the operators themselves to remove the dependencies and customize
 import openfermion
 
@@ -31,7 +34,36 @@ class QubitOperator(openfermion.QubitOperator):
     """Currently, this class is coming from openfermion. Can be later on be
     replaced by our own implementation.
     """
-    pass
+
+    def frobenius_norm_compression(self, epsilon, n_qubits):
+        """Reduces the number of operator terms based on its Frobenius norm
+        and a user-defined threshold, epsilon. The eigenspectrum of the
+        compressed operator will not deviate more than epsilon. For more
+        details, see J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
+
+        Args:
+            epsilon (float): Parameter controlling the degree of compression
+                and resulting accuracy.
+            n_qubits (int): Number of qubits in the register.
+
+        Returns:
+            QubitOperator: The compressed qubit operator.
+        """
+
+        compressed_op = dict()
+        coef2_sum = 0.
+        frob_factor = 2**(n_qubits // 2)
+
+        # Arrange the terms of the qubit operator in ascending order
+        self.terms = OrderedDict(sorted(self.terms.items(), key=lambda x: abs(x[1]), reverse=False))
+
+        for term, coef in self.terms.items():
+            coef2_sum += abs(coef)**2
+            # while the sum is less than epsilon / factor, discard the terms
+            if sqrt(coef2_sum) > epsilon / frob_factor:
+                compressed_op[term] = coef
+        self.terms = compressed_op
+        self.compress()
 
 
 class QubitHamiltonian(QubitOperator):
