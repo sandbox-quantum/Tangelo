@@ -42,6 +42,9 @@ class TestNotebooks(unittest.TestCase):
     def test_classical_shadows_notebook(self):
         run_notebook_as_test('./classical_shadows.ipynb')
 
+    def test_mifno_notebook(self):
+        run_notebook_as_test('./mifno.ipynb')
+
 
 if __name__ == "__main__":
     unittest.main()

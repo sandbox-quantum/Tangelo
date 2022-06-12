@@ -10,3 +10,4 @@ Tutorials
    dmet
    problem_decomposition_oniom
    qemist_cloud_hardware_experiments_braket
+   mifno
