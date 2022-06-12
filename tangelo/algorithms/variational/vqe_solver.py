@@ -128,8 +128,8 @@ class VQESolver:
         # The QCC & ILC ansatze require up_then_down=True when mapping="jw"
         if isinstance(self.ansatz, BuiltInAnsatze):
             if self.ansatz in (BuiltInAnsatze.QCC, BuiltInAnsatze.ILC) and self.qubit_mapping.lower() == "jw" and not self.up_then_down:
-                warnings.warn("Efficient generator screening for QCC-based ansatze requires spin-orbital ordering to be "
-                              "all spin-up first followed by all spin-down for the JW mapping.", RuntimeWarning)
+                warnings.warn("Spin-orbital ordering shifted to all spin-up first then down to ensure efficient generator screening "
+                              "for the Jordan-Wigner mapping with QCC-based ansatze.", RuntimeWarning)
                 self.up_then_down = True
             # QCC and QMF and ILC require a reference state that can be represented by a single layer of RZ-RX gates on each qubit.
             # This decomposition can not be determined from a general Circuit reference state.

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """This module implements a collection of functions related to the ILC ansatz:
-1. Function to create the anti-commuting set (ACS) of generators from the QCC DIS;
+1. Function to create the anticommuting set (ACS) of generators from the QCC DIS;
 2. An efficient solver that performs Gaussian elimination over GF(2);
 3. Function that computes the ILC parameters via matrix diagonalization.
 
@@ -36,7 +36,7 @@ from tangelo.toolboxes.ansatz_generator._qubit_mf import get_op_expval
 
 
 def construct_acs(dis, max_ilc_gens, n_qubits):
-    """Driver function for constructing the anti-commuting set of generators from
+    """Driver function for constructing the anticommuting set of generators from
     the direct interaction set (DIS) of QCC generators.
 
     Args:
@@ -45,7 +45,7 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
         n_qubits (int): number of qubits
 
     Returns:
-        list of QubitOperator: the anti-commuting set (ACS) of ILC generators
+        list of QubitOperator: the anticommuting set (ACS) of ILC generators
     """
 
     bad_sln_idxs, good_sln = [], False
@@ -57,7 +57,7 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
         # a_mat --> A and z_vec --> z in Appendix A, Refs. 1 & 2.
         a_mat, z_vec, one_vec = np.zeros((ng2, ngnq)), np.zeros(ngnq), np.ones((ng2, 1))
         for idx, gen_idx in enumerate(gen_idxs):
-            gen = dis[gen_idx][0]
+            gen = dis[gen_idx]
             for term in gen.terms:
                 for paulis in term:
                     p_idx, pauli = paulis
@@ -77,7 +77,7 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
         # Solve A * z = b --> here b = 1
         z_sln = gauss_elim_over_gf2(a_mat, b_vec=one_vec)
 
-        # Check solution: odd # of Y ops, at least two flip indices, and mutually anti-commutes
+        # Check solution: odd # of Y ops, at least two flip indices, and mutually anticommutes
         for i in range(n_gens):
             n_flip, n_y, gen_idx, gen_tup = 0, 0, gen_idxs[i], tuple()
             for j in range(n_qubits):
@@ -98,7 +98,7 @@ def construct_acs(dis, max_ilc_gens, n_qubits):
             if n_flip > 1 and n_y % 2 == 1:
                 gen_i = QubitOperator(gen_tup, 1.)
                 good_sln = True
-                # check mutual anti-commutativity of each new ILC generator with all the rest
+                # check mutual anticommutativity of each new ILC generator with all the rest
                 for gen_j in ilc_gens:
                     if gen_i * gen_j != -1. * gen_j * gen_i:
                         if gen_idx not in bad_sln_idxs:
@@ -192,7 +192,7 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
 
     Args:
         qubit_ham (QubitOperator): the qubit Hamiltonian of the system.
-        ilc_gens (list of QubitOperator): the anti-commuting set of ILC Pauli words.
+        ilc_gens (list of QubitOperator): the anticommuting set of ILC Pauli words.
 
     Returns:
         list of float: the ILC parameters corresponding to the ACS of ILC generators
@@ -241,4 +241,5 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
         denom_sum += pow(gs_coefs[i].real, 2.) + pow(gs_coefs[i].imag, 2.)
         beta = np.arcsin(gs_coefs[i] / np.sqrt(denom_sum))
         ilc_var_params.append(beta.real)
+    del ilc_gens[0]
     return ilc_var_params
