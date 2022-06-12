@@ -115,11 +115,13 @@ class MIFNOHelper():
         as a pandas.DataFrame.
         """
 
+        data_fragments = self.to_dataframe
+        data_fragments.drop(["frozen_orbitals_truncated"], axis=1, inplace=True)
         str_rep = f"(All the energy values are in hartree)\n" \
                   f"Total MI-FNO energy = {self.e_tot}\n" \
                   f"Correlation energy = {self.e_corr}\n" \
                   f"Mean-field energy = {self.e_mf}\n" \
-                  f"{self.to_dataframe}"
+                  f"{data_fragments}"
 
         return str_rep
 
