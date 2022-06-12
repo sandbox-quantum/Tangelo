@@ -65,8 +65,6 @@ class QubitOperator(openfermion.QubitOperator):
         self.terms = compressed_op
         self.compress()
 
-    pass
-
 
 class QubitHamiltonian(QubitOperator):
     """QubitHamiltonian objects are essentially openfermion.QubitOperator
