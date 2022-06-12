@@ -23,6 +23,7 @@ Refs:
 
 from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.ilc import ILC
+from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.algorithms.variational.vqe_solver import VQESolver
 from tangelo.toolboxes.ansatz_generator._qubit_ilc import ilc_op_dress
 
@@ -40,9 +41,9 @@ class iQCC_ILC_solver:
         (c) dress the qubit Hamiltonian with the set of ILC generators and
             optimal parameters; optional: compress the dressed Hamiltonian
             via a technique using the Frobenius norm
-    (2) With the ILC dressed Hamiltonian, obtain the DIS of ILC generators,
-        and initialize ILC parameters
-    (3) Perform a single VQE minimization of the ILC energy functional to
+    (2) With the ILC dressed Hamiltonian, obtain the DIS of QCC generators,
+        and initialize QCC parameters
+    (3) Perform a single VQE minimization of the QCC energy functional to
         obtain the final iQCC-ILC energy.
 
     Attributes:
@@ -61,9 +62,6 @@ class iQCC_ILC_solver:
         qcc_ansatz_options (dict): Parameters for QCC ansatz (see QCC ansatz
             file for details).
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
-        deilc_thresh (float): threshold for the difference in ILC energies between
-            consecutive iterations required for convergence of the algorithm.
-            Default, 1e-5 Hartree.
         max_ilc_iter (int): maximum number of ILC iterations allowed before termination.
             Default, 100.
             the value from the previous iteration, the ILC parameters are reinitialized
@@ -74,7 +72,7 @@ class iQCC_ILC_solver:
             using the Froebenius norm. Discarding terms in this manner will not alter the
             eigenspeectrum of intermediate Hamiltonians by more than compress_eps.
             Default, 1.59e-3 Hartree.
-        verbose (bool): Flag for verbosity of ILCsolver. Default, False.
+        verbose (bool): Flag for verbosity. Default, False.
      """
 
     def __init__(self, opt_dict):
@@ -89,7 +87,6 @@ class iQCC_ILC_solver:
                            "ilc_ansatz_options": dict(),
                            "qcc_ansatz_options": dict(),
                            "qubit_hamiltonian": None,
-                           "deilc_thresh": 1e-5,
                            "max_ilc_iter": 100,
                            "compress_qubit_ham": False,
                            "compress_eps": 1.59e-3,
@@ -98,14 +95,14 @@ class iQCC_ILC_solver:
         # Initialize with default values
         self.__dict__ = default_options
         # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in opt_dict.items():
-            if k in default_options:
-                setattr(self, k, v)
+        for param, val in opt_dict.items():
+            if param in default_options:
+                setattr(self, param, val)
             else:
-                raise KeyError(f"Keyword :: {k}, not available in ILCsolver")
+                raise KeyError(f"Keyword :: {param}, not available in self.__class__.__name__.")
 
         if not self.molecule:
-            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing ILCsolver.")
+            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing self.__class__.__name__.")
 
         # initialize variables and lists to store useful data from each ILC-VQE iteration
         self.energies = []
@@ -119,7 +116,7 @@ class iQCC_ILC_solver:
         self.final_optimal_energy = None
         self.final_optimal_qmf_params = None
         self.final_optimal_ilc_params = None
-        self.final_optimal_qccc_params = None
+        self.final_optimal_qcc_params = None
 
     def build(self):
         """Builds the underlying objects required to run the ILC-VQE algorithm."""
@@ -152,19 +149,31 @@ class iQCC_ILC_solver:
         if self.verbose:
             print(f"The qubit mean field energy = {self.qmf_energy}")
 
+        # perform self..max_ilc_iter ILC-VQE minimizations;
         while not self.terminate_ilc:
-            # check that the ACS has at least one generator to use; otherwise terminate_ilc
+            # check that the ACS has at least one generator to use; if not, terminate
             if self.ilc_ansatz.acs and self.ilc_ansatz.var_params.any():
                 e_ilc = self.vqe_solver.simulate()
             else:
                 self.terminate_ilc = True
                 if self.verbose:
-                    print("Terminating the ILC-VQE solver: the DIS of ILC generators is empty.")
+                    print("Terminating the ILC-VQE solver: the ACS of ILC generators is empty.")
             # update ILC-VQE simulation data
             if not self.terminate_ilc:
                 self._update_ilc_solver(e_ilc)
 
-        #ADD QCC PART HERE
+        # perform a single QCC-VQE minimization to obtain the final iQCC-ILC energy
+        # need to rebuild VQE Solver for the QCC ansatz first
+        self._build_qcc()
+        # check that the ACS has at least one generator to use
+        if self.qcc_ansatz.dis and self.qcc_ansatz.var_params.any():
+            e_iqcc_ilc = self.vqe_solver.simulate()
+            self._update_qcc_solver(e_iqcc_ilc)
+        else:
+            if self.verbose:
+                print("Terminating the iQCC-ILC solver without evaluating the "
+                      "the final QCC energy: the DIS of QCC generators is empty "
+                      "for the given Hamiltonian.")
 
         return self.energies[-1]
 
@@ -173,6 +182,28 @@ class iQCC_ILC_solver:
         ILC-VQE iteration."""
 
         return self.vqe_solver.get_resources()
+
+    def _build_qcc(self):
+        """Builds the underlying QCC objects required to run the second part of the
+        iQCC-ILC-VQE algorithm."""
+
+        # instantiate the QCC ansatz with the final ILC dressed Hamiltonian and optimal QMF params
+        self.qcc_ansatz_options["qmf_var_params"] = self.final_optimal_qmf_params
+        self.qcc_ansatz_options["qubit_ham"] = self.ilc_ansatz.qubit_ham
+        self.qcc_ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.qcc_ansatz_options)
+
+        # build an instance of VQESolver with options that remain fixed during the ILC-VQE routine
+        self.vqe_solver_options = {"molecule": self.molecule,
+                                   "qubit_mapping": self.qubit_mapping,
+                                   "ansatz": self.qcc_ansatz,
+                                   "initial_var_params": self.initial_var_params,
+                                   "backend_options": self.backend_options,
+                                   "penalty_terms": self.penalty_terms,
+                                   "up_then_down": self.up_then_down,
+                                   "qubit_hamiltonian": self.ilc_ansatz.qubit_ham,
+                                   "verbose": self.verbose}
+        self.vqe_solver = VQESolver(self.vqe_solver_options)
+        self.vqe_solver.build()
 
     def _update_ilc_solver(self, e_ilc):
         """This function serves several purposes after successful ILC-VQE
@@ -199,7 +230,7 @@ class iQCC_ILC_solver:
         if self.verbose:
             print(f"Iteration # {self.iteration}")
             print(f"ILC total energy = {e_ilc} Eh")
-            print(f"ILC correlation energy = {self.vqe_solver.optimal_energy-self.qmf_energy} Eh")
+            print(f"ILC correlation energy = {self.e_ilc-self.qmf_energy} Eh")
             print(f"Optimal QMF variational parameters = {optimal_qmf_var_params}")
             print(f"Optimal ILC variational parameters = {optimal_ilc_var_params}")
             print(f"# of ILC generators = {len(self.ilc_ansatz.acs)}")
@@ -221,6 +252,34 @@ class iQCC_ILC_solver:
 
         if self.iteration == self.max_ilc_iter:
             self.terminate_ilc = True
+            self.final_optimal_qmf_params = optimal_qmf_var_params
             self.final_optimal_ilc_params = optimal_ilc_var_params
             if self.verbose:
                 print(f"Terminating the ILC-VQE solver after {self.max_ilc_iter} iterations.")
+
+    def _update_qcc_solver(self, e_iqcc_ilc):
+        """Updates after the final QCC energy evaluation with the final ILC dressed
+        Hamiltonian."""
+
+        # get the optimal variational parameters and split them for qmf and ilc
+        n_qubits = self.qcc_ansatz.n_qubits
+        optimal_qmf_var_params = self.vqe_solver.optimal_var_params[:2*n_qubits]
+        optimal_qcc_var_params = self.vqe_solver.optimal_var_params[2*n_qubits:]
+
+        # update energy list and iteration number
+        self.energies.append(e_iqcc_ilc)
+        self.iteration += 1
+
+        if self.verbose:
+            print("Final iQCC-ILC energy evaluation.")
+            print(f"iQCC_ILC total energy = {e_iqcc_ilc} Eh")
+            print(f"iQCC_ILC correlation energy = {self.e_iqcc_ilc-self.qmf_energy} Eh")
+            print(f"Optimal QMF variational parameters = {optimal_qmf_var_params}")
+            print(f"Optimal QCC variational parameters = {optimal_qcc_var_params}")
+            print(f"# of QCC generators = {len(self.qcc_ansatz.dis)}")
+            print(f"QCC generators = {self.qcc_ansatz.dis}")
+            print(f"QCC resource estimates = {self.get_resources()}")
+
+        self.final_optimal_energy = e_iqcc_ilc
+        self.final_optimal_qmf_params = optimal_qmf_var_params
+        self.final_optimal_qcc_params = optimal_qcc_var_params

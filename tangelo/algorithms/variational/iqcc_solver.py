@@ -88,7 +88,7 @@ class iQCC_solver:
             using the Froebenius norm. Discarding terms in this manner will not alter the
             eigenspeectrum of intermediate Hamiltonians by more than compress_eps.
             Default, 1.59e-3 Hartree.
-        verbose (bool): Flag for verbosity of iQCCsolver. Default, False.
+        verbose (bool): Flag for verbosity. Default, False.
      """
 
     def __init__(self, opt_dict):
@@ -116,10 +116,10 @@ class iQCC_solver:
             if param in default_options:
                 setattr(self, param, val)
             else:
-                raise KeyError(f"Keyword :: {param}, not available in iQCCsolver")
+                raise KeyError(f"Keyword :: {param}, not available in self.__class__.__name__.")
 
         if not self.molecule:
-            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing iQCCsolver.")
+            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing self.__class__.__name__.")
 
         # initialize variables and lists to store useful data from each iQCC-VQE iteration
         self.energies = []
