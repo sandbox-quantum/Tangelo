@@ -27,9 +27,12 @@ Refs:
 """
 
 import warnings
+from math import acos, sin, sqrt
 
 import scipy
 import numpy as np
+
+from openfermion import commutator
 
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.ansatz_generator._qubit_mf import get_op_expval
@@ -243,3 +246,63 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
         ilc_var_params.append(beta.real)
     del ilc_gens[0]
     return ilc_var_params
+
+
+def ilc_op_dress(qubit_op, ilc_gens, amplitudes):
+    """Performs transformation of a qubit operator with the ACS of ILC generators and
+    amplitudes for the current iteration. For a set of N generators, each qubiti operator
+    transformation results in quadratic (N * (N-1) / 2) growth of the number of its terms.
+
+    Args:
+        qubit_op (QubitOperator): A qubit operator (e.g., a molecular Hamiltonian or the
+            electronic spin and number operators) that was previously dressed by canonical
+            transformation with the QCC generators and amplitudes at the current iteration.
+        ilc_gens (list of QubitOperator): The list of ILC Pauli word generators
+            selected from a user-specified number of characteristic ACS groups.
+        amplitudes (list or numpy array of float): The ILC variational parameters
+            arranged such that their ordering matches the ordering of ilc_gens.
+
+    Returns:
+        QubitOperator: Dressed qubit operator.
+    """
+
+
+    # first, recast the beta amplitudes into the set of coefficients {c_n}
+    n_amps = len(amplitudes)
+    coef_norm = 1.
+    coefs = []
+
+    # See Ref. 1, Appendix C, Eqs. C3 and C4
+    # sin b_n = c_n;
+    # sin_b_n-1 = c_n-1 / sqrt(1-|c_n|**2)
+    # sin_b_n-2 = c_n-2 / sqrt(1-|c_n|**2-|c_n-1|**2) ...
+    for i in range(n_amps-1, -1, -1):
+        coef = sqrt(coef_norm) * sin(amplitudes[i])
+        coefs.append(coef)
+        coef_norm -= coef**2
+    # the remainder of coef_norm is |c_0|^2
+    coefs.insert(0, sqrt(coef_norm))
+    print(coefs)
+
+    # second, recast the set of coefficients {c_n} into tau, {alpha_i}; c_0 = cos(tau)
+    tau = acos(coefs[0])
+    sin_tau = sin(tau)
+    alpha_params = []
+    for i in range(1, n_amps):
+        alpha_params.append(coefs[i] / sin_tau)
+    print(tau)
+    print(alpha_params)
+
+    # third dress the qubit operator according to Eqs. 17, 18 in Ref. 2
+    sin2_tau = sin(tau)**2
+    sin_2tau = sin(2. * tau)
+    qop_dress = coefs[0]**2 * qubit_op
+    for i, alpha_i in enumerate(alpha_params):
+        qop_dress += sin2_tau * alpha_i**2 * ilc_gens[i] * qubit_op * ilc_gens[i]\
+                  - .5j * sin_2tau * alpha_i * commutator(qubit_op, ilc_gens[i])
+        for j, alpha_j in enumerate(alpha_params, i+1):
+            qop_dress += sin2_tau * alpha_i * alpha_j * (ilc_gens[i] * qubit_op * ilc_gens[j]\
+                      + ilc_gens[j] * qubit_op * ilc_gens[i])
+    print(qop_dress)
+    qop_dress.compress()
+    return qop_dress
