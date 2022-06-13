@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for the closed-shell and restricted open-shell iQCC-VQE Solver. """
+"""Unit tests for the closed-shell and restricted open-shell iQCC-ILC solver."""
 
 import unittest
 
@@ -22,7 +22,7 @@ from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_s
 
 class iQCC_ILC_solver_test(unittest.TestCase):
     """Unit tests for the iQCC_ILC_solver class. Examples for both closed-shell
-    and restricted open-shell iQCC are provided via H4, H4+, and H4+2.
+    and restricted open-shell iQCC-ILC are provided via H4 and H4+.
     """
 
     @staticmethod
@@ -30,11 +30,11 @@ class iQCC_ILC_solver_test(unittest.TestCase):
         """Test instantation of the iQCC-ILC solver with user-defined input."""
 
         iqcc_ilc_options = {"molecule": mol_H2_sto3g,
-                        "qubit_mapping": "scbk",
-                        "up_then_down": True,
-                        "max_ilc_iter": 25,
-                        "compress_qubit_ham": True,
-                        "compress_eps": 1e-4}
+                            "qubit_mapping": "scbk",
+                            "up_then_down": True,
+                            "max_ilc_iter": 25,
+                            "compress_qubit_ham": True,
+                            "compress_eps": 1e-4}
 
         iqcc_ilc = iQCC_ILC_solver(iqcc_ilc_options)
         iqcc_ilc.build()
@@ -53,13 +53,13 @@ class iQCC_ILC_solver_test(unittest.TestCase):
         qcc_ansatz_options = {"max_qcc_gens": None}
 
         iqcc_ilc_options = {"molecule": mol_H4_sto3g,
-                        "qubit_mapping": "scbk",
-                        "up_then_down": True,
-                        "ilc_ansatz_options": ilc_ansatz_options,
-                        "qcc_ansatz_options": qcc_ansatz_options,
-                        "max_ilc_iter": 1,
-                        "compress_qubit_ham": True,
-                        "compress_eps": 1e-4}
+                            "qubit_mapping": "scbk",
+                            "up_then_down": True,
+                            "ilc_ansatz_options": ilc_ansatz_options,
+                            "qcc_ansatz_options": qcc_ansatz_options,
+                            "max_ilc_iter": 1,
+                            "compress_qubit_ham": True,
+                            "compress_eps": 1e-4}
 
         iqcc_ilc_solver = iQCC_ILC_solver(iqcc_ilc_options)
         iqcc_ilc_solver.build()
@@ -74,13 +74,13 @@ class iQCC_ILC_solver_test(unittest.TestCase):
         qcc_ansatz_options = {"max_qcc_gens": None}
 
         iqcc_ilc_options = {"molecule": mol_H4_cation_sto3g,
-                        "qubit_mapping": "scbk",
-                        "up_then_down": True,
-                        "ilc_ansatz_options": ilc_ansatz_options,
-                        "qcc_ansatz_options": qcc_ansatz_options,
-                        "max_ilc_iter": 3,
-                        "compress_qubit_ham": False,
-                        "compress_eps": 1e-4}
+                            "qubit_mapping": "scbk",
+                            "up_then_down": True,
+                            "ilc_ansatz_options": ilc_ansatz_options,
+                            "qcc_ansatz_options": qcc_ansatz_options,
+                            "max_ilc_iter": 3,
+                            "compress_qubit_ham": False,
+                            "compress_eps": 1e-4}
 
         iqcc_ilc_solver = iQCC_ILC_solver(iqcc_ilc_options)
         iqcc_ilc_solver.build()

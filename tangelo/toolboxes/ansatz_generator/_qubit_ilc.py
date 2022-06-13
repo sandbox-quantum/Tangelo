@@ -250,57 +250,55 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
     return ilc_var_params
 
 
-def build_ilc_qubit_op_list(acs_gens, amplitudes):
+def build_ilc_qubit_op_list(acs_gens, ilc_params):
     """Returns the ILC operator with generators selected from the ACS.
 
     Args:
         acs_gens (list of QubitOperator): The list of ILC Pauli word generators
-            selected from a user-specified number of characteristic ACS groups.
-        amplitudes (list or numpy array of float): The ILC variational parameters
+            selected from characteristic ACS groups.
+        ilc_params (list or numpy array of float): The ILC variational parameters
             arranged such that their ordering matches the order of acs_gens.
 
     Returns:
         list of QubitOperator: list of ILC ansatz operator generators.
     """
 
-    n_amps = len(amplitudes)
+    n_amps = len(ilc_params)
     ilc_op_list = []
     for i in range(n_amps-1, 0, -1):
-        ilc_op_list.append(-.5 * amplitudes[i] * acs_gens[i])
-    ilc_op_list.append(amplitudes[0] * acs_gens[0])
+        ilc_op_list.append(-.5 * ilc_params[i] * acs_gens[i])
+    ilc_op_list.append(ilc_params[0] * acs_gens[0])
     for i in range(1, n_amps):
-        ilc_op_list.append(-.5 * amplitudes[i] * acs_gens[i])
+        ilc_op_list.append(-.5 * ilc_params[i] * acs_gens[i])
     return ilc_op_list
 
 
-def ilc_op_dress(qubit_op, ilc_gens, amplitudes):
+def ilc_op_dress(qubit_op, ilc_gens, ilc_params):
     """Performs transformation of a qubit operator with the ACS of ILC generators and
-    amplitudes for the current iteration. For a set of N generators, each qubiti operator
-    transformation results in quadratic (N * (N-1) / 2) growth of the number of its terms.
+    parameters. For a set of N generators, each qubiti operator transformation results
+    in quadratic (N * (N-1) / 2) growth of the number of its terms.
 
     Args:
-        qubit_op (QubitOperator): A qubit operator (e.g., a molecular Hamiltonian or the
-            electronic spin and number operators) that was previously dressed by canonical
-            transformation with the QCC generators and amplitudes at the current iteration.
+        qubit_op (QubitOperator): A qubit operator to be dressed.
         ilc_gens (list of QubitOperator): The list of ILC Pauli word generators
             selected from a user-specified number of characteristic ACS groups.
-        amplitudes (list or numpy array of float): The ILC variational parameters
+        ilc_params (list or numpy array of float): The ILC variational parameters
             arranged such that their ordering matches the ordering of ilc_gens.
 
     Returns:
         QubitOperator: Dressed qubit operator.
     """
 
-    # first, recast the beta amplitudes into the set of coefficients {c_n}
-    n_amps = len(amplitudes)
+    # first, recast the beta parameters into the set of coefficients {c_n}
+    n_amps = len(ilc_params)
     coef_norm = 1.
-    coefs = [0.]*n_amps
+    coefs = [0.] * n_amps
 
     # See Ref. 1, Appendix C, Eqs. C3 and C4:
     # sin b_n = c_n; sin_b_n-1 = c_n-1 / sqrt(1-|c_n|**2);
     # sin_b_n-2 = c_n-2 / sqrt(1-|c_n|**2-|c_n-1|**2) ...
     for i in range(n_amps-1, -1, -1):
-        coef = sqrt(coef_norm) * sin(amplitudes[i])
+        coef = sqrt(coef_norm) * sin(ilc_params[i])
         coefs[i] = coef
         coef_norm -= coef**2
 
@@ -311,19 +309,19 @@ def ilc_op_dress(qubit_op, ilc_gens, amplitudes):
     # c_0 = cos(tau); c_n = sin(tau) * alpha_n for n > 0
     tau = acos(coefs[0])
     sin_tau = sin(tau)
-    alpha_params = []
+    alphas = []
     for i in range(1, n_amps+1):
-        alpha_params.append(coefs[i] / sin_tau)
+        alphas.append(coefs[i] / sin_tau)
 
     # third, dress the qubit operator according to Eqs. 17, 18 in Ref. 2
-    sin2_tau = sin(tau)**2
+    sin2_tau = sin_tau**2
     sin_2tau = sin(2. * tau)
     qop_dress = coefs[0]**2 * qubit_op
-    for i, alpha_i in enumerate(alpha_params):
-        qop_dress += sin2_tau * alpha_i**2 * ilc_gens[i] * qubit_op * ilc_gens[i]\
-                  - .5j * sin_2tau * alpha_i * commutator(qubit_op, ilc_gens[i])
+    for i in range(n_amps):
+        qop_dress += sin2_tau * alphas[i]**2 * ilc_gens[i] * qubit_op * ilc_gens[i]\
+                  - .5j * sin_2tau * alphas[i] * commutator(qubit_op, ilc_gens[i])
         for j in range(i+1, n_amps):
-            qop_dress += sin2_tau * alpha_i * alpha_params[j] * (ilc_gens[i] * qubit_op * ilc_gens[j]
+            qop_dress += sin2_tau * alphas[i] * alphas[j] * (ilc_gens[i] * qubit_op * ilc_gens[j]
                       + ilc_gens[j] * qubit_op * ilc_gens[i])
     qop_dress.compress()
     return qop_dress

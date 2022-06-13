@@ -63,7 +63,7 @@ class iQCC_ILC_solver:
             file for details).
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         max_ilc_iter (int): maximum number of ILC iterations allowed before termination.
-            Default, 100.
+            Default, 3.
             the value from the previous iteration, the ILC parameters are reinitialized
         compress_qubit_ham (bool): controls whether the qubit Hamiltonian is compressed
             after dressing with the current set of generators at the end of each ILC iteration.
@@ -87,7 +87,7 @@ class iQCC_ILC_solver:
                            "ilc_ansatz_options": dict(),
                            "qcc_ansatz_options": dict(),
                            "qubit_hamiltonian": None,
-                           "max_ilc_iter": 100,
+                           "max_ilc_iter": 3,
                            "compress_qubit_ham": False,
                            "compress_eps": 1.59e-3,
                            "verbose": False}
@@ -144,12 +144,12 @@ class iQCC_ILC_solver:
         # initialize quantities; compute the QMF energy and set this was eilc_old
         sim = Simulator()
         self.qmf_energy = sim.get_expectation_value(self.ilc_ansatz.qubit_ham, self.ilc_ansatz.qmf_circuit)
-        e_ilc = 0.
-
         if self.verbose:
             print(f"The qubit mean field energy = {self.qmf_energy}")
 
-        # perform self..max_ilc_iter ILC-VQE minimizations;
+
+        # perform self.max_ilc_iter ILC-VQE minimizations;
+        e_ilc = 0.
         while not self.terminate_ilc:
             # check that the ACS has at least one ILC generator to use; if not, terminate
             if self.ilc_ansatz.acs and self.ilc_ansatz.var_params.any():
@@ -180,7 +180,7 @@ class iQCC_ILC_solver:
 
     def get_resources(self):
         """Returns the quantum resource estimates for the final
-        ILC-VQE iteration."""
+        ILC-QCC-VQE iteration."""
 
         return self.vqe_solver.get_resources()
 
@@ -206,14 +206,14 @@ class iQCC_ILC_solver:
         self.vqe_solver.build()
 
     def _update_ilc_solver(self, e_ilc):
-        """This function serves several purposes after successful ILC-VQE
-        iterations:
+        """This function serves several purposes for the ILC-VQE solver 
+        part of the iQCC-ILC algorithm:
             (1) updates/stores the energy, generators, QMF Bloch angles,
                 ILC amplitudes, circuits, number of qubit Hamiltonian terms,
                 and quantum resource estimates;
             (2) dresses/compresses the qubit Hamiltonian with the current
                 generators and optimal amplitudes;
-            (3) prepares for the next iteration by rebuilding the DIS,
+            (3) prepares for the next iteration by rebuilding the ACS,
                 re-initializing the amplitudes for a new set of generators,
                 generating the circuit, and updates the classical optimizer.
         """
@@ -271,9 +271,9 @@ class iQCC_ILC_solver:
         self.energies.append(e_iqcc_ilc)
 
         if self.verbose:
-            print("Final iQCC-ILC energy evaluation.")
-            print(f"iQCC_ILC total energy = {e_iqcc_ilc} Eh")
-            print(f"iQCC_ILC correlation energy = {e_iqcc_ilc-self.qmf_energy} Eh")
+            print("Final iQCC-ILC VQE simulation.")
+            print(f"iQCC-ILC total energy = {e_iqcc_ilc} Eh")
+            print(f"iQCC-ILC correlation energy = {e_iqcc_ilc-self.qmf_energy} Eh")
             print(f"Optimal QMF variational parameters = {self.final_optimal_qmf_var_params}")
             print(f"Optimal QCC variational parameters = {self.final_optimal_qcc_var_params}")
             print(f"# of QCC generators = {len(self.qcc_ansatz.dis)}")
