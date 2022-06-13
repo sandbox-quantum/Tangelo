@@ -147,7 +147,6 @@ class iQCC_ILC_solver:
         if self.verbose:
             print(f"The qubit mean field energy = {self.qmf_energy}")
 
-
         # perform self.max_ilc_iter ILC-VQE minimizations;
         e_ilc = 0.
         while not self.terminate_ilc:
@@ -206,7 +205,7 @@ class iQCC_ILC_solver:
         self.vqe_solver.build()
 
     def _update_ilc_solver(self, e_ilc):
-        """This function serves several purposes for the ILC-VQE solver 
+        """This function serves several purposes for the ILC-VQE solver
         part of the iQCC-ILC algorithm:
             (1) updates/stores the energy, generators, QMF Bloch angles,
                 ILC amplitudes, circuits, number of qubit Hamiltonian terms,
