@@ -23,7 +23,7 @@ from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.ilc import ILC
 from tangelo.toolboxes.ansatz_generator._qubit_ilc import gauss_elim_over_gf2
 from tangelo.toolboxes.operators.operators import QubitOperator
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g
 
 sim = Simulator()
 
@@ -134,35 +134,6 @@ class ILCTest(unittest.TestCase):
         # Assert energy returned is as expected for given parameters
         energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.137270126, delta=1e-6)
-
-    def test_ilc_h4(self):
-        """ Verify restricted open-shell functionality when using the ILC class for H4."""
-
-        # Specify the qubit operators from the anticommuting set (ACS) of ILC generators.
-        acs = [QubitOperator("Y1 Z2 X4"), QubitOperator("Y0 Y1 X2 Y3 X4 X5"),
-               QubitOperator("Y1 X2 Z3 X4 X5"), QubitOperator("X0 Y1 X2 Z3 X4 Z5"),
-               QubitOperator("Z0 X1 Z2 Y3 X4 X5"), QubitOperator("X0 X1 Z2 Y3 X4"),
-               QubitOperator("Y0 Y1 Y2 X4 X5"), QubitOperator("Y0 X1 X4 X5"),
-               QubitOperator("Y1 X2 X3 X4")]
-        ilc_ansatz = ILC(mol_H4_sto3g, mapping="scbk", up_then_down=True, acs=acs)
-
-        # Build the ILC circuit, which is prepended by the qubit mean field (QMF) circuit.
-        ilc_ansatz.build_circuit()
-
-        # Get qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = ilc_ansatz.qubit_ham
-
-        # The QMF and ILC parameters can both be specified; determined automatically otherwise.
-        qmf_var_params = [ 3.14159265e+00, -2.47684726e-11, -1.37467437e-10,  3.14159265e+00,
-                           5.43734395e-11, -1.41188582e-13, -6.69871249e-11, -1.23842388e-11,
-                          -3.03939495e-11, -1.75913647e-11, -8.14683170e-11, -5.47440763e-11]
-        ilc_var_params = [-0.01814572, -0.01424239, -0.68847521, -0.18638066,  0.20154354,
-                          -0.07915407, -0.09118872, -0.06635491,  0.07021822]
-        var_params = qmf_var_params + ilc_var_params
-        # Assert energy returned is as expected for given parameters
-        ilc_ansatz.update_var_params(var_params)
-        energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.9608792, delta=1e-6)
 
     def test_ilc_h4_cation(self):
         """ Verify restricted open-shell functionality when using the ILC class for H4+ """
