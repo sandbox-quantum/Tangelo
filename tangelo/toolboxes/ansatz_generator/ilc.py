@@ -38,7 +38,8 @@ from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import exp_pauliword_to_gates
 from tangelo.toolboxes.ansatz_generator._qubit_mf import init_qmf_from_hf, get_qmf_circuit, purify_qmf_state
 from tangelo.toolboxes.ansatz_generator._qubit_cc import construct_dis
-from tangelo.toolboxes.ansatz_generator._qubit_ilc import construct_acs, get_ilc_params_by_diag
+from tangelo.toolboxes.ansatz_generator._qubit_ilc import construct_acs, get_ilc_params_by_diag,\
+                                                          build_ilc_qubit_op_list
 
 
 class ILC(Ansatz):
@@ -59,7 +60,7 @@ class ILC(Ansatz):
             circuit. If passed from the QMF ansatz class, parameters are variational.
             If None, one is created with QMF parameters that are not variational. Default, None.
         qmf_var_params (list or numpy array of float): QMF variational parameter set.
-            If None, the values are determined using a Hartree-Fock reference state. Default, None.
+            If None, the values are determined using a Hartree-Fock reference state. Default, [].
         qubit_ham (QubitOperator): Pass a qubit Hamiltonian to the  ansatz class and ignore
             the fermionic Hamiltonian in molecule. Default, None.
         deilc_dtau_thresh (float): Threshold for |dEILC/dtau| so that a candidate group is added
@@ -72,7 +73,7 @@ class ILC(Ansatz):
     """
 
     def __init__(self, molecule, mapping="jw", up_then_down=False, acs=None,
-                 qmf_circuit=None, qmf_var_params=None, qubit_ham=None, ilc_tau_guess=1e-2,
+                 qmf_circuit=None, qmf_var_params=[], qubit_ham=None, ilc_tau_guess=1e-2,
                  deilc_dtau_thresh=1e-3, max_ilc_gens=None):
 
         if not molecule:
@@ -104,14 +105,14 @@ class ILC(Ansatz):
                                                       self.up_then_down, self.spin)
 
         self.qmf_var_params = qmf_var_params
-        if self.qmf_var_params is None:
+        if isinstance(self.qmf_var_params, list):
+            self.qmf_var_params = np.array(self.qmf_var_params)
+        if not self.qmf_var_params.any():
             self.qmf_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                    self.mapping, self.up_then_down, self.spin)
-        elif isinstance(self.qmf_var_params, list):
-            self.qmf_var_params = np.array(self.qmf_var_params)
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError("The number of QMF variational parameters must be 2 * n_qubits.")
-
+        self.n_qmf_params = 2 * self.n_qubits
         self.qmf_circuit = qmf_circuit
 
         self.acs = acs
@@ -119,18 +120,10 @@ class ILC(Ansatz):
         self.deilc_dtau_thresh = deilc_dtau_thresh
         self.max_ilc_gens = max_ilc_gens
 
-        # Get purified QMF parameters and build the DIS & ACS or use a list of generators.
-        if self.acs is None:
-            pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
-                                               self.n_electrons, self.mapping, self.up_then_down, self.spin)
-            self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh)
-            self.max_ilc_gens = len(self.dis) if self.max_ilc_gens is None\
-                                else min(len(self.dis), self.max_ilc_gens)
-            self.acs = construct_acs(self.dis, self.max_ilc_gens, self.n_qubits)
-            self.n_var_params = len(self.acs)
-        else:
-            self.dis = None
-            self.n_var_params = len(self.acs)
+        # Build the ACS of ILC generators
+        self.n_ilc_params = 0
+        self._get_ilc_generators()
+        self.n_var_params = self.n_qmf_params + self.n_ilc_params
 
         # Supported reference state initialization
         self.supported_reference_state = {"HF"}
@@ -172,30 +165,37 @@ class ILC(Ansatz):
             # Initialize ILC parameters by matrix diagonalization (see Appendix B, Refs. 1 & 2).
             elif var_params == "diag":
                 initial_var_params = get_ilc_params_by_diag(self.qubit_ham, self.acs, self.qmf_var_params)
+            # Insert the QMF variational parameters at the beginning.
+            initial_var_params = np.concatenate((self.qmf_var_params, initial_var_params))
         else:
             initial_var_params = np.array(var_params)
-            if initial_var_params.size != self.n_var_params:
-                raise ValueError(f"Expected {self.n_var_params} variational parameters but "
-                                 f"received {initial_var_params.size}.")
         self.var_params = initial_var_params
+        if initial_var_params.size != self.n_var_params:
+            raise ValueError(f"Expected {self.n_var_params} variational parameters but "
+                             f"received {initial_var_params.size}.")
         return initial_var_params
 
     def prepare_reference_state(self):
         """Returns circuit preparing the reference state of the ansatz (e.g prepare reference
         wavefunction with HF, multi-reference state, etc). These preparations must be consistent
-        with the transform used to obtain the  operator. """
+        with the transform used to obtain the qubit operator. """
 
         if self.default_reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
                              f"{self.supported_reference_state}.")
         if self.default_reference_state == "HF":
-            reference_state_circuit = get_qmf_circuit(self.qmf_var_params, False)
+            reference_state_circuit = get_qmf_circuit(self.qmf_var_params, True)
         return reference_state_circuit
 
     def build_circuit(self, var_params=None):
         """Build and return the quantum circuit implementing the state preparation ansatz
          (with currently specified initial_state and var_params). """
 
+        # Build the DIS or specify a list of generators; updates the number of QCC parameters
+        self._get_ilc_generators()
+        self.n_var_params = self.n_qmf_params + self.n_ilc_params
+
+        # Get the variational parameters needed for the QCC unitary operator and circuit
         if var_params is not None:
             self.set_var_params(var_params)
         elif self.var_params is None:
@@ -205,12 +205,12 @@ class ILC(Ansatz):
         if self.qmf_circuit is None:
             self.qmf_circuit = self.prepare_reference_state()
 
-        # Build create the list of ILC qubit operators
-        self.ilc_op_list = self._get_ilc_op()
+        # Build the QCC ansatz qubit operator
+        ilc_op_list = build_ilc_qubit_op_list(self.acs, self.var_params[2*self.n_qubits:])
 
         # Obtain quantum circuit through trotterization of the list of ILC operators
         pauli_word_gates = []
-        for ilc_op in self.ilc_op_list:
+        for ilc_op in ilc_op_list:
             pauli_word, coef = list(ilc_op.terms.items())[0]
             pauli_word_gates += exp_pauliword_to_gates(pauli_word, coef, variational=True)
         self.ilc_circuit = Circuit(pauli_word_gates)
@@ -226,39 +226,29 @@ class ILC(Ansatz):
         self.set_var_params(var_params)
 
         # Build the ILC ansatz operator
-        self.ilc_op_list = self._get_ilc_op()
+        ilc_op_list = build_ilc_qubit_op_list(self.acs, self.var_params[2*self.n_qubits:])
 
         pauli_word_gates = []
-        for ilc_op in self.ilc_op_list:
+        for ilc_op in ilc_op_list:
             pauli_word, coef = list(ilc_op.terms.items())[0]
             pauli_word_gates += exp_pauliword_to_gates(pauli_word, coef, variational=True)
         self.ilc_circuit = Circuit(pauli_word_gates)
         self.circuit = self.qmf_circuit + self.ilc_circuit if self.qmf_circuit.size != 0\
                        else self.ilc_circuit
 
-    def _get_ilc_op(self):
-        """Returns the ILC operators ordered according to the argument of
-            Eq. C1, Appendix C, Ref. 1.
+    def _get_ilc_generators(self):
+        """ Prepares the ILC ansatz by purifying the QMF state, constructing the ACS,
+        and selecting representative generators from the top candidate ACS groups. """
 
-        Returns:
-            list of QubitOperator: the list of ILC qubit operators
-        """
-
-        # Rebuild DIS & ACS in case qubit_ham changed or they and qubit_op_list don't exist
-        if self.rebuild_dis or self.rebuild_acs or not self.acs:
-            pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals,
-                                               self.n_electrons, self.mapping, self.up_then_down, self.spin)
+        if not self.acs:
+            pure_var_params = purify_qmf_state(self.qmf_var_params, self.n_spinorbitals, self.n_electrons,
+                                               self.mapping, self.up_then_down, self.spin)
             self.dis = construct_dis(self.qubit_ham, pure_var_params, self.deilc_dtau_thresh)
-            self.max_ilc_gens = len(self.dis) if self.max_ilc_gens is None\
-                                else min(len(self.dis), self.max_ilc_gens)
-            self.acs = construct_acs(self.dis, self.max_ilc_gens, self.n_qubits)
-            self.ilc_op_list = None
-
-        # Build the ILC qubit operator list
-        ilc_op_list = []
-        for i in range(self.n_var_params - 1, 0, -1):
-            ilc_op_list.append(-0.5 * self.var_params[i] * self.acs[i])
-        ilc_op_list.append(-self.var_params[0] * self.acs[0])
-        for i in range(1, self.n_var_params):
-            ilc_op_list.append(-0.5 * self.var_params[i] * self.acs[i])
-        return ilc_op_list
+            self.acs = construct_acs(self.dis, self.n_qubits)
+            if self.max_ilc_gens:
+                self.n_ilc_params = min(len(self.acs), self.max_ilc_gens)
+                del self.acs[self.n_ilc_params:]
+            else:
+                self.n_ilc_params = len(self.acs)
+        else:
+            self.n_ilc_params = len(self.acs)

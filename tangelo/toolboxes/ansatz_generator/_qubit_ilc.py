@@ -38,22 +38,24 @@ from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.ansatz_generator._qubit_mf import get_op_expval
 
 
-def construct_acs(dis, max_ilc_gens, n_qubits):
+def construct_acs(dis, n_qubits):
     """Driver function for constructing the anticommuting set of generators from
     the direct interaction set (DIS) of QCC generators.
 
     Args:
         dis (list of list): DIS of QCC generators.
-        max_ilc_gens (int): maximum number of ILC generators allowed in the ansatz.
         n_qubits (int): number of qubits
 
     Returns:
         list of QubitOperator: the anticommuting set (ACS) of ILC generators
     """
 
-    bad_sln_idxs, good_sln = [], False
+    bad_sln_idxs = []
+    n_dis_groups = len(dis)
+
+    good_sln = False
     while not good_sln:
-        gen_idxs, ilc_gens = [idx for idx in range(max_ilc_gens) if idx not in bad_sln_idxs], []
+        gen_idxs, ilc_gens = [idx for idx in range(n_dis_groups) if idx not in bad_sln_idxs], []
         n_gens = len(gen_idxs)
         ng2, ngnq = n_gens * (n_gens + 1) // 2, n_gens * n_qubits
 
@@ -237,15 +239,38 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
         gs_coefs *= -1.
     denom_sum, ilc_var_params = 0., []
     for i in range(2):
-        denom_sum += pow(gs_coefs[i].real, 2.) + pow(gs_coefs[i].imag, 2.)
+        denom_sum += abs(gs_coefs[i])**2
     beta_1 = np.arcsin(gs_coefs[1] / np.sqrt(denom_sum))
     ilc_var_params.append(beta_1.real)
     for i in range(2, n_var_params):
-        denom_sum += pow(gs_coefs[i].real, 2.) + pow(gs_coefs[i].imag, 2.)
+        denom_sum += abs(gs_coefs[i])**2
         beta = np.arcsin(gs_coefs[i] / np.sqrt(denom_sum))
         ilc_var_params.append(beta.real)
     del ilc_gens[0]
     return ilc_var_params
+
+
+def build_ilc_qubit_op_list(acs_gens, amplitudes):
+    """Returns the ILC operator with generators selected from the ACS.
+
+    Args:
+        acs_gens (list of QubitOperator): The list of ILC Pauli word generators
+            selected from a user-specified number of characteristic ACS groups.
+        amplitudes (list or numpy array of float): The ILC variational parameters
+            arranged such that their ordering matches the order of acs_gens.
+
+    Returns:
+        list of QubitOperator: list of ILC ansatz operator generators.
+    """
+
+    n_amps = len(amplitudes)
+    ilc_op_list = []
+    for i in range(n_amps-1, 0, -1):
+        ilc_op_list.append(-.5 * amplitudes[i] * acs_gens[i])
+    ilc_op_list.append(amplitudes[0] * acs_gens[0])
+    for i in range(1, n_amps):
+        ilc_op_list.append(-.5 * amplitudes[i] * acs_gens[i])
+    return ilc_op_list
 
 
 def ilc_op_dress(qubit_op, ilc_gens, amplitudes):
@@ -270,7 +295,7 @@ def ilc_op_dress(qubit_op, ilc_gens, amplitudes):
     # first, recast the beta amplitudes into the set of coefficients {c_n}
     n_amps = len(amplitudes)
     coef_norm = 1.
-    coefs = []
+    coefs = [0.]*n_amps
 
     # See Ref. 1, Appendix C, Eqs. C3 and C4
     # sin b_n = c_n;
@@ -278,31 +303,27 @@ def ilc_op_dress(qubit_op, ilc_gens, amplitudes):
     # sin_b_n-2 = c_n-2 / sqrt(1-|c_n|**2-|c_n-1|**2) ...
     for i in range(n_amps-1, -1, -1):
         coef = sqrt(coef_norm) * sin(amplitudes[i])
-        coefs.append(coef)
+        coefs[i] = coef
         coef_norm -= coef**2
     # the remainder of coef_norm is |c_0|^2
-    coefs.insert(0, sqrt(coef_norm))
-    print(coefs)
+    coefs.insert(0, -sqrt(coef_norm))
 
     # second, recast the set of coefficients {c_n} into tau, {alpha_i}; c_0 = cos(tau)
     tau = acos(coefs[0])
     sin_tau = sin(tau)
     alpha_params = []
-    for i in range(1, n_amps):
+    for i in range(1, n_amps+1):
         alpha_params.append(coefs[i] / sin_tau)
-    print(tau)
-    print(alpha_params)
 
-    # third dress the qubit operator according to Eqs. 17, 18 in Ref. 2
+    # third, dress the qubit operator according to Eqs. 17, 18 in Ref. 2
     sin2_tau = sin(tau)**2
     sin_2tau = sin(2. * tau)
     qop_dress = coefs[0]**2 * qubit_op
     for i, alpha_i in enumerate(alpha_params):
         qop_dress += sin2_tau * alpha_i**2 * ilc_gens[i] * qubit_op * ilc_gens[i]\
                   - .5j * sin_2tau * alpha_i * commutator(qubit_op, ilc_gens[i])
-        for j, alpha_j in enumerate(alpha_params, i+1):
-            qop_dress += sin2_tau * alpha_i * alpha_j * (ilc_gens[i] * qubit_op * ilc_gens[j]\
+        for j in range(i+1, n_amps):
+            qop_dress += sin2_tau * alpha_i * alpha_params[j] * (ilc_gens[i] * qubit_op * ilc_gens[j]\
                       + ilc_gens[j] * qubit_op * ilc_gens[i])
-    print(qop_dress)
     qop_dress.compress()
     return qop_dress

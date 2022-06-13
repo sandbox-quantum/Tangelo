@@ -193,8 +193,7 @@ class iQCC_ILC_solver:
         self.qcc_ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.qcc_ansatz_options)
 
         # build an instance of VQESolver with options that remain fixed during the ILC-VQE routine
-        self.vqe_solver_options = {"molecule": self.molecule,
-                                   "qubit_mapping": self.qubit_mapping,
+        self.vqe_solver_options = {"qubit_mapping": self.qubit_mapping,
                                    "ansatz": self.qcc_ansatz,
                                    "initial_var_params": self.initial_var_params,
                                    "backend_options": self.backend_options,
@@ -230,7 +229,7 @@ class iQCC_ILC_solver:
         if self.verbose:
             print(f"Iteration # {self.iteration}")
             print(f"ILC total energy = {e_ilc} Eh")
-            print(f"ILC correlation energy = {self.e_ilc-self.qmf_energy} Eh")
+            print(f"ILC correlation energy = {e_ilc-self.qmf_energy} Eh")
             print(f"Optimal QMF variational parameters = {optimal_qmf_var_params}")
             print(f"Optimal ILC variational parameters = {optimal_ilc_var_params}")
             print(f"# of ILC generators = {len(self.ilc_ansatz.acs)}")
@@ -261,25 +260,21 @@ class iQCC_ILC_solver:
         """Updates after the final QCC energy evaluation with the final ILC dressed
         Hamiltonian."""
 
-        # get the optimal variational parameters and split them for qmf and ilc
+        # get the optimal variational parameters and split them for qmf and qcc ansatze
         n_qubits = self.qcc_ansatz.n_qubits
-        optimal_qmf_var_params = self.vqe_solver.optimal_var_params[:2*n_qubits]
-        optimal_qcc_var_params = self.vqe_solver.optimal_var_params[2*n_qubits:]
+        self.final_optimal_qmf_var_params = self.vqe_solver.optimal_var_params[:2*n_qubits]
+        self.final_optimal_qcc_var_params = self.vqe_solver.optimal_var_params[2*n_qubits:]
 
-        # update energy list and iteration number
+        # update energy list
+        self.final_optimal_energy = e_iqcc_ilc
         self.energies.append(e_iqcc_ilc)
-        self.iteration += 1
 
         if self.verbose:
             print("Final iQCC-ILC energy evaluation.")
             print(f"iQCC_ILC total energy = {e_iqcc_ilc} Eh")
-            print(f"iQCC_ILC correlation energy = {self.e_iqcc_ilc-self.qmf_energy} Eh")
-            print(f"Optimal QMF variational parameters = {optimal_qmf_var_params}")
-            print(f"Optimal QCC variational parameters = {optimal_qcc_var_params}")
+            print(f"iQCC_ILC correlation energy = {e_iqcc_ilc-self.qmf_energy} Eh")
+            print(f"Optimal QMF variational parameters = {self.final_optimal_qmf_var_params}")
+            print(f"Optimal QCC variational parameters = {self.final_optimal_qcc_var_params}")
             print(f"# of QCC generators = {len(self.qcc_ansatz.dis)}")
             print(f"QCC generators = {self.qcc_ansatz.dis}")
             print(f"QCC resource estimates = {self.get_resources()}")
-
-        self.final_optimal_energy = e_iqcc_ilc
-        self.final_optimal_qmf_params = optimal_qmf_var_params
-        self.final_optimal_qcc_params = optimal_qcc_var_params

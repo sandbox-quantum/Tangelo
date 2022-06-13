@@ -162,7 +162,7 @@ def get_gens_from_idxs(group_idxs):
 
 
 def build_qcc_qubit_op(dis_gens, amplitudes):
-    """Returns the QCC operator by selecting n_var_params generators from the DIS.
+    """Returns the QCC operator with generators selected from the DIS.
     The QCC operator is constructed as a linear combination of generators using the
     parameter set {tau} as coefficients: QCC operator = -0.5 * SUM_k P_k * tau_k.
     The exponentiated QCC operator, U = PROD_k exp(-0.5j * tau_k * P_k), is used to
