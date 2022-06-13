@@ -64,7 +64,7 @@ class QCC(Ansatz):
             circuit. If passed from the QMF ansatz class, parameters are variational.
             If None, one is created with QMF parameters that are not variational. Default, None.
         qmf_var_params (list or numpy array of float): QMF variational parameter set.
-            If None, the values are determined using a Hartree-Fock reference state. Default, [].
+            If None, the values are determined using a Hartree-Fock reference state. Default, None.
         qubit_ham (QubitOperator): Pass a qubit Hamiltonian to the QCC ansatz class and ignore
             the fermionic Hamiltonian in molecule. Default, None.
         deqcc_dtau_thresh (float): Threshold for |dEQCC/dtau| so that a candidate group is added
@@ -77,7 +77,7 @@ class QCC(Ansatz):
     """
 
     def __init__(self, molecule, mapping="jw", up_then_down=False, dis=None,
-                 qmf_circuit=None, qmf_var_params=[], qubit_ham=None, qcc_tau_guess=1e-2,
+                 qmf_circuit=None, qmf_var_params=None, qubit_ham=None, qcc_tau_guess=1e-2,
                  deqcc_dtau_thresh=1e-3, max_qcc_gens=None):
 
         if not molecule:
@@ -108,10 +108,11 @@ class QCC(Ansatz):
                                                       self.n_spinorbitals, self.n_electrons,
                                                       self.up_then_down, self.spin)
 
-        self.qmf_var_params = qmf_var_params
-        if isinstance(self.qmf_var_params, list):
-            self.qmf_var_params = np.array(self.qmf_var_params)
-        if not self.qmf_var_params.any():
+        if isinstance(qmf_var_params, list):
+            self.qmf_var_params = np.array(qmf_var_params)
+        else:
+            self.qmf_var_params = qmf_var_params
+        if not isinstance(self.qmf_var_params, np.ndarray):
             self.qmf_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                    self.mapping, self.up_then_down, self.spin)
         if self.qmf_var_params.size != 2 * self.n_qubits:

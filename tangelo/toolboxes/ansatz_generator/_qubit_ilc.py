@@ -220,7 +220,7 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
         # <QMF|T_i T_i|QMF> = <psi_i|psi_i> = 1
         qubit_overlap_mat[i, i] = 1. + 0j
 
-        for j in range(i + 1, n_var_params):
+        for j in range(i+1, n_var_params):
             # <QMF|T_j H T_i|QMF> = <psi_j| H | psi_i> = H_ji
             qubit_ham_mat[j, i] = get_op_expval(ilc_gens[j] * h_psi_i, qmf_var_params)
 
@@ -291,24 +291,24 @@ def ilc_op_dress(qubit_op, ilc_gens, amplitudes):
         QubitOperator: Dressed qubit operator.
     """
 
-
     # first, recast the beta amplitudes into the set of coefficients {c_n}
     n_amps = len(amplitudes)
     coef_norm = 1.
     coefs = [0.]*n_amps
 
-    # See Ref. 1, Appendix C, Eqs. C3 and C4
-    # sin b_n = c_n;
-    # sin_b_n-1 = c_n-1 / sqrt(1-|c_n|**2)
+    # See Ref. 1, Appendix C, Eqs. C3 and C4:
+    # sin b_n = c_n; sin_b_n-1 = c_n-1 / sqrt(1-|c_n|**2);
     # sin_b_n-2 = c_n-2 / sqrt(1-|c_n|**2-|c_n-1|**2) ...
     for i in range(n_amps-1, -1, -1):
         coef = sqrt(coef_norm) * sin(amplitudes[i])
         coefs[i] = coef
         coef_norm -= coef**2
+
     # the remainder of coef_norm is |c_0|^2
     coefs.insert(0, -sqrt(coef_norm))
 
-    # second, recast the set of coefficients {c_n} into tau, {alpha_i}; c_0 = cos(tau)
+    # second, recast {c_n} into tau, {alpha_i};
+    # c_0 = cos(tau); c_n = sin(tau) * alpha_n for n > 0
     tau = acos(coefs[0])
     sin_tau = sin(tau)
     alpha_params = []
@@ -323,7 +323,7 @@ def ilc_op_dress(qubit_op, ilc_gens, amplitudes):
         qop_dress += sin2_tau * alpha_i**2 * ilc_gens[i] * qubit_op * ilc_gens[i]\
                   - .5j * sin_2tau * alpha_i * commutator(qubit_op, ilc_gens[i])
         for j in range(i+1, n_amps):
-            qop_dress += sin2_tau * alpha_i * alpha_params[j] * (ilc_gens[i] * qubit_op * ilc_gens[j]\
+            qop_dress += sin2_tau * alpha_i * alpha_params[j] * (ilc_gens[i] * qubit_op * ilc_gens[j]
                       + ilc_gens[j] * qubit_op * ilc_gens[i])
     qop_dress.compress()
     return qop_dress

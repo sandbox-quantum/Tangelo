@@ -23,7 +23,7 @@ from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.ilc import ILC
 from tangelo.toolboxes.ansatz_generator._qubit_ilc import gauss_elim_over_gf2
 from tangelo.toolboxes.operators.operators import QubitOperator
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g
 
 sim = Simulator()
 
@@ -39,21 +39,18 @@ class ILCTest(unittest.TestCase):
 
         ilc_ansatz = ILC(mol_H2_sto3g, up_then_down=True)
 
-        one_zero = np.zeros((1,), dtype=float)
+        nine_zeros = np.zeros((9,), dtype=float)
 
-        ilc_ansatz.set_var_params("qmf_state")
-        np.testing.assert_array_almost_equal(ilc_ansatz.var_params, one_zero, decimal=6)
+        ilc_ansatz.set_var_params([0.] * 9)
+        np.testing.assert_array_almost_equal(ilc_ansatz.var_params, nine_zeros, decimal=6)
 
-        ilc_ansatz.set_var_params([0.])
-        np.testing.assert_array_almost_equal(ilc_ansatz.var_params, one_zero, decimal=6)
+        nine_tenths = 0.1 * np.ones((9,))
 
-        one_tenth = 0.1 * np.ones((1,))
+        ilc_ansatz.set_var_params([0.1] * 9)
+        np.testing.assert_array_almost_equal(ilc_ansatz.var_params, nine_tenths, decimal=6)
 
-        ilc_ansatz.set_var_params([0.1])
-        np.testing.assert_array_almost_equal(ilc_ansatz.var_params, one_tenth, decimal=6)
-
-        ilc_ansatz.set_var_params(np.array([0.1]))
-        np.testing.assert_array_almost_equal(ilc_ansatz.var_params, one_tenth, decimal=6)
+        ilc_ansatz.set_var_params(np.array([0.1] * 9))
+        np.testing.assert_array_almost_equal(ilc_ansatz.var_params, nine_tenths, decimal=6)
 
     def test_ilc_incorrect_number_var_params(self):
         """ Return an error if user provide incorrect number of variational parameters """
@@ -117,44 +114,81 @@ class ILCTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(z_sln, z_ref, decimal=6)
 
     def test_ilc_h2(self):
-        """ Verify closed-shell functionality when using the ILC class separately for H2 """
+        """ Verify closed-shell functionality when using the ILC class separately for H2."""
 
-        # Specify the mutually anticommuting set (ACS) of ILC generators and parameters.
-        acs = [QubitOperator("X0 Y1 Y2 Y3")]
-        # The QMF parameters are automatically set if the argument qmf_var_params is not given.
-        ilc_var_params = [0.11360304]
-        ilc_ansatz = ILC(mol_H2_sto3g, "jw", True, acs)
+        # Specify the qubit operators from the anticommuting set (ACS) of ILC generators.
+        acs = [QubitOperator("Y0 X1")]
+        ilc_ansatz = ILC(mol_H2_sto3g, mapping="scbk", up_then_down=True, acs=acs)
 
-        # Build the combined QMF (determined automatically if not specified) + ILC circuit.
+        # Build the ILC circuit, which is prepended by the qubit mean field (QMF) circuit.
         ilc_ansatz.build_circuit()
 
         # Get qubit hamiltonian for energy evaluation
         qubit_hamiltonian = ilc_ansatz.qubit_ham
 
+        # The QMF and ILC parameters can both be specified; determined automatically otherwise.
+        qmf_var_params = [3.14159265e+00,  3.14159265e+00, -7.59061327e-12,  0.]
+        ilc_var_params = [1.12894599e-01]
+        var_params = qmf_var_params + ilc_var_params
+        ilc_ansatz.update_var_params(var_params)
         # Assert energy returned is as expected for given parameters
-        ilc_ansatz.update_var_params(ilc_var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.1372697, delta=1e-6)
+        self.assertAlmostEqual(energy, -1.137270126, delta=1e-6)
+
+    def test_ilc_h4(self):
+        """ Verify restricted open-shell functionality when using the ILC class for H4."""
+
+        # Specify the qubit operators from the anticommuting set (ACS) of ILC generators.
+        acs = [QubitOperator("Y1 Z2 X4"), QubitOperator("Y0 Y1 X2 Y3 X4 X5"),
+               QubitOperator("Y1 X2 Z3 X4 X5"), QubitOperator("X0 Y1 X2 Z3 X4 Z5"),
+               QubitOperator("Z0 X1 Z2 Y3 X4 X5"), QubitOperator("X0 X1 Z2 Y3 X4"),
+               QubitOperator("Y0 Y1 Y2 X4 X5"), QubitOperator("Y0 X1 X4 X5"),
+               QubitOperator("Y1 X2 X3 X4")]
+        ilc_ansatz = ILC(mol_H4_sto3g, mapping="scbk", up_then_down=True, acs=acs)
+
+        # Build the ILC circuit, which is prepended by the qubit mean field (QMF) circuit.
+        ilc_ansatz.build_circuit()
+
+        # Get qubit hamiltonian for energy evaluation
+        qubit_hamiltonian = ilc_ansatz.qubit_ham
+
+        # The QMF and ILC parameters can both be specified; determined automatically otherwise.
+        qmf_var_params = [ 3.14159265e+00, -2.47684726e-11, -1.37467437e-10,  3.14159265e+00,
+                           5.43734395e-11, -1.41188582e-13, -6.69871249e-11, -1.23842388e-11,
+                          -3.03939495e-11, -1.75913647e-11, -8.14683170e-11, -5.47440763e-11]
+        ilc_var_params = [-0.01814572, -0.01424239, -0.68847521, -0.18638066,  0.20154354,
+                          -0.07915407, -0.09118872, -0.06635491,  0.07021822]
+        var_params = qmf_var_params + ilc_var_params
+        # Assert energy returned is as expected for given parameters
+        ilc_ansatz.update_var_params(var_params)
+        energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
+        self.assertAlmostEqual(energy, -1.9608792, delta=1e-6)
 
     def test_ilc_h4_cation(self):
         """ Verify restricted open-shell functionality when using the ILC class for H4+ """
 
-        # Specify the mutually anticommuting set (ACS) of ILC generators and parameters.
-        acs = [QubitOperator("Y0 Z2 X4 Z6"), QubitOperator("Y1 Y2 Z4 X5 Y6"), QubitOperator("X0 Z2 Z4 Y6"),
-               QubitOperator("X1 Y2 X4 Z6"), QubitOperator("Y1 Y2 X4 Y5 Z6"), QubitOperator("Y1 Y2 Z4 Z5 Y6"),
-               QubitOperator("Y0 Z1 Z2 Y5 Y6"), QubitOperator("Y0 Z1 Z2 Y4 Y5 Z6")]
-        # The QMF parameters are automatically set if the argument qmf_var_params is not given.
-        ilc_var_params = [ 0.14017492, -0.10792805, -0.05835484,  0.12468933,  0.07173118,  0.04683807,  0.02852163, -0.03133538]
-        ilc_ansatz = ILC(mol_H4_cation_sto3g, "bk", False, acs)
+        # Specify the qubit operators from the anticommuting set (ACS) of ILC generators.
+        acs = [QubitOperator("X0 X1 X2 X3 X4 Y5"), QubitOperator("X1 Z2 X3 X4 Y5"),
+               QubitOperator("Y0 X1 Z2 X3 X4 Z5"), QubitOperator("Z0 X1 X2 X3 X4 Y5"),
+               QubitOperator("X1 Y2 X3 X4"), QubitOperator("Y1 X3 X4"),
+               QubitOperator("Y0 X1 Z2 X3 X4 X5"), QubitOperator("Y0 X1 X2 X3 X4")]
+        ilc_ansatz = ILC(mol_H4_cation_sto3g, mapping="scbk", up_then_down=True, acs=acs)
 
-        # Build the combined QMF (determined automatically if not specified) + ILC circuit.
+        # Build the ILC circuit, which is prepended by the qubit mean field (QMF) circuit.
         ilc_ansatz.build_circuit()
 
         # Get qubit hamiltonian for energy evaluation
         qubit_hamiltonian = ilc_ansatz.qubit_ham
 
+        # The QMF and ILC parameters can both be specified; determined automatically otherwise.
+        qmf_var_params = [ 3.14159265e+00, -1.02576971e-11,  1.35522331e-11,  3.14159265e+00,
+                           3.14159265e+00, -5.62116001e-11, -1.41419277e-11, -2.36789365e-11,
+                          -5.53225030e-11, -3.56400157e-11, -2.61030058e-11, -3.55652002e-11]
+        ilc_var_params = [ 0.14001419, -0.10827113,  0.05840200, -0.12364925,
+                          -0.07275071, -0.04703495,  0.02925292,  0.03145765]
+        var_params = qmf_var_params + ilc_var_params
         # Assert energy returned is as expected for given parameters
-        ilc_ansatz.update_var_params(ilc_var_params)
+        ilc_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.6379638, delta=1e-6)
 

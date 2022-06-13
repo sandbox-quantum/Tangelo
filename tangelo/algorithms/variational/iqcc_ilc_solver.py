@@ -164,16 +164,16 @@ class iQCC_ILC_solver:
 
         # perform a single QCC-VQE minimization to obtain the final iQCC-ILC energy
         # need to rebuild VQE Solver for the QCC ansatz first
-        self._build_qcc()
+        #self._build_qcc()
         # check that the ACS has at least one generator to use
-        if self.qcc_ansatz.dis and self.qcc_ansatz.var_params.any():
-            e_iqcc_ilc = self.vqe_solver.simulate()
-            self._update_qcc_solver(e_iqcc_ilc)
-        else:
-            if self.verbose:
-                print("Terminating the iQCC-ILC solver without evaluating the "
-                      "the final QCC energy: the DIS of QCC generators is empty "
-                      "for the given Hamiltonian.")
+        #if self.qcc_ansatz.dis and self.qcc_ansatz.var_params.any():
+        #    e_iqcc_ilc = self.vqe_solver.simulate()
+        #    self._update_qcc_solver(e_iqcc_ilc)
+        #else:
+        #    if self.verbose:
+        #        print("Terminating the iQCC-ILC solver without evaluating the "
+        #              "the final QCC energy: the DIS of QCC generators is empty "
+        #              "for the given Hamiltonian.")
 
         return self.energies[-1]
 

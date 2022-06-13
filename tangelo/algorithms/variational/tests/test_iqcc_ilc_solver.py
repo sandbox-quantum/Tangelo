@@ -58,53 +58,57 @@ class iQCC_ILC_solver_test(unittest.TestCase):
                         "up_then_down": True,
                         "ilc_ansatz_options": ilc_ansatz_options,
                         "qcc_ansatz_options": qcc_ansatz_options,
-                        "max_ilc_iter": 3,
-                        "compress_qubit_ham": False,
-                        "compress_eps": 1e-4,
-                        "verbose":True}
+                        "max_ilc_iter": 1,
+                        "compress_qubit_ham": True,
+                        "compress_eps": 1e-4}
 
         iqcc_ilc_solver = iQCC_ILC_solver(iqcc_ilc_options)
         iqcc_ilc_solver.build()
         iqcc_ilc_energy = iqcc_ilc_solver.simulate()
-        print(iqcc_ilc_energy)
 
-#        self.assertAlmostEqual(iqcc_ilc_energy, -1.96259, places=4)
+        self.assertAlmostEqual(iqcc_ilc_energy, -1.96088, places=4)
 
-#    def test_iqcc_ilc_h4_cation(self):
-#        """Test the energy after 3 iterations for H4+"""
-#
-#        ansatz_options = {"max_qcc_gens": None}
-#
-#        iqcc_ilc_options = {"molecule": mol_H4_cation_sto3g,
-#                        "qubit_mapping": "scbk",
-#                        "up_then_down": True,
-#                        "ansatz_options": ansatz_options,
-#                        "deqcc_thresh": 1e-5,
-#                        "max_iqcc_ilc_iter": 3}
-#
-#        iqcc = iQCC_ILC_solver(iqcc_ilc_options)
-#        iqcc.build()
-#        iqcc_ilc_energy = iqcc.simulate()
-#
-#        self.assertAlmostEqual(iqcc_ilc_energy, -1.638524, places=4)
-#
-#    def test_iqcc_ilc_h4_double_cation(self):
-#        """Test the energy after 1 iteration for H4+2"""
-#
-#        ansatz_options = {"max_qcc_gens": None}
-#
-#        iqcc_ilc_options = {"molecule": mol_H4_doublecation_minao,
-#                        "qubit_mapping": "scbk",
-#                        "up_then_down": True,
-#                        "ansatz_options": ansatz_options,
-#                        "deqcc_thresh": 1e-5,
-#                        "max_iqcc_ilc_iter": 1}
-#
-#        iqcc = iQCC_ILC_solver(iqcc_ilc_options)
-#        iqcc.build()
-#        iqcc_ilc_energy = iqcc.simulate()
-#
-#        self.assertAlmostEqual(iqcc_ilc_energy, -0.854647, places=4)
+    def test_iqcc_ilc_h4_cation(self):
+        """Test the energy after 3 iterations for H4+"""
+
+        ilc_ansatz_options = {"max_ilc_gens": None}
+        qcc_ansatz_options = {"max_qcc_gens": None}
+
+        iqcc_ilc_options = {"molecule": mol_H4_cation_sto3g,
+                        "qubit_mapping": "scbk",
+                        "up_then_down": True,
+                        "ilc_ansatz_options": ilc_ansatz_options,
+                        "qcc_ansatz_options": qcc_ansatz_options,
+                        "max_ilc_iter": 3,
+                        "compress_qubit_ham": False,
+                        "compress_eps": 1e-4}
+
+        iqcc_ilc_solver = iQCC_ILC_solver(iqcc_ilc_options)
+        iqcc_ilc_solver.build()
+        iqcc_ilc_energy = iqcc_ilc_solver.simulate()
+
+        self.assertAlmostEqual(iqcc_ilc_energy, -1.63796, places=4)
+
+    def test_iqcc_ilc_h4_double_cation(self):
+        """Test the energy after 1 iteration for H4+2"""
+
+        ilc_ansatz_options = {"max_ilc_gens": None}
+        qcc_ansatz_options = {"max_qcc_gens": None}
+
+        iqcc_ilc_options = {"molecule": mol_H4_doublecation_minao,
+                        "qubit_mapping": "scbk",
+                        "up_then_down": True,
+                        "ilc_ansatz_options": ilc_ansatz_options,
+                        "qcc_ansatz_options": qcc_ansatz_options,
+                        "max_ilc_iter": 1,
+                        "compress_qubit_ham": False,
+                        "compress_eps": 1e-4}
+
+        iqcc_ilc_solver = iQCC_ILC_solver(iqcc_ilc_options)
+        iqcc_ilc_solver.build()
+        iqcc_ilc_energy = iqcc_ilc_solver.simulate()
+
+        self.assertAlmostEqual(iqcc_ilc_energy, -0.85446, places=4)
 
 
 if __name__ == "__main__":
