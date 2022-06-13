@@ -37,7 +37,7 @@ Quick note for Windows users
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Our installation instructions will work on Linux and MacOS systems. If you are using Windows, we recommend
-you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/installhttps:/>`_, which allows you
+you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/install>`_, which allows you
 to run Ubuntu as an application. Once it has been installed, you can type ``explorer.exe`` in your Ubuntu terminal to
 drag and drop files between your Windows and Linux environment.
 
