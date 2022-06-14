@@ -4,7 +4,7 @@ Tangelo overview
 |tangelo_logo|
 
 .. |tangelo_logo| image:: ./docs/source/_static/img/tangelo_logo_gradient.png
-   :width: 700
+   :width: 600
    :alt: tangelo_logo
 
 |
@@ -30,6 +30,14 @@ Tangelo is an open-source and free Python package developed by `Good Chemistry C
 
 Easy to pick up, it facilitates the exploration of end-to-end workflows leveraging reusable building blocks or your own custom code, while keeping track of quantum resource requirements, such as number of qubits, gates or measurements.
 Through problem decomposition techniques, users can scale up beyond toy models and study the impact of quantum computing on more industrially-relevant use cases. Tangelo is backend-agnostic and compatible with many existing open-source frameworks (Cirq, Qulacs, Qiskit, Braket ...). It is our wish to develop a community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
+
+|workflow|
+
+.. |workflow| image:: ./docs/source/_static/img/quantum_workflow.png
+   :width: 800
+   :align: center
+   :alt: tangelo_workflow
+
 
 
 Install
