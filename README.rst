@@ -35,7 +35,6 @@ Through problem decomposition techniques, users can scale up beyond toy models a
 
 .. |workflow| image:: ./docs/source/_static/img/quantum_workflow.png
    :width: 800
-   :align: center
    :alt: tangelo_workflow
 
 
