@@ -158,7 +158,7 @@ Thank you very much for considering contributing to this project; we’d love to
 You do not need to be a seasoned software developer or expert in your field to make contributions to this project: it will take various kinds of people and backgrounds to tackle the challenges that await us.
 
 However we need some guidelines and processes to ensure that we build something of quality for the community. We describe them in the `contributions <./CONTRIBUTIONS.rst>`_ file.
-There are many ways you can contribute, but in case you're considering contributing code: don't be scared of the infamous pull request process ! It can be intimidating but we've had a few researchers or high-schoolers went through their first ones and... they lived to tell the tale ;)
+There are many ways you can contribute, but in case you're considering contributing code: don't be scared of the infamous pull request process ! It can feel intimidating, but we've had a few researchers or high-schoolers go through their first one and... they came back for more ! Mostly.
 
 By joining the Tangelo community and sharing your ideas and developments, you are creating an opportunity for us to learn and grow together, and take ideas to the finish line and beyond.
 
@@ -167,6 +167,6 @@ Citations
 
 If you use Tangelo in your research, please cite:
 
-[TODO: this is a placeholder for our Tangelo paper, to be written and put on arxiv in October]
+[TODO: Placeholder Tangelo for arXiv paper]
 
 © Good Chemistry Company 2021. This software is released under the Apache Software License version 2.0.
