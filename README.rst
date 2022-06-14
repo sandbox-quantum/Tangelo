@@ -1,15 +1,11 @@
-|tangelo_logo|
-
-.. |tangelo_logo| image:: ./docs/source/_static/img/tangelo_logo_gradient.png
+.. figure:: ./docs/source/_static/img/tangelo_logo_gradient.png
    :width: 600
+   :align: center
    :alt: tangelo_logo
 
 |
 
-|maintainer|
-|licence|
-|systems|
-|dev_branch|
+|maintainer| |licence| |systems| |dev_branch|
 |build|
 
 .. |maintainer| image:: https://img.shields.io/badge/Maintainer-GoodChemistry-blue
@@ -36,16 +32,16 @@ help.
    :width: 700
    :alt: tangelo_workflow
 
-This package provides a growing collection of algorithms and toolboxes to support the development of and the design of successful experiments on quantum devices. Tangelo is backend-agnostic, so that users can write code once and experiment with current and future platforms with minimal changes.
+This package provides a growing collection of algorithms and toolboxes to support the development of and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
+so that users can write code once and experiment with current and future platforms with minimal changes.
 
-.. |c1| replace:: Tangelo was used to perform quantum experiments that led to peer-reviewed work published in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
-.. |c2| image:: ./docs/source/_static/img/curve_dmet_qcc.png
+.. figure:: ./docs/source/_static/img/curve_dmet_qcc.png
    :width: 400
-+---------+------------+
-|         |            |
-|   |c1|  |   |c2|     |
-|         |            |
-+---------+------------+
+   :align: right
+
+Tangelo was used to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
+published in scientific journals,
+co-authored by professionals from the chemical industry and quantum hardware manufacturers.
 
 We hope to grow a healthy community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
 
