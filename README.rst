@@ -1,6 +1,3 @@
-Tangelo overview
-================
-
 |tangelo_logo|
 
 .. |tangelo_logo| image:: ./docs/source/_static/img/tangelo_logo_gradient.png
@@ -115,7 +112,7 @@ them in whatever way your OS supports it, or even inside your python script usin
 Docs
 ----
 
-TODO: insert sentence and link to sphinx documentation when its online.
+You can consult the sphinx documentation of Tangelo `here <http://tangelo-docs.goodchemistry.com>`_.
 
 Tutorials
 ---------
@@ -125,15 +122,14 @@ We wrote a number of them, but nothing prevents users from contributing more not
 You can visualize a number of pre-run notebooks directly on Github or in our Sphinx documentation. If you'd like to be able to run
 them locally, we suggest you use `Jupyter notebooks inside a virtual environment <https://janakiev.com/blog/jupyter-virtual-envs/>`_.
 
-- Install Jupyter in your environment:
+- Install Jupyter and ipykernel in your environment:
 .. code-block::
 
-   pip install jupyter
+   pip install jupyter ipykernel
 
 - To make sure the notebooks allow you to set the kernel corresponding to your virtual environment:
 .. code-block::
 
-   pip install --user ipykernel
    python -m ipykernel install --user --name=myenv
 
 Tests
@@ -150,7 +146,11 @@ find and run all tests (assuming you are in the ``tangelo`` subfolder that conta
 Contributions
 -------------
 
-Please have a look at the `contributions <./CONTRIBUTIONS.rst>`_ file.
+Thank you very much for considering contributing to this project; we’d love to have you on board !
+You do not need to be a seasoned software developer or expert in your field to make contributions to this project: it will take various kinds of people and backgrounds to tackle the challenges that await us.
+
+However we need some guidelines and processes to ensure that we build something of quality for the community. We describe them in the `contributions <./CONTRIBUTIONS.rst>`_ file.
+There are many ways you can contribute, but in case you're considering contributing code: don't be scared of the infamous pull request process ! It can be intimidating but we've had a few researchers or high-schoolers went through their first ones and... they lived to tell the tale ;)
 
 Citations
 ---------
