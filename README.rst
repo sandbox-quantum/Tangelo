@@ -1,11 +1,13 @@
-Tangelo overview
-================
+.. raw:: html
 
-|maintainer|
-|licence|
-|systems|
-|dev_branch|
-|build|
+   <img src="./docs/source/_static/img/tangelo_logo_gradient.png" align="center" width="600px" alt="tangelo_logo">
+
+|
+
+|maintainer| |licence| |systems| |dev_branch|
+
+..
+    |build|
 
 .. |maintainer| image:: https://img.shields.io/badge/Maintainer-GoodChemistry-blue
    :target: https://goodchemistry.com
@@ -18,11 +20,36 @@ Tangelo overview
 
 Welcome !
 
-Tangelo is an open-source and free Python package developed by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of end-to-end material simulation workflows on quantum computers.
+Tangelo is an open-source and free Python package maintained by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of end-to-end material simulation workflows on quantum computers.
 
-Easy to pick up, it facilitates the exploration of end-to-end workflows leveraging reusable building blocks or your own custom code, while keeping track of quantum resource requirements, such as number of qubits, gates or measurements.
-Through problem decomposition techniques, users can scale up beyond toy models and study the impact of quantum computing on more industrially-relevant use cases. Tangelo is backend-agnostic and compatible with many existing open-source frameworks (Cirq, Qulacs, Qiskit, Braket ...). It is our wish to develop a community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
+Tackling chemical systems with quantum computing is not easy. Leveraging pre- and post-processing techniques as well as insights from classical calculations remain necessary, in order to make a
+non-trivial use cases computationally tractable and develop efficient approaches returning accurate results on simulators or quantum devices.
+Assembling the different building blocks to form and explore workflows that meet these constraints is where Tangelo strives to be of
+help.
 
+|workflow|
+
+.. |workflow| image:: ./docs/source/_static/img/quantum_workflow.png
+   :width: 700
+   :alt: tangelo_workflow
+
+This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support the development of and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
+so that users can write code once and experiment with current and future platforms with minimal changes.
+
+.. raw:: html
+
+   <img src="./docs/source/_static/img/curve_dmet_qcc.png" align="right" width="400px" alt="curve">
+
+Tangelo was used to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
+published in scientific journals,
+co-authored by professionals from the chemical industry and quantum hardware manufacturers.
+
+We hope to grow a healthy community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
+
+- Our paper on arXiv (link updated as soon as available)
+- `Sphinx documentation <http://tangelo-docs.goodchemistry.com>`_.
+
+What will you do with Tangelo ?
 
 Install
 -------
@@ -37,7 +64,7 @@ Quick note for Windows users
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Our installation instructions will work on Linux and MacOS systems. If you are using Windows, we recommend
-you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/installhttps:/>`_, which allows you
+you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/install>`_, which allows you
 to run Ubuntu as an application. Once it has been installed, you can type ``explorer.exe`` in your Ubuntu terminal to
 drag and drop files between your Windows and Linux environment.
 
@@ -97,11 +124,6 @@ the desired values in your environment, you can run this shell script in Linux w
 ``source env_var.sh`` (you may need to set execution permissions with ``chmod +x set_env_var.sh`` first), or you can set
 them in whatever way your OS supports it, or even inside your python script using the ``os`` package.
 
-Docs
-----
-
-TODO: insert sentence and link to sphinx documentation when its online.
-
 Tutorials
 ---------
 
@@ -110,15 +132,14 @@ We wrote a number of them, but nothing prevents users from contributing more not
 You can visualize a number of pre-run notebooks directly on Github or in our Sphinx documentation. If you'd like to be able to run
 them locally, we suggest you use `Jupyter notebooks inside a virtual environment <https://janakiev.com/blog/jupyter-virtual-envs/>`_.
 
-- Install Jupyter in your environment:
+- Install Jupyter and ipykernel in your environment:
 .. code-block::
 
-   pip install jupyter
+   pip install jupyter ipykernel
 
 - To make sure the notebooks allow you to set the kernel corresponding to your virtual environment:
 .. code-block::
 
-   pip install --user ipykernel
    python -m ipykernel install --user --name=myenv
 
 Tests
@@ -135,13 +156,19 @@ find and run all tests (assuming you are in the ``tangelo`` subfolder that conta
 Contributions
 -------------
 
-Please have a look at the `contributions <./CONTRIBUTIONS.rst>`_ file.
+Thank you very much for considering contributing to this project; we’d love to have you on board !
+You do not need to be a seasoned software developer or expert in your field to make contributions to this project: it will take various kinds of people and backgrounds to tackle the challenges that await us.
+
+However we need some guidelines and processes to ensure that we build something of quality for the community. We describe them in the `contributions <./CONTRIBUTIONS.rst>`_ file.
+There are many ways you can contribute, but in case you're considering contributing to the codebase: don't be scared of the infamous pull request process ! It can feel intimidating, but we've had a few researchers or high-schoolers go through their first one and... they came back for more ! Mostly.
+
+By joining the Tangelo community and sharing your ideas and developments, you are creating an opportunity for us to learn and grow together, and take ideas to the finish line and beyond.
 
 Citations
 ---------
 
 If you use Tangelo in your research, please cite:
 
-[TODO: this is a placeholder for our Tangelo paper, to be written and put on arxiv in October]
+[TODO: Placeholder Tangelo for arXiv paper]
 
 © Good Chemistry Company 2021. This software is released under the Apache Software License version 2.0.
