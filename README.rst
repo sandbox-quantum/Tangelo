@@ -5,7 +5,9 @@
 |
 
 |maintainer| |licence| |systems| |dev_branch|
-|build|
+
+..
+    |build|
 
 .. |maintainer| image:: https://img.shields.io/badge/Maintainer-GoodChemistry-blue
    :target: https://goodchemistry.com
