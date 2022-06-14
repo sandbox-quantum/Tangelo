@@ -1,7 +1,6 @@
-.. figure:: ./docs/source/_static/img/tangelo_logo_gradient.png
-   :width: 600
-   :align: center
-   :alt: tangelo_logo
+.. raw:: html
+
+   <img src="./docs/source/_static/img/tangelo_logo_gradient.png" align="center" width="600px" alt="tangelo_logo">
 
 |
 
@@ -32,18 +31,21 @@ help.
    :width: 700
    :alt: tangelo_workflow
 
-This package provides a growing collection of algorithms and toolboxes to support the development of and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
+This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support the development of and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
 so that users can write code once and experiment with current and future platforms with minimal changes.
 
-.. figure:: ./docs/source/_static/img/curve_dmet_qcc.png
-   :width: 400
-   :align: right
+.. raw:: html
+
+   <img src="./docs/source/_static/img/curve_dmet_qcc.png" align="right" width="400px" alt="curve">
 
 Tangelo was used to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
 published in scientific journals,
 co-authored by professionals from the chemical industry and quantum hardware manufacturers.
 
 We hope to grow a healthy community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
+
+- Our paper on arXiv (link updated as soon as available)
+- `Sphinx documentation <http://tangelo-docs.goodchemistry.com>`_.
 
 What will you do with Tangelo ?
 
@@ -119,11 +121,6 @@ See the list of relevant environment variables and their use in ``env_var.sh``. 
 the desired values in your environment, you can run this shell script in Linux with the following command line:
 ``source env_var.sh`` (you may need to set execution permissions with ``chmod +x set_env_var.sh`` first), or you can set
 them in whatever way your OS supports it, or even inside your python script using the ``os`` package.
-
-Docs
-----
-
-You can consult the sphinx documentation of Tangelo `here <http://tangelo-docs.goodchemistry.com>`_.
 
 Tutorials
 ---------
