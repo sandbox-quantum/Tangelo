@@ -3,8 +3,11 @@ Tangelo overview
 
 |tangelo_logo|
 
-.. |tangelo_logo| image:: ./docs/source/_static/tangelo_logo_gradient.png
-   :width: 800
+.. |tangelo_logo| image:: ./docs/source/_static/img/tangelo_logo_gradient.png
+   :width: 700
+   :alt: tangelo_logo
+
+|
 
 |maintainer|
 |licence|
