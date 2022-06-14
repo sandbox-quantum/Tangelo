@@ -1,7 +1,7 @@
 Contributions guidelines
 ========================
 
-Thank you very much for considering contributing to this project; we’d love to have you on board ! 
+Thank you very much for considering contributing to this project ! 
 
 Do not feel intimidated by the guidelines and processes we describe in this document: we are here to assist you and help you take things to the finish line. We do not expect you to be an expert in software development or to get everything right on the first attempt: don’t hesitate to open an issue or a pull request, or simply contact us.
 
@@ -12,11 +12,16 @@ By joining the Tangelo community and sharing your ideas and developments, you ar
 Tangelo is under licence `Apache 2.0 <http://www.apache.org/licenses/LICENSE-2.0>`_.
 
 
+Code of conduct
+---------------
+
+Tangelo currently does not have its own code of conduct, but values such as respect and inclusiveness are very important to us. The following `covenant <https://www.contributor-covenant.org/version/1/4/code-of-conduct/>`_ is a good reflection of the kind of environment we want to foster. Please have a quick look.
+
+
 Feature requests, bug reports
 -----------------------------
 
 Have a look at the issue tab, and complete the adequate issue template if needed: there's one for feature request, bug reports, and more. If it turns out the issue ticket you wanted to bring up already exists, please consider leaving a thumbs up or participate in the conversation to help us prioritize or move things forward. It's important to know what matters to users, to take our collaborative project in the right direction: all of this is very useful !
-
 
 
 Pull request and code review process
@@ -80,7 +85,7 @@ Every time you open a PR or push more code into an open one, several automated p
 
 
 Continuous integration
-=======================
+======================
 
 When a pull request is created or updated, several automated processes are launched. You will find most of them in the "checks" tab of your pull request, and can look into the details. These processes check for a few things:
 
