@@ -1,6 +1,11 @@
 Tangelo overview
 ================
 
+|tangelo_logo|
+
+.. |tangelo_logo| image:: ./docs/source/_static/tangelo_logo_gradient.png
+   :width: 800
+
 |maintainer|
 |licence|
 |systems|
