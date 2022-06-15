@@ -1,8 +1,8 @@
-.. raw:: html
+|tangelo_logo|
 
-   <img src="./docs/source/_static/img/tangelo_logo_gradient.png" align="center" width="600px" alt="tangelo_logo">
-
-|
+.. |tangelo_logo| image:: ./docs/source/_static/img/tangelo_logo_gradient.png
+   :width: 600
+   :alt: tangelo_logo
 
 |maintainer| |licence| |systems| |dev_branch|
 
@@ -36,9 +36,11 @@ help.
 This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support the development of and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
 so that users can write code once and experiment with current and future platforms with minimal changes.
 
-.. raw:: html
+|curve|
 
-   <img src="./docs/source/_static/img/curve_dmet_qcc.png" align="right" width="400px" alt="curve">
+.. |curve| image:: ./docs/source/_static/img/curve_dmet_qcc.png
+   :width: 400
+   :alt: curve
 
 Tangelo was used to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
 published in scientific journals,
@@ -99,7 +101,7 @@ separately with ``pip``\ , before trying again.
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as 
+Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as
 ``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice.
 Most packages can be installed through pip in a straightforward way:
 
@@ -110,7 +112,7 @@ Most packages can be installed through pip in a straightforward way:
    pip install cirq
    ...
 
-Depending on your OS and environment, some of these packages may be more challenging to install. For installing Microsoft's QDK 
+Depending on your OS and environment, some of these packages may be more challenging to install. For installing Microsoft's QDK
 or any issue regarding the above packages, please check their respective documentation.
 
 Optional: environment variables
