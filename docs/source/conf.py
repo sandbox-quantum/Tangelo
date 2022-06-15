@@ -58,6 +58,6 @@ napoleon_custom_sections = [('Returns', 'params_style')]
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 html_css_files = ['css/custom.css'] # works (path relative to html_static_path)
-html_logo = './_static/img/tangelo_name_white.png' # works (path relative to conf.py)
+html_logo = './_static/img/tangelo_logo_white.png' # works (path relative to conf.py)
 
 autodoc_mock_imports = ['qemist-client', 'PIL', 'Pillow', 'qsharp']

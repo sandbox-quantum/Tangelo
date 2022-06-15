@@ -10,7 +10,7 @@ Welcome to tangelo's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   README
+   overview
    tangelo
 
 Indices and tables
