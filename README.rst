@@ -36,15 +36,15 @@ help.
 This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support the development of and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
 so that users can write code once and experiment with current and future platforms with minimal changes.
 
+Tangelo was used to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
+published in scientific journals,
+co-authored by professionals from the chemical industry and quantum hardware manufacturers.
+
 |curve|
 
 .. |curve| image:: ./docs/source/_static/img/curve_dmet_qcc.png
    :width: 400
    :alt: curve
-
-Tangelo was used to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
-published in scientific journals,
-co-authored by professionals from the chemical industry and quantum hardware manufacturers.
 
 We hope to grow a healthy community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
 
