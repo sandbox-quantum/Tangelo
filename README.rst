@@ -49,7 +49,7 @@ co-authored by professionals from the chemical industry and quantum hardware man
 We hope to grow a healthy community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
 
 - Our paper on arXiv (link updated as soon as available)
-- `Sphinx documentation <http://tangelo-docs.goodchemistry.com>`_.
+- Our `Sphinx documentation <http://tangelo-docs.goodchemistry.com>`_.
 
 What will you do with Tangelo ?
 
@@ -82,7 +82,9 @@ Here are a few essentials to install inside a brand new Ubuntu environment, befo
 Using pip
 ^^^^^^^^^
 
-TODO: once this package is available on pypi, give the command.
+.. code-block::
+
+   pip install tangelo-gc
 
 From source, using setuptools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
