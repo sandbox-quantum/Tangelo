@@ -169,6 +169,6 @@ Citations
 
 If you use Tangelo in your research, please cite:
 
-[TODO: Placeholder Tangelo for arXiv paper]
+[TODO: (arXiv link updated as soon as available)]
 
 © Good Chemistry Company 2021. This software is released under the Apache Software License version 2.0.
