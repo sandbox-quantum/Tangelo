@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from tangelo.helpers.utils import is_package_installed
+
 from .variational import BuiltInAnsatze, VQESolver, ADAPTSolver, SA_VQESolver, SA_OO_Solver
-from .classical import FCISolver, CCSDSolver, MINDO3Solver
+from .classical import FCISolver, CCSDSolver
 from .projective import QITESolver
+
+if is_package_installed("pyscf.semiempirical"):
+    from .classical import MINDO3Solver
