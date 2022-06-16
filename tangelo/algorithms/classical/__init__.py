@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tangelo.helpers.utils import is_package_installed
-
 from .fci_solver import FCISolver
 from .ccsd_solver import CCSDSolver
-
-if is_package_installed("pyscf.semiempirical"):
-    from .semi_empirical_solver import MINDO3Solver
+from .semi_empirical_solver import MINDO3Solver

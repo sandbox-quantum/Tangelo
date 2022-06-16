@@ -30,8 +30,7 @@ Here are the semi-empirical method(s) implemented:
     - MINDO3
 """
 
-from pyscf.semiempirical import mindo3
-
+from tangelo.helpers.utils import is_package_installed
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
 
 
@@ -50,6 +49,9 @@ class MINDO3Solver(ElectronicStructureSolver):
     """
 
     def __init__(self, molecule):
+        if not is_package_installed("pyscf.semiempirical"):
+            raise ModuleNotFoundError(f"The pyscf.semiempirical module is not available and is required by {self.__class__.__name__}.")
+
         self.molecule = molecule
 
     def simulate(self):
@@ -58,6 +60,7 @@ class MINDO3Solver(ElectronicStructureSolver):
         Returns:
             float: RMINDO3 energy.
         """
+        from pyscf.semiempirical import mindo3
 
         solver = mindo3.RMINDO3(self.molecule.to_pyscf()).run(verbose=0)
         total_energy = solver.e_tot
