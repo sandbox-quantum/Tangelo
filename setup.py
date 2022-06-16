@@ -6,7 +6,7 @@ import subprocess
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-version = '0.3.0'
+version = '0.3.1'
 
 with open('README.rst', 'r') as f:
     long_description = f.read()
