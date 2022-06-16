@@ -68,6 +68,7 @@ Using pip
 The easiest way to install Tangelo in your environment. We recommend upgrading pip first:
 
 .. code-block::
+
    python -m pip install -–upgrade pip.
    pip install tangelo-gc
 
