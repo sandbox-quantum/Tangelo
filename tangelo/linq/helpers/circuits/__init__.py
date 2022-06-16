@@ -13,3 +13,4 @@
 # limitations under the License.
 
 from .measurement_basis import *
+from .statevector import StateVector

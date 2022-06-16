@@ -35,6 +35,7 @@ xyz_H4 = [
     ("H", [0.0, -1.0071067811865476, 0.0])
 ]
 mol_H4_sto3g = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g")
+mol_H4_sto3g_symm = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g", symmetry=True)
 mol_H4_minao = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="minao")
 mol_H4_cation_sto3g = SecondQuantizedMolecule(xyz_H4, q=1, spin=1, basis="sto-3g")
 mol_H4_doublecation_minao = SecondQuantizedMolecule(xyz_H4, q=2, spin=0, basis="minao")
@@ -125,4 +126,17 @@ xyz_PHE = [
     ("H", (-3.5968,  0.0108,  2.3601)),
     ("H", (-1.1260, -0.2065,  2.4095)),
     ("H", ( 4.1118, -0.2131, -1.6830))
+]
+
+
+# Ethane (H3CCH3).
+xyz_ethane = [
+    ("C", ( 0.7166,  0.8980,  0.6425)),
+    ("H", ( 0.5397,  1.7666, -0.0025)),
+    ("H", ( 0.4899,  0.0005,  0.0551)),
+    ("H", (-0.0078,  0.9452,  1.4640)),
+    ("C", ( 2.1541,  0.8745,  1.1659)),
+    ("H", ( 2.3313,  0.0053,  1.8100)),
+    ("H", ( 2.8785,  0.8284,  0.3444)),
+    ("H", ( 2.3805,  1.7715,  1.7542))
 ]

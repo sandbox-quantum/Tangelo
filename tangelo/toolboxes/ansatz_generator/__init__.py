@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .vsqs import VSQS
+from .ilc import ILC
 from .qcc import QCC
 from .qmf import QMF
 from .uccsd import UCCSD
@@ -21,3 +22,4 @@ from .rucc import RUCC
 from .upccgsd import UpCCGSD
 from .hea import HEA
 from .variational_circuit import VariationalCircuitAnsatz
+from .uccgd import UCCGD

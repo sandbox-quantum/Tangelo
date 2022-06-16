@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import numpy as np
 from openfermion.transforms.opconversions.conversions import get_majorana_operator
 
 from tangelo.toolboxes.operators import QubitOperator
-from tangelo.linq import Circuit, Gate
 
 sigma_map = {"0": "X", "1": "Y", "2": "Z"}
 
@@ -60,9 +58,21 @@ def _jkmn_list(h):
 
 
 def _jkmn_dict(n_qubits):
-    """Generate the mapping from Majorana modes to qubit operators
+    r"""Generate the mapping from Majorana modes to qubit operators
 
     The algorithm is described in arXiv:1910.10746v2
+
+    Although all assignments of leaves to Majorana modes are valid (with one arbitrary leaf being dropped),
+    this function assigns leaves to majorana modes via the following process
+    1) The furthest right leaf is the mode dropped.
+    2) One can obtain the vaccuum state by applying Hadamard transforms to certain qubits.
+       This essentially reorders the assignment of leafs to Majorana modes as HXH=Z, HZH=X, HYH=-Y, HH=I
+    3) The order is finalized by assigning \gamma_{2*i} with 'X' on qubit i and \gamma_{2*i+1}
+       has 'Y' on qubit i. If \gamma_{2*i} and \gamma_{2*i+1} were swapped, a negative sign on one of the
+       \gamma_{2*i} or \gamma_{2*i+1} Majorana modes would be required to obtain a valid vaccuum state.
+
+    This process ensures that all number operators a_i^{\dagger}a_i = 1/2*(1 + 1j*\gamma_{2*i}\gamma_{2*j+1})
+    result in qubit operators with only Z operators including Z on qubit i.
 
     Args:
         n_qubits (int) : The number of qubits in the system
@@ -92,10 +102,44 @@ def _jkmn_dict(n_qubits):
     all_list = prepend_list + all_list
 
     # Create map from Majorana modes to QubitOperators ignoring furthest right leaf
-    full_map = dict()
+    jkmn_map = dict()
     for i, v in enumerate(all_list[:-1]):
-        full_map[i] = QubitOperator(v)
-    return full_map
+        jkmn_map[i] = QubitOperator(v)
+
+    # Find indices to apply H transformation HXH=Z, HZH=X, HYH=-Y
+    hinds = _jkmn_vaccuum_indices(n_qubits, jkmn_map)
+
+    # Obtain transformed jkmn map and determine \gamma_{2*i} \gamma_{2*i+1} majorana modes to swap
+    tjkmn_map = dict()
+    for i in range(2*n_qubits):
+        t = tuple()
+        for term in jkmn_map[i].terms.keys():
+            for iterm in term:
+                if iterm[0] in hinds:
+                    if iterm[1] == 'X':
+                        t += ((iterm[0], 'Z'),)
+                    elif iterm[1] == 'Z':
+                        t += ((iterm[0], 'X'),)
+                    else:
+                        t += ((iterm[0], iterm[1]), )
+                else:
+                    t += ((iterm[0], iterm[1]),)
+        tjkmn_map[i] = QubitOperator(t)
+
+    # Swap order of majorana modes so that \gamma_{2*i} has 'X' on qubit i and \gamma_{2*i+1} has 'Y' on qubit i
+    stjkmn_map = dict()
+    for i in range(n_qubits):
+        q1 = next(iter(tjkmn_map[2*i].terms))
+        q2 = next(iter(tjkmn_map[2*i+1].terms))
+        for tup in q1:
+            if tup[1] == 'X' and (tup[0], 'Y') in q2:
+                stjkmn_map[2*tup[0]] = tjkmn_map[2*i]
+                stjkmn_map[2*tup[0]+1] = tjkmn_map[2*i+1]
+            elif tup[1] == 'Y' and (tup[0], 'X') in q2:
+                stjkmn_map[2*tup[0]+1] = tjkmn_map[2*i]
+                stjkmn_map[2*tup[0]] = tjkmn_map[2*i+1]
+
+    return stjkmn_map
 
 
 def jkmn(fermion_operator, n_qubits):
@@ -122,15 +166,15 @@ def jkmn(fermion_operator, n_qubits):
     return full_operator
 
 
-def jkmn_vaccuum_circuit(n_qubits, jkmn_map=None):
-    """Generate the circuit that initializes vaccuum state for JKMN mapping
+def _jkmn_vaccuum_indices(n_qubits, jkmn_map=None):
+    """Generate the indices for which an 'H' transformation is necessary
 
     Args:
         n_qubits (int) : The number of qubits in the system
         jkmn_map (dict) : The mapping from a Majorana operator index to a QubitOperator
 
     Returns:
-        Circuit : The circuit that prepares the vaccuum state.
+        list : Indices that require an 'H' gate transformation
     """
 
     if jkmn_map is None:
@@ -140,40 +184,36 @@ def jkmn_vaccuum_circuit(n_qubits, jkmn_map=None):
     # generate number operators
     for i in range(n_qubits):
         fock_dict[i] = 0.5 * QubitOperator([]) - 0.5j * jkmn_map[2*i] * jkmn_map[2*i+1]
-        for k, v in fock_dict[i].terms.items():
+        for k in fock_dict[i].terms:
             for i in k:
                 if i[0] not in rot_dict:
                     rot_dict[i[0]] = i[1]
-    gate_list = []
-    for k, v in rot_dict.items():
-        if v == "X":
-            gate_list.append(Gate("H", int(k)))
-    return Circuit(gate_list, n_qubits=n_qubits)
+
+    return [int(k) for k, v in rot_dict.items() if v == "X"]
 
 
-def jkmn_prep_circuit(vector):
-    r"""Generate the circuit corresponding to a HF state with occupations defined by given occupation vector
+def jkmn_prep_vector(vector):
+    r"""Apply JKMN mapping to fermion occupation vector.
 
-    The vaccuum state preparation circuit is obtained. Each fermionic mode i is then generated by applying
-    \gamma_{2*i} = a_i^{\dagger} + a_i
+    Each fermionic mode i is generated by applying \gamma_{2*i} = a_i^{\dagger} + a_i. The returned
+    vector is defined by which qubits have X or Y operations applied.
 
     Args:
         vector (list of int) : The occupation of each spinorbital
 
     Returns:
-        Circuit : The state preparation circuit for a HF state with occupation given by vector
+        list[int] : The state preparation vector that defines which qubits to apply X gates to
     """
     n_qubits = len(vector)
     jkmn_map = _jkmn_dict(n_qubits)
-    vacuum_circuit = jkmn_vaccuum_circuit(n_qubits, jkmn_map)
 
     state_prep_qu_op = QubitOperator([], 1)
     for i, occ in enumerate(vector):
         if occ == 1:
             state_prep_qu_op *= jkmn_map[2*i]
 
-    gate_list = []
-    for k, v in state_prep_qu_op.terms.items():
+    x_vector = np.zeros(n_qubits, dtype=int)
+    for k in state_prep_qu_op.terms:
         for i in k:
-            gate_list.append(Gate(i[1], i[0]))
-    return vacuum_circuit + Circuit(gate_list)
+            x_vector[i[0]] = 1 if i[1] in ["X", "Y"] else 0
+    return list(x_vector)

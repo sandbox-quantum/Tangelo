@@ -11,9 +11,8 @@ from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_
 from tangelo.molecule_library import mol_H4_sto3g
 from tangelo.linq.tests.test_simulator import assert_freq_dict_almost_equal
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
-from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize, get_qft_circuit
-from tangelo.toolboxes.ansatz_generator.ansatz_utils import controlled_swap_to_XX_gates
-from tangelo.toolboxes.ansatz_generator.ansatz_utils import derangement_circuit, controlled_pauliwords
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import (givens_gate, trotterize, get_qft_circuit, controlled_swap_to_XX_gates,
+                                                             derangement_circuit, controlled_pauliwords)
 
 # Initiate simulators, Use cirq as it has the same ordering for statevectors as openfermion does for Hamiltonians
 # This is important when converting the openfermion QubitOperator toarray(), propagating exactly and comparing
@@ -110,6 +109,12 @@ class ansatz_utils_Test(unittest.TestCase):
         for trotter_order, n_trotter_steps in [(1, 1), (2, 1), (1, 2)]:
 
             tcircuit, phase = trotterize(qubit_hamiltonian, time, n_trotter_steps, trotter_order, return_phase=True)
+            _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
+            wavefunc *= phase
+            overlap = np.dot(np.conj(evolve_exact), wavefunc)
+            self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
+            # Test to make sure the same circuit is returned when return_phase=False.
+            tcircuit = trotterize(qubit_hamiltonian, time, n_trotter_steps, trotter_order, return_phase=False)
             _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
             wavefunc *= phase
             overlap = np.dot(np.conj(evolve_exact), wavefunc)
@@ -295,6 +300,23 @@ class ansatz_utils_Test(unittest.TestCase):
         exp_op = QubitOperator("Z12", 1)
         measured = sim.get_expectation_value(exp_op, rho3_pa_circuit, initial_statevector=full_start_vec)
         self.assertAlmostEqual(measured, exact, places=6)
+
+    def test_givens_gate(self):
+        """Test of givens gate decomposition into 2 CNOTs and a CRY gate."""
+        theta = 0.3
+
+        # Explicit definition of givens rotation gate
+        mat_rep = np.eye(4)
+        mat_rep[1, 1] = np.cos(theta/2)
+        mat_rep[1, 2] = -np.sin(theta/2)
+        mat_rep[2, 1] = np.sin(theta/2)
+        mat_rep[2, 2] = np.cos(theta/2)
+
+        # Test that explicit definition and circuit return the same state vector
+        vec = np.array([np.sqrt(2)/3, 2/3, np.sqrt(2)/3, 1/3])
+        gvec = mat_rep@vec
+        _, gvec2 = sim.simulate(Circuit(givens_gate([0, 1], theta)), return_statevector=True, initial_statevector=vec)
+        np.testing.assert_array_almost_equal(gvec, gvec2)
 
 
 if __name__ == "__main__":

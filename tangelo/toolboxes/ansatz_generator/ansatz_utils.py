@@ -37,8 +37,8 @@ def pauli_op_to_gate(index, op, inverse=False):
     if op == "X":
         return Gate("H", index)
     elif op == "Y":
-        angle = 0.5*np.pi
-        return Gate("RX", index, parameter=angle) if not inverse else Gate("RX", index, parameter=-angle+4*np.pi)
+        gate = Gate("RX", index, parameter=0.5*np.pi)
+        return gate if not inverse else gate.inverse()
 
 
 def exp_pauliword_to_gates(pauli_word, coef, variational=True, control=None):
@@ -221,15 +221,7 @@ def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variationa
     else:
         raise ValueError("Only FermionOperator or QubitOperator allowed")
 
-    if n_trotter_steps == 1:
-        return_value = (circuit, phase) if return_phase else circuit
-    else:
-        final_circuit = deepcopy(circuit)
-        final_phase = deepcopy(phase)
-        for i in range(1, n_trotter_steps):
-            final_circuit += circuit
-            final_phase *= phase
-        return_value = (final_circuit, final_phase) if return_phase else circuit
+    return_value = (circuit*n_trotter_steps, phase**n_trotter_steps) if return_phase else circuit*n_trotter_steps
     return return_value
 
 
@@ -402,3 +394,26 @@ def derangement_circuit(qubit_list, control=None, n_qubits=None, decomp=None):
                                        control=control)]
 
     return Circuit(gate_list, n_qubits=n_qubits)
+
+
+def givens_gate(target, theta, is_variational=False):
+    """Generates the list of gates corresponding to a givens rotation exp(-theta*(XX+YY))
+
+    Explicitly the two-qubit matrix is
+    [[0,      0,           0,       0],
+     [0,  cos(theta), -sin(theta),  0],
+     [0,  sin(theta),  cos(theta),  0],
+     [0,      0,            0,      0]]
+
+    Args:
+        target (list): list of two integers that indicate which qubits are involved in the givens rotation
+        theta (float): the rotation angle
+        is_variational (bool): Whether the rotation angle is a variational parameter.
+
+    Returns:
+        list of Gate: The list of gates corresponding to the givens rotation"""
+    if len(target) != 2:
+        raise ValueError("target must be a list or array of two integers")
+    return [Gate("CNOT", target=target[0], control=target[1]),
+            Gate("CRY", target=target[1], control=target[0], parameter=-theta, is_variational=is_variational),
+            Gate("CNOT", target=target[0], control=target[1])]

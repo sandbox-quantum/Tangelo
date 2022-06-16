@@ -106,10 +106,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
     if up_then_down:
         if n_spinorbitals is None:
             raise ValueError("The number of spin-orbitals is required to execute basis re-ordering.")
-        if mapping.upper() == "JKMN":
-            warnings.warn("Tangelo implementation of JKMN only supports up_then_down=False, ignoring up_then_down=True")
-        else:
-            fermion_operator = make_up_then_down(fermion_operator, n_spinorbitals=n_spinorbitals)
+        fermion_operator = make_up_then_down(fermion_operator, n_spinorbitals=n_spinorbitals)
 
     if mapping.upper() == "JW":
         qubit_operator = jordan_wigner(fermion_operator)

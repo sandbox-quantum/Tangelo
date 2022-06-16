@@ -13,3 +13,5 @@
 # limitations under the License.
 
 from .dmet.dmet_problem_decomposition import DMETProblemDecomposition
+from .oniom.oniom_problem_decomposition import ONIOMProblemDecomposition
+from .incremental.mifno_helper import MIFNOHelper

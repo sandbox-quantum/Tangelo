@@ -12,5 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .variational import BuiltInAnsatze, VQESolver, ADAPTSolver
+from .variational import BuiltInAnsatze, VQESolver, ADAPTSolver, SA_VQESolver, SA_OO_Solver
 from .classical import FCISolver, CCSDSolver, MINDO3Solver
+from .projective import QITESolver
