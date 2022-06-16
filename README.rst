@@ -65,8 +65,10 @@ This package requires a Python 3 environment. We recommend:
 Using pip
 ^^^^^^^^^
 
-.. code-block::
+The easiest way to install Tangelo in your environment. We recommend upgrading pip first:
 
+.. code-block::
+   python -m pip install -–upgrade pip.
    pip install tangelo-gc
 
 From source, using setuptools
