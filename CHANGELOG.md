@@ -16,7 +16,6 @@ This file documents the main changes between versions of the code.
 - HybridOperator for speedup for QubitOperator on certain operations in stabilizer notation
 - Support for symmetry in pyscf computations
 
-
 ### Changed
 
 - DMET recomputes mean-field when working with atom indices, to fix bug.
@@ -41,5 +40,3 @@ This file documents the main changes between versions of the code.
 - Naming (Good Chemistry, Tangelo, linq)
 
 ### Deprecated
-
-
