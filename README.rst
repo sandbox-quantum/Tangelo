@@ -62,23 +62,6 @@ This package requires a Python 3 environment. We recommend:
 * installing the "dev" version of Python3 if you encounter missing header errors, such as ``python.h file not found``.
 * having good C/C++ compilers and BLAS libraries to ensure good overall performance of computation-intensive code.
 
-Quick note for Windows users
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Our installation instructions will work on Linux and MacOS systems. If you are using Windows, we recommend
-you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/install>`_, which allows you
-to run Ubuntu as an application. Once it has been installed, you can type ``explorer.exe`` in your Ubuntu terminal to
-drag and drop files between your Windows and Linux environment.
-
-Here are a few essentials to install inside a brand new Ubuntu environment, before trying to install Tangelo:
-
-.. code-block::
-
-   sudo apt update && sudo apt upgrade
-   sudo apt-get install python3-dev
-   sudo apt-get install python3-venv
-   sudo apt-get install cmake unzip
-
 Using pip
 ^^^^^^^^^
 
@@ -116,6 +99,25 @@ Most packages can be installed through pip in a straightforward way:
 
 Depending on your OS and environment, some of these packages may be more challenging to install. For installing Microsoft's QDK
 or any issue regarding the above packages, please check their respective documentation.
+
+
+Quick note for Windows users
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Our installation instructions will work on Linux and MacOS systems. If you are using Windows, we recommend
+you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/install>`_, which allows you
+to run Ubuntu as an application. Once it has been installed, you can type ``explorer.exe`` in your Ubuntu terminal to
+drag and drop files between your Windows and Linux environment.
+
+Here are a few essentials to install inside a brand new Ubuntu environment, before trying to install Tangelo:
+
+.. code-block::
+
+   sudo apt update && sudo apt upgrade
+   sudo apt-get install python3-dev
+   sudo apt-get install python3-venv
+   sudo apt-get install cmake unzip
+
 
 Optional: environment variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -175,4 +177,4 @@ If you use Tangelo in your research, please cite:
 
 [TODO: Placeholder Tangelo for arXiv paper]
 
-© Good Chemistry Company 2021. This software is released under the Apache Software License version 2.0.
+© Good Chemistry Company 2022. This software is released under the Apache Software License version 2.0.
