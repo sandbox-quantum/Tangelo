@@ -52,7 +52,7 @@ class HEA(Ansatz):
                 n_layers=2, rot_type="euler", n_qubits=None, n_electrons=None,
                 reference_state="HF"):
 
-        if not (bool(molecule) ^ (bool(n_qubits) and (bool(n_electrons) | reference_state == "zero"))):
+        if not (bool(molecule) ^ (bool(n_qubits) and (bool(n_electrons) | (reference_state == "zero")))):
             raise ValueError(f"A molecule OR qubit + electrons number must be provided when instantiating the HEA.")
 
         if n_qubits:
