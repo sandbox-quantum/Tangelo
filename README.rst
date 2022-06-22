@@ -22,8 +22,8 @@ Welcome !
 
 Tangelo is an open-source and free Python package maintained by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of end-to-end material simulation workflows on quantum computers.
 
-Tackling chemical systems with quantum computing is not easy. Leveraging pre- and post-processing techniques as well as insights from classical calculations remain necessary, in order to make a
-non-trivial use cases computationally tractable and develop efficient approaches returning accurate results on simulators or quantum devices.
+Tackling chemical systems with quantum computing is not easy. Leveraging pre- and post-processing techniques as well as insights from classical calculations remain necessary, in order to make
+non-trivial use cases computationally tractable, and develop efficient approaches returning accurate results on simulators or quantum devices.
 Assembling the different building blocks to form and explore workflows that meet these constraints is where Tangelo strives to be of
 help.
 
@@ -36,9 +36,8 @@ help.
 This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support the development of and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
 so that users can write code once and experiment with current and future platforms with minimal changes.
 
-Tangelo was used to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
-published in scientific journals,
-co-authored by professionals from the chemical industry and quantum hardware manufacturers.
+Tangelo is capable to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
+published in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
 
 |curve|
 
