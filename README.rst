@@ -33,7 +33,7 @@ help.
    :width: 700
    :alt: tangelo_workflow
 
-This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support the development of and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
+This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support the development of new approaches and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
 so that users can write code once and experiment with current and future platforms with minimal changes.
 
 Tangelo is capable to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
