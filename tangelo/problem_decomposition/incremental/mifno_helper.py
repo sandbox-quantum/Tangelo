@@ -112,7 +112,8 @@ class MIFNOHelper():
         for n_body, fragments_per_truncation in mi_dict["subproblem_data"].items():
             self.frag_info[n_body] = dict()
             for frag_id, frag_result in fragments_per_truncation.items():
-                self.frag_info[n_body][frag_id] = {k: frag_result.get(k, None) for k in {"epsilon", "problem_handle"}}
+                if frag_result.get("problem_handle", None) is not None:
+                    self.frag_info[n_body][frag_id] = {k: frag_result.get(k, None) for k in {"epsilon", "problem_handle"}}
 
         # Reading fragment results stored in json files in a specfified folder.
         if fno_json_folder:
