@@ -273,9 +273,9 @@ class MIFNOHelper():
         try:
             new_molecule = molecule.freeze_mos(frozen_orbitals, inplace=False)
         except ValueError:
-            raise ValueError(f"All orbitals except {frag_id} are frozen from " \
-                             "with the FNO truncation. That means no " \
-                             "correlation energy can be extracted from this " \
+            raise ValueError(f"All orbitals except {frag_id} are frozen from "
+                             "with the FNO truncation. That means no "
+                             "correlation energy can be extracted from this "
                              "fragment.")
 
         return new_molecule._get_fermionic_hamiltonian(mo_coeff)
@@ -305,7 +305,7 @@ class MIFNOHelper():
         fragment_energies = {k: v["energy_total"] for k, v in self.frag_info_flattened.items()}
 
         if any([e is None for e in fragment_energies.values()]):
-            raise ValueError("All fragment data must be imported to " \
+            raise ValueError("All fragment data must be imported to "
                 "recompute the total MI-FNO energy.")
 
         if user_provided_energies is None:
@@ -314,8 +314,8 @@ class MIFNOHelper():
             fragment_correction = {k: v["correction"] for k, v in self.frag_info_flattened.items()}
 
             if any(fragment_correction[frag_id] is None for frag_id in user_provided_energies.keys()):
-                raise RuntimeError(f"Not all the fragments in {list(user_provided_energies.keys())} " \
-                    "have not been imported. The MP2 correction must be known "\
+                raise RuntimeError(f"Not all the fragments in {list(user_provided_energies.keys())} "
+                    "have not been imported. The MP2 correction must be known "
                     "for all fragments to recompute the total MI-FNO energy.")
 
             user_provided_energies = {frag_id: e + fragment_correction[frag_id] for frag_id, e in user_provided_energies.items()}
@@ -344,7 +344,7 @@ class MIFNOHelper():
                 if self.verbose:
                     warnings.warn(f"Epsilon for frag_id {frag_id} is positive "
                         f"({eps}). With MI, there is no reason to consider a "
-                        "fragment returning a positive correlation energy. "\
+                        "fragment returning a positive correlation energy. "
                         "Please check your calculations.", RuntimeWarning)
                 if force_negative_epsilon:
                     epsilons[frag_id] = 0.
