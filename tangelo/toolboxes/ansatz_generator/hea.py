@@ -53,7 +53,9 @@ class HEA(Ansatz):
                 reference_state="HF"):
 
         if not (bool(molecule) ^ (bool(n_qubits) and (bool(n_electrons) | (reference_state == "zero")))):
-            raise ValueError(f"A molecule OR qubit + electrons number must be provided when instantiating the HEA.")
+            raise ValueError(f"A molecule OR qubit + electrons number must be "
+                "provided when instantiating the HEA with the HF reference state. "
+                "For reference_state='zero', only the number of qubits is needed.")
 
         if n_qubits:
             self.n_qubits = n_qubits
