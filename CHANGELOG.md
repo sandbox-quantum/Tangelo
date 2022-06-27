@@ -2,6 +2,28 @@
 
 This file documents the main changes between versions of the code.
 
+
+## [0.3.1] - 2022-06-15
+
+### Added
+
+- Depth method for circuits, gate cancellation methods for simple optimisations
+- QCC-ILC and iQCC solver
+- Support for MI-FNO fragments coming from QEMIST Cloud
+- ONIOM notebook
+- Quantum deflation
+- SA-VQE solver, SA-OO-VQE solver
+- HybridOperator for speedup for QubitOperator on certain operations in stabilizer notation
+- Support for symmetry in pyscf computations
+
+### Changed
+
+- DMET recomputes mean-field when working with atom indices, to fix bug.
+- Documentation, README, CONTRIBUTIONS
+
+### Deprecated
+
+
 ## [0.3.0] - 2022-02-15
 
 ### Added
@@ -18,7 +40,3 @@ This file documents the main changes between versions of the code.
 - Naming (Good Chemistry, Tangelo, linq)
 
 ### Deprecated
-
-[Unreleased]: https://github.com/goodchemistryco/Tangelo/compare/0.3.0...HEAD
-
-[0.3.0]: https://github.com/goodchemistryco/Tangelo/compare/32d64fe9c59441f3158942c61beac031d18f3120...0.3.0
