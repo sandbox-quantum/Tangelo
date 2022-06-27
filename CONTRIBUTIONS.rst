@@ -1,7 +1,7 @@
 Contributions guidelines
 ========================
 
-Thank you very much for considering contributing to this project; we’d love to have you on board ! 
+Thank you very much for considering contributing to this project ! 
 
 Do not feel intimidated by the guidelines and processes we describe in this document: we are here to assist you and help you take things to the finish line. We do not expect you to be an expert in software development or to get everything right on the first attempt: don’t hesitate to open an issue or a pull request, or simply contact us.
 
@@ -12,11 +12,16 @@ By joining the Tangelo community and sharing your ideas and developments, you ar
 Tangelo is under licence `Apache 2.0 <http://www.apache.org/licenses/LICENSE-2.0>`_.
 
 
+Code of conduct
+---------------
+
+Tangelo currently does not have its own code of conduct, but values such as respect and inclusiveness are very important to us. The following `covenant <https://www.contributor-covenant.org/version/1/4/code-of-conduct/>`_ is a good reflection of the kind of environment we want to foster. Please have a quick look.
+
+
 Feature requests, bug reports
 -----------------------------
 
 Have a look at the issue tab, and complete the adequate issue template if needed: there's one for feature request, bug reports, and more. If it turns out the issue ticket you wanted to bring up already exists, please consider leaving a thumbs up or participate in the conversation to help us prioritize or move things forward. It's important to know what matters to users, to take our collaborative project in the right direction: all of this is very useful !
-
 
 
 Pull request and code review process
@@ -71,16 +76,16 @@ Now when you go to https://github.com/goodchemistryco/Tangelo, you should be abl
 Several Tangelo users will receive a notification, and will review your code and leave comments in the PR. You can reply to these comments, or simply apply the recommended changes locally, and then commit and push them like above: it automatically updates your PR.
 If there are conflicts, you can solve them locally and push, or directly through Github.
 
-Getting your code reviewed can feel intimidating, but remember it's just part of a standard process: everyone has to go through it (even the main developers) and it is actually uncommon for PRs to be approved without changes or questions first. We suggest you have a look at how other files of this project (source code, tests, docs...) are written, and follow the same format fom the start to avoid having to make a lot of changes to your code later on.
+Getting your code reviewed can feel intimidating, but remember it's just part of a standard process: everyone has to go through it (even the main developers) and it is actually uncommon for PRs to be approved without changes or questions first. We suggest you have a look at how other files of this project (source code, tests, docs...) are written, and follow the same format from the start to avoid having to make a lot of changes to your code later on.
 
-We require that you write tests for your code, as well as the docstrings for it. Don't worry: we're here to help and there are plenty examples in the repo.
+We require that you write tests for your code, as well as the docstrings for it. Don't worry: there are plenty examples in the repo.
 We usually follow the `PEP8 guidelines <https://www.python.org/dev/peps/pep-0008/>`_ for our code. If you're using an IDE (Pycharm, etc), it may automatically highlight the part of your code that is not following PEP8, and should be able to automatically reformat your code too.
 
 Every time you open a PR or push more code into an open one, several automated processes are launched and can be monitored on Github: we need them to be successful. We elaborate on them in the section below.
 
 
 Continuous integration
-=======================
+======================
 
 When a pull request is created or updated, several automated processes are launched. You will find most of them in the "checks" tab of your pull request, and can look into the details. These processes check for a few things:
 
