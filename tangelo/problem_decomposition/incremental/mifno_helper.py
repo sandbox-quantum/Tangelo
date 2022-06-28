@@ -13,13 +13,13 @@
 # limitations under the License.
 
 """This file provides helpers in order to import data coming from a MI-FNO job
-from QEMIST Cloud, providing the users with both fragment information as well as
+run on QEMIST Cloud, providing the users with both fragment information as well as
 reference results obtained by the classical solvers in QEMIST Cloud. The
 fragments can be passed to a quantum solver or be used for a quantum computing
 experiment.
 
 Currently, the fragment energies can only be recomputed with a quantum
-algorihtms (the interface of MI-FNO fragments and classical algorithms is not
+algorihtms (the interface between MI-FNO fragments and classical algorithms is not
 implemented yet).
 """
 
@@ -37,9 +37,9 @@ import pandas as pd
 
 class MIFNOHelper():
     """Python object to post-process, fetch and manipulate QEMIST Cloud MI-FNO
-    results. The use case for this is to map MI-FNO subproblems into
+    results. The use case for this is to map MI-FNO subproblems to
     fermionic Hamiltonians acting as inputs. This object keeps track of the
-    classical results.
+    classical calculation results.
 
     Attributes:
         e_tot (float): Total MI-FNO energy.
@@ -50,6 +50,7 @@ class MIFNOHelper():
              refering to the sampled active space (e.g. '(1,)' or '(0, 2)') They
             contain information about the correction term, epsilon, list of
             truncated orbitals and more.
+        verbose (bool): To print or not to print warnings.
 
     Properties:
         to_dataframe (pandas.DataFrame): Converted frag_info dict into a pandas
@@ -59,56 +60,109 @@ class MIFNOHelper():
             layer (keys = truncation number).
     """
 
-    def __init__(self, json_file=None, results_object=None):
+    def __init__(self, mi_json_file=None, fno_json_folder=None, mi_dict=None,
+                 fno_dicts=None, verbose=False):
         """Initialization method to process the classical results. A json path
-        or a python dictionary object can be passed to the method (not both).
+        or a python dictionary can be passed to the method for the MI
+        or each FNO fragment results. Passing both a path and a dictionary
+        raises an error. Not all fragment results need to be imported:
+        in case of missing data, MIFNOHelper raises an error
+        mentionning the missing pieces.
 
         Args:
-            json_file (string): Path to a json file containing the results from
-                QEMIST Cloud.
-            results_object (dict): Classical computation results (QEMIST Cloud
+            mi_json_file (string): Path to a json file containing the MI results
+                from QEMIST Cloud.
+            fno_json_folder (string): Path to a folder containing the FNO
+                fragment (json files) results from QEMIST-Cloud.
+            mi_dict (dict): MI results (QEMIST Cloud output).
+            fno_dicts (list of dicts): FNO fragment results (QEMIST Cloud
                 output).
+            verbose (bool): Verbosity.
         """
 
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
-        if not (bool(json_file) ^ bool(results_object)):
-            raise ValueError(f"A json file path OR a dictionary object must be provided when instantiating {self.__class__.__name__}.")
+        if not (bool(mi_json_file) ^ bool(mi_dict)):
+            raise ValueError(f"A json file path OR a dictionary object for MI \
+                               results must be provided when instantiating \
+                               {self.__class__.__name__}.")
 
-        if json_file:
-            assert os.path.isfile(json_file), f"The file {json_file} does not exist."
+        if not (bool(fno_json_folder) ^ bool(fno_dicts)):
+            raise ValueError(f"A json folder path OR a dictionary object for \
+                               FNO fragment results must be provided when \
+                               instantiating {self.__class__.__name__}.")
 
-            with open(json_file, "r") as f:
-                results_object = json.loads(f.read())
+        self.verbose = verbose
 
-            results_object["subproblem_data"] = {int(k): v for k, v in results_object["subproblem_data"].items()}
+        if mi_json_file:
+            assert os.path.isfile(mi_json_file), f"The file {mi_json_file} does not exist."
+
+            with open(mi_json_file, "r") as f:
+                mi_dict = json.loads(f.read())
+
+            mi_dict["subproblem_data"] = {int(k): v for k, v in mi_dict["subproblem_data"].items()}
 
         # Incremental (problem decomposition) quantities.
-        self.e_tot = results_object["energy_total"]
-        self.e_corr = results_object["energy_correlation"]
-        self.e_mf = results_object["mean_field_energy"]
+        self.e_tot = mi_dict["energy_total"]
+        self.e_corr = mi_dict["energy_correlation"]
+        self.e_mf = mi_dict["mean_field_energy"]
 
-        relevant_info = {
+        # Select only the MI relevant keys.
+        self.frag_info = dict()
+        for n_body, fragments_per_truncation in mi_dict["subproblem_data"].items():
+            self.frag_info[n_body] = dict()
+            for frag_id, frag_result in fragments_per_truncation.items():
+                if frag_result.get("problem_handle", None) is not None:
+                    self.frag_info[n_body][frag_id] = {k: frag_result.get(k, None) for k in {"epsilon", "problem_handle"}}
+
+        # Read fragment results stored in json files in a specified folder.
+        if fno_json_folder:
+            absolute_path = os.path.abspath(fno_json_folder)
+
+            fno_dicts = list()
+            for file in os.listdir(absolute_path):
+                if file.endswith(".json"):
+                    with open(os.path.join(absolute_path, file), "r") as f:
+                        frag_results = json.loads(f.read())
+                    fno_dicts.append(frag_results)
+
+        fragment_relevant_info = {
             "energy_total",
             "energy_correlation",
-            "epsilon",
             "correction",
             "frozen_orbitals_truncated",
             "mo_coefficients"
         }
 
-        # Selecting only the FNO keys found in 'relevant_info'.
-        self.frag_info = dict()
-        for n_body, fragments_per_truncation in results_object["subproblem_data"].items():
-            self.frag_info[n_body] = dict()
-            for frag_id, frag_result in fragments_per_truncation.items():
-                self.frag_info[n_body][frag_id] = {k: frag_result.get(k, None) for k in relevant_info}
+        # Clean FNO fragment results.
+        for frag_id in self.fragment_ids:
+            n_body = len(eval(frag_id))
 
-            # Verify if the MO coefficients are there.
-            if "mo_coefficients" not in frag_result:
-                raise KeyError(f"MO coefficient not found in the {frag_id} "
-                    "results. Verify that the export_fragment_data flag is set "
-                    "to True for the MI-FNO calculation in QEMIST Cloud.")
+            # Default value if fragment information is not detected.
+            frag_results = dict()
+
+            for fno_frag in fno_dicts:
+                # Fragments are identified by the active occupied orbital space,
+                # or their unique problem_handle.
+                if str(tuple(fno_frag["active_occupied_orbital_space"])) == frag_id:
+
+                    # If the mean-field energy for the fragment is not the same,
+                    # the coordinates, spin, basis or charge of the problem
+                    # might be different.
+                    assert round(self.e_mf, 6) == round(fno_frag["mean_field_energy"], 6), \
+                        f"The mean-field energy for fragment {frag_id} is " \
+                        "different than the one detected in the MI results."
+
+                    # The mo_coefficients data are essential to recompute
+                    # fermionic operators.
+                    assert "mo_coefficients" in fno_frag, "MO coefficients "\
+                        f"not found in the {frag_id} results. Verify that " \
+                        "the `export_fragment_data` flag is set to True for " \
+                        "the MI-FNO calculation in QEMIST Cloud."
+
+                    frag_results = fno_frag
+
+            self.frag_info[n_body][frag_id].update({k: frag_results.get(k, None) for k in fragment_relevant_info})
 
     def __repr__(self):
         """Format the object to print the energies and the fragment information
@@ -137,12 +191,12 @@ class MIFNOHelper():
 
     @property
     def fragment_ids(self):
-        """Outputs the fragment ids in a list."""
+        """Output the fragment ids in a list."""
         return list(itertools.chain.from_iterable([d.keys() for d in self.frag_info.values()]))
 
     @property
     def frag_info_flattened(self):
-        """Outputs the nested frag_info without the first layer."""
+        """Output the nested frag_info without the first layer."""
         return reduce(lambda a, b: {**a, **b}, self.frag_info.values())
 
     def retrieve_mo_coeff(self, destination_folder=os.getcwd()):
@@ -168,23 +222,27 @@ class MIFNOHelper():
         i_file = 1
         for n_body_fragments in self.frag_info.values():
             for frag_id, frag in n_body_fragments.items():
-                file_path = os.path.join(absolute_path, frag["mo_coefficients"]["key"] + ".hdf5")
+                if frag["mo_coefficients"]:
+                    file_path = os.path.join(absolute_path, frag["mo_coefficients"]["key"] + ".hdf5")
 
-                if not os.path.exists(file_path):
-                    print(f"Downloading and writing MO coefficients file to {file_path} ({i_file} / {n_files})")
-                    response = requests.get(frag["mo_coefficients"]["s3_url"])
+                    if not os.path.exists(file_path):
+                        print(f"Downloading and writing MO coefficients file to {file_path} ({i_file} / {n_files})")
+                        response = requests.get(frag["mo_coefficients"]["s3_url"])
 
-                    with open(file_path, "wb") as file:
-                        file.write(response.content)
-                    i_file += 1
+                        with open(file_path, "wb") as file:
+                            file.write(response.content)
 
-                with h5py.File(file_path, "r") as file:
-                    mo_coeff = np.array(file["mo_coefficients"])
+                    with h5py.File(file_path, "r") as file:
+                        mo_coeff = np.array(file["mo_coefficients"])
 
-                n_body_fragments[frag_id]["mo_coefficients"]["array"] = mo_coeff
+                    n_body_fragments[frag_id]["mo_coefficients"]["array"] = mo_coeff
+                else:
+                    print(f"MO coefficients for fragment {frag_id} ({i_file} / {n_files}) not available.")
+
+                i_file += 1
 
     def compute_fermionoperator(self, molecule, frag_id):
-        """Computes the fermionic Hamiltonian for a MI-FNO fragment.
+        """Compute the fermionic Hamiltonian for a MI-FNO fragment.
 
         Args:
             molecule (SecondQuantizedMolecule): Full molecule description.
@@ -193,11 +251,14 @@ class MIFNOHelper():
         Returns:
             FermionOperator: Fermionic operator for the specified fragment id.
         """
-
-        if not all(["array" in d["mo_coefficients"] for d in self.frag_info_flattened.values()]):
-            raise RuntimeError(f"The molecular orbital coefficients are not available. Please call the {self.__class__.__name__}.get_mo_coeff method.")
-
         n_body = len(eval(frag_id))
+
+        if self.frag_info[n_body][frag_id]["mo_coefficients"] is None:
+            raise RuntimeError(f"The fragment information has not been imported.")
+
+        if self.frag_info[n_body][frag_id]["mo_coefficients"].get("array", None) is None:
+            raise RuntimeError(f"The molecular orbital coefficients are not available. Please call the {self.__class__.__name__}.retrieve_mo_coeff method.")
+
         mo_coeff = self.frag_info[n_body][frag_id]["mo_coefficients"]["array"]
         frozen_orbitals = self.frag_info[n_body][frag_id]["frozen_orbitals_truncated"]
 
@@ -208,13 +269,19 @@ class MIFNOHelper():
             "the results. Please verify that the molecular quantities are "\
             "the same as the one in the MI-FNO computation."
 
-        # Returning a new molecule with the right frozen orbital.
-        new_molecule = molecule.freeze_mos(frozen_orbitals, inplace=False)
+        # Returning a new molecule with the frozen orbitals.
+        try:
+            new_molecule = molecule.freeze_mos(frozen_orbitals, inplace=False)
+        except ValueError:
+            raise ValueError(f"All orbitals except {frag_id} are frozen from "
+                             "the FNO truncation. That means no "
+                             "correlation energy can be extracted from this "
+                             "fragment.")
 
         return new_molecule._get_fermionic_hamiltonian(mo_coeff)
 
-    def mi_summation(self, user_provided_energies=None):
-        r"""Recomputes the total energy for the method of increments (MI).
+    def mi_summation(self, user_provided_energies=None, force_negative_epsilon=False):
+        r"""Recompute the total energy for the method of increments (MI).
         Each increment corresponds to "new" correlation energy from the n-body
         problem. This method makes computing the total energy with new
         results possible.
@@ -230,21 +297,33 @@ class MIFNOHelper():
             user_provided_energies (dict): New energy values provided by the
                 user, used instead of the corresponding pre-computed ones. E.g.
                 {"(0, )": -1.234} or {"(1, )": -1.234, "(0, 1)": -5.678}.
+            force_negative_epsilon (bool): Force positive epsilons to 0.
 
         Returns:
             float: Method of increment total energy.
         """
+        fragment_energies = {k: v["energy_total"] for k, v in self.frag_info_flattened.items()}
+
+        if any([e is None for e in fragment_energies.values()]):
+            raise ValueError("All fragment data must be imported to "
+                "recompute the total MI-FNO energy.")
+
         if user_provided_energies is None:
             user_provided_energies = dict()
         else:
             fragment_correction = {k: v["correction"] for k, v in self.frag_info_flattened.items()}
-            user_provided_energies = {frag_id: e + fragment_correction[frag_id] for frag_id, e in user_provided_energies.items()}
 
-        fragment_energies = {k: v["energy_total"] for k, v in self.frag_info_flattened.items()}
+            if any(fragment_correction[frag_id] is None for frag_id in user_provided_energies.keys()):
+                raise RuntimeError(f"Not all the fragments in {list(user_provided_energies.keys())} "
+                    "have been imported. The MP2 correction must be known "
+                    "for all fragments to recompute the total MI-FNO energy.")
+
+            user_provided_energies = {frag_id: e + fragment_correction[frag_id] for frag_id, e in user_provided_energies.items()}
 
         # Update to consider energies taken from a calculation.
         fragment_energies.update(user_provided_energies)
 
+        # Equivalent to truncation_order in QEMIST Cloud.
         n_body_max = max(self.frag_info.keys())
 
         # Perform the incremental sumamtion.
@@ -259,12 +338,15 @@ class MIFNOHelper():
                         for frag_increment in itertools.combinations(eval(frag_id), n_increment):
                             epsilons[frag_id] -= epsilons[str(frag_increment)]
 
-        # Check if epsilon < 0, i.e. positive correlation energy increment.
+        # Check if epsilon > 0, i.e. positive correlation energy increment.
         for frag_id, eps in epsilons.items():
             if eps > 0.:
-                warnings.warn(f"Epsilon for frag_id {frag_id} is positive "
-                    f"({eps}). With MI, there is no reason to consider a "
-                    "fragment returning a positive correlation energy. Please "
-                    "check your calculations.", RuntimeWarning)
+                if self.verbose:
+                    warnings.warn(f"Epsilon for frag_id {frag_id} is positive "
+                        f"({eps}). With MI, there is no reason to consider a "
+                        "fragment returning a positive correlation energy. "
+                        "Please check your calculations.", RuntimeWarning)
+                if force_negative_epsilon:
+                    epsilons[frag_id] = 0.
 
         return self.e_mf + sum(epsilons.values())
