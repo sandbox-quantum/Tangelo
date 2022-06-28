@@ -1,6 +1,6 @@
 |tangelo_logo|
 
-.. |tangelo_logo| image:: ./docs/source/_static/img/tangelo_logo_gradient.png
+.. |tangelo_logo| image:: ./docs/source/_static/img/tangelo-logo-clr.png
    :width: 600
    :alt: tangelo_logo
 
@@ -47,7 +47,7 @@ published in scientific journals, co-authored by professionals from the chemical
 
 We hope to grow a healthy community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
 
-- Our paper on arXiv (link updated as soon as available)
+- Our `release document on arXiv <https://arxiv.org/pdf/2206.12424.pdf>`_.
 - Our `Sphinx documentation <http://tangelo-docs.goodchemistry.com>`_.
 
 What will you do with Tangelo ?
@@ -177,6 +177,6 @@ Citations
 
 If you use Tangelo in your research, please cite:
 
-[TODO: Placeholder Tangelo for arXiv paper]
+| Valentin Senicourt, James Brown, Alexandre Fleury, Ryan Day, Erika Lloyd, Marc P. Coons, Krzysztof Bieniasz, Lee Huntington, Alejandro J. Garza, Shunji Matsuura, Rudi Plesch, Takeshi Yamazaki, and Arman Zaribafiyan Tangelo: An Open-source Python Package for End-to-end Chemistry Workflows on Quantum Computers 2022 arXiv:2206.12424
 
 © Good Chemistry Company 2022. This software is released under the Apache Software License version 2.0.
