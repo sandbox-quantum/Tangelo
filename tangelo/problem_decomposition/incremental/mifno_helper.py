@@ -13,13 +13,13 @@
 # limitations under the License.
 
 """This file provides helpers in order to import data coming from a MI-FNO job
-from QEMIST Cloud, providing the users with both fragment information as well as
+run on QEMIST Cloud, providing the users with both fragment information as well as
 reference results obtained by the classical solvers in QEMIST Cloud. The
 fragments can be passed to a quantum solver or be used for a quantum computing
 experiment.
 
 Currently, the fragment energies can only be recomputed with a quantum
-algorihtms (the interface of MI-FNO fragments and classical algorithms is not
+algorihtms (the interface between MI-FNO fragments and classical algorithms is not
 implemented yet).
 """
 
@@ -63,10 +63,10 @@ class MIFNOHelper():
     def __init__(self, mi_json_file=None, fno_json_folder=None, mi_dict=None,
                  fno_dicts=None, verbose=False):
         """Initialization method to process the classical results. A json path
-        or a python dictionary object can be passed to the method for the MI
-        or each FNO fragment results. Passing a path and a dictionary object
-        will raise an error. Not all the fragment results must be imported:
-        if there are missing information, the MIFNOHelper will raise an error
+        or a python dictionary can be passed to the method for the MI
+        or each FNO fragment results. Passing both a path and a dictionary
+        raises an error. Not all fragment results need to be imported:
+        in case of missing data, MIFNOHelper raises an error
         mentionning the missing pieces.
 
         Args:
