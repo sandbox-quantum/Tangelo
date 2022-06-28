@@ -1,6 +1,6 @@
 |tangelo_logo|
 
-.. |tangelo_logo| image:: ./docs/source/_static/img/tangelo-logo-clr.png
+.. |tangelo_logo| image:: ./docs/source/_static/img/tangelo_logo_gradient.png
    :width: 600
    :alt: tangelo_logo
 
