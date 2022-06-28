@@ -37,9 +37,9 @@ import pandas as pd
 
 class MIFNOHelper():
     """Python object to post-process, fetch and manipulate QEMIST Cloud MI-FNO
-    results. The use case for this is to map MI-FNO subproblems into
+    results. The use case for this is to map MI-FNO subproblems to
     fermionic Hamiltonians acting as inputs. This object keeps track of the
-    classical results.
+    classical calculation results.
 
     Attributes:
         e_tot (float): Total MI-FNO energy.
@@ -107,7 +107,7 @@ class MIFNOHelper():
         self.e_corr = mi_dict["energy_correlation"]
         self.e_mf = mi_dict["mean_field_energy"]
 
-        # Selecting only the MI relevant keys.
+        # Select only the MI relevant keys.
         self.frag_info = dict()
         for n_body, fragments_per_truncation in mi_dict["subproblem_data"].items():
             self.frag_info[n_body] = dict()
@@ -115,7 +115,7 @@ class MIFNOHelper():
                 if frag_result.get("problem_handle", None) is not None:
                     self.frag_info[n_body][frag_id] = {k: frag_result.get(k, None) for k in {"epsilon", "problem_handle"}}
 
-        # Reading fragment results stored in json files in a specfified folder.
+        # Read fragment results stored in json files in a specified folder.
         if fno_json_folder:
             absolute_path = os.path.abspath(fno_json_folder)
 
@@ -134,7 +134,7 @@ class MIFNOHelper():
             "mo_coefficients"
         }
 
-        # Cleaning FNO fragment results.
+        # Clean FNO fragment results.
         for frag_id in self.fragment_ids:
             n_body = len(eval(frag_id))
 
@@ -191,12 +191,12 @@ class MIFNOHelper():
 
     @property
     def fragment_ids(self):
-        """Outputs the fragment ids in a list."""
+        """Output the fragment ids in a list."""
         return list(itertools.chain.from_iterable([d.keys() for d in self.frag_info.values()]))
 
     @property
     def frag_info_flattened(self):
-        """Outputs the nested frag_info without the first layer."""
+        """Output the nested frag_info without the first layer."""
         return reduce(lambda a, b: {**a, **b}, self.frag_info.values())
 
     def retrieve_mo_coeff(self, destination_folder=os.getcwd()):
@@ -242,7 +242,7 @@ class MIFNOHelper():
                 i_file += 1
 
     def compute_fermionoperator(self, molecule, frag_id):
-        """Computes the fermionic Hamiltonian for a MI-FNO fragment.
+        """Compute the fermionic Hamiltonian for a MI-FNO fragment.
 
         Args:
             molecule (SecondQuantizedMolecule): Full molecule description.
@@ -274,14 +274,14 @@ class MIFNOHelper():
             new_molecule = molecule.freeze_mos(frozen_orbitals, inplace=False)
         except ValueError:
             raise ValueError(f"All orbitals except {frag_id} are frozen from "
-                             "with the FNO truncation. That means no "
+                             "the FNO truncation. That means no "
                              "correlation energy can be extracted from this "
                              "fragment.")
 
         return new_molecule._get_fermionic_hamiltonian(mo_coeff)
 
     def mi_summation(self, user_provided_energies=None, force_negative_epsilon=False):
-        r"""Recomputes the total energy for the method of increments (MI).
+        r"""Recompute the total energy for the method of increments (MI).
         Each increment corresponds to "new" correlation energy from the n-body
         problem. This method makes computing the total energy with new
         results possible.
@@ -315,7 +315,7 @@ class MIFNOHelper():
 
             if any(fragment_correction[frag_id] is None for frag_id in user_provided_energies.keys()):
                 raise RuntimeError(f"Not all the fragments in {list(user_provided_energies.keys())} "
-                    "have not been imported. The MP2 correction must be known "
+                    "have been imported. The MP2 correction must be known "
                     "for all fragments to recompute the total MI-FNO energy.")
 
             user_provided_energies = {frag_id: e + fragment_correction[frag_id] for frag_id, e in user_provided_energies.items()}
