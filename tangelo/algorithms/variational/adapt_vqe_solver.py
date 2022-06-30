@@ -189,7 +189,9 @@ class ADAPTSolver:
 
         # Only a qubit operator is provided with a FermionOperator pool.
         if not (self.n_spinorbitals and self.n_electrons and self.spin is not None):
-            raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals), the number of electrons (n_electrons) and the spin (spin) with a qubit_hamiltonian when working with a pool of fermion operators.")
+            raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals), "
+                "the number of electrons (n_electrons) and the spin (spin) with "
+                "a qubit_hamiltonian when working with a pool of fermion operators.")
 
         if isinstance(pool_list[0], QubitOperator):
             self.pool_type = 'qubit'
