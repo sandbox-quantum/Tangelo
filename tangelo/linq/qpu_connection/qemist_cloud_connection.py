@@ -60,7 +60,7 @@ def job_status(qemist_cloud_job_id):
     Returns:
         str: current status of the problem, as a string.
     """
-    res = qclient.util.get_problem_status(qemist_cloud_job_id)
+    res = qclient.util.get_problem_statuses(qemist_cloud_job_id)
 
     return res
 
@@ -117,10 +117,10 @@ def job_result(qemist_cloud_job_id):
 
     # Once a result is available, retrieve it.
     # If the util module is not found earlier, an error has been raised.
-    output = qclient.util.get_quantum_results(problem_handle=qemist_cloud_job_id)[qemist_cloud_job_id]
+    output = qclient.util.get_results(qemist_cloud_job_id)
 
     # Amazon Braket: parsing of output
-    freqs = output['result']['results']['measurement_probabilities']
+    freqs = output['results']['measurement_probabilities']
     raw_data = output
 
     return freqs, raw_data
