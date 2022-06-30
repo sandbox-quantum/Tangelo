@@ -152,7 +152,7 @@ class ADAPTSolver:
                                                 up_then_down=self.up_then_down,
                                                 spin=self.spin)
 
-            self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
+            self.qubit_hamiltonian = qubit_op
 
         # Build / set ansatz circuit.
         ansatz_options = {"mapping": self.qubit_mapping, "up_then_down": self.up_then_down,
@@ -215,7 +215,7 @@ class ADAPTSolver:
 
         # Getting commutators to compute gradients:
         # \frac{\partial E}{\partial \theta_n} = \langle \psi | [\hat{H}, A_n] | \psi \rangle
-        self.pool_commutators = [commutator(self.qubit_hamiltonian, element) for element in self.pool_operators]
+        self.pool_commutators = [commutator(self.qubit_hamiltonian.to_qubitoperator(), element) for element in self.pool_operators]
 
     def simulate(self):
         """Performs the ADAPT cycles. Each iteration, a VQE minimization is
