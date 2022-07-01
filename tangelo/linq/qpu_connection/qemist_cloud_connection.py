@@ -21,6 +21,7 @@ QEMIST_PROJECT_ID with values retrieved from their QEMIST Cloud dashboard.
 
 try:
     import qemist_client as qclient
+    import qemist_client.util as qclient_util
 except ModuleNotFoundError:
     print("qemist_client python package not found (optional dependency for hardware experiment submission)")
 
@@ -45,7 +46,7 @@ def job_submit(circuit, n_shots, backend):
     job_options = {'shots': n_shots, 'backend': backend}
 
     # Submit the problem
-    qemist_cloud_job_id = qclient.util.solve_quantum_circuits_async(serialized_fragment=circuit_data,
+    qemist_cloud_job_id = qclient_util.solve_quantum_circuits_async(serialized_fragment=circuit_data,
                                                                     serialized_solver=job_options)[0]
     return qemist_cloud_job_id
 
@@ -60,7 +61,7 @@ def job_status(qemist_cloud_job_id):
     Returns:
         str: current status of the problem, as a string.
     """
-    res = qclient.util.get_problem_statuses(qemist_cloud_job_id)
+    res = qclient_util.get_problem_statuses(qemist_cloud_job_id)
 
     return res
 
@@ -75,7 +76,7 @@ def job_cancel(qemist_cloud_job_id):
     Returns:
         dict: cancelled problems / subproblems.
     """
-    res = qclient.util.cancel_problems(qemist_cloud_job_id)
+    res = qclient_util.cancel_problems(qemist_cloud_job_id)
     # TODO: If res is coming out as an error code, we should raise an error
 
     return res
@@ -95,7 +96,7 @@ def job_result(qemist_cloud_job_id):
     """
 
     try:
-        qclient.util.monitor_problem_status(problem_handle=qemist_cloud_job_id, verbose=False)
+        qclient_util.monitor_problem_status(problem_handles=[qemist_cloud_job_id], verbose=False)
 
     except KeyboardInterrupt:
         print(f"\nYour problem is still running with id {qemist_cloud_job_id}.\n")
@@ -117,7 +118,7 @@ def job_result(qemist_cloud_job_id):
 
     # Once a result is available, retrieve it.
     # If the util module is not found earlier, an error has been raised.
-    output = qclient.util.get_results(qemist_cloud_job_id)
+    output = qclient_util.get_results(qemist_cloud_job_id)
 
     # Amazon Braket: parsing of output
     freqs = output['results']['measurement_probabilities']
@@ -155,6 +156,6 @@ def job_estimate(circuit, n_shots, backend=None):
     if backend:
         job_options['backend'] = backend
 
-    price_estimate = qclient.util.check_qpu_cost(circuit_data, job_options)
+    price_estimate = qclient_util.check_qpu_cost(circuit_data, job_options)
 
     return price_estimate
