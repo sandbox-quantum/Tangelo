@@ -20,7 +20,6 @@ QEMIST_PROJECT_ID with values retrieved from their QEMIST Cloud dashboard.
 """
 
 try:
-    import qemist_client as qclient
     import qemist_client.util as qclient_util
 except ModuleNotFoundError:
     print("qemist_client python package not found (optional dependency for hardware experiment submission)")
