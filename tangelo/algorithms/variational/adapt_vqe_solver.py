@@ -145,14 +145,12 @@ class ADAPTSolver:
             self.spin = self.molecule.spin
 
             # Compute qubit hamiltonian for the input molecular system
-            qubit_op = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
-                                                mapping=self.qubit_mapping,
-                                                n_spinorbitals=self.n_spinorbitals,
-                                                n_electrons=self.n_electrons,
-                                                up_then_down=self.up_then_down,
-                                                spin=self.spin)
-
-            self.qubit_hamiltonian = qubit_op
+            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
+                                                              mapping=self.qubit_mapping,
+                                                              n_spinorbitals=self.n_spinorbitals,
+                                                              n_electrons=self.n_electrons,
+                                                              up_then_down=self.up_then_down,
+                                                              spin=self.spin)
 
         # Build / set ansatz circuit.
         ansatz_options = {"mapping": self.qubit_mapping, "up_then_down": self.up_then_down,
@@ -215,7 +213,7 @@ class ADAPTSolver:
 
         # Getting commutators to compute gradients:
         # \frac{\partial E}{\partial \theta_n} = \langle \psi | [\hat{H}, A_n] | \psi \rangle
-        self.pool_commutators = [commutator(self.qubit_hamiltonian.to_qubitoperator(), element) for element in self.pool_operators]
+        self.pool_commutators = [commutator(self.qubit_hamiltonian, element) for element in self.pool_operators]
 
     def simulate(self):
         """Performs the ADAPT cycles. Each iteration, a VQE minimization is
