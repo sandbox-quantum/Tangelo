@@ -78,7 +78,6 @@ class ADAPTSolver:
                            "tol": 1e-3, "max_cycles": 15,
                            "pool": uccgsd_pool,
                            "pool_args": None,
-                           "frozen_orbitals": "frozen_core",
                            "qubit_mapping": "jw",
                            "qubit_hamiltonian": None,
                            "up_then_down": False,
