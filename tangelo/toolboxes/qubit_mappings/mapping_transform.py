@@ -112,11 +112,11 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
         qubit_operator = jordan_wigner(fermion_operator)
     elif mapping.upper() == "BK":
         if n_spinorbitals is None:
-            raise ValueError("Bravyi Kitaev requires specification of number of qubits.")
+            raise ValueError("Bravyi Kitaev requires specification of number of spin-orbitals.")
         qubit_operator = bravyi_kitaev(fermion_operator, n_qubits=n_spinorbitals)
     elif mapping.upper() == "SCBK":
         if n_spinorbitals is None:
-            raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of qubits.")
+            raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of spin-orbitals.")
         if n_electrons is None:
             raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of electrons.")
 
@@ -127,7 +127,7 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
                                                            spin=spin)
     elif mapping.upper() == "JKMN":
         if n_spinorbitals is None:
-            raise ValueError("JKMN mapping requires specification of number of qubits")
+            raise ValueError("JKMN mapping requires specification of number of spin-orbitals.")
         qubit_operator = jkmn(fermion_operator, n_qubits=n_spinorbitals)
 
     converted_qubit_op = QubitOperator()
