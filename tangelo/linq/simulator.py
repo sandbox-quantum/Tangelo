@@ -315,8 +315,6 @@ class Simulator:
 
             if (source_circuit.is_mixed_state or self._noise_model) and not save_mid_circuit_meas:
                 # Only DensityMatrixSimulator handles noise well, can use Simulator but it is slower
-                # ignore_measurement_results changes measurement gates to Krauss operators so simulators
-                # can be called once and density matrix sampled repeatedly.
                 cirq_simulator = cirq.DensityMatrixSimulator(dtype=np.complex128)
             elif save_mid_circuit_meas:
                 cirq_simulator = cirq.DensityMatrixSimulator(dtype=np.complex128) if self._noise_model else cirq.Simulator(dtype=np.complex128)
@@ -329,6 +327,8 @@ class Simulator:
             # Calculate final density matrix and sample from that for noisy simulation or simulating non-saved mixed states
             if (self._noise_model or source_circuit.is_mixed_state) and not save_mid_circuit_meas:
                 translated_circuit = translator.translate_cirq(source_circuit, self._noise_model)
+                # cirq.dephase_measurements changes measurement gates to Krauss operators so simulators
+                # can be called once and density matrix sampled repeatedly.
                 translated_circuit = dephase_measurements(translated_circuit)
                 sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
                 self._current_state = sim.final_density_matrix
