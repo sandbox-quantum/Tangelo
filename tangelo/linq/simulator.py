@@ -315,7 +315,6 @@ class Simulator:
 
         elif self._target == "cirq":
             import cirq
-            from cirq.transformers.measurement_transformers import dephase_measurements
 
             if (source_circuit.is_mixed_state or self._noise_model) and not save_mid_circuit_meas:
                 # Only DensityMatrixSimulator handles noise well, can use Simulator but it is slower
@@ -333,7 +332,7 @@ class Simulator:
                 translated_circuit = translator.translate_cirq(source_circuit, self._noise_model)
                 # cirq.dephase_measurements changes measurement gates to Krauss operators so simulators
                 # can be called once and density matrix sampled repeatedly.
-                translated_circuit = dephase_measurements(translated_circuit)
+                translated_circuit = cirq.dephase_measurements(translated_circuit)
                 sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
                 self._current_state = sim.final_density_matrix
                 indices = list(range(source_circuit.width))
