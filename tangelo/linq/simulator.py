@@ -107,7 +107,12 @@ class Simulator:
                 Must have the same length as the number of MEASURE gates in source_circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
-                self.all_frequencies
+                self.all_frequencies.
+                    self.all_frequencies will have keys of length m + n_qubits
+                    The first m values in each key will be the result of the m MEASURE gates ordered
+                    by their appearance in the list of gates in the source_circuit.
+                    The last n_qubits values in each key will be the measurements performed on
+                    each of qubits at the end of the circuit.
 
         Returns:
             dict: A dictionary mapping multi-qubit states to their corresponding
@@ -168,14 +173,13 @@ class Simulator:
             elif desired_meas_result is not None or save_mid_circuit_meas:
                 samples = list()
                 full_samples = list()
-                successful_measures = 0 if desired_meas_result is not None else self.n_shots
                 python_statevector = None
                 for _ in range(self.n_shots):
                     translated_circuit.update_quantum_state(state)
                     measurement = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
                     sample = self.__int_to_binstr(state.sampling(1)[0], source_circuit.width)
                     full_samples += [measurement+sample]
-                    if desired_meas_result is not None and python_statevector is None and measurement == desired_meas_result:
+                    if measurement == desired_meas_result:
                         python_statevector = state.get_vector()
                         self._current_state = python_statevector
                     if initial_statevector is not None:
@@ -187,7 +191,7 @@ class Simulator:
                                                                                      list(range(n_meas)),
                                                                                      desired_measurement=desired_meas_result)
                 self.success_probability = self.mid_circuit_meas_freqs.get(desired_meas_result, 0)
-                return (frequencies, python_statevector)
+                return (frequencies, python_statevector) if return_statevector else (frequencies, None)
             elif self.n_shots is not None:
                 translated_circuit.update_quantum_state(state)
                 python_statevector = np.array(state.get_vector()) if return_statevector else None

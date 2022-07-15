@@ -367,7 +367,7 @@ class TestSimulateStatevector(unittest.TestCase):
 
         simulator = Simulator(n_shots=10**4)
         sim_exp = simulator.get_expectation_value(qubit_operator, circuit_mixed, desired_meas_result="0")
-        self.assertAlmostEquals(exact_exp, sim_exp, delta=1.e-1)
+        self.assertAlmostEqual(exact_exp, sim_exp, delta=1.e-1)
 
     def test_get_exp_value_empty_circuit(self):
         """ If the circuit is empty and we have a non-zero number of qubits, frequencies just only show all-|0> state
