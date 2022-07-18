@@ -256,6 +256,9 @@ class VQESolver:
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
 
+        if self.get_resources()["circuit_var_gates"] == 0:
+            raise RuntimeError("No variational parameter in the circuit.")
+
         # Quantum circuit simulation backend options
         t = self.backend_options.get("target", self.default_backend_options["target"])
         ns = self.backend_options.get("n_shots", self.default_backend_options["n_shots"])
