@@ -73,8 +73,8 @@ class TestVector(unittest.TestCase):
 
     def test_all_same_energy_mol_H4_sto3g_and_mol_H2O_sto3g(self):
         """Check that all mappings return statevectors that have the same energy expectation
-        for an even number of electrons and various spins. H2O with frozen_orbitals=[0, 7]
-        failed previously for scbk"""
+        for an even number of electrons and various spins. Molecules tested are H4, and H2O
+        with frozen_orbitals=[0, 7] which failed previously for scbk"""
         mols = [mol_H4_sto3g, SecondQuantizedMolecule(xyz_H2O, 0, 0, "sto-3g", frozen_orbitals=[0, 7])]
         for mol in mols:
             ferm_op = mol.fermionic_hamiltonian

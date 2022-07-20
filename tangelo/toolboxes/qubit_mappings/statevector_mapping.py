@@ -93,14 +93,19 @@ def do_scbk_transform(vector, n_spinorbitals):
     """
 
     fenwick_tree = FenwickTree(n_spinorbitals)
+    # Generate QubitOperator that represents excitation through Majorana mode (a_i^+ - a_) for each occupied orbital
     qu_op = QubitOperator((), 1)
     for ind, oc in enumerate(vector):
         if oc == 1:
             qu_op *= (_transform_ladder_operator((ind, 1), fenwick_tree) - _transform_ladder_operator((ind, 0), fenwick_tree))
+
+    # Include all qubits that have Pauli operator X or Y acting on them in new occupation vector.
     vector_bk = np.zeros(n_spinorbitals)
     active_qus = [i for i, j in next(iter(qu_op.terms)) if j != "Z"]
     for q in active_qus:
         vector_bk[q] = 1
+
+    # Delete n_spinorbital and last qubit as is done for the scBK transform.
     vector_bk = np.delete(vector_bk, n_spinorbitals-1)
     vector_scbk = np.delete(vector_bk, n_spinorbitals//2-1)
     return vector_scbk
