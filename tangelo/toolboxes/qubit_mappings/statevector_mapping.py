@@ -17,13 +17,15 @@ translate into a Circuit.
 """
 
 
-import numpy as np
 import warnings
+
+import numpy as np
+from openfermion import QubitOperator
+from openfermion.transforms import bravyi_kitaev_code
+from openfermion.transforms.opconversions.bravyi_kitaev_tree import _transform_ladder_operator, FenwickTree
 
 from tangelo.linq import Gate, Circuit
 from tangelo.toolboxes.qubit_mappings.jkmn import jkmn_prep_vector
-
-from openfermion.transforms import bravyi_kitaev_code
 
 available_mappings = {"JW", "BK", "SCBK", "JKMN"}
 
@@ -80,19 +82,28 @@ def do_bk_transform(vector):
 
 def do_scbk_transform(vector, n_spinorbitals):
     """Instantiate qubit vector for symmetry-conserving Bravyi-Kitaev
-    transformation. Based on implementation by Yukio Kawashima in DMET project.
+    Generate Majorana mode for each occupied spin-orbital and apply X gate
+    to each non-Z operator in the Pauli word.
 
     Args:
         vector (numpy array of int): fermion occupation vector.
-        n_spinorbitals (int): number of qubits in register.
 
     Returns:
         numpy array of int: qubit-encoded occupation vector.
     """
-    vector_bk = do_bk_transform(vector)
-    vector = np.delete(vector_bk, n_spinorbitals - 1)
-    vector = np.delete(vector, n_spinorbitals//2 - 1)
-    return vector
+
+    fenwick_tree = FenwickTree(n_spinorbitals)
+    qu_op = QubitOperator((), 1)
+    for ind, oc in enumerate(vector):
+        if oc == 1:
+            qu_op *= (_transform_ladder_operator((ind, 1), fenwick_tree) - _transform_ladder_operator((ind, 0), fenwick_tree))
+    vector_bk = np.zeros(n_spinorbitals)
+    active_qus = [i for i, j in next(iter(qu_op.terms)) if j != "Z"]
+    for q in active_qus:
+        vector_bk[q] = 1
+    vector_bk = np.delete(vector_bk, n_spinorbitals-1)
+    vector_scbk = np.delete(vector_bk, n_spinorbitals//2-1)
+    return vector_scbk
 
 
 def do_jkmn_transform(vector):
