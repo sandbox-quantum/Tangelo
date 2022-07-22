@@ -19,7 +19,7 @@ Refs:
 """
 
 import math
-from typing import Union, Tuple
+from typing import Union, Tuple, List
 
 import numpy as np
 
@@ -28,7 +28,7 @@ from tangelo.linq.helpers.circuits.statevector import StateVector
 from tangelo.toolboxes.operators.operators import QubitOperator, count_qubits
 
 
-def get_truncated_taylor_series(qu_op: QubitOperator, kmax: int, t: float, control: Union[int, list[int]] = None) -> Circuit:
+def get_truncated_taylor_series(qu_op: QubitOperator, kmax: int, t: float, control: Union[int, List[int]] = None) -> Circuit:
     r"""Generate Circuit to implement the truncated Taylor series algorithm as implemented in arXiv:1412.4687
     Args:
         qu_op (QubitOperator): The qubit operator to apply the truncated Taylor series exponential
@@ -67,7 +67,7 @@ def get_truncated_taylor_series(qu_op: QubitOperator, kmax: int, t: float, contr
     return amplified_lcu_circuit * rsteps
 
 
-def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, list[QubitOperator], int]:
+def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, List[QubitOperator], int]:
     """Generate Uprep circuit using qubit encoding defined in arXiv:1412.4687
     Args:
         qu_op (QubitOperator) :: The qubit operator to obtain the Uprep circuit for
@@ -151,7 +151,7 @@ def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, l
     return kprep + qstot, unitaries, time_steps
 
 
-def USelectkl(unitaries: list[QubitOperator], n_qubits_sv: int, kmax: int, control: Union[int, list[int]] = None) -> Circuit:
+def USelectkl(unitaries: list[QubitOperator], n_qubits_sv: int, kmax: int, control: Union[int, List[int]] = None) -> Circuit:
     r"""Generate the truncated Taylor series U_{Select} circuit for the list of QubitOperator as defined arXiv:1412.4687
     The returned Circuit will have qubits defined in registers |n_qubits_sv>|kmax-1>|n_qubits_u>^{kmax-1}|ancilla>
     n_qubits_sv is the number of qubits to define the state to propagate. |kmax-1> defines the unary encoding
@@ -206,7 +206,7 @@ def USelectkl(unitaries: list[QubitOperator], n_qubits_sv: int, kmax: int, contr
     return Circuit(gate_list)
 
 
-def sign_flip(qubit_list: list[QubitOperator], control: Union[int, list[int]] = None) -> Circuit:
+def sign_flip(qubit_list: list[QubitOperator], control: Union[int, List[int]] = None) -> Circuit:
     """Generate Circuit corresponding to the sign flip of the |0>^n vector for the given qubit_list
     Args:
         qubit_list (list): The list of n qubits for which the 2*|0>^n-I operation is generated
@@ -229,7 +229,7 @@ def sign_flip(qubit_list: list[QubitOperator], control: Union[int, list[int]] = 
     return Circuit(gate_list)
 
 
-def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, list[int]] = None) -> Circuit:
+def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None) -> Circuit:
     """Apply qu_op using the linear combination of unitaries algorithm
     1-norm of coefficients must be less than 2. The unitarity of qu_op is not checked by the algorithm
     Args:
