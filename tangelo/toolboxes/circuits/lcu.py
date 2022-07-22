@@ -206,7 +206,7 @@ def USelectkl(unitaries: List[QubitOperator], n_qubits_sv: int, kmax: int, contr
     return Circuit(gate_list)
 
 
-def sign_flip(qubit_list: list[QubitOperator], control: Union[int, List[int]] = None) -> Circuit:
+def sign_flip(qubit_list: List[QubitOperator], control: Union[int, List[int]] = None) -> Circuit:
     """Generate Circuit corresponding to the sign flip of the |0>^n vector for the given qubit_list
     Args:
         qubit_list (list): The list of n qubits for which the 2*|0>^n-I operation is generated
