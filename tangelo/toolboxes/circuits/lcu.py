@@ -151,7 +151,7 @@ def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, L
     return kprep + qstot, unitaries, time_steps
 
 
-def USelectkl(unitaries: list[QubitOperator], n_qubits_sv: int, kmax: int, control: Union[int, List[int]] = None) -> Circuit:
+def USelectkl(unitaries: List[QubitOperator], n_qubits_sv: int, kmax: int, control: Union[int, List[int]] = None) -> Circuit:
     r"""Generate the truncated Taylor series U_{Select} circuit for the list of QubitOperator as defined arXiv:1412.4687
     The returned Circuit will have qubits defined in registers |n_qubits_sv>|kmax-1>|n_qubits_u>^{kmax-1}|ancilla>
     n_qubits_sv is the number of qubits to define the state to propagate. |kmax-1> defines the unary encoding
