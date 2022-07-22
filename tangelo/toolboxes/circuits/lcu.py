@@ -24,7 +24,7 @@ from typing import Union, Tuple
 import numpy as np
 
 from tangelo.linq import Gate, Circuit
-from tangelo.linq.helpers.circuits.state import StateVector
+from tangelo.linq.helpers.circuits.statevector import StateVector
 from tangelo.toolboxes.operators.operators import QubitOperator, count_qubits
 
 
