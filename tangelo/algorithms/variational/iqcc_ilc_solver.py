@@ -23,6 +23,7 @@ iQCC VQE procedure is that Hamiltonian dressing after each iteration
 with the set of ILC generators results in quadratic growth of the
 number of terms, which is an improvement over the exponential growth
 that occurs when QCC generators are used.
+
 Refs:
     1. R. A. Lang, I. G. Ryabinkin, and A. F. Izmaylov.
         arXiv:2002.05701v1, 2020, 1–10.
@@ -42,6 +43,7 @@ class iQCC_ILC_solver:
     Classes with the VQESolver class to perform an iterative and variational
     procedure to compute the total iQCC-ILC energy for a given Hamiltonian.
     The algorithm is outlined below:
+
     (1) For a user-specified number of iterations, compute the ILC energy:
         (a) prepare/purify the QMF wave function, obtain the ACS of ILC
             generators, and initialize the ILC parameter set;
@@ -53,6 +55,7 @@ class iQCC_ILC_solver:
         and initialize QCC parameters
     (3) Perform a single VQE minimization of the QCC energy functional to
         obtain the final iQCC-ILC energy.
+
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
         qubit_mapping (str): One of the supported qubit mapping identifiers. Default, "jw".
@@ -71,13 +74,12 @@ class iQCC_ILC_solver:
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         max_ilc_iter (int): maximum number of ILC iterations allowed before termination.
             Default, 3.
-            the value from the previous iteration, the ILC parameters are reinitialized
         compress_qubit_ham (bool): controls whether the qubit Hamiltonian is compressed
             after dressing with the current set of generators at the end of each ILC iteration.
             Default, False.
         compress_eps (float): parameter required for compressing intermediate ILC Hamiltonians
             using the Froebenius norm. Discarding terms in this manner will not alter the
-            eigenspeectrum of intermediate Hamiltonians by more than compress_eps.
+            eigenspectrum of intermediate Hamiltonians by more than compress_eps.
             Default, 1.59e-3 Hartree.
         verbose (bool): Flag for verbosity. Default, False.
      """
@@ -149,7 +151,7 @@ class iQCC_ILC_solver:
         """Executes the ILC-VQE algorithm. During each iteration, a ILC-VQE minimization
         is performed with the current set of generators, amplitudes, and qubit Hamiltonian."""
 
-        # initialize quantities; compute the QMF energy and set this was eilc_old
+        # initialize quantities; compute the QMF energy
         sim = Simulator()
         self.qmf_energy = sim.get_expectation_value(self.ilc_ansatz.qubit_ham, self.ilc_ansatz.qmf_circuit)
         if self.verbose:
@@ -216,6 +218,7 @@ class iQCC_ILC_solver:
     def _update_ilc_solver(self, e_ilc):
         """This function serves several purposes for the ILC-VQE solver
         part of the iQCC-ILC algorithm:
+
             (1) updates/stores the energy, generators, QMF Bloch angles,
                 ILC amplitudes, circuits, number of qubit Hamiltonian terms,
                 and quantum resource estimates;

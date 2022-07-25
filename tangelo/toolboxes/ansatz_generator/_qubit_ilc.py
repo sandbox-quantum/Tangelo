@@ -16,6 +16,7 @@
 1. Function to create the anticommuting set (ACS) of generators from the QCC DIS;
 2. An efficient solver that performs Gaussian elimination over GF(2);
 3. Function that computes the ILC parameters via matrix diagonalization.
+
 Refs:
     1. R. A. Lang, I. G. Ryabinkin, and A. F. Izmaylov.
         arXiv:2002.05701v1, 2020, 1–10.
@@ -38,9 +39,11 @@ from tangelo.toolboxes.ansatz_generator._qubit_mf import get_op_expval
 def construct_acs(dis, n_qubits):
     """Driver function for constructing the anticommuting set of generators from
     the direct interaction set (DIS) of QCC generators.
+
     Args:
         dis (list of list): DIS of QCC generators.
         n_qubits (int): number of qubits
+
     Returns:
         list of QubitOperator: the anticommuting set (ACS) of ILC generators
     """
@@ -118,12 +121,14 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
     over the binary field where b is the known solution vector. The elements
     of a_mat and b_vec need to be 0 or 1. If they are not provided as such,
     they will be transformed accordingly.
+
     Args:
         a_mat (numpy array of int): rectangular matrix of dimension n x m that
             holds the action of A * z, where z is a column vector of dimension m x 1.
             No default.
         b_vec (numpy array of int): column vector of dimension n x 1 holding the
             initial solution of A * z. Default, np.zeros((n, 1)).
+
     Returns:
         numpy array of int: solution for the z vector of dimension (n, )
     """
@@ -210,9 +215,11 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
     """Driver function that solves the generalized eigenvalue problem Hc = ESc required
     to obtain the ground state coefficients (ILC parameters). These are subsequently recast
     according to Appendix C of Ref. 1 in a form that is suitable for constructing ILC circuits.
+
     Args:
         qubit_ham (QubitOperator): the qubit Hamiltonian of the system.
         ilc_gens (list of QubitOperator): the anticommuting set of ILC Pauli words.
+
     Returns:
         list of float: the ILC parameters corresponding to the ACS of ILC generators
     """
@@ -265,14 +272,16 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
 
 
 def build_ilc_qubit_op_list(acs_gens, ilc_params):
-    """Returns a list of 2N - 1 ILC generators to facilate generation of a circuit
+    """Returns a list of 2N - 1 ILC generators to facilitate generation of a circuit
     based on symmetric Trotter-Suzuki decomposition. The ILC generators are ordered
     according to Eq. C1 in Appendix C of Ref. 1.
+
     Args:
         acs_gens (list of QubitOperator): The list of ILC Pauli word generators
             selected from characteristic ACS groups.
         ilc_params (list or numpy array of float): The ILC variational parameters
             arranged such that their ordering matches the order of acs_gens.
+
     Returns:
         list of QubitOperator: list of ILC ansatz operator generators.
     """
@@ -289,14 +298,16 @@ def build_ilc_qubit_op_list(acs_gens, ilc_params):
 
 def ilc_op_dress(qubit_op, ilc_gens, ilc_params):
     """Performs transformation of a qubit operator with the ACS of ILC generators and
-    parameters. For a set of N generators, each qubiti operator transformation results
+    parameters. For a set of N generators, each qubit operator transformation results
     in quadratic (N * (N-1) / 2) growth of the number of its terms.
+
     Args:
         qubit_op (QubitOperator): A qubit operator to be dressed.
         ilc_gens (list of QubitOperator): The list of ILC Pauli word generators
             selected from a user-specified number of characteristic ACS groups.
         ilc_params (list or numpy array of float): The ILC variational parameters
             arranged such that their ordering matches the ordering of ilc_gens.
+
     Returns:
         QubitOperator: Dressed qubit operator.
     """

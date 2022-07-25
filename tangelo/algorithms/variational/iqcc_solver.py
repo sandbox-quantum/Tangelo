@@ -22,6 +22,7 @@ for the iQCC approach relative to the native QCC method. A caveat
 is that after each iteration, the qubit Hamiltonian is dressed with
 the generators and optimal parameters, the result of which is an
 exponential growth of the number of terms.
+
 Refs:
     1. I. G. Ryabinkin, R. A. Lang, S. N. Genin, and A. F. Izmaylov.
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
@@ -37,6 +38,7 @@ class iQCC_solver:
     """The iQCC-VQE solver class combines the QCC ansatz and VQESolver classes
     to perform an iterative and variational procedure to compute the total QCC
     energy for a given Hamiltonian. The algorithm is outlined below:
+
     (0) Prepare a qubit Hamiltonian, initialize QMF parameters, construct the
         DIS, select QCC generators, and initialize QCC amplitudes.
     (1) Simulate the QCC energy through VQE minimization.
@@ -52,6 +54,7 @@ class iQCC_solver:
         generators and optimal amplitudes.
     (6) Purify the QMF parameters, rebuild the DIS, and select generators for
         the next iteration; return to (1) and repeat until termination.
+
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
         qubit_mapping (str): One of the supported qubit mapping identifiers. Default, "jw".

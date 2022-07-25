@@ -24,6 +24,7 @@ of |dEQCC/dtau|. By constructing the DIS, it is possible to identify O(N * (2^nq
 generators that are strong energy-lowering candidates for the QCC ansatz at a
 cost of O(N) gradient evaluations. In contrast, a brute-force strategy requires
 O(4^nq) gradient evaluations.
+
 Refs:
     1. I. G. Ryabinkin, R. A. Lang, S. N. Genin, and A. F. Izmaylov.
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
@@ -47,11 +48,13 @@ def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):
        If |dEQCC/dtau| >= thresh add the candidate DIS group to the DIS.
     4. For all DIS groups, create a complete set of generators made from Pauli X and and an
        odd number of Y operators.
+
     Args:
         qubit_ham (QubitOperator): A qubit Hamiltonian.
         pure_var_params (numpy array of float): A purified QMF variational parameter set.
         deqcc_dtau_thresh (float): Threshold for |dEQCC/dtau| so that a candidate group is added
             to the DIS if |dEQCC/dtau| >= deqcc_dtau_thresh for a generator.
+
     Returns:
         list of list: the DIS of QCC generators.
     """
@@ -73,11 +76,13 @@ def construct_dis(qubit_ham, pure_var_params, deqcc_dtau_thresh):
 
 def get_dis_groups(qubit_ham, pure_var_params, deqcc_dtau_thresh):
     """Construct unique DIS groups characterized by the flip indices and |dEQCC/dtau|.
+
     Args:
         qubit_ham (QubitOperator): A qubit Hamiltonian.
         pure_var_params (numpy array of float): A purified QMF variational parameter set.
         deqcc_dtau_thresh (float): Threshold for |dEQCC/dtau| so that a candidate group is added
             to the DIS if |dEQCC/dtau| >= deqcc_dtau_thresh for a generator.
+
     Returns:
         list of tuple: the DIS group flip indices (str) and signed value of dEQCC/dtau (float).
     """
@@ -105,10 +110,12 @@ def get_idxs_deriv(qham_term, *qham_qmf_data):
     built with a Pauli Y operator acting on the first flip index and then Pauli X
     operators acting on the remaining flip indices. Then dEQCC/dtau is evaluated as
     dEQCC_dtau = -i/2 <QMF|[H, gen]|QMF> = -i <QMF|H * gen|QMF>.
+
     Args:
         qham_term (tuple of tuple): The Pauli operators and indices of a QubitOperator term.
         qham_qmf_data (tuple): The coefficient of a QubitOperator term and a purified QMF
             variational parameter set (numpy array of float).
+
     Returns:
         tuple or None: return a tuple of the flip indices (str) and the signed value of
             dEQCC/dtau (float) if at least two flip indices were found. Otherwise return None.
@@ -136,8 +143,10 @@ def get_gens_from_idxs(group_idxs):
     """Given the flip indices of a DIS group, create all possible Pauli words made
     from Pauli X and an odd number of Y operators acting on qubits indexed by the
     flip indices.
+
     Args:
         group_idxs (str): A set of flip indices for a DIS group.
+
     Returns:
         list of QubitOperator: DIS group generators.
     """
@@ -158,11 +167,13 @@ def build_qcc_qubit_op(dis_gens, taus):
     parameter set {tau} as coefficients: QCC operator = -0.5 * SUM_k P_k * tau_k.
     The exponentiated QCC operator, U = PROD_k exp(-0.5j * tau_k * P_k), is used to
     build the circuit.
+
     Args:
         dis_gens (list of QubitOperator): The list of QCC Pauli word generators
             selected from a user-specified number of characteristic DIS groups.
         taus (list or numpy array of float): The QCC variational parameters
             arranged such that their ordering matches the order of dis_gens.
+
     Returns:
         QubitOperator: QCC ansatz operator.
     """
@@ -180,12 +191,14 @@ def qcc_op_dress(qubit_op, dis_gens, taus):
     results in exponential growth of the number terms. This growth can be
     approximated as M * (3 / 2) ^ n_g, where n_g is the number of QCC generators
     selected for the ansatz at the current iteration.
+
     Args:
         qubit_op (QubitOperator): A qubit operator to be dressed.
         dis_gens (list of QubitOperator): The list of QCC Pauli word generators
             selected from characteristic DIS groups.
         taus (list or numpy array of float): The QCC variational parameters
             arranged such that their ordering matches the ordering of dis_gens.
+
     Returns:
         QubitOperator: Dressed qubit operator.
     """

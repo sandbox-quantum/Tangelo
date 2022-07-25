@@ -42,10 +42,12 @@ class QubitOperator(openfermion.QubitOperator):
         and a user-defined threshold, epsilon. The eigenspectrum of the
         compressed operator will not deviate more than epsilon. For more
         details, see J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
+
         Args:
             epsilon (float): Parameter controlling the degree of compression
                 and resulting accuracy.
             n_qubits (int): Number of qubits in the register.
+
         Returns:
             QubitOperator: The compressed qubit operator.
         """
@@ -70,8 +72,10 @@ class QubitOperator(openfermion.QubitOperator):
         absence of an external magnetic field, each Hamiltonian term must have
         an even number of Pauli Y operators to preserve time-reversal symmetry.
         See J. Chem. Theory Comput. 2020, 16, 2, 1055–1063 for more details.
+
         Args:
             n_qubits (int): Number of qubits in the register.
+
         Returns:
             int: The maximum number of possible qubit Hamiltonian terms.
         """
@@ -88,6 +92,7 @@ class QubitHamiltonian(QubitOperator):
     qubit ordering (up_then_down) are incorporated into the class. In addition
     to QubitOperator, several checks are done when performing arithmetic
     operations on QubitHamiltonians.
+
     Attributes:
         term (openfermion-like): Same as openfermion term formats.
         coefficient (complex): Coefficient for this term.
@@ -95,6 +100,7 @@ class QubitHamiltonian(QubitOperator):
             (ex: "JW", "BK", etc.).
         up_then_down (bool): Whether or not spin ordering is all up then
             all down.
+
     Properties:
         n_terms (int): Number of terms in this qubit Hamiltonian.
     """
@@ -158,6 +164,7 @@ def normal_ordered(fe_op):
     """ Input: a Fermionic operator of class
     toolboxes.operators.FermionicOperator or openfermion.FermionicOperator for
     reordering.
+
     Returns:
         FermionicOperator: Normal ordered operator.
     """
@@ -175,6 +182,7 @@ def normal_ordered(fe_op):
 def squared_normal_ordered(all_terms):
     """Input: a list of terms to generate toolboxes.operators.FermionOperator
     or openfermion.FermionOperator
+
     Returns:
         FermionOperator: squared (i.e. fe_op*fe_op) and
             normal ordered.
@@ -188,6 +196,7 @@ def squared_normal_ordered(all_terms):
 
 def list_to_fermionoperator(all_terms):
     """Input: a list of terms to generate FermionOperator
+
     Returns:
         FermionOperator: Single merged operator.
     """
@@ -200,11 +209,13 @@ def list_to_fermionoperator(all_terms):
 
 def qubitop_to_qubitham(qubit_op, mapping, up_then_down):
     """Function to convert a QubitOperator into a QubitHamiltonian.
+
     Args:
         qubit_op (QubitOperator): Self-explanatory.
         mapping (string): Qubit mapping procedure.
         up_then_down (bool): Whether or not spin ordering is all up then
             all down.
+
     Returns:
         QubitHamiltonian: Self-explanatory.
     """

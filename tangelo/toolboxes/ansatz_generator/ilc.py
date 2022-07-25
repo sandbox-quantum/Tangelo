@@ -19,6 +19,7 @@ which incur an exponential growth of Hamiltonian terms upon dressing, the ACS
 of ILC generators enables Hamiltonian dressing such that the number of terms
 grows quadratically and exact quadratic truncation of the Baker-Campbell-Hausdorff
 expansion. For more information about this ansatz, see references below.
+
 Refs:
     1. R. A. Lang, I. G. Ryabinkin, and A. F. Izmaylov.
         arXiv:2002.05701v1, 2020, 1–10.
@@ -48,6 +49,7 @@ class ILC(Ansatz):
     fermionic mean-field state is treated differently depending on the spin. Closed-shell
     or restricted open-shell ILC implies that spin = 0 or spin != 0 and the fermionic mean-field
     state is obtained using a RHF or ROHF Hamiltonian, respectively.
+
     Args:
         molecule (SecondQuantizedMolecule or dict): The molecular system, which can
             be passed as a SecondQuantizedMolecule or a dictionary with keys that

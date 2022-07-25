@@ -23,6 +23,7 @@ contribution to variational lowering of the QCC energy. For chemical application
 the quantum mean-field ansatz is used in conjunction with this ansatz to
 describe an electronic wave function on a quantum computer. For more information
 about this ansatz and its variations, see references below.
+
 Refs:
     1. I. G. Ryabinkin, T.-C. Yen, S. N. Genin, and A. F. Izmaylov.
         J. Chem. Theory Comput. 2018, 14 (12), 6317-6326.
@@ -52,6 +53,7 @@ class QCC(Ansatz):
     fermionic mean-field state is treated differently depending on the spin. Closed-shell
     or restricted open-shell QCC implies that spin = 0 or spin != 0 and the fermionic mean-field
     state is obtained using a RHF or ROHF Hamiltonian, respectively.
+
     Args:
         molecule (SecondQuantizedMolecule or dict): The molecular system, which can
             be passed as a SecondQuantizedMolecule or a dictionary with keys that
