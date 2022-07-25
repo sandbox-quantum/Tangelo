@@ -162,9 +162,13 @@ class VQESolver:
         self.optimal_var_params = None
         self.builtin_ansatze = set(BuiltInAnsatze)
 
-    def build(self):
+    def build(self, check_var_circuit=True):
         """Build the underlying objects required to run the VQE algorithm
         afterwards.
+
+        Args:
+            check_var_circuit (bool): Check or not if the circuit has at least
+                one variational parameter.
         """
 
         if isinstance(self.ansatz, Circuit):
@@ -256,7 +260,7 @@ class VQESolver:
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
 
-        if self.get_resources()["circuit_var_gates"] == 0:
+        if check_var_circuit and self.get_resources()["circuit_var_gates"] == 0:
             raise RuntimeError("No variational parameter in the circuit.")
 
         # Quantum circuit simulation backend options
