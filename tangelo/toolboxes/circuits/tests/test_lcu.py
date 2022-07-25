@@ -19,7 +19,8 @@ from openfermion import get_sparse_operator
 import numpy as np
 from scipy.linalg import expm
 
-from tangelo.linq import Simulator
+from tangelo.linq import Simulator, backend_info
+from tangelo.helpers.utils import installed_backends
 from tangelo.linq.helpers.circuits.statevector import StateVector
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -27,8 +28,12 @@ from tangelo.toolboxes.ansatz_generator.ansatz_utils import get_qft_circuit
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.circuits.lcu import get_lcu_circuit, get_truncated_taylor_series
 
-# Initiate simulator using cirq as it has the same ordering as openfermion and we are using an exact eigenvector to test
-sim = Simulator(target="cirq")
+# Test for both "cirq" and if available "qulacs". These have different orderings.
+# qiskit is not currently supported because does not have multi controlled general gates.
+backends = ["cirq", "qulacs"] if "qulacs" in installed_backends else ["cirq"]
+# Initiate Simulator using cirq for phase estimation tests as it has the same ordering as openfermion
+# and we are using an exact eigenvector for testing.
+sim_cirq = Simulator("cirq")
 
 
 class lcu_Test(unittest.TestCase):
@@ -43,21 +48,25 @@ class lcu_Test(unittest.TestCase):
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 1])/np.sqrt(2)
 
-        sv = StateVector(vec, order="lsq_first")
-        sv_circuit = sv.initializing_circuit()
-
-        time = 0.5
+        time = 1.9
         exact = expm(-1j*ham*time)@vec
 
-        for k in [1, 2, 3, 4]:
-            taylor_circuit = get_truncated_taylor_series(qu_op, k, time)
-            _, v = sim.simulate(sv_circuit + taylor_circuit, return_statevector=True)
-            v = v.reshape([4, 2**(k+k*n_qubits_qu_op+1)])[:, 0]
-            self.assertAlmostEqual(1, np.abs(v.conj().dot(exact)), delta=1.e-1**k)
+        for backend in backends:
+            sim = Simulator(backend)
+            statevector_order = backend_info[backend]["statevector_order"]
+            sv = StateVector(vec, order=statevector_order)
+            sv_circuit = sv.initializing_circuit()
+
+            # Tested for up to k = 5 but 5 is very slow.
+            for k in [1, 2, 3, 4]:
+                taylor_circuit = get_truncated_taylor_series(qu_op, k, time)
+                _, v = sim.simulate(sv_circuit + taylor_circuit, return_statevector=True)
+                len_ancilla = 2**(k+k*n_qubits_qu_op+1)
+                v = v.reshape([4, len_ancilla])[:, 0] if statevector_order == "lsq_first" else v.reshape([len_ancilla, 4])[0, :]
+                self.assertAlmostEqual(1, np.abs(v.conj().dot(exact)), delta=3.e-1**k)
 
         # Raise ValueError if Taylor series order is less than 1 or greater than 4 or imaginary coefficients in qubit operator
         self.assertRaises(ValueError, get_truncated_taylor_series, qu_op, 0, time)
-        self.assertRaises(ValueError, get_truncated_taylor_series, qu_op, 5, time)
         self.assertRaises(ValueError, get_truncated_taylor_series, qu_op * 1j, 2, time)
 
     def test_get_lcu_circuit(self):
@@ -74,16 +83,19 @@ class lcu_Test(unittest.TestCase):
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 1])/np.sqrt(2)
 
-        sv = StateVector(vec, order="lsq_first")
-        sv_circuit = sv.initializing_circuit()
-
         exact = expm(-1j*ham*time)@vec
+        len_ancilla = 2**(n_qubits_qu_op)
 
-        taylor_circuit = get_lcu_circuit(exp_qu_op)
-        _, v = sim.simulate(sv_circuit + taylor_circuit, return_statevector=True)
-        v = v.reshape([4, 2**(n_qubits_qu_op)])[:, 0]
+        for backend in backends:
+            sim = Simulator(backend)
+            statevector_order = backend_info[backend]["statevector_order"]
+            sv = StateVector(vec, order=statevector_order)
+            sv_circuit = sv.initializing_circuit()
 
-        self.assertAlmostEqual(1, np.abs(v.conj().dot(exact)), delta=1.e-3)
+            taylor_circuit = get_lcu_circuit(exp_qu_op)
+            _, v = sim.simulate(sv_circuit + taylor_circuit, return_statevector=True)
+            v = v.reshape([4, len_ancilla])[:, 0] if statevector_order == "lsq_first" else v.reshape([len_ancilla, 4])[0, :]
+            self.assertAlmostEqual(1, np.abs(v.conj().dot(exact)), delta=1.e-3)
 
         # Test return of ValueError if 1-norm is greater than 2.
         self.assertRaises(ValueError, get_lcu_circuit, exp_qu_op+5)
@@ -101,7 +113,7 @@ class lcu_Test(unittest.TestCase):
         _, wavefunction = np.linalg.eigh(ham_mat)
 
         qu_op = qu_op
-        # Append four qubits in the zero state to eigenvector 9
+        # Kronecker product 13 qubits in the zero state to eigenvector 9 to account for ancilla qubits
         wave_9 = wavefunction[:, 9]
         for i in range(13):
             wave_9 = np.kron(wave_9, np.array([1, 0]))
@@ -113,9 +125,9 @@ class lcu_Test(unittest.TestCase):
             pe_circuit += get_truncated_taylor_series(qu_op, 3, t=-(2*np.pi)*2**i, control=qubit)
         pe_circuit += get_qft_circuit(qubit_list, inverse=True)
 
-        freqs, _ = sim.simulate(pe_circuit, initial_statevector=wave_9)
+        freqs, _ = sim_cirq.simulate(pe_circuit, initial_statevector=wave_9)
 
-        # Trace out first 3 dictionary amplitudes, only care about final 3 indices
+        # Trace out all but final 3 indices
         trace_freq = dict()
         for key, value in freqs.items():
             trace_freq[key[-3:]] = trace_freq.get(key[-3:], 0) + value
@@ -146,7 +158,7 @@ class lcu_Test(unittest.TestCase):
         num_terms = len(exp_qu_op.terms)
         n_extra_qubits = math.ceil(np.log2(num_terms))
 
-        # Append n_extra_qubits + 3 qubits in the zero state to eigenvector 9
+        # Kronecker product n_extra_qubits + 3 qubits in the zero state to eigenvector 9
         wave_9 = wavefunction[:, 9]
         for i in range(n_extra_qubits+3):
             wave_9 = np.kron(wave_9, np.array([1, 0]))
@@ -160,9 +172,9 @@ class lcu_Test(unittest.TestCase):
             pe_circuit += get_lcu_circuit(exp_qu_op, control=qubit) * 2 ** i * 6
         pe_circuit += get_qft_circuit(qubit_list, inverse=True)
 
-        freqs, _ = sim.simulate(pe_circuit, initial_statevector=wave_9)
+        freqs, _ = sim_cirq.simulate(pe_circuit, initial_statevector=wave_9)
 
-        # Trace out first 3 dictionary amplitudes, only care about final 3 indices
+        # Trace out all but final 3 indices
         trace_freq = dict()
         for key, value in freqs.items():
             trace_freq[key[-3:]] = trace_freq.get(key[-3:], 0) + value

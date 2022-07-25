@@ -39,8 +39,8 @@ def get_truncated_taylor_series(qu_op: QubitOperator, kmax: int, t: float, contr
         Circuit: the circuit that implements the time-evolution of qu_op for time t with Taylor series kmax
     """
 
-    if kmax < 1 or kmax > 4:
-        raise ValueError("Only taylor series up to order 1, 2, 3, or 4 are supported")
+    if kmax < 1:
+        raise ValueError("Taylor series can only be applied for kmax > 0")
 
     qu_op_size = count_qubits(qu_op)
 
@@ -71,10 +71,10 @@ def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, L
     """Generate Uprep circuit using qubit encoding defined in arXiv:1412.4687
     Args:
         qu_op (QubitOperator) :: The qubit operator to obtain the Uprep circuit for
-        kmax (int): the order of the truncated taylor series
+        kmax (int): the order of the truncated Taylor series
         t (float): The evolution time
     Returns:
-        Circuit: The Uprep circuit for the truncated taylor series
+        Circuit: The Uprep circuit for the truncated Taylor series
         list: the individual QubitOperator unitaries with only the prefactor remaining. i.e.  all coefficients are 1, -1, 1j or -1j
         int: The number of repeated applications of the circuit that need to be applied
     """
@@ -88,7 +88,7 @@ def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, L
     unitaries = list()
     for term, coeff in qu_op.terms.items():
         if np.abs(coeff.imag) > 1.e-7:
-            raise ValueError("Only real qubit operators are allowed but term {term} has coefficient {coeff}")
+            raise ValueError(f"Only real qubit operators are allowed but term {term} has coefficient {coeff}")
         if coeff.real > 0:
             unitaries.append(QubitOperator(term, -1j))
         else:
@@ -100,8 +100,10 @@ def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, L
     vsum = sum(vector)
 
     # Calculate 1-norm of coefficients in qubit operator and obtain the maximum time-step allowed
-    vroots = [0, 1., 0.73205081, 0.69888549, 0.69390315]
-    max_time_step = vroots[kmax] / vsum
+    # These values are obtained by finding the relevant root of the kth order Taylor series polynomial approximation
+    # of 2 = exp(x) (i.e. the roots of 2 = \sum_{k=0}^N x^k/k!). The limit for large k is log(2)
+    poly_roots = {1: 1., 2: 0.73205081, 3: 0.69888549, 4: 0.69390315, 5: 0.69323260, 6: 0.69315552, 7: 0.69314790, 8: 0.69314724}
+    max_time_step = poly_roots[kmax] / vsum if kmax < 9 else np.log(2)
 
     # Calculate the number of time steps required and calculate the actual 1-norm for each time-step
     time_steps = math.ceil(t / max_time_step)
@@ -114,7 +116,7 @@ def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, L
     newvec = np.zeros(2 ** n_qubits)
     newvec[:num_terms] = vector
 
-    # Calculate circuit that generates vector and apply controls for taylor series
+    # Calculate circuit that generates vector and apply controls for Taylor series
     s = StateVector(newvec, order="msq_first")
     qss = list()
     for k in range(kmax):
