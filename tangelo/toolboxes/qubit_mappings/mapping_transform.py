@@ -103,6 +103,9 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
     if mapping.upper() not in available_mappings:
         raise ValueError(f"Invalid mapping selection. Select from: {available_mappings}")
 
+    if mapping.upper in {"BK", "SCBK", "JKMN"} and n_spinorbitals is None:
+        raise ValueError(f"{mapping.upper()} requires n_spinorbitals to be set.")
+
     if up_then_down:
         if n_spinorbitals is None:
             raise ValueError("The number of spin-orbitals is required to execute basis re-ordering.")
@@ -111,12 +114,8 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
     if mapping.upper() == "JW":
         qubit_operator = jordan_wigner(fermion_operator)
     elif mapping.upper() == "BK":
-        if n_spinorbitals is None:
-            raise ValueError("Bravyi Kitaev requires specification of number of spin-orbitals.")
         qubit_operator = bravyi_kitaev(fermion_operator, n_qubits=n_spinorbitals)
     elif mapping.upper() == "SCBK":
-        if n_spinorbitals is None:
-            raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of spin-orbitals.")
         if n_electrons is None:
             raise ValueError("Symmetry-conserving Bravyi Kitaev requires specification of number of electrons.")
 
@@ -126,8 +125,6 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
                                                            up_then_down=up_then_down,
                                                            spin=spin)
     elif mapping.upper() == "JKMN":
-        if n_spinorbitals is None:
-            raise ValueError("JKMN mapping requires specification of number of spin-orbitals.")
         qubit_operator = jkmn(fermion_operator, n_qubits=n_spinorbitals)
 
     converted_qubit_op = QubitOperator()
