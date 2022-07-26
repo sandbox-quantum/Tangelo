@@ -167,7 +167,7 @@ class ADAPTSolver:
                             }
 
         self.vqe_solver = VQESolver(self.vqe_options)
-        self.vqe_solver.build(check_var_circuit=False)
+        self.vqe_solver.build()
 
         # If applicable, give vqe_solver access to molecule object
         if self.molecule:
