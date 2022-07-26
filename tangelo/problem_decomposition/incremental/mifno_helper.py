@@ -131,6 +131,7 @@ class MIFNOHelper():
             "energy_correlation",
             "correction",
             "frozen_orbitals_truncated",
+            "complete_orbital_space",
             "mo_coefficients"
         }
 
@@ -171,6 +172,7 @@ class MIFNOHelper():
 
         data_fragments = self.to_dataframe
         data_fragments.drop(["frozen_orbitals_truncated"], axis=1, inplace=True)
+        data_fragments.drop(["complete_orbital_space"], axis=1, inplace=True)
         str_rep = f"(All the energy values are in hartree)\n" \
                   f"Total MI-FNO energy = {self.e_tot}\n" \
                   f"Correlation energy = {self.e_corr}\n" \
@@ -179,6 +181,9 @@ class MIFNOHelper():
 
         return str_rep
 
+    def __getitem__(self, frag_id):
+        return self.frag_info_flattened[frag_id]
+
     @property
     def to_dataframe(self):
         """Outputs the fragment informations as a pandas.DataFrame."""
@@ -186,6 +191,7 @@ class MIFNOHelper():
 
         # Replace frozen_orbitals_truncated=None with an empty list.
         df["frozen_orbitals_truncated"] = df["frozen_orbitals_truncated"].apply(lambda d: d if isinstance(d, list) else [])
+        df["complete_orbital_space"] = df["complete_orbital_space"].apply(lambda d: d if isinstance(d, list) else [])
 
         return df.drop(["mo_coefficients"], axis=1)
 
@@ -222,7 +228,7 @@ class MIFNOHelper():
         i_file = 1
         for n_body_fragments in self.frag_info.values():
             for frag_id, frag in n_body_fragments.items():
-                if frag["mo_coefficients"]:
+                if frag.get("mo_coefficients", None):
                     file_path = os.path.join(absolute_path, frag["mo_coefficients"]["key"] + ".hdf5")
 
                     if not os.path.exists(file_path):
@@ -350,3 +356,11 @@ class MIFNOHelper():
                     epsilons[frag_id] = 0.
 
         return self.e_mf + sum(epsilons.values())
+
+    def n_electrons_spinorbs(self, frag_id):
+        fragment_info = self.frag_info_flattened[frag_id]
+
+        n_spinorbs = 2 * (len(fragment_info["complete_orbital_space"]) - len(fragment_info["frozen_orbitals_truncated"]))
+        n_electrons = 2 * len(eval(frag_id))
+
+        return n_spinorbs, n_electrons
