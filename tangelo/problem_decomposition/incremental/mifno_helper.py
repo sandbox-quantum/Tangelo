@@ -182,6 +182,9 @@ class MIFNOHelper():
         return str_rep
 
     def __getitem__(self, frag_id):
+        """The user can select the fragment information (python dictionary) with
+        the [] operator.
+        """
         return self.frag_info_flattened[frag_id]
 
     @property
@@ -358,9 +361,18 @@ class MIFNOHelper():
         return self.e_mf + sum(epsilons.values())
 
     def n_electrons_spinorbs(self, frag_id):
+        """Output the number of electrons and spinorbitals for a given fragment.
+
+        Args:
+            frag_id (string): Fragment id, e.g. "(0, )", "(1, 2)", ...
+
+        Returns:
+            int, int: Number of electrons, number of spinorbitals.
+        """
+
         fragment_info = self.frag_info_flattened[frag_id]
 
-        n_spinorbs = 2 * (len(fragment_info["complete_orbital_space"]) - len(fragment_info["frozen_orbitals_truncated"]))
         n_electrons = 2 * len(eval(frag_id))
+        n_spinorbs = 2 * (len(fragment_info["complete_orbital_space"]) - len(fragment_info["frozen_orbitals_truncated"]))
 
-        return n_spinorbs, n_electrons
+        return n_electrons, n_spinorbs
