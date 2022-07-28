@@ -57,7 +57,7 @@ class lcu_Test(unittest.TestCase):
             sv = StateVector(vec, order=statevector_order)
             sv_circuit = sv.initializing_circuit()
 
-            # Tested for up to k = 5 but 5 is very slow.
+            # Tested for up to k = 5 but 5 is slow due to needing 23 qubits to simulate.
             for k in [1, 2, 3, 4]:
                 taylor_circuit = get_truncated_taylor_series(qu_op, k, time)
                 _, v = sim.simulate(sv_circuit + taylor_circuit, return_statevector=True)
@@ -112,7 +112,6 @@ class lcu_Test(unittest.TestCase):
         ham_mat = get_sparse_operator(qu_op).toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
 
-        qu_op = qu_op
         # Kronecker product 13 qubits in the zero state to eigenvector 9 to account for ancilla qubits
         wave_9 = wavefunction[:, 9]
         for i in range(13):
@@ -133,7 +132,7 @@ class lcu_Test(unittest.TestCase):
             trace_freq[key[-3:]] = trace_freq.get(key[-3:], 0) + value
 
         # State 9 has eigenvalue 0.25 so return should be 010 (0*1/2 + 1*1/4 + 0*1/8)
-        self.assertAlmostEqual(trace_freq["010"], 1.0, delta=0.0001)
+        self.assertAlmostEqual(trace_freq["010"], 1.0, delta=1.e-4)
 
     def test_controlled_time_evolution_by_phase_estimation_for_get_lcu_circuit(self):
         """ Verify that the controlled time-evolution is correct by calculating the eigenvalue of an eigenstate through
@@ -146,8 +145,6 @@ class lcu_Test(unittest.TestCase):
 
         ham_mat = get_sparse_operator(qu_op).toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
-
-        qu_op = qu_op
 
         # break time into 6 parts so 1-norm is less than 2. i.e. can use Oblivious Amplitude Amplification
         time = -2 * np.pi / 6
@@ -169,7 +166,7 @@ class lcu_Test(unittest.TestCase):
         # Build phase estimation circuit and simulate
         pe_circuit = get_qft_circuit(qubit_list)
         for i, qubit in enumerate(qubit_list):
-            pe_circuit += get_lcu_circuit(exp_qu_op, control=qubit) * 2 ** i * 6
+            pe_circuit += (6 * 2**i) * get_lcu_circuit(exp_qu_op, control=qubit)
         pe_circuit += get_qft_circuit(qubit_list, inverse=True)
 
         freqs, _ = sim_cirq.simulate(pe_circuit, initial_statevector=wave_9)
@@ -180,7 +177,7 @@ class lcu_Test(unittest.TestCase):
             trace_freq[key[-3:]] = trace_freq.get(key[-3:], 0) + value
 
         # State 9 has eigenvalue 0.25 so return should be 010 (0*1/2 + 1*1/4 + 0*1/8)
-        self.assertAlmostEqual(trace_freq["010"], 1.0, delta=0.0001)
+        self.assertAlmostEqual(trace_freq["010"], 1.0, delta=1.e-4)
 
 
 if __name__ == "__main__":

@@ -67,7 +67,7 @@ def get_truncated_taylor_series(qu_op: QubitOperator, kmax: int, t: float, contr
     return amplified_lcu_circuit * rsteps
 
 
-def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, List[QubitOperator], int]:
+def Uprepkl(qu_op: QubitOperator, kmax: int, t: float) -> Tuple[Circuit, List[QubitOperator], int]:
     """Generate Uprep circuit using qubit encoding defined in arXiv:1412.4687
     Args:
         qu_op (QubitOperator) :: The qubit operator to obtain the Uprep circuit for
@@ -80,13 +80,13 @@ def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, L
     """
 
     # Incorporate sign of time into qubit operator.
-    qu_op = np.sign(t_in) * qu_op_in
-    t = abs(t_in)
+    qu_op_new = np.sign(t) * qu_op
+    t_new = abs(t)
 
     # remove the coefficient value and generate the list of QubitOperator with only its phase 1j, or -1j
     vector = list()
     unitaries = list()
-    for term, coeff in qu_op.terms.items():
+    for term, coeff in qu_op_new.terms.items():
         if np.abs(coeff.imag) > 1.e-7:
             raise ValueError(f"Only real qubit operators are allowed but term {term} has coefficient {coeff}")
         if coeff.real > 0:
@@ -106,8 +106,8 @@ def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, L
     max_time_step = poly_roots[kmax] / vsum if kmax < 9 else np.log(2)
 
     # Calculate the number of time steps required and calculate the actual 1-norm for each time-step
-    time_steps = math.ceil(t / max_time_step)
-    vsum_with_t = sum(coeff * t / time_steps for coeff in vector)
+    time_steps = math.ceil(t_new / max_time_step)
+    vsum_with_t = sum(coeff * t_new / time_steps for coeff in vector)
     expvsum = sum((vsum_with_t) ** k / math.factorial(k) for k in range(0, kmax+1))
 
     # Generate vector v_i = sqrt(alpha_i)/np.sqrt(1-norm) with zeros padded to create a vector of length 2**n
@@ -122,7 +122,7 @@ def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, L
     for k in range(kmax):
         qss.append(s.initializing_circuit())
         # Reindex to correct block of qubits for kth order of Taylor series
-        qss[-1].reindex_qubits(list(range(kmax + k * n_qubits, kmax + (k + 1) * n_qubits)))
+        qss[-1].reindex_qubits(list(range(kmax + k * n_qubits, kmax + (k+1) * n_qubits)))
         # Add control for the kth unary encoded qubits
         for gate in qss[-1]._gates:
             if gate.control is not None:
@@ -138,19 +138,47 @@ def Uprepkl(qu_op_in: QubitOperator, kmax: int, t_in: float) -> Tuple[Circuit, L
     # first qubit encodes extra identity term needed to ensure 1-norm = 2 such that
     # oblivious amplitude amplification is applicable
     kvec = np.zeros(2**(kmax + 1))
-    for k in range(0, kmax+1):
-        pos = int("0" + "0" * (kmax - k) + "1" * k, base=2)
-        kvec[pos] = (t / time_steps * vsum) ** k / math.factorial(k)
+    for k in range(kmax+1):
+        pos = int("0" + "0"*(kmax-k) + "1"*k, base=2)
+        kvec[pos] = (t_new / time_steps * vsum) ** k / math.factorial(k)
     kvec[0] += ((2 - expvsum) / 2)
     kvec[int("1" + "0" * kmax, base=2)] = ((2 - expvsum) / 2)
     kvec = np.sqrt(kvec) / np.sqrt(np.sum(kvec))
     ksv = StateVector(kvec, order="msq_first")
     kprep = ksv.initializing_circuit()
+    kprep = get_unary_prep(kvec, kmax)
 
     # shift encoding of extra identity term to last qubit
     kprep.reindex_qubits(list(range(kmax)) + [kmax + kmax * n_qubits])
 
     return kprep + qstot, unitaries, time_steps
+
+
+def get_unary_prep(kvec, kmax):
+    """Generate the prep circuit for the unary+ancilla part of the encoding. More efficient than using StateVector
+
+    Args:
+        kvec (array): Array representing the coefficients needed to generate
+        kmax (int): The Taylor series order
+
+    Returns:
+        Circuit : The unary encoding prep circuit
+    """
+
+    # Generate ancilla value and apply "X" so control is on other portion
+    val = kvec[int("1" + kmax*"0", base=2)]
+    gates = [Gate("RY", kmax, parameter=np.arcsin(val)*2), Gate("X", kmax)]
+
+    # Keep track of remaining value in constant c
+    c = np.cos(np.arcsin(val))
+    for i in range(0, kmax):
+        # Obtain new value to generate and rotate by np.arccos(val/c)
+        val = kvec[int("0" + "0"*(kmax-i) + "1"*i, base=2)]
+        gates += [Gate("CRY", i, control=[kmax]+list(range(i)), parameter=np.arccos(val/c)*2)]
+        c *= np.sin(np.arccos(val/c))
+    gates += [Gate("X", kmax)]
+
+    return Circuit(gates)
 
 
 def USelectkl(unitaries: List[QubitOperator], n_qubits_sv: int, kmax: int, control: Union[int, List[int]] = None) -> Circuit:
@@ -177,17 +205,17 @@ def USelectkl(unitaries: List[QubitOperator], n_qubits_sv: int, kmax: int, contr
     gate_list = []
     for k in range(1, kmax+1):
         q_start = n_qubits_sv + kmax + (k-1) * n_qubits_u
-        k_start = n_qubits_sv
-        k_control_qubits = [k_start + k - 1] + list(range(q_start, q_start + n_qubits_u)) + control_list
+        k_control_qubits = [n_qubits_sv + k - 1] + list(range(q_start, q_start + n_qubits_u)) + control_list
 
         for j, unitary in enumerate(unitaries):
             bs = bin(j).split('b')[-1]
             state_binstr = "0" * (n_qubits_u - len(bs)) + bs
             state_binstr = state_binstr[::-1]
 
-            gate_list += [Gate("X", q_start + q) for q, i in enumerate(state_binstr) if i == "0"]
+            x_ladder = [Gate("X", q_start + q) for q, i in enumerate(state_binstr) if i == "0"]
 
             # Add phase to controlled-unitary
+            gate_list += x_ladder
             for term, coeff in unitary.terms.items():
                 phasez = np.arctan2(-coeff.imag, coeff.real)
                 phasep = -phasez*2
@@ -196,11 +224,11 @@ def USelectkl(unitaries: List[QubitOperator], n_qubits_sv: int, kmax: int, contr
                 if abs(phasep) > 1.e-12 or not np.isclose(abs(phasep), np.pi*2):
                     gate_list.append(Gate("CPHASE", target=0, control=k_control_qubits, parameter=phasep))
                 gate_list += [Gate("C"+op, target=index, control=k_control_qubits) for index, op in term]
-            gate_list += [Gate("X", q_start + q) for q, i in enumerate(state_binstr) if i == "0"]
+            gate_list += x_ladder
 
     # Add -I term to ensure total sum equals 2 for oblivious amplitude amplification
-    k_control_qubits = [k_start+ki for ki in range(kmax)] + [n_qubits_sv + kmax + kmax*n_qubits_u] + control_list
-    x_ladder = [Gate("X", k_start + q) for q in range(kmax)]
+    k_control_qubits = [n_qubits_sv+ki for ki in range(kmax)] + [n_qubits_sv + kmax + kmax*n_qubits_u] + control_list
+    x_ladder = [Gate("X", n_qubits_sv + q) for q in range(kmax)]
     gate_list += x_ladder
     gate_list.append(Gate("CRZ", target=0, control=k_control_qubits, parameter=2*np.pi))
     gate_list += x_ladder
@@ -208,10 +236,10 @@ def USelectkl(unitaries: List[QubitOperator], n_qubits_sv: int, kmax: int, contr
     return Circuit(gate_list)
 
 
-def sign_flip(qubit_list: List[QubitOperator], control: Union[int, List[int]] = None) -> Circuit:
+def sign_flip(qubit_list: List[int], control: Union[int, List[int]] = None) -> Circuit:
     """Generate Circuit corresponding to the sign flip of the |0>^n vector for the given qubit_list
     Args:
-        qubit_list (list): The list of n qubits for which the 2*|0>^n-I operation is generated
+        qubit_list (list[int]): The list of n qubits for which the 2*|0>^n-I operation is generated
         control (int or list[int]): Control qubit or list of control qubits.
     Returns:
         Circuit: The circuit that generates the sign flip on |0>^n
@@ -223,7 +251,7 @@ def sign_flip(qubit_list: List[QubitOperator], control: Union[int, List[int]] = 
     gate_list = []
 
     x_ladder = [Gate("X", q) for q in qubit_list]
-    fcontrol_list += [q for q in qubit_list[:-1]]
+    fcontrol_list += qubit_list[:-1]
 
     gate_list += x_ladder
     gate_list.append(Gate('CZ', target=qubit_list[-1], control=fcontrol_list))
@@ -256,9 +284,9 @@ def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None)
     vsum = sum(vector)
 
     # Check that 1-norm is less than 2 and add and subtract terms proportional to the identity to obtain 1-norm equal to 2
-    if vsum > 2:
+    if vsum > 2 + 1.e-10:
         raise ValueError("Can not apply qu_op as its 1-norm is greater than 2")
-    vector += [(2 - vsum)/2, (2 - vsum)/2]
+    vector += [max((2 - vsum)/2, 0), max((2 - vsum)/2, 0)]
     unitaries += [QubitOperator(tuple(), 1), QubitOperator(tuple(), -1)]
 
     # create U_{prep} from sqrt of coefficients
