@@ -45,6 +45,7 @@ def get_vector(n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=No
             (Jiang Kalev Mruczkiewicz Neven)
         up_then_down (boolean): if True, all up, then all down, if False,
             alternating spin up/down.
+         spin (int): 2*S = n_alpha - n_beta.
 
     Returns:
         numpy array of int: binary integer array indicating occupation of each
