@@ -99,7 +99,7 @@ class Gate(dict):
         else:
             n_targets = len(target)
         if len(target) != n_targets:
-            raise ValueError(f"Gate {g.name}: expected {n_targets} target qubits, but got {target}")
+            raise ValueError(f"Gate {name}: expected {n_targets} target qubits, but got {target}")
 
         self.__dict__ = {"name": name, "target": target, "control": control,
                          "parameter": parameter, "is_variational": is_variational}
