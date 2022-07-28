@@ -97,10 +97,10 @@ class TestGates(unittest.TestCase):
     def test_too_many_qubits_on_gates(self):
         """ Test the behavior when too many qubits are selected for a gate. """
 
-        # Trying to create a Hadamard gate acting on qubits 0 and 1.
+        # Try to create a Hadamard gate acting on qubits 0 and 1.
         self.assertRaises(ValueError, Gate, "H", target=[0, 1])
 
-        # Trying to create a XX gate acting on qubits 0, 1 and 2.
+        # Try to create a XX gate acting on qubits 0, 1 and 2.
         self.assertRaises(ValueError, Gate, "XX", target=[0, 1, 2])
 
 

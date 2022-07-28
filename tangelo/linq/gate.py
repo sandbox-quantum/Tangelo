@@ -25,9 +25,9 @@ ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"}
 TWO_QUBIT_GATES = {"CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"}
 THREE_QUBIT_GATES = {"CSWAP"}
 
-ONE_QUBIT_TARGET_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE",
+ONE_TARGET_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE",
                           "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE"}
-TWO_QUBIT_TARGET_GATES = {"XX", "SWAP", "CSWAP"}
+TWO_TARGET_GATES = {"XX", "SWAP", "CSWAP"}
 
 PARAMETERIZED_GATES = {"RX", "RY", "RZ", "PHASE", "CRX", "CRY", "CRZ", "CPHASE", "XX"}
 INVERTIBLE_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "CH", "PHASE",
@@ -92,14 +92,14 @@ class Gate(dict):
         # Check for the number of qubits. If it is a custom gate (not defined in
         # the X_QUBIT_GATES sets), ignore the check. We also do not prevent
         # the creation of multi-controlled gates (begins with "C").
-        if name.upper() in ONE_QUBIT_TARGET_GATES:
-            n_qubits = 1
-        elif name.upper() in TWO_QUBIT_TARGET_GATES:
-            n_qubits = 2
+        if name.upper() in ONE_TARGET_GATES:
+            n_targets = 1
+        elif name.upper() in TWO_TARGET_GATES:
+            n_targets = 2
         else:
-            n_qubits = len(target)
-        if len(target) != n_qubits:
-            raise ValueError(f"There are too many target/control qubits for this gate.")
+            n_targets = len(target)
+        if len(target) != n_targets:
+            raise ValueError(f"Gate {g.name}: expected {n_targets} target qubits, but got {target}")
 
         self.__dict__ = {"name": name, "target": target, "control": control,
                          "parameter": parameter, "is_variational": is_variational}
