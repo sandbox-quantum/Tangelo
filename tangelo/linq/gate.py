@@ -26,7 +26,7 @@ TWO_QUBIT_GATES = {"CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX"
 THREE_QUBIT_GATES = {"CSWAP"}
 
 ONE_TARGET_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE",
-                          "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE"}
+                    "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE"}
 TWO_TARGET_GATES = {"XX", "SWAP", "CSWAP"}
 
 PARAMETERIZED_GATES = {"RX", "RY", "RZ", "PHASE", "CRX", "CRY", "CRZ", "CPHASE", "XX"}
