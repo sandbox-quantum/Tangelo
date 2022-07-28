@@ -137,15 +137,16 @@ def Uprepkl(qu_op: QubitOperator, kmax: int, t: float) -> Tuple[Circuit, List[Qu
     # Calculate coefficients for unary encoding k="0"+"0"*(kmax-k)*"1"*k where
     # first qubit encodes extra identity term needed to ensure 1-norm = 2 such that
     # oblivious amplitude amplification is applicable
-    kvec = np.zeros(2**(kmax + 1))
+    kvec = np.zeros(kmax + 2)
     for k in range(kmax+1):
-        pos = int("0" + "0"*(kmax-k) + "1"*k, base=2)
-        kvec[pos] = (t_new / time_steps * vsum) ** k / math.factorial(k)
+        # for position "0" + "0"*(kmax-k) + "1"*k
+        kvec[k] = (t_new / time_steps * vsum) ** k / math.factorial(k)
     kvec[0] += ((2 - expvsum) / 2)
-    kvec[int("1" + "0" * kmax, base=2)] = ((2 - expvsum) / 2)
+    # for position "1" + "0" * kmax
+    kvec[kmax+1] = ((2 - expvsum) / 2)
+
     kvec = np.sqrt(kvec) / np.sqrt(np.sum(kvec))
-    ksv = StateVector(kvec, order="msq_first")
-    kprep = ksv.initializing_circuit()
+
     kprep = get_unary_prep(kvec, kmax)
 
     # shift encoding of extra identity term to last qubit
@@ -154,11 +155,13 @@ def Uprepkl(qu_op: QubitOperator, kmax: int, t: float) -> Tuple[Circuit, List[Qu
     return kprep + qstot, unitaries, time_steps
 
 
-def get_unary_prep(kvec, kmax):
-    """Generate the prep circuit for the unary+ancilla part of the encoding. More efficient than using StateVector
+def get_unary_prep(kvec: np.ndarray, kmax: int) -> Circuit:
+    """Generate the prep circuit for the unary+ancilla part of the Taylor series encoding. This implementation
+    scales linearly with kmax whereas StateVector.initializing_circuit() scaled exponentially.
 
     Args:
-        kvec (array): Array representing the coefficients needed to generate
+        kvec (array): Array representing the coefficients needed to generate unary portion of encoding.
+            Length of array is kmax+2. order "00...000", "00...001", "00...011", ..., "01...111", "1000..."
         kmax (int): The Taylor series order
 
     Returns:
@@ -166,15 +169,17 @@ def get_unary_prep(kvec, kmax):
     """
 
     # Generate ancilla value and apply "X" so control is on other portion
-    val = kvec[int("1" + kmax*"0", base=2)]
+    # For "1" + kmax*"0"
+    val = kvec[kmax + 1]
     gates = [Gate("RY", kmax, parameter=np.arcsin(val)*2), Gate("X", kmax)]
 
     # Keep track of remaining value in constant c
     c = np.cos(np.arcsin(val))
     for i in range(0, kmax):
-        # Obtain new value to generate and rotate by np.arccos(val/c)
-        val = kvec[int("0" + "0"*(kmax-i) + "1"*i, base=2)]
-        gates += [Gate("CRY", i, control=[kmax]+list(range(i)), parameter=np.arccos(val/c)*2)]
+        # Obtain new value to generate and rotate by np.arccos(val/c) for "0" + "0"*(kmax-i) + "1"*i
+        val = kvec[i]
+        control = [kmax] + [i-1] if i > 0 else [kmax]
+        gates += [Gate("CRY", i, control=control, parameter=np.arccos(val/c)*2)]
         c *= np.sin(np.arccos(val/c))
     gates += [Gate("X", kmax)]
 
