@@ -76,8 +76,8 @@ def translate_qiskit(source_circuit, qubits_to_use=None, return_registers=False)
 
     GATE_QISKIT = get_qiskit_gates()
     num_virtual_qubits = len(source_circuit._qubit_indices) if qubits_to_use is not None else source_circuit.width
-    q = qiskit.QuantumRegister(num_virtual_qubits)
-    c = qiskit.ClassicalRegister(num_virtual_qubits)
+    q = qiskit.QuantumRegister(num_virtual_qubits, name="q")
+    c = qiskit.ClassicalRegister(num_virtual_qubits, name="c")
     target_circuit = qiskit.QuantumCircuit(q, c)
 
     # Maps the gate information properly. Different for each backend (order, values)

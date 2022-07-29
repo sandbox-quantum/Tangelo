@@ -270,7 +270,7 @@ class Simulator:
             backend = AerSimulator.from_backend(device_backend)
 
             if meas_mitt:
-                meas_calibs, state_labels= complete_meas_cal(qr=q, circlabel='mcal')
+                meas_calibs, state_labels = complete_meas_cal(qr=q, circlabel='mcal')
                 t_qc = qiskit.transpile(meas_calibs, backend, initial_layout=virtual_to_physical)
                 qobj = qiskit.assemble(t_qc, shots=10000)
                 cal_results = backend.run(qobj, shots=10000).result()
