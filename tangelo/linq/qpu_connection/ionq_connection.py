@@ -9,6 +9,7 @@
 import os
 import json
 import time
+from datetime import datetime
 import pprint
 import pandas as pd
 import requests as rq
@@ -51,12 +52,77 @@ class IonQConnection(QpuConnection):
             raise RuntimeError(f"Error returned by IonQ API :\n{return_dict['error']}")
 
     def _get_job_dataframe(self, job_history):
-        """ Display main job info as pandas dataframe. Takes REST request answer as input """
+        """ Display main job info as pandas dataframe. Takes REST request answer as input
+
+        Args:
+            job_history (dict): job history REST output
+
+        Returns:
+            pandas.Dataframe: relevant info in dataframe format.
+        """
 
         jl = job_history['jobs']
         jl_info = [(j['id'], j['status'], j['target']) for j in jl]
         jobs_df = pd.DataFrame(jl_info, columns=['id', 'status', 'target'])
         return jobs_df
+
+    def _get_backend_dataframe(self, backend_info):
+        """ Display backend info as pandas dataframe. Takes REST request answer as input
+        
+        Args:
+            backend_info (dict): backend info REST output
+
+        Returns:
+            pandas.Dataframe: relevant info in dataframe format.
+        """
+
+        b_info = [(b['backend'], b['qubits'], b['status'],
+                   datetime.utcfromtimestamp(b['last_updated']).strftime('%Y-%m-%d %H:%M:%S'),
+                   b['average_queue_time'] // 10**6,
+                   b.get('characterization_url', None))
+                  for b in backend_info]
+
+        df = pd.DataFrame(b_info, columns=['backend', 'qubits', 'status',
+                                           'last updated', 'average queue time',
+                                           'characterization_url'])
+        return df
+
+    def get_characterization(self, backend_name=None, charac_url=None):
+        """ Retrieve characterization of a target device, either using the IonQ backend string,
+        or an already-retrieved characterization url. The result contains information about
+        number of qubits, fidelity of gates, t1, t2 and other specs, connectivity...
+
+        Args:
+            backend_name (str): string identifier for the IonQ backend
+            charac_url (str): characterization url previously retrieved from IonQ API
+
+        Returns:
+            dict : a dictionary containing various information about the device
+        """
+
+        if bool(backend_name) == bool(charac_url):
+            raise ValueError("Exactly one of these arguments need to be provided: backend_name, charac_url")
+        if backend_name:
+            endpoint = f"{self.endpoint}/characterizations/backends/{backend_name}/current"
+        elif charac_url:
+            endpoint = f"{self.endpoint}{charac_url}"
+
+        job_request = rq.get(endpoint, headers=self.header)
+        return_dict = json.loads(job_request.text)
+        self._catch_request_error(return_dict)
+
+        res = {'qubits': return_dict['qubits'], 'fidelity': return_dict['fidelity'],
+               'timing': return_dict['timing'], 'connectivity': return_dict['connectivity']}
+        return res
+
+    def get_backend_info(self):
+        """ Retrieve all the information available about the backends """
+
+        job_request = rq.get(self.endpoint + '/backends', headers=self.header)
+        return_dict = json.loads(job_request.text)
+
+        self._catch_request_error(return_dict)
+        return self._get_backend_dataframe(return_dict)
 
     def job_submit(self, target_backend, ionq_circuit, n_shots, job_name, **job_specs):
         """ Submit job, return job ID.
@@ -70,7 +136,7 @@ class IonQConnection(QpuConnection):
             **job_specs: extra arguments such as `lang` in the code below; `metadata` is not currently supported.
 
         Returns:
-            job_id (str): string representing the job id
+            str: string representing the job id
         """
 
         payload = {"target": target_backend,
@@ -94,7 +160,7 @@ class IonQConnection(QpuConnection):
             job_id (str): alphanumeric character string representing the job id
 
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API
         """
 
         job_history = rq.get(self.endpoint + '/jobs', headers=self.header)
@@ -110,7 +176,7 @@ class IonQConnection(QpuConnection):
             job_id (str): string representing the job id
 
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API
         """
 
         job_status = rq.get(self.endpoint + "/jobs/" + job_id, headers=self.header)
@@ -126,7 +192,7 @@ class IonQConnection(QpuConnection):
             job_id (str): string representing the job id
 
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API
         """
 
         while True:
@@ -145,7 +211,7 @@ class IonQConnection(QpuConnection):
             job_id (str): string representing the job id
 
         Returns:
-            job_status (dict): status response from the REST API
+            dict: status response from the REST API
         """
         job_cancel = rq.delete(self.endpoint+"/jobs/"+job_id, headers=self.header)
         job_cancel = json.loads(job_cancel.text)

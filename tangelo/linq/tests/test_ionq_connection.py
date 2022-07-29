@@ -6,7 +6,6 @@
 import unittest
 import os
 import pprint
-import time
 
 from tangelo.linq import Gate, Circuit, translator
 from tangelo.linq.qpu_connection import IonQConnection
@@ -64,9 +63,32 @@ class TestIonQConnection(unittest.TestCase):
         job_id = ionq_api.job_submit('simulator', json_circ1, 1000, 'test_simulator_json_job')
         job_history_df_before = ionq_api.job_get_history()
         assert(job_id in job_history_df_before.id.values)
+        print(job_history_df_before)
         ionq_api.job_cancel(job_id)
         job_history_df_after = ionq_api.job_get_history()
         assert(job_id not in job_history_df_after.id.values)
+
+    def test_get_backend_info(self):
+        """ Retrieve backend info """
+        ionq_api = IonQConnection()
+
+        res = ionq_api.get_backend_info()
+        pprint.pprint(res)
+
+    def test_get_characterization(self):
+        """ Get device characterization through name or charac url """
+        ionq_api = IonQConnection()
+        backend = 'qpu.s11' # Pick something that has a charac url for this test to be useful
+
+        res = ionq_api.get_backend_info()
+        pprint.pprint(res)
+
+        # Retrieve charac info from backend name
+        d1 = ionq_api.get_characterization(backend_name=backend)
+
+        # retrieve charac info from charac url
+        charac_url = res[res['backend'] == backend]['characterization_url'].iat[0]
+        d2 = ionq_api.get_characterization(charac_url=charac_url)
 
 
 if __name__ == "__main__":
