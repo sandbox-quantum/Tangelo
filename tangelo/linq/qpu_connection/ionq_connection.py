@@ -14,6 +14,7 @@ import pprint
 import pandas as pd
 import requests as rq
 
+from tangelo.linq.translator import translate_json_ionq
 from tangelo.linq.qpu_connection.qpu_connection import QpuConnection
 
 
@@ -124,13 +125,13 @@ class IonQConnection(QpuConnection):
         self._catch_request_error(return_dict)
         return self._get_backend_dataframe(return_dict)
 
-    def job_submit(self, target_backend, ionq_circuit, n_shots, job_name, **job_specs):
+    def job_submit(self, target_backend, abs_circuit, n_shots, job_name, **job_specs):
         """ Submit job, return job ID.
 
         Args:
             target_backend (str): name of target device. See IonQ documentation for possible values.
                 Current acceptable values are 'simulator' and 'qpu'
-            ionq_circuit (str): Circuit in a compatible format (json format recommended)
+            abs_circuit (Circuit): Circuit in Tangelo format
             n_shots (int): number of shots (ignored if target_backend is set to `simulator`
             job_name (str): name to make the job more identifiable
             **job_specs: extra arguments such as `lang` in the code below; `metadata` is not currently supported.
@@ -138,6 +139,9 @@ class IonQConnection(QpuConnection):
         Returns:
             str: string representing the job id
         """
+
+        # Convert abstract circuit into IonQ JSON format
+        ionq_circuit = translate_json_ionq(abs_circuit)
 
         payload = {"target": target_backend,
                    "name": job_name,
@@ -198,7 +202,12 @@ class IonQConnection(QpuConnection):
         while True:
             job_status = self.job_status(job_id)
             if job_status['status'] == 'completed' and 'data' in job_status:
-                return job_status['data']
+                hist = job_status['data']['histogram']
+                h = dict()
+                for k, v in hist.items():
+                    bs = bin(int(k)).split('b')[-1]
+                    h[("0"*(job_status['qubits']-len(bs)) + bs)[::-1]] = v
+                return h
             elif job_status['status'] in {'ready', 'running', 'submitted'}:
                 time.sleep(5)
             else:

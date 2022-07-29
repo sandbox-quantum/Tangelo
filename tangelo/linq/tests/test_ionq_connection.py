@@ -7,12 +7,11 @@ import unittest
 import os
 import pprint
 
-from tangelo.linq import Gate, Circuit, translator
+from tangelo.linq import Gate, Circuit
 from tangelo.linq.qpu_connection import IonQConnection
 
-circ1 = Circuit([Gate("H", 0), Gate("CNOT", target=1, control=0)])
-json_circ1 = translator.translate_json_ionq(circ1)
-res_simulator_circ1 = {'histogram': {'0': 0.5, '3': 0.5}}
+circ1 = Circuit([Gate("H", 0), Gate("X", 1)])
+res_simulator_circ1 = {'01': 0.5, '11': 0.5}
 
 
 def assert_freq_dict_almost_equal(d1, d2, atol):
@@ -49,18 +48,18 @@ class TestIonQConnection(unittest.TestCase):
 
         ionq_api = IonQConnection()
 
-        job_id = ionq_api.job_submit('simulator', json_circ1, 100, 'test_simulator_json_job')
+        job_id = ionq_api.job_submit('simulator', circ1, 100, 'test_simulator_submit')
         job_results = ionq_api.job_results(job_id)
         pprint.pprint(job_results)
 
-        assert_freq_dict_almost_equal(job_results['histogram'], res_simulator_circ1['histogram'], 1e-7)
+        assert_freq_dict_almost_equal(job_results, res_simulator_circ1, 1e-7)
 
     def test_delete_job(self):
         """ Submit a job and then cancel/delete it, regardless of its status. Check job history before and after. """
 
         ionq_api = IonQConnection()
 
-        job_id = ionq_api.job_submit('simulator', json_circ1, 1000, 'test_simulator_json_job')
+        job_id = ionq_api.job_submit('simulator', circ1, 1000, 'test_simulator_cancel')
         job_history_df_before = ionq_api.job_get_history()
         assert(job_id in job_history_df_before.id.values)
         print(job_history_df_before)
