@@ -69,7 +69,7 @@ class IonQConnection(QpuConnection):
 
     def _get_backend_dataframe(self, backend_info):
         """ Display backend info as pandas dataframe. Takes REST request answer as input
-        
+
         Args:
             backend_info (dict): backend info REST output
 
