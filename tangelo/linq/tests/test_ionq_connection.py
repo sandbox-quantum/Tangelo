@@ -1,5 +1,5 @@
 """
-    A test class to check that features related to the Honeywell API are behaving as expected.
+    A test class to check that features related to the IonQ API are behaving as expected.
     Tests requiring actual interactions with the services have been skipped.
 """
 
@@ -77,7 +77,7 @@ class TestIonQConnection(unittest.TestCase):
     def test_get_characterization(self):
         """ Get device characterization through name or charac url """
         ionq_api = IonQConnection()
-        backend = 'qpu.s11' # Pick something that has a charac url for this test to be useful
+        backend = 'qpu.s11'  # Pick something that has a charac url for this test to be useful
 
         res = ionq_api.get_backend_info()
         pprint.pprint(res)
@@ -85,7 +85,7 @@ class TestIonQConnection(unittest.TestCase):
         # Retrieve charac info from backend name
         d1 = ionq_api.get_characterization(backend_name=backend)
 
-        # retrieve charac info from charac url
+        # Retrieve charac info from charac url
         charac_url = res[res['backend'] == backend]['characterization_url'].iat[0]
         d2 = ionq_api.get_characterization(charac_url=charac_url)
 
