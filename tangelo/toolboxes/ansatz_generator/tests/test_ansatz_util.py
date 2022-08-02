@@ -250,7 +250,7 @@ class ansatz_utils_Test(unittest.TestCase):
             trace_freq[key[-4:]] = trace_freq.get(key[-4:], 0) + value
 
         # State 9 has eigenvalue 0.25 so return should be 0100 (0*1/2 + 1*1/4 + 0*1/8 + 0*1/16)
-        self.assertAlmostEqual(trace_freq["0100"], 1.0, delta=2)
+        self.assertAlmostEqual(trace_freq["0100"], 1.0, delta=0.01)
 
     def test_controlled_swap(self):
         cswap_circuits = [Circuit([Gate("CSWAP", target=[1, 2], control=0)]),
