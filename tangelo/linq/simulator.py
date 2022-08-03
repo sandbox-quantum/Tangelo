@@ -45,19 +45,15 @@ from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_ga
 
 class SimulatorBase(abc.ABC):
 
-    def __init__(self, target=default_simulator, n_shots=None, noise_model=None, backend_inform=None):
+    def __init__(self, n_shots=None, noise_model=None, backend_info=None):
         """Instantiate Simulator object.
 
         Args:
-            target (str): One of the available target backends (quantum or
-                classical). The default simulator is qulacs if found in user's
-                environment, otherwise cirq.
             n_shots (int): Number of shots if using a shot-based simulator.
             noise_model: A noise model object assumed to be in the format
                 expected from the target backend.
         """
         self._source = "abstract"
-        self._target = target if target else default_simulator
         self._current_state = None
         self._noise_model = noise_model
 
@@ -66,12 +62,8 @@ class SimulatorBase(abc.ABC):
         self.freq_threshold = 1e-10
 
         # Set additional attributes related to the target backend chosen by the user
-        if isinstance(self._target, str):
-            for k, v in backend_info[self._target].items():
-                setattr(self, k, v)
-        else:
-            for k, v in backend_inform.items():
-                setattr(self, k, v)
+        for k, v in backend_info.items():
+            setattr(self, k, v)
 
         # Raise error if user attempts to pass a noise model to a backend not supporting noisy simulation
         if self._noise_model and not self.noisy_simulation:
@@ -174,7 +166,7 @@ class SimulatorBase(abc.ABC):
         """
         # Check if simulator supports statevector
         if initial_statevector is not None and not self.statevector_available:
-            raise ValueError(f'Statevector not supported in {self._target}')
+            raise ValueError(f'Statevector not supported in {self.__class__}')
 
         # Check that qubit operator does not operate on qubits beyond circuit size.
         # Keep track if coefficients are real or not
@@ -275,7 +267,7 @@ class SimulatorBase(abc.ABC):
         if not self.statevector_available or state_prep_circuit.is_mixed_state or self._noise_model:
             initial_circuit = state_prep_circuit
             if initial_statevector is not None and not self.statevector_available:
-                raise ValueError(f'Backend {self._target} does not support statevectors')
+                raise ValueError(f'Backend {self.__class__} does not support statevectors')
             else:
                 updated_statevector = initial_statevector
         else:
