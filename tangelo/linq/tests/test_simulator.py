@@ -179,7 +179,6 @@ class TestSimulateStatevector(unittest.TestCase):
 
     def test_get_exp_value_from_statevector(self):
         """ Compute the expectation value from the statevector for each statevector backend """
-
         for b in installed_sv_simulator:
             simulator = Simulator(target=b)
             exp_values = np.zeros((len(circuits), len(ops)), dtype=float)

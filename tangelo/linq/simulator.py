@@ -29,7 +29,7 @@ Some backends may only support a subset of the above. This information is
 contained in a separate data-structure.
 """
 
-import os
+import abc
 import math
 from collections import Counter
 
@@ -41,20 +41,11 @@ from openfermion.ops import QubitOperator
 from tangelo.helpers.utils import default_simulator
 from tangelo.linq import Gate, Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
-import tangelo.linq.translator as translator
 
 
-# Data-structure showing what functionalities are supported by the backend, in this package
-backend_info = dict()
-backend_info["qiskit"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
-backend_info["qulacs"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
-backend_info["cirq"] = {"statevector_available": True, "statevector_order": "lsq_first", "noisy_simulation": True}
-backend_info["qdk"] = {"statevector_available": False, "statevector_order": None, "noisy_simulation": False}
+class SimulatorBase(abc.ABC):
 
-
-class Simulator:
-
-    def __init__(self, target=default_simulator, n_shots=None, noise_model=None):
+    def __init__(self, target=default_simulator, n_shots=None, noise_model=None, backend_inform=None):
         """Instantiate Simulator object.
 
         Args:
@@ -75,8 +66,12 @@ class Simulator:
         self.freq_threshold = 1e-10
 
         # Set additional attributes related to the target backend chosen by the user
-        for k, v in backend_info[self._target].items():
-            setattr(self, k, v)
+        if isinstance(self._target, str):
+            for k, v in backend_info[self._target].items():
+                setattr(self, k, v)
+        else:
+            for k, v in backend_inform.items():
+                setattr(self, k, v)
 
         # Raise error if user attempts to pass a noise model to a backend not supporting noisy simulation
         if self._noise_model and not self.noisy_simulation:
@@ -85,6 +80,32 @@ class Simulator:
         # Raise error if the number of shots has not been passed for a noisy simulation or if statevector unavailable
         if not self.n_shots and (not self.statevector_available or self._noise_model):
             raise ValueError("A number of shots needs to be specified.")
+
+    @abc.abstractmethod
+    def simulate_circuit(self):
+        """Perform state preparation corresponding to the input circuit on the
+        target backend, return the frequencies of the different observables, and
+        either the statevector or None depending on the availability of the
+        statevector and if return_statevector is set to True. For the
+        statevector backends supporting it, an initial statevector can be
+        provided to initialize the quantum state without simulating all the
+        equivalent gates.
+
+        Args:
+            source_circuit: a circuit in the abstract format to be translated
+                for the target backend.
+            return_statevector(bool): option to return the statevector as well,
+                if available.
+            initial_statevector(list/array) : A valid statevector in the format
+                supported by the target backend.
+
+        Returns:
+            dict: A dictionary mapping multi-qubit states to their corresponding
+                frequency.
+            numpy.array: The statevector, if available for the target backend
+                and requested by the user (if not, set to None).
+        """
+        pass
 
     def simulate(self, source_circuit, return_statevector=False, initial_statevector=None):
         """Perform state preparation corresponding to the input circuit on the
@@ -129,140 +150,7 @@ class Simulator:
                 statevector[0] = 1.0
             return (frequencies, statevector) if return_statevector else (frequencies, None)
 
-        if self._target == "qulacs":
-            import qulacs
-
-            translated_circuit = translator.translate_qulacs(source_circuit, self._noise_model)
-
-            # Initialize state on GPU if available and desired. Default to CPU otherwise.
-            if ('QuantumStateGpu' in dir(qulacs)) and (int(os.getenv("QULACS_USE_GPU", 0)) != 0):
-                state = qulacs.QuantumStateGpu(source_circuit.width)
-            else:
-                state = qulacs.QuantumState(source_circuit.width)
-            if initial_statevector is not None:
-                state.load(initial_statevector)
-
-            if (source_circuit.is_mixed_state or self._noise_model):
-                samples = list()
-                for i in range(self.n_shots):
-                    translated_circuit.update_quantum_state(state)
-                    samples.append(state.sampling(1)[0])
-                    if initial_statevector is not None:
-                        state.load(initial_statevector)
-                    else:
-                        state.set_zero_state()
-                python_statevector = None
-            elif self.n_shots is not None:
-                translated_circuit.update_quantum_state(state)
-                python_statevector = np.array(state.get_vector()) if return_statevector else None
-                samples = state.sampling(self.n_shots)
-            else:
-                translated_circuit.update_quantum_state(state)
-                self._current_state = state
-                python_statevector = state.get_vector()
-                frequencies = self._statevector_to_frequencies(python_statevector)
-                return (frequencies, np.array(python_statevector)) if return_statevector else (frequencies, None)
-
-            frequencies = {self.__int_to_binstr(k, source_circuit.width): v / self.n_shots
-                           for k, v in Counter(samples).items()}
-            return (frequencies, python_statevector)
-
-        elif self._target == "qiskit":
-            import qiskit
-
-            translated_circuit = translator.translate_qiskit(source_circuit)
-
-            # If requested, set initial state
-            if initial_statevector is not None:
-                if self._noise_model:
-                    raise ValueError("Cannot load an initial state if using a noise model, with Qiskit")
-                else:
-                    n_qubits = int(math.log2(len(initial_statevector)))
-                    initial_state_circuit = qiskit.QuantumCircuit(n_qubits, n_qubits)
-                    initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
-                    translated_circuit = initial_state_circuit.compose(translated_circuit)
-
-            # Drawing individual shots with the qasm simulator, for noisy simulation or simulating mixed states
-            if self._noise_model or source_circuit.is_mixed_state:
-                from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
-
-                meas_range = range(source_circuit.width)
-                translated_circuit.measure(meas_range, meas_range)
-                return_statevector = False
-                backend = qiskit.Aer.get_backend("aer_simulator")
-
-                qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
-                opt_level = 0 if self._noise_model else None
-
-                job_sim = qiskit.execute(translated_circuit, backend, noise_model=qiskit_noise_model,
-                                         shots=self.n_shots, basis_gates=None, optimization_level=opt_level)
-                sim_results = job_sim.result()
-                frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
-
-            # Noiseless simulation using the statevector simulator otherwise
-            else:
-                backend = qiskit.Aer.get_backend("aer_simulator", method='statevector')
-                translated_circuit = qiskit.transpile(translated_circuit, backend)
-                translated_circuit.save_statevector()
-                sim_results = backend.run(translated_circuit).result()
-                self._current_state = sim_results.get_statevector(translated_circuit)
-                frequencies = self._statevector_to_frequencies(self._current_state)
-
-            return (frequencies, np.array(sim_results.get_statevector())) if return_statevector else (frequencies, None)
-
-        elif self._target == "qdk":
-
-            translated_circuit = translator.translate_qsharp(source_circuit)
-            with open('tmp_circuit.qs', 'w+') as f_out:
-                f_out.write(translated_circuit)
-
-            # Compile, import and call Q# operation to compute frequencies. Only import qsharp module if qdk is running
-            # TODO: A try block to catch an exception at compile time, for Q#? Probably as an ImportError.
-            import qsharp
-            qsharp.reload()
-            from MyNamespace import EstimateFrequencies
-            frequencies_list = EstimateFrequencies.simulate(nQubits=source_circuit.width, nShots=self.n_shots)
-            print("Q# frequency estimation with {0} shots: \n {1}".format(self.n_shots, frequencies_list))
-
-            # Convert Q# output to frequency dictionary, apply threshold
-            frequencies = {bin(i).split('b')[-1]: frequencies_list[i] for i, freq in enumerate(frequencies_list)}
-            frequencies = {("0"*(source_circuit.width-len(k))+k)[::-1]: v for k, v in frequencies.items()
-                           if v > self.freq_threshold}
-            return (frequencies, None)
-
-        elif self._target == "cirq":
-            import cirq
-
-            translated_circuit = translator.translate_cirq(source_circuit, self._noise_model)
-
-            if source_circuit.is_mixed_state or self._noise_model:
-                # Only DensityMatrixSimulator handles noise well, can use Simulator but it is slower
-                cirq_simulator = cirq.DensityMatrixSimulator(dtype=np.complex128)
-            else:
-                cirq_simulator = cirq.Simulator(dtype=np.complex128)
-
-            # If requested, set initial state
-            cirq_initial_statevector = initial_statevector if initial_statevector is not None else 0
-
-            # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
-            if self._noise_model or source_circuit.is_mixed_state:
-                # cirq.dephase_measurements changes measurement gates to Krauss operators so simulators
-                # can be called once and density matrix sampled repeatedly.
-                translated_circuit = cirq.dephase_measurements(translated_circuit)
-                sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
-                self._current_state = sim.final_density_matrix
-                indices = list(range(source_circuit.width))
-                isamples = cirq.sample_density_matrix(sim.final_density_matrix, indices, repetitions=self.n_shots)
-                samples = [''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots)]
-
-                frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
-            # Noiseless simulation using the statevector simulator otherwise
-            else:
-                job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
-                self._current_state = job_sim.final_state_vector
-                frequencies = self._statevector_to_frequencies(self._current_state)
-
-            return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
+        return self.simulate_circuit(source_circuit, return_statevector=return_statevector, initial_statevector=initial_statevector)
 
     def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None):
         r"""Take as input a qubit operator H and a quantum circuit preparing a
@@ -337,36 +225,8 @@ class Simulator:
         expectation_value = 0.
         prepared_frequencies, prepared_state = self.simulate(state_prep_circuit, return_statevector=True, initial_statevector=initial_statevector)
 
-        # Use fast built-in qulacs expectation value function if possible
-        if self._target == "qulacs" and not self.n_shots:
-            import qulacs
-
-            # Note: This section previously used qulacs.quantum_operator.create_quantum_operator_from_openfermion_text but was changed
-            # due to a memory leak. We can re-evaluate the implementation if/when Issue #303 (https://github.com/qulacs/qulacs/issues/303)
-            # is fixed.
-            operator = qulacs.Observable(n_qubits)
-            for term, coef in qubit_operator.terms.items():
-                pauli_string = "".join(f" {op} {qu}" for qu, op in term)
-                operator.add_operator(coef, pauli_string)
-            return operator.get_expectation_value(self._current_state).real
-
-        # Use cirq built-in expectation_from_state_vector/epectation_from_density_matrix
-        # noise model would require
-        if self._target == "cirq" and not self.n_shots:
-            import cirq
-
-            GATE_CIRQ = translator.get_cirq_gates()
-            qubit_labels = cirq.LineQubit.range(n_qubits)
-            qubit_map = {q: i for i, q in enumerate(qubit_labels)}
-            paulisum = 0.*cirq.PauliString(cirq.I(qubit_labels[0]))
-            for term, coef in qubit_operator.terms.items():
-                pauli_list = [GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
-                paulisum += cirq.PauliString(pauli_list, coefficient=coef)
-            if self._noise_model:
-                exp_value = paulisum.expectation_from_density_matrix(prepared_state, qubit_map)
-            else:
-                exp_value = paulisum.expectation_from_state_vector(prepared_state, qubit_map)
-            return np.real(exp_value)
+        if hasattr(self, "expectation_value_from_prepared_state"):
+            return self.expectation_value_from_prepared_state(qubit_operator, n_qubits, prepared_state)
 
         # Otherwise, use generic statevector expectation value
         for term, coef in qubit_operator.terms.items():
@@ -498,7 +358,7 @@ class Simulator:
         for i, amplitude in enumerate(statevector):
             frequency = abs(amplitude)**2
             if (frequency - self.freq_threshold) >= 0.:
-                frequencies[self.__int_to_binstr(i, n_qubits)] = frequency
+                frequencies[self._int_to_binstr(i, n_qubits)] = frequency
 
         # If n_shots, has been specified, then draw that amount of samples from the distribution
         # and return empirical frequencies instead. Otherwise, return the exact frequencies
@@ -520,10 +380,10 @@ class Simulator:
                 this_chunk = self.n_shots % chunk_size if i == n_chunks else chunk_size
                 samples = distr.rvs(size=this_chunk)
                 freqs_shots += Counter(samples)
-            freqs_shots = {self.__int_to_binstr_lsq(k, n_qubits): v / self.n_shots for k, v in freqs_shots.items()}
+            freqs_shots = {self._int_to_binstr_lsq(k, n_qubits): v / self.n_shots for k, v in freqs_shots.items()}
             return freqs_shots
 
-    def __int_to_binstr(self, i, n_qubits):
+    def _int_to_binstr(self, i, n_qubits):
         """Convert an integer into a bit string of size n_qubits, in the order
         specified for the state vector.
         """
@@ -531,10 +391,28 @@ class Simulator:
         state_binstr = "0" * (n_qubits - len(bs)) + bs
         return state_binstr[::-1] if (self.statevector_order == "msq_first") else state_binstr
 
-    def __int_to_binstr_lsq(self, i, n_qubits):
+    def _int_to_binstr_lsq(self, i, n_qubits):
         """Convert an integer into a bit string of size n_qubits, in the
         least-significant qubit order.
         """
         bs = bin(i).split('b')[-1]
         state_binstr = "0" * (n_qubits - len(bs)) + bs
         return state_binstr[::-1]
+
+
+class Simulator(SimulatorBase):
+
+    def __init__(self, target=default_simulator, n_shots=None, noise_model=None):
+        self._target = target if target else default_simulator
+        if isinstance(self._target, str):
+            from tangelo.linq.target import Cirq, Qulacs, Qiskit, QDK
+            target_dict = {"qiskit": Qiskit, "cirq": Cirq, "qdk": QDK, "qulacs": Qulacs}
+            new_obj = target_dict[self._target](n_shots=n_shots, noise_model=noise_model)
+            self.__class__ = target_dict[self._target]
+        else:
+            new_obj = target(n_shots=n_shots, noise_model=noise_model)
+            self.__class__ = target
+        self.__dict__.update(new_obj.__dict__)
+
+    def simulate_circuit():
+        pass

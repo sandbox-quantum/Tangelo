@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .gate import *
-from .circuit import Circuit, stack, remove_small_rotations, remove_redundant_gates
-from .translator import *
-from .simulator import Simulator
+from .target_cirq import Cirq
+from .target_qiskit import Qiskit
+from .target_qulacs import Qulacs
+from .target_qdk import QDK
