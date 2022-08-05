@@ -6,7 +6,8 @@ import subprocess
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-version = '0.3.1'
+with open("tangelo/_version.py") as f:
+    version = f.readlines()[-1].split()[-1].strip("\"'")
 
 with open('README.rst', 'r') as f:
     long_description = f.read()
