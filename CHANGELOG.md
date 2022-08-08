@@ -2,6 +2,7 @@
 
 This file documents the main changes between versions of the code.
 
+
 ## [0.3.2] - 2022-08-06
 
 ### Added
@@ -24,8 +25,6 @@ This file documents the main changes between versions of the code.
 - Documentation, README
 
 ### Deprecated
-
-
 
 ## [0.3.1] - 2022-06-15
 
