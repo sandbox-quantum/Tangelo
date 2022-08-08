@@ -78,12 +78,12 @@ class ADAPTSolver:
                            "tol": 1e-3, "max_cycles": 15,
                            "pool": uccgsd_pool,
                            "pool_args": None,
-                           "frozen_orbitals": "frozen_core",
                            "qubit_mapping": "jw",
                            "qubit_hamiltonian": None,
                            "up_then_down": False,
                            "n_spinorbitals": None,
                            "n_electrons": None,
+                           "spin": None,
                            "optimizer": self.LBFGSB_optimizer,
                            "backend_options": default_backend_options,
                            "verbose": False,
@@ -105,10 +105,6 @@ class ADAPTSolver:
         # must be provided to avoid conflicts.
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
-
-        if self.qubit_hamiltonian:
-            if not (self.n_spinorbitals and self.n_electrons):
-                raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals) and the number of electrons (n_electrons) with a qubit_hamiltonian.")
 
         self.ansatz = None
         self.converged = False
@@ -148,14 +144,12 @@ class ADAPTSolver:
             self.spin = self.molecule.spin
 
             # Compute qubit hamiltonian for the input molecular system
-            qubit_op = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
-                                                mapping=self.qubit_mapping,
-                                                n_spinorbitals=self.n_spinorbitals,
-                                                n_electrons=self.n_electrons,
-                                                up_then_down=self.up_then_down,
-                                                spin=self.spin)
-
-            self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
+            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
+                                                              mapping=self.qubit_mapping,
+                                                              n_spinorbitals=self.n_spinorbitals,
+                                                              n_electrons=self.n_electrons,
+                                                              up_then_down=self.up_then_down,
+                                                              spin=self.spin)
 
         # Build / set ansatz circuit.
         ansatz_options = {"mapping": self.qubit_mapping, "up_then_down": self.up_then_down,
@@ -189,6 +183,13 @@ class ADAPTSolver:
 
         # Check if pool function returns a QubitOperator or FermionOperator and populate variables
         pool_list = self.pool(**self.pool_args)
+
+        # Only a qubit operator is provided with a FermionOperator pool.
+        if not (self.n_spinorbitals and self.n_electrons and self.spin is not None):
+            raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals), "
+                "the number of electrons (n_electrons) and the spin (spin) with "
+                "a qubit_hamiltonian when working with a pool of fermion operators.")
+
         if isinstance(pool_list[0], QubitOperator):
             self.pool_type = 'qubit'
             self.pool_operators = pool_list
@@ -211,7 +212,7 @@ class ADAPTSolver:
 
         # Getting commutators to compute gradients:
         # \frac{\partial E}{\partial \theta_n} = \langle \psi | [\hat{H}, A_n] | \psi \rangle
-        self.pool_commutators = [commutator(self.qubit_hamiltonian.to_qubitoperator(), element) for element in self.pool_operators]
+        self.pool_commutators = [commutator(self.qubit_hamiltonian, element) for element in self.pool_operators]
 
     def simulate(self):
         """Performs the ADAPT cycles. Each iteration, a VQE minimization is

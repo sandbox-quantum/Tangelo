@@ -22,8 +22,8 @@ Welcome !
 
 Tangelo is an open-source and free Python package maintained by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of end-to-end material simulation workflows on quantum computers.
 
-Tackling chemical systems with quantum computing is not easy. Leveraging pre- and post-processing techniques as well as insights from classical calculations remain necessary, in order to make a
-non-trivial use cases computationally tractable and develop efficient approaches returning accurate results on simulators or quantum devices.
+Tackling chemical systems with quantum computing is not easy. Leveraging pre- and post-processing techniques as well as insights from classical calculations remain necessary, in order to make
+non-trivial use cases computationally tractable, and develop efficient approaches returning accurate results on simulators or quantum devices.
 Assembling the different building blocks to form and explore workflows that meet these constraints is where Tangelo strives to be of
 help.
 
@@ -33,12 +33,11 @@ help.
    :width: 700
    :alt: tangelo_workflow
 
-This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support the development of and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
+This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support the development of new approaches and the design of successful experiments on quantum devices. Tangelo is backend-agnostic,
 so that users can write code once and experiment with current and future platforms with minimal changes.
 
-Tangelo was used to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
-published in scientific journals,
-co-authored by professionals from the chemical industry and quantum hardware manufacturers.
+Tangelo is capable to perform quantum experiments that led to `peer-reviewed work <https://www.nature.com/articles/s42005-021-00751-9>`_
+published in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
 
 |curve|
 
@@ -48,7 +47,7 @@ co-authored by professionals from the chemical industry and quantum hardware man
 
 We hope to grow a healthy community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
 
-- Our paper on arXiv (link updated as soon as available)
+- Our `release document on arXiv <https://arxiv.org/pdf/2206.12424.pdf>`_.
 - Our `Sphinx documentation <http://tangelo-docs.goodchemistry.com>`_.
 
 What will you do with Tangelo ?
@@ -171,6 +170,9 @@ You do not need to be a seasoned software developer or expert in your field to m
 However we need some guidelines and processes to ensure that we build something of quality for the community. We describe them in the `contributions <./CONTRIBUTIONS.rst>`_ file.
 There are many ways you can contribute, but in case you're considering contributing to the codebase: don't be scared of the infamous pull request process ! It can feel intimidating, but we've had a few researchers or high-schoolers go through their first one and... they came back for more ! Mostly.
 
+You can use the `Issue tab <https://github.com/goodchemistryco/Tangelo/issues>`_ to open a bug report or feature request.
+If you're not sure, starting a discussion in the `Discussion tab <https://github.com/goodchemistryco/Tangelo/discussions>`_ is a good start: we'll figure it out from there.
+
 By joining the Tangelo community and sharing your ideas and developments, you are creating an opportunity for us to learn and grow together, and take ideas to the finish line and beyond.
 
 Citations
@@ -178,6 +180,6 @@ Citations
 
 If you use Tangelo in your research, please cite:
 
-[TODO: Placeholder Tangelo for arXiv paper]
+   Valentin Senicourt, James Brown, Alexandre Fleury, Ryan Day, Erika Lloyd, Marc P. Coons, Krzysztof Bieniasz, Lee Huntington, Alejandro J. Garza, Shunji Matsuura, Rudi Plesch, Takeshi Yamazaki, and Arman Zaribafiyan Tangelo: An Open-source Python Package for End-to-end Chemistry Workflows on Quantum Computers 2022 arXiv:2206.12424
 
 © Good Chemistry Company 2022. This software is released under the Apache Software License version 2.0.

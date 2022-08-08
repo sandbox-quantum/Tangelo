@@ -269,6 +269,15 @@ class SecondQuantizedMolecule(Molecule):
         """
         return self.active_occupied + self.active_virtual
 
+    @property
+    def active_spin(self):
+        """This property returns the spin of the active space.
+
+        Returns:
+            int: n_alpha - n_beta electrons of the active occupied orbital space.
+        """
+        return sum([self.mo_occ[i] == 1 for i in self.active_occupied])
+
     def _compute_mean_field(self):
         """Computes the mean-field for the molecule. It supports open-shell
         mean-field calculation through openfermionpyscf. Depending on the
@@ -382,6 +391,9 @@ class SecondQuantizedMolecule(Molecule):
         """This method recomputes frozen orbitals with the provided input."""
 
         list_of_active_frozen = self._convert_frozen_orbitals(frozen_orbitals)
+
+        if any([self.mo_occ[i] == 1 for i in list_of_active_frozen[1]]):
+            raise NotImplementedError("Freezing half-filled orbitals is not implemented yet.")
 
         if inplace:
             self.frozen_orbitals = frozen_orbitals
