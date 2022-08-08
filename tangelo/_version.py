@@ -12,5 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Version number (major.minor.patch[-label]) """
-__version__ = "0.3.0"
+""" Define version number here. It is read in setup.py, and bumped automatically
+when using the new release Github action. """
+__version__ = '0.3.1'
