@@ -18,6 +18,7 @@
 import itertools
 from collections import OrderedDict
 from math import ceil
+from copy import deepcopy
 
 from openfermion import chemist_ordered
 from openfermion.linalg import qubit_operator_sparse, get_sparse_operator
@@ -84,28 +85,35 @@ def get_sigmam(bistring):
 
     return sigma, M
 
-def op_on_sigma(ops, sigma):
+def op_on_sigma(ops, sigma_in):
     """ Eq. (20) without the (-1)^p term."""
 
     assert len(ops) == 2, f"{ops}"
 
+    sigma = deepcopy(sigma_in)
     sigma = list(sigma)
 
     for i_qubit, creation_op in reversed(ops):
         # If it is a^{\dagger} (creation operator)
         if creation_op:
             if i_qubit not in sigma:
-
                 sigma = [*sigma, i_qubit]
+                i = i_qubit
             else:
-                return 0
+                return 0, 0
         else:
             if i_qubit in sigma:
                 sigma.remove(i_qubit)
+                j = i_qubit
             else:
-                return 0
+                return 0, 0
 
-    return tuple(sorted(sigma))
+    if i in sigma_in:
+        p = i
+    elif j in sigma_in:
+        p = j
+
+    return tuple(sorted(sigma)), (-1)**p
 
 
 def compact_hamiltonian(H_ferm, n_modes, n_electrons, h1, h2):
@@ -137,94 +145,57 @@ def compact_hamiltonian(H_ferm, n_modes, n_electrons, h1, h2):
     basis_set = OrderedDict()
     for sigma_alpha, int_alpha in basis_set_alpha.items():
         for sigma_beta, int_beta in basis_set_beta.items():
+            # Alternate ordering (like FermionOperator)
             sigma = tuple(sorted([2*sa for sa in sigma_alpha] + [2*sb+1 for sb in sigma_beta]))
-            unique_int = (int_alpha*n_choose_alpha)+int_beta
+            unique_int = (int_alpha * n_choose_alpha) + int_beta
             basis_set[sigma] = unique_int
 
-    #print(basis_set)
+    print(basis_set)
 
     # H_1 and H_2 initialization to 2^n * 2^n matrices.
     h_one = np.zeros((2**n, 2**n))
     h_two = np.zeros((2**n, 2**n))
-
-    """
-    for op, _ in H_ferm.terms.items():
-        for sigma_pp, unique_int in basis_set.items():
-
-            # 1-body terms.
-            if len(op) == 2:
-                i, j = op[0][0], op[1][0]
-
-                sigma_qq = op_on_sigma(op, sigma_pp)
-
-                if sigma_qq in basis_set.keys():
-                    int_p = basis_set[sigma_pp]
-                    int_q = basis_set[sigma_qq]
-
-                    h_one[int_p, int_q] += h1[i][j]
-                    h_one[int_q, int_p] += h1[j][i].conj()
-
-            # 2-body terms.
-            elif len(op) == 4:
-                i, j, k, l = op[0][0], op[1][0], op[2][0], op[3][0]
-
-                sigma_qq = op_on_sigma(op[:2], sigma_pp)
-
-                if sigma_qq in basis_set.keys():
-                    sigma_tt = op_on_sigma(op[2:], sigma_qq)
-
-                    if sigma_tt in basis_set.keys():
-                        int_p = basis_set[sigma_pp]
-                        int_t = basis_set[sigma_tt]
-
-                        h_two[int_p, int_t] += h2[i][j][k][l]
-                        h_two[int_t, int_p] += h2[k][l][i][j].conj()
-
-                j, k = op[1][0], op[2][0]
-                if j == k:
-                    raise ValueError
-    """
 
     for sigma_pp, unique_int in basis_set.items():
 
         # 1-body terms.
         for i, j in itertools.product(range(2*n_modes), repeat=2):
             op = ((i, 1), (j, 0))
-            sigma_qq = op_on_sigma(op, sigma_pp)
+            sigma_qq, phase_qq = op_on_sigma(op, sigma_pp)
 
             if sigma_qq in basis_set.keys():
                 int_p = basis_set[sigma_pp]
                 int_q = basis_set[sigma_qq]
 
-                h_one[int_p, int_q] += h1[i][j]
-                h_one[int_q, int_p] += h1[j][i].conj()
+                h_one[int_p][int_q] += h1[i][j]# * phase_qq
+                h_one[int_q][int_p] += h1[j][i].conj()# * phase_qq
 
     #for sigma_pp, unique_int in basis_set.items():
         # 2-body terms.
         for i, j, k, l in itertools.product(range(2*n_modes), repeat=4):
             op = ((i, 1), (j, 0), (k, 1), (l, 0))
-            sigma_qq = op_on_sigma(op[:2], sigma_pp)
+            sigma_qq, phase_qq = op_on_sigma(op[:2], sigma_pp)
 
             if sigma_qq in basis_set.keys():
-                sigma_tt = op_on_sigma(op[2:], sigma_qq)
+                sigma_tt, phase_tt = op_on_sigma(op[2:], sigma_qq)
 
                 if sigma_tt in basis_set.keys():
                     int_p = basis_set[sigma_pp]
                     int_t = basis_set[sigma_tt]
 
-                    h_two[int_p, int_t] += h2[i][j][k][l]
-                    h_two[int_t, int_p] += h2[k][l][i][j].conj()
+                    h_two[int_p][int_t] += h2[i][j][k][l]# * phase_tt * phase_qq
+                    h_two[int_t][int_p] += h2[k][l][i][j].conj()# * phase_tt * phase_qq
 
             if k == j:
-                op_il = (op[0], op[-1])
-                sigma_qq = op_on_sigma(op_il, sigma_pp)
+                op_il =  (op[0], op[-1])
+                sigma_qq, phase_qq = op_on_sigma(op_il, sigma_pp)
 
                 if sigma_qq in basis_set.keys():
                     int_q = basis_set[sigma_qq]
                     int_p = basis_set[sigma_pp]
 
-                    h_two[int_p, int_q] -= h2[i][j][k][l]
-                    h_two[int_q, int_p] -= h2[k][l][i][j].conj()
+                    h_two[int_p][int_q] -= h2[i][j][k][l]# * phase_qq
+                    h_two[int_q][int_p] -= h2[k][l][i][j].conj()# * phase_qq
 
     # Return the compact Hamiltonian H_c
     return h_one + h_two # + H_ferm.constant
@@ -254,23 +225,27 @@ if __name__ == "__main__":
     from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g
     mol = mol_H2_sto3g
 
+    H_ferm = mol.fermionic_hamiltonian
     H_ferm = chemist_ordered(mol.fermionic_hamiltonian)
     true_eigs = eigenspectrum(H_ferm)
     print(true_eigs)
 
     core_constant, one_body_integrals, two_body_integrals = mol.get_active_space_integrals()
     one_body_coefficients, two_body_coefficients = spinorb_from_spatial(one_body_integrals, two_body_integrals)
+    #two_body_coefficients *= 0.5
+
+    #print(two_body_integrals)
+    #print(two_body_coefficients)
 
     H = compact_hamiltonian(H_ferm, mol.n_active_mos, mol.n_active_electrons, one_body_coefficients, two_body_coefficients)
-    #norm_factor = np.trace(H.conj().T @ H)
-    #H /= np.sqrt(norm_factor)
-    #H *= 2
     eigs, eigvs = np.linalg.eigh(H)
     print(eigs)
-    #print(eigvs)
+    #print(H)
 
     #Hq = h_to_qubitop(H, 2)
     #print(Hq)
     #matrix = qubit_operator_sparse(Hq).todense()
     #eigs, eigvs = np.linalg.eigh(matrix)
     #print(eigs)
+
+    #print(op_on_sigma(((3, 1), (3, 0)), (1, 3)))
