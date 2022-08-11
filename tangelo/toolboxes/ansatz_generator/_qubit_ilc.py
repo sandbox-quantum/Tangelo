@@ -29,7 +29,6 @@ from math import acos, sin, sqrt
 
 import scipy
 import numpy as np
-
 from openfermion import commutator
 
 from tangelo.toolboxes.operators.operators import QubitOperator
@@ -142,28 +141,29 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
     a_mat = np.append(a_mat, b_vec, axis=1)
     n_cols += 1
 
-    # check that all elements are positive and either 0 or 1
-    a_mat = abs(a_mat)
-    two_mat = np.full((n_rows, n_cols), 2, dtype=int)
-    a_mat = np.fmod(a_mat, two_mat)
+    # force all entries of a_mat to be either 0 or 1.
+    warnings.warn("Reducing input matrix elements modulo 2 to create a binary matrix.", RuntimeWarning)
+    a_mat = (abs(a_mat) % 2).astype('int8')
 
-    # check for linear dependency of the rows of a_mat
-    linear_dep = False
-    for i in range(n_rows):
-        for j in range(i+1, n_rows):
-            if (a_mat[i][:] == a_mat[j][:]).all():
-                warnings.warn(f"Linear dependency detected: rows {i} and {j} are "
-                              f"equal. Deleting row {j} from a_mat.", RuntimeWarning)
-                linear_dep = True
+    # remove duplicate rows if they exist
+    _, row_idxs = np.unique([tuple(row) for row in a_mat], axis=0, return_index=True)
+    a_mat_new = a_mat[np.sort(row_idxs)]
+    if a_mat_new.shape[0] != a_mat.shape[0]:
+        warnings.warn("Linear dependency detected in input matrix: redundant rows deleted.", RuntimeWarning)
+    a_mat = a_mat_new
 
-    # if linear dependency was detected, remove duplicate
-    if linear_dep:
-        a_mat_new = [tuple(row) for row in a_mat]
-        a_mat = np.unique(a_mat_new, axis=0)
-        n_rows, n_cols = np.shape(a_mat)
+    # remove rows of all 0s if they exist
+    del_idxs = []
+    for i in range(a_mat.shape[0]):
+        if (a_mat[i][:] == 0).all():
+            del_idxs.append(i)
+    if del_idxs:
+        warnings.warn("Linear dependency detected in input matrix: rows of zeros deleted.", RuntimeWarning)
+    a_mat = np.delete(a_mat, obj=del_idxs, axis=0)
+    n_rows = a_mat.shape[0]
 
     # begin gaussian elimination algorithm
-    z_sln, piv_idx = [-1] * (n_cols-1), 0
+    z_sln, piv_idx = [-1]*(n_cols-1), 0
     for i in range(n_cols):
         a_mat_max, max_idx = 0, piv_idx
         # locate the pivot index by searching each row for a non-zero value
@@ -287,12 +287,9 @@ def build_ilc_qubit_op_list(acs_gens, ilc_params):
     """
 
     n_amps = len(ilc_params)
-    ilc_op_list = []
-    for i in range(n_amps-1, 0, -1):
-        ilc_op_list.append(-.5 * ilc_params[i] * acs_gens[i])
-    ilc_op_list.append(ilc_params[0] * acs_gens[0])
-    for i in range(1, n_amps):
-        ilc_op_list.append(-.5 * ilc_params[i] * acs_gens[i])
+    ilc_op_list = [-.5 * ilc_params[i] * acs_gens[i] for i in range(n_amps-1, 0, -1)]
+    ilc_op_list += [ilc_params[0] * acs_gens[0]]
+    ilc_op_list += [-.5 * ilc_params[i] * acs_gens[i] for i in range(1, n_amps)]
     return ilc_op_list
 
 
@@ -332,13 +329,11 @@ def ilc_op_dress(qubit_op, ilc_gens, ilc_params):
     # c_0 = cos(tau); c_n = sin(tau) * alpha_n for n > 0
     tau = acos(coefs[0])
     sin_tau = sin(tau)
-    alphas = []
-    for i in range(1, n_amps+1):
-        alphas.append(coefs[i] / sin_tau)
+    alphas = [coefs[i]/sin_tau for i in range(1, n_amps+1)]
 
     # third, dress the qubit operator according to Eqs. 17, 18 in Ref. 2
     sin2_tau = sin_tau**2
-    sin_2tau = sin(2. * tau)
+    sin_2tau = sin(2.*tau)
     qop_dress = coefs[0]**2 * qubit_op
     for i in range(n_amps):
         qop_dress += sin2_tau * alphas[i]**2 * ilc_gens[i] * qubit_op * ilc_gens[i]\

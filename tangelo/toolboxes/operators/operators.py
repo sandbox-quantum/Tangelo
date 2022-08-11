@@ -81,8 +81,8 @@ class QubitOperator(openfermion.QubitOperator):
         """
 
         n_terms = 0
-        for i in range(n_qubits // 2):
-            n_terms += comb(n_qubits, 2 * i, exact=True) * 3**(n_qubits - 2 * i)
+        for i in range(n_qubits//2):
+            n_terms += comb(n_qubits, 2*i, exact=True) * 3**(n_qubits-2*i)
         return n_terms
 
 

@@ -23,7 +23,6 @@ iQCC VQE procedure is that Hamiltonian dressing after each iteration
 with the set of ILC generators results in quadratic growth of the
 number of terms, which is an improvement over the exponential growth
 that occurs when QCC generators are used.
-
 Refs:
     1. R. A. Lang, I. G. Ryabinkin, and A. F. Izmaylov.
         arXiv:2002.05701v1, 2020, 1–10.
@@ -43,7 +42,6 @@ class iQCC_ILC_solver:
     Classes with the VQESolver class to perform an iterative and variational
     procedure to compute the total iQCC-ILC energy for a given Hamiltonian.
     The algorithm is outlined below:
-
     (1) For a user-specified number of iterations, compute the ILC energy:
         (a) prepare/purify the QMF wave function, obtain the ACS of ILC
             generators, and initialize the ILC parameter set;
@@ -55,7 +53,6 @@ class iQCC_ILC_solver:
         and initialize QCC parameters
     (3) Perform a single VQE minimization of the QCC energy functional to
         obtain the final iQCC-ILC energy.
-
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
         qubit_mapping (str): One of the supported qubit mapping identifiers. Default, "jw".
@@ -151,7 +148,7 @@ class iQCC_ILC_solver:
         """Executes the ILC-VQE algorithm. During each iteration, a ILC-VQE minimization
         is performed with the current set of generators, amplitudes, and qubit Hamiltonian."""
 
-        # initialize quantities; compute the QMF energy
+        # initialize quantities and compute the QMF energy
         sim = Simulator()
         self.qmf_energy = sim.get_expectation_value(self.ilc_ansatz.qubit_ham, self.ilc_ansatz.qmf_circuit)
         if self.verbose:
@@ -219,14 +216,18 @@ class iQCC_ILC_solver:
         """This function serves several purposes for the ILC-VQE solver
         part of the iQCC-ILC algorithm:
 
-            (1) updates/stores the energy, generators, QMF Bloch angles,
+            (1) Updates the ILC energy, generators, QMF Bloch angles,
                 ILC amplitudes, circuits, number of qubit Hamiltonian terms,
                 and quantum resource estimates;
-            (2) dresses/compresses the qubit Hamiltonian with the current
-                generators and optimal amplitudes;
-            (3) prepares for the next iteration by rebuilding the ACS,
-                re-initializing the amplitudes for a new set of generators,
-                generating the circuit, and updates the classical optimizer.
+            (2) Dresses and compresses (optional) the qubit Hamiltonian
+                with the generators and optimal amplitudes for the current
+                iteration;
+            (3) Prepares for the next iteration by rebuilding the DIS & ACS,
+                reinitializing ILC parameters for the new set of generators,
+                generating the circuit, and updating the classical optimizer.
+
+        Args:
+            e_ilc (float): the total ILC ansatz energy at the current iteration.
         """
 
         # get the optimal variational parameters and split them for qmf and ilc
@@ -275,7 +276,11 @@ class iQCC_ILC_solver:
 
     def _update_qcc_solver(self, e_iqcc_ilc):
         """Updates after the final QCC energy evaluation with the final ILC dressed
-        Hamiltonian."""
+        Hamiltonian.
+
+        Args:
+            e_iqcc_ilc (float): the final iQCC-ILC ansatz energy.
+        """
 
         # get the optimal variational parameters and split them for qmf and qcc ansatze
         n_qubits = self.qcc_ansatz.n_qubits
