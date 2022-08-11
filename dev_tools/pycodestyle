@@ -1,6 +1,6 @@
 [pycodestyle]
 count = False
 exclude = *build*
-ignore = E123,E126,E127,E128,E201,E202,E226,E241,W503,W504,W605,E741 
+ignore = E123,E126,E127,E128,E201,E202,E226,E241,E275,W503,W504,W605,E741
 max-line-length = 160
 statistics = True
