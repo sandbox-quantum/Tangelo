@@ -48,14 +48,14 @@ class FCISolver(ElectronicStructureSolver):
         # Need to use a CAS method if frozen orbitals are defined
         if molecule.frozen_mos is not None:
             # Generate CAS space with given frozen_mos, then use pyscf functionality to
-            # obtain effective Hamiltonian with frozen orbtials excluded from the CI space.
+            # obtain effective Hamiltonian with frozen orbitals excluded from the CI space.
             self.cas = True
             self.cassolver = mcscf.CASSCF(molecule.mean_field,
                                           molecule.n_active_mos,
-                                          (self.n_alpha, self.n_beta),
-                                          frozen=molecule.frozen_orbitals)
-            self.h1e_cas, self.ecore = self.cassolver.get_h1eff()
-            self.h2e_cas = self.cassolver.get_h2eff()
+                                          (self.n_alpha, self.n_beta))
+            mos = self.cassolver.sort_mo([i+1 for i in molecule.active_mos])
+            self.h1e_cas, self.ecore = self.cassolver.get_h1eff(mos)
+            self.h2e_cas = self.cassolver.get_h2eff(mos)
             # Initialize the FCI solver that will use the effective Hamiltonian generated from CAS
             self.cisolver = fci.direct_spin1.FCI()
         else:

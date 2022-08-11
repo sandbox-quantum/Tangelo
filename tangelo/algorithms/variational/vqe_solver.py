@@ -256,6 +256,9 @@ class VQESolver:
         self.initial_var_params = self.ansatz.set_var_params(self.initial_var_params)
         self.ansatz.build_circuit()
 
+        if len(self.ansatz.circuit._variational_gates) == 0:
+            warnings.warn("No variational gate found in the circuit.", RuntimeWarning)
+
         # Quantum circuit simulation backend options
         t = self.backend_options.get("target", self.default_backend_options["target"])
         ns = self.backend_options.get("n_shots", self.default_backend_options["n_shots"])
@@ -268,6 +271,10 @@ class VQESolver:
         """
         if not (self.ansatz and self.backend):
             raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")
+
+        if len(self.ansatz.circuit._variational_gates) == 0:
+            raise RuntimeError("No variational gate found in the circuit.")
+
         optimal_energy, optimal_var_params = self.optimizer(self.energy_estimation, self.initial_var_params)
 
         self.optimal_var_params = optimal_var_params
