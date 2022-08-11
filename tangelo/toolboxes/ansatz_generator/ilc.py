@@ -111,10 +111,7 @@ class ILC(Ansatz):
                                                       self.n_spinorbitals, self.n_electrons,
                                                       self.up_then_down, self.spin)
 
-        if isinstance(qmf_var_params, list):
-            self.qmf_var_params = np.array(qmf_var_params)
-        else:
-            self.qmf_var_params = qmf_var_params
+        self.qmf_var_params = np.array(qmf_var_params) if isinstance(qmf_var_params, list) else qmf_var_params
         if not isinstance(self.qmf_var_params, np.ndarray):
             self.qmf_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                    self.mapping, self.up_then_down, self.spin)
