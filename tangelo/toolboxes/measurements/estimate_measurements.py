@@ -47,15 +47,13 @@ def get_measurement_estimate(qb_op, digits=3, method="uniform"):
     if method not in available_methods:
         raise NotImplementedError(f"Only available methods are {available_methods}")
 
-    scaling_factor = 100**(digits+1)
-
     measurements = dict()
     for term, coef in qb_op.terms.items():
         coef = max(abs(coef.real), abs(coef.imag))
         if not term or coef < 10**(-digits):
             measurements[term] = 0
         else:
-            n_samples = math.floor(scaling_factor * 100**(math.log10(coef)))
+            n_samples = math.floor((coef / 10**(-(digits+1)))**2)
             # Assign to dictionary, handle edge case
             measurements[term] = 100 if n_samples == 1 else n_samples
 
