@@ -142,7 +142,7 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
     n_cols += 1
 
     # force all entries of a_mat to be either 0 or 1.
-    if (a_mat > 1).any() or (a_mat < -1).any():
+    if (abs(a_mat) > 1).any():
         warnings.warn("Reducing input matrix elements modulo 2 to create a binary matrix.", RuntimeWarning)
         a_mat = (a_mat % 2).astype('int8')
 
