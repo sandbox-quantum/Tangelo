@@ -138,12 +138,13 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
         b_vec = np.zeros((n_rows, 1))
 
     # append the initial solution vector as the last column of a_mat; update n_cols
-    a_mat = np.append(a_mat, b_vec, axis=1)
+    a_mat = np.concatenate((a_mat, b_vec), axis=1).astype('int8')
     n_cols += 1
 
     # force all entries of a_mat to be either 0 or 1.
-    warnings.warn("Reducing input matrix elements modulo 2 to create a binary matrix.", RuntimeWarning)
-    a_mat = (abs(a_mat) % 2).astype('int8')
+    if (a_mat > 1).any() or (a_mat < -1).any():
+        warnings.warn("Reducing input matrix elements modulo 2 to create a binary matrix.", RuntimeWarning)
+        a_mat = (abs(a_mat) % 2).astype('int8')
 
     # remove duplicate rows if they exist
     _, row_idxs = np.unique([tuple(row) for row in a_mat], axis=0, return_index=True)
