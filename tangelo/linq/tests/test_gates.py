@@ -52,6 +52,11 @@ class TestGates(unittest.TestCase):
         H_gate_inverse = Gate("H", 2)
         self.assertEqual(H_gate.inverse().__str__(), H_gate_inverse.__str__())
 
+        # Create a SWAP gate acting on qubits 1 and 2
+        H_gate = Gate("SWAP", [1, 2])
+        H_gate_inverse = Gate("SWAP", [1, 2])
+        self.assertEqual(H_gate.inverse().__str__(), H_gate_inverse.__str__())
+
         # Create a parameterized rotation on qubit 1 with angle 2 radians
         RX_gate = Gate("RX", 1, parameter=2.)
         RX_gate_inverse = Gate("RX", 1, parameter=-2.)

@@ -128,6 +128,10 @@ class Circuit:
         """
         return "MEASURE" in self.counts
 
+    def copy(self):
+        """Return a copy of circuit"""
+        return Circuit(copy.deepcopy(self._gates), n_qubits=copy.copy(self._qubits_simulated), name=copy.copy(self.name))
+
     def add_gate(self, g):
         """Add a new gate to a circuit object and update other fields of the
         circuit object to gradually keep track of its properties (gate count,

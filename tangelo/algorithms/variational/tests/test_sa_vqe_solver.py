@@ -57,14 +57,14 @@ class SA_VQESolverTest(unittest.TestCase):
         expected_values = [(15, 4), (15, 4), (5, 2), (15, 4)]
 
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
-                       "initial_var_params": [0.1, 0.1], "ref_states": [[1, 1, 0, 0]]}
+                       "initial_var_params": [0.1, 0.1], "ref_states": [[1, 1, 0, 0], [1, 0, 0, 1]]}
         for index, mi in enumerate(mappings):
             vqe_options["qubit_mapping"] = mi
             sa_vqe_solver = SA_VQESolver(vqe_options)
             sa_vqe_solver.build()
             resources = sa_vqe_solver.get_resources()
 
-            self.assertEqual(resources["qubit_hamiltonian_terms"], expected_values[index][0])
+            self.assertEqual(resources["qubit_hamiltonian_terms"], expected_values[index][0]*2)
             self.assertEqual(resources["circuit_width"], expected_values[index][1])
 
     def test_energy_estimation_sa_vqe(self):
