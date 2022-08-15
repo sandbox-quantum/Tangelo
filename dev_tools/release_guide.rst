@@ -18,7 +18,7 @@ If you're not sure you have them, reach out to project maintainers and owners BE
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can do this through an automated Github workflow/action, called `create_release_branch` at the time of writing this document.
-This will create a release branch with the desired version number, and a Pull Request from th
+This will create a release branch with the desired version number, and a Pull Request from the release branch into main.
 To achieve this, go to the `action tab <https://github.com/goodchemistryco/Tangelo/actions/workflows/create_release_branch.yml>`_
 of the project, and go through the following steps:
 
@@ -61,7 +61,7 @@ To update the CHANGELOG: Use the PR conversation tab and trim the history down t
 on the previous entries of changelogs).
 
 Ask someone to kindly look at the version and CHANGELOG file and approve the PR once tests have passed.
-Once the PR is merge: main has officially been updated !
+Once the PR is merge: main has officially been updated!
 
 
 1c. Updating develop to new version number
