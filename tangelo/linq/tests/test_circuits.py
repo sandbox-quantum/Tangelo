@@ -294,6 +294,13 @@ class TestCircuits(unittest.TestCase):
         self.assertTrue(copied_circuit == modified_circuit)
         self.assertTrue(copied_circuit != test_circuit)
 
+    def test_iterate(self):
+        """ Test if the iteration returns the expected list of gates. """
+
+        self.assertEqual([g for g in circuit2], circuit2._gates)
+        self.assertEqual([g for g in circuit3], circuit3._gates)
+        self.assertEqual([g for g in circuit4], circuit4._gates)
+
 
 if __name__ == "__main__":
     unittest.main()
