@@ -102,6 +102,10 @@ class Circuit:
         """
         return iter(self._gates)
 
+    def __next__(self):
+        """Define the next function when calling next(Circuit). """
+        return next(self._gates)
+
     @property
     def size(self):
         """The size is the number of gates in the circuit. It is different from
