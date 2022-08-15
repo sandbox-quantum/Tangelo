@@ -284,6 +284,13 @@ class TestCircuits(unittest.TestCase):
 
         self.assertEqual(test_circuit.width, 1)
 
+    def test_iterate(self):
+        """ Test if the iteration returns the expected list of gates. """
+
+        self.assertEqual([g for g in circuit2], circuit2._gates)
+        self.assertEqual([g for g in circuit3], circuit3._gates)
+        self.assertEqual([g for g in circuit4], circuit4._gates)
+
 
 if __name__ == "__main__":
     unittest.main()
