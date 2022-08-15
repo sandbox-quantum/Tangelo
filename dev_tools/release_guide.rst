@@ -24,7 +24,7 @@ of the project, and go through the following steps:
 
 |release_action|
 
-.. |curve| image:: ./release_action.png
+.. |release_action| image:: ./release_action.png
    :width: 400
    :alt: release_action
 
@@ -80,7 +80,7 @@ Go to the `release page <https://github.com/goodchemistryco/Tangelo/releases>`_ 
 
 |release_github|
 
-.. |curve| image:: ./release_github.png
+.. |release_github| image:: ./release_github.png
    :width: 400
    :alt: release_github
 
