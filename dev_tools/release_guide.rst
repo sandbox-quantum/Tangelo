@@ -25,7 +25,7 @@ of the project, and go through the following steps:
 |release_action|
 
 .. |release_action| image:: ./release_action.png
-   :width: 400
+   :width: 600
    :alt: release_action
 
 - Click the desired workflow on the left
@@ -81,7 +81,7 @@ Go to the `release page <https://github.com/goodchemistryco/Tangelo/releases>`_ 
 |release_github|
 
 .. |release_github| image:: ./release_github.png
-   :width: 400
+   :width: 600
    :alt: release_github
 
 - Click “draft a new release”
