@@ -20,6 +20,7 @@ Refs:
 
 import math
 from typing import Union, Tuple, List
+from copy import copy
 
 import numpy as np
 
@@ -250,7 +251,7 @@ def sign_flip(qubit_list: List[int], control: Union[int, List[int]] = None) -> C
         Circuit: The circuit that generates the sign flip on |0>^n
     """
     if control is not None:
-        fcontrol_list = control if isinstance(control, list) else [control]
+        fcontrol_list = copy(control) if isinstance(control, list) else [control]
     else:
         fcontrol_list = []
     gate_list = []
