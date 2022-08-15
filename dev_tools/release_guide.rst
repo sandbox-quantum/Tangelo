@@ -29,8 +29,8 @@ of the project, and go through the following steps:
    :alt: release_action
 
 - Click the desired workflow on the left
-- Click the "run workflow" tab in the blue zone
-- Use workflow from "develop"
+- Click the "run workflow" button in the blue zone
+- Use workflow from branch "develop"
 - Enter the desired release version number
 - Click the green button that reads "run workflow"
 
@@ -50,18 +50,18 @@ PR attempting to merge that branch into main.
 A new PR should have been created. The description tells you how it came to be, and what you should be doing.
 Here's a `past example <https://github.com/goodchemistryco/Tangelo/pull/187>`_ so that you can get an idea of what it may look like.
 
-This PR does not need to be reviewed in details: virtually all its contents are changes that have been reviewed, tested and
-merged into develop already. What matters is that:
+This PR does not need to be reviewed in details: virtually all its contents are changes have already been reviewed, tested and
+merged into develop. What matters is that:
 
-- the tests are passing
+- the tests passed
 - the version string in `tangelo/_version.py` is as expected
-- `CHANGELOG.md` is updated (you may have to do that manually until we figure out a better way)
+- `CHANGELOG.md` has been updated (you may have to do that manually until we figure out a better way)
 
-To update the CHANGELOG: Use the PR conversation tab and trim the history down to the essentials (take example
+To update the CHANGELOG: use the PR conversation tab and trim the history down to the essentials (you can take example
 on the previous entries of changelogs).
 
-Ask someone to kindly look at the version and CHANGELOG file and approve the PR once tests have passed.
-Once the PR is merge: main has officially been updated!
+Ask someone to kindly look at the version and CHANGELOG files, and approve the PR once tests have passed.
+Once the PR has been merged, main has officially been updated!
 
 
 1c. Updating develop to new version number
@@ -86,9 +86,9 @@ Go to the `release page <https://github.com/goodchemistryco/Tangelo/releases>`_ 
 
 - Click “draft a new release”
 - Create a new tag (vx.y.z for the version number is usually good)
-- Base this release on the main branch ethe main branch
+- Base this release on the main branch
 - Populate the release message (changelog info, contributors, and a human-friendly message that addresses our readers).
-- You do not need to attach any files to the release, github will attach a zip and a tar.gz of the codebase.
+- You do not need to attach any files to the release, github will attach a zip and a tar.gz snapshot of the main branch.
 
 The release message can be as nice as we want it to be: announcements, roadmap, exciting news, special thanks,
 pretty figures, links ... It's an opportunity to celebrate and acknowledge the contributions of everyone, and make people
@@ -97,7 +97,7 @@ excited for this new version.
  You can populate the "changelog" part manually or try the "Generate release notes" button with the tag of the previous version.
 
 After you click the green button, the release section should now feature a new entry, with your release message, and a tar.gz and zip
-snapshot of the code in main attached. You did it !
+snapshot of the code in main attached. You did it!
 
 3. Creating a new release on pypi (pip)
 ---------------------------------------
@@ -136,8 +136,8 @@ You will be prompted for a username and password.
 For the username, use __token__ (two underscores before and after).
 For the password, use the token value, including the pypi- prefix (ex: pypi-s32fdg3fg2fd3....).
 
-If successful, the release is now available on pypi !
-You should try to create another a fresh virtual environment and install the package with pip to make sure it works
+If successful, the release is now available on pypi!
+You should try to create another fresh virtual environment and install the package with pip to make sure it works
 (maybe just do a simple import and query for the version number with tangelo.__version__)
 
 .. code-block::
@@ -145,10 +145,10 @@ You should try to create another a fresh virtual environment and install the pac
    pip install tangelo-gc
 
 Share the news with others, ask them to try installing the new version through pip in their environments: the more datapoints, the better.
-We do want users to have issues with pip installs.
+We really do not want users to have issues with pip installs.
 
 
-Finally, you're done ! Thank you for creating a new release. If you think this release process can be made easier or improved
+Finally, you're done! Thank you for creating a new release. If you think this release process can be made easier or improved
 in general, feel free to provide feedback.
 
 © Good Chemistry Company 2022. This software is released under the Apache Software License version 2.0.
