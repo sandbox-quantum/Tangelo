@@ -140,7 +140,7 @@ class Circuit:
 
     def copy(self):
         """Return a deepcopy of circuit"""
-        return Circuit(copy.deepcopy(self._gates), n_qubits=self.width, name=self.name)
+        return Circuit(copy.deepcopy(self._gates), n_qubits=self._qubits_simulated, name=self.name)
 
     def add_gate(self, g):
         """Add a new gate to a circuit object and update other fields of the
