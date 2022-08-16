@@ -263,8 +263,8 @@ class TestCircuits(unittest.TestCase):
         """
 
         test_circuit = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
-                    Gate("RZ", 2, parameter=0.01), Gate("CNOT", 1, control=0),
-                    Gate("RX", 0, parameter=-2.)])
+                                Gate("RZ", 2, parameter=0.01), Gate("CNOT", 1, control=0),
+                                Gate("RX", 0, parameter=-2.)])
         test_circuit.remove_small_rotations(param_threshold=0.05)
 
         ref_gates = [Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
@@ -283,6 +283,16 @@ class TestCircuits(unittest.TestCase):
         test_circuit.remove_redundant_gates()
 
         self.assertEqual(test_circuit.width, 1)
+
+    def test_copy(self):
+        """ Test if copy function is working properly."""
+        test_circuit = Circuit([Gate("X", 0), Gate("H", 1), Gate("H", 1)])
+        modified_circuit = Circuit([Gate("X", 0), Gate("H", 1), Gate("H", 1), Gate("H", 3)])
+        copied_circuit = test_circuit.copy()
+
+        copied_circuit.add_gate(Gate("H", 3))
+        self.assertTrue(copied_circuit == modified_circuit)
+        self.assertTrue(copied_circuit != test_circuit)
 
     def test_iterate(self):
         """ Test if the iteration returns the expected list of gates. """

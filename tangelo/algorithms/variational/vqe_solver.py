@@ -292,11 +292,14 @@ class VQESolver:
         """
 
         resources = dict()
-        resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms)
-        resources["circuit_width"] = self.ansatz.circuit.width
-        resources["circuit_gates"] = self.ansatz.circuit.size
+        resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms) + len(self.deflation_circuits)
+        circuit = self.ansatz.circuit if self.ref_state is None else self.reference_circuit + self.ansatz.circuit
+        if self.deflation_circuits:
+            circuit += self.deflation_circuits[0]
+        resources["circuit_width"] = circuit.width
+        resources["circuit_gates"] = circuit.size
         # For now, only CNOTs supported.
-        resources["circuit_2qubit_gates"] = self.ansatz.circuit.counts.get("CNOT", 0)
+        resources["circuit_2qubit_gates"] = circuit.counts.get("CNOT", 0)
         resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
         resources["vqe_variational_parameters"] = len(self.initial_var_params)
         return resources
