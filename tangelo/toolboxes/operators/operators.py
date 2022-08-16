@@ -19,6 +19,8 @@ broken down in several modules if needed.
 from math import sqrt
 from collections import OrderedDict
 
+from scipy.special import comb
+
 # Later on, if needed, we can extract the code for the operators themselves to remove the dependencies and customize
 import openfermion
 
@@ -64,6 +66,21 @@ class QubitOperator(openfermion.QubitOperator):
                 compressed_op[term] = coef
         self.terms = compressed_op
         self.compress()
+
+    def get_max_number_hamiltonian_terms(self, n_qubits):
+        """Compute the possible number of terms for a qubit Hamiltonian. In the
+        absence of an external magnetic field, each Hamiltonian term must have
+        an even number of Pauli Y operators to preserve time-reversal symmetry.
+        See J. Chem. Theory Comput. 2020, 16, 2, 1055–1063 for more details.
+
+        Args:
+            n_qubits (int): Number of qubits in the register.
+
+        Returns:
+            int: The maximum number of possible qubit Hamiltonian terms.
+        """
+
+        return sum([comb(n_qubits, 2*i, exact=True) * 3**(n_qubits-2*i) for i in range(n_qubits//2)])
 
 
 class QubitHamiltonian(QubitOperator):

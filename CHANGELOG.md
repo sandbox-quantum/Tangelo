@@ -12,8 +12,6 @@ This file documents the main changes between versions of the code.
 - iQCC ansatz for VQE
 - IonQConnection class and notebook, to facilitate experiments through IonQ's API
 - FCISolver active space selection / frozen orbitals: restrictions for half-empty orbitals
-- HybridOperator for speedup for QubitOperator on certain operations in stabilizer notation
-- Support for symmetry in pyscf computations
 
 ### Changed
 
