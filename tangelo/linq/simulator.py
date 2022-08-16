@@ -392,19 +392,14 @@ class SimulatorBase(abc.ABC):
         return state_binstr[::-1]
 
 
-class Simulator(SimulatorBase):
+def Simulator(target=default_simulator, n_shots=None, noise_model=None):
+    "Return appropriate target simulator"
 
-    def __init__(self, target=default_simulator, n_shots=None, noise_model=None):
-        self._target = target if target else default_simulator
-        if isinstance(self._target, str):
-            from tangelo.linq.target import Cirq, Qulacs, Qiskit, QDK
-            target_dict = {"qiskit": Qiskit, "cirq": Cirq, "qdk": QDK, "qulacs": Qulacs}
-            new_obj = target_dict[self._target](n_shots=n_shots, noise_model=noise_model)
-            self.__class__ = target_dict[self._target]
-        else:
-            new_obj = target(n_shots=n_shots, noise_model=noise_model)
-            self.__class__ = target
-        self.__dict__.update(new_obj.__dict__)
+    if isinstance(target, str):
+        from tangelo.linq.target import Cirq, Qulacs, Qiskit, QDK
+        target_dict = {"qiskit": Qiskit, "cirq": Cirq, "qdk": QDK, "qulacs": Qulacs}
+        simulator = target_dict[target](n_shots=n_shots, noise_model=noise_model)
+    else:
+        simulator = target(n_shots=n_shots, noise_model=noise_model)
 
-    def simulate_circuit():
-        pass
+    return simulator
