@@ -150,6 +150,9 @@ them locally, we suggest you use `Jupyter notebooks inside a virtual environment
 
    python -m ipykernel install --user --name=myenv
 
+Jupyter notebooks can also be displayed and executed in the cloud, removing the constraint of building a local development envrionement.
+This process is described in the `tutorials <./TUTORIALS.rst>`_ file.
+
 Tests
 -----
 
