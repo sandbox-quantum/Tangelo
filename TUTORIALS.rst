@@ -12,12 +12,12 @@ Compatible notebooks in Google Colab
 
 The compatible notebooks are listed in the list below.
 
-* `VQE <https://github.com/goodchemistryco/Tangelo/blob/main/examples/vqe.ipynb>`_
-* `ADAPT-VQE <https://github.com/goodchemistryco/Tangelo/blob/main/examples/adapt.ipynb>`_
-* `Custom VQE <https://github.com/goodchemistryco/Tangelo/blob/main/examples/vqe_custom_ansatz_hamiltonian.ipynb>`_
-* `DMET <https://github.com/goodchemistryco/Tangelo/blob/main/examples/dmet.ipynb>`_
-* `ONIOM  <https://github.com/goodchemistryco/Tangelo/blob/main/examples/oniom.ipynb>`_
-* `Classical Shadows <https://github.com/goodchemistryco/Tangelo/blob/main/examples/classical_shadows.ipynb>`_
+* `VQE <https://colab.research.google.com/github/goodchemistryco/Tangelo/blob/develop/examples/vqe.ipynb>`_
+* `ADAPT-VQE <https://colab.research.google.com/github/goodchemistryco/Tangelo/blob/develop/examples/adapt.ipynb>`_
+* `Custom VQE <https://colab.research.google.com/github/goodchemistryco/Tangelo/blob/develop/examples/vqe_custom_ansatz_hamiltonian.ipynb>`_
+* `DMET <https://colab.research.google.com/github/goodchemistryco/Tangelo/blob/develop/examples/dmet.ipynb>`_
+* `ONIOM  <https://colab.research.google.com/github/goodchemistryco/Tangelo/blob/develop/examples/oniom.ipynb>`_
+* `Classical Shadows <https://colab.research.google.com/github/goodchemistryco/Tangelo/blob/develop/examples/classical_shadows.ipynb>`_
 
 However, adapting a notebook to Google Colab is an easy task.
 Installing a package is something possible, and is explained at this `link <https://colab.research.google.com/notebooks/snippets/importing_libraries.ipynb>`_.
