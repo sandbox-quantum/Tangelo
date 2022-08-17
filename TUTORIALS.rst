@@ -12,7 +12,7 @@ Compatible notebooks in Google Colab
 
 The compatible notebooks are listed in the list below.
 
-* `VQE<https://github.com/goodchemistryco/Tangelo/blob/main/examples/vqe.ipynb>`_
+* `VQE <https://github.com/goodchemistryco/Tangelo/blob/main/examples/vqe.ipynb>`_
 * `ADAPT-VQE <https://github.com/goodchemistryco/Tangelo/blob/main/examples/adapt.ipynb>`_
 * `Custom VQE <https://github.com/goodchemistryco/Tangelo/blob/main/examples/vqe_custom_ansatz_hamiltonian.ipynb>`_
 * `DMET <https://github.com/goodchemistryco/Tangelo/blob/main/examples/dmet.ipynb>`_
