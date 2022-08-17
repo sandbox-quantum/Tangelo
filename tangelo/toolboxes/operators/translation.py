@@ -14,17 +14,20 @@
 
 """Module to convert qubit operators to different formats."""
 
+from tangelo.toolboxes.operators import count_qubits
+from tangelo.toolboxes.operators._translation_qiskit import tangelo_to_qiskit, qiskit_to_tangelo
 
-from tangelo.toolboxes.operators import count_qubits, QubitOperator
-from tangelo.linq.helpers import pauli_of_to_string, pauli_string_to_of
 
+FROM_TANGELO = {
+    "qiskit": tangelo_to_qiskit
+}
 
-SUPPORTED_SOURCES = {"tangelo", "qiskit"}
-SUPPORTED_TARGETS = {"tangelo", "qiskit"}
-
+TO_TANGELO = {
+    "qiskit": qiskit_to_tangelo
+}
 
 def translate_operator(qubit_operator, source, target, n_qubits=None):
-    """Function to convert a qubit operator defnied within the "source" format
+    """Function to convert a qubit operator defined within the "source" format
     to another format. Only the trnaslation from and to tangelo are currently
     supported.
 
@@ -35,77 +38,21 @@ def translate_operator(qubit_operator, source, target, n_qubits=None):
         n_qubits (int): Number of qubits relevant to the operator.
 
     Returns:
-        (taget format): Translated qubit operator.
+        (target format): Translated qubit operator.
     """
 
     source = source.lower()
-    assert source in SUPPORTED_SOURCES, f"Source {source} is not supported."
     target = target.lower()
-    assert target in SUPPORTED_TARGETS, f"Target {target} is not supported."
+
+    if source == target:
+        return qubit_operator
 
     if "tangelo" not in {source, target}:
         raise NotImplementedError(f"Only translation from and to tangelo are supported.")
-
-    if source == "tangelo":
+    elif source == "tangelo":
         n_qubits = count_qubits(qubit_operator) if n_qubits is None else n_qubits
+        qubit_operator = FROM_TANGELO[target](qubit_operator, n_qubits)
+    elif target == "tangelo":
+        qubit_operator = TO_TANGELO[source](qubit_operator)
 
-        if target == "qiskit":
-            return tangelo_to_qiskit(qubit_operator, n_qubits)
-    else:
-        if source == "qiskit":
-            return qiskit_to_tangelo(qubit_operator)
-
-
-def tangelo_to_qiskit(qubit_operator, n_qubits):
-    """Helper function to translate a Tangelo QubitOperator to a qiskit
-    PauliSumOp. Qiskit must be installed for the function to work.
-
-    Args:
-        qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
-        n_qubits (int): Number of qubits relevant to the operator.
-
-    Returns:
-        (qiskit.opflow.primitive_ops.PauliSumOp): Qiskit qubit operator.
-    """
-
-    # Import qiskit functions.
-    from qiskit.opflow.primitive_ops import PauliSumOp
-
-    # Convert each term sequencially.
-    term_list = list()
-    for term_tuple, coeff in qubit_operator.terms.items():
-        term_string = pauli_of_to_string(term_tuple, n_qubits)
-
-        # Reverse the string becasue of qiskit convention.
-        term_list  += [(term_string[::-1], coeff)]
-
-    return PauliSumOp.from_list(term_list)
-
-
-def qiskit_to_tangelo(qubit_operator):
-    """Helper function to translate a a qiskit PauliSumOp to a Tangelo
-    QubitOperator.
-
-    Args:
-        qubit_operator (qiskit.opflow.primitive_ops.PauliSumOp): Self-explanatory.
-
-    Returns:
-        (tangelo.toolboxes.operators.QubitOperator): Tangelo qubit operator.
-    """
-
-    # Creation of a dictionary to append all terms at once.
-    terms_dict = dict()
-    for pauli_word in qubit_operator:
-        # Inversion of the string because of qiskit ordering.
-        term_string = pauli_word.to_pauli_op().primitive.to_label()[::-1]
-        term_tuple = pauli_string_to_of(term_string)
-        terms_dict[tuple(term_tuple)] = pauli_word.coeff
-
-    # Create and copy the information into a new QubitOperator.
-    tangelo_op = QubitOperator()
-    tangelo_op.terms = terms_dict.copy()
-
-    # Clean the QubitOperator.
-    tangelo_op.compress()
-
-    return tangelo_op
+    return qubit_operator
