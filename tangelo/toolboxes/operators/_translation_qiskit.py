@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module to convert  Qiskit qubit operators."""
+"""Module to convert Qiskit qubit operators."""
 
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.linq.helpers import pauli_of_to_string, pauli_string_to_of
