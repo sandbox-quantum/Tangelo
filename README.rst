@@ -77,7 +77,7 @@ The easiest way to install Tangelo in your local environment. We recommend upgra
 From source, using setuptools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package can be installed locally by copying the contents of this repository to any machine. This can be useful if you need a bit more control on your install (such as installing from a particular branch, or tweaking the ``setup.py`` install to circumvent any trouble on your system):
+This package can be installed locally by copying the contents of this repository to any machine. This can be useful if you need a bit more control on your install (such as installing from a particular branch, or tweaking the ``setup.py`` install to circumvent any issue on your system).
 Type the following command in the root directory:
 
 .. code-block::
@@ -147,8 +147,9 @@ Tutorials
 
 The ``examples`` folder of this repository contains various Jupyter notebook tutorials, and other examples.
 We wrote a number of them, but nothing prevents users from contributing more notebook content, to show what they have been doing with Tangelo!
-You can visualize a number of pre-run notebooks directly on Github or in our Sphinx documentation. If you'd like to be able to run
-them locally, we suggest you use `Jupyter notebooks inside a virtual environment <https://janakiev.com/blog/jupyter-virtual-envs/>`_.
+You can visualize notebooks directly on Github, most of them have been pre-run.
+
+If you'd like to be able to run them locally, we suggest you use `Jupyter notebooks inside a virtual environment <https://janakiev.com/blog/jupyter-virtual-envs/>`_.
 
 - Install Jupyter and ipykernel in your environment:
 .. code-block::
@@ -160,7 +161,7 @@ them locally, we suggest you use `Jupyter notebooks inside a virtual environment
 
    python -m ipykernel install --user --name=myenv
 
-Jupyter notebooks can also be displayed and executed in the cloud, with services such as Google Colab. This removes the constraint of building a local development envrionement, and enables users to run interactive notebooks on machines that may provide a better configuration than their own (more RAM, compute power, access to GPUs...).
+Jupyter notebooks can also be displayed and executed in the cloud, with services such as Google Colab. This removes the constraint of building a local development envrionement, and enables users to run interactive notebooks on machines that may provide a better configuration than their own (more RAM, compute power, access to GPUs...). This may come in handy for users who want to get started quickly, especially for quick tests, demos and tutorials.
 
 Check out our `tutorials <./TUTORIALS.rst>`_ file for more details.
 
