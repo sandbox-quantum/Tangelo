@@ -29,8 +29,7 @@ TO_TANGELO = {
 
 def translate_operator(qubit_operator, source, target, n_qubits=None):
     """Function to convert a qubit operator defined within the "source" format
-    to another format. Only the translation from and to tangelo are currently
-    supported.
+    to a "target" format.
 
     Args:
         qubit_operator (source format): Self-explanatory.

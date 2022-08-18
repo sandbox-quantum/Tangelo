@@ -20,6 +20,9 @@ necessary to account for:
 - how the gate names differ between the source backend to the target backend.
 - how the order and conventions for some of the inputs to the gate operations
     may also differ.
+
+The module also enables bidirectional conversion between qiskit and Tangelo
+qubit operators (linear combination of Pauli operators)
 """
 
 from tangelo.toolboxes.operators import QubitOperator
