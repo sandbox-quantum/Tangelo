@@ -25,11 +25,28 @@ from tangelo.toolboxes.operators import translate_operator
 # For openfermion.load_operator function.
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
-operator = []
 tangelo_op = QubitOperator("X0 Y1 Z2", 1.)
 
 
 class TranslateOperatorTest(unittest.TestCase):
+
+    def test_unsupported_source(self):
+        """Test error with an unsuported source."""
+
+        with self.assertRaises(NotImplementedError):
+            translate_operator(tangelo_op, source="sourcenotsupported", target="tangelo")
+
+    def test_unsupported_target(self):
+        """Test error with an unsuported target."""
+
+        with self.assertRaises(NotImplementedError):
+            translate_operator(tangelo_op, source="tangelo", target="targetnotsupported")
+
+    def test_tangelo_not_involved(self):
+        """Test error if tangelo is not the source nor the target."""
+
+        with self.assertRaises(NotImplementedError):
+            translate_operator(tangelo_op, source="nottangelo", target="nottangeloeither")
 
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Qiskit not available \n")
     def test_qiskit_to_tangelo(self):
