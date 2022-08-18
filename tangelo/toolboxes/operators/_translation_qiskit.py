@@ -39,7 +39,7 @@ def tangelo_to_qiskit(qubit_operator, n_qubits):
         term_string = pauli_of_to_string(term_tuple, n_qubits)
 
         # Reverse the string becasue of qiskit convention.
-        term_list  += [(term_string[::-1], coeff)]
+        term_list += [(term_string[::-1], coeff)]
 
     return PauliSumOp.from_list(term_list)
 
