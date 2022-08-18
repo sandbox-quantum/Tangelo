@@ -21,9 +21,7 @@ This results in even shallower circuits and fewer quantum resources
 for the iQCC approach relative to the native QCC method. A caveat
 is that after each iteration, the qubit Hamiltonian is dressed with
 the generators and optimal parameters, the result of which is an
-exponential growth of the number of terms. A technique also described
-in Ref. 1 can be utilized to address this issue by discarding some
-terms based on the Frobenius norm of the Hamiltonian.
+exponential growth of the number of terms.
 
 Refs:
     1. I. G. Ryabinkin, R. A. Lang, S. N. Genin, and A. F. Izmaylov.
@@ -88,7 +86,7 @@ class iQCC_solver:
             using the Froebenius norm. Discarding terms in this manner will not alter the
             eigenspeectrum of intermediate Hamiltonians by more than compress_eps.
             Default, 1.59e-3 Hartree.
-        verbose (bool): Flag for verbosity of iQCCsolver. Default, False.
+        verbose (bool): Flag for verbosity. Default, False.
      """
 
     def __init__(self, opt_dict):
@@ -116,10 +114,10 @@ class iQCC_solver:
             if param in default_options:
                 setattr(self, param, val)
             else:
-                raise KeyError(f"Keyword :: {param}, not available in iQCCsolver")
+                raise KeyError(f"Keyword {param} not available in self.__class__.__name__.")
 
         if not self.molecule:
-            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing iQCCsolver.")
+            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing self.__class__.__name__.")
 
         # initialize variables and lists to store useful data from each iQCC-VQE iteration
         self.energies = []
@@ -149,6 +147,7 @@ class iQCC_solver:
                                    "up_then_down": self.up_then_down,
                                    "qubit_hamiltonian": self.qubit_hamiltonian,
                                    "verbose": self.verbose}
+
         self.vqe_solver = VQESolver(self.vqe_solver_options)
         self.vqe_solver.build()
 
@@ -233,8 +232,19 @@ class iQCC_solver:
         optimal_qmf_var_params = self.vqe_solver.optimal_var_params[:2*n_qubits]
         optimal_qcc_var_params = self.vqe_solver.optimal_var_params[2*n_qubits:]
 
-        # update all lists with data from the current iteration
+        # update energy list and iteration number
         self.energies.append(self.vqe_solver.optimal_energy)
+        self.iteration += 1
+
+        if self.verbose:
+            print(f"Iteration # {self.iteration}")
+            print(f"iQCC total energy = {self.vqe_solver.optimal_energy} Eh")
+            print(f"iQCC correlation energy = {self.vqe_solver.optimal_energy-self.qmf_energy} Eh")
+            print(f"Optimal QMF variational parameters = {optimal_qmf_var_params}")
+            print(f"Optimal QCC variational parameters = {optimal_qcc_var_params}")
+            print(f"Number of iQCC generators = {len(self.qcc_ansatz.dis)}")
+            print(f"iQCC generators = {self.qcc_ansatz.dis}")
+            print(f"iQCC resource estimates = {self.get_resources()}")
 
         # dress and (optionally) compress the qubit Hamiltonian
         self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham, self.qcc_ansatz.dis,
@@ -247,18 +257,6 @@ class iQCC_solver:
         self.qcc_ansatz.var_params = None
         self.qcc_ansatz.build_circuit()
         self.vqe_solver.initial_var_params = self.qcc_ansatz.var_params
-
-        self.iteration += 1
-
-        if self.verbose:
-            print(f"Iteration # {self.iteration}")
-            print(f"iQCC total energy = {self.vqe_solver.optimal_energy} Eh")
-            print(f"iQCC correlation energy = {self.vqe_solver.optimal_energy-self.qmf_energy} Eh")
-            print(f"Optimal QMF variational parameters = {optimal_qmf_var_params}")
-            print(f"Optimal QCC variational parameters = {optimal_qcc_var_params}")
-            print(f"Number of iQCC generators = {len(self.qcc_ansatz.dis)}")
-            print(f"iQCC generators = {self.qcc_ansatz.dis}")
-            print(f"iQCC resource estimates = {self.get_resources()}")
 
         if abs(delta_eqcc) < self.deqcc_thresh or self.iteration == self.max_iqcc_iter:
             self.converged = True

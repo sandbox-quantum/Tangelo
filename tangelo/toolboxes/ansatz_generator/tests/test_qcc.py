@@ -74,7 +74,7 @@ class QCCTest(unittest.TestCase):
         # Get qubit hamiltonian for energy evaluation
         qubit_hamiltonian = qcc_ansatz.qubit_ham
 
-        # The QMF and QCC parameters can both be specified; determined automatically othersise.
+        # The QMF and QCC parameters can both be specified; determined automatically otherwise.
         qmf_var_params = [ 3.14159265e+00, -2.42743256e-08,  3.14159266e+00, -3.27162543e-08,
                            3.08514545e-09,  3.08514545e-09,  3.08514545e-09,  3.08514545e-09]
         qcc_var_params = [-2.26136280e-01]
@@ -101,7 +101,7 @@ class QCCTest(unittest.TestCase):
         # Get qubit hamiltonian for energy evaluation
         qubit_hamiltonian = qcc_ansatz.qubit_ham
 
-        # The QMF and QCC parameters can both be specified; determined automatically othersise.
+        # The QMF and QCC parameters can both be specified; determined automatically otherwise.
         qmf_var_params = [3.14159302e+00,  6.20193478e-07,  1.51226426e-06,  3.14159350e+00,
                           3.14159349e+00,  7.88310582e-07,  3.96032530e+00,  2.26734374e+00,
                           3.22127001e+00,  5.77997401e-01,  5.51422406e+00,  6.26513711e+00]
@@ -128,7 +128,7 @@ class QCCTest(unittest.TestCase):
         # Get qubit hamiltonian for energy evaluation
         qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_bk_updown.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
-        # The QMF and QCC parameters can both be specified; determined automatically othersise.
+        # The QMF and QCC parameters can both be specified; determined automatically otherwise.
         qmf_var_params = [3.14159247e+00,  3.14158884e+00,  1.37660700e-06,  3.14159264e+00,
                           3.14159219e+00,  3.14158908e+00,  0.00000000e+00,  0.00000000e+00,
                           6.94108155e-01,  1.03928030e-01,  5.14029803e+00,  2.81850365e+00,
