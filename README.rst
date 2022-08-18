@@ -61,20 +61,23 @@ This package requires a Python 3 environment. We recommend:
 * installing the "dev" version of Python3 if you encounter missing header errors, such as ``python.h file not found``.
 * having good C/C++ compilers and BLAS libraries to ensure good overall performance of computation-intensive code.
 
+
+
 Using pip
 ^^^^^^^^^
 
-The easiest way to install Tangelo in your environment. We recommend upgrading pip first:
+The easiest way to install Tangelo in your local environment. We recommend upgrading pip first:
 
 .. code-block::
 
    python -m pip install -–upgrade pip.
    pip install tangelo-gc
 
+
 From source, using setuptools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package can be installed locally by copying the contents of this repository to any machine.
+This package can be installed locally by copying the contents of this repository to any machine. This can be useful if you need a bit more control on your install (such as installing from a particular branch, or tweaking the `setup.py` install to circumvent any trouble on your system):
 Type the following command in the root directory:
 
 .. code-block::
@@ -85,11 +88,18 @@ If the installation of a dependency fails and the reason is not obvious, we sugg
 separately with ``pip``\ , before trying again.
 
 
+"No install" notebook method
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A good alternative for users that simply want to quickly get a working environment ready, especially for quick tests, demos, tutorials.
+Check out the tutorial section below to see how services such as Google Colab may help you circumvent local installation challenges or go beyond the limitations of your personal computer if you feel short of compute power or memory.
+
+
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
 Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as
-``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice.
+``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice, and refer to their own documentation.
 Most packages can be installed through pip in a straightforward way:
 
 .. code-block::
@@ -136,7 +146,7 @@ Tutorials
 ---------
 
 The ``examples`` folder of this repository contains various Jupyter notebook tutorials, and other examples.
-We wrote a number of them, but nothing prevents users from contributing more notebook content !
+We wrote a number of them, but nothing prevents users from contributing more notebook content, to show what they have been doing with Tangelo!
 You can visualize a number of pre-run notebooks directly on Github or in our Sphinx documentation. If you'd like to be able to run
 them locally, we suggest you use `Jupyter notebooks inside a virtual environment <https://janakiev.com/blog/jupyter-virtual-envs/>`_.
 
@@ -150,8 +160,9 @@ them locally, we suggest you use `Jupyter notebooks inside a virtual environment
 
    python -m ipykernel install --user --name=myenv
 
-Jupyter notebooks can also be displayed and executed in the cloud, removing the constraint of building a local development envrionement.
-This process is described in the `tutorials <./TUTORIALS.rst>`_ file.
+Jupyter notebooks can also be displayed and executed in the cloud, with services such as Google Colab. This removes the constraint of building a local development envrionement, and enables users to run interactive notebooks on machines that may provide a better configuration than their own (more RAM, compute power, access to GPUs...).
+
+Check out our `tutorials <./TUTORIALS.rst>`_ file for more details.
 
 Tests
 -----
