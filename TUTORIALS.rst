@@ -1,6 +1,16 @@
 Tutorials
 =========
 
+* Intro about Tangelo, potential reach and philosophy of our examples.
+* Mention jupyter notebook can be saved in Google Drive.
+* Put a figure or an explanation on how to open any notebook from github.
+* Talk about nbviewer, https://mybinder.org/?
+* Better way of presenting links: shields.io badges
+* Put a link of this website: https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb
+
+What is Google Colab?
+---------------------
+
 Setting-up a local environment to run jupyter notebooks can be a cumbersome step for uninitiated python users.
 `Google Colab <https://colab.research.google.com/>`_ provides a turnkey coding environment for researchers.
 Users can therefore read, execute and collaborate on a code base without leaving the comfort of an internet browser.
