@@ -77,7 +77,7 @@ The easiest way to install Tangelo in your local environment. We recommend upgra
 From source, using setuptools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package can be installed locally by copying the contents of this repository to any machine. This can be useful if you need a bit more control on your install (such as installing from a particular branch, or tweaking the `setup.py` install to circumvent any trouble on your system):
+This package can be installed locally by copying the contents of this repository to any machine. This can be useful if you need a bit more control on your install (such as installing from a particular branch, or tweaking the ``setup.py`` install to circumvent any trouble on your system):
 Type the following command in the root directory:
 
 .. code-block::
