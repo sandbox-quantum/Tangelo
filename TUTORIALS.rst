@@ -31,7 +31,13 @@ help with that.
 Google colab
 ^^^^^^^^^^^^
 
+.. |gcolab| image:: https://colab.research.google.com/assets/colab-badge
+
+|gcolab|
+
 Google Colab is a rather straightforward way to achieve the above, as explained on this `webpage <https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb#scrollTo=K-NVg7RjyeTk>`_.
+If you see |gcolab| link in a notebook, you can just deploy it in Google Colab by just clicking on it.
+
 Users can read, execute and collaborate through their internet browser. The notebook is hosted and executed on a machine
 in the cloud. There are several subscription tiers: the first one is free and may provide you with what you need. The
 others can provide you with access to more performant hardware, including GPUs and TPUs, or extra features.
