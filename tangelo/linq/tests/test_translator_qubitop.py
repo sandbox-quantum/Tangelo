@@ -101,7 +101,7 @@ class TranslateOperatorTest(unittest.TestCase):
 
         t, s = s, t
         tstart2 = time.time()
-        q_op2 = translate_operator(tmp_op, source="qiskit", target="tangelo")
+        q_op2 = translate_operator(tmp_op, source=s, target=t)
         tstop2 = time.time()
         print(f"Qubit operator conversion {s} to {t}: {tstop2 - tstart2:.1f} (terms = {n_terms})")
 
