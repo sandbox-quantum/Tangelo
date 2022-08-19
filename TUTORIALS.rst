@@ -1,13 +1,6 @@
 Tutorials
 =========
 
-* Intro about Tangelo, potential reach and philosophy of our examples.
-* Mention jupyter notebook can be saved in Google Drive.
-* Put a figure or an explanation on how to open any notebook from github.
-* Talk about nbviewer, https://mybinder.org/?
-* Better way of presenting links: shields.io badges
-* Put a link of this website: https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb
-
 Jupyter notebook python tutorials
 ---------------------------------
 
@@ -17,7 +10,7 @@ Working on notebooks is a great way to contribute to this project, and to show e
 perhaps something that led to a hardware experiment, or implemented an interesting approach.
 
 If you are new to Jupyter notebooks, check out `this page <https://realpython.com/jupyter-notebook-introduction/>`_.
-
+I hope you enjoy it.
 
 Quickly deploy a notebook in the cloud
 --------------------------------------
@@ -28,12 +21,13 @@ notebook and try a few things, right now. Or maybe you intend to run a workshop 
 incurred by installation issues experienced by your attendees (the worst). Some cloud providers offer services that can
 help with that.
 
-Google colab
+
+Google Colab
 ^^^^^^^^^^^^
 
 .. |gcolab| image:: https://colab.research.google.com/assets/colab-badge.svg
 
-Google Colab is a rather straightforward way to achieve the above, as explained on this `webpage <https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb#scrollTo=K-NVg7RjyeTk>`_.
+`Google Colab <https://research.google.com/colaboratory/faq.html>`_ is a rather straightforward way to achieve the above, as explained on this `webpage <https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb#scrollTo=K-NVg7RjyeTk>`_.
 If you see a |gcolab| badge like this one in a notebook, you can just deploy the notebook on Google Colab by just clicking on it.
 
 Users can read, execute and collaborate through their internet browser. The notebook is hosted and executed on a machine
@@ -43,6 +37,10 @@ others can provide you with access to more performant hardware, including GPUs a
 Most of our notebooks are ready to be deployed through Google Colab as-is. A few notebooks require dependencies
 that are not publicly available (at the time of writing, QEMIST Cloud is not), or are a bit trickier to install: you may
 have to contact us to get access to non-public material.
+
+If you also have access to Google Drive, you can upload your notebooks there and just open then in Google Colab by
+double-clicking or right-clicking "open with". To enable this, connect Google Drive to Google Colab by
+going to the settings (wheel on top-right of screen), clicking "manage apps" and then searching and installing Colab.
 
 It is possible that Google Colab is not available in your region of the world. Maybe other cloud providers offer similar
 services in your area.
