@@ -15,15 +15,15 @@
 """Module to convert qubit operators to different formats."""
 
 from tangelo.toolboxes.operators import count_qubits
-from tangelo.linq.translator.translate_qiskit import quop_qiskit_to_tangelo, quop_tangelo_to_qiskit
+from tangelo.linq.translator.translate_qiskit import translate_op_from_qiskit, translate_op_to_qiskit
 
 
 FROM_TANGELO = {
-    "qiskit": quop_tangelo_to_qiskit
+    "qiskit": translate_op_to_qiskit
 }
 
 TO_TANGELO = {
-    "qiskit": quop_qiskit_to_tangelo
+    "qiskit": translate_op_from_qiskit
 }
 
 
@@ -38,19 +38,21 @@ def translate_operator(qubit_operator, source, target, n_qubits=None):
         n_qubits (int): Number of qubits relevant to the operator.
 
     Returns:
-        (target format): Translated qubit operator.
+        (operator in target format): Translated qubit operator.
     """
 
     source = source.lower()
     target = target.lower()
 
+    if source == target:
+        return qubit_operator
     if source != "tangelo":
         if source not in TO_TANGELO:
-            raise NotImplementedError(f"Source {source} is not supported.")
+            raise NotImplementedError(f"Qubit operator conversion from {source} to {target} is not supported.")
         qubit_operator = TO_TANGELO[source](qubit_operator)
     if target != "tangelo":
         if target not in FROM_TANGELO:
-            raise NotImplementedError(f"Target {target} is not supported.")
+            raise NotImplementedError(f"Qubit operator conversion from {source} to {target} is not supported.")
         n_qubits = count_qubits(qubit_operator) if n_qubits is None else n_qubits
         qubit_operator = FROM_TANGELO[target](qubit_operator, n_qubits)
 

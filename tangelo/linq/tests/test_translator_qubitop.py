@@ -14,13 +14,15 @@
 
 import os
 import unittest
+import time
+from itertools import product
 
 import numpy as np
 from openfermion.utils import load_operator
 from openfermion.linalg import eigenspectrum
 
 from tangelo.helpers.utils import installed_backends
-from tangelo.linq.translator.translate_qubitop import translate_operator
+from tangelo.linq import translate_operator
 from tangelo.toolboxes.operators import QubitOperator
 
 # For openfermion.load_operator function.
@@ -42,12 +44,6 @@ class TranslateOperatorTest(unittest.TestCase):
 
         with self.assertRaises(NotImplementedError):
             translate_operator(tangelo_op, source="tangelo", target="targetnotsupported")
-
-    def test_tangelo_not_involved(self):
-        """Test error if tangelo is not the source nor the target."""
-
-        with self.assertRaises(NotImplementedError):
-            translate_operator(tangelo_op, source="nottangelo", target="nottangeloeither")
 
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Qiskit not available \n")
     def test_qiskit_to_tangelo(self):
@@ -84,6 +80,30 @@ class TranslateOperatorTest(unittest.TestCase):
         eigenvalues_qiskit = qiskit_solver.compute_eigenvalues(test_op)
 
         np.testing.assert_array_almost_equal(eigenvalues_tangelo, eigenvalues_qiskit.eigenvalues)
+
+    @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Qiskit not available \n")
+    def test_tangelo_to_qiskit_big(self):
+        """Test translation from a tangelo to a qiskit operator, for a large input"""
+
+        n_qubits = 10
+        n_terms = 3**n_qubits
+
+        # Build large operator made of all possible "full" Pauli words (no 'I') of length n_qubits
+        terms = {tuple(zip(range(n_qubits), pw)): 1.0 for pw in product(['X', 'Y', 'Z'], repeat=n_qubits)}
+        q_op = QubitOperator()
+        q_op.terms = terms
+
+        s, t = "tangelo", "qiskit"
+        tstart1 = time.time()
+        tmp_op = translate_operator(q_op, source=s, target=t)
+        tstop1 = time.time()
+        print(f"Qubit operator conversion {s} to {t}: {tstop1 - tstart1:.1f} (terms = {n_terms})")
+
+        t, s = s, t
+        tstart2 = time.time()
+        q_op2 = translate_operator(tmp_op, source="qiskit", target="tangelo")
+        tstop2 = time.time()
+        print(f"Qubit operator conversion {s} to {t}: {tstop2 - tstart2:.1f} (terms = {n_terms})")
 
 
 if __name__ == "__main__":

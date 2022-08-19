@@ -106,7 +106,7 @@ def translate_qiskit(source_circuit):
     return target_circuit
 
 
-def quop_tangelo_to_qiskit(qubit_operator, n_qubits):
+def translate_op_to_qiskit(qubit_operator, n_qubits):
     """Helper function to translate a Tangelo QubitOperator to a qiskit
     PauliSumOp. Qiskit must be installed for the function to work.
 
@@ -132,8 +132,8 @@ def quop_tangelo_to_qiskit(qubit_operator, n_qubits):
     return PauliSumOp.from_list(term_list)
 
 
-def quop_qiskit_to_tangelo(qubit_operator):
-    """Helper function to translate a a qiskit PauliSumOp to a Tangelo
+def translate_op_from_qiskit(qubit_operator):
+    """Helper function to translate a qiskit PauliSumOp to a Tangelo
     QubitOperator.
 
     Args:
