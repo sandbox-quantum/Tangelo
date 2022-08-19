@@ -31,7 +31,7 @@ help with that.
 Google colab
 ^^^^^^^^^^^^
 
-.. |gcolab| image:: https://colab.research.google.com/assets/colab-badge
+.. |gcolab| image:: https://colab.research.google.com/assets/colab-badge.svg
 
 |gcolab|
 
