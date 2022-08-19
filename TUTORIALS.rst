@@ -46,16 +46,16 @@ services in your area.
 Setting up your environment through an already-deployed notebook
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you have access to an already-deployed notebook, you can actually make python run shell commands to modify
+If you have access to an already-deployed notebook in a remote environment you have little control on, you can actually make python run shell commands to modify
 the environment in which it runs. We use that trick to check right at the start if Tangelo or the other dependencies
 for our notebooks are already installed, and install them for you if not. This is what the cell looks like:
 
-.. code-block:: python
+.. code-block::
 
-  try:
-    import tangelo
-  except ModuleNotFoundError:
-    !pip install git+https://github.com/goodchemistryco/Tangelo.git@develop --quiet
+   try:
+      import tangelo
+   except ModuleNotFoundError:
+      !pip install git+https://github.com/goodchemistryco/Tangelo.git@develop --quiet
 
 You can use pip to install python packages, but you can run any other shell command: use other package managers for other
 software and libraries, download data from somewhere else...
