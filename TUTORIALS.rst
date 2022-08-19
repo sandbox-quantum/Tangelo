@@ -33,8 +33,6 @@ Google colab
 
 .. |gcolab| image:: https://colab.research.google.com/assets/colab-badge.svg
 
-|gcolab|
-
 Google Colab is a rather straightforward way to achieve the above, as explained on this `webpage <https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb#scrollTo=K-NVg7RjyeTk>`_.
 If you see a |gcolab| badge like this one in a notebook, you can just deploy the notebook on Google Colab by just clicking on it.
 
