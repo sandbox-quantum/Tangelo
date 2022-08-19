@@ -19,7 +19,7 @@ from openfermion import get_sparse_operator
 import numpy as np
 from scipy.linalg import expm
 
-from tangelo.linq import Simulator, backend_info
+from tangelo.linq import Simulator
 from tangelo.helpers.utils import installed_backends
 from tangelo.linq.helpers.circuits.statevector import StateVector
 from tangelo.toolboxes.operators.operators import QubitOperator
@@ -53,7 +53,7 @@ class lcu_Test(unittest.TestCase):
 
         for backend in backends:
             sim = Simulator(backend)
-            statevector_order = backend_info[backend]["statevector_order"]
+            statevector_order = sim.backend_info["statevector_order"]
             sv = StateVector(vec, order=statevector_order)
             sv_circuit = sv.initializing_circuit()
 
@@ -88,7 +88,7 @@ class lcu_Test(unittest.TestCase):
 
         for backend in backends:
             sim = Simulator(backend)
-            statevector_order = backend_info[backend]["statevector_order"]
+            statevector_order = sim.backend_info["statevector_order"]
             sv = StateVector(vec, order=statevector_order)
             sv_circuit = sv.initializing_circuit()
 
