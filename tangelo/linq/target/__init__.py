@@ -16,3 +16,4 @@ from .target_cirq import Cirq
 from .target_qiskit import Qiskit
 from .target_qulacs import Qulacs
 from .target_qdk import QDK
+from .target_qiskit_device import QiskitDevice
