@@ -105,6 +105,8 @@ class TranslateOperatorTest(unittest.TestCase):
         tstop2 = time.time()
         print(f"Qubit operator conversion {s} to {t}: {tstop2 - tstart2:.1f} (terms = {n_terms})")
 
+        assert(q_op == q_op2)
+
 
 if __name__ == "__main__":
     unittest.main()
