@@ -87,6 +87,11 @@ Type the following command in the root directory:
 If the installation of a dependency fails and the reason is not obvious, we suggest installing that dependency
 separately with ``pip``\ , before trying again.
 
+With Docker
+^^^^^^^^^^^
+
+Use our Docker file to deploy Tangelo in a Linux environment, either retrieved from pip or mounted locally.
+Comment / uncomment the relevant sections of the Dockerfile to control installation and dependencies.
 
 "No install" notebook method
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
