@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .target_cirq import Cirq
+from .target_cirq import Cirq, QSimCirq, Cirq_QVM
 from .target_qiskit import Qiskit
 from .target_qulacs import Qulacs
 from .target_qdk import QDK

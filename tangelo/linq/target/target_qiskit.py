@@ -86,7 +86,7 @@ class Qiskit(SimulatorBase):
             translated_circuit = qiskit.transpile(translated_circuit, backend)
             translated_circuit.save_statevector()
             sim_results = backend.run(translated_circuit).result()
-            self._current_state = sim_results.get_statevector(translated_circuit)
+            self._current_state = np.asarray(sim_results.get_statevector(translated_circuit))
             frequencies = self._statevector_to_frequencies(self._current_state)
 
         return (frequencies, np.array(sim_results.get_statevector())) if return_statevector else (frequencies, None)
