@@ -17,7 +17,7 @@
 
 import math
 from typing import Union, Tuple, List
-from copy import copy
+from copy import copy, deepcopy
 
 import numpy as np
 import pyqsp
@@ -26,12 +26,12 @@ from pyqsp.angle_sequence import AngleFindingError
 from pyqsp.completion import CompletionError
 
 from tangelo.linq import Gate, Circuit
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.linq.helpers.circuits.statevector import StateVector
-from tangelo.toolboxes.operators.operators import QubitOperator, count_qubits
 from tangelo.toolboxes.circuits.lcu import get_uprep_uselect, sign_flip, get_lcu_qubit_op_info
 
 
-def ham_sim_phases(tau=1, eps=1.e-2, n_attempts=10, method="laurent"):
+def ham_sim_phases(tau: float, eps: float = 1.e-2, n_attempts: int = 10, method: str = "laurent") -> List[float]:
 
     pg = pyqsp.poly.PolyCosineTX()
     pcoefs, _ = pg.generate(tau=tau,
@@ -68,7 +68,7 @@ def ham_sim_phases(tau=1, eps=1.e-2, n_attempts=10, method="laurent"):
     return phiset + phiset2
 
 
-def ham_sim_phases_QSPPACK(folder, tau=1, eps=1.e-7):
+def ham_sim_phases_QSPPACK(folder: str, tau: float, eps: float = 1.e-7) -> List[float]:
     from oct2py import octave
     from scipy.special import jn
     octave.addpath(folder)
@@ -91,21 +91,21 @@ def ham_sim_phases_QSPPACK(folder, tau=1, eps=1.e-7):
     return list(phi1.flatten()) + list(phi2.flatten())
 
 
-def zero_controlled_cnot(qubit_list, target, control):
+def zero_controlled_cnot(qubit_list: List[int], target: Union[int, List[int]], control: Union[int, List[int]]) -> Circuit:
     x_ladder = [Gate("X", q) for q in qubit_list]
     gates = x_ladder + [Gate("CX", target=target, control=qubit_list+control)] + x_ladder
     return Circuit(gates)
 
 
-def controlled_rotation(phi, target, control):
+def controlled_rotation(phi: float, target: Union[int, List[int]], control: Union[int, List[int]]) -> Circuit:
     gates = [Gate("CRZ", target=target, parameter=2*phi, control=control)]
     return Circuit(gates)
 
 
-def f_p_fdag_no_anc(cua, m_qs, angles, control=None, with_z=False):
+def f_p_fdag_no_anc(cua: Circuit, m_qs: List[int], angles: List[float], control: Union[int, List[int]] = None, with_z: bool = False) -> Circuit:
     c_list = list()
     if control is not None:
-        c_list += control
+        c_list += control if isinstance(control, list) else [control]
 
     anc = m_qs[-1]+1
     if with_z:
@@ -130,7 +130,8 @@ def f_p_fdag_no_anc(cua, m_qs, angles, control=None, with_z=False):
     return qubcirc
 
 
-def get_qsp_circuit(qu_op, tau, eps=1.e-4, control=None, n_attempts=10, method='laurent', folder=None):
+def get_qsp_circuit(qu_op: QubitOperator, tau: float, eps: float = 1.e-4, control: Union[int, List[int]] = None, n_attempts: int = 10,
+                    method: str = 'laurent', folder: str = None) -> Circuit:
     """Returns Quantum Signal Processing (QSP) time-evolution circuit for a given QubitOperator for time tau"""
 
     if control is not None:
@@ -138,11 +139,16 @@ def get_qsp_circuit(qu_op, tau, eps=1.e-4, control=None, n_attempts=10, method='
     else:
         control_list = []
 
-    _, m_qs, alpha = get_lcu_qubit_op_info(qu_op)
+    swap_time = False
+    if tau < 0.:
+        qu_op = -qu_op
+        tau = -tau
+        swap_time = True
+    q_qs, m_qs, alpha = get_lcu_qubit_op_info(qu_op)
 
-    if method in ["laurent", "tf"]:
+    if method.lower() in ["laurent", "tf"]:
         angles = ham_sim_phases(tau*alpha, eps, n_attempts, method)
-    elif method == "octave":
+    elif method.lower() == "qsppack":
         angles = ham_sim_phases_QSPPACK(folder, tau*alpha, eps)
 
     # Leave gap of 1-qubit for f-circuit
@@ -174,8 +180,16 @@ def get_qsp_circuit(qu_op, tau, eps=1.e-4, control=None, n_attempts=10, method='
     # imaginary part i*sin(Ht)
     circ += f_p_fdag_no_anc(cua, m_qs, anglesi, control=ext_qs+control_list, with_z=False)
     # -I to ensure probability is np.arcsin
-    circ += Circuit([Gate("X", ext_qs[1]), Gate("CRZ", target=0, parameter=2*np.pi, control=ext_qs), Gate("X", ext_qs[1])])
+    circ += Circuit([Gate("X", ext_qs[1]), Gate("CRZ", target=0, parameter=2*np.pi, control=ext_qs+control_list), Gate("X", ext_qs[1])])
 
     circ += uprep.inverse()
 
-    return circ + (sign_flip(flip_qs) + circ.inverse() + sign_flip(flip_qs) + circ)*3
+    if control is not None:
+        gates = [Gate("CRZ", q_qs[0], control=control, parameter=2*np.pi)] if len(anglesi) % 4 == 2 else []
+    else:
+        gates = [Gate("RZ", q_qs[0], parameter=2*np.pi)] if len(anglesi) % 4 == 2 else []
+    if swap_time:
+        qu_op = -qu_op
+        tau = -tau
+
+    return circ + (sign_flip(flip_qs) + circ.inverse() + sign_flip(flip_qs) + circ)*3 + Circuit(gates)

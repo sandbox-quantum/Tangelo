@@ -346,7 +346,7 @@ def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None)
     return amplified_lcu_circuit
 
 
-def get_uprep_uselect(qu_op: QubitOperator, control: Union[int, List[int]] = None) -> Circuit:
+def get_uprep_uselect(qu_op: QubitOperator, control: Union[int, List[int]] = None) -> Tuple[Circuit, Circuit, List[int], List[int], float]:
     """Get uprep and (controlled-)uselect circuits along with their corresponding qubits for a QubitOperator
     Args:
         qu_op (QubitOperator): The qu_op to apply. Must be nearly unitary for algorithm to succeed with high probability.
