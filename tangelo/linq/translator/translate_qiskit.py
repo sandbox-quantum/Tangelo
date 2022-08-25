@@ -12,15 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Functions helping with quantum circuit format conversion between abstract
-format and qiskit format.
+"""Functions helping with quantum circuit and operator format conversion between
+Tangelo format and qiskit format.
 
 In order to produce an equivalent circuit for the target backend, it is
 necessary to account for:
 - how the gate names differ between the source backend to the target backend.
 - how the order and conventions for some of the inputs to the gate operations
     may also differ.
+
+The module also enables bidirectional conversion between qiskit and Tangelo
+qubit operators (linear combination of Pauli operators)
 """
+
+from tangelo.toolboxes.operators import QubitOperator
+from tangelo.linq.helpers import pauli_of_to_string, pauli_string_to_of
 
 
 def get_qiskit_gates():
@@ -98,3 +104,58 @@ def translate_qiskit(source_circuit):
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qiskit")
     return target_circuit
+
+
+def translate_op_to_qiskit(qubit_operator, n_qubits):
+    """Helper function to translate a Tangelo QubitOperator to a qiskit
+    PauliSumOp. Qiskit must be installed for the function to work.
+
+    Args:
+        qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
+        n_qubits (int): Number of qubits relevant to the operator.
+
+    Returns:
+        (qiskit.opflow.primitive_ops.PauliSumOp): Qiskit qubit operator.
+    """
+
+    # Import qiskit qubit operator.
+    from qiskit.opflow.primitive_ops import PauliSumOp
+
+    # Convert each term sequencially.
+    term_list = list()
+    for term_tuple, coeff in qubit_operator.terms.items():
+        term_string = pauli_of_to_string(term_tuple, n_qubits)
+
+        # Reverse the string because of qiskit convention.
+        term_list += [(term_string[::-1], coeff)]
+
+    return PauliSumOp.from_list(term_list)
+
+
+def translate_op_from_qiskit(qubit_operator):
+    """Helper function to translate a qiskit PauliSumOp to a Tangelo
+    QubitOperator.
+
+    Args:
+        qubit_operator (qiskit.opflow.primitive_ops.PauliSumOp): Self-explanatory.
+
+    Returns:
+        (tangelo.toolboxes.operators.QubitOperator): Tangelo qubit operator.
+    """
+
+    # Create a dictionary to append all terms at once.
+    terms_dict = dict()
+    for pauli_word in qubit_operator:
+        # Inversion of the string because of qiskit ordering.
+        term_string = pauli_word.to_pauli_op().primitive.to_label()[::-1]
+        term_tuple = pauli_string_to_of(term_string)
+        terms_dict[tuple(term_tuple)] = pauli_word.coeff
+
+    # Create and copy the information into a new QubitOperator.
+    tangelo_op = QubitOperator()
+    tangelo_op.terms = terms_dict
+
+    # Clean the QubitOperator.
+    tangelo_op.compress()
+
+    return tangelo_op
