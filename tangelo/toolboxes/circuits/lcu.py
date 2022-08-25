@@ -204,7 +204,7 @@ def USelectkl(unitaries: List[QubitOperator], n_qubits_sv: int, kmax: int, contr
 
     n_qubits_u = math.ceil(math.log2(len(unitaries)))
     if control is not None:
-        control_list = control if isinstance(control, list) else [control]
+        control_list = copy(control) if isinstance(control, list) else [control]
     else:
         control_list = []
 
@@ -260,7 +260,9 @@ def sign_flip(qubit_list: List[int], control: Union[int, List[int]] = None) -> C
     fcontrol_list += qubit_list[:-1]
 
     gate_list += x_ladder
-    gate_list.append(Gate('CZ', target=qubit_list[-1], control=fcontrol_list))
+    gate_list.append(Gate('H', target=qubit_list[-1]))
+    gate_list.append(Gate('CX', target=qubit_list[-1], control=fcontrol_list))
+    gate_list.append(Gate('H', target=qubit_list[-1]))
     gate_list += x_ladder
     return Circuit(gate_list)
 
@@ -276,7 +278,7 @@ def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None)
     """
 
     if control is not None:
-        control_list = control if isinstance(control, list) else [control]
+        control_list = copy(control) if isinstance(control, list) else [control]
     else:
         control_list = []
 
@@ -342,3 +344,86 @@ def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None)
         amplified_lcu_circuit += Circuit(gates)
 
     return amplified_lcu_circuit
+
+
+def get_uprep_uselect(qu_op: QubitOperator, control: Union[int, List[int]] = None) -> Circuit:
+    """Get uprep and (controlled-)uselect circuits along with their corresponding qubits for a QubitOperator
+    Args:
+        qu_op (QubitOperator): The qu_op to apply. Must be nearly unitary for algorithm to succeed with high probability.
+        control (int or list[int]): Control qubit(s)
+    Returns:
+        Circuit: Uprep circuit
+        Circuit: Uselect circuit
+        List[int]: QubitOperator qubits
+        List[int]: Auxillary qubits
+        float: alpha = 1-norm of coefficients of qu_op
+    """
+
+    if control is not None:
+        control_list = copy(control) if isinstance(control, list) else [control]
+    else:
+        control_list = []
+
+    unitaries = list()
+    vector = list()
+    max_qu_op = count_qubits(qu_op)
+    for term, coeff in qu_op.terms.items():
+        acoeff = np.abs(coeff)
+        vector += [acoeff]
+        unitaries += [QubitOperator(term, -coeff / acoeff)]
+
+    # create U_{prep} from sqrt of coefficients
+    num_terms = len(vector)
+    vector = np.array(vector)
+    alpha = sum(vector)
+    vector = np.sqrt(vector)
+    vector = vector / np.linalg.norm(vector)
+    n_qubits = math.ceil(math.log2(num_terms))
+    newvec = np.zeros(2**n_qubits)
+    newvec[0:num_terms] = vector[:]
+    s = StateVector(newvec, order="lsq_first")
+    uprep = s.initializing_circuit()
+    uprep_qubits = list(range(max_qu_op, max_qu_op + n_qubits))
+    uprep.reindex_qubits(uprep_qubits)
+
+    # Generate U_{Select}
+    gate_list = list()
+    control_qubits = uprep_qubits + control_list
+    for j, unitary in enumerate(unitaries):
+        bs = bin(j).split('b')[-1]
+        state_binstr = "0" * (n_qubits - len(bs)) + bs
+        x_ladder = [Gate("X", q + max_qu_op) for q, i in enumerate(state_binstr) if i == "0"]
+        gate_list += x_ladder
+        for term, coeff in unitary.terms.items():
+            phasez = np.arctan2(-coeff.imag, coeff.real)
+            phasep = -phasez*2
+
+            if abs(phasez) > 1.e-12:
+                gate_list.append(Gate("CRZ", target=0, control=control_qubits, parameter=phasez*2))
+            if abs(phasep) > 1.e-12 or not np.isclose(abs(phasep), np.pi*2):
+                gate_list.append(Gate("CPHASE", target=0, control=control_qubits, parameter=phasep))
+            gate_list += [Gate("C"+op, target=index, control=control_qubits) for index, op in term]
+        gate_list += x_ladder
+
+    uselect = Circuit(gate_list)
+
+    return uprep, uselect, list(range(max_qu_op)), uprep_qubits, alpha
+
+
+def get_lcu_qubit_op_info(qu_op: QubitOperator()) -> Tuple[List[int], List[int], float]:
+    """Return the operator and auxillary qubit indices and 1-norm for the LCU block decomposition of given QubitOperator
+    Args:
+        qu_op (QubitOperator): The qubit operator to decompose into an Linear Combination of Unitaries block encoding
+
+    Returns:
+        List[int]: The qubit operator indices
+        List[int]: The auxillary qubits for the uprep circuit
+        float: The 1-norm of the qubit operator
+    """
+
+    max_qu_op = count_qubits(qu_op)
+    num_terms = len(qu_op.terms)
+    alpha = sum([abs(v) for _, v in qu_op.terms.items()])
+    n_qubits = math.ceil(math.log2(num_terms))
+
+    return list(range(max_qu_op)), list(range(max_qu_op, max_qu_op + n_qubits)), alpha
