@@ -26,7 +26,7 @@ from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import get_qft_circuit
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.circuits.lcu import get_lcu_qubit_op_info
-from tangelo.toolboxes.circuits.qsp import get_qsp_circuit
+from tangelo.toolboxes.circuits.qsp import get_qsp_hamiltonian_simulation_circuit
 
 # Test for both "cirq" and if available "qulacs". These have different orderings.
 # qiskit is not currently supported because does not have multi controlled general gates.
@@ -59,7 +59,7 @@ class lcu_Test(unittest.TestCase):
             sv_circuit = sv.initializing_circuit()
 
             # Tested for up to k = 5 but 5 is slow due to needing 23 qubits to simulate.
-            qsp_circuit = get_qsp_circuit(qu_op, time)
+            qsp_circuit = get_qsp_hamiltonian_simulation_circuit(qu_op, time)
             _, v = sim.simulate(sv_circuit + qsp_circuit, return_statevector=True)
             _, m_qs, _ = get_lcu_qubit_op_info(qu_op)
             len_ancilla = 2**(len(m_qs) + 3)
@@ -88,7 +88,7 @@ class lcu_Test(unittest.TestCase):
 
         pe_circuit = get_qft_circuit(qubit_list)
         for i, qubit in enumerate(qubit_list):
-            pe_circuit += get_qsp_circuit(qu_op, tau=-(2*np.pi)*2**i, control=qubit, eps=1.e-2)
+            pe_circuit += get_qsp_hamiltonian_simulation_circuit(qu_op, tau=-(2*np.pi)*2**i, control=qubit, eps=1.e-2)
         pe_circuit += get_qft_circuit(qubit_list, inverse=True)
 
         freqs, _ = sim_cirq.simulate(pe_circuit, initial_statevector=wave_9)

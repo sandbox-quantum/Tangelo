@@ -12,12 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module to generate the circuits necessary to implement quantum signal processing
+"""Module to generate the circuits necessary to implement quantum signal processing (QSP) Hamiltonian Simulation
+
+Ref:
+[1]: Yulong Dong, Xiang Meng, K. Birgitta Whaley, Lin Lin, "Efficient phase-factor evaluation in quantum signal processing"
+2021, arXiv:2002.11649 (https://arxiv.org/abs/2002.11649)
 """
 
 import math
-from typing import Union, Tuple, List
-from copy import copy, deepcopy
+from typing import Union, List, Tuple
+from copy import copy
 
 import numpy as np
 import pyqsp
@@ -31,7 +35,19 @@ from tangelo.linq.helpers.circuits.statevector import StateVector
 from tangelo.toolboxes.circuits.lcu import get_uprep_uselect, sign_flip, get_lcu_qubit_op_info
 
 
-def ham_sim_phases(tau: float, eps: float = 1.e-2, n_attempts: int = 10, method: str = "laurent") -> List[float]:
+def ham_sim_phases(tau: float, eps: float = 1.e-2, n_attempts: int = 10, method: str = "laurent") -> Tuple[List[float], List[float]]:
+    """Generate the phases required for QSP time-evolution using the pyqsp package
+
+    Args:
+        tau (float): The evolution time
+        eps (float): The precision to calculate the factors. Higher precision is more likely to fail
+        n_attempts (int): The number of attempts to calculate the phase factors. Often multiple tries are required
+        method: "laurent": Laurent Polynomial method (unstable but fast). "tf" requires TensorFlow installed and is stable but very slow
+
+    Returns:
+        List[float]: The phases for Cos(Ht)
+        List[float]: The phases for i*Sin(Ht)
+    """
 
     pg = pyqsp.poly.PolyCosineTX()
     pcoefs, _ = pg.generate(tau=tau,
@@ -65,10 +81,26 @@ def ham_sim_phases(tau: float, eps: float = 1.e-2, n_attempts: int = 10, method:
                 print(f"Attempt {i+2} for the imaginary phases")
         else:
             break
-    return phiset + phiset2
+    return phiset, phiset2
 
 
-def ham_sim_phases_QSPPACK(folder: str, tau: float, eps: float = 1.e-7) -> List[float]:
+def ham_sim_phases_QSPPACK(folder: str, tau: float, eps: float = 1.e-7) -> Tuple[List[float], List[float]]:
+    """Generate the phases required for QSP time-evolution using the QSPPACK package.
+
+    QSPPACK is an Matlab/Octave based package that calculates the phase factors. To run this function, a user needs to have
+    1) Octave installed and accessible in path. Octave can be found at https://octave.org/
+    2) oct2py installed. pip install oct2py
+    3) QSPPACK downloaded in an accessible folder. Can be found at https://github.com/qsppack/QSPPACK/tree/dev
+
+    Args:
+        folder (str): The folder location of QSPPACK.
+        tau (float): The evolution time
+        eps (float): The precision to calculate the factors.
+
+    Returns:
+        List[float]: The phases for Cos(Ht)
+        List[float]: The phases for i*Sin(Ht)
+    """
     from oct2py import octave
     from scipy.special import jn
     octave.addpath(folder)
@@ -88,21 +120,53 @@ def ham_sim_phases_QSPPACK(folder: str, tau: float, eps: float = 1.e-7) -> List[
     for i in range(1, len(coef)+1):
         coef[i-1][0] = (-1)**(i-1)*jn(2*i-1, tau)
     phi2, _ = octave.QSP_solver(coef, 1, opts, nout=2)
-    return list(phi1.flatten()) + list(phi2.flatten())
+    return list(phi1.flatten()), list(phi2.flatten())
 
 
-def zero_controlled_cnot(qubit_list: List[int], target: Union[int, List[int]], control: Union[int, List[int]]) -> Circuit:
+def zero_controlled_cnot(qubit_list: List[int], target: int, control: Union[int, List[int]]) -> Circuit:
+    """Return the circuit for a zero controlled CNOT gate with possible extra controls on 1
+
+    Args:
+        qubit_list (List[int]): The qubits controlled by zero
+        target (int): The target qubit
+        control (List[int] or int): The qubits controlled by one
+
+    Returns:
+        Circuit: The zero controlled cnot circuit with possible extra controls
+    """
     x_ladder = [Gate("X", q) for q in qubit_list]
     gates = x_ladder + [Gate("CX", target=target, control=qubit_list+control)] + x_ladder
     return Circuit(gates)
 
 
-def controlled_rotation(phi: float, target: Union[int, List[int]], control: Union[int, List[int]]) -> Circuit:
+def controlled_rotation(phi: float, target: int, control: Union[int, List[int]]) -> Circuit:
+    """Return the controlled rotation circuit required for QSP
+
+    Args:
+        phi (float): The phase angle as defined in the QSP algorithm.
+        target (int): The target qubit
+        control (Union[int, List[int]]): The control qubit(s)
+
+    Returns:
+        Circuit: The controlled rotation circuit
+    """
     gates = [Gate("CRZ", target=target, parameter=2*phi, control=control)]
     return Circuit(gates)
 
 
-def f_p_fdag_no_anc(cua: Circuit, m_qs: List[int], angles: List[float], control: Union[int, List[int]] = None, with_z: bool = False) -> Circuit:
+def get_qsp_circuit_no_anc(cua: Circuit, m_qs: List[int], angles: List[float], control: Union[int, List[int]] = None, with_z: bool = False) -> Circuit:
+    """Generate the ancilla free QSP circuit as defined in Fig 16 of https://arxiv.org/abs/2002.11649
+
+    Args:
+        cua (Circuit): The controlled unitary (U_A)
+        m_qs (List[int]): The m ancilla qubits used for the Uprep circuit
+        angles (List[float]): The phases for the QSP circuit
+        control (Union[int, List[int]]): The control qubit(s)
+        with_z (bool): If True, an extra CZ gate is included. This adds a 1j phase to the operation
+
+    Returns:
+        Circuit: The ancilla free QSP circuit
+    """
     c_list = list()
     if control is not None:
         c_list += control if isinstance(control, list) else [control]
@@ -130,9 +194,24 @@ def f_p_fdag_no_anc(cua: Circuit, m_qs: List[int], angles: List[float], control:
     return qubcirc
 
 
-def get_qsp_circuit(qu_op: QubitOperator, tau: float, eps: float = 1.e-4, control: Union[int, List[int]] = None, n_attempts: int = 10,
-                    method: str = 'laurent', folder: str = None) -> Circuit:
-    """Returns Quantum Signal Processing (QSP) time-evolution circuit for a given QubitOperator for time tau"""
+def get_qsp_hamiltonian_simulation_circuit(qu_op: QubitOperator, tau: float, eps: float = 1.e-4, control: Union[int, List[int]] = None, n_attempts: int = 10,
+                                           method: str = 'laurent', folder: str = None) -> Circuit:
+    """Returns Quantum Signal Processing (QSP) Hamiltonian simulation circuit for a given QubitOperator for time tau.
+
+    The circuits are derived from https://arxiv.org/abs/2002.11649
+
+    Args:
+        qu_op (QubitOperator): The qubit operator to generate the QSP time-evolution circuit
+        tau (float): The evolution time
+        eps (float): The allowed error of the time-evolution. Higher accuracy requires longer circuits and obtain the phases can be unstable
+        control (Union[int, List[int]]): The control qubit(s)
+        n_attempts (int): The number of attempts to calculate the phase factors using pyqsp
+        method (str): "laurent": Use laurent polynomial method of pyqsp, "tf": Use TensorFlow with pyqsp, "QSPPACK": Use QSPPACK to calculate phases
+        folder (str): Folder that contains QSPPACK
+
+    Returns:
+        Circuit: The QSP Hamiltonian simulation circuit with oblivious amplitude amplification to ensure very high success probability.
+    """
 
     if control is not None:
         control_list = copy(control) if isinstance(control, list) else [control]
@@ -147,18 +226,13 @@ def get_qsp_circuit(qu_op: QubitOperator, tau: float, eps: float = 1.e-4, contro
     q_qs, m_qs, alpha = get_lcu_qubit_op_info(qu_op)
 
     if method.lower() in ["laurent", "tf"]:
-        angles = ham_sim_phases(tau*alpha, eps, n_attempts, method)
+        anglesr, anglesi = ham_sim_phases(tau*alpha, eps, n_attempts, method)
     elif method.lower() == "qsppack":
-        angles = ham_sim_phases_QSPPACK(folder, tau*alpha, eps)
+        anglesr, anglesi = ham_sim_phases_QSPPACK(folder, tau*alpha, eps)
 
     # Leave gap of 1-qubit for f-circuit
     ext_qs = list(range(m_qs[-1]+2, m_qs[-1]+4))
     flip_qs = m_qs + [m_qs[-1]+1] + ext_qs
-
-    # unpack real and imaginary angles.
-    lang = len(angles)
-    anglesr = angles[0:lang//2]
-    anglesi = angles[lang//2:]
 
     uprep, uselect, _, _, _ = get_uprep_uselect(qu_op, control=ext_qs+control_list)
     cua = uprep + uselect + uprep.inverse()
@@ -175,10 +249,10 @@ def get_qsp_circuit(qu_op: QubitOperator, tau: float, eps: float = 1.e-4, contro
 
     circ = uprep + Circuit([Gate("X", ext_qs[0])])
     # real part cos(Ht)
-    circ += f_p_fdag_no_anc(cua, m_qs, anglesr, control=ext_qs+control_list, with_z=False)
+    circ += get_qsp_circuit_no_anc(cua, m_qs, anglesr, control=ext_qs+control_list, with_z=False)
     circ += Circuit([Gate("X", ext_qs[0])])
     # imaginary part i*sin(Ht)
-    circ += f_p_fdag_no_anc(cua, m_qs, anglesi, control=ext_qs+control_list, with_z=False)
+    circ += get_qsp_circuit_no_anc(cua, m_qs, anglesi, control=ext_qs+control_list, with_z=False)
     # -I to ensure probability is np.arcsin
     circ += Circuit([Gate("X", ext_qs[1]), Gate("CRZ", target=0, parameter=2*np.pi, control=ext_qs+control_list), Gate("X", ext_qs[1])])
 
