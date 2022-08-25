@@ -220,3 +220,23 @@ class SA_VQESolver(VQESolver):
             print(f"\tEnergy = {energy:.7f} ")
 
         return energy
+
+    def get_resources(self):
+        """Estimate the resources required by SA-VQE, with the current ansatz. This
+        assumes "build" has been run, as it requires the ansatz circuit and the
+        qubit Hamiltonian. Return information that pertains to the user, for the
+        purpose of running an experiment on a classical simulator or a quantum
+        device.
+        """
+
+        resources = dict()
+        resources["qubit_hamiltonian_terms"] = (len(self.qubit_hamiltonian.terms) + len(self.deflation_circuits))*self.n_states
+        circuit = (self.reference_circuits[0] + self.ansatz.circuit + self.deflation_circuits[0] if self.deflation_circuits else
+                   self.reference_circuits[0] + self.ansatz.circuit)
+        resources["circuit_width"] = circuit.width
+        resources["circuit_gates"] = circuit.size
+        # For now, only CNOTs supported.
+        resources["circuit_2qubit_gates"] = circuit.counts.get("CNOT", 0)
+        resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
+        resources["vqe_variational_parameters"] = len(self.initial_var_params)
+        return resources

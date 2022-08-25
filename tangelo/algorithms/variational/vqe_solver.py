@@ -292,11 +292,14 @@ class VQESolver:
         """
 
         resources = dict()
-        resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms)
-        resources["circuit_width"] = self.ansatz.circuit.width
-        resources["circuit_gates"] = self.ansatz.circuit.size
+        resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms) + len(self.deflation_circuits)
+        circuit = self.ansatz.circuit if self.ref_state is None else self.reference_circuit + self.ansatz.circuit
+        if self.deflation_circuits:
+            circuit += self.deflation_circuits[0]
+        resources["circuit_width"] = circuit.width
+        resources["circuit_gates"] = circuit.size
         # For now, only CNOTs supported.
-        resources["circuit_2qubit_gates"] = self.ansatz.circuit.counts.get("CNOT", 0)
+        resources["circuit_2qubit_gates"] = circuit.counts.get("CNOT", 0)
         resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
         resources["vqe_variational_parameters"] = len(self.initial_var_params)
         return resources
@@ -388,7 +391,7 @@ class VQESolver:
             raise TypeError("operator must be a of string, FermionOperator or QubitOperator type.")
 
         if isinstance(operator, (str, FermionOperator)):
-            if (n_active_electrons is None or n_active_sos is None or spin is None) and self.qubit_hamiltonian.mapping == "scbk":
+            if (n_active_electrons is None or n_active_sos is None or spin is None) and self.qubit_mapping == "scbk":
                 if self.molecule:
                     n_active_electrons = self.molecule.n_active_electrons
                     n_active_sos = self.molecule.n_active_sos
@@ -397,10 +400,10 @@ class VQESolver:
                     raise KeyError("Must supply n_active_electrons, n_active_sos, and spin with a FermionOperator and scbk mapping.")
 
             self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=exp_op,
-                                                              mapping=self.qubit_hamiltonian.mapping,
+                                                              mapping=self.qubit_mapping,
                                                               n_spinorbitals=n_active_sos,
                                                               n_electrons=n_active_electrons,
-                                                              up_then_down=self.qubit_hamiltonian.up_then_down,
+                                                              up_then_down=self.up_then_down,
                                                               spin=spin)
 
         self.ansatz.update_var_params(var_params)

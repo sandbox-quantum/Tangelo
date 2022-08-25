@@ -35,6 +35,9 @@ class TestNotebooks(unittest.TestCase):
     def test_oniom_notebook(self):
         run_notebook_as_test('./oniom.ipynb')
 
+    def test_excited_states(self):
+        run_notebook_as_test('./excited_states.ipynb')
+
     @unittest.skip("Requires qemist cloud access")
     def test_qemist_cloud_hardware_experiments_notebook(self):
         run_notebook_as_test('./qemist_cloud_hardware_experiments_braket.ipynb')
