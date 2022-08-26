@@ -125,7 +125,10 @@ class Gate(dict):
 
         ds, do = self.__dict__, other.__dict__
 
-        if any(ds[k] != do[k] for k in ds if k != "parameter"):
+        # Check CNOT CX Separately
+        ignore_list = ["name", "parameter"] if ds["name"] in ["CNOT", "CX"] and do["name"] in ["CNOT", "CX"] else ["parameter"]
+
+        if any(ds[k] != do[k] for k in ds if k not in ignore_list):
             return False
 
         parameter = round(ds["parameter"] % (2 * pi), 7) if isinstance(ds["parameter"], (float, int)) else ds["parameter"]
