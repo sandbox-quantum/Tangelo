@@ -130,6 +130,7 @@ class TestTranslation(unittest.TestCase):
         """
 
         import qiskit
+        from qiskit.providers.aer import AerSimulator
 
         # Generate the qiskit circuit by translating from the abstract one and print it
         translated_circuit = translator.translate_qiskit(abs_circ)
@@ -144,7 +145,7 @@ class TestTranslation(unittest.TestCase):
         circ.rx(2., 1)
 
         # Simulate both circuits, assert state vectors are equal
-        qiskit_simulator = qiskit.Aer.get_backend("aer_simulator", method='statevector')
+        qiskit_simulator = AerSimulator(method="statevector")
         translated_circuit = qiskit.transpile(translated_circuit, qiskit_simulator)
         circ = qiskit.transpile(circ, qiskit_simulator)
         translated_circuit.save_statevector()
@@ -163,8 +164,13 @@ class TestTranslation(unittest.TestCase):
 
         # Generate the qiskit circuit by translating from the abstract one and print it
         translated_circuit = translator.translate_qiskit(big_circuit)
+
+        # Test inverse translation function
+        big_circuit_translated_back = translator.translate_qiskit(translated_circuit)
+        self.assertEqual(big_circuit_translated_back, big_circuit)
+
         # Simulate both circuits, assert state vectors are equal
-        qiskit_simulator = qiskit.Aer.get_backend("aer_simulator", method='statevector')
+        qiskit_simulator = AerSimulator(method='statevector')
         translated_circuit = qiskit.transpile(translated_circuit, qiskit_simulator)
         translated_circuit.save_statevector()
         sim_results = qiskit_simulator.run(translated_circuit).result()
