@@ -37,7 +37,7 @@ jobs:
 
     - name: Install backends except qsharp/qdk
       run: |
-        pip install qiskit==0.33.1 # Due to strange behaviour of noise model
+        pip install qiskit
         pip install qulacs
         pip install amazon-braket-sdk
         pip install cirq
