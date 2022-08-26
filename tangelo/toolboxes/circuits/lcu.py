@@ -267,8 +267,8 @@ def sign_flip(qubit_list: List[int], control: Union[int, List[int]] = None) -> C
     return Circuit(gate_list)
 
 
-def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None) -> Circuit:
-    """Apply qu_op using the linear combination of unitaries algorithm
+def get_oaa_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None) -> Circuit:
+    """Apply qu_op using linear combination of unitaries (LCU) with oblivious amplitude amplification (OAA)
     1-norm of coefficients must be less than 2. The unitarity of qu_op is not checked by the algorithm
     Args:
         qu_op (QubitOperator): The qu_op to apply. Must be nearly unitary for algorithm to succeed with high probability.
@@ -347,10 +347,10 @@ def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None)
 
 
 def get_uprep_uselect(qu_op: QubitOperator, control: Union[int, List[int]] = None) -> Tuple[Circuit, Circuit, List[int], List[int], float]:
-    """Get uprep and (controlled-)uselect circuits along with their corresponding qubits for a QubitOperator
+    """Get uprep and (controlled-)uselect circuits along with their corresponding qubits for a QubitOperator.
     Args:
-        qu_op (QubitOperator): The qu_op to apply. Must be nearly unitary for algorithm to succeed with high probability.
-        control (int or list[int]): Control qubit(s)
+        qu_op (QubitOperator): The qu_op to apply.
+        control (int or list[int]): Control qubit(s).
     Returns:
         Circuit: Uprep circuit
         Circuit: Uselect circuit
@@ -411,14 +411,14 @@ def get_uprep_uselect(qu_op: QubitOperator, control: Union[int, List[int]] = Non
 
 
 def get_lcu_qubit_op_info(qu_op: QubitOperator()) -> Tuple[List[int], List[int], float]:
-    """Return the operator and auxillary qubit indices and 1-norm for the LCU block decomposition of given QubitOperator
+    """Return the operator and auxillary qubit indices and 1-norm for the LCU block decomposition of given QubitOperator.
     Args:
-        qu_op (QubitOperator): The qubit operator to decompose into an Linear Combination of Unitaries block encoding
+        qu_op (QubitOperator): The qubit operator to decompose into an Linear Combination of Unitaries block encoding.
 
     Returns:
-        List[int]: The qubit operator indices
-        List[int]: The auxillary qubits for the uprep circuit
-        float: The 1-norm of the qubit operator
+        List[int]: The qubit operator indices.
+        List[int]: The auxillary qubits for the uprep circuit.
+        float: The 1-norm of the qubit operator.
     """
 
     max_qu_op = count_qubits(qu_op)

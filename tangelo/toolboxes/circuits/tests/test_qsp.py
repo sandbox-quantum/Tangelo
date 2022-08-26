@@ -97,7 +97,6 @@ class lcu_Test(unittest.TestCase):
         trace_freq = dict()
         for key, value in freqs.items():
             trace_freq[key[-3:]] = trace_freq.get(key[-3:], 0) + value
-        print(trace_freq)
 
         # State 9 has eigenvalue 0.25 so return should be 010 (0*1/2 + 1*1/4 + 0*1/8)
         self.assertAlmostEqual(trace_freq["010"], 1.0, delta=1.e-4)
