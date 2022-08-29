@@ -181,7 +181,7 @@ class TestTranslation(unittest.TestCase):
         self.assertEqual(c_very_big_circuit, very_big_circuit)
 
         # Simulate both circuits, assert state vectors are equal
-        qiskit_simulator = AerSimulator(method='statevector')
+        qiskit_simulator = AerSimulator(method="statevector")
         translated_circuit = qiskit.transpile(translated_circuit, qiskit_simulator)
         translated_circuit.save_statevector()
         sim_results = qiskit_simulator.run(translated_circuit).result()
