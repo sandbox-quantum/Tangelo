@@ -125,7 +125,8 @@ class Gate(dict):
 
         ds, do = self.__dict__, other.__dict__
 
-        # Check CNOT CX Separately
+        # CNOT and CX gates are equivalent. If both gates are either CNOT or CX, the names are equivalent and can
+        # be ignored for equivalence checks later.
         ignore_list = ["name", "parameter"] if ds["name"] in ["CNOT", "CX"] and do["name"] in ["CNOT", "CX"] else ["parameter"]
 
         if any(ds[k] != do[k] for k in ds if k not in ignore_list):
