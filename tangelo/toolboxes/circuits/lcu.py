@@ -277,7 +277,7 @@ def get_oaa_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = N
         Circuit: The circuit that implements the linear combination of unitaries for the qu_op
     """
 
-    uprep, uselect, qu_op_qubits, uprep_qubits, _ = get_uprep_uselect(qu_op, control, make_1norm_eq_2=True)
+    uprep, uselect, qu_op_qubits, uprep_qubits, _ = get_uprep_uselect(qu_op, control, make_alpha_eq_2=True)
 
     flip_op = sign_flip(uprep_qubits, control=control)
     w = uprep + uselect + uprep.inverse()
