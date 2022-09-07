@@ -26,7 +26,7 @@ from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import get_qft_circuit
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.circuits.lcu import get_lcu_qubit_op_info
-from tangelo.toolboxes.circuits.qsp import get_qsp_hamiltonian_simulation_circuit
+from tangelo.toolboxes.circuits.qsp import get_qsp_hamiltonian_simulation_circuit, get_qsp_hamiltonian_simulation_qubit_list
 
 # Test for both "cirq" and if available "qulacs". These have different orderings.
 # qiskit is not currently supported because does not have multi controlled general gates.
@@ -84,7 +84,12 @@ class lcu_Test(unittest.TestCase):
         for i in range(8):
             wave_9 = np.kron(wave_9, np.array([1, 0]))
 
-        qubit_list = [11, 10, 9]
+        # Get QSP Hamiltonian simulation qubit_list
+        qubit_list = get_qsp_hamiltonian_simulation_qubit_list(qu_op)
+        self.assertEqual(qubit_list, list(range(9)))
+
+        circuit_width = len(qubit_list)
+        qubit_list = list(reversed(range(circuit_width, circuit_width+3)))
 
         pe_circuit = get_qft_circuit(qubit_list)
         for i, qubit in enumerate(qubit_list):

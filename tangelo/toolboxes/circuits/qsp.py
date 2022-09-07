@@ -139,21 +139,6 @@ def zero_controlled_cnot(qubit_list: List[int], target: int, control: Union[int,
     return Circuit(gates)
 
 
-def controlled_rotation(phi: float, target: int, control: Union[int, List[int]]) -> Circuit:
-    """Return the controlled rotation circuit required for QSP.
-
-    Args:
-        phi (float): The phase angle as defined in the QSP algorithm.
-        target (int): The target qubit.
-        control (Union[int, List[int]]): The control qubit(s).
-
-    Returns:
-        Circuit: The controlled rotation operation.
-    """
-    gates = [Gate("CRZ", target=target, parameter=2*phi, control=control)]
-    return Circuit(gates)
-
-
 def get_qsp_circuit_no_anc(cua: Circuit, m_qs: List[int], angles: List[float], control: Union[int, List[int]] = None, with_z: bool = False) -> Circuit:
     """Generate the ancilla free QSP circuit as defined in Fig 16 of https://arxiv.org/abs/2002.11649.
 
@@ -177,21 +162,28 @@ def get_qsp_circuit_no_anc(cua: Circuit, m_qs: List[int], angles: List[float], c
     else:
         qubcirc = Circuit([Gate("CH", anc, control=c_list)])
 
-    pos_angles = []
-    pos_angles = [angles[0]+np.pi/4]
+    circ_angles = []
+    circ_angles = [angles[0]+np.pi/4]
     for ang in angles[1:-1]:
-        pos_angles += [ang + np.pi/2]
-    pos_angles += [angles[-1]+np.pi/4]
+        circ_angles += [ang + np.pi/2]
+    circ_angles += [angles[-1]+np.pi/4]
 
     zcnot = zero_controlled_cnot(m_qs, [anc], [])
 
-    qubcirc += zcnot + controlled_rotation(pos_angles[-1], anc, c_list) + zcnot + cua
-    for j, ang in enumerate(pos_angles[-2:0:-1]):
-        qubcirc += Circuit([Gate("CZ", anc, control=c_list)]) + zcnot + controlled_rotation(ang, anc, c_list) + zcnot + cua
-    qubcirc += Circuit([Gate("CZ", anc, control=c_list)]) + zcnot + controlled_rotation(pos_angles[0], anc, c_list) + zcnot
+    qubcirc += zcnot + Circuit([Gate("CRZ", target=anc, parameter=2*circ_angles[-1], control=c_list)]) + zcnot + cua
+    for j, ang in enumerate(circ_angles[-2:0:-1]):
+        qubcirc += Circuit([Gate("CZ", anc, control=c_list)]) + zcnot + Circuit([Gate("CRZ", target=anc, parameter=2*ang, control=c_list)]) + zcnot + cua
+    qubcirc += Circuit([Gate("CZ", anc, control=c_list)]) + zcnot + Circuit([Gate("CRZ", target=anc, parameter=2*circ_angles[0], control=c_list)]) + zcnot
 
     qubcirc += Circuit([Gate("CH", anc, control=c_list)])
+
     return qubcirc
+
+
+def get_qsp_hamiltonian_simulation_qubit_list(qu_op: QubitOperator) -> List[int]:
+    "Returns the list of qubits used for the QSP Hamiltonian simulation algorithm"
+    qu_op_qs, uprep_qs, _ = get_lcu_qubit_op_info(qu_op)
+    return qu_op_qs + uprep_qs + list(range(uprep_qs[-1]+1, uprep_qs[-1]+4))
 
 
 def get_qsp_hamiltonian_simulation_circuit(qu_op: QubitOperator, tau: float, eps: float = 1.e-4, control: Union[int, List[int]] = None, n_attempts: int = 10,
@@ -199,6 +191,7 @@ def get_qsp_hamiltonian_simulation_circuit(qu_op: QubitOperator, tau: float, eps
     """Returns Quantum Signal Processing (QSP) Hamiltonian simulation circuit for a given QubitOperator for time tau.
 
     The circuits are derived from https://arxiv.org/abs/2002.11649.
+    The list of qubits used for the circuit can be found by qubit_list = get_qs_hamiltonian_simulation_qubit_list(qu_op)
     qu_op must have it's spectral range in [-1, 1]. This property is not checked by this function.
 
     Args:
@@ -219,51 +212,56 @@ def get_qsp_hamiltonian_simulation_circuit(qu_op: QubitOperator, tau: float, eps
     else:
         control_list = []
 
-    swap_time = False
+    # If tau is negative, flip sign of tau and qu_op.
+    flip_tau_sign = False
     if tau < 0.:
         qu_op = -qu_op
         tau = -tau
-        swap_time = True
-    q_qs, m_qs, alpha = get_lcu_qubit_op_info(qu_op)
+        flip_tau_sign = True
+
+    qu_op_qs, m_qs, alpha = get_lcu_qubit_op_info(qu_op)
 
     if method.lower() in ["laurent", "tf"]:
         anglesr, anglesi = ham_sim_phases(tau*alpha, eps, n_attempts, method)
     elif method.lower() == "qsppack":
         anglesr, anglesi = ham_sim_phases_QSPPACK(folder, tau*alpha, eps)
-
-    # Leave gap of 1-qubit for f-circuit
-    ext_qs = list(range(m_qs[-1]+2, m_qs[-1]+4))
-    flip_qs = m_qs + [m_qs[-1]+1] + ext_qs
-
-    uprep, uselect, _, _, _ = get_uprep_uselect(qu_op, control=ext_qs+control_list)
-    cua = uprep + uselect + uprep.inverse()
+    else:
+        raise ValueError(f"{method} is not a valid keyword to calculate phases. Must be Laurent, TF, or QSPPACK")
 
     # Want 1-norm of coefficents to sum to 1/np.sin(np.pi/(2*(2*3+1))) so three oblivious amplitude amplifications results
-    # in success probability of 1. |(cos(Ht)|=2+|iSin(Ht))|=2 so need to add (tarsum-2)/2 I - (tarsum-2)/2 I.
-    tarsum = 1/np.sin(np.pi/(2*(2*3+1)))
-    v = [(tarsum-4)/2, (tarsum-4)/2, 2, 2]
-    v = np.sqrt(np.array(v))/np.sqrt(tarsum)
+    # in success probability of 1. |(cos(Ht)|=2 and |iSin(Ht))|=2 so need to add (tsum-4)/2 I - (tsum-4)/2 I.
+    tsum = 1/np.sin(np.pi/(2*(2*3+1)))
+    v = [(tsum-4)/2, (tsum-4)/2, 2, 2]
+    v = np.sqrt(np.array(v))/np.sqrt(tsum)
+
+    # Leave gap of 1-qubit for qsp_circuit and list LCU qubits to add cos(Ht) + Sin(Ht) + (tsum-4)/2 I - (tsum-4)/2 I
+    lcu_qs = list(range(m_qs[-1]+2, m_qs[-1]+4))
+    flip_qs = m_qs + [m_qs[-1]+1] + lcu_qs
+
+    uprep, uselect, qu_op_qs, m_qs, alpha = get_uprep_uselect(qu_op, control=lcu_qs+control_list)
+    cua = uprep + uselect + uprep.inverse()
 
     s = StateVector(v, order="msq_first")
     uprep = s.initializing_circuit()
-    uprep.reindex_qubits([ext_qs[0], ext_qs[1]])
+    uprep.reindex_qubits([lcu_qs[0], lcu_qs[1]])
 
-    circ = uprep + Circuit([Gate("X", ext_qs[0])])
+    circ = uprep + Circuit([Gate("X", lcu_qs[0])])
     # real part cos(Ht)
-    circ += get_qsp_circuit_no_anc(cua, m_qs, anglesr, control=ext_qs+control_list, with_z=False)
-    circ += Circuit([Gate("X", ext_qs[0])])
+    circ += get_qsp_circuit_no_anc(cua, m_qs, anglesr, control=lcu_qs+control_list, with_z=False)
+    circ += Circuit([Gate("X", lcu_qs[0])])
     # imaginary part i*sin(Ht)
-    circ += get_qsp_circuit_no_anc(cua, m_qs, anglesi, control=ext_qs+control_list, with_z=False)
+    circ += get_qsp_circuit_no_anc(cua, m_qs, anglesi, control=lcu_qs+control_list, with_z=False)
     # -I to ensure probability is np.arcsin
-    circ += Circuit([Gate("X", ext_qs[1]), Gate("CRZ", target=0, parameter=2*np.pi, control=ext_qs+control_list), Gate("X", ext_qs[1])])
+    circ += Circuit([Gate("X", lcu_qs[1]), Gate("CRZ", target=0, parameter=2*np.pi, control=lcu_qs+control_list), Gate("X", lcu_qs[1])])
 
     circ += uprep.inverse()
 
     if control is not None:
-        gates = [Gate("CRZ", q_qs[0], control=control, parameter=2*np.pi)] if len(anglesi) % 4 == 2 else []
+        gates = [Gate("CRZ", qu_op_qs[0], control=control, parameter=2*np.pi)] if len(anglesi) % 4 == 2 else []
     else:
-        gates = [Gate("RZ", q_qs[0], parameter=2*np.pi)] if len(anglesi) % 4 == 2 else []
-    if swap_time:
+        gates = [Gate("RZ", qu_op_qs[0], parameter=2*np.pi)] if len(anglesi) % 4 == 2 else []
+
+    if flip_tau_sign:
         qu_op = -qu_op
         tau = -tau
 
