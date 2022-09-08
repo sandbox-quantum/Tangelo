@@ -173,8 +173,8 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
 
     def test_symmetry_label(self):
         """Verify that the symmetry labels are correct when symmetry=True or symmetry="C2v"."""
-        mo_symm_labels = ["A1", "A1", "B1", "A1", "B2", "A1", "B1"]
-        mo_symm_ids = [0, 0, 2, 0, 3, 0, 2]
+        mo_symm_labels = ["A1", "A1", "B2", "A1", "B1", "A1", "B2"]
+        mo_symm_ids = [0, 0, 3, 0, 2, 0, 3]
 
         molecule = SecondQuantizedMolecule(xyz=xyz_H2O, q=0, spin=0, symmetry=True, basis="sto-3g")
         assert(mo_symm_labels == molecule.mo_symm_labels)
