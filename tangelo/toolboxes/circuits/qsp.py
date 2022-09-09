@@ -24,10 +24,6 @@ from typing import Union, List, Tuple
 from copy import copy
 
 import numpy as np
-import pyqsp
-from pyqsp import angle_sequence
-from pyqsp.angle_sequence import AngleFindingError
-from pyqsp.completion import CompletionError
 
 from tangelo.linq import Gate, Circuit
 from tangelo.toolboxes.operators import QubitOperator
@@ -48,6 +44,14 @@ def ham_sim_phases(tau: float, eps: float = 1.e-2, n_attempts: int = 10, method:
         List[float]: The phases for Cos(Ht).
         List[float]: The phases for i*Sin(Ht).
     """
+    try:
+        import pyqsp
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError("pyqsp package is required to calculate QSP time-evolution phases using 'lauren' or 'tf' method.")
+
+    from pyqsp import angle_sequence
+    from pyqsp.angle_sequence import AngleFindingError
+    from pyqsp.completion import CompletionError
 
     pg = pyqsp.poly.PolyCosineTX()
     pcoefs, _ = pg.generate(tau=tau,

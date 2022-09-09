@@ -29,5 +29,5 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     test_suite="tangelo",
     setup_requires=['h5py'],
-    install_requires=['h5py', 'bitarray', 'openfermion', 'openfermionpyscf', 'pyqsp']
+    install_requires=['h5py', 'bitarray', 'openfermion', 'openfermionpyscf']
 )
