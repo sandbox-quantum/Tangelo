@@ -24,13 +24,13 @@ necessary to account for:
 The module also enables bidirectional conversion between qiskit and Tangelo
 qubit operators (linear combination of Pauli operators)
 """
-
+from tangelo.linq import Circuit, Gate
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.linq.helpers import pauli_of_to_string, pauli_string_to_of
 
 
 def get_qiskit_gates():
-    """Map gate name of the abstract format to the equivalent add_gate method of
+    """Map gate name of the Tangelo format to the equivalent add_gate method of
     Qiskit's QuantumCircuit class API and supported gates:
     https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html
     """
@@ -65,19 +65,31 @@ def get_qiskit_gates():
 
 
 def translate_qiskit(source_circuit):
-    """Take in an abstract circuit, return an equivalent qiskit QuantumCircuit
-    instance
+    """Take in a Circuit, return an equivalent qiskit.QuantumCircuit
 
     Args:
-        source_circuit: quantum circuit in the abstract format.
+        source_circuit (Circuit): quantum circuit in the Tangelo format.
 
     Returns:
-        qiskit.QuantumCircuit: the corresponding qiskit quantum circuit.
+        qiskit.QuantumCircuit: the corresponding quantum circuit in Qiskit format.
     """
 
+    return translate_c_to_qiskit(source_circuit)
+
+
+def translate_c_to_qiskit(source_circuit: Circuit):
+    """Take in a Circuit, return an equivalent qiskit.QuantumCircuit
+
+    Args:
+        source_circuit (Circuit): quantum circuit in the Tangelo format.
+
+    Returns:
+        qiskit.QuantumCircuit: the corresponding qiskit.QuantumCircuit
+    """
     import qiskit
 
     GATE_QISKIT = get_qiskit_gates()
+
     target_circuit = qiskit.QuantumCircuit(source_circuit.width, source_circuit.width)
 
     # Maps the gate information properly. Different for each backend (order, values)
@@ -85,7 +97,7 @@ def translate_qiskit(source_circuit):
         if gate.control is not None:
             if len(gate.control) > 1:
                 raise ValueError('Multi-controlled gates not supported with qiskit. Gate {gate.name} with controls {gate.control} is not allowed')
-        if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
+        if gate.name in {"H", "Y", "X", "Z", "S", "T"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.target[0])
         elif gate.name in {"RX", "RY", "RZ", "PHASE"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.target[0])
@@ -103,6 +115,48 @@ def translate_qiskit(source_circuit):
             (GATE_QISKIT[gate.name])(target_circuit, gate.target[0], gate.target[0])
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qiskit")
+
+    return target_circuit
+
+
+def translate_c_from_qiskit(source_circuit) -> Circuit:
+    """Take in a qiskit.QuantumCircuit, return an equivalent Tangelo Circuit
+
+    Args:
+        source_circuit (qiskit.QuantumCircuit): quantum circuit in the qiskit.QuantumCircuit format.
+
+    Returns:
+        Circuit: the corresponding quantum Circuit in Tangelo format.
+    """
+    import qiskit
+
+    GATE_QISKIT = get_qiskit_gates()
+    qi = source_circuit._qubit_indices
+    inv_GATE_QISKIT = {v.__name__: k for k, v in GATE_QISKIT.items()}
+
+    gates = []
+    for gate in source_circuit:
+        name = inv_GATE_QISKIT[gate.operation.name]
+        if name in {"H", "X", "Y", "Z", "S", "T"}:
+            gates += [Gate(name, qi[gate.qubits[0]].index)]
+        elif name in {"RX", "RY", "RZ", "PHASE"}:
+            gates += [Gate(name, qi[gate.qubits[0]].index, parameter=gate.operation.params[0])]
+        elif name in {"CRX", "CRY", "CRZ", "CPHASE"}:
+            gates += [Gate(name, qi[gate.qubits[1]].index, control=qi[gate.qubits[0]].index, parameter=gate.operation.params[0])]
+        elif name in {"CNOT", "CH", "CX", "CY", "CZ"}:
+            gates += [Gate(name, qi[gate.qubits[1]].index, control=qi[gate.qubits[0]].index)]
+        elif name in {"SWAP"}:
+            gates += [Gate(name, [qi[gate.qubits[0]].index, qi[gate.qubits[1]].index])]
+        elif name in {"CSWAP"}:
+            gates += [Gate(name, [qi[gate.qubits[1]].index, qi[gate.qubits[2]].index], control=qi[gate.qubits[0]].index)]
+        elif name in {"XX"}:
+            gates += [Gate(name, [qi[gate.qubits[0]].index, qi[gate.qubits[1]].index], parameter=gate.operation.params[0])]
+        elif name in {"MEASURE"}:
+            gates += [Gate(name, qi[gate.qubits[0]].index)]
+        else:
+            raise ValueError(f"Gate '{gate.name}' not supported in Tangelo")
+    target_circuit = Circuit(gates)
+
     return target_circuit
 
 

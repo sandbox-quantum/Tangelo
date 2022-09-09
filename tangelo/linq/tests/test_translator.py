@@ -20,6 +20,7 @@
 import unittest
 import os
 import numpy as np
+import time
 
 from tangelo.linq import Gate, Circuit
 from tangelo.linq.gate import PARAMETERIZED_GATES
@@ -130,6 +131,7 @@ class TestTranslation(unittest.TestCase):
         """
 
         import qiskit
+        from qiskit.providers.aer import AerSimulator
 
         # Generate the qiskit circuit by translating from the abstract one and print it
         translated_circuit = translator.translate_qiskit(abs_circ)
@@ -144,7 +146,7 @@ class TestTranslation(unittest.TestCase):
         circ.rx(2., 1)
 
         # Simulate both circuits, assert state vectors are equal
-        qiskit_simulator = qiskit.Aer.get_backend("aer_simulator", method='statevector')
+        qiskit_simulator = AerSimulator(method="statevector")
         translated_circuit = qiskit.transpile(translated_circuit, qiskit_simulator)
         circ = qiskit.transpile(circ, qiskit_simulator)
         translated_circuit.save_statevector()
@@ -163,8 +165,23 @@ class TestTranslation(unittest.TestCase):
 
         # Generate the qiskit circuit by translating from the abstract one and print it
         translated_circuit = translator.translate_qiskit(big_circuit)
+
+        # Big translate/translate back test (32000 gates)
+        very_big_circuit = big_circuit*10**3
+        tstart1 = time.time()
+        qc_very_big_circuit = translator.translate_c_to_qiskit(very_big_circuit)
+        tstop1 = time.time()
+        print(f"Circuit -> QuantumCircuit took {tstop1-tstart1:.2f} s")
+
+        tstart2 = time.time()
+        c_very_big_circuit = translator.translate_c_from_qiskit(qc_very_big_circuit)
+        tstop2 = time.time()
+        print(f"QuantumCircuit -> Circuit took {tstop2-tstart2:.2f} s")
+
+        self.assertEqual(c_very_big_circuit, very_big_circuit)
+
         # Simulate both circuits, assert state vectors are equal
-        qiskit_simulator = qiskit.Aer.get_backend("aer_simulator", method='statevector')
+        qiskit_simulator = AerSimulator(method="statevector")
         translated_circuit = qiskit.transpile(translated_circuit, qiskit_simulator)
         translated_circuit.save_statevector()
         sim_results = qiskit_simulator.run(translated_circuit).result()
