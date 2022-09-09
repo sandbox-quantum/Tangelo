@@ -14,3 +14,4 @@
 
 from .iao_localization import iao_localization
 from .meta_lowdin_localization import meta_lowdin_localization
+from .nao_localization import nao_localization

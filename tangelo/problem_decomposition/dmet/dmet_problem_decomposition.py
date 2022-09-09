@@ -23,7 +23,7 @@ import warnings
 
 from tangelo.problem_decomposition.dmet import _helpers as helpers
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
-from tangelo.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization
+from tangelo.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization, nao_localization
 from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
 from tangelo.algorithms import FCISolver, CCSDSolver, VQESolver
 from tangelo.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
@@ -33,6 +33,7 @@ class Localization(Enum):
     """Enumeration of the electron localization supported by DMET."""
     meta_lowdin = 0
     iao = 1
+    nao = 2
 
 
 class DMETProblemDecomposition(ProblemDecomposition):
@@ -206,6 +207,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 self.electron_localization = meta_lowdin_localization
             elif self.electron_localization == Localization.iao:
                 self.electron_localization = iao_localization
+            elif self.electron_localization == Localization.nao:
+                self.electron_localization = nao_localization
             else:
                 raise ValueError(f"Unsupported ansatz. Built-in localization methods:\n\t{self.builtin_localization}")
         elif not callable(self.electron_localization):
