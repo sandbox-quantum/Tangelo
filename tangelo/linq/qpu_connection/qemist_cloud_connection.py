@@ -27,10 +27,10 @@ class QEMISTCloudConnection(QpuConnection):
 
     def __init__(self):
         try:
-            global qclient_util
             import qemist_client.util as qclient_util
         except ModuleNotFoundError:
             raise ModuleNotFoundError("qemist_client python package not found (optional dependency for hardware experiment submission)")
+        self.qclient_util = qclient_util
 
     def job_submit(self, circuit, n_shots, backend):
         """Job submission to run a circuit on quantum hardware.
@@ -52,8 +52,8 @@ class QEMISTCloudConnection(QpuConnection):
         job_options = {'shots': n_shots, 'backend': backend}
 
         # Submit the problem
-        qemist_cloud_job_id = qclient_util.solve_quantum_circuits_async(serialized_fragment=circuit_data,
-                                                                        serialized_solver=job_options)[0]
+        qemist_cloud_job_id = self.qclient_util.solve_quantum_circuits_async(serialized_fragment=circuit_data,
+                                                                             serialized_solver=job_options)[0]
         return qemist_cloud_job_id
 
     def job_status(self, qemist_cloud_job_id):
@@ -66,7 +66,7 @@ class QEMISTCloudConnection(QpuConnection):
         Returns:
             str: current status of the problem, as a string.
         """
-        res = qclient_util.get_problem_statuses(qemist_cloud_job_id)
+        res = self.qclient_util.get_problem_statuses(qemist_cloud_job_id)
 
         return res
 
@@ -80,7 +80,7 @@ class QEMISTCloudConnection(QpuConnection):
         Returns:
             dict: cancelled problems / subproblems.
         """
-        res = qclient_util.cancel_problems(qemist_cloud_job_id)
+        res = self.qclient_util.cancel_problems(qemist_cloud_job_id)
         # TODO: If res is coming out as an error code, we should raise an error
 
         return res
@@ -99,7 +99,7 @@ class QEMISTCloudConnection(QpuConnection):
         """
 
         try:
-            qclient_util.monitor_problem_status(problem_handles=[qemist_cloud_job_id], verbose=False)
+            self.qclient_util.monitor_problem_status(problem_handles=[qemist_cloud_job_id], verbose=False)
 
         except KeyboardInterrupt:
             print(f"\nYour problem is still running with id {qemist_cloud_job_id}.\n")
@@ -121,7 +121,7 @@ class QEMISTCloudConnection(QpuConnection):
 
         # Once a result is available, retrieve it.
         # If the util module is not found earlier, an error has been raised.
-        output = qclient_util.get_results(qemist_cloud_job_id)
+        output = self.qclient_util.get_results(qemist_cloud_job_id)
 
         # Amazon Braket: parsing of output
         freqs = output['results']['measurement_probabilities']
@@ -158,6 +158,6 @@ class QEMISTCloudConnection(QpuConnection):
         if backend:
             job_options['backend'] = backend
 
-        price_estimate = qclient_util.check_qpu_cost(circuit_data, job_options)
+        price_estimate = self.qclient_util.check_qpu_cost(circuit_data, job_options)
 
         return price_estimate
