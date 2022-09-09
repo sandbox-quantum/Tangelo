@@ -198,11 +198,14 @@ class MultiformOperator(QubitOperator):
         # Update the terms attribute.
         self.terms = integer_to_qubit_terms(self.integer, self.factors)
 
-    def _update(self):
-        """Updates attributes according to self.terms."""
+    def _update(self, n_qubits=None):
+        """Updates attributes according to self.terms.
+        Args:
+            n_qubits (int): Define n_qubits explicitly in update
+        """
 
         # Updating attributes.
-        self.n_qubits = count_qubits(self)
+        self.n_qubits = count_qubits(self) if n_qubits is None else n_qubits
         self.factors = np.array([coeff for coeff in self.terms.values()])
         self.integer = qubit_to_integer(self, self.n_qubits)
         self.binary = integer_to_binary(self.integer)
@@ -214,13 +217,14 @@ class MultiformOperator(QubitOperator):
         # Resetting the kernel attribute.
         self.kernel = None
 
-    def compress(self, abs_tol=None):
+    def compress(self, abs_tol=None, n_qubits=None):
         """Overloads the QubitOperator.compress method. It adds an update for
             the attributes.
 
         Args:
             abs_tol (float): Tolerance for the coefficients to be discarded or
                 not. By default, it is EQ_TOLERANCE=1e-8 (in openfermion).
+            n_qubits (int): Define n_qubits when compressing operator
         """
 
         # If an update is done to EQ_TOLERANCE in openfermion, it will be
@@ -230,7 +234,7 @@ class MultiformOperator(QubitOperator):
         else:
             super(QubitOperator, self).compress(abs_tol)
 
-        self._update()
+        self._update(n_qubits)
 
     @staticmethod
     def collapse(operator, factors):

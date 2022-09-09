@@ -74,9 +74,9 @@ def get_z2_taper_function(unitary, kernel, q_indices, n_qubits, n_symmetries, ei
             op_matrix, factors = np.zeros(operator.n_qubits), np.array([0.0])
         else:
             product = operator * unitary
-            product.compress()
+            product.compress(n_qubits=operator.n_qubits)
             product_reverse = unitary * product
-            product_reverse.compress()
+            product_reverse.compress(n_qubits=operator.n_qubits)
             op_matrix, factors = product_reverse.integer, product_reverse.factors
 
         if factors.max() == 0.0:
