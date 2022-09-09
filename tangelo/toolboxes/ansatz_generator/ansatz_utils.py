@@ -37,8 +37,8 @@ def pauli_op_to_gate(index, op, inverse=False):
     if op == "X":
         return Gate("H", index)
     elif op == "Y":
-        angle = 0.5*np.pi
-        return Gate("RX", index, parameter=angle) if not inverse else Gate("RX", index, parameter=-angle+4*np.pi)
+        gate = Gate("RX", index, parameter=0.5*np.pi)
+        return gate if not inverse else gate.inverse()
 
 
 def exp_pauliword_to_gates(pauli_word, coef, variational=True, control=None):

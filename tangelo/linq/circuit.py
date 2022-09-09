@@ -96,6 +96,16 @@ class Circuit:
         """
         return not (self == other)
 
+    def __iter__(self):
+        """Define the iterator. This is useful when iterating through all the
+        gates in a Circuit.
+        """
+        return iter(self._gates)
+
+    def __next__(self):
+        """Define the next function when calling next(Circuit). """
+        return next(self._gates)
+
     @property
     def size(self):
         """The size is the number of gates in the circuit. It is different from
@@ -128,6 +138,10 @@ class Circuit:
         """
         return "MEASURE" in self.counts
 
+    def copy(self):
+        """Return a deepcopy of circuit"""
+        return Circuit(copy.deepcopy(self._gates), n_qubits=self._qubits_simulated, name=self.name)
+
     def add_gate(self, g):
         """Add a new gate to a circuit object and update other fields of the
         circuit object to gradually keep track of its properties (gate count,
@@ -158,6 +172,33 @@ class Circuit:
 
         # Keep track of the total gate count
         self._gate_counts[gate.name] = self._gate_counts.get(gate.name, 0) + 1
+
+    def depth(self):
+        """ Return the depth of the quantum circuit, by computing the number of moments. Does not count
+        qubit initialization as a moment (unlike Cirq, for example).
+        """
+        moments = list()
+
+        for g in self._gates:
+            qubits = set(g.target) if g.control is None else set(g.target + g.control)
+
+            if not moments:
+                moments.append(qubits)
+            else:
+                # Find latest moment involving at least one of the qubits targeted by the current gate
+                # The current gate is part of the moment following that one
+                for i, m in reversed(list(enumerate(moments))):
+                    if m & qubits:
+                        if (i+1) < len(moments):
+                            moments[i+1] = moments[i+1] | qubits
+                        else:
+                            moments.append(qubits)
+                        break
+                    # Case where none of the target qubits have been used before
+                    elif i == 0:
+                        moments[0] = moments[0] | qubits
+
+        return len(moments)
 
     def trim_qubits(self):
         """Trim unnecessary qubits and update indices with the lowest values possible.
@@ -258,6 +299,30 @@ class Circuit:
             return TypeError("Name of circuit object must be a string")
         return {"name": self.name, "type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
 
+    def remove_small_rotations(self, param_threshold=0.05):
+        """Convenience method to remove small rotations from the circuit.
+        See separate remove_small_rotations function.
+
+        Args:
+            param_threshold (float): Max absolute value to consider a rotation
+                as a small one.
+
+        Returns:
+            Circuit: The circuit without small rotations.
+        """
+        opt_circuit = remove_small_rotations(self, param_threshold)
+        self.__dict__ = opt_circuit.__dict__
+
+    def remove_redundant_gates(self):
+        """Convenience method to remove redundant gates from the circuit.
+        See separate remove_redundant_gates function.
+
+        Returns:
+            Circuit: The circuit without redundant gates.
+        """
+        opt_circuit = remove_redundant_gates(self)
+        self.__dict__ = opt_circuit.__dict__
+
 
 def stack(*circuits):
     """ Take list of circuits as input, and stack them (e.g concatenate them along the
@@ -289,3 +354,66 @@ def stack(*circuits):
         stacked_circuit += c_stack
 
     return stacked_circuit
+
+
+def remove_small_rotations(circuit, param_threshold=0.05):
+    """Remove small rotation gates, up to a parameter threshold, from the
+    circuit. Rotations from the set {"RX", "RY", "RZ", "CRX", "CRY", "CRZ"} are
+    considered.
+
+    Args:
+        circuit (Circuit): the circuits to trim and stack into a single one
+        param_threshold (float): Max absolute value to consider a rotation as
+            a small one.
+
+    Returns:
+        Circuit: The circuit without small-rotation gates.
+    """
+
+    rot_gates = {"RX", "RY", "RZ", "CRX", "CRY", "CRZ"}
+    gates = [g for g in circuit._gates if not (g.name in rot_gates and abs(g.parameter) % (2*np.pi) < param_threshold)]
+
+    return Circuit(gates)
+
+
+def remove_redundant_gates(circuit):
+    """Remove redundant gates in a circuit. Redundant gates are adjacent gates
+    that can be cancelled as their global effect is the identity. This function
+    also works with many-qubit gates. However, it does not perform reordering of
+    commutating gates to perform additional cancellations.
+
+    Args:
+        circuit (Circuit): the circuits to remove redundant gates.
+
+    Returns:
+        Circuit: The circuit without redundant gates.
+    """
+    gate_qubits = {i: list() for i in range(circuit.width)}
+    indices_to_remove = list()
+
+    for gi, gate in enumerate(circuit._gates):
+        remove_gate = True
+
+        # Identify qubits the current gate acts on.
+        qubits = gate.target if gate.control is None else gate.target + gate.control
+
+        # Check if the last gate cancels the current gate.
+        for qubit_i in qubits:
+            if not gate_qubits[qubit_i] or gate_qubits[qubit_i][-1][1].inverse() != gate:
+                remove_gate = False
+                break
+
+        # Pop the last gate if the gate is to be removed.
+        # If not, append the gate to the gate_qubits list.
+        if remove_gate:
+            indices_to_remove += [gi, gate_qubits[qubits[0]][-1][0]]
+            for qubit_i in qubits:
+                del gate_qubits[qubit_i][-1]
+        else:
+            for qubit_i in qubits:
+                gate_qubits[qubit_i] += [(gi, gate)]
+
+    # Remove gates that can be cancelled.
+    gates = [gate for gate_i, gate in enumerate(circuit._gates) if gate_i not in indices_to_remove]
+
+    return Circuit(gates)

@@ -13,12 +13,17 @@
 # limitations under the License.
 
 """This module implements a collection of functions related to the QMF
-ansatz: (1) analytically evaluate an expectation value of a QubitOperator
-using a QMF wave function; (2) initialize the QMF variational parameter set
-{Omega} from a Hartree-Fock reference state; (3) purify {Omega} when building
-and screening the DIS of QCC generators; (4) build a QMF state preparation
-circuit using {Omega}; (5) create penalty terms for N, S^2, and Sz to penalize
-a mean-field Hamiltonian. For more information, see references below.
+ansatz:
+    1. Analytical evaluation of an expectation value of a QubitOperator
+       using a QMF wave function;
+    2. Initialization of the QMF variational parameter set {Omega} from a
+       Hartree-Fock reference state;
+    3. Purification {Omega} when building and screening the DIS of QCC generators;
+    4. Construction of a QMF state circuit using {Omega};
+    5. Addition of terms for N, S^2, and Sz that penalize a mean-field Hamiltonian
+       in order to obtain solutions corresponding to specific electron number
+       and spin symmetries.
+For more information, see references below.
 
 Refs:
     1. I. G. Ryabinkin and S. N. Genin.
@@ -33,9 +38,9 @@ import numpy as np
 
 from tangelo.linq import Circuit, Gate
 from tangelo.toolboxes.operators.operators import FermionOperator
-from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector
-from .penalty_terms import combined_penalty, number_operator_penalty, spin2_operator_penalty,\
-                           spin_operator_penalty
+from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector, get_mapped_vector
+from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty, number_operator_penalty,\
+                                                             spin2_operator_penalty, spin_operator_penalty
 
 
 def get_op_expval(qubit_op, qmf_var_params):
@@ -44,7 +49,7 @@ def get_op_expval(qubit_op, qmf_var_params):
 
     Args:
         qubit_op (QubitOperator): A qubit operator to compute the expectation value of.
-        qmf_var_params (numpy array of float): The QMF variational parameter set.
+        qmf_var_params (numpy array of float): QMF variational parameter set.
 
     Returns:
         complex: expectation value of all qubit operator terms.
@@ -105,8 +110,29 @@ def init_qmf_from_hf(n_spinorbitals, n_electrons, mapping, up_then_down=False, s
     return np.concatenate((np.pi * thetas, np.zeros((len(thetas),), dtype=float)))
 
 
-def purify_qmf_state(qmf_var_params, n_spinorbitals, n_electrons, mapping, up_then_down=False,
-                     spin=None, verbose=False):
+def init_qmf_from_vector(vector, mapping, up_then_down=False):
+    """Function to initialize the QMF variational parameter set from a Hartree-Fock state
+    occupation vector. The theta Bloch angles are set to 0. or np.pi if the molecular orbital is
+    unoccupied or occupied, respectively. The phi Bloch angles are set to 0.
+
+    Args:
+        vector (array): Occupation vector of orbitals using alternating up and down electrons (i.e. up_then_down=False)
+        mapping (str): One of the supported qubit mapping identifiers.
+        up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
+            followed by all spin-down when applying the qubit mapping.
+
+    Returns:
+        numpy array of float: QMF variational parameter set.
+    """
+
+    # Get thetas from HF vec and arrange Bloch angles so all thetas are first then phis
+    thetas = np.array(get_mapped_vector(vector, mapping, up_then_down))
+    var_params = np.zeros(2*len(thetas))
+    var_params[:len(thetas)] = thetas
+    return var_params
+
+
+def purify_qmf_state(qmf_var_params, n_spinorbitals, n_electrons, mapping, up_then_down=False, spin=None):
     """The efficient construction and screening of the DIS requires a z-collinear QMF state.
     If the QMF state specified by qmf_var_params is not z-collinear, this function adjusts the
     parameters to the nearest z-collinear computational basis state.
@@ -119,7 +145,6 @@ def purify_qmf_state(qmf_var_params, n_spinorbitals, n_electrons, mapping, up_th
         up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
             followed by all spin-down.
         spin (int): 2*S = n_alpha - n_beta.
-        verbose (bool): Flag for QMF verbosity.
 
     Returns:
         numpy array of float: purified QMF parameter set that corresponds to the
@@ -137,8 +162,6 @@ def purify_qmf_state(qmf_var_params, n_spinorbitals, n_electrons, mapping, up_th
         else:
             vector = get_vector(n_spinorbitals, n_electrons, mapping, up_then_down, spin)
             pure_var_params[i] = np.pi * vector[i]
-        if verbose:
-            print(f"Purified QMF_{i} Bloch angles: (theta, phi) = ({pure_var_params[i]}, {pure_var_params[i + n_qubits]})\n")
     return pure_var_params
 
 
@@ -148,8 +171,8 @@ def get_qmf_circuit(qmf_var_params, variational=True):
     and the second n_qubit elements in {Omega} are parameters for RZ gates.
 
     Args:
-        qmf_var_params (numpy array of float): The QMF variational parameter set.
-        variational (bool): Flag to treat {Omega} variationally or not.
+        qmf_var_params (numpy array of float): QMF variational parameter set.
+        variational (bool): Flag to treat {Omega} variationally or keep them fixed.
 
     Returns:
         Circuit: instance of tangelo.linq Circuit class.

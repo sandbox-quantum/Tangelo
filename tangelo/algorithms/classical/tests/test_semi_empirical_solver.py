@@ -14,13 +14,14 @@
 
 import unittest
 
+from tangelo.helpers.utils import is_package_installed
 from tangelo.molecule_library import mol_pyridine
-from tangelo.algorithms.classical.semi_empirical_solver import MINDO3Solver
 
 
-class MINDO3SolverTest(unittest.TestCase):
+class SemiEmpiricalSolverTest(unittest.TestCase):
 
-    def test_energy(self):
+    @unittest.skipIf(not is_package_installed("pyscf.semiempirical"), "Test Skipped: pyscf.semiempirical module not available \n")
+    def test_mindo3_energy(self):
         """Test MINDO3Solver with pyridine. Validated with:
             - MINDO/3-derived geometries and energies of alkylpyridines and the
             related N-methylpyridinium cations. Jeffrey I. Seeman,
@@ -28,6 +29,7 @@ class MINDO3SolverTest(unittest.TestCase):
             The Journal of Organic Chemistry 1983 48 (14), 2399-2407
             DOI: 10.1021/jo00162a021.
         """
+        from tangelo.algorithms.classical import MINDO3Solver
 
         solver = MINDO3Solver(mol_pyridine)
         energy = solver.simulate()

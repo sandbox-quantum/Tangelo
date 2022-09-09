@@ -71,7 +71,7 @@ class UpCCGSD(Ansatz):
 
         # Supported reference state initialization
         # TODO: support for others
-        self.supported_reference_state = {"HF"}
+        self.supported_reference_state = {"HF", "zero"}
         # Supported var param initialization
         self.var_params_default = "ones"
         self.supported_initial_var_params = {"ones", "random"}
@@ -123,6 +123,8 @@ class UpCCGSD(Ansatz):
                                          mapping=self.qubit_mapping,
                                          up_then_down=self.up_then_down,
                                          spin=self.spin)
+        if self.default_reference_state == "zero":
+            return Circuit()
 
     def build_circuit(self, var_params=None):
         """Build and return the quantum circuit implementing the state

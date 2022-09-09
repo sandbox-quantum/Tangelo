@@ -50,12 +50,17 @@ class TestGates(unittest.TestCase):
         # Create a Hadamard gate acting on qubit 2
         H_gate = Gate("H", 2)
         H_gate_inverse = Gate("H", 2)
-        self.assertEqual(H_gate.inverse().__str__(), H_gate_inverse.__str__())
+        self.assertEqual(H_gate.inverse(), H_gate_inverse)
+
+        # Create a SWAP gate acting on qubits 1 and 2
+        swap_gate = Gate("SWAP", [1, 2])
+        swap_gate_inverse = Gate("SWAP", [1, 2])
+        self.assertEqual(swap_gate.inverse(), swap_gate_inverse)
 
         # Create a parameterized rotation on qubit 1 with angle 2 radians
         RX_gate = Gate("RX", 1, parameter=2.)
         RX_gate_inverse = Gate("RX", 1, parameter=-2.)
-        self.assertEqual(RX_gate.inverse().__str__(), RX_gate_inverse.__str__())
+        self.assertEqual(RX_gate.inverse(), RX_gate_inverse)
 
         # Create a parameterized rotation on qubit 1 , with an undefined angle, that will be variational
         RZ_gate = Gate("RZ", 1, parameter="an expression", is_variational=True)
@@ -83,6 +88,25 @@ class TestGates(unittest.TestCase):
 
         self.assertTrue(g1 == g3)
         self.assertTrue(g1 != g2)
+
+    def test_gate_equality_modulo_twopi(self):
+        """ Test behaviour of == with parameter outside [0, 2pi]. """
+        g1 = Gate("POTATO", target=0, parameter=np.pi, is_variational=True)
+        g2 = Gate("POTATO", target=0, parameter=3*np.pi, is_variational=True)
+        g3 = Gate("POTATO", target=0, parameter=-np.pi, is_variational=True)
+
+        self.assertTrue(g1 == g2)
+        self.assertTrue(g1 == g3)
+        self.assertTrue(g2 == g3)
+
+    def test_too_many_qubits_on_gates(self):
+        """ Test the behavior when too many qubits are selected for a gate. """
+
+        # Try to create a Hadamard gate acting on qubits 0 and 1.
+        self.assertRaises(ValueError, Gate, "H", target=[0, 1])
+
+        # Try to create a XX gate acting on qubits 0, 1 and 2.
+        self.assertRaises(ValueError, Gate, "XX", target=[0, 1, 2])
 
 
 if __name__ == "__main__":

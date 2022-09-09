@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+import os
 
 from tangelo import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H2_sto3g, xyz_H2O
@@ -24,10 +25,21 @@ H2_string = """
 H       0.0        0.0        0.0
 H       0.0        0.0        0.7414
 """
+H2_file_xyz = os.path.dirname(os.path.abspath(__file__))+"/data/h2.xyz"
 
 H2O_list = [("O", (0., 0., 0.11779)),
             ("H", (0., 0.75545, -0.47116)),
             ("H", (0., -0.75545, -0.47116))]
+
+
+def atom_list_close(atom1, atom2, atol):
+
+    for (a0, xyz0), (a1, xyz1) in zip(atom1, atom2):
+        if a0 != a1:
+            raise AssertionError(f"Atoms are not the same {a0} != {a1}")
+        for x0, x1 in zip(xyz0, xyz1):
+            if abs(x0 - x1) > atol:
+                raise AssertionError(f"geometries for atom {a0} are different. {x0} != {x1}")
 
 
 class CoordsTest(unittest.TestCase):
@@ -51,6 +63,14 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         assert(molecule.spin == 0)
         assert(molecule.q == 0)
         assert(molecule.n_electrons == 2)
+
+        molecule = SecondQuantizedMolecule(H2_file_xyz, 0, 0, "sto-3g")
+        assert(molecule.elements == ["H"]*2)
+        assert(molecule.basis == "sto-3g")
+        assert(molecule.spin == 0)
+        assert(molecule.q == 0)
+        assert(molecule.n_electrons == 2)
+        atom_list_close(molecule.xyz, H2_list, 1.e-14)
 
     def test_freezing_orbitals(self):
         """Verify freezing orbitals functionalities."""
@@ -153,8 +173,8 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
 
     def test_symmetry_label(self):
         """Verify that the symmetry labels are correct when symmetry=True or symmetry="C2v"."""
-        mo_symm_labels = ["A1", "A1", "B1", "A1", "B2", "A1", "B1"]
-        mo_symm_ids = [0, 0, 2, 0, 3, 0, 2]
+        mo_symm_labels = ["A1", "A1", "B2", "A1", "B1", "A1", "B2"]
+        mo_symm_ids = [0, 0, 3, 0, 2, 0, 3]
 
         molecule = SecondQuantizedMolecule(xyz=xyz_H2O, q=0, spin=0, symmetry=True, basis="sto-3g")
         assert(mo_symm_labels == molecule.mo_symm_labels)
@@ -163,6 +183,20 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         molecule = SecondQuantizedMolecule(xyz=xyz_H2O, q=0, spin=0, symmetry="C2v", basis="sto-3g")
         assert(mo_symm_labels == molecule.mo_symm_labels)
         assert(mo_symm_ids == molecule.mo_symm_ids)
+
+    def test_ecp(self):
+        """Verify that the number of electrons is reduced when ecp is called."""
+
+        molecule = SecondQuantizedMolecule(xyz="Yb", q=0, spin=0, basis="crenbl", ecp="crenbl")
+        # "Yb" has 70 electrons but the ecp reduces this to 16
+        assert(molecule.n_active_electrons == 16)
+        assert(molecule.n_active_mos == 96)
+
+        molecule = SecondQuantizedMolecule(xyz="Cu", q=0, spin=1, basis="cc-pvdz", ecp="crenbl",
+                                           frozen_orbitals=list(range(8)))
+        # "Cu" has 29 electrons but the ecp reduces this to 19. The active electrons are 19 - 8 * 2 = 3
+        assert(molecule.n_active_electrons == 3)
+        assert(molecule.n_active_mos == 35)
 
 
 if __name__ == "__main__":

@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'tangelo'
-copyright = '2021 Good Chemistry Company'
+copyright = '2022 Good Chemistry Company'
 author = 'Valentin senicourt, Alexandre Fleury, Ryan Day, James Brown'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.0'
+release = '0.3.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -58,6 +58,6 @@ napoleon_custom_sections = [('Returns', 'params_style')]
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 html_css_files = ['css/custom.css'] # works (path relative to html_static_path)
-html_logo = './_static/img/tangelo_name_white.png' # works (path relative to conf.py)
+html_logo = './_static/img/tangelo_logo_white.png' # works (path relative to conf.py)
 
 autodoc_mock_imports = ['qemist-client', 'PIL', 'Pillow', 'qsharp']

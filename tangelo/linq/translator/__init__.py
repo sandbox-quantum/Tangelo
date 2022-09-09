@@ -22,6 +22,7 @@ from .translate_json_ionq import translate_json_ionq, get_ionq_gates
 from .translate_qdk import translate_qsharp, get_qdk_gates
 from .translate_projectq import translate_projectq, _translate_projectq2abs, get_projectq_gates
 from .translate_openqasm import translate_openqasm, _translate_openqasm2abs, get_openqasm_gates
+from .translate_qubitop import translate_operator
 
 
 # List all supported gates for all backends found

@@ -21,6 +21,7 @@ import unittest
 import copy
 from math import pi
 from collections import Counter
+
 from tangelo.linq import Gate, Circuit, stack
 
 # Create several abstract circuits with different features
@@ -243,6 +244,62 @@ class TestCircuits(unittest.TestCase):
         ts_circuit = Circuit([Gate("T", 0), Gate("S", 1)])
         ts_circuit_inverse = Circuit([Gate("PHASE", 0, parameter=-pi/4), Gate("PHASE", 0, parameter=-pi/2)])
         self.assertTrue(ts_circuit.inverse(), ts_circuit_inverse)
+
+    def test_depth(self):
+        """ Test depth method on a few circuits """
+
+        c1 = Circuit([Gate("H", 0)]*3 + [Gate("X", 1)])
+        self.assertTrue(c1.depth() == 3)
+
+        c2 = Circuit([Gate("H", 0), Gate("CNOT", 1, 0), Gate("CNOT", 2, 1), Gate("H", 0), Gate("CNOT", 0, 2)])
+        self.assertTrue(c2.depth() == 4)
+
+        c3 = Circuit()
+        self.assertTrue(c3.depth() == 0)
+
+    def test_simple_optimization_functions(self):
+        """ Test if removing small rotations and redundant gates return the
+        proper set of gates.
+        """
+
+        test_circuit = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
+                                Gate("RZ", 2, parameter=0.01), Gate("CNOT", 1, control=0),
+                                Gate("RX", 0, parameter=-2.)])
+        test_circuit.remove_small_rotations(param_threshold=0.05)
+
+        ref_gates = [Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
+                     Gate("CNOT", 1, control=0), Gate("RX", 0, parameter=-2.)]
+
+        self.assertTrue(ref_gates == test_circuit._gates)
+
+        test_circuit.remove_redundant_gates()
+
+        self.assertTrue([] == test_circuit._gates)
+
+    def test_simple_optimization_minus_a_qubit(self):
+        """ Test if removing redundant gates deletes a qubit."""
+
+        test_circuit = Circuit([Gate("X", 0), Gate("H", 1), Gate("H", 1)])
+        test_circuit.remove_redundant_gates()
+
+        self.assertEqual(test_circuit.width, 1)
+
+    def test_copy(self):
+        """ Test if copy function is working properly."""
+        test_circuit = Circuit([Gate("X", 0), Gate("H", 1), Gate("H", 1)])
+        modified_circuit = Circuit([Gate("X", 0), Gate("H", 1), Gate("H", 1), Gate("H", 3)])
+        copied_circuit = test_circuit.copy()
+
+        copied_circuit.add_gate(Gate("H", 3))
+        self.assertTrue(copied_circuit == modified_circuit)
+        self.assertTrue(copied_circuit != test_circuit)
+
+    def test_iterate(self):
+        """ Test if the iteration returns the expected list of gates. """
+
+        self.assertEqual([g for g in circuit2], circuit2._gates)
+        self.assertEqual([g for g in circuit3], circuit3._gates)
+        self.assertEqual([g for g in circuit4], circuit4._gates)
 
 
 if __name__ == "__main__":

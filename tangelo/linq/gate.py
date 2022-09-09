@@ -24,9 +24,14 @@ from numpy import integer, ndarray, floating
 ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"}
 TWO_QUBIT_GATES = {"CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"}
 THREE_QUBIT_GATES = {"CSWAP"}
+
+ONE_TARGET_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE",
+                    "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE"}
+TWO_TARGET_GATES = {"XX", "SWAP", "CSWAP"}
+
 PARAMETERIZED_GATES = {"RX", "RY", "RZ", "PHASE", "CRX", "CRY", "CRZ", "CPHASE", "XX"}
 INVERTIBLE_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "CH", "PHASE",
-                    "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"
+                    "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP",
                     "CSWAP"}
 
 
@@ -84,6 +89,18 @@ class Gate(dict):
         if len(all_involved_qubits) != len(set(all_involved_qubits)):
             raise ValueError(f"There are duplicate qubits in the target/control qubits")
 
+        # Check for the number of qubits. If it is a custom gate (not defined in
+        # the X_QUBIT_GATES sets), ignore the check. We also do not prevent
+        # the creation of multi-controlled gates (begins with "C").
+        if name.upper() in ONE_TARGET_GATES:
+            n_targets = 1
+        elif name.upper() in TWO_TARGET_GATES:
+            n_targets = 2
+        else:
+            n_targets = len(target)
+        if len(target) != n_targets:
+            raise ValueError(f"Gate {name}: expected {n_targets} target qubits, but got {target}")
+
         self.__dict__ = {"name": name, "target": target, "control": control,
                          "parameter": parameter, "is_variational": is_variational}
 
@@ -105,7 +122,16 @@ class Gate(dict):
 
     def __eq__(self, other):
         """Define equality (==) operator on gates"""
-        return self.__dict__ == other.__dict__
+
+        ds, do = self.__dict__, other.__dict__
+
+        if any(ds[k] != do[k] for k in ds if k != "parameter"):
+            return False
+
+        parameter = round(ds["parameter"] % (2 * pi), 7) if isinstance(ds["parameter"], (float, int)) else ds["parameter"]
+        other_parameter = round(do["parameter"] % (2 * pi), 7) if isinstance(do["parameter"], (float, int)) else do["parameter"]
+
+        return parameter == other_parameter
 
     def __ne__(self, other):
         """Define inequality (!=) operator on gates"""
@@ -118,7 +144,7 @@ class Gate(dict):
             Gate: the inverse of the gate.
         """
         if self.name not in INVERTIBLE_GATES:
-            raise AttributeError(f"{self.gate} is not an invertible gate")
+            raise AttributeError(f"{self.name} is not an invertible gate")
         if self.parameter == "":
             new_parameter = ""
         elif isinstance(self.parameter, (float, floating, int, integer)):

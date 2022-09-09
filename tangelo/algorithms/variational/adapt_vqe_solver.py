@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """Module that defines the ADAPT-VQE algorithm framework. ADAPT-VQE is a
-variational  approach that builds an ansatz iteratively, until a convergence
+variational approach that builds an ansatz iteratively, until a convergence
 criteria or a maximum number of cycles is reached. Each iteration ("cycle")
 of ADAPT consists in drawing an operator from a pre-defined operator pool,
 selecting the one that impacts the energy the most, growing the ansatz circuit
@@ -27,16 +27,18 @@ Ref:
 """
 
 import math
-from openfermion import commutator
-from openfermion import FermionOperator as ofFermionOperator
-from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
-from scipy.optimize import minimize
 import warnings
 
+from scipy.optimize import minimize
+from openfermion import commutator
+from openfermion import FermionOperator as ofFermionOperator
+
+from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
 from tangelo.toolboxes.operators import qubitop_to_qubitham
+from tangelo.linq import Circuit, Gate
 from tangelo.algorithms.variational.vqe_solver import VQESolver
 
 
@@ -63,6 +65,10 @@ class ADAPTSolver:
         optimizer (func): Optimization function for VQE minimization.
         backend_options (dict): Backend options for the underlying VQE object.
         verbose (bool): Flag for verbosity of VQE.
+        deflation_circuits (list[Circuit]): Deflation circuits to add an
+            orthogonalization penalty with.
+        deflation_coeff (float): The coefficient of the deflation.
+        ref_state (array or Circuit): The reference configuration to use. Replaces HF state
      """
 
     def __init__(self, opt_dict):
@@ -72,15 +78,18 @@ class ADAPTSolver:
                            "tol": 1e-3, "max_cycles": 15,
                            "pool": uccgsd_pool,
                            "pool_args": None,
-                           "frozen_orbitals": "frozen_core",
                            "qubit_mapping": "jw",
                            "qubit_hamiltonian": None,
                            "up_then_down": False,
                            "n_spinorbitals": None,
                            "n_electrons": None,
+                           "spin": None,
                            "optimizer": self.LBFGSB_optimizer,
                            "backend_options": default_backend_options,
-                           "verbose": False}
+                           "verbose": False,
+                           "ref_state": None,
+                           "deflation_circuits": list(),
+                           "deflation_coeff": 1}
 
         # Initialize with default values
         self.__dict__ = default_options
@@ -96,10 +105,6 @@ class ADAPTSolver:
         # must be provided to avoid conflicts.
         if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
             raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
-
-        if self.qubit_hamiltonian:
-            if not (self.n_spinorbitals and self.n_electrons):
-                raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals) and the number of electrons (n_electrons) with a qubit_hamiltonian.")
 
         self.ansatz = None
         self.converged = False
@@ -139,24 +144,26 @@ class ADAPTSolver:
             self.spin = self.molecule.spin
 
             # Compute qubit hamiltonian for the input molecular system
-            qubit_op = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
-                                                mapping=self.qubit_mapping,
-                                                n_spinorbitals=self.n_spinorbitals,
-                                                n_electrons=self.n_electrons,
-                                                up_then_down=self.up_then_down,
-                                                spin=self.spin)
-
-            self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
+            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
+                                                              mapping=self.qubit_mapping,
+                                                              n_spinorbitals=self.n_spinorbitals,
+                                                              n_electrons=self.n_electrons,
+                                                              up_then_down=self.up_then_down,
+                                                              spin=self.spin)
 
         # Build / set ansatz circuit.
-        ansatz_options = {"mapping": self.qubit_mapping, "up_then_down": self.up_then_down}
+        ansatz_options = {"mapping": self.qubit_mapping, "up_then_down": self.up_then_down,
+                          "reference_state": "HF" if self.ref_state is None else "zero"}
         self.ansatz = ADAPTAnsatz(self.n_spinorbitals, self.n_electrons, ansatz_options)
 
         # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles.
         self.vqe_options = {"qubit_hamiltonian": self.qubit_hamiltonian,
                             "ansatz": self.ansatz,
                             "optimizer": self.optimizer,
-                            "backend_options": self.backend_options
+                            "backend_options": self.backend_options,
+                            "deflation_circuits": self.deflation_circuits,
+                            "deflation_coeff": self.deflation_coeff,
+                            "ref_state": self.ref_state
                             }
 
         self.vqe_solver = VQESolver(self.vqe_options)
@@ -173,8 +180,16 @@ class ADAPTSolver:
                 self.pool_args = {"n_qubits": self.n_spinorbitals}
             else:
                 raise KeyError('pool_args must be defined if using own pool function')
+
         # Check if pool function returns a QubitOperator or FermionOperator and populate variables
         pool_list = self.pool(**self.pool_args)
+
+        # Only a qubit operator is provided with a FermionOperator pool.
+        if not (self.n_spinorbitals and self.n_electrons and self.spin is not None):
+            raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals), "
+                "the number of electrons (n_electrons) and the spin (spin) with "
+                "a qubit_hamiltonian when working with a pool of fermion operators.")
+
         if isinstance(pool_list[0], QubitOperator):
             self.pool_type = 'qubit'
             self.pool_operators = pool_list
@@ -197,7 +212,7 @@ class ADAPTSolver:
 
         # Getting commutators to compute gradients:
         # \frac{\partial E}{\partial \theta_n} = \langle \psi | [\hat{H}, A_n] | \psi \rangle
-        self.pool_commutators = [commutator(self.qubit_hamiltonian.to_qubitoperator(), element) for element in self.pool_operators]
+        self.pool_commutators = [commutator(self.qubit_hamiltonian, element) for element in self.pool_operators]
 
     def simulate(self):
         """Performs the ADAPT cycles. Each iteration, a VQE minimization is
@@ -213,7 +228,9 @@ class ADAPTSolver:
             if self.verbose:
                 print(f"Iteration {self.iteration} of ADAPT-VQE.")
 
-            pool_select = self.rank_pool(self.pool_commutators, self.vqe_solver.ansatz.circuit,
+            full_circuit = (self.vqe_solver.ansatz.circuit if self.ref_state is None else
+                            self.vqe_solver.reference_circuit + self.vqe_solver.ansatz.circuit)
+            pool_select = self.rank_pool(self.pool_commutators, full_circuit,
                                          backend=self.vqe_solver.backend, tolerance=self.tol)
 
             # If pool selection returns an operator that changes the energy by
@@ -260,6 +277,15 @@ class ADAPTSolver:
         """
 
         gradient = [abs(backend.get_expectation_value(element, circuit)) for element in pool_commutators]
+        for deflate_circuit in self.deflation_circuits:
+            for i, pool_op in enumerate(self.pool_operators):
+                op_circuit = Circuit([Gate(op[1], op[0]) for tuple in pool_op.terms for op in tuple])
+                pool_over = deflate_circuit.inverse() + op_circuit + circuit
+                f_dict, _ = backend.simulate(pool_over)
+                grad = f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
+                pool_over = deflate_circuit.inverse() + circuit
+                f_dict, _ = backend.simulate(pool_over)
+                gradient[i] += self.deflation_coeff * grad * f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
         max_partial = max(gradient)
 
         if self.verbose:
@@ -285,7 +311,8 @@ class ADAPTSolver:
         # or when the algorithm has converged.
         if self.converged or self.iteration == self.max_cycles:
             self.ansatz.build_circuit(self.optimal_var_params)
-            self.optimal_circuit = self.vqe_solver.ansatz.circuit
+            self.optimal_circuit = (self.vqe_solver.ansatz.circuit if self.ref_state is None else
+                                    self.vqe_solver.reference_circuit + self.vqe_solver.ansatz.circuit)
 
         if self.verbose:
             print(f"VQESolver optimization results:")
