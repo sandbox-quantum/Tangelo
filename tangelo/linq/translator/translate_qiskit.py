@@ -30,7 +30,7 @@ from tangelo.linq.helpers import pauli_of_to_string, pauli_string_to_of
 
 
 def get_qiskit_gates():
-    """Map gate name of the abstract format to the equivalent add_gate method of
+    """Map gate name of the Tangelo format to the equivalent add_gate method of
     Qiskit's QuantumCircuit class API and supported gates:
     https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html
     """
@@ -68,10 +68,10 @@ def translate_qiskit(source_circuit):
     """Take in a Circuit, return an equivalent qiskit.QuantumCircuit
 
     Args:
-        source_circuit (Circuit): quantum circuit in the abstract format.
+        source_circuit (Circuit): quantum circuit in the Tangelo format.
 
     Returns:
-        qiskit.QuantumCircuit: the corresponding quantum circuit.
+        qiskit.QuantumCircuit: the corresponding quantum circuit in Qiskit format.
     """
 
     return translate_c_to_qiskit(source_circuit)
@@ -81,7 +81,7 @@ def translate_c_to_qiskit(source_circuit: Circuit):
     """Take in a Circuit, return an equivalent qiskit.QuantumCircuit
 
     Args:
-        source_circuit (Circuit): quantum circuit in the abstract format.
+        source_circuit (Circuit): quantum circuit in the Tangelo format.
 
     Returns:
         qiskit.QuantumCircuit: the corresponding qiskit.QuantumCircuit
@@ -120,13 +120,13 @@ def translate_c_to_qiskit(source_circuit: Circuit):
 
 
 def translate_c_from_qiskit(source_circuit) -> Circuit:
-    """Take in a qiskit.QuantumCircuit, return an equivalent Circuit
+    """Take in a qiskit.QuantumCircuit, return an equivalent Tangelo Circuit
 
     Args:
-        source_circuit (qiskit.QuantumCircuit): quantum circuit in the abstract qiskit.QuantumCircuit format.
+        source_circuit (qiskit.QuantumCircuit): quantum circuit in the qiskit.QuantumCircuit format.
 
     Returns:
-        Circuit: the corresponding quantum Circuit.
+        Circuit: the corresponding quantum Circuit in Tangelo format.
     """
     import qiskit
 
@@ -154,7 +154,7 @@ def translate_c_from_qiskit(source_circuit) -> Circuit:
         elif name in {"MEASURE"}:
             gates += [Gate(name, qi[gate.qubits[0]].index)]
         else:
-            raise ValueError(f"Gate '{gate.name}' not supported on backend qiskit")
+            raise ValueError(f"Gate '{gate.name}' not supported in Tangelo")
     target_circuit = Circuit(gates)
 
     return target_circuit
