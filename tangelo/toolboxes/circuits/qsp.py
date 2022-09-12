@@ -53,6 +53,7 @@ def ham_sim_phases(tau: float, eps: float = 1.e-2, n_attempts: int = 10, method:
     from pyqsp.angle_sequence import AngleFindingError
     from pyqsp.completion import CompletionError
 
+    # Compute phases for real part Cos(Ht) of Exp(iHt)
     pg = pyqsp.poly.PolyCosineTX()
     pcoefs, _ = pg.generate(tau=tau,
                             return_coef=True,
@@ -69,6 +70,8 @@ def ham_sim_phases(tau: float, eps: float = 1.e-2, n_attempts: int = 10, method:
                 print(f"Attempt {i+2} for the real coefficients")
         else:
             break
+
+    # Compute phases for imaginary part i*Sin(Ht) of Exp(iHt)
     pg = pyqsp.poly.PolySineTX()
     pcoefs, _ = pg.generate(tau=tau,
                             return_coef=True,
@@ -107,6 +110,7 @@ def ham_sim_phases_QSPPACK(folder: str, tau: float, eps: float = 1.e-7) -> Tuple
     """
     from oct2py import octave
     from scipy.special import jn
+
     octave.addpath(folder)
     opts = octave.struct("criteria", eps)
     maxorder = math.ceil(1.4*tau+np.log(1e14))
@@ -116,7 +120,6 @@ def ham_sim_phases_QSPPACK(folder: str, tau: float, eps: float = 1.e-7) -> Tuple
     coef = np.zeros((maxorder//2 + 1, 1), dtype=float, order='F')
     for i in range(1, len(coef)+1):
         coef[i-1][0] = (-1)**(i-1)*jn(2*(i-1), tau)
-
     coef[0] = coef[0]/2
     phi1, _ = octave.QSP_solver(coef, 0, opts, nout=2)
 
@@ -124,6 +127,7 @@ def ham_sim_phases_QSPPACK(folder: str, tau: float, eps: float = 1.e-7) -> Tuple
     for i in range(1, len(coef)+1):
         coef[i-1][0] = (-1)**(i-1)*jn(2*i-1, tau)
     phi2, _ = octave.QSP_solver(coef, 1, opts, nout=2)
+
     return list(phi1.flatten()), list(phi2.flatten())
 
 
@@ -138,8 +142,9 @@ def zero_controlled_cnot(qubit_list: List[int], target: int, control: Union[int,
     Returns:
         Circuit: The zero controlled cnot circuit with possible extra controls on 1.
     """
+    control_list = control if isinstance(control, list) else [control]
     x_ladder = [Gate("X", q) for q in qubit_list]
-    gates = x_ladder + [Gate("CX", target=target, control=qubit_list+control)] + x_ladder
+    gates = x_ladder + [Gate("CX", target=target, control=qubit_list+control_list)] + x_ladder
     return Circuit(gates)
 
 
@@ -166,7 +171,6 @@ def get_qsp_circuit_no_anc(cua: Circuit, m_qs: List[int], angles: List[float], c
     else:
         qubcirc = Circuit([Gate("CH", anc, control=c_list)])
 
-    circ_angles = []
     circ_angles = [angles[0]+np.pi/4]
     for ang in angles[1:-1]:
         circ_angles += [ang + np.pi/2]
@@ -217,11 +221,10 @@ def get_qsp_hamiltonian_simulation_circuit(qu_op: QubitOperator, tau: float, eps
         control_list = []
 
     # If tau is negative, flip sign of tau and qu_op.
-    flip_tau_sign = False
-    if tau < 0.:
+    flip_tau_sign = (tau < 0.)
+    if flip_tau_sign:
         qu_op = -qu_op
         tau = -tau
-        flip_tau_sign = True
 
     qu_op_qs, m_qs, alpha = get_lcu_qubit_op_info(qu_op)
 

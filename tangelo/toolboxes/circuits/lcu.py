@@ -20,7 +20,6 @@ Refs:
 
 import math
 from typing import Union, Tuple, List
-from copy import copy
 
 import numpy as np
 
@@ -204,7 +203,7 @@ def USelectkl(unitaries: List[QubitOperator], n_qubits_sv: int, kmax: int, contr
 
     n_qubits_u = math.ceil(math.log2(len(unitaries)))
     if control is not None:
-        control_list = copy(control) if isinstance(control, list) else [control]
+        control_list = control.copy() if isinstance(control, list) else [control]
     else:
         control_list = []
 
@@ -251,7 +250,7 @@ def sign_flip(qubit_list: List[int], control: Union[int, List[int]] = None) -> C
         Circuit: The circuit that generates the sign flip on |0>^n
     """
     if control is not None:
-        fcontrol_list = copy(control) if isinstance(control, list) else [control]
+        fcontrol_list = control.copy() if isinstance(control, list) else [control]
     else:
         fcontrol_list = []
     gate_list = []
@@ -311,7 +310,7 @@ def get_uprep_uselect(qu_op: QubitOperator, control: Union[int, List[int]] = Non
     """
 
     if control is not None:
-        control_list = copy(control) if isinstance(control, list) else [control]
+        control_list = control.copy() if isinstance(control, list) else [control]
     else:
         control_list = []
 
@@ -383,7 +382,7 @@ def get_lcu_qubit_op_info(qu_op: QubitOperator()) -> Tuple[List[int], List[int],
 
     max_qu_op = count_qubits(qu_op)
     num_terms = len(qu_op.terms)
-    alpha = sum([abs(v) for _, v in qu_op.terms.items()])
+    alpha = sum([abs(v) for v in qu_op.terms.values()])
     n_qubits = math.ceil(math.log2(num_terms))
 
     return list(range(max_qu_op)), list(range(max_qu_op, max_qu_op + n_qubits)), alpha
