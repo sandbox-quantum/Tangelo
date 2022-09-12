@@ -21,7 +21,6 @@ Ref:
 
 import math
 from typing import Union, List, Tuple
-from copy import copy
 
 import numpy as np
 
@@ -216,7 +215,7 @@ def get_qsp_hamiltonian_simulation_circuit(qu_op: QubitOperator, tau: float, eps
     """
 
     if control is not None:
-        control_list = copy(control) if isinstance(control, list) else [control]
+        control_list = control.copy() if isinstance(control, list) else [control]
     else:
         control_list = []
 
