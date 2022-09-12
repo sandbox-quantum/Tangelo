@@ -100,6 +100,21 @@ class MultiformOperatorTest(unittest.TestCase):
         np.testing.assert_array_equal([[0, 1, 2, 3]], collapsed_int_op)
         np.testing.assert_array_equal([2.], collapsed_factors)
 
+    def test_compress(self):
+        """Test whether MultiformOperator.compress(n_qubits=n_qubits) works as expected."""
+
+        multi_op_4 = MultiformOperator.from_qubitop(qu_op_xyz, n_qubits=4)
+        multi_op_3 = MultiformOperator.from_qubitop(qu_op_xyz)
+
+        self.assertEqual(multi_op_3.n_qubits, 3)
+
+        # Compress while changing n_qubits to 4, multi_op_3 should now equal multi_op_4
+        multi_op_3.compress(n_qubits=4)
+
+        np.testing.assert_allclose(multi_op_4.integer, multi_op_3.integer)
+        np.testing.assert_allclose(multi_op_4.factors, multi_op_4.factors)
+        self.assertEqual(multi_op_3.n_qubits, multi_op_4.n_qubits)
+
 
 if __name__ == "__main__":
     unittest.main()
