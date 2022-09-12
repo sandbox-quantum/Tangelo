@@ -67,7 +67,8 @@ class QubitTaperingTest(unittest.TestCase):
         tapering = QubitTapering(qu_op, 8, 4, 0, "JW", True)
 
         try:
-            tapering.z2_tapering(QubitOperator("X0 X1 X4 X5", 1), n_qubits=8)
+            tapered_ref_state_op = tapering.z2_tapering(QubitOperator("X0 X1 X4 X5", 1), n_qubits=8)
+            self.assertEqual(tapered_ref_state_op, QubitOperator("X0 X1 X3", 1.0))
         except IndexError:
             self.fail("z2_tapering raised IndexError unexpectedly")
 
