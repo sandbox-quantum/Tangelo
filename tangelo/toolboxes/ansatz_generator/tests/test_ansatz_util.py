@@ -89,7 +89,7 @@ class ansatz_utils_Test(unittest.TestCase):
         """ Verify that the time evolution is correct for different orders and number of steps
             with a qubit_hamiltonian input"""
 
-        time = 0.2
+        time = 2.
         mapping = "bk"
         reference_circuit = get_reference_circuit(n_spinorbitals=mol_H4_sto3g.n_active_sos,
                                                   n_electrons=mol_H4_sto3g.n_active_electrons,
@@ -106,19 +106,17 @@ class ansatz_utils_Test(unittest.TestCase):
         ham_mat = get_sparse_operator(qubit_hamiltonian).toarray()
         evolve_exact = expm(-1j * time * ham_mat) @ refwave
 
-        for trotter_order, n_trotter_steps in [(1, 1), (2, 1), (1, 2)]:
+        for trotter_order, n_trotter_steps in [(1, 1), (2, 1), (1, 2), (4, 1), (6, 1)]:
 
             tcircuit, phase = trotterize(qubit_hamiltonian, time, n_trotter_steps, trotter_order, return_phase=True)
             _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
             wavefunc *= phase
             overlap = np.dot(np.conj(evolve_exact), wavefunc)
-            self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
+            self.assertAlmostEqual(overlap, 1.0, delta=(6.e-1 / n_trotter_steps)**(trotter_order+1))
+
             # Test to make sure the same circuit is returned when return_phase=False.
-            tcircuit = trotterize(qubit_hamiltonian, time, n_trotter_steps, trotter_order, return_phase=False)
-            _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
-            wavefunc *= phase
-            overlap = np.dot(np.conj(evolve_exact), wavefunc)
-            self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
+            tcircuit_no_phase = trotterize(qubit_hamiltonian, time, n_trotter_steps, trotter_order, return_phase=False)
+            self.assertEqual(tcircuit, tcircuit_no_phase)
 
     def test_trotterize_fermionic_input_different_times(self):
         """ Verify that the time evolution is correct for a FermionOperator input with different times
