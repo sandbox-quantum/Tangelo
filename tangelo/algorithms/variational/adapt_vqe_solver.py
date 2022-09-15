@@ -37,7 +37,6 @@ from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
-from tangelo.toolboxes.operators import qubitop_to_qubitham
 from tangelo.linq import Circuit, Gate
 from tangelo.algorithms.variational.vqe_solver import VQESolver
 
