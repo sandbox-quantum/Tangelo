@@ -393,7 +393,18 @@ class SimulatorBase(abc.ABC):
 
 
 def Simulator(target=default_simulator, n_shots=None, noise_model=None, **kwargs):
-    "Return appropriate target simulator"
+    """Return requested target simulator
+
+    Args:
+        target (string or BaseSimulator): String can be "qiskit", "cirq", "qdk" or "qulacs". Can also provide
+            The child class of BaseSimulator.
+        n_shots (int): Number of shots if using a shot-based simulator.
+        noise_model: A noise model object assumed to be in the format
+            expected from the target backend.
+
+    Returns:
+        BaseSimulator: The initialized target simulator that is a child class of BaseSimulator.
+    """
     if target is None:
         target = default_simulator
     if isinstance(target, str):
