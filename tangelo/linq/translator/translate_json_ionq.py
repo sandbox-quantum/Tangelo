@@ -75,7 +75,7 @@ def translate_json_ionq(source_circuit):
         elif gate.name in {"CPHASE"}:
             json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'controls': gate.control, 'rotation': gate.parameter})
         elif gate.name in {"CNOT"}:
-            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'controls': gate.control})
+            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'control': gate.control[0]})
         elif gate.name in {"SWAP"}:
             json_gates.append({'gate': GATE_JSON_IONQ[gate.name], "targets": gate.target})
         elif gate.name in {"XX"}:
