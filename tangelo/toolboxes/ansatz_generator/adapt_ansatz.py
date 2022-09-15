@@ -20,7 +20,7 @@ from tangelo.linq import Circuit
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import exp_pauliword_to_gates
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
-from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number
 
 
 class ADAPTAnsatz(Ansatz):
@@ -107,14 +107,14 @@ class ADAPTAnsatz(Ansatz):
         if self.reference_state.upper() == "HF":
             return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.mapping, up_then_down=self.up_then_down)
         else:
-            return Circuit(n_qubits=self.n_spinorbitals)
+            return Circuit(n_qubits=get_qubit_number(self.mapping, self.n_spinorbitals))
 
     def build_circuit(self, var_params=None):
         """Construct the variational circuit to be used as our ansatz."""
 
         self.set_var_params(var_params)
 
-        self.circuit = Circuit(n_qubits=self.n_spinorbitals)
+        self.circuit = Circuit(n_qubits=get_qubit_number(self.mapping, self.n_spinorbitals))
         self.circuit += self.prepare_reference_state()
         adapt_circuit = list()
         for op in self.operators:
