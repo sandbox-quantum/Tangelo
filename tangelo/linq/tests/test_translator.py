@@ -386,7 +386,7 @@ class TestTranslation(unittest.TestCase):
                                    {'gate': 'x', 'target': 1},
                                    {'gate': 'rx', 'rotation': 1.5707963267948966, 'target': 0},
                                    {'gate': 'h', 'target': 2},
-                                   {'controls': [0], 'gate': 'cnot', 'target': 1},
+                                   {'controls': [0], 'gate': 'x', 'target': 1},
                                    {'gate': 'rz', 'rotation': 12.566170614359173, 'target': 2}],
                        'qubits': 3}
 
