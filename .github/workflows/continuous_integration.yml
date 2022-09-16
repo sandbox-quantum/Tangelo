@@ -33,7 +33,7 @@ jobs:
     - name: pycodestyle tests
       run: |
         cd dev_tools
-        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html test_conformance.py
+        pytest --doctest-modules --junitxml=junit/pycodestyle-test-results.xml test_conformance.py
       if: always()
 
     - name: Install backends except qsharp/qdk
@@ -65,11 +65,28 @@ jobs:
     - name: tangelo tests
       run: |
         cd tangelo
-        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+        pytest --doctest-modules --junitxml=junit/tangelo-test-results.xml --cov=. --cov-report=xml --cov-report=html
       if: always()
 
     - name: tangelo notebooks as tests
       run: |
         cd examples
-        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html test_notebooks.py
+        pytest --doctest-modules --junitxml=junit/notebook-test-results.xml test_notebooks.py
+      if: always()
+
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: tangelo-test-results
+        path: tangelo/junit/tangelo-test-results.xml
+
+    - name: Upload pytest html results
+      uses: actions/upload-artifact@v3
+      with:
+        name: tangelo-tests-coverage
+        path: tangelo/htmlcov
+      if: always()
+
+    - name: Download all workflow run artifacts
+      uses: actions/download-artifact@v3
       if: always()
