@@ -382,12 +382,12 @@ class TestTranslation(unittest.TestCase):
         abs_circ_ionq = Circuit(abs_gates)
         json_ionq_circ = translator.translate_json_ionq(abs_circ_ionq)
 
-        ref_circuit = {'circuit': [{'gate': 'x', 'target': 0},
-                                   {'gate': 'x', 'target': 1},
-                                   {'gate': 'rx', 'rotation': 1.5707963267948966, 'target': 0},
-                                   {'gate': 'h', 'target': 2},
-                                   {'controls': [0], 'gate': 'x', 'target': 1},
-                                   {'gate': 'rz', 'rotation': 12.566170614359173, 'target': 2}],
+        ref_circuit = {'circuit': [{'gate': 'x', 'targets': [0]},
+                                   {'gate': 'x', 'targets': [1]},
+                                   {'gate': 'rx', 'rotation': 1.5707963267948966, 'targets': [0]},
+                                   {'gate': 'h', 'targets': [2]},
+                                   {'controls': [0], 'gate': 'x', 'targets': [1]},
+                                   {'gate': 'rz', 'rotation': 12.566170614359173, 'targets': [2]}],
                        'qubits': 3}
 
         assert(json_ionq_circ == ref_circuit)

@@ -65,19 +65,19 @@ def translate_json_ionq(source_circuit):
     json_gates = []
     for gate in source_circuit._gates:
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
-            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0]})
+            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'targets': gate.target})
         elif gate.name in {"RX", "RY", "RZ"}:
-            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'rotation': gate.parameter})
+            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'targets': gate.target, 'rotation': gate.parameter})
         elif gate.name in {"CRX", "CRY", "CRZ"}:
             json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'targets': gate.target, 'controls': gate.control, 'rotation': gate.parameter})
         elif gate.name in {"CX", "CY", "CZ"}:
-            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'controls': gate.control})
+            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'targets': gate.target, 'controls': gate.control})
         elif gate.name in {"PHASE"}:
-            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'rotation': gate.parameter})
+            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'targets': gate.target, 'rotation': gate.parameter})
         elif gate.name in {"CPHASE"}:
-            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'controls': gate.control, 'rotation': gate.parameter})
+            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'targets': gate.target, 'controls': gate.control, 'rotation': gate.parameter})
         elif gate.name in {"CNOT"}:
-            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'target': gate.target[0], 'controls': gate.control})
+            json_gates.append({'gate': GATE_JSON_IONQ[gate.name], 'targets': gate.target, 'controls': gate.control})
         elif gate.name in {"SWAP"}:
             json_gates.append({'gate': GATE_JSON_IONQ[gate.name], "targets": gate.target})
         elif gate.name in {"XX"}:
