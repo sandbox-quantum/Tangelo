@@ -163,6 +163,7 @@ def aggregate_histograms(*hists):
 
         return Histogram(dict(total_counter))
 
+
 def post_select(hist, expected_outcomes):
     """Post selection function to select data when a supplementary circuit is
     appended to the quantum state. Symmetry breaking results are rejected and
