@@ -52,14 +52,8 @@ class HistogramTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             Histogram({"00": 60, "111": 40})
 
-    def test_histogram_inconsistent_bitstring_length(self):
-        """Throw an error if bitstrings are not all of consistent length."""
-        with self.assertRaises(ValueError):
-            Histogram({"00": 60, "111": 40})
-
     def test_histogram_bistring_ordering(self):
         """Test the behavior with different bit ordering."""
-
         h = Histogram({"110": 60, "001": 40}, msq_first=True)
         self.assertTrue(h.counts == {"011": 60, "100": 40})
 
@@ -106,16 +100,14 @@ class AgregateHistogramsTest(unittest.TestCase):
         self.assertTrue(hf == Histogram({"00": 180, "11": 80, "01": 40}))
 
     def test_aggregate_histograms_length_inconsistent(self):
-        """ Return an error if histograms have bitstrings of different lengths
-        """
+        """Return an error if histograms have bitstrings of different lengths."""
         with self.assertRaises(ValueError):
             h1 = Histogram({"00": 60, "11": 40})
             h2 = Histogram({"1": 100})
             aggregate_histograms(h1, h2)
 
     def test_aggregate_histograms_empty(self):
-        """ Return an error if no histogram is passed
-        """
+        """Return an error if no histogram is passed."""
         with self.assertRaises(ValueError):
             aggregate_histograms()
 
