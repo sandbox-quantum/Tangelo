@@ -158,8 +158,7 @@ def aggregate_histograms(*hists):
             raise ValueError(f"Input histograms have different bitstring lengths ({lengths_bitstrings})")
 
         # Aggregate histograms.
-        total_counter = sum([Counter({k: v for k, v in h.counts.items()}) for h in hists],
-                            start=Counter())
+        total_counter = sum([Counter({k: v for k, v in h.counts.items()}) for h in hists], Counter())
 
         return Histogram(dict(total_counter))
 
