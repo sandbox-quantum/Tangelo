@@ -75,10 +75,10 @@ class MappingTest(unittest.TestCase):
         jkmn_operator += QubitOperator(((0, "X"), (2, "Z"), (3, "Y")), 0.125j)
         jkmn_operator += QubitOperator(((0, "Y"), (1, "Z"), (3, "X")), -0.125j)
         jkmn_operator += QubitOperator(((0, "Y"), (1, "Z"), (3, "Y")), 0.125)
-        jkmn_operator += QubitOperator(((0, "Z"), (1, "X"), (2, "X")), 0.25j)
-        jkmn_operator += QubitOperator(((0, "Z"), (1, "X"), (2, "Y")), 0.25)
-        jkmn_operator += QubitOperator(((0, "Z"), (1, "Y"), (2, "X")), -0.25)
-        jkmn_operator += QubitOperator(((0, "Z"), (1, "Y"), (2, "Y")), 0.25j)
+        jkmn_operator += QubitOperator(((0, "Z"), (1, "X"), (2, "X")), 0.25)
+        jkmn_operator += QubitOperator(((0, "Z"), (1, "X"), (2, "Y")), -0.25j)
+        jkmn_operator += QubitOperator(((0, "Z"), (1, "Y"), (2, "X")), 0.25j)
+        jkmn_operator += QubitOperator(((0, "Z"), (1, "Y"), (2, "Y")), 0.25)
 
         fermion = FermionOperator(((1, 0), (2, 1)), 1.0) + FermionOperator(((0, 1), (3, 0)), 0.5)
 
