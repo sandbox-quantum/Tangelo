@@ -87,6 +87,39 @@ class HistogramTest(unittest.TestCase):
         hf += h1
         self.assertTrue(hf == Histogram({"00": 180, "11": 80, "01": 40}))
 
+    def test_post_select_as_a_method(self):
+        """Post select in place based on one qubit measurement."""
+
+        h = Histogram({"00": 40, "01": 30, "10": 20, "11": 10})
+        h.post_select(expected_outcomes={0: "0"})
+        self.assertTrue(h == Histogram({"0": 40, "1": 30}))
+
+    def test_resample_method(self):
+        """Test the resampling method. As resampling is probabilistic, we do not
+        check for the probability outputs.
+        """
+
+        h = Histogram({"00": 60, "11": 40})
+
+        h_10shots = h.resample(10)
+
+        self.assertEquals(h_10shots.n_qubits, 2)
+        self.assertEquals(h_10shots.n_shots, 10)
+
+    def test_get_expectation_value_method(self):
+        """Test the output for the get_expectation_value method."""
+
+        h = Histogram({"00": 50, "11": 50})
+
+        exp_1z = h.get_expectation_value(((0, "Z"),), 1.)
+        self.assertAlmostEquals(exp_1z, 0.)
+
+        exp_1zz = h.get_expectation_value(((0, "Z"), (1, "Z")), 1.)
+        self.assertAlmostEquals(exp_1zz, 1.)
+
+        exp_2zz = h.get_expectation_value(((0, "Z"), (1, "Z")), 2.)
+        self.assertAlmostEquals(exp_2zz, 2.)
+
 
 class AgregateHistogramsTest(unittest.TestCase):
 
