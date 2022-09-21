@@ -112,16 +112,26 @@ class Histogram:
         """
         return {bistring: counts/self.n_shots for bistring, counts in self.counts.items()}
 
-    def post_select(self, values):
+    def post_select(self,  expected_outcomes):
         """Post selection is done with the post_select function (see the
-        relevant documentation for more details).
+        relevant documentation for more details). This method change the Histogram
+        object inplace.
+
+        Args:
+            expected_outcomes (dict): Wanted outcomes on certain qubit indices and
+                their expected state. For example, {0: "1"} would filter results
+                based on the first qubit with the 1 state measured. This argument
+                can also filter many qubits.
         """
-        new_hist = post_select(self, values, return_only_counts=False)
+        new_hist = post_select(self, expected_outcomes)
         self.__dict__ = new_hist.__dict__
 
     def resample(self, n_shots):
         """Post selection is done with the tangelo.toolboxes.post_processing.boostrapping.get_resampled_frequencies
         function (see the relevant documentation for more details).
+
+        Args:
+            n_shots (int): Self-explanatory.
 
         Returns:
             Histogram: resampled data with n_shots from the distribution.
@@ -133,6 +143,14 @@ class Histogram:
         """Output the expectation value for qubit operator term. The histogram
         data is expected to be results from a circuit with the proper qubit
         rotations.
+
+        Args:
+            term(openfermion-style QubitOperator object): a qubit operator, with
+                only a single term.
+            coeff (imaginary): Coefficient to multiply the eigenvalue by.
+
+        Returns:
+            imaginary: Expectation value for this operator.
         """
         return coeff*Simulator.get_expectation_value_from_frequencies_oneterm(term, self.frequencies)
 
