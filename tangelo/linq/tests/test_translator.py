@@ -384,10 +384,10 @@ class TestTranslation(unittest.TestCase):
 
         ref_circuit = {'circuit': [{'gate': 'x', 'targets': [0]},
                                    {'gate': 'x', 'targets': [1]},
-                                   {'gate': 'rx', 'rotation': 1.5707963267948966, 'targets': [0]},
+                                   {'gate': 'rx', 'targets': [0], 'rotation': 1.5707963267948966},
                                    {'gate': 'h', 'targets': [2]},
-                                   {'controls': [0], 'gate': 'x', 'targets': [1]},
-                                   {'gate': 'rz', 'rotation': 12.566170614359173, 'targets': [2]}],
+                                   {'gate': 'x', 'targets': [1],  'controls': [0]},
+                                   {'gate': 'rz', 'targets': [2], 'rotation': 12.566170614359173}],
                        'qubits': 3}
 
         assert(json_ionq_circ == ref_circuit)
