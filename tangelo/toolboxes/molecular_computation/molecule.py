@@ -330,10 +330,9 @@ class SecondQuantizedMolecule(Molecule):
         self.mean_field.mo_coeff = new_mo_coeff
 
     def _compute_mean_field(self):
-        """Computes the mean-field for the molecule. It supports open-shell
-        mean-field calculation through openfermionpyscf. Depending on the
-        molecule spin, it does a restricted or a restriction open-shell
-        Hartree-Fock calculation.
+        """Computes the mean-field for the molecule. Depending on the molecule
+        spin, it does a restricted or a restriction open-shell Hartree-Fock
+        calculation.
 
         It is also used for defining attributes related to the mean-field
         (mf_energy, mo_energies, mo_occ, n_mos and n_sos).
