@@ -19,6 +19,7 @@ broken down in several modules if needed.
 from math import sqrt
 from collections import OrderedDict
 
+import numpy as np
 from scipy.special import comb
 
 # Later on, if needed, we can extract the code for the operators themselves to remove the dependencies and customize
@@ -29,7 +30,48 @@ class FermionOperator(openfermion.FermionOperator):
     """Currently, this class is coming from openfermion. Can be later on be
     replaced by our own implementation.
     """
-    pass
+
+    def get_coeffs(self, coeff_threshold=1e-8):
+        """Method to get the coefficient tensors from a fermion operator.
+
+        Args:
+            coeff_threshold (float): Ignore coefficient below the threshold.
+                Default value is 1e-8.
+
+        Returns:
+            (float, array float, array of float): Core constant, one- (N*N) and
+                two-body coefficient matrices (N*N*N*N), where N is the number
+                of spinorbitals.
+        """
+        n_sos = openfermion.count_qubits(self)
+
+        constant = 0.
+        one_body = np.zeros((n_sos, n_sos), complex)
+        two_body = np.zeros((n_sos, n_sos, n_sos, n_sos), complex)
+
+        # Loop through terms and assign to matrix.
+        for term in self.terms:
+            coefficient = self.terms[term]
+
+            # Ignore this term if the coefficient is zero
+            if abs(coefficient) < coeff_threshold:
+                continue
+
+            # Handle constant shift.
+            if len(term) == 0:
+                constant = coefficient
+            # Handle one-body terms.
+            elif len(term) == 2:
+                if [operator[1] for operator in term] == [1, 0]:
+                    p, q = [operator[0] for operator in term]
+                    one_body[p, q] = coefficient
+            # Handle two-body terms.
+            elif len(term) == 4:
+                if [operator[1] for operator in term] == [1, 1, 0, 0]:
+                    p, q, r, s = [operator[0] for operator in term]
+                    two_body[p, q, r, s] = coefficient
+
+        return constant, one_body, two_body
 
 
 class QubitOperator(openfermion.QubitOperator):
