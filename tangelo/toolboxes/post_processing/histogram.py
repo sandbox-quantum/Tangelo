@@ -25,18 +25,17 @@ from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_freque
 class Histogram:
     """Class to provide useful tools helping redundant tasks when analyzing
     data from an experiment. The expected data input is an histogram of
-    bistrings ("010..."), where 0/1 correspond to the |0>/|1> measured state in
-    the computational basis. The outcomes can refer to either the number of
-    replicas (where the summation across the bistrings equals the number of
-    shots), or the probability (where the summation equals to 1). In the former
-    case, the number of shots must be provided.
+    bistrings ("010..."), where 0 (resp. 1) correspond to the |0> (resp. |1>)
+    measured state in the computational basis. The outcomes can refer to either
+    the shot counts for each computational basis, or the corresponding
+    probability.
 
     The internal representation is kept as an histogram of shots. Normalized
     quantities are accessible via the Histogram "frequencies" properties.
 
     Args:
-        outcomes (dict): Results in the format of bistring: outcome, where
-            outcome can be an int (number of replicas) or a float (probability).
+        outcomes (dict of string: int or float): Results in the format of bistring:
+        outcome, where outcome can be a number of shots a probability.
         n_shots (int): Self-explanatory. If it is greater than 0, the class
             considers that probabilities are provided.
         msq_first (bool): Bit ordering. For example, 011 (msq_first) = 110
@@ -60,6 +59,8 @@ class Histogram:
                 raise ValueError(f"Histogram frequencies not summing very close to 1. (sum = {sum_values}).")
 
             outcomes = {k: round(v*n_shots) for k, v in outcomes.items()}
+        elif n_shots < 0:
+            raise ValueError(f"The number of shots provided ({n_shots}) must be a positive value.")
 
         self.counts = outcomes.copy()
 
@@ -112,9 +113,26 @@ class Histogram:
         """
         return {bistring: counts/self.n_shots for bistring, counts in self.counts.items()}
 
-    def post_select(self,  expected_outcomes):
-        """Post selection is done with the post_select function (see the
-        relevant documentation for more details). This method change the Histogram
+    def remove_bits(self, *indices):
+        """Method to remove bits on given indices.
+
+        Args:
+            indices (variable number of int): Qubit indices to remove.
+        """
+        new_counts = dict()
+        for bitstring, counts in self.counts.items():
+            new_bistring = "".join([bitstring[qubit_i] for qubit_i in range(len(bitstring)) if qubit_i not in indices])
+
+            if new_bistring in new_counts:
+                new_counts[new_bistring] += counts
+            else:
+                new_counts[new_bistring] = counts
+
+        self.counts = new_counts
+
+    def post_select(self, expected_outcomes):
+        """Method to apply post selection on Histogram data, based on a post
+        selection function in this module. This method change the Histogram
         object inplace.
 
         Args:
@@ -123,8 +141,15 @@ class Histogram:
                 based on the first qubit with the 1 state measured. This argument
                 can also filter many qubits.
         """
-        new_hist = post_select(self, expected_outcomes)
-        self.__dict__ = new_hist.__dict__
+        def f_post_select(bitstring):
+            for qubit_i, expected_bit in expected_outcomes.items():
+                if bitstring[qubit_i] != expected_bit:
+                    return False
+            return True
+
+        new_hist = filter_hist(self, f_post_select)
+        self.counts = new_hist.counts
+        self.remove_bits(*list(expected_outcomes.keys()))
 
     def resample(self, n_shots):
         """Post selection is done with the tangelo.toolboxes.post_processing.boostrapping.get_resampled_frequencies
@@ -141,8 +166,8 @@ class Histogram:
 
     def get_expectation_value(self, term, coeff=1.):
         """Output the expectation value for qubit operator term. The histogram
-        data is expected to be results from a circuit with the proper qubit
-        rotations.
+        data is expected to have been acquired in a compatible measurement
+        basis.
 
         Args:
             term(openfermion-style QubitOperator object): a qubit operator, with
@@ -156,7 +181,8 @@ class Histogram:
 
 
 def aggregate_histograms(*hists):
-    """Aggregate all input Histogram objects together.
+    """Return a Histogram object formed from data aggregated from all input
+    Histogram objects.
 
     Args:
         hists (variable number of Histogram objects): the input Histogram objects.
@@ -181,29 +207,19 @@ def aggregate_histograms(*hists):
         return Histogram(dict(total_counter))
 
 
-def post_select(hist, expected_outcomes):
-    """Post selection function to select data when a supplementary circuit is
-    appended to the quantum state. Symmetry breaking results are rejected and
-    the new Histogram oject has less qubits than the original results (depending
-    on how many symmetries are checked with ancilla qubits).
+def filter_hist(hist, function, *args, **kwargs):
+    """Filter selection function to consider bistrings in respect to a boolean
+    function on a bistring.
 
     Args:
         hist (Histogram): Self-explanatory.
-        expected_outcomes (dict): Wanted outcomes on certain qubit indices and
-            their expected state. For example, {0: "1"} would filter results
-            based on the first qubit with the 1 state measured. This argument
-            can also filter many qubits.
+        function (function): Given a bistring and some arbitrary arguments, the
+            function should return a boolean value.
 
     Returns:
-        Histogram: New Histogram with filtered outcomes based on expected
-            outcomes.
+        Histogram: New Histogram with filtered outcomes based on the function
+            provided.
 
     """
-
-    new_counts = {}
-    for bitstring, counts in hist.counts.items():
-        if all([bitstring[qubit_i] == bit for qubit_i, bit in expected_outcomes.items()]):
-            new_bistring = "".join([bitstring[qubit_i] for qubit_i in range(len(bitstring)) if qubit_i not in expected_outcomes.keys()])
-            new_counts[new_bistring] = counts
-
+    new_counts = {bitstring: counts for bitstring, counts in hist.counts.items() if function(bitstring, *args, **kwargs)}
     return Histogram(new_counts, msq_first=False)

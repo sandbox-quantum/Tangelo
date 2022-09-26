@@ -14,7 +14,7 @@
 
 import unittest
 
-from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms, post_select
+from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms, filter_hist
 
 
 class HistogramTest(unittest.TestCase):
@@ -23,9 +23,9 @@ class HistogramTest(unittest.TestCase):
         """Initialize histogram object with a dictionary of counts."""
         h = Histogram({"00": 60, "11": 40})
 
-        self.assertTrue(h.counts == {"00": 60, "11": 40})
-        self.assertTrue(h.n_shots == 100)
-        self.assertTrue(h.n_qubits == 2)
+        self.assertEqual(h.counts, {"00": 60, "11": 40})
+        self.assertEqual(h.n_shots, 100)
+        self.assertEqual(h.n_qubits, 2)
 
         ref_freq = {"00": 0.6, "11": 0.4}
         for k, v in h.frequencies.items():
@@ -39,13 +39,19 @@ class HistogramTest(unittest.TestCase):
         d = {"00": 0.6, "11": 0.4}
         h = Histogram(d, n_shots=100)
 
-        self.assertTrue(h.counts == {"00": 60, "11": 40})
-        self.assertTrue(h.n_shots == 100)
-        self.assertTrue(h.n_qubits == 2)
+        self.assertEqual(h.counts, {"00": 60, "11": 40})
+        self.assertEqual(h.n_shots, 100)
+        self.assertEqual(h.n_qubits, 2)
 
         ref_freq = {"00": 0.6, "11": 0.4}
         for k, v in h.frequencies.items():
             self.assertAlmostEquals(v, ref_freq.get(k))
+
+    def test_init_histogram_negative_nshots(self):
+        """Initialize histogram object with a negative n_shots number."""
+
+        with self.assertRaises(ValueError):
+            Histogram({"00": 0.6, "11": 0.4}, n_shots=-100)
 
     def test_histogram_inconsistent_bitstring_length(self):
         """Throw an error if bitstrings are not all of consistent length."""
@@ -55,7 +61,7 @@ class HistogramTest(unittest.TestCase):
     def test_histogram_bistring_ordering(self):
         """Test the behavior with different bit ordering."""
         h = Histogram({"110": 60, "001": 40}, msq_first=True)
-        self.assertTrue(h.counts == {"011": 60, "100": 40})
+        self.assertEqual(h.counts, {"011": 60, "100": 40})
 
     def test_histogram_bad_frequencies(self):
         """Test the behavior of the Histogram initialization with frequencies
@@ -72,8 +78,8 @@ class HistogramTest(unittest.TestCase):
         d1 = {"00": 60, "11": 40}
         d2 = {"00": 50, "11": 50}
 
-        self.assertTrue(Histogram(d1) == Histogram(d1))
-        self.assertFalse(Histogram(d1) == Histogram(d2))
+        self.assertEqual(Histogram(d1), Histogram(d1))
+        self.assertNotEqual(Histogram(d1), Histogram(d2))
 
     def test_adding_two_histograms(self):
         """Aggregate histograms into a new one."""
@@ -82,17 +88,31 @@ class HistogramTest(unittest.TestCase):
         h2 = Histogram({"00": 60, "01": 40})
 
         hf = h1 + h2
-        self.assertTrue(hf == Histogram({"00": 120, "11": 40, "01": 40}))
+        self.assertEqual(hf, Histogram({"00": 120, "11": 40, "01": 40}))
 
         hf += h1
-        self.assertTrue(hf == Histogram({"00": 180, "11": 80, "01": 40}))
+        self.assertEqual(hf, Histogram({"00": 180, "11": 80, "01": 40}))
 
-    def test_post_select_as_a_method(self):
+    def test_removing_one_bit(self):
+        """Test removing one bit in an Histogram."""
+
+        h = Histogram({"00": 40, "01": 30, "10": 20, "11": 10})
+        h.remove_bits(1)
+        self.assertEqual(h, Histogram({"0": 70, "1": 30}))
+
+    def test_removing_two_bits(self):
+        """Test removing two bits in an Histogram."""
+
+        h = Histogram({"000": 40, "010": 30, "100": 20, "110": 10})
+        h.remove_bits(0, 2)
+        self.assertEqual(h, Histogram({"0": 60, "1": 40}))
+
+    def test_post_select_method(self):
         """Post select in place based on one qubit measurement."""
 
         h = Histogram({"00": 40, "01": 30, "10": 20, "11": 10})
         h.post_select(expected_outcomes={0: "0"})
-        self.assertTrue(h == Histogram({"0": 40, "1": 30}))
+        self.assertEqual(h, Histogram({"0": 40, "1": 30}))
 
     def test_resample_method(self):
         """Test the resampling method. As resampling is probabilistic, we do not
@@ -103,8 +123,8 @@ class HistogramTest(unittest.TestCase):
 
         h_10shots = h.resample(10)
 
-        self.assertEquals(h_10shots.n_qubits, 2)
-        self.assertEquals(h_10shots.n_shots, 10)
+        self.assertEqual(h_10shots.n_qubits, 2)
+        self.assertEqual(h_10shots.n_shots, 10)
 
     def test_get_expectation_value_method(self):
         """Test the output for the get_expectation_value method."""
@@ -112,13 +132,13 @@ class HistogramTest(unittest.TestCase):
         h = Histogram({"00": 50, "11": 50})
 
         exp_1z = h.get_expectation_value(((0, "Z"),), 1.)
-        self.assertAlmostEquals(exp_1z, 0.)
+        self.assertAlmostEqual(exp_1z, 0.)
 
         exp_1zz = h.get_expectation_value(((0, "Z"), (1, "Z")), 1.)
-        self.assertAlmostEquals(exp_1zz, 1.)
+        self.assertAlmostEqual(exp_1zz, 1.)
 
         exp_2zz = h.get_expectation_value(((0, "Z"), (1, "Z")), 2.)
-        self.assertAlmostEquals(exp_2zz, 2.)
+        self.assertAlmostEqual(exp_2zz, 2.)
 
 
 class AgregateHistogramsTest(unittest.TestCase):
@@ -130,7 +150,7 @@ class AgregateHistogramsTest(unittest.TestCase):
         h2 = Histogram({"00": 60, "01": 40})
 
         hf = aggregate_histograms(h1, h2, h1)
-        self.assertTrue(hf == Histogram({"00": 180, "11": 80, "01": 40}))
+        self.assertEqual(hf, Histogram({"00": 180, "11": 80, "01": 40}))
 
     def test_aggregate_histograms_length_inconsistent(self):
         """Return an error if histograms have bitstrings of different lengths."""
@@ -145,29 +165,35 @@ class AgregateHistogramsTest(unittest.TestCase):
             aggregate_histograms()
 
 
-class PostSelectTest(unittest.TestCase):
+class FilterTest(unittest.TestCase):
 
-    def test_post_select_one_qubit(self):
-        """Post select Histogram based on one qubit measurement."""
+    def test_filter_one_qubit(self):
+        """Test filter Histogram based on one qubit measurement."""
+
+        def f(bitstring, qubit_i, outcome):
+            return bitstring[qubit_i] == outcome_i
 
         h = Histogram({"00": 40, "01": 30, "10": 20, "11": 10})
 
-        h_ps_zero = post_select(h, expected_outcomes={0: "0"})
-        self.assertTrue(h_ps_zero == Histogram({"0": 40, "1": 30}))
+        h_ps_zero = filter_hist(h, f, 0, "0")
+        self.assertEqual(h_ps_zero, Histogram({"00": 40, "01": 30}))
 
-        h_ps_one = post_select(h, expected_outcomes={0: "1"})
-        self.assertTrue(h_ps_one == Histogram({"0": 20, "1": 10}))
+        h_ps_one = filter_hist(h, f, 0, "1")
+        self.assertEqual(h_ps_one, Histogram({"10": 20, "11": 10}))
 
-    def test_post_select_many_qubits(self):
-        """Post select Histogram based on many qubit measurements."""
+    def test_filter_many_qubits(self):
+        """Test filter Histogram based on many qubit measurements."""
+
+        def f(bitstring, qubit_i, outcome_i, qubit_j, outcome_j):
+            return (bitstring[qubit_i] == outcome_i) and (bitstring[qubit_j] == outcome_j)
 
         h = Histogram({"000": 40, "010": 30, "101": 20, "111": 10})
 
-        h_ps_zero = post_select(h, expected_outcomes={0: "0", 1: "0"})
-        self.assertTrue(h_ps_zero == Histogram({"0": 40}))
+        h_ps_zero = filter_hist(h, f, 0, "0", 1, "0")
+        self.assertEqual(h_ps_zero, Histogram({"000": 40}))
 
-        h_ps_one = post_select(h, expected_outcomes={0: "1", 1: "1"})
-        self.assertTrue(h_ps_one == Histogram({"1": 10}))
+        h_ps_one = filter_hist(h, f, 0, "1", 1, "1")
+        self.assertEqual(h_ps_one, Histogram({"111": 10}))
 
 
 if __name__ == "__main__":
