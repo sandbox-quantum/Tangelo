@@ -90,11 +90,11 @@ def spatial_from_spinorb(one_body_coefficients, two_body_coefficients):
     for p in range(n_mos):
         for q in range(n_mos):
             # Populate 1-body integrals.
-            one_body_integrals[p, q] = one_body_coefficients[2 * p, 2 * q]
+            one_body_integrals[p, q] = one_body_coefficients[2*p, 2*q]
             # Continue looping to prepare 2-body integrals.
             for r in range(n_mos):
                 for s in range(n_mos):
-                    two_body_integrals[p, q, r, s] = two_body_coefficients[2 * p, 2 * q + 1, 2 * r + 1, 2 * s]
+                    two_body_integrals[p, q, r, s] = two_body_coefficients[2*p, 2*q+1, 2*r+1, 2*s]
 
     return one_body_integrals, two_body_integrals
 
