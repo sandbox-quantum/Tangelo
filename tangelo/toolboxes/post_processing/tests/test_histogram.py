@@ -171,7 +171,7 @@ class FilterTest(unittest.TestCase):
         """Test filter Histogram based on one qubit measurement."""
 
         def f(bitstring, qubit_i, outcome):
-            return bitstring[qubit_i] == outcome_i
+            return bitstring[qubit_i] == outcome
 
         h = Histogram({"00": 40, "01": 30, "10": 20, "11": 10})
 
