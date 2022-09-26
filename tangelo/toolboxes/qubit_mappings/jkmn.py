@@ -136,8 +136,8 @@ def _jkmn_dict(n_qubits):
                 stjkmn_map[2*tup[0]] = tjkmn_map[2*i]
                 stjkmn_map[2*tup[0]+1] = tjkmn_map[2*i+1]
             elif tup[1] == 'Y' and (tup[0], 'X') in q2:
-                stjkmn_map[2*tup[0]+1] = tjkmn_map[2*i]
-                stjkmn_map[2*tup[0]] = tjkmn_map[2*i+1]
+                stjkmn_map[2*tup[0]] = -tjkmn_map[2*i]
+                stjkmn_map[2*tup[0]+1] = tjkmn_map[2*i+1]
 
     return stjkmn_map
 

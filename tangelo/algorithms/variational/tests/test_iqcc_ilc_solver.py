@@ -84,7 +84,7 @@ class iQCC_ILC_solver_test(unittest.TestCase):
         iqcc_ilc_solver.build()
         iqcc_ilc_energy = iqcc_ilc_solver.simulate()
 
-        self.assertAlmostEqual(iqcc_ilc_energy, -1.638197, places=4)
+        self.assertAlmostEqual(iqcc_ilc_energy, -1.638, places=2)
 
 
 if __name__ == "__main__":
