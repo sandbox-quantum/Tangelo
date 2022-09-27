@@ -67,11 +67,11 @@ class IonQConnection(QpuConnection):
         jobs_df = pd.DataFrame(jl_info, columns=['id', 'status', 'target'])
         return jobs_df
 
-    def _get_backend_dataframe(self, backend_info):
+    def _get_backend_dataframe(self, backends):
         """ Display backend info as pandas dataframe. Takes REST request answer as input
 
         Args:
-            backend_info (dict): backend info REST output
+            backends (dict): info for all backends
 
         Returns:
             pandas.Dataframe: relevant info in dataframe format.
@@ -81,7 +81,7 @@ class IonQConnection(QpuConnection):
                    datetime.utcfromtimestamp(b['last_updated']).strftime('%Y-%m-%d %H:%M:%S'),
                    b['average_queue_time'] // 10**6,
                    b.get('characterization_url', None))
-                  for b in backend_info]
+                  for b in backends]
 
         df = pd.DataFrame(b_info, columns=['backend', 'qubits', 'status',
                                            'last updated', 'average queue time',
@@ -196,7 +196,7 @@ class IonQConnection(QpuConnection):
             job_id (str): string representing the job id
 
         Returns:
-            dict: status response from the REST API
+            dict: Histogram of measurements
         """
 
         while True:
