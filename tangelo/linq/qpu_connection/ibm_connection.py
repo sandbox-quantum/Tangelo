@@ -5,17 +5,25 @@
 
 import os
 
-from qiskit.providers.jobstatus import JobStatus
-from qiskit_ibm_runtime import QiskitRuntimeService
-
 from tangelo.linq.translator import translate_qiskit
 from tangelo.linq.qpu_connection.qpu_connection import QpuConnection
+
+try:
+    from qiskit.providers.jobstatus import JobStatus
+    from qiskit_ibm_runtime import QiskitRuntimeService
+    is_qiskit_installed = True
+except ModuleNotFoundError:
+    is_qiskit_installed = False
 
 
 class IBMConnection(QpuConnection):
     """ Wrapper around IBM Qiskit runtime API to facilitate job submission from Tangelo """
 
     def __init__(self):
+
+        if not is_qiskit_installed:
+            raise ModuleNotFoundError("qiskit or qiskit_ibm_runtime need to be installed.")
+
         self.api_key = None
         self.service = self._login()
         self.jobs = dict()

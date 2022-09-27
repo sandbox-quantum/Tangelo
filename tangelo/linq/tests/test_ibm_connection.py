@@ -24,7 +24,7 @@ def assert_freq_dict_almost_equal(d1, d2, atol):
             if abs(d1[k] - d2[k]) > atol:
                 raise AssertionError(f"Frequency {k}, difference above tolerance {atol}: {d1[k]} != {d2[k]}")
 
-# os.environ["IBM_TOKEN"] = uncomment and write a valid token here for tests
+# os.environ["IBM_TOKEN"] = write valid token here
 @unittest.skip("We do not want to store login information for automated testing. Manual testing only.")
 class TestIBMConnection(unittest.TestCase):
 
