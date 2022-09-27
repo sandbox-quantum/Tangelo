@@ -391,6 +391,7 @@ class SimulatorBase(abc.ABC):
         state_binstr = "0" * (n_qubits - len(bs)) + bs
         return state_binstr[::-1]
 
+    @property
     def backend_info(self):
         """A dictionary that includes {'noisy_simulation': True or False,
                                        'statevector_available': True or False,
