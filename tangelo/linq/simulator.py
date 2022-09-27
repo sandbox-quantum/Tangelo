@@ -38,7 +38,7 @@ from scipy import stats
 from bitarray import bitarray
 from openfermion.ops import QubitOperator
 
-from tangelo.helpers.utils import default_simulator
+from tangelo.helpers.utils import default_simulator, installed_simulator
 from tangelo.linq import Gate, Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
 
@@ -391,8 +391,14 @@ class SimulatorBase(abc.ABC):
         state_binstr = "0" * (n_qubits - len(bs)) + bs
         return state_binstr[::-1]
 
+    def backend_info(self):
+        """A dictionary that includes {'noisy_simulation': True or False,
+                                       'statevector_available': True or False,
+                                       'statevector_order': 'lsq_first' or 'msq_first'"""
+        pass
 
-def Simulator(target=default_simulator, n_shots=None, noise_model=None, **kwargs):
+
+def Simulator(target=default_simulator, n_shots=None, noise_model=None, **kwargs) -> SimulatorBase:
     """Return requested target simulator
 
     Args:
@@ -415,3 +421,16 @@ def Simulator(target=default_simulator, n_shots=None, noise_model=None, **kwargs
         simulator = target(n_shots=n_shots, noise_model=noise_model, **kwargs)
 
     return simulator
+
+
+# Generate backend info dictionary
+def get_backend_info():
+    """Return backend info for each installed backend"""
+    backend_info = dict()
+    for sim_id in installed_simulator:
+        sim_id_sim = Simulator(sim_id, n_shots=1)
+        backend_info[sim_id] = sim_id_sim.backend_info
+    return backend_info
+
+
+backend_info = get_backend_info()

@@ -15,4 +15,4 @@
 from .gate import *
 from .circuit import Circuit, stack, remove_small_rotations, remove_redundant_gates
 from .translator import *
-from .simulator import Simulator
+from .simulator import Simulator, backend_info
