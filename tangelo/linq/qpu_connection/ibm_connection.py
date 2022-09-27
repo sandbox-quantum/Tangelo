@@ -22,7 +22,7 @@ class IBMConnection(QpuConnection):
     def __init__(self):
 
         if not is_qiskit_installed:
-            raise ModuleNotFoundError("qiskit or qiskit_ibm_runtime need to be installed.")
+            raise ModuleNotFoundError("Both qiskit and qiskit_ibm_runtime need to be installed.")
 
         self.api_key = None
         self.service = self._login()
