@@ -20,6 +20,7 @@ from tangelo.linq import Circuit
 from tangelo.linq.helpers.circuits.statevector import StateVector
 from tangelo.linq.simulator import SimulatorBase
 import tangelo.linq.translator as translator
+from tangelo.toolboxes.post_processing.histogram import Histogram
 
 
 class Cirq(SimulatorBase):
@@ -181,9 +182,10 @@ class QSimCirq(SimulatorBase):
                 samples += ["".join([str(sim.measurements[str(i)][j, 0]) for i in range(n_meas+source_circuit.width)])]
             self.all_frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
 
-            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                 list(range(n_meas)),
-                                                                                 desired_measurement=None)
+            histogram = Histogram(self.all_frequencies, n_shots=self.n_shots, msq_first=False)
+            histogram.remove_qubit_indices(list(range(n_meas)))
+            frequencies = histogram.frequencies
+
         # Noiseless simulation using the statevector simulator otherwise
         else:
             translated_circuit = translator.translate_cirq(source_circuit, self._noise_model)
@@ -206,35 +208,6 @@ class QSimCirq(SimulatorBase):
             paulisum += cirq.PauliString(pauli_list, coefficient=coef)
         exp_value = paulisum.expectation_from_state_vector(prepared_state, qubit_map)
         return np.real(exp_value)
-
-    @staticmethod
-    def marginal_frequencies(frequencies, indices, desired_measurement=None):
-        """Return the marginal frequencies for indices. If desired_measurement
-        is given, frequencies returned for the other indices are conditional on the
-        measurement of the indices being the desired measurement.
-        Args:
-            frequencies (dict): The frequency dictionary to perform the marginal computation
-            indices (list): The list of indices in the frequency dictionary to marginalize over
-            desired_measurement (str): The bit string that is to be selected
-        Returns:
-            dict, dict: The marginal frequencies for indices, The marginal frequencies for other indices"""
-
-        new_dict = dict()
-        other_dict = dict()
-        key_length = len(next(iter(frequencies)))
-        other_indices = [i for i in range(key_length) if i not in indices]
-        for k, v in frequencies.items():
-            new_key = "".join(k[i] for i in indices)
-            other_key = "".join(k[i] for i in other_indices)
-            new_dict[new_key] = new_dict.get(new_key, 0) + v
-            if new_key == desired_measurement:
-                other_dict[other_key] = other_dict.get(new_key, 0) + v
-            elif desired_measurement is None:
-                other_dict[other_key] = other_dict.get(new_key, 0) + v
-        if desired_measurement is not None:
-            other_dict = {k: v/new_dict[desired_measurement] for k, v in other_dict.items()}
-
-        return new_dict, other_dict
 
     @property
     def backend_info(self):
@@ -286,8 +259,7 @@ class Cirq_QVM(SimulatorBase):
         Args:
             source_circuit: a circuit in the abstract format to be translated
                 for the target backend.
-            return_statevector(bool): option to return the statevector as well,
-                if available.
+            return_statevector(bool): Must be set to false
             initial_statevector(list/array) : A valid statevector in the format
                 supported by the target backend.
 
@@ -297,11 +269,10 @@ class Cirq_QVM(SimulatorBase):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        import qsimcirq
         import cirq
 
-        cirq_simulator = qsimcirq.QSimSimulator()
-
+        if return_statevector:
+            raise ValueError("Return of statevector not available for Cirq_QVM.")
         # If requested, set initial state
         cirq_initial_statevector = np.array(initial_statevector, dtype=np.complex64) if initial_statevector is not None else None
 
@@ -334,11 +305,11 @@ class Cirq_QVM(SimulatorBase):
             samples += ["".join([str(sim.measurements[str(i)][j, 0]) for i in range(n_meas+source_circuit.width)])]
         self.all_frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
 
-        self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                             list(range(n_meas)),
-                                                                             desired_measurement=None)
+        histogram = Histogram(self.all_frequencies, n_shots=self.n_shots, msq_first=False)
+        histogram.remove_qubit_indices(list(range(n_meas)))
+        frequencies = histogram.frequencies
 
-        return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
+        return (frequencies, None)
 
     def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
         import cirq
@@ -352,35 +323,6 @@ class Cirq_QVM(SimulatorBase):
             paulisum += cirq.PauliString(pauli_list, coefficient=coef)
         exp_value = paulisum.expectation_from_state_vector(prepared_state, qubit_map)
         return np.real(exp_value)
-
-    @staticmethod
-    def marginal_frequencies(frequencies, indices, desired_measurement=None):
-        """Return the marginal frequencies for indices. If desired_measurement
-        is given, frequencies returned for the other indices are conditional on the
-        measurement of the indices being the desired measurement.
-        Args:
-            frequencies (dict): The frequency dictionary to perform the marginal computation
-            indices (list): The list of indices in the frequency dictionary to marginalize over
-            desired_measurement (str): The bit string that is to be selected
-        Returns:
-            dict, dict: The marginal frequencies for indices, The marginal frequencies for other indices"""
-
-        new_dict = dict()
-        other_dict = dict()
-        key_length = len(next(iter(frequencies)))
-        other_indices = [i for i in range(key_length) if i not in indices]
-        for k, v in frequencies.items():
-            new_key = "".join(k[i] for i in indices)
-            other_key = "".join(k[i] for i in other_indices)
-            new_dict[new_key] = new_dict.get(new_key, 0) + v
-            if new_key == desired_measurement:
-                other_dict[other_key] = other_dict.get(new_key, 0) + v
-            elif desired_measurement is None:
-                other_dict[other_key] = other_dict.get(new_key, 0) + v
-        if desired_measurement is not None:
-            other_dict = {k: v/new_dict[desired_measurement] for k, v in other_dict.items()}
-
-        return new_dict, other_dict
 
     @property
     def backend_info(self):
