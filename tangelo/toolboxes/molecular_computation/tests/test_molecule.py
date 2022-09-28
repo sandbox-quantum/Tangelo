@@ -15,10 +15,16 @@
 import unittest
 import os
 
+import numpy as np
+from openfermion.chem.molecular_data import spinorb_from_spatial
+from openfermion.utils import load_operator
+
 from tangelo import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H2_sto3g, xyz_H2O
-from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list
+from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list, spatial_from_spinorb
 
+# For openfermion.load_operator function.
+pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
 H2_list = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
 H2_string = """
@@ -42,11 +48,21 @@ def atom_list_close(atom1, atom2, atol):
                 raise AssertionError(f"geometries for atom {a0} are different. {x0} != {x1}")
 
 
-class CoordsTest(unittest.TestCase):
+class MoleculeUtilitiesTest(unittest.TestCase):
 
     def test_atoms_string_to_list(self):
         """Verify conversion from string to list format for atom coordinates."""
         assert(atom_string_to_list(H2_string) == H2_list)
+
+    def test_spatial_from_spinorb(self):
+        """Test the conversion from spinorbitals to MO coefficients."""
+        _, one_body_mos, two_body_mos = mol_H2_sto3g.get_integrals()
+
+        one_body_sos, two_body_sos = spinorb_from_spatial(one_body_mos, two_body_mos)
+        one_body_mos_recomputed, two_body_mos_recomputed = spatial_from_spinorb(one_body_sos, two_body_sos)
+
+        np.testing.assert_array_almost_equal(one_body_mos, one_body_mos_recomputed)
+        np.testing.assert_array_almost_equal(two_body_mos, two_body_mos_recomputed)
 
 
 class SecondQuantizedMoleculeTest(unittest.TestCase):
@@ -145,11 +161,11 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
             self.fail("Unexpected ValueError raised")
 
     def test_get_fermionic_hamiltonian(self):
-        """Verify energy shift in molecular hamiltonian."""
+        """Verify the construction of a fermionic Hamiltonian."""
 
-        molecule = SecondQuantizedMolecule(H2O_list, frozen_orbitals=1)
-        shift = molecule.fermionic_hamiltonian.constant
-        self.assertAlmostEqual(shift, -51.47120372466002, delta=1e-6)
+        ferm_op = mol_H2_sto3g.fermionic_hamiltonian
+        ref_ferm_op = load_operator("H2_ferm_op.data", data_directory=pwd_this_test+"/data", plain_text=True)
+        self.assertEqual(ferm_op, ref_ferm_op)
 
     def test_energy_from_rdms(self):
         """Verify energy computation from RDMs."""
@@ -197,6 +213,20 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         # "Cu" has 29 electrons but the ecp reduces this to 19. The active electrons are 19 - 8 * 2 = 3
         assert(molecule.n_active_electrons == 3)
         assert(molecule.n_active_mos == 35)
+
+    def test_mo_coeff_setter(self):
+        """Verify the dimension check in the mo_coeff setter."""
+
+        molecule = SecondQuantizedMolecule(H2_list, 0, 0, "sto-3g")
+
+        # Should work.
+        dummy_mo_coeff = np.ones((2, 2))
+        molecule.mo_coeff = dummy_mo_coeff
+
+        # Should raise an AssertionError.
+        bad_dummy_mo_coeff = np.ones((3, 3))
+        with self.assertRaises(AssertionError):
+            molecule.mo_coeff = bad_dummy_mo_coeff
 
 
 if __name__ == "__main__":

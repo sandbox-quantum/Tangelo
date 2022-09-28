@@ -16,6 +16,8 @@
 
 import numpy as np
 
+from tangelo.toolboxes.molecular_computation.molecule import spatial_from_spinorb
+
 
 def matricize_2rdm(two_rdm, n_orbitals):
     """Turns the two_rdm tensor into a matrix for test purposes."""
@@ -37,3 +39,33 @@ def matricize_2rdm(two_rdm, n_orbitals):
                     kl = jpqrs[k, l]
                     rho[ij, kl] += two_rdm[i, k, j, l]
     return rho
+
+
+def energy_from_rdms(ferm_op, one_rdm, two_rdm):
+    """Computes the molecular energy from one- and two-particle reduced
+    density matrices (RDMs). Coefficients (integrals) are computed from the
+    fermionic Hamiltonian provided.
+
+    Args:
+        ferm_op (FermionOperator): Self-explanatory.
+        one_rdm (numpy.array): One-particle density matrix in MO basis.
+        two_rdm (numpy.array): Two-particle density matrix in MO basis.
+
+    Returns:
+        float: Molecular energy.
+    """
+
+    core_constant, one_electron_coeffs, two_electron_coeffs = ferm_op.get_coeffs()
+    one_electron_integrals, two_electron_integrals = spatial_from_spinorb(one_electron_coeffs, two_electron_coeffs)
+
+    # PQRS convention in openfermion:
+    # h[p,q]=\int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
+    # h[p,q,r,s]=\int \phi_p(x)* \phi_q(y)* V_{elec-elec} \phi_r(y) \phi_s(x) dxdy
+    # The convention is not the same with PySCF integrals. So, a change is
+    # reverse back after performing the truncation for frozen orbitals
+    two_electron_integrals = two_electron_integrals.transpose(0, 3, 1, 2)
+
+    # Computing the total energy from integrals and provided RDMs.
+    e = core_constant + np.sum(one_electron_integrals * one_rdm) + np.sum(two_electron_integrals * two_rdm)
+
+    return e.real

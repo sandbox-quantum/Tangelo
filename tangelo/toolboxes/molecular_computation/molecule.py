@@ -65,6 +65,40 @@ def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals
     return converted_mol
 
 
+def spatial_from_spinorb(one_body_coefficients, two_body_coefficients):
+    """Function to reverse openfermion.chem.molecular_data.spinorb_from_spatial.
+
+    Args:
+        one_body_coefficients: One-body coefficients (array of 2N*2N, where N
+            is the number of molecular orbitals).
+        two_body_coefficients: Two-body coefficients (array of 2N*2N*2N*2N,
+            where N is the number of molecular orbitals).
+
+    Returns:
+        (array of floats, array of floats): One- and two-body integrals (arrays
+            of N*N and N*N*N*N elements, where N is the number of molecular
+            orbitals.
+    """
+    # Get the number of MOs = number of SOs / 2.
+    n_mos = one_body_coefficients.shape[0] // 2
+
+    # Initialize Hamiltonian integrals.
+    one_body_integrals = np.zeros((n_mos, n_mos), dtype=complex)
+    two_body_integrals = np.zeros((n_mos, n_mos, n_mos, n_mos), dtype=complex)
+
+    # Loop through coefficients.
+    for p in range(n_mos):
+        for q in range(n_mos):
+            # Populate 1-body integrals.
+            one_body_integrals[p, q] = one_body_coefficients[2*p, 2*q]
+            # Continue looping to prepare 2-body integrals.
+            for r in range(n_mos):
+                for s in range(n_mos):
+                    two_body_integrals[p, q, r, s] = two_body_coefficients[2*p, 2*q+1, 2*r+1, 2*s]
+
+    return one_body_integrals, two_body_integrals
+
+
 @dataclass
 class Molecule:
     """Custom datastructure to store information about a Molecule. This contains
@@ -276,11 +310,27 @@ class SecondQuantizedMolecule(Molecule):
         """
         return sum([self.mo_occ[i] == 1 for i in self.active_occupied])
 
+    @property
+    def mo_coeff(self):
+        """This property returns the molecular orbital coefficients.
+
+        Returns:
+            np.array: MO coefficient as a numpy array.
+        """
+        return self.mean_field.mo_coeff
+
+    @mo_coeff.setter
+    def mo_coeff(self, new_mo_coeff):
+        # Asserting the new molecular coefficient matrix have the same dimensions.
+        assert self.mean_field.mo_coeff.shape == new_mo_coeff.shape, \
+            f"The new molecular coefficients matrix has a {new_mo_coeff.shape}"\
+            f" shape: expected shape is {self.mean_field.mo_coeff.shape}."
+        self.mean_field.mo_coeff = new_mo_coeff
+
     def _compute_mean_field(self):
-        """Computes the mean-field for the molecule. It supports open-shell
-        mean-field calculation through openfermionpyscf. Depending on the
-        molecule spin, it does a restricted or a restriction open-shell
-        Hartree-Fock calculation.
+        """Computes the mean-field for the molecule. Depending on the molecule
+        spin, it does a restricted or a restriction open-shell Hartree-Fock
+        calculation.
 
         It is also used for defining attributes related to the mean-field
         (mf_energy, mo_energies, mo_occ, n_mos and n_sos).
