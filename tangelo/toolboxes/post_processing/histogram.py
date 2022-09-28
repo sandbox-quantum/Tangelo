@@ -56,7 +56,7 @@ class Histogram:
             # Flags histograms whose frequencies do not add to 1.
             sum_values = sum(outcomes.values())
             if abs(sum_values-1) > epsilon:
-                raise ValueError(f"Histogram frequencies not summing very close to 1. (sum = {sum_values}).")
+                raise ValueError(f"Sum of Histogram frequencies ({sum_values}) differ from 1. by more than an epsilon ({epsilon}). Please adjust the value of epsilon or adjust shot data.")
 
             outcomes = {k: round(v*n_shots) for k, v in outcomes.items()}
         elif n_shots < 0:
@@ -113,33 +113,31 @@ class Histogram:
         """
         return {bistring: counts/self.n_shots for bistring, counts in self.counts.items()}
 
-    def remove_bits(self, *indices):
-        """Method to remove bits on given indices.
+    def remove_qubit_indices(self, *indices):
+        """Method to remove qubit indices in the result. The remaining
+        bitstrings (of new length = length - N_indices) are summed up together.
 
         Args:
             indices (variable number of int): Qubit indices to remove.
         """
         new_counts = dict()
         for bitstring, counts in self.counts.items():
-            new_bistring = "".join([bitstring[qubit_i] for qubit_i in range(len(bitstring)) if qubit_i not in indices])
-
-            if new_bistring in new_counts:
-                new_counts[new_bistring] += counts
-            else:
-                new_counts[new_bistring] = counts
+            new_bitstring = "".join([bitstring[qubit_i] for qubit_i in range(len(bitstring)) if qubit_i not in indices])
+            new_counts[new_bitstring] = new_counts.get(new_bitstring, 0) + counts
 
         self.counts = new_counts
 
     def post_select(self, expected_outcomes):
         """Method to apply post selection on Histogram data, based on a post
         selection function in this module. This method change the Histogram
-        object inplace.
+        object inplace. This is explicitly done on desired outcomes for specific
+        qubit indices.
 
         Args:
-            expected_outcomes (dict): Wanted outcomes on certain qubit indices and
-                their expected state. For example, {0: "1"} would filter results
-                based on the first qubit with the 1 state measured. This argument
-                can also filter many qubits.
+            expected_outcomes (dict): Desired outcomes on certain qubit indices
+                and their expected state. For example, {0: "1", 1: "0"} would
+                filter results based on the first qubit with the |1> state and
+                the second qubit with the |0> state measured.
         """
         def f_post_select(bitstring):
             for qubit_i, expected_bit in expected_outcomes.items():
@@ -149,11 +147,12 @@ class Histogram:
 
         new_hist = filter_hist(self, f_post_select)
         self.counts = new_hist.counts
-        self.remove_bits(*list(expected_outcomes.keys()))
+        self.remove_qubit_indices(*list(expected_outcomes.keys()))
 
     def resample(self, n_shots):
-        """Post selection is done with the tangelo.toolboxes.post_processing.boostrapping.get_resampled_frequencies
-        function (see the relevant documentation for more details).
+        """Generating new Histogram with n_shots, done with the
+        get_resampled_frequencies function (see the relevant documentation for
+        more details).
 
         Args:
             n_shots (int): Self-explanatory.
@@ -209,15 +208,15 @@ def aggregate_histograms(*hists):
 
 def filter_hist(hist, function, *args, **kwargs):
     """Filter selection function to consider bistrings in respect to a boolean
-    function on a bistring.
+    predicate on a bistring.
 
     Args:
         hist (Histogram): Self-explanatory.
         function (function): Given a bistring and some arbitrary arguments, the
-            function should return a boolean value.
+            predicate should return a boolean value.
 
     Returns:
-        Histogram: New Histogram with filtered outcomes based on the function
+        Histogram: New Histogram with filtered outcomes based on the predicate
             provided.
 
     """

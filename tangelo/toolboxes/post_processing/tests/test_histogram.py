@@ -93,18 +93,18 @@ class HistogramTest(unittest.TestCase):
         hf += h1
         self.assertEqual(hf, Histogram({"00": 180, "11": 80, "01": 40}))
 
-    def test_removing_one_bit(self):
+    def test_removing_one_qubit(self):
         """Test removing one bit in an Histogram."""
 
         h = Histogram({"00": 40, "01": 30, "10": 20, "11": 10})
-        h.remove_bits(1)
+        h.remove_qubit_indices(1)
         self.assertEqual(h, Histogram({"0": 70, "1": 30}))
 
-    def test_removing_two_bits(self):
+    def test_removing_two_qubits(self):
         """Test removing two bits in an Histogram."""
 
         h = Histogram({"000": 40, "010": 30, "100": 20, "110": 10})
-        h.remove_bits(0, 2)
+        h.remove_qubit_indices(0, 2)
         self.assertEqual(h, Histogram({"0": 60, "1": 40}))
 
     def test_post_select_method(self):
