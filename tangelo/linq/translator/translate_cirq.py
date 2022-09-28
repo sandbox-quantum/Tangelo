@@ -57,13 +57,18 @@ def get_cirq_gates():
     return GATE_CIRQ
 
 
-def translate_cirq(source_circuit, noise_model=None):
+get_qsimcirq_gates = get_cirq_gates
+
+
+def translate_cirq(source_circuit, noise_model=None, save_measurements=False):
     """Take in an abstract circuit, return an equivalent cirq QuantumCircuit
     instance.
-
     Args:
-        source_circuit: quantum circuit in the abstract format.
-
+        source_circuit (Circuit): quantum circuit in the abstract format.
+        noise_model (NoiseModel): The noise model to use
+        save_measurements (bool): If True, all measurements in the circuit are saved
+            with the key 'n' for the nth measurement in the Circuit. If False, no
+            measurements are saved.
     Returns:
         cirq.Circuit: a corresponding cirq Circuit. Right now, the structure is
             of LineQubit. It is possible in the future that we may support
@@ -79,6 +84,8 @@ def translate_cirq(source_circuit, noise_model=None):
     # Add next line to make sure all qubits are initialized
     # cirq will otherwise only initialize qubits that have gates
     target_circuit.append(cirq.I.on_each(qubit_list))
+
+    measure_count = 0
 
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
@@ -96,7 +103,9 @@ def translate_cirq(source_circuit, noise_model=None):
         elif gate.name in {"CNOT"}:
             target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.control[0]], qubit_list[gate.target[0]]))
         elif gate.name in {"MEASURE"}:
-            target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]]))
+            key = str(measure_count) if save_measurements else None
+            target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]], key=key))
+            measure_count += 1
         elif gate.name in {"CRZ", "CRX", "CRY"}:
             next_gate = GATE_CIRQ[gate.name](gate.parameter).controlled(num_controls)
             target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))

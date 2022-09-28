@@ -25,6 +25,13 @@ import tangelo.linq.translator as translator
 class Cirq(SimulatorBase):
 
     def __init__(self, n_shots=None, noise_model=None):
+        """Instantiate cirq simulator object.
+
+        Args:
+            n_shots (int): Number of shots if using a shot-based simulator.
+            noise_model: A noise model object assumed to be in the format
+                expected from the target backend.
+        """
         super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
@@ -106,95 +113,20 @@ class Cirq(SimulatorBase):
 
 class QSimCirq(SimulatorBase):
 
-    def __init__(self, n_shots=None, noise_model=None):
-        super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
-
-    def translate(self, source_circuit, noise_model=None, save_measurements=False):
-        """Take in an abstract circuit, return an equivalent cirq QuantumCircuit
-        instance.
-        Args:
-            source_circuit (Circuit): quantum circuit in the abstract format.
-            noise_model (NoiseModel): The noise model to use
-            save_measurements (bool): If True, all measurements in the circuit are saved
-                with the key 'n' for the nth measurement in the Circuit. If False, no
-                measurements are saved.
-        Returns:
-            cirq.Circuit: a corresponding cirq Circuit. Right now, the structure is
-                of LineQubit. It is possible in the future that we may support
-                NamedQubit or GridQubit.
+    def __init__(self, n_shots=None, noise_model=None, options=None):
         """
-        import cirq
+        Instantiate qsimcirq simulator object.
 
-        GATE_CIRQ = translator.get_cirq_gates()
-        target_circuit = cirq.Circuit()
-        # cirq by definition uses labels for qubits, this is one way to automatically generate
-        # labels. Could also use GridQubit for square lattice or NamedQubit to name qubits
-        qubit_list = cirq.LineQubit.range(source_circuit.width)
-        # Add next line to make sure all qubits are initialized
-        # cirq will otherwise only initialize qubits that have gates
-        target_circuit.append(cirq.I.on_each(qubit_list))
-
-        measure_count = 0
-
-        # Maps the gate information properly. Different for each backend (order, values)
-        for gate in source_circuit._gates:
-            if (gate.control is not None) and gate.name != 'CNOT':
-                num_controls = len(gate.control)
-                control_list = [qubit_list[c] for c in gate.control]
-            if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
-                target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]]))
-            elif gate.name in {"CH", "CX", "CY", "CZ"}:
-                next_gate = GATE_CIRQ[gate.name].controlled(num_controls)
-                target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
-            elif gate.name in {"RX", "RY", "RZ"}:
-                next_gate = GATE_CIRQ[gate.name](gate.parameter)
-                target_circuit.append(next_gate(qubit_list[gate.target[0]]))
-            elif gate.name in {"CNOT"}:
-                target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.control[0]], qubit_list[gate.target[0]]))
-            elif gate.name in {"MEASURE"}:
-                key = str(measure_count) if save_measurements else None
-                target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]], key=key))
-                measure_count += 1
-            elif gate.name in {"CRZ", "CRX", "CRY"}:
-                next_gate = GATE_CIRQ[gate.name](gate.parameter).controlled(num_controls)
-                target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
-            elif gate.name in {"XX"}:
-                next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/np.pi, global_shift=-0.5)
-                target_circuit.append(next_gate(qubit_list[gate.target[0]], qubit_list[gate.target[1]]))
-            elif gate.name in {"PHASE"}:
-                next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/np.pi)
-                target_circuit.append(next_gate(qubit_list[gate.target[0]]))
-            elif gate.name in {"CPHASE"}:
-                next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/np.pi).controlled(num_controls)
-                target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
-            elif gate.name in {"SWAP"}:
-                target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]], qubit_list[gate.target[1]]))
-            elif gate.name in {"CSWAP"}:
-                next_gate = GATE_CIRQ[gate.name].controlled(num_controls)
-                target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]], qubit_list[gate.target[1]]))
-            else:
-                raise ValueError(f"Gate '{gate.name}' not supported on backend cirq")
-
-            # Add noisy gates
-            if noise_model and (gate.name in noise_model.noisy_gates):
-                for nt, nq in noise_model._quantum_errors[gate.name]:
-                    if nt == 'pauli':
-                        # Define pauli gate in cirq language
-                        depo = cirq.asymmetric_depolarize(nq[0], nq[1], nq[2])
-
-                        target_circuit += [depo(qubit_list[t]) for t in gate.target]
-                        if gate.control is not None:
-                            target_circuit += [depo(qubit_list[c]) for c in gate.control]
-                    elif nt == 'depol':
-                        depo_list = [qubit_list[t] for t in gate.target]
-                        if gate.control is not None:
-                            depo_list += [qubit_list[c] for c in gate.control]
-                        depo_size = len(depo_list)
-                        # define depo_size-qubit depolarization gate
-                        depo = cirq.depolarize(nq*(4**depo_size-1)/4**depo_size, depo_size)  # param, num_qubits
-                        target_circuit.append(depo(*depo_list))  # gates targeted
-
-        return target_circuit
+        Args:
+            Args:
+            n_shots (int): Number of shots if using a shot-based simulator.
+            noise_model (NoiseModel): A noise model object assumed to be in the format
+                expected from the target backend.
+            options (dict): The options to use as defined in https://github.com/quantumlib/qsim/blob/master/docs/usage.md
+                most important are {'t': num_threads, 'f': max_fused_size} where num_threads and max_fused_size are int.
+        """
+        super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
+        self.options = options if options is not None else dict()
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
         """Perform state preparation corresponding to the input circuit on the
@@ -222,7 +154,7 @@ class QSimCirq(SimulatorBase):
         import qsimcirq
         import cirq
 
-        cirq_simulator = qsimcirq.QSimSimulator()
+        cirq_simulator = qsimcirq.QSimSimulator(self.options)
 
         # If requested, set initial state
         cirq_initial_statevector = np.array(initial_statevector, dtype=np.complex64) if initial_statevector is not None else None
@@ -236,7 +168,9 @@ class QSimCirq(SimulatorBase):
                 initial_circuit = Circuit()
             n_meas = source_circuit._gate_counts.get("MEASURE", 0)
 
-            translated_circuit = self.translate(initial_circuit) + self.translate(source_circuit, self._noise_model, save_measurements=True)
+            translated_circuit = translator.translate_cirq(initial_circuit) + translator.translate_cirq(source_circuit,
+                                                                                                        self._noise_model,
+                                                                                                        save_measurements=True)
             qubit_list = cirq.LineQubit.range(source_circuit.width)
             for i, qubit in enumerate(qubit_list):
                 translated_circuit.append(cirq.measure(qubit, key=str(i+n_meas)))
@@ -252,7 +186,7 @@ class QSimCirq(SimulatorBase):
                                                                                  desired_measurement=None)
         # Noiseless simulation using the statevector simulator otherwise
         else:
-            translated_circuit = self.translate(source_circuit, self._noise_model)
+            translated_circuit = translator.translate_cirq(source_circuit, self._noise_model)
             job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
             self._current_state = job_sim.state_vector()
             self._current_state /= np.linalg.norm(self._current_state)
@@ -309,97 +243,36 @@ class QSimCirq(SimulatorBase):
 
 class Cirq_QVM(SimulatorBase):
 
-    def __init__(self, n_shots=None, noise_model='weber', qubits_to_use=None):
-        super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
-        if self._noise_model:
-            import qsimcirq
-            import cirq_google
-            self.qubits_to_use = qubits_to_use
+    def __init__(self, n_shots, noise_model, qubits_to_use):
+        """Instantiate google QVM object.
 
-            # Construct a simulator with a noise model based on the specified processor.
-            cal = cirq_google.engine.load_median_device_calibration(self._noise_model)
-            noise_props = cirq_google.noise_properties_from_calibration(cal)
-            noise_model = cirq_google.NoiseModelFromGoogleNoiseProperties(noise_props)
-            sim = qsimcirq.QSimSimulator(noise=noise_model)
-
-            # Create a device from the public device description
-            device = cirq_google.engine.create_device_from_processor_id(self._noise_model)
-            # Build the simulated local processor from the simulator and device.
-            sim_processor = cirq_google.engine.SimulatedLocalProcessor(
-                processor_id=self._noise_model, sampler=sim, device=device, calibrations={cal.timestamp // 1000: cal}
-                )
-            # Package the processor to use an Engine interface
-            sim_engine = cirq_google.engine.SimulatedLocalEngine([sim_processor])
-            sim_device = sim_engine.get_processor(self._noise_model).get_device()
-            self.sim_device = sim_device
-            self.sim_engine = sim_engine
-
-    def translate(self, source_circuit, save_measurements=False):
-        """Take in an abstract circuit, return an equivalent cirq QuantumCircuit
-        instance.
         Args:
-            source_circuit (Circuit): quantum circuit in the abstract format.
-            save_measurements (bool): If True, all measurements in the circuit are saved
-                with the key 'n' for the nth measurement in the Circuit. If False, no
-                measurements are saved.
-        Returns:
-            cirq.Circuit: a corresponding cirq Circuit. Right now, the structure is
-                of LineQubit. It is possible in the future that we may support
-                NamedQubit or GridQubit.
+            n_shots (int): Number of shots if using a shot-based simulator.
+            noise_model (str): A device identifier.
+            qubits_to_use (int): The device qubits to utilize for the calculation.
         """
-        import cirq
+        super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
+        import qsimcirq
+        import cirq_google
+        self.qubits_to_use = qubits_to_use
 
-        GATE_CIRQ = translator.get_cirq_gates()
-        target_circuit = cirq.Circuit()
-        # cirq by definition uses labels for qubits, this is one way to automatically generate
-        # labels. Could also use GridQubit for square lattice or NamedQubit to name qubits
-        qubit_list = cirq.LineQubit.range(source_circuit.width)
-        # Add next line to make sure all qubits are initialized
-        # cirq will otherwise only initialize qubits that have gates
-        target_circuit.append(cirq.I.on_each(qubit_list))
+        # Construct a simulator with a noise model based on the specified processor.
+        cal = cirq_google.engine.load_median_device_calibration(self._noise_model)
+        noise_props = cirq_google.noise_properties_from_calibration(cal)
+        noise_model = cirq_google.NoiseModelFromGoogleNoiseProperties(noise_props)
+        sim = qsimcirq.QSimSimulator(noise=noise_model)
 
-        measure_count = 0
-
-        # Maps the gate information properly. Different for each backend (order, values)
-        for gate in source_circuit._gates:
-            if (gate.control is not None) and gate.name != 'CNOT':
-                num_controls = len(gate.control)
-                control_list = [qubit_list[c] for c in gate.control]
-            if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
-                target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]]))
-            elif gate.name in {"CH", "CX", "CY", "CZ"}:
-                next_gate = GATE_CIRQ[gate.name].controlled(num_controls)
-                target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
-            elif gate.name in {"RX", "RY", "RZ"}:
-                next_gate = GATE_CIRQ[gate.name](gate.parameter)
-                target_circuit.append(next_gate(qubit_list[gate.target[0]]))
-            elif gate.name in {"CNOT"}:
-                target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.control[0]], qubit_list[gate.target[0]]))
-            elif gate.name in {"MEASURE"}:
-                key = str(measure_count) if save_measurements else None
-                target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]], key=key))
-                measure_count += 1
-            elif gate.name in {"CRZ", "CRX", "CRY"}:
-                next_gate = GATE_CIRQ[gate.name](gate.parameter).controlled(num_controls)
-                target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
-            elif gate.name in {"XX"}:
-                next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/np.pi, global_shift=-0.5)
-                target_circuit.append(next_gate(qubit_list[gate.target[0]], qubit_list[gate.target[1]]))
-            elif gate.name in {"PHASE"}:
-                next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/np.pi)
-                target_circuit.append(next_gate(qubit_list[gate.target[0]]))
-            elif gate.name in {"CPHASE"}:
-                next_gate = GATE_CIRQ[gate.name](exponent=gate.parameter/np.pi).controlled(num_controls)
-                target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]]))
-            elif gate.name in {"SWAP"}:
-                target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]], qubit_list[gate.target[1]]))
-            elif gate.name in {"CSWAP"}:
-                next_gate = GATE_CIRQ[gate.name].controlled(num_controls)
-                target_circuit.append(next_gate(*control_list, qubit_list[gate.target[0]], qubit_list[gate.target[1]]))
-            else:
-                raise ValueError(f"Gate '{gate.name}' not supported on backend cirq")
-
-        return target_circuit
+        # Create a device from the public device description
+        device = cirq_google.engine.create_device_from_processor_id(self._noise_model)
+        # Build the simulated local processor from the simulator and device.
+        sim_processor = cirq_google.engine.SimulatedLocalProcessor(
+            processor_id=self._noise_model, sampler=sim, device=device, calibrations={cal.timestamp // 1000: cal}
+            )
+        # Package the processor to use an Engine interface
+        sim_engine = cirq_google.engine.SimulatedLocalEngine([sim_processor])
+        sim_device = sim_engine.get_processor(self._noise_model).get_device()
+        self.sim_device = sim_device
+        self.sim_engine = sim_engine
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
         """Perform state preparation corresponding to the input circuit on the
@@ -433,46 +306,37 @@ class Cirq_QVM(SimulatorBase):
         cirq_initial_statevector = np.array(initial_statevector, dtype=np.complex64) if initial_statevector is not None else None
 
         # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
-        if self._noise_model:
+        if cirq_initial_statevector is not None:
+            sv = StateVector(cirq_initial_statevector, order="lsq_first")
+            initial_circuit = sv.initializing_circuit()
+        else:
+            initial_circuit = Circuit()
+        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
 
-            if cirq_initial_statevector is not None:
-                sv = StateVector(cirq_initial_statevector, order="lsq_first")
-                initial_circuit = sv.initializing_circuit()
-            else:
-                initial_circuit = Circuit()
-            n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+        translated_circuit = translator.translate_cirq(initial_circuit) + translator.translate_cirq(source_circuit, save_measurements=True)
+        qubit_list = cirq.LineQubit.range(source_circuit.width)
+        for i, qubit in enumerate(qubit_list):
+            translated_circuit.append(cirq.measure(qubit, key=str(i+n_meas)))
 
-            translated_circuit = self.translate(initial_circuit) + self.translate(source_circuit, save_measurements=True)
-            qubit_list = cirq.LineQubit.range(source_circuit.width)
-            for i, qubit in enumerate(qubit_list):
-                translated_circuit.append(cirq.measure(qubit, key=str(i+n_meas)))
-
-            hardware_circuit = cirq.optimize_for_target_gateset(
-                translated_circuit, context=cirq.TransformerContext(deep=True), gateset=cirq.SqrtIswapTargetGateset()
+        hardware_circuit = cirq.optimize_for_target_gateset(
+            translated_circuit, context=cirq.TransformerContext(deep=True), gateset=cirq.SqrtIswapTargetGateset()
             )
 
-            device_qubits = self.qubits_to_use
-            if self.qubits_to_use is None:
-                raise ValueError("qubits to use must be initialized to use cirq QVM")
-            qubit_map = dict(zip(qubit_list, device_qubits[:len(qubit_list)]))
-            device_ready_circuit = hardware_circuit.transform_qubits(lambda q: qubit_map[q])
+        device_qubits = self.qubits_to_use
+        if self.qubits_to_use is None:
+            raise ValueError("qubits to use must be initialized to use cirq QVM")
+        qubit_map = dict(zip(qubit_list, device_qubits[:len(qubit_list)]))
+        device_ready_circuit = hardware_circuit.transform_qubits(lambda q: qubit_map[q])
 
-            sim = self.sim_engine.get_sampler(self._noise_model).run(device_ready_circuit, repetitions=self.n_shots)
-            samples = list()
-            for j in range(self.n_shots):
-                samples += ["".join([str(sim.measurements[str(i)][j, 0]) for i in range(n_meas+source_circuit.width)])]
-            self.all_frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
+        sim = self.sim_engine.get_sampler(self._noise_model).run(device_ready_circuit, repetitions=self.n_shots)
+        samples = list()
+        for j in range(self.n_shots):
+            samples += ["".join([str(sim.measurements[str(i)][j, 0]) for i in range(n_meas+source_circuit.width)])]
+        self.all_frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
 
-            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                 list(range(n_meas)),
-                                                                                 desired_measurement=None)
-        # Noiseless simulation using the statevector simulator otherwise
-        else:
-            translated_circuit = self.translate(source_circuit, self._noise_model)
-            job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
-            self._current_state = job_sim.state_vector()
-            self._current_state /= np.linalg.norm(self._current_state)
-            frequencies = self._statevector_to_frequencies(self._current_state)
+        self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
+                                                                             list(range(n_meas)),
+                                                                             desired_measurement=None)
 
         return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
