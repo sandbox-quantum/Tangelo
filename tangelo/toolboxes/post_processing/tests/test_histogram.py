@@ -58,7 +58,7 @@ class HistogramTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             Histogram({"00": 60, "111": 40})
 
-    def test_histogram_bistring_ordering(self):
+    def test_histogram_bitstring_ordering(self):
         """Test the behavior with different bit ordering."""
         h = Histogram({"110": 60, "001": 40}, msq_first=True)
         self.assertEqual(h.counts, {"011": 60, "100": 40})

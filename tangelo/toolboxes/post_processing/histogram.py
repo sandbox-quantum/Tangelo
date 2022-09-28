@@ -25,16 +25,18 @@ from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_freque
 class Histogram:
     """Class to provide useful tools helping redundant tasks when analyzing
     data from an experiment. The expected data input is an histogram of
-    bistrings ("010..."), where 0 (resp. 1) correspond to the |0> (resp. |1>)
+    bitstrings ("010..."), where 0 (resp. 1) correspond to the |0> (resp. |1>)
     measured state in the computational basis. The outcomes can refer to either
     the shot counts for each computational basis, or the corresponding
     probability.
 
     The internal representation is kept as an histogram of shots. Normalized
     quantities are accessible via the Histogram "frequencies" properties.
+    Bitstrings are stored with the lowest-significant qubit first (lsq_first)
+    ordering.
 
     Args:
-        outcomes (dict of string: int or float): Results in the format of bistring:
+        outcomes (dict of string: int or float): Results in the format of bitstring:
         outcome, where outcome can be a number of shots a probability.
         n_shots (int): Self-explanatory. If it is greater than 0, the class
             considers that probabilities are provided.
@@ -56,7 +58,8 @@ class Histogram:
             # Flags histograms whose frequencies do not add to 1.
             sum_values = sum(outcomes.values())
             if abs(sum_values-1) > epsilon:
-                raise ValueError(f"Sum of Histogram frequencies ({sum_values}) differ from 1. by more than an epsilon ({epsilon}). Please adjust the value of epsilon or adjust shot data.")
+                raise ValueError(f"Sum of Histogram frequencies ({sum_values}) differ from 1. by more than an epsilon ({epsilon})."
+                    "Please adjust the value of epsilon or adjust shot data.")
 
             outcomes = {k: round(v*n_shots) for k, v in outcomes.items()}
         elif n_shots < 0:
@@ -73,7 +76,7 @@ class Histogram:
 
     def __eq__(self, other):
         """Two histograms are equal if they have same counts, i.e. same
-        bistrings and outcomes.
+        bitstrings and outcomes.
         """
         return (self.counts == other.counts)
 
@@ -97,21 +100,21 @@ class Histogram:
 
     @property
     def n_qubits(self):
-        """The length of the bistrings represents the number of qubits."
+        """The length of the bitstrings represents the number of qubits."
 
         Returns:
             int: Self-explanatory.
         """
-        return len(list(self.counts.keys())[0])
+        return len(next(iter(self.counts)))
 
     @property
     def frequencies(self):
         """The frequencies are normalized counts vs the number of shots.
 
         Returns:
-            dict: Frequencies in a {bistring: probability, ...} format.
+            dict: Frequencies in a {bitstring: probability, ...} format.
         """
-        return {bistring: counts/self.n_shots for bistring, counts in self.counts.items()}
+        return {bitstring: counts/self.n_shots for bitstring, counts in self.counts.items()}
 
     def remove_qubit_indices(self, *indices):
         """Method to remove qubit indices in the result. The remaining
@@ -129,7 +132,7 @@ class Histogram:
 
     def post_select(self, expected_outcomes):
         """Method to apply post selection on Histogram data, based on a post
-        selection function in this module. This method change the Histogram
+        selection function in this module. This method changes the Histogram
         object inplace. This is explicitly done on desired outcomes for specific
         qubit indices.
 
@@ -207,12 +210,12 @@ def aggregate_histograms(*hists):
 
 
 def filter_hist(hist, function, *args, **kwargs):
-    """Filter selection function to consider bistrings in respect to a boolean
-    predicate on a bistring.
+    """Filter selection function to consider bitstrings in respect to a boolean
+    predicate on a bitstring.
 
     Args:
         hist (Histogram): Self-explanatory.
-        function (function): Given a bistring and some arbitrary arguments, the
+        function (function): Given a bitstring and some arbitrary arguments, the
             predicate should return a boolean value.
 
     Returns:
