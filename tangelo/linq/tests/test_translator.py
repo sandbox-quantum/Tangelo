@@ -382,30 +382,15 @@ class TestTranslation(unittest.TestCase):
         abs_circ_ionq = Circuit(abs_gates)
         json_ionq_circ = translator.translate_json_ionq(abs_circ_ionq)
 
-        ref_circuit = {'circuit': [{'gate': 'x', 'target': 0},
-                                   {'gate': 'x', 'target': 1},
-                                   {'gate': 'rx', 'rotation': 1.5707963267948966, 'target': 0},
-                                   {'gate': 'h', 'target': 2},
-                                   {'control': 0, 'gate': 'cnot', 'target': 1},
-                                   {'gate': 'rz', 'rotation': 12.566170614359173, 'target': 2}],
+        ref_circuit = {'circuit': [{'gate': 'x', 'targets': [0]},
+                                   {'gate': 'x', 'targets': [1]},
+                                   {'gate': 'rx', 'targets': [0], 'rotation': 1.5707963267948966},
+                                   {'gate': 'h', 'targets': [2]},
+                                   {'gate': 'x', 'targets': [1],  'controls': [0]},
+                                   {'gate': 'rz', 'targets': [2], 'rotation': 12.566170614359173}],
                        'qubits': 3}
 
         assert(json_ionq_circ == ref_circuit)
-
-    def test_translate_ionq_inverse(self):
-        """ Test that inverse of T and S circuits for ionQ return Tdag and Sdag after translation """
-
-        # Generate [Gate("Tdag", 0), Gate("Sdag", 0)] equivalent, and its hardcoded inverse
-        circ = Circuit([Gate("PHASE", 0, parameter=-np.pi/4), Gate("PHASE", 0, parameter=-np.pi/2)])
-        inverse_circ = Circuit([Gate("S", 0), Gate("T", 0)])
-
-        ionq_circ_inverse = translator.translate_json_ionq(circ.inverse())
-        ionq_inverse_circ = translator.translate_json_ionq(inverse_circ)
-        ionq_circ = translator.translate_json_ionq(circ)
-
-        ionq_ref = {'qubits': 1, 'circuit': [{'gate': 'ti', 'target': 0}, {'gate': 'si', 'target': 0}]}
-        self.assertTrue(ionq_inverse_circ == ionq_circ_inverse)
-        self.assertTrue(ionq_circ == ionq_ref)
 
     @unittest.skipIf("braket" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_braket(self):

@@ -91,13 +91,11 @@ class Molecule:
     # Defined in __post_init__.
     n_atoms: int = field(init=False)
     n_electrons: int = field(init=False)
-    n_min_orbitals: int = field(init=False)
 
     def __post_init__(self):
         mol = self.to_pyscf()
         self.n_atoms = mol.natm
         self.n_electrons = mol.nelectron
-        self.n_min_orbitals = mol.nao_nr()
 
     @property
     def elements(self):
