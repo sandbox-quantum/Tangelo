@@ -80,7 +80,7 @@ def spatial_from_spinorb(one_body_coefficients, two_body_coefficients):
             orbitals.
     """
     # Get the number of MOs = number of SOs / 2.
-    n_mos = int(one_body_coefficients.shape[0] / 2)
+    n_mos = one_body_coefficients.shape[0] // 2
 
     # Initialize Hamiltonian integrals.
     one_body_integrals = np.zeros((n_mos, n_mos), dtype=complex)

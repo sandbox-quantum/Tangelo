@@ -220,11 +220,11 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         molecule = SecondQuantizedMolecule(H2_list, 0, 0, "sto-3g")
 
         # Should work.
-        dummy_mo_coeff = np.ones((2,2))
+        dummy_mo_coeff = np.ones((2, 2))
         molecule.mo_coeff = dummy_mo_coeff
 
         # Should raise an AssertionError.
-        bad_dummy_mo_coeff = np.ones((3,3))
+        bad_dummy_mo_coeff = np.ones((3, 3))
         with self.assertRaises(AssertionError):
             molecule.mo_coeff = bad_dummy_mo_coeff
 
