@@ -415,8 +415,8 @@ def Simulator(target=default_simulator, n_shots=None, noise_model=None, **kwargs
     if target is None:
         target = default_simulator
     if isinstance(target, str):
-        from tangelo.linq.target import Cirq, Qulacs, Qiskit, QDK, QSimCirq
-        target_dict = {"qiskit": Qiskit, "cirq": Cirq, "qdk": QDK, "qulacs": Qulacs, "qsimcirq": QSimCirq}
+        from tangelo.linq.target import Cirq, Qulacs, Qiskit, QDK
+        target_dict = {"qiskit": Qiskit, "cirq": Cirq, "qdk": QDK, "qulacs": Qulacs}
         simulator = target_dict[target](n_shots=n_shots, noise_model=noise_model)
     else:
         simulator = target(n_shots=n_shots, noise_model=noise_model, **kwargs)
