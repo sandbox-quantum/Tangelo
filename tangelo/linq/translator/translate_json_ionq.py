@@ -22,6 +22,7 @@ necessary to account for:
     may also differ.
 """
 
+from tangelo.linq import Circuit, Gate
 from tangelo.helpers import deprecated
 
 
@@ -91,3 +92,45 @@ def translate_c_to_json_ionq(source_circuit):
 
     json_ionq_circ = {"qubits": source_circuit.width, 'circuit': json_gates}
     return json_ionq_circ
+
+
+def translate_c_from_json_ionq(source_circuit) -> Circuit:
+    """Take in a dictionary following the IonQ JSON format as described below,
+    return an equivalent Tangelo Circuit.
+    https://dewdrop.ionq.co/#json-specification
+
+    Args:
+        source_circuit (dict): representation of the quantum circuit following
+            the IonQ JSON format.
+
+    Returns:
+        Circuit: the corresponding quantum Circuit in Tangelo format.
+    """
+
+    starting_circuit = Circuit(n_qubits=source_circuit["qubits"])
+
+    gates = []
+    for gate in source_circuit["circuit"]:
+        name = gate["gate"].upper()
+
+        target_qubits = gate.get("targert", gate.get("targets"))
+        control_qubits = gate.get("control", gate.get("controls"))
+        parameter = gate.get("rotation")
+
+        # In Tangelo, the phase gate with a paramter is named PHASE.
+        if name == "Z" and parameter is not None:
+            name = "PHASE"
+
+        if name in {"H", "X", "Y", "Z", "S", "T", "SWAP"} and control_qubits is None:
+            gates += [Gate(name, target_qubits)]
+        elif name in {"RX", "RY", "RZ", "PHASE", "XX"} and control_qubits is None:
+            gates += [Gate(name, target_qubits, control_qubits, parameter)]
+        elif name in {"RX", "RY", "RZ", "PHASE"} and control_qubits is not None:
+            gates += [Gate(f"C{name}", target_qubits, control_qubits, parameter)]
+        elif name in {"X", "Y", "Z"} and control_qubits is not None and parameter is None:
+            gates += [Gate(f"C{name}", target_qubits, control_qubits)]
+        else:
+            raise ValueError(f"Gate '{gate.name}' not supported in Tangelo")
+
+    target_circuit = starting_circuit + Circuit(gates)
+    return target_circuit
