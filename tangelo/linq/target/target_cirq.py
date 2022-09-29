@@ -183,7 +183,7 @@ class QSimCirq(SimulatorBase):
             self.all_frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
 
             histogram = Histogram(self.all_frequencies, n_shots=self.n_shots, msq_first=False)
-            histogram.remove_qubit_indices(list(range(n_meas)))
+            histogram.remove_qubit_indices(*list(range(n_meas)))
             frequencies = histogram.frequencies
 
         # Noiseless simulation using the statevector simulator otherwise

@@ -64,24 +64,26 @@ def get_qiskit_gates():
     return GATE_QISKIT
 
 
-def translate_qiskit(source_circuit):
+def translate_qiskit(source_circuit, save_measurements=False):
     """Take in a Circuit, return an equivalent qiskit.QuantumCircuit
 
     Args:
         source_circuit (Circuit): quantum circuit in the Tangelo format.
+        save_measurements (bool): Save all mid-circuit measurements in the order they appear
 
     Returns:
         qiskit.QuantumCircuit: the corresponding quantum circuit in Qiskit format.
     """
 
-    return translate_c_to_qiskit(source_circuit)
+    return translate_c_to_qiskit(source_circuit, save_measurements)
 
 
-def translate_c_to_qiskit(source_circuit: Circuit):
+def translate_c_to_qiskit(source_circuit: Circuit, save_measurements=False):
     """Take in a Circuit, return an equivalent qiskit.QuantumCircuit
 
     Args:
         source_circuit (Circuit): quantum circuit in the Tangelo format.
+        save_measurements (bool): Save all mid-circuit measurements in the order they appear
 
     Returns:
         qiskit.QuantumCircuit: the corresponding qiskit.QuantumCircuit
@@ -89,8 +91,11 @@ def translate_c_to_qiskit(source_circuit: Circuit):
     import qiskit
 
     GATE_QISKIT = get_qiskit_gates()
+    n_meas = source_circuit._gate_counts.get("MEASURE", 0) if save_measurements else 0
+    n_measures = n_meas + source_circuit.width
+    target_circuit = qiskit.QuantumCircuit(source_circuit.width, n_measures)
 
-    target_circuit = qiskit.QuantumCircuit(source_circuit.width, source_circuit.width)
+    measurement = 0
 
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
@@ -112,7 +117,9 @@ def translate_c_to_qiskit(source_circuit: Circuit):
         elif gate.name in {"XX"}:
             (GATE_QISKIT[gate.name])(target_circuit, gate.parameter, gate.target[0], gate.target[1])
         elif gate.name in {"MEASURE"}:
-            (GATE_QISKIT[gate.name])(target_circuit, gate.target[0], gate.target[0])
+            (GATE_QISKIT[gate.name])(target_circuit, gate.target[0], measurement)
+            if save_measurements:
+                measurement += 1
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend qiskit")
 

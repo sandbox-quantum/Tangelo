@@ -19,6 +19,7 @@ import numpy as np
 from tangelo.linq import Circuit
 from tangelo.linq.simulator import SimulatorBase
 import tangelo.linq.translator as translator
+from tangelo.toolboxes.post_processing.histogram import Histogram
 
 
 class Qiskit(SimulatorBase):
@@ -53,7 +54,7 @@ class Qiskit(SimulatorBase):
         import qiskit
         from qiskit_aer import AerSimulator
 
-        translated_circuit = translator.translate_qiskit(source_circuit)
+        translated_circuit = translator.translate_qiskit(source_circuit, save_measurements=True)
 
         # If requested, set initial state
         if initial_statevector is not None:
@@ -68,9 +69,9 @@ class Qiskit(SimulatorBase):
         # Drawing individual shots with the qasm simulator, for noisy simulation or simulating mixed states
         if self._noise_model or source_circuit.is_mixed_state:
             from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
-
-            meas_range = range(source_circuit.width)
-            translated_circuit.measure(meas_range, meas_range)
+            n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+            meas_range = range(n_meas, n_meas + source_circuit.width)
+            translated_circuit.measure(range(source_circuit.width), meas_range)
             return_statevector = False
             backend = AerSimulator()
             qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
@@ -79,7 +80,11 @@ class Qiskit(SimulatorBase):
             job_sim = qiskit.execute(translated_circuit, backend, noise_model=qiskit_noise_model,
                                      shots=self.n_shots, basis_gates=None, optimization_level=opt_level)
             sim_results = job_sim.result()
-            frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
+            self.all_frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
+
+            self.histogram = Histogram(self.all_frequencies, n_shots=self.n_shots, msq_first=False)
+            self.histogram.remove_qubit_indices(*list(range(n_meas)))
+            frequencies = self.histogram.frequencies
 
         # Noiseless simulation using the statevector simulator otherwise
         else:
