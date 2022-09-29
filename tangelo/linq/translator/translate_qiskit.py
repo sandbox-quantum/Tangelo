@@ -24,9 +24,11 @@ necessary to account for:
 The module also enables bidirectional conversion between qiskit and Tangelo
 qubit operators (linear combination of Pauli operators)
 """
+
 from tangelo.linq import Circuit, Gate
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.linq.helpers import pauli_of_to_string, pauli_string_to_of
+from tangelo.helpers import deprecated
 
 
 def get_qiskit_gates():
@@ -64,6 +66,7 @@ def get_qiskit_gates():
     return GATE_QISKIT
 
 
+@deprecated
 def translate_qiskit(source_circuit):
     """Take in a Circuit, return an equivalent qiskit.QuantumCircuit
 
@@ -73,7 +76,6 @@ def translate_qiskit(source_circuit):
     Returns:
         qiskit.QuantumCircuit: the corresponding quantum circuit in Qiskit format.
     """
-
     return translate_c_to_qiskit(source_circuit)
 
 

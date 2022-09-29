@@ -21,7 +21,8 @@ necessary to account for:
 - how the order and conventions for some of the inputs to the gate operations
     may also differ.
 """
-from math import pi, isclose
+
+from tangelo.helpers import deprecated
 
 
 def get_ionq_gates():
@@ -44,7 +45,23 @@ def get_ionq_gates():
     return GATE_JSON_IONQ
 
 
+@deprecated
 def translate_json_ionq(source_circuit):
+    """Take in an abstract circuit, return a dictionary following the IonQ JSON
+    format as described below.
+    https://dewdrop.ionq.co/#json-specification
+
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        dict: representation of the quantum circuit following the IonQ JSON
+            format.
+    """
+    return translate_c_to_json_ionq(source_circuit)
+
+
+def translate_c_to_json_ionq(source_circuit):
     """Take in an abstract circuit, return a dictionary following the IonQ JSON
     format as described below.
     https://dewdrop.ionq.co/#json-specification

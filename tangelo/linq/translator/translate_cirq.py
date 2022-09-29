@@ -21,7 +21,10 @@ necessary to account for:
 - how the order and conventions for some of the inputs to the gate operations
     may also differ.
 """
+
 from math import pi
+
+from tangelo.helpers import deprecated
 
 
 def get_cirq_gates():
@@ -57,7 +60,23 @@ def get_cirq_gates():
     return GATE_CIRQ
 
 
-def translate_cirq(source_circuit, noise_model=None):
+@deprecated
+def translate_cirq(source_circuit):
+    """Take in an abstract circuit, return an equivalent cirq QuantumCircuit
+    instance.
+
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        cirq.Circuit: a corresponding cirq Circuit. Right now, the structure is
+            of LineQubit. It is possible in the future that we may support
+            NamedQubit or GridQubit.
+    """
+    return translate_c_to_cirq(source_circuit)
+
+
+def translate_c_to_cirq(source_circuit, noise_model=None):
     """Take in an abstract circuit, return an equivalent cirq QuantumCircuit
     instance.
 

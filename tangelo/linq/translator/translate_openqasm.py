@@ -25,7 +25,9 @@ necessary to account for:
 
 import re
 from math import pi
+
 from tangelo.linq import Gate, Circuit
+from tangelo.helpers import deprecated
 
 
 def get_openqasm_gates():
@@ -47,6 +49,7 @@ def get_openqasm_gates():
     return GATE_OPENQASM
 
 
+@deprecated
 def translate_openqasm(source_circuit):
     """Take in an abstract circuit, return a OpenQASM 2.0 string using IBM
     Qiskit (they are the reference for OpenQASM).
@@ -57,12 +60,47 @@ def translate_openqasm(source_circuit):
     Returns:
         str: the corresponding OpenQASM program, as per IBM Qiskit.
     """
-    from .translate_qiskit import translate_qiskit
-
-    return translate_qiskit(source_circuit).qasm()
+    return translate_c_to_openqasm(source_circuit)
 
 
-def _translate_openqasm2abs(openqasm_str):
+@deprecated
+def _translate_openqasm2abs(source_circuit):
+    """Take an OpenQASM 2.0 string as input (as defined by IBM Qiskit), return
+    the equivalent abstract circuit. Only a subset of OpenQASM supported, mostly
+    to be able to go back and forth QASM and abstract representations to
+    leverage tools and innovation implemented to work in the QASM format. Not
+    designed to support elaborate QASM programs defining their own operations.
+    Compatible with qiskit.QuantumCircuit.from_qasm method.
+
+    Assumes single-qubit measurement instructions only. Final qubit register
+    measurement is implicit.
+
+    Args:
+        openqasm_string(str): an OpenQASM program, as a string, as defined by
+            IBM Qiskit.
+
+    Returns:
+        Circuit: corresponding quantum circuit in the abstract format.
+    """
+    return translate_c_from_openqasm(source_circuit)
+
+
+def translate_c_to_openqasm(source_circuit):
+    """Take in an abstract circuit, return a OpenQASM 2.0 string using IBM
+    Qiskit (they are the reference for OpenQASM).
+
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        str: the corresponding OpenQASM program, as per IBM Qiskit.
+    """
+    from .translate_qiskit import translate_c_to_qiskit
+
+    return translate_c_to_qiskit(source_circuit).qasm()
+
+
+def translate_c_from_openqasm(openqasm_str):
     """Take an OpenQASM 2.0 string as input (as defined by IBM Qiskit), return
     the equivalent abstract circuit. Only a subset of OpenQASM supported, mostly
     to be able to go back and forth QASM and abstract representations to

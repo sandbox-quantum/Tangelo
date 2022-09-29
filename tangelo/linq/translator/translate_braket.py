@@ -22,6 +22,8 @@ to account for:
     may also differ.
 """
 
+from tangelo.helpers import deprecated
+
 
 def get_braket_gates():
     """Map gate name of the abstract format to the equivalent methods of the
@@ -56,7 +58,21 @@ def get_braket_gates():
     return GATE_BRAKET
 
 
+@deprecated
 def translate_braket(source_circuit):
+    """Take in an abstract circuit, return a quantum circuit object as defined
+    in the Python Braket SDK.
+
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        braket.circuits.Circuit: quantum circuit in Python Braket SDK format.
+    """
+    return translate_c_to_braket(source_circuit)
+
+
+def translate_c_to_braket(source_circuit):
     """Take in an abstract circuit, return a quantum circuit object as defined
     in the Python Braket SDK.
 

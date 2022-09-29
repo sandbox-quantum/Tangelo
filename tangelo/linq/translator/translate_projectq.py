@@ -23,7 +23,9 @@ necessary to account for:
 """
 
 import re
+
 from tangelo.linq import Gate, Circuit
+from tangelo.helpers import deprecated
 
 
 def get_projectq_gates():
@@ -43,7 +45,40 @@ def get_projectq_gates():
     return GATE_PROJECTQ
 
 
+@deprecated
 def translate_projectq(source_circuit):
+    """Take in an abstract circuit, return a string containing equivalent
+    projectq instructions.
+
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        str: the corresponding projectq instructions (allocation , gates,
+            deallocation).
+    """
+    return translate_c_to_projectq(source_circuit)
+
+
+@deprecated
+def _translate_projectq2abs(projectq_str):
+    """Convenience function to help people move away from their ProjectQ
+    workflow. Take ProjectQ instructions, expressed as a string, similar to one
+    from the ProjectQ `CommandPrinter` engine. Will bundle all qubit allocation
+    (resp. deallocation) at the beginning (resp. end) of the circuit. Example
+    available in the `examples` folder.
+
+    Args:
+        projectq_str(str): ProjectQ program, as a string (Allocate, Deallocate,
+            gate operations...).
+
+    Returns:
+        Circuit: corresponding quantum circuit in the abstract format.
+    """
+    return translate_c_from_projectq(projectq_str)
+
+
+def translate_c_to_projectq(source_circuit):
     """Take in an abstract circuit, return a string containing equivalent
     projectq instructions.
 
@@ -74,7 +109,7 @@ def translate_projectq(source_circuit):
     return projectq_circuit
 
 
-def _translate_projectq2abs(projectq_str):
+def translate_c_from_projectq(projectq_str):
     """Convenience function to help people move away from their ProjectQ
     workflow. Take ProjectQ instructions, expressed as a string, similar to one
     from the ProjectQ `CommandPrinter` engine. Will bundle all qubit allocation

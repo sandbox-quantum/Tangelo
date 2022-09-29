@@ -132,7 +132,8 @@ class Simulator:
         if self._target == "qulacs":
             import qulacs
 
-            translated_circuit = translator.translate_qulacs(source_circuit, self._noise_model)
+            translated_circuit = translator.translate_circuit(source_circuit,
+                self._target, output_options={"noise_model": self._noise_model})
 
             # Initialize state on GPU if available and desired. Default to CPU otherwise.
             if ('QuantumStateGpu' in dir(qulacs)) and (int(os.getenv("QULACS_USE_GPU", 0)) != 0):
@@ -170,7 +171,7 @@ class Simulator:
         elif self._target == "qiskit":
             import qiskit
 
-            translated_circuit = translator.translate_qiskit(source_circuit)
+            translated_circuit = translator.translate_circuit(source_circuit, self._target)
 
             # If requested, set initial state
             if initial_statevector is not None:
@@ -212,7 +213,7 @@ class Simulator:
 
         elif self._target == "qdk":
 
-            translated_circuit = translator.translate_qsharp(source_circuit)
+            translated_circuit = translator.translate_circuit(source_circuit, self._target)
             with open('tmp_circuit.qs', 'w+') as f_out:
                 f_out.write(translated_circuit)
 
@@ -233,7 +234,8 @@ class Simulator:
         elif self._target == "cirq":
             import cirq
 
-            translated_circuit = translator.translate_cirq(source_circuit, self._noise_model)
+            translated_circuit = translator.translate_circuit(source_circuit, self._target,
+                output_options={"noise_model": self._noise_model})
 
             if source_circuit.is_mixed_state or self._noise_model:
                 # Only DensityMatrixSimulator handles noise well, can use Simulator but it is slower

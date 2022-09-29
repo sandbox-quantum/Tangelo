@@ -17,8 +17,10 @@ the user's environment, for the purpose of running / skipping tests, and setting
 a default simulator.
 """
 
+import functools
 import os
 import sys
+import warnings
 
 
 class HiddenPrints:
@@ -41,6 +43,21 @@ def is_package_installed(package_name):
     except ModuleNotFoundError:
         # DEBUG print(f'{package_name:16s} :: not found')
         return False
+
+
+def deprecated(func):
+    """This is a decorator which can be used to mark functions as deprecated.
+    It will result in a warning being emitted when the function is used.
+
+    Ref: https://stackoverflow.com/a/30253848
+    """
+    @functools.wraps(func)
+    def new_func(*args, **kwargs):
+        warnings.warn(f"Function {func.__name__} will be deprecated in future releases.",
+                      category=DeprecationWarning,
+                      stacklevel=2)
+        return func(*args, **kwargs)
+    return new_func
 
 
 # List all backends and statevector ones supported by Simulator class
