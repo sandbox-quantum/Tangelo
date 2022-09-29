@@ -126,7 +126,7 @@ class TranslateCircuitTest(unittest.TestCase):
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_qiskit(self):
         """
-            Compares the results of a simulation with Qulacs using a qulacs circuit directly
+            Compares the results of a simulation with Qiskit using a qiskit circuit directly
             VS one obtained through translation from an abstract format
         """
 
