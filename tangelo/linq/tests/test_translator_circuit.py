@@ -410,7 +410,7 @@ class TranslateCircuitTest(unittest.TestCase):
                      Gate("H", 2), Gate("CNOT", target=1, control=0), Gate("RZ", 2, parameter=12.566170614359173)]
         ref_circuit = Circuit(ref_gates)
 
-        assert(abs_circ == ref_circuit)
+        self.assertEqual(abs_circ, ref_circuit)
 
     @unittest.skipIf("braket" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_braket(self):
@@ -453,6 +453,26 @@ class TranslateCircuitTest(unittest.TestCase):
         translated_circuit.state_vector()
         translated_result = device.run(translated_circuit, shots=0).result()
         np.testing.assert_array_almost_equal(translated_result.values[0], reference_big_lsq, decimal=6)
+
+    @unittest.skipIf("braket" not in installed_backends, "Test Skipped: Backend not available \n")
+    def test_from_braket(self):
+        """ Translate braket format to abstract format """
+
+        from braket.circuits import Circuit as BraketCircuit
+
+        # Equivalent native braket circuit
+        circ = BraketCircuit()
+        circ.h(2)
+        circ.cnot(0, 1)
+        circ.cnot(1, 2)
+        circ.y(0)
+        circ.s(0)
+        circ.rx(1, 2.)
+
+        # Generate the abstract circuit by translating from the braket one
+        translated_circuit = translator.translate_circuit(circ, "tangelo", source="braket")
+
+        self.assertEqual(translated_circuit, abs_circ)
 
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_unsupported_gate(self):
