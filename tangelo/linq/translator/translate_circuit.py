@@ -14,7 +14,7 @@
 
 """Module to convert quantum circuits to different formats."""
 
-from tangelo.linq.translator.translate_braket import translate_c_to_braket
+from tangelo.linq.translator.translate_braket import translate_c_to_braket, translate_c_from_braket
 from tangelo.linq.translator.translate_cirq import translate_c_to_cirq
 from tangelo.linq.translator.translate_json_ionq import translate_c_to_json_ionq, translate_c_from_json_ionq
 from tangelo.linq.translator.translate_openqasm import translate_c_to_openqasm, translate_c_from_openqasm
@@ -36,6 +36,7 @@ FROM_TANGELO = {
 }
 
 TO_TANGELO = {
+    "braket": translate_c_from_braket,
     "ionq": translate_c_from_json_ionq,
     "openqasm": translate_c_from_openqasm,
     "projectq": translate_c_from_projectq,

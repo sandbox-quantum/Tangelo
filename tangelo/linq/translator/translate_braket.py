@@ -22,6 +22,7 @@ to account for:
     may also differ.
 """
 
+from tangelo.linq import Circuit, Gate
 from tangelo.helpers import deprecated
 
 
@@ -115,3 +116,42 @@ def translate_c_to_braket(source_circuit):
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend braket")
     return target_circuit
+
+
+def translate_c_from_braket(source_circuit) -> Circuit:
+    """Take in a quantum circuit object as defined in the Python Braket SDK,
+    return an abstract circuit.
+
+    Args:
+        source_circuit (braket.circuits.Circuit): quantum circuit in Python
+            Braket SDK format.
+
+    Returns:
+        Circuit: quantum circuit in the abstract format.
+
+    """
+
+    gates = []
+    for _, instruction in source_circuit.moments.items():
+
+        # Control qubit is the first in the list, if there is one.
+        qubits = [int(q) for q in instruction.target.item_list]
+        name = instruction.operator.name.upper()
+
+        if name in {"PHASESHIFT", "CPHASESHIFT"}:
+            name = name.rstrip("SHIFT")
+
+        if name in {"H", "X", "Y", "Z", "S", "T", "SWAP"}:
+            gates += [Gate(name, qubits)]
+        elif name in {"RX", "RY", "RZ", "PHASE"}:
+            gates += [Gate(name, qubits, parameter=instruction.operator.angle)]
+        elif name in {"CNOT", "CX", "CY", "CZ", "CSWAP"}:
+            gates += [Gate(name, target=qubits[1:], control=qubits[0])]
+        elif name in {"XX"}:
+            gates += [Gate(name, target=qubits, parameter=instruction.operator.angle)]
+        elif name in {"CPHASE"}:
+            gates += [Gate(name, target=qubits[1:], control=qubits[0], parameter=instruction.operator.angle)]
+        else:
+            raise ValueError(f"Gate '{name}' not supported in Tangelo")
+
+    return Circuit(gates)
