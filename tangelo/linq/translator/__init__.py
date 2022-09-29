@@ -15,10 +15,10 @@
 from tangelo.helpers.utils import installed_backends
 
 from .translate_braket import translate_braket, get_braket_gates
-from .translate_qiskit import translate_qiskit, get_qiskit_gates, translate_c_from_qiskit, translate_c_to_qiskit
+from .translate_qiskit import translate_qiskit, get_qiskit_gates
 from .translate_qulacs import translate_qulacs, get_qulacs_gates
 from .translate_cirq import translate_cirq, get_cirq_gates
-from .translate_json_ionq import translate_json_ionq, translate_c_from_json_ionq, get_ionq_gates
+from .translate_json_ionq import translate_json_ionq, get_ionq_gates
 from .translate_qdk import translate_qsharp, get_qdk_gates
 from .translate_projectq import translate_projectq, _translate_projectq2abs, get_projectq_gates
 from .translate_openqasm import translate_openqasm, _translate_openqasm2abs, get_openqasm_gates

@@ -113,7 +113,7 @@ def translate_c_from_json_ionq(source_circuit) -> Circuit:
     for gate in source_circuit["circuit"]:
         name = gate["gate"].upper()
 
-        target_qubits = gate.get("targert", gate.get("targets"))
+        target_qubits = gate.get("target", gate.get("targets"))
         control_qubits = gate.get("control", gate.get("controls"))
         parameter = gate.get("rotation")
 
@@ -130,7 +130,7 @@ def translate_c_from_json_ionq(source_circuit) -> Circuit:
         elif name in {"X", "Y", "Z"} and control_qubits is not None and parameter is None:
             gates += [Gate(f"C{name}", target_qubits, control_qubits)]
         else:
-            raise ValueError(f"Gate '{gate.name}' not supported in Tangelo")
+            raise ValueError(f"Gate '{name}' not supported in Tangelo")
 
     target_circuit = starting_circuit + Circuit(gates)
     return target_circuit
