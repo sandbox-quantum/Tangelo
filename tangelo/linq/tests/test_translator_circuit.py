@@ -392,6 +392,26 @@ class TranslateCircuitTest(unittest.TestCase):
 
         assert(json_ionq_circ == ref_circuit)
 
+    def test_from_json_ionq(self):
+        """ Translate IonQ JSON format to abstract format """
+
+        json_ionq_circuit = {'circuit': [
+            {'gate': 'x', 'targets': [0]},
+            {'gate': 'x', 'targets': [1]},
+            {'gate': 'rx', 'targets': [0], 'rotation': 1.5707963267948966},
+            {'gate': 'h', 'targets': [2]},
+            {'gate': 'x', 'targets': [1],  'controls': [0]},
+            {'gate': 'rz', 'targets': [2], 'rotation': 12.566170614359173}],
+        'qubits': 3}
+
+        abs_circ = translator.translate_circuit(json_ionq_circuit, "tangelo", source="ionq")
+
+        ref_gates = [Gate("X", 0), Gate("X", 1), Gate("RX", 0, parameter=1.5707963267948966),
+                     Gate("H", 2), Gate("CNOT", target=1, control=0), Gate("RZ", 2, parameter=12.566170614359173)]
+        ref_circuit = Circuit(ref_gates)
+
+        assert(abs_circ == ref_circuit)
+
     @unittest.skipIf("braket" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_braket(self):
         """
