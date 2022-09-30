@@ -52,6 +52,7 @@ def translate_circuit(circuit, target, source="tangelo", output_options=None):
         circuit (source format): Self-explanatory.
         target (string): Identifier for the target format.
         source (string): Identifier for the source format.
+        output_options (dict): Backend specific options (e.g. a noise model).
 
     Returns:
         (circuit in target format): Translated quantum circuit.
