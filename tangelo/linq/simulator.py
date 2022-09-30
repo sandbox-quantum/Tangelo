@@ -170,6 +170,7 @@ class Simulator:
 
         elif self._target == "qiskit":
             import qiskit
+            import qiskit_aer
 
             translated_circuit = translator.translate_circuit(source_circuit, self._target)
 
@@ -190,7 +191,7 @@ class Simulator:
                 meas_range = range(source_circuit.width)
                 translated_circuit.measure(meas_range, meas_range)
                 return_statevector = False
-                backend = qiskit.Aer.get_backend("aer_simulator")
+                backend = qiskit_aer.Aer.get_backend("aer_simulator")
 
                 qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
                 opt_level = 0 if self._noise_model else None
@@ -202,11 +203,14 @@ class Simulator:
 
             # Noiseless simulation using the statevector simulator otherwise
             else:
-                backend = qiskit.Aer.get_backend("aer_simulator", method='statevector')
+                backend = qiskit_aer.Aer.get_backend("aer_simulator", method='statevector')
                 translated_circuit = qiskit.transpile(translated_circuit, backend)
                 translated_circuit.save_statevector()
                 sim_results = backend.run(translated_circuit).result()
                 self._current_state = sim_results.get_statevector(translated_circuit)
+
+                # Converting a qiskit.quantum_info.Statevector object to a numpy.ndarray.
+                self._current_state = np.asarray(self._current_state)
                 frequencies = self._statevector_to_frequencies(self._current_state)
 
             return (frequencies, np.array(sim_results.get_statevector())) if return_statevector else (frequencies, None)

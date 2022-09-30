@@ -12,14 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
-import numpy as np
 
 from tangelo.toolboxes.molecular_computation.molecule import Molecule, SecondQuantizedMolecule
 from tangelo._version import __version__
-
-sup = np.testing.suppress_warnings()
-warnings.filterwarnings("ignore", message="Using default_file_mode other than 'r' is deprecated")
-warnings.filterwarnings("ignore", message="`np")
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-sup.filter(np.core)
