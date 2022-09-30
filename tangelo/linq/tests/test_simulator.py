@@ -213,7 +213,7 @@ class TestSimulateStatevector(unittest.TestCase):
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translator.translate_circuit(openqasm_circ, "tangelo", source="openqasm")
         expected = -1.1372704
         test_fail = False
 
@@ -242,7 +242,7 @@ class TestSimulateStatevector(unittest.TestCase):
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translator.translate_circuit(openqasm_circ, "tangelo", source="openqasm")
         expected = -1.1372704
         test_fail = False
 
@@ -276,7 +276,7 @@ class TestSimulateStatevector(unittest.TestCase):
         with open(f"{path_data}/H4_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translator.translate_circuit(openqasm_circ, "tangelo", source="openqasm")
         expected = -1.9778374
         test_fail = False
 
@@ -306,7 +306,7 @@ class TestSimulateStatevector(unittest.TestCase):
 
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translator.translate_circuit(openqasm_circ, "tangelo", source="openqasm")
 
         simulator = Simulator(target="qulacs", n_shots=10 ** 6)
         expected = -1.1372704
