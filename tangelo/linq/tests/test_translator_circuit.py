@@ -402,7 +402,7 @@ class TranslateCircuitTest(unittest.TestCase):
             {'gate': 'h', 'targets': [2]},
             {'gate': 'x', 'targets': [1],  'controls': [0]},
             {'gate': 'rz', 'targets': [2], 'rotation': 12.566170614359173}],
-        'qubits': 3}
+            'qubits': 3}
 
         abs_circ = translator.translate_circuit(json_ionq_circuit, "tangelo", source="ionq")
 
