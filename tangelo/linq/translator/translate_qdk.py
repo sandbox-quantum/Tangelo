@@ -48,7 +48,7 @@ def get_qdk_gates():
     return GATE_QDK
 
 
-@deprecated
+@deprecated("Please use the translate_circuit function.")
 def translate_qsharp(source_circuit):
     """Take in an abstract circuit, generate the corresponding Q# operation
     (state prep + measurement) string, in the appropriate Q# template. The Q#

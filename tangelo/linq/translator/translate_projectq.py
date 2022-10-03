@@ -45,7 +45,7 @@ def get_projectq_gates():
     return GATE_PROJECTQ
 
 
-@deprecated
+@deprecated("Please use the translate_circuit function.")
 def translate_projectq(source_circuit):
     """Take in an abstract circuit, return a string containing equivalent
     projectq instructions.
@@ -60,7 +60,7 @@ def translate_projectq(source_circuit):
     return translate_c_to_projectq(source_circuit)
 
 
-@deprecated
+@deprecated("Please use the translate_circuit function.")
 def _translate_projectq2abs(projectq_str):
     """Convenience function to help people move away from their ProjectQ
     workflow. Take ProjectQ instructions, expressed as a string, similar to one

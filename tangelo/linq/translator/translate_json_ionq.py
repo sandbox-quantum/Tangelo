@@ -46,7 +46,7 @@ def get_ionq_gates():
     return GATE_JSON_IONQ
 
 
-@deprecated
+@deprecated("Please use the translate_circuit function.")
 def translate_json_ionq(source_circuit):
     """Take in an abstract circuit, return a dictionary following the IonQ JSON
     format as described below.

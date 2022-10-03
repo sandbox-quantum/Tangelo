@@ -49,7 +49,7 @@ def get_openqasm_gates():
     return GATE_OPENQASM
 
 
-@deprecated
+@deprecated("Please use the translate_circuit function.")
 def translate_openqasm(source_circuit):
     """Take in an abstract circuit, return a OpenQASM 2.0 string using IBM
     Qiskit (they are the reference for OpenQASM).
@@ -63,7 +63,7 @@ def translate_openqasm(source_circuit):
     return translate_c_to_openqasm(source_circuit)
 
 
-@deprecated
+@deprecated("Please use the translate_circuit function.")
 def _translate_openqasm2abs(source_circuit):
     """Take an OpenQASM 2.0 string as input (as defined by IBM Qiskit), return
     the equivalent abstract circuit. Only a subset of OpenQASM supported, mostly

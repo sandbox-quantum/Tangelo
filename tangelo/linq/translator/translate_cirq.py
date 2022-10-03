@@ -60,7 +60,7 @@ def get_cirq_gates():
     return GATE_CIRQ
 
 
-@deprecated
+@deprecated("Please use the translate_circuit function.")
 def translate_cirq(source_circuit):
     """Take in an abstract circuit, return an equivalent cirq QuantumCircuit
     instance.

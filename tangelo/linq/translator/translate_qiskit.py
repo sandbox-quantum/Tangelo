@@ -66,7 +66,7 @@ def get_qiskit_gates():
     return GATE_QISKIT
 
 
-@deprecated
+@deprecated("Please use the translate_circuit function.")
 def translate_qiskit(source_circuit):
     """Take in a Circuit, return an equivalent qiskit.QuantumCircuit
 

@@ -59,7 +59,7 @@ def get_braket_gates():
     return GATE_BRAKET
 
 
-@deprecated
+@deprecated("Please use the translate_circuit function.")
 def translate_braket(source_circuit):
     """Take in an abstract circuit, return a quantum circuit object as defined
     in the Python Braket SDK.
