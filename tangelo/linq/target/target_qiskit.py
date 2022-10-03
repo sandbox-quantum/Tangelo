@@ -17,16 +17,19 @@ import math
 import numpy as np
 
 from tangelo.linq import Circuit
-from tangelo.linq.simulator import SimulatorBase
+from tangelo.linq.simulator_base import SimulatorBase
 import tangelo.linq.translator as translator
-from tangelo.toolboxes.post_processing.histogram import Histogram
 
 
-class Qiskit(SimulatorBase):
+class QiskitSimulator(SimulatorBase):
     """Interface to the qiskit simulator."""
 
     def __init__(self, n_shots=None, noise_model=None):
+        import qiskit
+        from qiskit_aer import AerSimulator
         super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
+        self.qiskit = qiskit
+        self.AerSimulator = AerSimulator
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
         """Perform state preparation corresponding to the input circuit on the
@@ -51,8 +54,6 @@ class Qiskit(SimulatorBase):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        import qiskit
-        from qiskit_aer import AerSimulator
 
         translated_circuit = translator.translate_qiskit(source_circuit)
 
@@ -62,7 +63,7 @@ class Qiskit(SimulatorBase):
                 raise ValueError("Cannot load an initial state if using a noise model, with Qiskit")
             else:
                 n_qubits = int(math.log2(len(initial_statevector)))
-                initial_state_circuit = qiskit.QuantumCircuit(n_qubits, n_qubits)
+                initial_state_circuit = self.qiskit.QuantumCircuit(n_qubits, n_qubits)
                 initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
                 translated_circuit = initial_state_circuit.compose(translated_circuit)
 
@@ -73,20 +74,20 @@ class Qiskit(SimulatorBase):
             meas_range = range(source_circuit.width)
             translated_circuit.measure(meas_range, meas_range)
             return_statevector = False
-            backend = AerSimulator()
+            backend = self.AerSimulator()
 
             qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
             opt_level = 0 if self._noise_model else None
 
-            job_sim = qiskit.execute(translated_circuit, backend, noise_model=qiskit_noise_model,
-                                     shots=self.n_shots, basis_gates=None, optimization_level=opt_level)
+            job_sim = self.qiskit.execute(translated_circuit, backend, noise_model=qiskit_noise_model,
+                                          shots=self.n_shots, basis_gates=None, optimization_level=opt_level)
             sim_results = job_sim.result()
             frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
 
         # Noiseless simulation using the statevector simulator otherwise
         else:
-            backend = AerSimulator(method='statevector')
-            translated_circuit = qiskit.transpile(translated_circuit, backend)
+            backend = self.AerSimulator(method='statevector')
+            translated_circuit = self.qiskit.transpile(translated_circuit, backend)
             translated_circuit.save_statevector()
             sim_results = backend.run(translated_circuit).result()
             self._current_state = np.asarray(sim_results.get_statevector(translated_circuit))
@@ -94,6 +95,6 @@ class Qiskit(SimulatorBase):
 
         return (frequencies, np.array(sim_results.get_statevector())) if return_statevector else (frequencies, None)
 
-    @property
-    def backend_info(self):
+    @staticmethod
+    def backend_info():
         return {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}

@@ -18,7 +18,7 @@ in order to facilitate post-processing of quantum experiments.
 
 from collections import Counter
 
-from tangelo.linq.simulator import SimulatorBase
+from tangelo.linq.simulator_base import SimulatorBase
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 
 

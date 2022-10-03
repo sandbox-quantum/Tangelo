@@ -13,14 +13,16 @@
 # limitations under the License.
 
 from tangelo.linq import Circuit
-from tangelo.linq.simulator import SimulatorBase
+from tangelo.linq.simulator_base import SimulatorBase
 import tangelo.linq.translator as translator
 
 
-class QDK(SimulatorBase):
+class QDKSimulator(SimulatorBase):
 
     def __init__(self, n_shots=None, noise_model=None):
+        import qsharp
         super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
+        self.qsharp = qsharp
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
         """Perform state preparation corresponding to the input circuit on the
@@ -51,18 +53,17 @@ class QDK(SimulatorBase):
 
         # Compile, import and call Q# operation to compute frequencies. Only import qsharp module if qdk is running
         # TODO: A try block to catch an exception at compile time, for Q#? Probably as an ImportError.
-        import qsharp
-        qsharp.reload()
+        self.qsharp.reload()
         from MyNamespace import EstimateFrequencies
         frequencies_list = EstimateFrequencies.simulate(nQubits=source_circuit.width, nShots=self.n_shots)
         print("Q# frequency estimation with {0} shots: \n {1}".format(self.n_shots, frequencies_list))
 
         # Convert Q# output to frequency dictionary, apply threshold
-        frequencies = {bin(i).split('b')[-1]: frequencies_list[i] for i, freq in enumerate(frequencies_list)}
+        frequencies = {bin(i).split('b')[-1]: freq for i, freq in enumerate(frequencies_list)}
         frequencies = {("0"*(source_circuit.width-len(k))+k)[::-1]: v for k, v in frequencies.items()
                        if v > self.freq_threshold}
         return (frequencies, None)
 
-    @property
-    def backend_info(self):
+    @staticmethod
+    def backend_info():
         return {"statevector_available": False, "statevector_order": None, "noisy_simulation": False}

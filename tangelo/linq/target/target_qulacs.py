@@ -19,14 +19,16 @@ from collections import Counter
 import numpy as np
 
 from tangelo.linq import Circuit
-from tangelo.linq.simulator import SimulatorBase
+from tangelo.linq.simulator_base import SimulatorBase
 import tangelo.linq.translator as translator
 
 
-class Qulacs(SimulatorBase):
+class QulacsSimulator(SimulatorBase):
 
     def __init__(self, n_shots=None, noise_model=None):
+        import qulacs
         super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
+        self.qulacs = qulacs
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
         """Perform state preparation corresponding to the input circuit on the
@@ -52,15 +54,13 @@ class Qulacs(SimulatorBase):
                 and requested by the user (if not, set to None).
         """
 
-        import qulacs
-
         translated_circuit = translator.translate_qulacs(source_circuit, self._noise_model)
 
         # Initialize state on GPU if available and desired. Default to CPU otherwise.
-        if ('QuantumStateGpu' in dir(qulacs)) and (int(os.getenv("QULACS_USE_GPU", 0)) != 0):
-            state = qulacs.QuantumStateGpu(source_circuit.width)
+        if ('QuantumStateGpu' in dir(self.qulacs)) and (int(os.getenv("QULACS_USE_GPU", 0)) != 0):
+            state = self.qulacs.QuantumStateGpu(source_circuit.width)
         else:
-            state = qulacs.QuantumState(source_circuit.width)
+            state = self.qulacs.QuantumState(source_circuit.width)
         if initial_statevector is not None:
             state.load(initial_statevector)
 
@@ -91,17 +91,16 @@ class Qulacs(SimulatorBase):
         return (frequencies, python_statevector)
 
     def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
-        import qulacs
 
         # Note: This section previously used qulacs.quantum_operator.create_quantum_operator_from_openfermion_text but was changed
         # due to a memory leak. We can re-evaluate the implementation if/when Issue #303 (https://github.com/qulacs/qulacs/issues/303)
         # is fixed.
-        operator = qulacs.Observable(n_qubits)
+        operator = self.qulacs.Observable(n_qubits)
         for term, coef in qubit_operator.terms.items():
             pauli_string = "".join(f" {op} {qu}" for qu, op in term)
             operator.add_operator(coef, pauli_string)
         return operator.get_expectation_value(self._current_state).real
 
-    @property
-    def backend_info(self):
+    @staticmethod
+    def backend_info():
         return {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}

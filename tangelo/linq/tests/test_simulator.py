@@ -25,7 +25,7 @@ from openfermion.ops import QubitOperator
 from openfermion import load_operator
 
 from tangelo.linq import Gate, Circuit, translator, Simulator
-from tangelo.linq.simulator import SimulatorBase
+from tangelo.linq.simulator_base import SimulatorBase
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
 
@@ -361,6 +361,7 @@ class TestSimulateStatevector(unittest.TestCase):
 
 class TestSimulateMisc(unittest.TestCase):
 
+    @unittest.skipIf("qdk" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_n_shots_needed(self):
         """
             Raise an error if user chooses a target backend that does not provide access to a statevector and

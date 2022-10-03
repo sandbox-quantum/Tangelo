@@ -17,13 +17,11 @@ from collections import Counter
 import numpy as np
 
 from tangelo.linq import Circuit
-from tangelo.linq.helpers.circuits.statevector import StateVector
-from tangelo.linq.simulator import SimulatorBase
+from tangelo.linq.simulator_base import SimulatorBase
 import tangelo.linq.translator as translator
-from tangelo.toolboxes.post_processing.histogram import Histogram
 
 
-class Cirq(SimulatorBase):
+class CirqSimulator(SimulatorBase):
 
     def __init__(self, n_shots=None, noise_model=None):
         """Instantiate cirq simulator object.
@@ -33,7 +31,9 @@ class Cirq(SimulatorBase):
             noise_model: A noise model object assumed to be in the format
                 expected from the target backend.
         """
+        import cirq
         super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
+        self.cirq = cirq
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
         """Perform state preparation corresponding to the input circuit on the
@@ -58,15 +58,14 @@ class Cirq(SimulatorBase):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        import cirq
 
         translated_circuit = translator.translate_cirq(source_circuit, self._noise_model)
 
         if source_circuit.is_mixed_state or self._noise_model:
             # Only DensityMatrixSimulator handles noise well, can use Simulator but it is slower
-            cirq_simulator = cirq.DensityMatrixSimulator(dtype=np.complex128)
+            cirq_simulator = self.cirq.DensityMatrixSimulator(dtype=np.complex128)
         else:
-            cirq_simulator = cirq.Simulator(dtype=np.complex128)
+            cirq_simulator = self.cirq.Simulator(dtype=np.complex128)
 
         # If requested, set initial state
         cirq_initial_statevector = initial_statevector if initial_statevector is not None else 0
@@ -75,11 +74,11 @@ class Cirq(SimulatorBase):
         if self._noise_model or source_circuit.is_mixed_state:
             # cirq.dephase_measurements changes measurement gates to Krauss operators so simulators
             # can be called once and density matrix sampled repeatedly.
-            translated_circuit = cirq.dephase_measurements(translated_circuit)
+            translated_circuit = self.cirq.dephase_measurements(translated_circuit)
             sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
             self._current_state = sim.final_density_matrix
             indices = list(range(source_circuit.width))
-            isamples = cirq.sample_density_matrix(sim.final_density_matrix, indices, repetitions=self.n_shots)
+            isamples = self.cirq.sample_density_matrix(sim.final_density_matrix, indices, repetitions=self.n_shots)
             samples = [''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots)]
 
             frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
@@ -92,21 +91,20 @@ class Cirq(SimulatorBase):
         return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
     def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
-        import cirq
 
         GATE_CIRQ = translator.get_cirq_gates()
-        qubit_labels = cirq.LineQubit.range(n_qubits)
+        qubit_labels = self.cirq.LineQubit.range(n_qubits)
         qubit_map = {q: i for i, q in enumerate(qubit_labels)}
-        paulisum = 0.*cirq.PauliString(cirq.I(qubit_labels[0]))
+        paulisum = 0.*self.cirq.PauliString(self.cirq.I(qubit_labels[0]))
         for term, coef in qubit_operator.terms.items():
             pauli_list = [GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
-            paulisum += cirq.PauliString(pauli_list, coefficient=coef)
+            paulisum += self.cirq.PauliString(pauli_list, coefficient=coef)
         if self._noise_model:
             exp_value = paulisum.expectation_from_density_matrix(prepared_state, qubit_map)
         else:
             exp_value = paulisum.expectation_from_state_vector(prepared_state, qubit_map)
         return np.real(exp_value)
 
-    @property
-    def backend_info(self):
+    @staticmethod
+    def backend_info():
         return {"statevector_available": True, "statevector_order": "lsq_first", "noisy_simulation": True}
