@@ -44,6 +44,8 @@ def Simulator(target=default_simulator, n_shots=None, noise_model=None, **kwargs
         n_shots (int): Number of shots if using a shot-based simulator.
         noise_model: A noise model object assumed to be in the format
             expected from the target backend.
+        kwargs: Other arguments that could be passed to a target. Examples are qubits_to_use for a QPU, transpiler optimization
+            level, error mitigation flags etc.
 
     Returns:
         BaseSimulator: The initialized target simulator that is a child class of BaseSimulator.

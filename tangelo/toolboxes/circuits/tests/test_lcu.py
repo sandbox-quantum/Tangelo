@@ -53,7 +53,7 @@ class lcu_Test(unittest.TestCase):
 
         for backend in backends:
             sim = Simulator(backend)
-            statevector_order = sim.backend_info["statevector_order"]
+            statevector_order = sim.backend_info()["statevector_order"]
             sv = StateVector(vec, order=statevector_order)
             sv_circuit = sv.initializing_circuit()
 
@@ -88,7 +88,7 @@ class lcu_Test(unittest.TestCase):
 
         for backend in backends:
             sim = Simulator(backend)
-            statevector_order = sim.backend_info["statevector_order"]
+            statevector_order = sim.backend_info()["statevector_order"]
             sv = StateVector(vec, order=statevector_order)
             sv_circuit = sv.initializing_circuit()
 
