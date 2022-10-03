@@ -143,12 +143,10 @@ def translate_c_from_braket(source_circuit) -> Circuit:
 
         if name in {"H", "X", "Y", "Z", "S", "T", "SWAP"}:
             gates += [Gate(name, qubits)]
-        elif name in {"RX", "RY", "RZ", "PHASE"}:
+        elif name in {"RX", "RY", "RZ", "PHASE", "XX"}:
             gates += [Gate(name, qubits, parameter=instruction.operator.angle)]
         elif name in {"CNOT", "CX", "CY", "CZ", "CSWAP"}:
             gates += [Gate(name, target=qubits[1:], control=qubits[0])]
-        elif name in {"XX"}:
-            gates += [Gate(name, target=qubits, parameter=instruction.operator.angle)]
         elif name in {"CPHASE"}:
             gates += [Gate(name, target=qubits[1:], control=qubits[0], parameter=instruction.operator.angle)]
         else:
