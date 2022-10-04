@@ -21,7 +21,7 @@ terms present in the Pauli operator.
 
 import warnings
 from openfermion.measurements import group_into_tensor_product_basis_sets
-from tangelo.linq.simulator_base import SimulatorBase
+from tangelo.linq import Simulator
 
 
 def group_qwc(qb_ham, seed=None, n_repeat=1):
@@ -133,6 +133,6 @@ def exp_value_from_measurement_bases(sub_ops, histograms):
     exp_value = 0.
     for basis, freqs in histograms.items():
         for term, coef in sub_ops[basis].terms.items():
-            exp_value += SimulatorBase.get_expectation_value_from_frequencies_oneterm(term, freqs) * coef
+            exp_value += Simulator.get_expectation_value_from_frequencies_oneterm(term, freqs) * coef
 
     return exp_value

@@ -27,7 +27,7 @@ class QiskitSimulator(SimulatorBase):
     def __init__(self, n_shots=None, noise_model=None):
         import qiskit
         from qiskit_aer import AerSimulator
-        super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
+        super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.qiskit = qiskit
         self.AerSimulator = AerSimulator
 

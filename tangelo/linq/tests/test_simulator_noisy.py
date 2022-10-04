@@ -20,7 +20,7 @@ import unittest
 
 from openfermion.ops import QubitOperator
 
-from tangelo.linq import Gate, Circuit, Simulator
+from tangelo.linq import Gate, Circuit, Simulator, backend_info
 from tangelo.linq.noisy_simulation import NoiseModel, get_qiskit_noise_dict
 from tangelo.helpers.utils import default_simulator, installed_backends
 
@@ -65,11 +65,6 @@ class TestSimulate(unittest.TestCase):
             Ensures that an error is returned if user attempts to run noisy simulation on a backend that does
             not support it as part of this package.
         """
-        backend_info = dict()
-        backend_info["qiskit"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
-        backend_info["qulacs"] = {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
-        backend_info["cirq"] = {"statevector_available": True, "statevector_order": "lsq_first", "noisy_simulation": True}
-        backend_info["qdk"] = {"statevector_available": False, "statevector_order": None, "noisy_simulation": False}
         for b, s in backend_info.items():
             if not s['noisy_simulation']:
                 self.assertRaises(ValueError, Simulator, target=b, n_shots=1, noise_model=True)

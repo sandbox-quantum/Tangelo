@@ -27,7 +27,7 @@ class QulacsSimulator(SimulatorBase):
 
     def __init__(self, n_shots=None, noise_model=None):
         import qulacs
-        super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
+        super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.qulacs = qulacs
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):

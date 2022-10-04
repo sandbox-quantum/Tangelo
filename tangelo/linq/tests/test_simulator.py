@@ -25,9 +25,9 @@ from openfermion.ops import QubitOperator
 from openfermion import load_operator
 
 from tangelo.linq import Gate, Circuit, translator, Simulator
-from tangelo.linq.simulator_base import SimulatorBase
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
+from tangelo.linq.simulator_base import SimulatorBase
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
@@ -397,8 +397,65 @@ class TestSimulateMisc(unittest.TestCase):
          are being provided as input. """
 
         term, coef = ((0, 'Z'),), 1.0  # Data as presented in Openfermion's QubitOperator.terms attribute
-        exp_value = coef * SimulatorBase.get_expectation_value_from_frequencies_oneterm(term, ref_freqs[2])
+        exp_value = coef * Simulator.get_expectation_value_from_frequencies_oneterm(term, ref_freqs[2])
         np.testing.assert_almost_equal(exp_value, -0.41614684, decimal=5)
+
+    def test_user_provided_simulator(self):
+        """Test user defined target simulator that disregards the circuit gates and only returns zero state or one state"""
+
+        class TrueFalseSimulator(SimulatorBase):
+            def __init__(self, n_shots=None, noise_model=None, return_zeros=True):
+                """Instantiate simulator object that always returns all zeros or all ones ignoring circuit operations.
+
+                Args:
+                    n_shots (int): Number of shots if using a shot-based simulator.
+                    noise_model: A noise model object assumed to be in the format
+                        expected from the target backend.
+                """
+                super().__init__(n_shots=n_shots, noise_model=noise_model)
+                self.return_zeros = return_zeros
+
+            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
+                """Perform state preparation corresponding self.return_zeros.
+
+                Args:
+                    source_circuit: a circuit in the abstract format (only width is accounted for)
+                    return_statevector(bool): option to return the statevector as well
+                    initial_statevector(list/array) : (ignored)
+
+                Returns:
+                    dict: A dictionary mapping multi-qubit states to their corresponding
+                        frequency.
+                    numpy.array: The statevector, if available for the target backend
+                        and requested by the user (if not, set to None).
+                """
+
+                statevector = np.zeros(2**source_circuit.width, dtype=complex)
+                if self.return_zeros:
+                    statevector[0] = 1.
+                else:
+                    statevector[-1] = 1.
+
+                frequencies = self._statevector_to_frequencies(statevector)
+
+                return (frequencies, np.array(statevector)) if return_statevector else (frequencies, None)
+
+            @staticmethod
+            def backend_info():
+                return {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": False}
+
+        sim = Simulator(TrueFalseSimulator, n_shots=1, noise_model=None, return_zeros=True)
+        sim.simulate_circuit
+        f, sv = sim.simulate(circuit1, return_statevector=True)
+        assert_freq_dict_almost_equal(f, {"00": 1}, 1.e-7)
+        np.testing.assert_almost_equal(np.array([1., 0., 0., 0.]), sv)
+        self.assertAlmostEqual(sim.get_expectation_value(QubitOperator("Z0", 1.), circuit1), 1.)
+
+        sim = Simulator(TrueFalseSimulator, n_shots=1, noise_model=None, return_zeros=False)
+        f, sv = sim.simulate(circuit1, return_statevector=True)
+        assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
+        np.testing.assert_almost_equal(np.array([0., 0., 0., 1.]), sv)
+        self.assertAlmostEqual(sim.get_expectation_value(QubitOperator("Z0", 1.), circuit1), -1.)
 
 
 if __name__ == "__main__":

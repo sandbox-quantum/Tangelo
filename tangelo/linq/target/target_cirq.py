@@ -32,7 +32,7 @@ class CirqSimulator(SimulatorBase):
                 expected from the target backend.
         """
         import cirq
-        super().__init__(n_shots=n_shots, noise_model=noise_model, backend_info=self.backend_info)
+        super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.cirq = cirq
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):

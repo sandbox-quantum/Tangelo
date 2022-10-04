@@ -18,10 +18,8 @@ from .target_qulacs import QulacsSimulator
 from .target_qdk import QDKSimulator
 from tangelo.helpers.utils import all_backends_simulator
 
+
 target_dict = {"qiskit": QiskitSimulator, "cirq": CirqSimulator, "qdk": QDKSimulator, "qulacs": QulacsSimulator}
 
-
 # Generate backend info dictionary
-backend_info = dict()
-for sim_id in all_backends_simulator:
-    backend_info[sim_id] = target_dict[sim_id].backend_info()
+backend_info = {sim_id: target_dict[sim_id].backend_info() for sim_id in all_backends_simulator}

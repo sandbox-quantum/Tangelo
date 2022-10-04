@@ -45,7 +45,7 @@ from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_ga
 
 class SimulatorBase(abc.ABC):
 
-    def __init__(self, n_shots=None, noise_model=None, backend_info=None):
+    def __init__(self, n_shots=None, noise_model=None):
         """Instantiate Simulator object.
 
         Args:
@@ -62,7 +62,7 @@ class SimulatorBase(abc.ABC):
         self.freq_threshold = 1e-10
 
         # Set additional attributes related to the target backend chosen by the user
-        for k, v in backend_info().items():
+        for k, v in self.backend_info().items():
             setattr(self, k, v)
 
         # Raise error if user attempts to pass a noise model to a backend not supporting noisy simulation
@@ -375,26 +375,24 @@ class SimulatorBase(abc.ABC):
             freqs_shots = {self._int_to_binstr(k, n_qubits, False): v / self.n_shots for k, v in freqs_shots.items()}
             return freqs_shots
 
-    def _int_to_binstr(self, i, n_qubits, incorporate_ordering=True):
+    def _int_to_binstr(self, i, n_qubits, use_ordering=True):
         """Convert an integer into a bit string of size n_qubits.
 
         Args:
             i (int): integer to convert to bit string.
             n_qubits (int): The number of qubits and length of returned bit string.
-            incorporate_ordering (bool): Flip the order of the returned bit string depending on self.statevector_order being "msq_first" or "lsq_first"
+            use_ordering (bool): Flip the order of the returned bit string depending on self.statevector_order being "msq_first" or "lsq_first"
 
         Returns:
             string: The bit string of the integer in lsq-first order.
         """
         bs = bin(i).split('b')[-1]
         state_binstr = "0" * (n_qubits - len(bs)) + bs
-        if incorporate_ordering:
-            return state_binstr[::-1] if (self.statevector_order == "msq_first") else state_binstr
-        else:
-            return state_binstr[::-1]
+
+        return state_binstr if use_ordering and (self.statevector_order == "lsq_first") else state_binstr[::-1]
 
     @staticmethod
-    def backend_info():
+    def backend_info() -> dict:
         """A dictionary that includes {'noisy_simulation': True or False,
                                        'statevector_available': True or False,
                                        'statevector_order': 'lsq_first' or 'msq_first'"""
