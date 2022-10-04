@@ -92,7 +92,7 @@ class QulacsSimulator(SimulatorBase):
 
     def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
 
-        # Note: This section previously used qulacs.quantum_operator.create_quantum_operator_from_openfermion_text but was changed
+        # TODO: This section previously used qulacs.quantum_operator.create_quantum_operator_from_openfermion_text but was changed
         # due to a memory leak. We can re-evaluate the implementation if/when Issue #303 (https://github.com/qulacs/qulacs/issues/303)
         # is fixed.
         operator = self.qulacs.Observable(n_qubits)

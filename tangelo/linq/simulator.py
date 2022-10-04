@@ -65,7 +65,7 @@ class Simulator(SimulatorBase):
             raise ValueError("target must be a str or a subclass of SimulatorBase.")
 
     def __init__(self, target: Union[str, Type[SimulatorBase]] = default_simulator, n_shots: Union[None, int] = None,
-                 noise_model: Union[None, NoiseModel]=None, **kwargs):
+                 noise_model: Union[None, NoiseModel] = None, **kwargs):
         """Return requested target simulator class
 
         Args:
