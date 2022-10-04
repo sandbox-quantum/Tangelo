@@ -142,9 +142,9 @@ def translate_c_from_projectq(projectq_str):
     for projectq_gate in projectq_gates:
 
         # Extract gate name, qubit indices and parameter value (single parameter for now)
-        gate_name = re.split(' \| |\(', projectq_gate)[0]
-        qubit_indices = [int(index) for index in re.findall('Qureg\[(\d+)\]', projectq_gate)]
-        parameters = [float(index) for index in re.findall('\((.*)\)', projectq_gate) if "Qureg" not in index]
+        gate_name = re.split(r' \| |\(', projectq_gate)[0]
+        qubit_indices = [int(index) for index in re.findall(r'Qureg\[(\d+)\]', projectq_gate)]
+        parameters = [float(index) for index in re.findall(r'\((.*)\)', projectq_gate) if "Qureg" not in index]
 
         if gate_name in {"H", "X", "Y", "Z", "S", "T"}:
             gate = Gate(gate_mapping[gate_name], qubit_indices[0])

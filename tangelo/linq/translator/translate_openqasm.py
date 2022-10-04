@@ -131,7 +131,7 @@ def translate_c_from_openqasm(openqasm_str):
             return s
 
     # Get number of qubits, extract gate operations
-    n_qubits = int(re.findall('qreg q\[(\d+)\];', openqasm_str)[0])
+    n_qubits = int(re.findall(r'qreg q\[(\d+)\];', openqasm_str)[0])
     openqasm_gates = openqasm_str.split(f"qreg q[{n_qubits}];\ncreg c[{n_qubits}];")[-1]
     openqasm_gates = [instruction for instruction in openqasm_gates.split("\n") if instruction]
 
@@ -140,9 +140,9 @@ def translate_c_from_openqasm(openqasm_str):
     for openqasm_gate in openqasm_gates:
 
         # Extract gate name, qubit indices and parameter value (single parameter for now)
-        gate_name = re.split('\s|\(', openqasm_gate)[0]
-        qubit_indices = [int(index) for index in re.findall('q\[(\d+)\]', openqasm_gate)]
-        parameters = [parse_param(index) for index in re.findall('\((.*)\)', openqasm_gate)]
+        gate_name = re.split(r'\s|\(', openqasm_gate)[0]
+        qubit_indices = [int(index) for index in re.findall(r'q\[(\d+)\]', openqasm_gate)]
+        parameters = [parse_param(index) for index in re.findall(r'\((.*)\)', openqasm_gate)]
         # TODO: controlled operation, will need to store value in classical register
         #  bit_indices = [int(index) for index in re.findall('c\[(\d+)\]', openqasm_gate)]
 
