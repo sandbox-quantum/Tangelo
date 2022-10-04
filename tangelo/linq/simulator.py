@@ -55,6 +55,8 @@ class Simulator(SimulatorBase):
         """
 
         # Return new instance of target class
+        if target is None:
+            target = default_simulator
         # If target is a string use target_dict to return built-in Target Simulators
         if isinstance(target, str):
             return target_dict[target](n_shots=n_shots, noise_model=noise_model)
