@@ -21,10 +21,11 @@ from tangelo.linq.qpu_connection.qpu_connection import QpuConnection
 class IonQConnection(QpuConnection):
     """ Wrapper about the IonQ REST API, to facilitate job submission and automated post-processing of results """
 
-    def __init__(self):
+    def __init__(self, verbose=False):
         self.endpoint = "https://api.ionq.co" + "/v0.2"  # Update endpoint or version number here if needed
         self.api_key = None
         self._login()
+        self.verbose = verbose
 
     @property
     def header(self):
@@ -154,7 +155,8 @@ class IonQConnection(QpuConnection):
         return_dict = json.loads(job_request.text)
 
         self._catch_request_error(return_dict)
-        print(f"Job submission \tID :: {return_dict['id']} \t status :: {return_dict['status']}")
+        if self.verbose:
+            print(f"Job submission \tID :: {return_dict['id']} \t status :: {return_dict['status']}")
         return return_dict['id']
 
     def job_get_history(self):
@@ -186,21 +188,30 @@ class IonQConnection(QpuConnection):
         job_status = rq.get(self.endpoint + "/jobs/" + job_id, headers=self.header)
         job_status = json.loads(job_status.text)
         self._catch_request_error(job_status)
-        print(f"Job info \tID:: {job_id} \t status :: {job_status['status']} {job_status.get('error', '')}")
+
         return job_status
 
-    def job_results(self, job_id):
+    def job_results(self, job_id, wait_time=60):
         """ Blocking call querying the REST API at a given frequency, until job results are available.
 
         Args:
             job_id (str): string representing the job id
+            wait_time (int): Number of seconds between consecutive queries to
+                the IonQ API. If the verbosity is set to True, the status is
+                printed if it changed since the last query.
 
         Returns:
             dict: status response from the REST API
         """
 
+        old_job_status = str()
         while True:
             job_status = self.job_status(job_id)
+
+            if self.verbose and job_status != old_job_status:
+                print(f"Job info \tID:: {job_id} \t status :: {job_status['status']} {job_status.get('error', '')}")
+                old_job_status = job_status
+
             if job_status['status'] == 'completed' and 'data' in job_status:
                 hist = job_status['data']['histogram']
                 h = dict()
@@ -209,7 +220,7 @@ class IonQConnection(QpuConnection):
                     h[("0"*(job_status['qubits']-len(bs)) + bs)[::-1]] = v
                 return h
             elif job_status['status'] in {'ready', 'running', 'submitted'}:
-                time.sleep(5)
+                time.sleep(wait_time)
             else:
                 raise RuntimeError(f'Unexpected job status :: \n {job_status}')
 
@@ -225,5 +236,7 @@ class IonQConnection(QpuConnection):
         job_cancel = rq.delete(self.endpoint+"/jobs/"+job_id, headers=self.header)
         job_cancel = json.loads(job_cancel.text)
         self._catch_request_error(job_cancel)
-        print(f"Job cancel \tID :: {job_id} \t status :: {job_cancel['status']} {job_cancel.get('error', '')}")
+
+        if self.verbose:
+            print(f"Job cancel \tID :: {job_id} \t status :: {job_cancel['status']} {job_cancel.get('error', '')}")
         return job_cancel
