@@ -21,13 +21,13 @@ If the user provides a noise model, then a noisy simulation is run with n_shots
 shots. If the user only provides n_shots, a noiseless simulation is run, drawing
 the desired amount of shots. If the target backend has access to the statevector
 representing the quantum state, we leverage any kind of emulation available to
-reduce runtime (directly generating shot values from final statevector etc) If
+reduce runtime (directly generating shot values from final statevector etc). If
 the quantum circuit contains a MEASURE instruction, it is assumed to simulate a
 mixed-state and the simulation will be carried by simulating individual shots
 (e.g a number of shots is required).
 
 Some backends may only support a subset of the above. This information is
-contained in a separate data-structure.
+contained in the static method backend_info defined by each subclass target.
 """
 
 import abc

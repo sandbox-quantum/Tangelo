@@ -12,21 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Simulator Class, encompases various simulators that abstract their
-differences from the user. Returns a class that Able to run noiseless and noisy simulations,
-leveraging the capabilities of different backends, quantum or classical.
-
-If the user provides a noise model, then a noisy simulation is run with n_shots
-shots. If the user only provides n_shots, a noiseless simulation is run, drawing
-the desired amount of shots. If the target backend has access to the statevector
-representing the quantum state, we leverage any kind of emulation available to
-reduce runtime (directly generating shot values from final statevector etc) If
-the quantum circuit contains a MEASURE instruction, it is assumed to simulate a
-mixed-state and the simulation will be carried by simulating individual shots
-(e.g a number of shots is required).
-
-Some backends may only support a subset of the above. This information is
-contained in the static method backend_info for each backend.
+"""Class acting as a unified interface able to instantiate any simulator object
+associated to a specific target (qulacs, qiskit, cirq, user-defined...). Some
+built-in target simulators support features such as noisy simulation, the ability
+to run noiseless simulation with shots, or particular emulation techniques. Target
+backends can also be implemented using APIs to quantum devices.
 """
 
 from typing import Union, Tuple, Type
@@ -40,46 +30,35 @@ from tangelo.helpers.utils import default_simulator
 
 
 class Simulator(SimulatorBase):
+    """Class that when initialized becomes an instance of a target subclass of SimulatorBase. All available targets can be
+    found in tangelo.linq.target. Can also be used to access static methods of SimulatorBase without initializing."""
 
-    def __new__(self, target=default_simulator, n_shots=None, noise_model=None, **kwargs):
-        """Return requested target simulator class
+    def __init__(self, target: Union[None, str, Type[SimulatorBase]] = default_simulator, n_shots: Union[None, int] = None,
+                 noise_model=None, **kwargs):
+        """Initialize requested target simulator object.
 
         Args:
             target (string or Type[SimulatorBase]): String can be "qiskit", "cirq", "qdk" or "qulacs". Can also provide
                 a subclass of SimulatorBase.
             n_shots (int): Number of shots if using a shot-based simulator.
-            noise_model (NoiseModel): A noise model object assumed to be in the format
-                expected from the target backend.
-            kwargs: Other arguments that could be passed to a target. Examples are qubits_to_use for a QPU, transpiler optimization
-                level, error mitigation flags etc.
+            noise_model: A noise model object assumed to be in the format expected from the target backend.
+            kwargs: Other arguments that could be passed to a target. Examples are qubits_to_use for a QPU, transpiler
+                optimization level, error mitigation flags etc.
         """
 
-        # Return new instance of target class
-        if target is None:
-            target = default_simulator
+        # if target is None:
+        #    target = default_simulator
         # If target is a string use target_dict to return built-in Target Simulators
         if isinstance(target, str):
-            return target_dict[target](n_shots=n_shots, noise_model=noise_model)
-        # Try to instantiate the target as a Simulator
+            target = target_dict[target]
+        # If subclass of SimulatorBase, use target
         elif issubclass(target, SimulatorBase):
-            return target(n_shots=n_shots, noise_model=noise_model, **kwargs)
+            pass
         else:
-            raise ValueError("target must be a str or a subclass of SimulatorBase.")
-
-    def __init__(self, target: Union[str, Type[SimulatorBase]] = default_simulator, n_shots: Union[None, int] = None,
-                 noise_model: Union[None, NoiseModel] = None, **kwargs):
-        """Return requested target simulator class
-
-        Args:
-            target (string or Type[SimulatorBase]): String can be "qiskit", "cirq", "qdk" or "qulacs". Can also provide
-                a subclass of SimulatorBase.
-            n_shots (int): Number of shots if using a shot-based simulator.
-            noise_model (NoiseModel): A noise model object assumed to be in the format
-                expected from the target backend.
-            kwargs: Other arguments that could be passed to a target. Examples are qubits_to_use for a QPU, transpiler optimization
-                level, error mitigation flags etc.
-        """
-        pass
+            raise TypeError(f"target must be a str or a subclass of SimulatorBase but received class {type(target).__name__}")
+        # Update class variables with __dict__ coming from initialized target class.
+        self.__class__ = target
+        self.__dict__.update(target(n_shots=n_shots, noise_model=noise_model, **kwargs).__dict__)
 
     def simulate_circuit(self) -> Union[Tuple[dict, numpy.ndarray], Tuple[dict, None]]:
         pass

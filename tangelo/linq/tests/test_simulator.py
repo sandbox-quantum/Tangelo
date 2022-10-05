@@ -405,30 +405,12 @@ class TestSimulateMisc(unittest.TestCase):
 
         class TrueFalseSimulator(SimulatorBase):
             def __init__(self, n_shots=None, noise_model=None, return_zeros=True):
-                """Instantiate simulator object that always returns all zeros or all ones ignoring circuit operations.
-
-                Args:
-                    n_shots (int): Number of shots if using a shot-based simulator.
-                    noise_model: A noise model object assumed to be in the format
-                        expected from the target backend.
-                """
+                """Instantiate simulator object that always returns all zeros or all ones ignoring circuit operations."""
                 super().__init__(n_shots=n_shots, noise_model=noise_model)
                 self.return_zeros = return_zeros
 
             def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
-                """Perform state preparation corresponding self.return_zeros.
-
-                Args:
-                    source_circuit: a circuit in the abstract format (only width is accounted for)
-                    return_statevector(bool): option to return the statevector as well
-                    initial_statevector(list/array) : (ignored)
-
-                Returns:
-                    dict: A dictionary mapping multi-qubit states to their corresponding
-                        frequency.
-                    numpy.array: The statevector, if available for the target backend
-                        and requested by the user (if not, set to None).
-                """
+                """Perform state preparation corresponding self.return_zeros."""
 
                 statevector = np.zeros(2**source_circuit.width, dtype=complex)
                 if self.return_zeros:
