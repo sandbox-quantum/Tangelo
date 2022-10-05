@@ -392,6 +392,7 @@ class SimulatorBase(abc.ABC):
         return state_binstr if use_ordering and (self.statevector_order == "lsq_first") else state_binstr[::-1]
 
     @staticmethod
+    @abc.abstractmethod
     def backend_info() -> dict:
         """A dictionary that includes {'noisy_simulation': True or False,
                                        'statevector_available': True or False,

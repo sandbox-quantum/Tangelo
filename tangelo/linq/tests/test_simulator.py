@@ -427,7 +427,6 @@ class TestSimulateMisc(unittest.TestCase):
                 return {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": False}
 
         sim = Simulator(TrueFalseSimulator, n_shots=1, noise_model=None, return_zeros=True)
-        sim.simulate_circuit
         f, sv = sim.simulate(circuit1, return_statevector=True)
         assert_freq_dict_almost_equal(f, {"00": 1}, 1.e-7)
         np.testing.assert_almost_equal(np.array([1., 0., 0., 0.]), sv)

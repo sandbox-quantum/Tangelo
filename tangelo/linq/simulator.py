@@ -19,9 +19,7 @@ to run noiseless simulation with shots, or particular emulation techniques. Targ
 backends can also be implemented using APIs to quantum devices.
 """
 
-from typing import Union, Tuple, Type
-
-import numpy
+from typing import Union, Type
 
 from tangelo.linq.simulator_base import SimulatorBase
 from tangelo.linq.target import target_dict, backend_info
@@ -46,8 +44,8 @@ class Simulator(SimulatorBase):
                 optimization level, error mitigation flags etc.
         """
 
-        # if target is None:
-        #    target = default_simulator
+        if target is None:
+            target = default_simulator
         # If target is a string use target_dict to return built-in Target Simulators
         if isinstance(target, str):
             target = target_dict[target]
@@ -60,7 +58,7 @@ class Simulator(SimulatorBase):
         self.__class__ = target
         self.__dict__.update(target(n_shots=n_shots, noise_model=noise_model, **kwargs).__dict__)
 
-    def simulate_circuit(self) -> Union[Tuple[dict, numpy.ndarray], Tuple[dict, None]]:
+    def simulate_circuit(self):
         pass
 
     @staticmethod
