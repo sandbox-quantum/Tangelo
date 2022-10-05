@@ -36,7 +36,7 @@ class Simulator(SimulatorBase):
         """Initialize requested target simulator object.
 
         Args:
-            target (string or Type[SimulatorBase]): String can be "qiskit", "cirq", "qdk" or "qulacs". Can also provide
+            target (string or Type[SimulatorBase] or None): String can be "qiskit", "cirq", "qdk" or "qulacs". Can also provide
                 a subclass of SimulatorBase.
             n_shots (int): Number of shots if using a shot-based simulator.
             noise_model: A noise model object assumed to be in the format expected from the target backend.
@@ -45,9 +45,9 @@ class Simulator(SimulatorBase):
         """
 
         if target is None:
-            target = default_simulator
+            target = target_dict[default_simulator]
         # If target is a string use target_dict to return built-in Target Simulators
-        if isinstance(target, str):
+        elif isinstance(target, str):
             target = target_dict[target]
         # If subclass of SimulatorBase, use target
         elif issubclass(target, SimulatorBase):
