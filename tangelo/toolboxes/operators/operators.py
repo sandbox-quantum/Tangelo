@@ -27,10 +27,17 @@ import openfermion
 
 
 class FermionOperator(openfermion.FermionOperator):
-    """Currently, this class is coming from openfermion. Can be later on be
+    """Currently, this class is coming from openfermion. Can later on be
     replaced by our own implementation.
     """
 
+    def __init__(self, term=None, coefficient=1., n_spinorbitals=None, n_electrons=None, spin=None):
+        super(openfermion.FermionOperator, self).__init__(term, coefficient)
+
+        self.n_spinorbitals = n_spinorbitals
+        self.n_electrons = n_electrons
+        self.spin = spin
+    
     def get_coeffs(self, coeff_threshold=1e-8):
         """Method to get the coefficient tensors from a fermion operator.
 
