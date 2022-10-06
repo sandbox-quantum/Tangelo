@@ -397,7 +397,7 @@ class TestSimulateMisc(unittest.TestCase):
          are being provided as input. """
 
         term, coef = ((0, 'Z'),), 1.0  # Data as presented in Openfermion's QubitOperator.terms attribute
-        exp_value = coef * Simulator.get_expectation_value_from_frequencies_oneterm(term, ref_freqs[2])
+        exp_value = coef * SimulatorBase.get_expectation_value_from_frequencies_oneterm(term, ref_freqs[2])
         np.testing.assert_almost_equal(exp_value, -0.41614684, decimal=5)
 
     def test_user_provided_simulator(self):
