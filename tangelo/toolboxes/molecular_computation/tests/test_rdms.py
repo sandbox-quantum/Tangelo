@@ -16,9 +16,11 @@ import os
 import unittest
 import json
 import numpy as np
+from numpy.testing import assert_allclose
 
 from openfermion.utils import load_operator
 
+from tangelo.toolboxes.measurements import RandomizedClassicalShadow
 from tangelo.toolboxes.operators import FermionOperator
 from tangelo.toolboxes.molecular_computation.rdms import energy_from_rdms, compute_rdms
 
@@ -32,35 +34,55 @@ ferm_op.n_spinorbitals = 4
 ferm_op.n_electrons = 2
 ferm_op.spin = 0
 
-cs_data = json.load(open("./data/H2_cs_data.dat", "r"))
+exp_data = json.load(open("./data/H2_raw_exact.dat", "r"))
+n_shots = 10000
 
-rdm1 = [[1.97453997e+00, -7.05987336e-17],
-        [-7.05987336e-17, 2.54600303e-02]]
+# Construct ClassicalShadow
+bitstrings = []
+unitaries = []
 
-rdm2 = [
-    [[[1.97453997e+00, -7.96423130e-17], [-7.96423130e-17, 3.21234218e-33]],
-     [[-7.96423130e-17, -2.24213843e-01], [0.00000000e+00, 9.04357944e-18]]],
-    [[[-7.96423130e-17, 0.00000000e+00], [-2.24213843e-01, 9.04357944e-18]],
-     [[3.21234218e-33, 9.04357944e-18], [9.04357944e-18, 2.54600303e-02]]]
-]
+for b, hist in exp_data.items():
+    for s,f in hist.items():
+        factor = round(f*n_shots)
+        bitstrings.extend([s]*factor)
+        unitaries.extend([b]*factor)
+
+cs_data = RandomizedClassicalShadow(unitaries=unitaries, bitstrings=bitstrings)
+
+
+rdm1 = np.array([[1.97454854+0.j, 0.+0.j],
+                 [0.+0.j, 0.02545146+0.j]])
+
+rdm2 = np.array(
+    [[[[ 1.97454853e+00+0.00000000e+00j, 0.00000000e+00+0.00000000e+00j],
+       [ 0.00000000e+00+0.00000000e+00j, 5.92100152e-09+0.00000000e+00j]],
+      [[ 0.00000000e+00+0.00000000e+00j,-2.24176575e-01+2.77555756e-17j],
+       [ 5.92100077e-09+0.00000000e+00j, 0.00000000e+00+0.00000000e+00j]]],
+     [[[ 0.00000000e+00+0.00000000e+00j, 5.92100077e-09+0.00000000e+00j],
+       [-2.24176575e-01-2.77555756e-17j, 0.00000000e+00+0.00000000e+00j]],
+      [[ 5.92100152e-09+0.00000000e+00j, 0.00000000e+00+0.00000000e+00j],
+       [ 0.00000000e+00+0.00000000e+00j, 2.54514569e-02+0.00000000e+00j]]]])
 
 class RDMsUtilitiesTest(unittest.TestCase):
 
     def test_energy_from_rdms(self):
-        """Same test as in test_molecule.SecondQuantizedMoleculeTest.test_energy_from_rdms,
-        but from a fermionic operator instead.
-        """
+        """Computes energy using known spin-summed 1RDM and 2RDM"""
         e_rdms = energy_from_rdms(ferm_op, rdm1, rdm2)
         self.assertAlmostEqual(e_rdms, -1.1372701, delta=1e-5)
 
-    def test_compute_rdms(self):
+    def test_compute_rdms_from_raw_data(self):
+        """Load data and compute RDMs from frequency list"""
+        rdm1r, rdm2r, rdm1ssr, rdm2ssr = compute_rdms(ferm_op, exp_data, "scbk", False)
+
+        assert_allclose(rdm1, rdm1ssr, rtol=1e-5)
+        assert_allclose(rdm2, rdm2ssr, rtol=1e-5)
+
+    def test_compute_rdms_from_classical_shadow(self):
         """Load data and compute RDMs from frequency list"""
         rdm1r, rdm2r, rdm1ssr, rdm2ssr = compute_rdms(ferm_op, cs_data, "scbk", False)
 
-        self.assertAlmostEqual((np.array(rdm1)-rdm1ssr).sum(), 0., delta=1e-5)
-        #self.assertAlmostEqual(np.array(rdm2), rdm2ssr, delta=1e-5)
-        #self.assertAlmostEqual(np.array(rdm1ss), rdm1ssr, delta=1e-5)
-        #self.assertAlmostEqual(np.array(rdm2ss), rdm2ssr, delta=1e-5)
+        assert_allclose(rdm1, rdm1ssr, rtol=1e-5)
+        assert_allclose(rdm2, rdm2ssr, rtol=1e-5)
 
 if __name__ == "__main__":
     unittest.main()

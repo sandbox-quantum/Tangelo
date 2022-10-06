@@ -17,11 +17,11 @@
 import itertools as it
 import numpy as np
 
-from tangelo.linq.helpers import filter_bases
+from tangelo.linq.helpers import filter_bases, pauli_string_to_of
 from tangelo.toolboxes.operators import FermionOperator
-from tangelo.toolboxes.measurements import ClassicalShadow
+from tangelo.toolboxes.measurements import RandomizedClassicalShadow
 from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms
-from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping, get_qubit_number
 from tangelo.toolboxes.molecular_computation.molecule import spatial_from_spinorb
 from tangelo.linq.helpers.circuits import pauli_of_to_string
 
@@ -71,7 +71,13 @@ def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
     onerdm_spinsum = np.zeros((ferm_ham.n_spinorbitals//2,) * 2, dtype=complex)
     twordm_spinsum = np.zeros((ferm_ham.n_spinorbitals//2,) * 4, dtype=complex)
 
-    exp_vals = {}
+    # Check if the data dict is expectation values, or raw frequency data in the {basis: hist} format
+    if isinstance(exp_data, dict) and isinstance(list(exp_data.values())[0], float):
+        exp_vals = {pauli_string_to_of(term): exp_val for term,exp_val in exp_data.items()}
+    elif isinstance(list(exp_data.values())[0], dict):
+        exp_vals = {}
+
+    n_qubits = get_qubit_number(mapping, ferm_ham.n_spinorbitals)
 
     # Go over all terms in fermionic Hamiltonian
     for term in ferm_ham.terms:
@@ -87,33 +93,30 @@ def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
                                             n_spinorbitals = ferm_ham.n_spinorbitals,
                                             n_electrons = ferm_ham.n_electrons,
                                             mapping = mapping,
-                                            up_then_down = up_then_down,
-                                            spin = ferm_ham.spin)
+                                            up_then_down = up_then_down)
         qubit_term.compress()
 
         # Loop to go through all qubit terms.
         eigenvalue = 0.
         
-        if type(exp_data) == ClassicalShadow:
+        if isinstance(exp_data, RandomizedClassicalShadow):
             for qterm, coeff in qubit_term.terms.items():
                 if coeff.real != 0:
                     # Change depending on if it is randomized or not.
                     eigenvalue += exp_data.get_term_observable(qterm, coeff)
 
-        if type(exp_data) == dict:
+        if isinstance(exp_data, dict):
             for qterm, coeff in qubit_term.terms.items():
                 if coeff.real != 0:
 
                     try:
-                        exp_vals[qterm]
+                        exp_val = exp_vals[qterm] if qterm else 1.
                     except KeyError:
-                        if qterm:
-                            ps = pauli_of_to_string(qterm, ferm_ham.n_spinorbitals // 2)  # not sure about the number
-                            exp_vals[qterm] = aggregate_histograms(*[Histogram(exp_data[basis]) for basis in filter_bases(ps, exp_data.keys())]).get_expectation_value(qterm, 1.)
-                        else:
-                            continue
+                        ps = pauli_of_to_string(qterm, n_qubits)
+                        hist = aggregate_histograms(*[Histogram(exp_data[basis]) for basis in filter_bases(ps, exp_data.keys())])
+                        exp_val = hist.get_expectation_value(qterm, 1.)
+                        exp_vals[qterm] = exp_val
 
-                    exp_val = exp_vals[qterm] if qterm else 1.
                     eigenvalue += coeff * exp_val
 
         # Put the values in np arrays (differentiate 1- and 2-RDM)
