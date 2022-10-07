@@ -51,7 +51,7 @@ def filter_bases(op, basis_list):
     Returns:
         list: List of measurement bases compatible with the operator
     """
-    return [b for b in basis_list if all([(o==p or o=="I") for o,p in zip(op,b)])]
+    return [b for b in basis_list if all([(o == p or o == "I") for o, p in zip(op, b)])]
 
 
 def pauli_string_to_of(pauli_string):

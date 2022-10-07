@@ -42,7 +42,7 @@ bitstrings = []
 unitaries = []
 
 for b, hist in exp_data.items():
-    for s,f in hist.items():
+    for s, f in hist.items():
         factor = round(f*n_shots)
         bitstrings.extend([s]*factor)
         unitaries.extend([b]*factor)
@@ -54,16 +54,17 @@ rdm1 = np.array([[1.97454854+0.j, 0.+0.j],
                  [0.+0.j, 0.02545146+0.j]])
 
 rdm2 = np.array(
-    [[[[ 1.97454853e+00+0.00000000e+00j, 0.00000000e+00+0.00000000e+00j],
-       [ 0.00000000e+00+0.00000000e+00j, 5.92100152e-09+0.00000000e+00j]],
-      [[ 0.00000000e+00+0.00000000e+00j,-2.24176575e-01+2.77555756e-17j],
-       [ 5.92100077e-09+0.00000000e+00j, 0.00000000e+00+0.00000000e+00j]]],
-     [[[ 0.00000000e+00+0.00000000e+00j, 5.92100077e-09+0.00000000e+00j],
-       [-2.24176575e-01-2.77555756e-17j, 0.00000000e+00+0.00000000e+00j]],
-      [[ 5.92100152e-09+0.00000000e+00j, 0.00000000e+00+0.00000000e+00j],
-       [ 0.00000000e+00+0.00000000e+00j, 2.54514569e-02+0.00000000e+00j]]]])
+    [[[[ 1.97454853e+00+0.00000000e+00j,  0.00000000e+00+0.00000000e+00j],
+       [ 0.00000000e+00+0.00000000e+00j,  5.92100152e-09+0.00000000e+00j]],
+      [[ 0.00000000e+00+0.00000000e+00j, -2.24176575e-01+2.77555756e-17j],
+       [ 5.92100077e-09+0.00000000e+00j,  0.00000000e+00+0.00000000e+00j]]],
+     [[[ 0.00000000e+00+0.00000000e+00j,  5.92100077e-09+0.00000000e+00j],
+       [-2.24176575e-01-2.77555756e-17j,  0.00000000e+00+0.00000000e+00j]],
+      [[ 5.92100152e-09+0.00000000e+00j,  0.00000000e+00+0.00000000e+00j],
+       [ 0.00000000e+00+0.00000000e+00j,  2.54514569e-02+0.00000000e+00j]]]])
 
 class RDMsUtilitiesTest(unittest.TestCase):
+
 
     def test_energy_from_rdms(self):
         """Computes energy using known spin-summed 1RDM and 2RDM"""
@@ -84,6 +85,7 @@ class RDMsUtilitiesTest(unittest.TestCase):
         # Have to adjust tolerance to account for classical shadow rounding to 10000 shots
         assert_allclose(rdm1, rdm1ssr, atol=0.01)
         assert_allclose(rdm2, rdm2ssr, atol=0.01)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -50,8 +50,8 @@ def matricize_2rdm(two_rdm, n_orbitals):
 
 def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
     """
-    Computes the 1- and 2-RDM and their spin-summed versions 
-    using a Molecule object and frequency data either in the form of a 
+    Computes the 1- and 2-RDM and their spin-summed versions
+    using a Molecule object and frequency data either in the form of a
     classical shadow or a dictionary of frequency histograms.
 
     Args:
@@ -73,7 +73,7 @@ def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
 
     # Check if the data dict is expectation values or raw frequency data in the {basis: hist} format
     if isinstance(exp_data, dict) and isinstance(list(exp_data.values())[0], float):
-        exp_vals = {pauli_string_to_of(term): exp_val for term,exp_val in exp_data.items()}
+        exp_vals = {pauli_string_to_of(term): exp_val for term, exp_val in exp_data.items()}
     elif isinstance(exp_data, dict) and isinstance(list(exp_data.values())[0], dict):
         exp_vals = {}
 
@@ -85,20 +85,20 @@ def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
 
         if not term:
             continue
-        
+
         # Fermionic term with a prefactor of 1.0.
         fermionic_term = FermionOperator(term, 1.0)
 
-        qubit_term = fermion_to_qubit_mapping(fermion_operator = fermionic_term,
-                                            n_spinorbitals = ferm_ham.n_spinorbitals,
-                                            n_electrons = ferm_ham.n_electrons,
-                                            mapping = mapping,
-                                            up_then_down = up_then_down)
+        qubit_term = fermion_to_qubit_mapping(fermion_operator=fermionic_term,
+                                            n_spinorbitals=ferm_ham.n_spinorbitals,
+                                            n_electrons=ferm_ham.n_electrons,
+                                            mapping=mapping,
+                                            up_then_down=up_then_down)
         qubit_term.compress()
 
         # Loop to go through all qubit terms.
         eigenvalue = 0.
-        
+
         if isinstance(exp_data, RandomizedClassicalShadow):
             for qterm, coeff in qubit_term.terms.items():
                 if coeff.real != 0:

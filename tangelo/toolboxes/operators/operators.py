@@ -37,7 +37,7 @@ class FermionOperator(openfermion.FermionOperator):
         self.n_spinorbitals = n_spinorbitals
         self.n_electrons = n_electrons
         self.spin = spin
-    
+
     def get_coeffs(self, coeff_threshold=1e-8):
         """Method to get the coefficient tensors from a fermion operator.
 
