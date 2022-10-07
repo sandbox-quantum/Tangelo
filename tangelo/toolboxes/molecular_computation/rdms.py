@@ -71,10 +71,10 @@ def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
     onerdm_spinsum = np.zeros((ferm_ham.n_spinorbitals//2,) * 2, dtype=complex)
     twordm_spinsum = np.zeros((ferm_ham.n_spinorbitals//2,) * 4, dtype=complex)
 
-    # Check if the data dict is expectation values, or raw frequency data in the {basis: hist} format
+    # Check if the data dict is expectation values or raw frequency data in the {basis: hist} format
     if isinstance(exp_data, dict) and isinstance(list(exp_data.values())[0], float):
         exp_vals = {pauli_string_to_of(term): exp_val for term,exp_val in exp_data.items()}
-    elif isinstance(list(exp_data.values())[0], dict):
+    elif isinstance(exp_data, dict) and isinstance(list(exp_data.values())[0], dict):
         exp_vals = {}
 
     n_qubits = get_qubit_number(mapping, ferm_ham.n_spinorbitals)

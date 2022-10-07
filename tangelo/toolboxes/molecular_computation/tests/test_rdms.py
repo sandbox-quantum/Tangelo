@@ -34,7 +34,7 @@ ferm_op.n_spinorbitals = 4
 ferm_op.n_electrons = 2
 ferm_op.spin = 0
 
-exp_data = json.load(open("./data/H2_raw_exact.dat", "r"))
+exp_data = json.load(open(pwd_this_test + "/data/H2_raw_exact.dat", "r"))
 n_shots = 10000
 
 # Construct ClassicalShadow
@@ -78,11 +78,12 @@ class RDMsUtilitiesTest(unittest.TestCase):
         assert_allclose(rdm2, rdm2ssr, rtol=1e-5)
 
     def test_compute_rdms_from_classical_shadow(self):
-        """Load data and compute RDMs from frequency list"""
+        """Load data and compute RDMs from classical shadow"""
         rdm1r, rdm2r, rdm1ssr, rdm2ssr = compute_rdms(ferm_op, cs_data, "scbk", False)
 
-        assert_allclose(rdm1, rdm1ssr, rtol=1e-5)
-        assert_allclose(rdm2, rdm2ssr, rtol=1e-5)
+        # Have to adjust tolerance to account for classical shadow rounding to 10000 shots
+        assert_allclose(rdm1, rdm1ssr, atol=0.01)
+        assert_allclose(rdm2, rdm2ssr, atol=0.01)
 
 if __name__ == "__main__":
     unittest.main()
