@@ -171,10 +171,7 @@ class SA_VQESolver(VQESolver):
         self.ansatz.build_circuit()
 
         # Quantum circuit simulation backend options
-        t = self.backend_options.get("target", self.default_backend_options["target"])
-        ns = self.backend_options.get("n_shots", self.default_backend_options["n_shots"])
-        nm = self.backend_options.get("noise_model", self.default_backend_options["noise_model"])
-        self.backend = Simulator(target=t, n_shots=ns, noise_model=nm)
+        self.backend = Simulator(**self.backend_options)
 
     def simulate(self):
         """Run the SA-VQE algorithm, using the ansatz, classical optimizer, initial
