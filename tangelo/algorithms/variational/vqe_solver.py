@@ -370,11 +370,11 @@ class VQESolver:
                     raise KeyError("Must supply n_active_mos when a QubitHamiltonian has initialized VQESolver"
                                    " and requesting the expectation of 'N', 'Sz', or 'S^2'")
             if operator == "N":
-                exp_op = agen.fermionic_operators.number_operator(n_active_mos, up_then_down=False)
+                exp_op = agen.fermionic_operators.number_operator(n_active_mos, self.up_then_down)
             elif operator == "Sz":
-                exp_op = agen.fermionic_operators.spinz_operator(n_active_mos, up_then_down=False)
+                exp_op = agen.fermionic_operators.spinz_operator(n_active_mos, self.up_then_down)
             elif operator == "S^2":
-                exp_op = agen.fermionic_operators.spin2_operator(n_active_mos, up_then_down=False)
+                exp_op = agen.fermionic_operators.spin2_operator(n_active_mos, self.up_then_down)
             else:
                 raise ValueError('Only expectation values of N, Sz and S^2')
         elif isinstance(operator, FermionOperator):
