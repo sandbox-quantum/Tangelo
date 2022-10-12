@@ -120,6 +120,22 @@ class Gate(dict):
 
         return mystr
 
+    def __repr__(self):
+        """Represent gate such that eval(self.__repr__) returns a proper instance of Gate."""
+
+        mystr = f"Gate(name='{self.name}'"
+        for attr in ["target", "control"]:
+            if self.__getattribute__(attr) or isinstance(self.__getattribute__(attr), int):
+                mystr += f", {attr}={self.__getattribute__(attr)}"
+        if self.__getattribute__("parameter") != "":
+            parameter = self.__getattribute__('parameter')
+            mystr += f", parameter='{parameter}'" if isinstance(parameter, str) else f", parameter={parameter}"
+        if self.is_variational:
+            mystr += ", is_variational=True"
+        mystr += ")"
+
+        return mystr
+
     def __eq__(self, other):
         """Define equality (==) operator on gates"""
 
