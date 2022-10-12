@@ -26,7 +26,6 @@ Phys. Rev. Research 1, 033062 (2019)
 import numpy as np
 
 from tangelo.linq import Simulator, Circuit
-from tangelo.toolboxes.operators import qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
@@ -112,16 +111,14 @@ class SA_VQESolver(VQESolver):
         if self.molecule:
 
             # Compute qubit hamiltonian for the input molecular system
-            qubit_op = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
-                                                mapping=self.qubit_mapping,
-                                                n_spinorbitals=self.molecule.n_active_sos,
-                                                n_electrons=self.molecule.n_active_electrons,
-                                                up_then_down=self.up_then_down,
-                                                spin=self.molecule.spin)
+            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
+                                                              mapping=self.qubit_mapping,
+                                                              n_spinorbitals=self.molecule.n_active_sos,
+                                                              n_electrons=self.molecule.n_active_electrons,
+                                                              up_then_down=self.up_then_down,
+                                                              spin=self.molecule.spin)
 
             self.core_constant, self.oneint, self.twoint = self.molecule.get_active_space_integrals()
-
-            self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
 
             if self.penalty_terms:
                 pen_ferm = combined_penalty(self.molecule.n_active_mos, self.penalty_terms)
@@ -131,7 +128,6 @@ class SA_VQESolver(VQESolver):
                                                      n_electrons=self.molecule.n_active_electrons,
                                                      up_then_down=self.up_then_down,
                                                      spin=self.molecule.spin)
-                pen_qubit = qubitop_to_qubitham(pen_qubit, self.qubit_hamiltonian.mapping, self.qubit_hamiltonian.up_then_down)
                 self.qubit_hamiltonian += pen_qubit
 
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.

@@ -26,7 +26,7 @@ from openfermion.ops.operators.qubit_operator import QubitOperator
 from tangelo.helpers.utils import HiddenPrints
 from tangelo.linq import Simulator, Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
-from tangelo.toolboxes.operators import count_qubits, FermionOperator, qubitop_to_qubitham
+from tangelo.toolboxes.operators import count_qubits, FermionOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_mapped_vector, vector_to_circuit
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
@@ -176,14 +176,12 @@ class VQESolver:
         if self.molecule:
 
             # Compute qubit hamiltonian for the input molecular system
-            qubit_op = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
-                                                mapping=self.qubit_mapping,
-                                                n_spinorbitals=self.molecule.n_active_sos,
-                                                n_electrons=self.molecule.n_active_electrons,
-                                                up_then_down=self.up_then_down,
-                                                spin=self.molecule.spin)
-
-            self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
+            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
+                                                              mapping=self.qubit_mapping,
+                                                              n_spinorbitals=self.molecule.n_active_sos,
+                                                              n_electrons=self.molecule.n_active_electrons,
+                                                              up_then_down=self.up_then_down,
+                                                              spin=self.molecule.spin)
 
             if self.penalty_terms:
                 pen_ferm = agen.penalty_terms.combined_penalty(self.molecule.n_active_mos, self.penalty_terms)
@@ -193,7 +191,6 @@ class VQESolver:
                                                      n_electrons=self.molecule.n_active_electrons,
                                                      up_then_down=self.up_then_down,
                                                      spin=self.molecule.spin)
-                pen_qubit = qubitop_to_qubitham(pen_qubit, self.qubit_hamiltonian.mapping, self.qubit_hamiltonian.up_then_down)
                 self.qubit_hamiltonian += pen_qubit
 
             # Verification of system compatibility with UCC1 or UCC3 circuits.
