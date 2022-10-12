@@ -29,14 +29,9 @@ from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_ga
 from tangelo.toolboxes.operators import count_qubits, FermionOperator, qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_mapped_vector, vector_to_circuit
-from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
-from tangelo.toolboxes.ansatz_generator import UCCSD, RUCC, HEA, UpCCGSD, QMF, QCC, VSQS, UCCGD,  ILC,\
-                                               VariationalCircuitAnsatz
-from tangelo.toolboxes.ansatz_generator._qubit_mf import init_qmf_from_vector
-from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
-from tangelo.toolboxes.ansatz_generator.fermionic_operators import number_operator, spinz_operator, spin2_operator
-from tangelo.toolboxes.optimizers.rotosolve import rotosolve
+from tangelo.toolboxes.optimizers import rotosolve
+import tangelo.toolboxes.ansatz_generator as agen
 
 
 class BuiltInAnsatze(Enum):
@@ -138,7 +133,7 @@ class VQESolver:
                     raise ValueError("Circuit reference state is not supported for QCC or QMF")
             elif self.ref_state is not None:
                 if self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.ILC]:
-                    self.ansatz_options["qmf_var_params"] = init_qmf_from_vector(self.ref_state, self.qubit_mapping, self.up_then_down)
+                    self.ansatz_options["qmf_var_params"] = agen._qubit_mf.init_qmf_from_vector(self.ref_state, self.qubit_mapping, self.up_then_down)
                     self.ref_state = None
                 elif self.ansatz == BuiltInAnsatze.QMF:
                     self.ansatz_options["init_qmf"] = {"init_params": "vector", "vector": self.ref_state}
@@ -170,7 +165,7 @@ class VQESolver:
         """
 
         if isinstance(self.ansatz, Circuit):
-            self.ansatz = VariationalCircuitAnsatz(self.ansatz)
+            self.ansatz = agen.VariationalCircuitAnsatz(self.ansatz)
 
         # Check compatibility of optimizer with Ansatz class
         elif self.optimizer == rotosolve:
@@ -191,7 +186,7 @@ class VQESolver:
             self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
 
             if self.penalty_terms:
-                pen_ferm = combined_penalty(self.molecule.n_active_mos, self.penalty_terms)
+                pen_ferm = agen.penalty_terms.combined_penalty(self.molecule.n_active_mos, self.penalty_terms)
                 pen_qubit = fermion_to_qubit_mapping(fermion_operator=pen_ferm,
                                                      mapping=self.qubit_mapping,
                                                      n_spinorbitals=self.molecule.n_active_sos,
@@ -216,42 +211,42 @@ class VQESolver:
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz == BuiltInAnsatze.UCCSD:
-                    self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down)
+                    self.ansatz = agen.UCCSD(self.molecule, self.qubit_mapping, self.up_then_down)
                     self.ansatz.default_reference_state = "HF" if self.ref_state is None else "zero"
                 elif self.ansatz == BuiltInAnsatze.UCC1:
-                    self.ansatz = RUCC(1)
+                    self.ansatz = agen.RUCC(1)
                 elif self.ansatz == BuiltInAnsatze.UCC3:
-                    self.ansatz = RUCC(3)
+                    self.ansatz = agen.RUCC(3)
                 elif self.ansatz == BuiltInAnsatze.HEA:
                     if self.ref_state is not None:
                         self.ansatz_options["reference_state"] = "zero"
-                    self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                    self.ansatz = agen.HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.UpCCGSD:
-                    self.ansatz = UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                    self.ansatz = agen.UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                     self.ansatz.default_reference_state = "HF" if self.ref_state is None else "zero"
                 elif self.ansatz == BuiltInAnsatze.QMF:
-                    self.ansatz = QMF(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                    self.ansatz = agen.QMF(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.QCC:
-                    self.ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                    self.ansatz = agen.QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.VSQS:
-                    self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                    self.ansatz = agen.VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 elif self.ansatz == BuiltInAnsatze.UCCGD:
-                    self.ansatz = UCCGD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                    self.ansatz = agen.UCCGD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                     self.ansatz.default_reference_state = "HF" if self.ref_state is None else "zero"
                 elif self.ansatz == BuiltInAnsatze.ILC:
-                    self.ansatz = ILC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                    self.ansatz = agen.ILC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
-            elif not isinstance(self.ansatz, Ansatz):
+            elif not isinstance(self.ansatz, agen.Ansatz):
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
 
         # Building with a qubit Hamiltonian.
         elif self.ansatz in [BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS]:
             if self.ansatz == BuiltInAnsatze.HEA:
-                self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                self.ansatz = agen.HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
             elif self.ansatz == BuiltInAnsatze.VSQS:
-                self.ansatz = VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-        elif not isinstance(self.ansatz, Ansatz):
+                self.ansatz = agen.VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+        elif not isinstance(self.ansatz, agen.Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
         # Set ansatz initial parameters (default or use input), build corresponding ansatz circuit
@@ -375,11 +370,11 @@ class VQESolver:
                     raise KeyError("Must supply n_active_mos when a QubitHamiltonian has initialized VQESolver"
                                    " and requesting the expectation of 'N', 'Sz', or 'S^2'")
             if operator == "N":
-                exp_op = number_operator(n_active_mos, up_then_down=False)
+                exp_op = agen.fermionic_operators.number_operator(n_active_mos, up_then_down=False)
             elif operator == "Sz":
-                exp_op = spinz_operator(n_active_mos, up_then_down=False)
+                exp_op = agen.fermionic_operators.spinz_operator(n_active_mos, up_then_down=False)
             elif operator == "S^2":
-                exp_op = spin2_operator(n_active_mos, up_then_down=False)
+                exp_op = agen.fermionic_operators.spin2_operator(n_active_mos, up_then_down=False)
             else:
                 raise ValueError('Only expectation values of N, Sz and S^2')
         elif isinstance(operator, FermionOperator):

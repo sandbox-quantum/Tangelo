@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .ansatz import Ansatz
 from .vsqs import VSQS
 from .ilc import ILC
 from .qcc import QCC
@@ -23,3 +24,6 @@ from .upccgsd import UpCCGSD
 from .hea import HEA
 from .variational_circuit import VariationalCircuitAnsatz
 from .uccgd import UCCGD
+from ._qubit_mf import init_qmf_from_vector
+from .penalty_terms import combined_penalty
+from .fermionic_operators import number_operator, spinz_operator, spin2_operator
