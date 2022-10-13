@@ -29,9 +29,9 @@ from tangelo.linq import Simulator, Circuit
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
-from tangelo.toolboxes.ansatz_generator import UCCSD, HEA, UpCCGSD, UCCGD, VariationalCircuitAnsatz
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.algorithms.variational import BuiltInAnsatze, VQESolver
+import tangelo.toolboxes.ansatz_generator as agen
 
 
 class SA_VQESolver(VQESolver):
@@ -99,13 +99,15 @@ class SA_VQESolver(VQESolver):
             self.weights = np.array(self.weights)
             self.weights = self.weights/sum(self.weights)
 
+        self.ansatz_options["reference_state"] = "zero"
+
     def build(self):
         """Build the underlying objects required to run the SA-VQE algorithm
         afterwards.
         """
 
         if isinstance(self.ansatz, Circuit):
-            self.ansatz = VariationalCircuitAnsatz(self.ansatz)
+            self.ansatz = agen.VariationalCircuitAnsatz(self.ansatz)
 
         # Building VQE with a molecule as input.
         if self.molecule:
@@ -132,15 +134,8 @@ class SA_VQESolver(VQESolver):
 
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if isinstance(self.ansatz, BuiltInAnsatze):
-                if self.ansatz == BuiltInAnsatze.UCCSD:
-                    self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down, self.molecule.spin)
-                elif self.ansatz == BuiltInAnsatze.HEA:
-                    self.ansatz_options["reference_state"] = "zero"
-                    self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.UpCCGSD:
-                    self.ansatz = UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.UCCGD:
-                    self.ansatz = UCCGD(self.molecule, self.qubit_mapping, up_then_down=self.up_then_down)
+                if self.ansatz in self.builtin_ansatze:
+                    self.ansatz = eval(f"agen.{self.ansatz.name}(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)")
                 else:
                     raise ValueError(f"Unsupported ansatz for SA_VQESolver. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, Ansatz):
@@ -148,11 +143,10 @@ class SA_VQESolver(VQESolver):
 
         # Building with a qubit Hamiltonian.
         elif self.ansatz == BuiltInAnsatze.HEA:
-            self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+            self.ansatz = agen.HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
         elif not isinstance(self.ansatz, Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
-        self.ansatz.default_reference_state = "zero"
         self.reference_circuits = list()
         for ref_state in self.ref_states:
             if isinstance(ref_state, Circuit):

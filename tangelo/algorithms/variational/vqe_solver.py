@@ -132,6 +132,7 @@ class VQESolver:
                 if self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.ILC, BuiltInAnsatze.QMF]:
                     raise ValueError("Circuit reference state is not supported for QCC or QMF")
             elif self.ref_state is not None:
+                self.ansatz_options["reference_state"] = "zero"
                 if self.ansatz in [BuiltInAnsatze.QCC, BuiltInAnsatze.ILC]:
                     self.ansatz_options["qmf_var_params"] = agen._qubit_mf.init_qmf_from_vector(self.ref_state, self.qubit_mapping, self.up_then_down)
                     self.ref_state = None
@@ -207,42 +208,19 @@ class VQESolver:
 
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if isinstance(self.ansatz, BuiltInAnsatze):
-                if self.ansatz == BuiltInAnsatze.UCCSD:
-                    self.ansatz = agen.UCCSD(self.molecule, self.qubit_mapping, self.up_then_down)
-                    self.ansatz.default_reference_state = "HF" if self.ref_state is None else "zero"
-                elif self.ansatz == BuiltInAnsatze.UCC1:
-                    self.ansatz = agen.RUCC(1)
-                elif self.ansatz == BuiltInAnsatze.UCC3:
-                    self.ansatz = agen.RUCC(3)
-                elif self.ansatz == BuiltInAnsatze.HEA:
-                    if self.ref_state is not None:
-                        self.ansatz_options["reference_state"] = "zero"
-                    self.ansatz = agen.HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.UpCCGSD:
-                    self.ansatz = agen.UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                    self.ansatz.default_reference_state = "HF" if self.ref_state is None else "zero"
-                elif self.ansatz == BuiltInAnsatze.QMF:
-                    self.ansatz = agen.QMF(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.QCC:
-                    self.ansatz = agen.QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.VSQS:
-                    self.ansatz = agen.VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.UCCGD:
-                    self.ansatz = agen.UCCGD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                    self.ansatz.default_reference_state = "HF" if self.ref_state is None else "zero"
-                elif self.ansatz == BuiltInAnsatze.ILC:
-                    self.ansatz = agen.ILC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+                if self.ansatz in {BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3}:
+                    n_var_params = 1 if self.ansatz == BuiltInAnsatze.UCC1 else 3
+                    self.ansatz = agen.RUCC(n_var_params)
+                elif self.ansatz in self.builtin_ansatze:
+                    self.ansatz = eval(f"agen.{self.ansatz.name}(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)")
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, agen.Ansatz):
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
 
         # Building with a qubit Hamiltonian.
-        elif self.ansatz in [BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS]:
-            if self.ansatz == BuiltInAnsatze.HEA:
-                self.ansatz = agen.HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-            elif self.ansatz == BuiltInAnsatze.VSQS:
-                self.ansatz = agen.VSQS(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+        elif self.ansatz in {BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS}:
+            self.ansatz = eval(f"agen.{self.ansatz.name}(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)")
         elif not isinstance(self.ansatz, agen.Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
