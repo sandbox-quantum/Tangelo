@@ -18,7 +18,7 @@ in order to facilitate post-processing of quantum experiments.
 
 from collections import Counter
 
-from tangelo.linq.simulator_base import SimulatorBase
+from tangelo.linq import get_expectation_value_from_frequencies_oneterm
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
 
 
@@ -179,7 +179,7 @@ class Histogram:
         Returns:
             imaginary: Expectation value for this operator.
         """
-        return coeff*SimulatorBase.get_expectation_value_from_frequencies_oneterm(term, self.frequencies)
+        return coeff*get_expectation_value_from_frequencies_oneterm(term, self.frequencies)
 
 
 def aggregate_histograms(*hists):

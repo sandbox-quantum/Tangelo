@@ -27,7 +27,7 @@ from openfermion import load_operator
 from tangelo.linq import Gate, Circuit, translator, Simulator
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
-from tangelo.linq.simulator_base import SimulatorBase
+from tangelo.linq.simulator_base import SimulatorBase, get_expectation_value_from_frequencies_oneterm
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
@@ -397,8 +397,12 @@ class TestSimulateMisc(unittest.TestCase):
          are being provided as input. """
 
         term, coef = ((0, 'Z'),), 1.0  # Data as presented in Openfermion's QubitOperator.terms attribute
-        exp_value = coef * SimulatorBase.get_expectation_value_from_frequencies_oneterm(term, ref_freqs[2])
+        exp_value = coef * get_expectation_value_from_frequencies_oneterm(term, ref_freqs[2])
         np.testing.assert_almost_equal(exp_value, -0.41614684, decimal=5)
+
+    def test_invalid_target(self):
+        """ Ensure an error is returned if the target simulator is not supported."""
+        self.assertRaises(ValueError, Simulator, 'banana')
 
     def test_user_provided_simulator(self):
         """Test user defined target simulator that disregards the circuit gates and only returns zero state or one state"""

@@ -43,6 +43,41 @@ from tangelo.linq import Gate, Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
 
 
+def get_expectation_value_from_frequencies_oneterm(term, frequencies):
+    """Return the expectation value of a single-term qubit-operator, given
+    the result of a state-preparation.
+
+    Args:
+        term(openfermion-style QubitOperator object): a qubit operator, with
+            only a single term.
+        frequencies(dict): histogram of frequencies of measurements (assumed
+            to be in lsq-first format).
+
+    Returns:
+        complex: The expectation value of this operator with regards to the
+            state preparation.
+    """
+
+    if not frequencies.keys():
+        return ValueError("Must pass a non-empty dictionary of frequencies.")
+    n_qubits = len(list(frequencies.keys())[0])
+
+    # Get term mask
+    mask = ["0"] * n_qubits
+    for index, op in term:
+        mask[index] = "1"
+    mask = "".join(mask)
+
+    # Compute expectation value of the term
+    expectation_term = 0.
+    for basis_state, freq in frequencies.items():
+        # Compute sample value using state_binstr and term mask, update term expectation value
+        sample = (-1) ** ((bitarray(mask) & bitarray(basis_state)).to01().count("1") % 2)
+        expectation_term += sample * freq
+
+    return expectation_term
+
+
 class SimulatorBase(abc.ABC):
 
     def __init__(self, n_shots=None, noise_model=None):
@@ -53,7 +88,7 @@ class SimulatorBase(abc.ABC):
             noise_model: A noise model object assumed to be in the format
                 expected from the target backend.
         """
-        self._source = "abstract"
+
         self._current_state = None
         self._noise_model = noise_model
 
@@ -307,24 +342,7 @@ class SimulatorBase(abc.ABC):
                 state preparation.
         """
 
-        if not frequencies.keys():
-            return ValueError("Must pass a non-empty dictionary of frequencies.")
-        n_qubits = len(list(frequencies.keys())[0])
-
-        # Get term mask
-        mask = ["0"] * n_qubits
-        for index, op in term:
-            mask[index] = "1"
-        mask = "".join(mask)
-
-        # Compute expectation value of the term
-        expectation_term = 0.
-        for basis_state, freq in frequencies.items():
-            # Compute sample value using state_binstr and term mask, update term expectation value
-            sample = (-1) ** ((bitarray(mask) & bitarray(basis_state)).to01().count("1") % 2)
-            expectation_term += sample * freq
-
-        return expectation_term
+        return get_expectation_value_from_frequencies_oneterm(term, frequencies)
 
     def _statevector_to_frequencies(self, statevector):
         """For a given statevector representing the quantum state of a qubit

@@ -31,8 +31,8 @@ def Simulator(target: Union[None, str, Type[SimulatorBase]] = default_simulator,
     """Return requested target backend object.
 
     Args:
-        target (string or Type[SimulatorBase] or None): String can be "qiskit", "cirq", "qdk" or "qulacs". Can also provide
-            a subclass of SimulatorBase.
+        target (string or Type[SimulatorBase] or None): Supported string identifiers can be found in
+            target_dict (from tangelo.linq.target). Can also provide a subclass of SimulatorBase.
         n_shots (int): Number of shots if using a shot-based simulator.
         noise_model: A noise model object assumed to be in the format expected from the target backend.
         kwargs: Other arguments that could be passed to a target. Examples are qubits_to_use for a QPU, transpiler
@@ -43,7 +43,10 @@ def Simulator(target: Union[None, str, Type[SimulatorBase]] = default_simulator,
         target = target_dict[default_simulator]
     # If target is a string use target_dict to return built-in Target Simulators
     elif isinstance(target, str):
-        target = target_dict[target]
+        try:
+            target = target_dict[target]
+        except KeyError:
+            raise ValueError(f"Error: backend {target} not supported. Available built-in options: {list(target_dict.keys())}")
     # If subclass of SimulatorBase, use target
     elif not issubclass(target, SimulatorBase):
         raise TypeError(f"target must be a str or a subclass of SimulatorBase but received class {type(target).__name__}")
