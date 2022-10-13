@@ -21,6 +21,7 @@ import functools
 import os
 import sys
 import warnings
+from importlib import util
 
 
 class HiddenPrints:
@@ -36,13 +37,9 @@ class HiddenPrints:
 
 
 def is_package_installed(package_name):
-    try:
-        exec(f"import {package_name}")
-        # DEBUG print(f'{package_name:16s} :: found')
-        return True
-    except ModuleNotFoundError:
-        # DEBUG print(f'{package_name:16s} :: not found')
-        return False
+    """Check if module is installed without importing."""
+    spam_spec = util.find_spec(package_name)
+    return spam_spec is not None
 
 
 def deprecated(custom_message=""):
