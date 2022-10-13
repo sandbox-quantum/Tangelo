@@ -16,6 +16,8 @@ import unittest
 import numpy as np
 
 from tangelo.linq import Simulator
+from tangelo.helpers.utils import installed_backends
+from tangelo.linq.target import QiskitSimulator
 from tangelo.algorithms import BuiltInAnsatze, VQESolver
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_NaH_sto3g, mol_H4_sto3g_symm
 from tangelo.toolboxes.ansatz_generator.uccsd import UCCSD
@@ -197,12 +199,23 @@ class VQESolverTest(unittest.TestCase):
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.137270, delta=1e-4)
 
+    @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_simulate_h2_qiskit(self):
         """Run VQE on H2 molecule, with UCCSD ansatz, JW qubit mapping, initial
-        parameters, exact qiskit simulator.
+        parameters, exact qiskit simulator. Both string and class input.
         """
 
         backend_options = {"target": "qiskit", "n_shots": None, "noise_model": None}
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
+                        "initial_var_params": [6.28531447e-06, 5.65431626e-02], "verbose": True,
+                        "backend_options": backend_options}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+        energy = vqe_solver.simulate()
+
+        self.assertAlmostEqual(energy, -1.13727042117, delta=1e-6)
+
+        backend_options = {"target": QiskitSimulator, "n_shots": None, "noise_model": None}
         vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "jw",
                         "initial_var_params": [6.28531447e-06, 5.65431626e-02], "verbose": True,
                         "backend_options": backend_options}
