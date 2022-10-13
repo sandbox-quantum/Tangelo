@@ -28,7 +28,6 @@ import numpy as np
 from tangelo.linq import Simulator, Circuit
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.algorithms.variational import BuiltInAnsatze, VQESolver
 import tangelo.toolboxes.ansatz_generator as agen
@@ -138,13 +137,13 @@ class SA_VQESolver(VQESolver):
                     self.ansatz = eval(f"agen.{self.ansatz.name}(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)")
                 else:
                     raise ValueError(f"Unsupported ansatz for SA_VQESolver. Built-in ansatze:\n\t{self.builtin_ansatze}")
-            elif not isinstance(self.ansatz, Ansatz):
+            elif not isinstance(self.ansatz, agen.Ansatz):
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
 
         # Building with a qubit Hamiltonian.
         elif self.ansatz == BuiltInAnsatze.HEA:
             self.ansatz = agen.HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-        elif not isinstance(self.ansatz, Ansatz):
+        elif not isinstance(self.ansatz, agen.Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
         self.reference_circuits = list()
