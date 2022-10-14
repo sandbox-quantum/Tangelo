@@ -19,7 +19,7 @@ import numpy as np
 
 from tangelo.linq.helpers import filter_bases, pauli_string_to_of
 from tangelo.toolboxes.operators import FermionOperator
-from tangelo.toolboxes.measurements import RandomizedClassicalShadow
+from tangelo.toolboxes.measurements import ClassicalShadow
 from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping, get_qubit_number
 from tangelo.toolboxes.molecular_computation.molecule import spatial_from_spinorb
@@ -48,17 +48,22 @@ def matricize_2rdm(two_rdm, n_orbitals):
     return rho
 
 
-def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
+def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, shadow=None, return_spinsum=True, **eval_args):
     """
-    Computes the 1- and 2-RDM and their spin-summed versions
+    Return the 1- and 2-RDM and their spin-summed versions
     using a Molecule object and frequency data either in the form of a
     classical shadow or a dictionary of frequency histograms.
 
     Args:
-        ferm_ham (FermionicOperator): Fermionic operator with n_spinorbitals and n_electrons defined
-        exp_data (ClassicalShadow or dict): classical shadow or a dictionary of expectation values of qubit terms
-        mapping: qubit mapping
-        up_then_down: spin ordering for the mapping
+        ferm_ham (FermionicOperator): Fermionic operator with n_spinorbitals, n_electrons, and spin defined
+        mapping (str): Qubit mapping
+        up_then_down (bool): Spin ordering for the mapping
+        exp_vals (dict): Dictionary of Pauli word expectation values
+        exp_data (dict): Dictionary of {basis: histogram} where basis is the measurement basis
+            and histogram is a {bitstring: frequency} dictionary
+        shadow (ClassicalShadow): A classical shadow object
+        return_spinsum (bool): If True, return also the spin-summed RDMs
+        eval_args: Optional arguments to pass to the ClassicalShadow object
 
     Returns:
         complex array: 1-RDM
@@ -68,14 +73,16 @@ def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
     """
     onerdm = np.zeros((ferm_ham.n_spinorbitals,) * 2, dtype=complex)
     twordm = np.zeros((ferm_ham.n_spinorbitals,) * 4, dtype=complex)
-    onerdm_spinsum = np.zeros((ferm_ham.n_spinorbitals//2,) * 2, dtype=complex)
-    twordm_spinsum = np.zeros((ferm_ham.n_spinorbitals//2,) * 4, dtype=complex)
 
     # Check if the data dict is expectation values or raw frequency data in the {basis: hist} format
-    if isinstance(exp_data, dict) and isinstance(list(exp_data.values())[0], float):
+    if isinstance(exp_vals, dict) and (exp_data is None) and (shadow is None):
         exp_vals = {pauli_string_to_of(term): exp_val for term, exp_val in exp_data.items()}
-    elif isinstance(exp_data, dict) and isinstance(list(exp_data.values())[0], dict):
+    if (exp_vals is None) and isinstance(exp_data, dict) and (shadow is None):
         exp_vals = {}
+    if (exp_vals is None) and (exp_data is None) and isinstance(shadow, ClassicalShadow):
+        pass
+    else:
+        raise RuntimeError("Arguments exp_vals, exp_data and shadow are mutually exclusive. Provide only one of them.")
 
     n_qubits = get_qubit_number(mapping, ferm_ham.n_spinorbitals)
 
@@ -90,22 +97,20 @@ def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
         fermionic_term = FermionOperator(term, 1.0)
 
         qubit_term = fermion_to_qubit_mapping(fermion_operator=fermionic_term,
-                                            n_spinorbitals=ferm_ham.n_spinorbitals,
-                                            n_electrons=ferm_ham.n_electrons,
-                                            mapping=mapping,
-                                            up_then_down=up_then_down)
+                                              n_spinorbitals=ferm_ham.n_spinorbitals,
+                                              n_electrons=ferm_ham.n_electrons,
+                                              mapping=mapping,
+                                              up_then_down=up_then_down,
+                                              spin=ferm_ham.spin)
         qubit_term.compress()
 
         # Loop to go through all qubit terms.
         eigenvalue = 0.
 
-        if isinstance(exp_data, RandomizedClassicalShadow):
-            for qterm, coeff in qubit_term.terms.items():
-                if coeff.real != 0:
-                    # Change depending on if it is randomized or not.
-                    eigenvalue += exp_data.get_term_observable(qterm, coeff)
+        if isinstance(shadow, ClassicalShadow):
+            eigenvalue = shadow.get_observable(qubit_term, **eval_args)
 
-        if isinstance(exp_data, dict):
+        else:
             for qterm, coeff in qubit_term.terms.items():
                 if coeff.real != 0:
 
@@ -113,7 +118,8 @@ def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
                         exp_val = exp_vals[qterm] if qterm else 1.
                     except KeyError:
                         ps = pauli_of_to_string(qterm, n_qubits)
-                        hist = aggregate_histograms(*[Histogram(exp_data[basis]) for basis in filter_bases(ps, exp_data.keys())])
+                        hist = aggregate_histograms(*[Histogram(exp_data[basis])
+                                                      for basis in filter_bases(ps, list(exp_data.keys()))])
                         exp_val = hist.get_expectation_value(qterm, 1.)
                         exp_vals[qterm] = exp_val
 
@@ -127,15 +133,21 @@ def compute_rdms(ferm_ham, exp_data, mapping, up_then_down):
             iele, jele, kele, lele = (int(ele[0]) for ele in tuple(term[0:4]))
             twordm[iele, lele, jele, kele] += eigenvalue
 
-    # Construct spin-summed 1-RDM.
-    for i, j in it.product(range(onerdm.shape[0]), repeat=2):
-        onerdm_spinsum[i//2, j//2] += onerdm[i, j]
+    if return_spinsum:
+        onerdm_spinsum = np.zeros((ferm_ham.n_spinorbitals//2,) * 2, dtype=complex)
+        twordm_spinsum = np.zeros((ferm_ham.n_spinorbitals//2,) * 4, dtype=complex)
 
-    # Construct spin-summed 2-RDM.
-    for i, j, k, l in it.product(range(twordm.shape[0]), repeat=4):
-        twordm_spinsum[i//2, j//2, k//2, l//2] += twordm[i, j, k, l]
+        # Construct spin-summed 1-RDM.
+        for i, j in it.product(range(onerdm.shape[0]), repeat=2):
+            onerdm_spinsum[i//2, j//2] += onerdm[i, j]
 
-    return onerdm, twordm, onerdm_spinsum, twordm_spinsum
+        # Construct spin-summed 2-RDM.
+        for i, j, k, l in it.product(range(twordm.shape[0]), repeat=4):
+            twordm_spinsum[i//2, j//2, k//2, l//2] += twordm[i, j, k, l]
+
+        return onerdm, twordm, onerdm_spinsum, twordm_spinsum
+    else:
+        return onerdm, twordm
 
 
 def energy_from_rdms(ferm_op, one_rdm, two_rdm):

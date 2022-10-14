@@ -42,7 +42,7 @@ def measurement_basis_gates(term):
 
 
 def filter_bases(op, basis_list):
-    """Returns a list of measurement bases compatible with the given operator.
+    """Return a list of measurement bases compatible with the given operator.
 
     Args:
         op (str): Pauli string representing the operator to be measured

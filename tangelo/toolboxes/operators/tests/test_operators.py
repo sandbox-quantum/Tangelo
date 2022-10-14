@@ -15,6 +15,7 @@
 import unittest
 
 import numpy as np
+import openfermion as of
 
 from tangelo.toolboxes.operators import QubitHamiltonian, FermionOperator, QubitOperator, count_qubits, qubitop_to_qubitham
 
@@ -73,6 +74,30 @@ class FermionOperatorTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(ref_one_body, one_body)
         np.testing.assert_array_almost_equal(ref_two_body, two_body)
 
+    def test_add_FermionOperator(self):
+        # addition between two compatible tangelo FermionOperator
+        fop = FermionOperator("0^ 0", 2.) + FermionOperator("0^ 1", 3.)
+
+        # addition between two incompatible tangelo FermionOperator
+        fop_1 = FermionOperator("0^ 0", 2.)
+        fop_2 = FermionOperator("0^ 1", 3.)
+        fop_1.spin = 1
+        fop_2.spin = 0
+        with self.assertRaises(RuntimeError):
+            fop_1 + fop_2
+
+        # addition between openfermion FermionOperator and Tangelo equivalent
+        fop_1 = FermionOperator("0^ 0", 2.) + of.FermionOperator("0^ 1", 3.)
+        self.assertTrue(isinstance(fop_1, FermionOperator))
+
+        # Reverse order addition test
+        fop_2 = of.FermionOperator("0^ 0", 2.) + FermionOperator("0^ 1", 3.)
+        self.assertEqual(fop_1, fop_2)
+
+        fop = FermionOperator("0^ 0", 2.)
+        fop += FermionOperator("0^ 1", 3.)
+        self.assertEqual(fop, fop_1)
+
 
 class QubitHamiltonianTest(unittest.TestCase):
 
@@ -85,7 +110,7 @@ class QubitHamiltonianTest(unittest.TestCase):
 
         self.assertDictEqual(qubit_ham.__dict__, reference_attributes)
 
-    def test_instantiate_QubitHamiltonian(self):
+    def test_add_QubitHamiltonian(self):
         """Test error raising when 2 incompatible QubitHamiltonian are summed up
         together.
         """
