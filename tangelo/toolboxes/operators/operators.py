@@ -69,7 +69,9 @@ class FermionOperator(openfermion.FermionOperator):
 
     def __eq__(self, other):
         # Additional checks for == operator.
-        if (self.n_spinorbitals != other.n_spinorbitals) or (self.n_electrons != other.n_electrons) or (self.spin != other.spin):
+        if isinstance(other, openfermion.FermionOperator):
+            return super(FermionOperator, self).__eq__(other)
+        elif (self.n_spinorbitals != other.n_spinorbitals) or (self.n_electrons != other.n_electrons) or (self.spin != other.spin):
             return False
 
         return super(FermionOperator, self).__eq__(other)

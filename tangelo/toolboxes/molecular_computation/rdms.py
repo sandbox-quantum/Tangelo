@@ -77,9 +77,9 @@ def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, 
     # Check if the data dict is expectation values or raw frequency data in the {basis: hist} format
     if isinstance(exp_vals, dict) and (exp_data is None) and (shadow is None):
         exp_vals = {pauli_string_to_of(term): exp_val for term, exp_val in exp_data.items()}
-    if (exp_vals is None) and isinstance(exp_data, dict) and (shadow is None):
+    elif (exp_vals is None) and isinstance(exp_data, dict) and (shadow is None):
         exp_vals = {}
-    if (exp_vals is None) and (exp_data is None) and isinstance(shadow, ClassicalShadow):
+    elif (exp_vals is None) and (exp_data is None) and isinstance(shadow, ClassicalShadow):
         pass
     else:
         raise RuntimeError("Arguments exp_vals, exp_data and shadow are mutually exclusive. Provide only one of them.")
