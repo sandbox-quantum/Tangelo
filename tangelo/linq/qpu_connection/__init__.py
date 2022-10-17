@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .qemist_cloud_connection import job_submit, job_status, job_cancel, job_result, job_estimate
+from .qemist_cloud_connection import QEMISTCloudConnection
 from .ionq_connection import IonQConnection
 from .ibm_connection import IBMConnection

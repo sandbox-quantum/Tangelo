@@ -43,6 +43,24 @@ class TestGates(unittest.TestCase):
         for gate in [H_gate, CNOT_gate, RX_gate, RZ_gate, CCCX_gate]:
             print(gate)
 
+    def test_repr(self):
+        """ Test that some basic gates can be invoked with a few different parameters, and that this information
+        is printed as expected by the built-in __repr__ method end eval(gate.__repr__()) returns the same gate."""
+
+        # Create a Hadamard gate acting on qubit 2
+        H_gate = Gate("H", 2)
+        # Create a CNOT gate with control qubit 0 and target qubit 1
+        CNOT_gate = Gate("CNOT", 1, 0)
+        # Create a parameterized rotation on qubit 1 with angle 2 radians
+        RX_gate = Gate("RX", 1, parameter=2.)
+        # Create a parameterized rotation on qubit 1 , with an undefined angle, that will be variational
+        RZ_gate = Gate("RZ", 1, parameter="an expression", is_variational=True)
+        # Create a multi-controlled X gate with a numpy array
+        CCCX_gate = Gate("CX", 0, control=np.array([1, 2, 4], dtype=np.int32))
+
+        for gate in [H_gate, CNOT_gate, RX_gate, RZ_gate, CCCX_gate]:
+            self.assertEqual(eval(gate.__repr__()), gate)
+
     def test_some_gates_inverse(self):
         """ Test that some basic gates can be inverted with a few different parameters, and fails when non-invertible
         parameters are passed"""
@@ -50,12 +68,17 @@ class TestGates(unittest.TestCase):
         # Create a Hadamard gate acting on qubit 2
         H_gate = Gate("H", 2)
         H_gate_inverse = Gate("H", 2)
-        self.assertEqual(H_gate.inverse().__str__(), H_gate_inverse.__str__())
+        self.assertEqual(H_gate.inverse(), H_gate_inverse)
+
+        # Create a SWAP gate acting on qubits 1 and 2
+        swap_gate = Gate("SWAP", [1, 2])
+        swap_gate_inverse = Gate("SWAP", [1, 2])
+        self.assertEqual(swap_gate.inverse(), swap_gate_inverse)
 
         # Create a parameterized rotation on qubit 1 with angle 2 radians
         RX_gate = Gate("RX", 1, parameter=2.)
         RX_gate_inverse = Gate("RX", 1, parameter=-2.)
-        self.assertEqual(RX_gate.inverse().__str__(), RX_gate_inverse.__str__())
+        self.assertEqual(RX_gate.inverse(), RX_gate_inverse)
 
         # Create a parameterized rotation on qubit 1 , with an undefined angle, that will be variational
         RZ_gate = Gate("RZ", 1, parameter="an expression", is_variational=True)

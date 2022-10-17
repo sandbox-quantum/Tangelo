@@ -40,6 +40,7 @@ import numpy as np
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,\
                                                                fermion_to_qubit_mapping
 from tangelo.linq import Circuit
+from tangelo import SecondQuantizedMolecule
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import exp_pauliword_to_gates
 from tangelo.toolboxes.ansatz_generator._qubit_mf import init_qmf_from_hf, get_qmf_circuit, purify_qmf_state
@@ -54,7 +55,9 @@ class QCC(Ansatz):
     state is obtained using a RHF or ROHF Hamiltonian, respectively.
 
     Args:
-        molecule (SecondQuantizedMolecule): The molecular system.
+        molecule (SecondQuantizedMolecule or dict): The molecular system, which can
+            be passed as a SecondQuantizedMolecule or a dictionary with keys that
+            specify n_spinoribtals, n_electrons, and spin. Default, None.
         mapping (str): One of the supported qubit mapping identifiers. Default, "jw".
         up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
             followed by all spin-down. Default, False.
@@ -80,10 +83,19 @@ class QCC(Ansatz):
                  qmf_circuit=None, qmf_var_params=None, qubit_ham=None, qcc_tau_guess=1e-2,
                  deqcc_dtau_thresh=1e-3, max_qcc_gens=None):
 
-        if not molecule:
-            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing "
-                             "the self.__class__.__name__ ansatz class.")
+        if not molecule and not (isinstance(molecule, SecondQuantizedMolecule) and isinstance(molecule, dict)):
+            raise ValueError("An instance of SecondQuantizedMolecule or a dict is required for "
+                             "initializing the self.__class__.__name__ ansatz class.")
         self.molecule = molecule
+        if isinstance(self.molecule, SecondQuantizedMolecule):
+            self.n_spinorbitals = self.molecule.n_active_sos
+            self.n_electrons = self.molecule.n_electrons
+            self.spin = self.molecule.spin
+        elif isinstance(self.molecule, dict):
+            self.n_spinorbitals = self.molecule["n_spinorbitals"]
+            self.n_electrons = self.molecule["n_electrons"]
+            self.spin = self.molecule["spin"]
+
         self.mapping = mapping
         self.up_then_down = up_then_down
         if self.mapping.lower() == "jw" and not self.up_then_down:
@@ -92,13 +104,8 @@ class QCC(Ansatz):
                           "with the self.__class__.__name__ ansatz.", RuntimeWarning)
             self.up_then_down = True
 
-        self.n_spinorbitals = self.molecule.n_active_sos
         if self.n_spinorbitals % 2 != 0:
             raise ValueError("The total number of spin-orbitals should be even.")
-
-        self.spin = molecule.spin
-        self.fermi_ham = self.molecule.fermionic_hamiltonian
-        self.n_electrons = self.molecule.n_electrons
         self.n_qubits = get_qubit_number(self.mapping, self.n_spinorbitals)
 
         self.qubit_ham = qubit_ham
@@ -108,12 +115,10 @@ class QCC(Ansatz):
                                                       self.n_spinorbitals, self.n_electrons,
                                                       self.up_then_down, self.spin)
 
-        self.qmf_var_params = qmf_var_params
-        if not self.qmf_var_params:
+        self.qmf_var_params = np.array(qmf_var_params) if isinstance(qmf_var_params, list) else qmf_var_params
+        if not isinstance(self.qmf_var_params, np.ndarray):
             self.qmf_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                    self.mapping, self.up_then_down, self.spin)
-        elif isinstance(self.qmf_var_params, list):
-            self.qmf_var_params = np.array(self.qmf_var_params)
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError("The number of QMF variational parameters must be 2 * n_qubits.")
         self.n_qmf_params = 2 * self.n_qubits
@@ -125,6 +130,7 @@ class QCC(Ansatz):
         self.max_qcc_gens = max_qcc_gens
 
         # Build the DIS or specify a list of generators; updates the number of QCC parameters
+        self.n_qcc_params = 0
         self._get_qcc_generators()
         self.n_var_params = self.n_qmf_params + self.n_qcc_params
 

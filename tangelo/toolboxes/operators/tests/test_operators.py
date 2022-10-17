@@ -14,7 +14,9 @@
 
 import unittest
 
-from tangelo.toolboxes.operators import QubitHamiltonian, QubitOperator, count_qubits, qubitop_to_qubitham
+import numpy as np
+
+from tangelo.toolboxes.operators import QubitHamiltonian, FermionOperator, QubitOperator, count_qubits, qubitop_to_qubitham
 
 
 class OperatorsUtilitiesTest(unittest.TestCase):
@@ -37,6 +39,39 @@ class OperatorsUtilitiesTest(unittest.TestCase):
                                 "mapping": "BK", "up_then_down": False}
 
         self.assertDictEqual(qubit_ham.__dict__, reference_attributes)
+
+
+class FermionOperatorTest(unittest.TestCase):
+
+    def test_get_coeff(self):
+        """Test the get_coeff method of the FermionOperator class."""
+
+        # Constant.
+        dummy_ferm_op = FermionOperator("", 1.)
+
+        # 1-body terms.
+        dummy_ferm_op += FermionOperator("0^ 0", 2.)
+        dummy_ferm_op += FermionOperator("0^ 1", 3.)
+        dummy_ferm_op += FermionOperator("1^ 0", 4.)
+        dummy_ferm_op += FermionOperator("1^ 1", 5.)
+
+        # 2-body term.
+        dummy_ferm_op += FermionOperator("0^ 0^ 0 0", 7.)
+        dummy_ferm_op += FermionOperator("1^ 1^ 1 1", 8.)
+        dummy_ferm_op += FermionOperator("0^ 1^ 0 1", 9.)
+
+        ref_cte = 1.
+        ref_one_body = np.arange(2, 6, 1.).reshape((2, 2))
+        ref_two_body = np.zeros((2, 2, 2, 2))
+        ref_two_body[0, 0, 0, 0] = 7.
+        ref_two_body[1, 1, 1, 1] = 8.
+        ref_two_body[0, 1, 0, 1] = 9.
+
+        cte, one_body, two_body = dummy_ferm_op.get_coeffs()
+
+        self.assertAlmostEqual(ref_cte, cte)
+        np.testing.assert_array_almost_equal(ref_one_body, one_body)
+        np.testing.assert_array_almost_equal(ref_two_body, two_body)
 
 
 class QubitHamiltonianTest(unittest.TestCase):

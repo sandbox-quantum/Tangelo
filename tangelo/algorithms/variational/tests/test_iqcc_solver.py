@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for the closed-shell and restricted open-shell iQCC-VQE Solver. """
+"""Unit tests for the closed-shell and restricted open-shell iQCC VQE Solver. """
 
 import unittest
 

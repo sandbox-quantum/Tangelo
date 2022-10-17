@@ -109,15 +109,15 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
     else:
         raise ValueError("ordered terms must be a list with elements (keys, values) of qubit_op.terms.items()")
 
-    if trotter_order > 2:
-        raise ValueError(f"Trotter order of >2 is not supported currently in Tangelo.")
-    prefactor = 1/2 if trotter_order == 2 else 1
+    if trotter_order > 1 and trotter_order % 2 != 0:
+        raise ValueError(f"odd Trotter order > 1 is not supported currently in Tangelo.")
 
     if isinstance(time, (float, np.floating, np.integer, int)):
-        evolve_time = {term: prefactor*time for term in qubit_op.terms.keys()}
+        timed_pauli_words = recursive_trotter_suzuki_decomposition(pauli_words, trotter_order, time)
     elif isinstance(time, dict):
         if time.keys() == qubit_op.terms.keys():
-            evolve_time = {term: prefactor*etime for term, etime in time.items()}
+            timedict_pauli_words = [(term, coeff*time[term]) for term, coeff in pauli_words]
+            timed_pauli_words = recursive_trotter_suzuki_decomposition(timedict_pauli_words, trotter_order, 1.)
         else:
             raise ValueError(f"The keys in the time dictionary do not match the keys in qubit_op.terms")
     else:
@@ -125,24 +125,45 @@ def get_exponentiated_qubit_operator_circuit(qubit_op, time=1., variational=Fals
 
     phase = 1.
     exp_pauli_word_gates = list()
-    for i in range(trotter_order):
-        if i == 1:
-            pauli_words.reverse()
-        for pauli_word, coef in pauli_words:
-            if pauli_word:  # identity terms do not contribute to evolution outside of a phase
-                if abs(np.real(coef)*evolve_time[pauli_word]) > 1.e-10:
-                    exp_pauli_word_gates += exp_pauliword_to_gates(pauli_word,
-                                                                   np.real(coef)*evolve_time[pauli_word],
-                                                                   variational=variational,
-                                                                   control=control)
+    for pauli_word, coef in timed_pauli_words:
+        if pauli_word:  # identity terms do not contribute to evolution outside of a phase
+            if abs(np.real(coef)) > 1.e-10:
+                exp_pauli_word_gates += exp_pauliword_to_gates(pauli_word,
+                                                               np.real(coef),
+                                                               variational=variational,
+                                                               control=control)
+        else:
+            if control is None:
+                phase *= np.exp(-1j * np.real(coef))
             else:
-                if control is None:
-                    phase *= np.exp(-1j * coef * evolve_time[pauli_word])
-                else:
-                    exp_pauli_word_gates += [Gate("PHASE", target=control, parameter=-np.real(coef)*evolve_time[pauli_word])]
+                exp_pauli_word_gates += [Gate("PHASE", target=control, parameter=-np.real(coef))]
 
     return_value = (Circuit(exp_pauli_word_gates), phase) if return_phase else Circuit(exp_pauli_word_gates)
     return return_value
+
+
+def recursive_trotter_suzuki_decomposition(pauli_words, order, time):
+    """Recursive function that returns the Trotter-Suzuki decomposition as defined in https://arxiv.org/pdf/math-ph/0506007.pdf
+
+    Args:
+        pauli_words (List[tuple]): The list of Pauli (terms, coeff) to perform the Trotter-Suzuki decomposition to the given order.
+        order (int): The order of the decomposition
+        time (float): The evolve time applied equally to all terms.
+
+    Returns:
+        List[tuple]: The list of (pauli, coeff) that defines the gate sequence for time-evolution.
+    """
+    if order == 1:
+        return [(pauli, np.real(coeff)*time) for pauli, coeff in pauli_words]
+    if order == 2:
+        return (recursive_trotter_suzuki_decomposition(pauli_words, 1, time/2) +
+                recursive_trotter_suzuki_decomposition(pauli_words[::-1], 1, time/2))
+    else:
+        time_factor = 1 / (4 - 4 ** (1 / (order - 1)))
+        outside = 2 * recursive_trotter_suzuki_decomposition(pauli_words, order-2, time_factor*time)
+        time_factor = 1 - 4 * time_factor
+        inside = recursive_trotter_suzuki_decomposition(pauli_words, order-2, time_factor*time)
+        return outside + inside + outside
 
 
 def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variational=False,
@@ -203,7 +224,7 @@ def trotterize(operator, time=1., n_trotter_steps=1, trotter_order=1, variationa
 
     elif isinstance(operator, (ofQubitOperator)):
         qubit_op = deepcopy(operator)
-        if isinstance(time, float):
+        if isinstance(time, (float, np.floating, int, np.integer)):
             evolve_time = time / n_trotter_steps
         elif isinstance(time, dict):
             if time.keys() == operator.terms.keys():

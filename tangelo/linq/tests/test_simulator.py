@@ -27,32 +27,38 @@ from openfermion import load_operator
 from tangelo.linq import Gate, Circuit, translator, Simulator
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
+from tangelo.linq.simulator_base import SimulatorBase, get_expectation_value_from_frequencies_oneterm
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
 # Simple circuit for superposition, also tells us qubit ordering as well immediately from the statevector
 # probabilities : |00> = 0.5  |01> = 0.5
 circuit1 = Circuit([Gate("H", 0)], n_qubits=2)
+
 # 2-qubit circuit checking all the basic gates that are not defined up to a convention (e.g unambiguous)
 mygates = [Gate("H", 0), Gate("S", 0), Gate("X", 0), Gate("T", 1), Gate("Y", 1), Gate("Z", 1)]
 mygates += [Gate("CNOT", 1, control=0)]
 circuit2 = Circuit(mygates)
+
 # Circuit for the parametrized rotation gates Rx and Ry. Some convention about the sign of theta or a phase may appear
 circuit3 = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.)])
+
 # Circuit for the parametrized rotation gate Rz. Some convention about the sign of theta or a phase may appear
 circuit4 = Circuit([Gate("RZ", 0, parameter=2.)], n_qubits=2)
+
 # Circuit that tests all gates that are supported on all simulators
 init_gates = [Gate('H', 0), Gate('X', 1), Gate('H', 2)]
 one_qubit_gate_names = ["H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"]
 one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else Gate(name, target=0, parameter=0.5)
-                       for name in one_qubit_gate_names]
+                   for name in one_qubit_gate_names]
 one_qubit_gates += [Gate(name, target=1) if name not in PARAMETERIZED_GATES else Gate(name, target=1, parameter=0.2)
-                        for name in one_qubit_gate_names]
+                    for name in one_qubit_gate_names]
 two_qubit_gate_names = ["CNOT", "CH", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE"]
 two_qubit_gates = [Gate(name, target=1, control=0) if name not in PARAMETERIZED_GATES
-                       else Gate(name, target=1, control=0, parameter=0.5) for name in two_qubit_gate_names]
+                   else Gate(name, target=1, control=0, parameter=0.5) for name in two_qubit_gate_names]
 swap_gates = [Gate('SWAP', target=[1, 0]), Gate('CSWAP', target=[1, 2], control=0)]
 circuit5 = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates)
+
 # Circuit preparing a mixed-state (e.g containing a MEASURE instruction in the middle of the circuit)
 circuit_mixed = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
 
@@ -174,7 +180,6 @@ class TestSimulateStatevector(unittest.TestCase):
 
     def test_get_exp_value_from_statevector(self):
         """ Compute the expectation value from the statevector for each statevector backend """
-
         for b in installed_sv_simulator:
             simulator = Simulator(target=b)
             exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
@@ -356,6 +361,7 @@ class TestSimulateStatevector(unittest.TestCase):
 
 class TestSimulateMisc(unittest.TestCase):
 
+    @unittest.skipIf("qdk" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_n_shots_needed(self):
         """
             Raise an error if user chooses a target backend that does not provide access to a statevector and
@@ -391,8 +397,50 @@ class TestSimulateMisc(unittest.TestCase):
          are being provided as input. """
 
         term, coef = ((0, 'Z'),), 1.0  # Data as presented in Openfermion's QubitOperator.terms attribute
-        exp_value = coef * Simulator.get_expectation_value_from_frequencies_oneterm(term, ref_freqs[2])
+        exp_value = coef * get_expectation_value_from_frequencies_oneterm(term, ref_freqs[2])
         np.testing.assert_almost_equal(exp_value, -0.41614684, decimal=5)
+
+    def test_invalid_target(self):
+        """ Ensure an error is returned if the target simulator is not supported."""
+        self.assertRaises(ValueError, Simulator, 'banana')
+
+    def test_user_provided_simulator(self):
+        """Test user defined target simulator that disregards the circuit gates and only returns zero state or one state"""
+
+        class TrueFalseSimulator(SimulatorBase):
+            def __init__(self, n_shots=None, noise_model=None, return_zeros=True):
+                """Instantiate simulator object that always returns all zeros or all ones ignoring circuit operations."""
+                super().__init__(n_shots=n_shots, noise_model=noise_model)
+                self.return_zeros = return_zeros
+
+            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
+                """Perform state preparation corresponding self.return_zeros."""
+
+                statevector = np.zeros(2**source_circuit.width, dtype=complex)
+                if self.return_zeros:
+                    statevector[0] = 1.
+                else:
+                    statevector[-1] = 1.
+
+                frequencies = self._statevector_to_frequencies(statevector)
+
+                return (frequencies, np.array(statevector)) if return_statevector else (frequencies, None)
+
+            @staticmethod
+            def backend_info():
+                return {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": False}
+
+        sim = Simulator(TrueFalseSimulator, n_shots=1, noise_model=None, return_zeros=True)
+        f, sv = sim.simulate(circuit1, return_statevector=True)
+        assert_freq_dict_almost_equal(f, {"00": 1}, 1.e-7)
+        np.testing.assert_almost_equal(np.array([1., 0., 0., 0.]), sv)
+        self.assertAlmostEqual(sim.get_expectation_value(QubitOperator("Z0", 1.), circuit1), 1.)
+
+        sim = Simulator(TrueFalseSimulator, n_shots=1, noise_model=None, return_zeros=False)
+        f, sv = sim.simulate(circuit1, return_statevector=True)
+        assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
+        np.testing.assert_almost_equal(np.array([0., 0., 0., 1.]), sv)
+        self.assertAlmostEqual(sim.get_expectation_value(QubitOperator("Z0", 1.), circuit1), -1.)
 
 
 if __name__ == "__main__":

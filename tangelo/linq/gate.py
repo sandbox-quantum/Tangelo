@@ -31,7 +31,7 @@ TWO_TARGET_GATES = {"XX", "SWAP", "CSWAP"}
 
 PARAMETERIZED_GATES = {"RX", "RY", "RZ", "PHASE", "CRX", "CRY", "CRZ", "CPHASE", "XX"}
 INVERTIBLE_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "CH", "PHASE",
-                    "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"
+                    "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP",
                     "CSWAP"}
 
 
@@ -120,12 +120,32 @@ class Gate(dict):
 
         return mystr
 
+    def __repr__(self):
+        """Represent gate such that eval(self.__repr__) returns a proper instance of Gate."""
+
+        mystr = f"Gate(name='{self.name}'"
+        for attr in ["target", "control"]:
+            if self.__getattribute__(attr) or isinstance(self.__getattribute__(attr), int):
+                mystr += f", {attr}={self.__getattribute__(attr)}"
+        if self.__getattribute__("parameter") != "":
+            parameter = self.__getattribute__('parameter')
+            mystr += f", parameter='{parameter}'" if isinstance(parameter, str) else f", parameter={parameter}"
+        if self.is_variational:
+            mystr += ", is_variational=True"
+        mystr += ")"
+
+        return mystr
+
     def __eq__(self, other):
         """Define equality (==) operator on gates"""
 
         ds, do = self.__dict__, other.__dict__
 
-        if any(ds[k] != do[k] for k in ds if k != "parameter"):
+        # CNOT and CX gates are equivalent. If both gates are either CNOT or CX, the names are equivalent and can
+        # be ignored for equivalence checks later.
+        ignore_list = ["name", "parameter"] if ds["name"] in ["CNOT", "CX"] and do["name"] in ["CNOT", "CX"] else ["parameter"]
+
+        if any(ds[k] != do[k] for k in ds if k not in ignore_list):
             return False
 
         parameter = round(ds["parameter"] % (2 * pi), 7) if isinstance(ds["parameter"], (float, int)) else ds["parameter"]
