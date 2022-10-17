@@ -5,7 +5,7 @@
 
 import os
 
-from tangelo.linq.translator import translate_qiskit
+from tangelo.linq.translator import translate_operator, translate_c_to_qiskit
 from tangelo.linq.qpu_connection.qpu_connection import QpuConnection
 
 try:
@@ -47,35 +47,44 @@ class IBMConnection(QpuConnection):
         """ Return configuration information for each device found on the service """
         return [b.configuration() for b in self.service.backends()]
 
-    def job_submit(self, target_backend, circ, n_shots):
+    def job_submit(self, program, backend, circ, **kwargs):
         """ Submit job, return job ID.
 
         Args:
-            target_backend (str): name of target device. See Qiskit documentation for available devices
-            circ (Circuit): Circuit in Tangelo format
-            n_shots (int): number of shots
+            program (str): name of qiskit-runtime program (e.g sampler, estimator....)
+            TODO: args and kwargs
 
         Returns:
             str: string representing the job id
         """
 
-        # Convert Tangelo circuit to Qiskit circuit
-        ibm_circ = translate_qiskit(circ)
+        n_shots = kwargs.get('n_shots', 10**4)
+        op = kwargs.get('operator', None)
 
-        # Circuit needs final measurements
-        ibm_circ.remove_final_measurements()
-        ibm_circ.measure_all(add_bits=False)
+        if program == 'sampler':
+            job = self._submit_sampler(backend, circ, n_shots)
+        elif program == 'estimator':
+            job = self._submit_estimator(backend, circ, op, n_shots)
+        else:
+            raise NotImplementedError("Only sampler available for now")
 
-        options = {"backend_name": target_backend}
-        run_options = {"shots": n_shots}
-
-        # Future extra keywords and feature to support, error-mitigation and optimization of circuit
-        resilience_settings = {"level": 0}  # Default: no error-mitigation, raw results.
-
-        program_inputs = {"circuits": ibm_circ, "circuit_indices": [0],
-                          "run_options": run_options, "resilience_settings": resilience_settings}
-
-        job = self.service.run(program_id="sampler", options=options, inputs=program_inputs)
+        # # Convert Tangelo circuit to Qiskit circuit
+        # ibm_circ = translate_qiskit(circ)
+        #
+        # # Circuit needs final measurements
+        # ibm_circ.remove_final_measurements()
+        # ibm_circ.measure_all(add_bits=False)
+        #
+        # options = {"backend_name": target_backend}
+        # run_options = {"shots": n_shots}
+        #
+        # # Future extra keywords and feature to support, error-mitigation and optimization of circuit
+        # resilience_settings = {"level": 0}  # Default: no error-mitigation, raw results.
+        #
+        # program_inputs = {"circuits": ibm_circ, "circuit_indices": [0],
+        #                   "run_options": run_options, "resilience_settings": resilience_settings}
+        #
+        # job = self.service.run(program_id="sampler", options=options, inputs=program_inputs)
 
         # Store job object, return job ID.
         self.jobs[job.job_id] = job
@@ -138,3 +147,42 @@ class IBMConnection(QpuConnection):
         print(f"Job {job_id} :: cancellation {message}.")
 
         return is_cancelled
+
+    def _submit_sampler(self, backend, circuit, n_shots):
+
+        # translate circuit in qiskit format, add final measurements
+        ibm_circ = translate_c_to_qiskit(circuit)
+
+        ibm_circ.remove_final_measurements()
+        ibm_circ.measure_all(add_bits=False)
+
+        options = {"backend_name": backend}
+        run_options = {"shots": n_shots}
+
+        # Future extra keywords and feature to support, error-mitigation and optimization of circuit
+        resilience_settings = {"level": 0}  # Default: no error-mitigation, raw results.
+
+        program_inputs = {"circuits": ibm_circ, "circuit_indices": [0],
+                          "run_options": run_options, "resilience_settings": resilience_settings}
+
+        job = self.service.run(program_id="sampler", options=options, inputs=program_inputs)
+        return job
+
+    def _submit_estimator(self, backend, circuit, operator, n_shots):
+
+        # translate circuit in qiskit format, add final measurements
+        qiskit_c = translate_c_to_qiskit(circuit)
+        qiskit_c.remove_final_measurements()
+        qiskit_c.measure_all(add_bits=False)
+
+        # translate qubit operator in qiskit format
+        qiskit_op = translate_operator(operator, source="tangelo", target="qiskit")
+
+        # Future extra keywords and feature to support, error-mitigation and optimization of circuit
+        resilience_settings = {"level": 0}  # Default: no error-mitigation, raw results.
+
+        program_inputs = {"circuits": ibm_circ, "circuit_indices": [0],
+                          "run_options": run_options, "resilience_settings": resilience_settings}
+
+        job = self.service.run(program_id="estimator", options=options, inputs=program_inputs)
+        return job
