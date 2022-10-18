@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .gate import *
-from .circuit import Circuit, stack, remove_small_rotations, remove_redundant_gates
-from .translator import *
-from .simulator_base import get_expectation_value_from_frequencies_oneterm
-from .simulator import Simulator, backend_info
+from .target_cirq import CirqSimulator
+from .target_qiskit import QiskitSimulator
+from .target_qulacs import QulacsSimulator
+from .target_qdk import QDKSimulator
+from tangelo.helpers.utils import all_backends_simulator
+
+
+target_dict = {"qiskit": QiskitSimulator, "cirq": CirqSimulator, "qdk": QDKSimulator, "qulacs": QulacsSimulator}
+
+# Generate backend info dictionary
+backend_info = {sim_id: target_dict[sim_id].backend_info() for sim_id in all_backends_simulator}

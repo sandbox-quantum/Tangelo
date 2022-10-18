@@ -25,13 +25,15 @@ from .translate_openqasm import translate_openqasm, _translate_openqasm2abs, get
 from .translate_qubitop import translate_operator
 
 
-# List all supported gates for all backends found
-SUPPORTED_GATES = dict()
+def get_supported_gates():
+    "List all supported gates for all backends found"
+    SUPPORTED_GATES = dict()
 
-SUPPORTED_GATES["projectq"] = sorted(get_projectq_gates().keys())
-SUPPORTED_GATES["ionq"] = sorted(get_ionq_gates().keys())
-SUPPORTED_GATES["qdk"] = sorted(get_qdk_gates().keys())
-SUPPORTED_GATES["openqasm"] = sorted(get_openqasm_gates().keys())
+    SUPPORTED_GATES["projectq"] = sorted(get_projectq_gates().keys())
+    SUPPORTED_GATES["ionq"] = sorted(get_ionq_gates().keys())
+    SUPPORTED_GATES["qdk"] = sorted(get_qdk_gates().keys())
+    SUPPORTED_GATES["openqasm"] = sorted(get_openqasm_gates().keys())
 
-for v in installed_backends:
-    SUPPORTED_GATES[v] = sorted(eval(f'get_{v}_gates().keys()'))
+    for v in installed_backends:
+        SUPPORTED_GATES[v] = sorted(eval(f'get_{v}_gates().keys()'))
+    return SUPPORTED_GATES
