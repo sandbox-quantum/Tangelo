@@ -29,7 +29,7 @@ pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
 ferm_op_of = load_operator("H2_ferm_op.data", data_directory=pwd_this_test + "/data", plain_text=True)
 ferm_op = FermionOperator()
-ferm_op.__dict__ = ferm_op_of.__dict__
+ferm_op.__dict__ = ferm_op_of.__dict__.copy()
 ferm_op.n_spinorbitals = 4
 ferm_op.n_electrons = 2
 ferm_op.spin = 0
@@ -67,24 +67,24 @@ rdm2 = np.array(
 class RDMsUtilitiesTest(unittest.TestCase):
 
     def test_energy_from_rdms(self):
-        """Computes energy using known spin-summed 1RDM and 2RDM"""
+        """Compute energy using known spin-summed 1RDM and 2RDM"""
         e_rdms = energy_from_rdms(ferm_op, rdm1, rdm2)
         self.assertAlmostEqual(e_rdms, -1.1372701, delta=1e-5)
 
     def test_compute_rdms_from_raw_data(self):
-        """Load data and compute RDMs from frequency list"""
-        rdm1r, rdm2r, rdm1ssr, rdm2ssr = compute_rdms(ferm_op, exp_data, "scbk", False)
+        """Compute RDMs from frequency list"""
+        rdm1r, rdm2r, rdm1ssr, rdm2ssr = compute_rdms(ferm_op, "scbk", True, exp_data=exp_data)
 
         assert_allclose(rdm1, rdm1ssr, rtol=1e-5)
         assert_allclose(rdm2, rdm2ssr, rtol=1e-5)
 
     def test_compute_rdms_from_classical_shadow(self):
-        """Load data and compute RDMs from classical shadow"""
-        rdm1r, rdm2r, rdm1ssr, rdm2ssr = compute_rdms(ferm_op, cs_data, "scbk", False)
+        """Compute RDMs from classical shadow"""
+        rdm1r, rdm2r, rdm1ssr, rdm2ssr = compute_rdms(ferm_op, "scbk", True, shadow=cs_data, k=5)
 
         # Have to adjust tolerance to account for classical shadow rounding to 10000 shots
-        assert_allclose(rdm1, rdm1ssr, atol=0.01)
-        assert_allclose(rdm2, rdm2ssr, atol=0.01)
+        assert_allclose(rdm1, rdm1ssr, atol=0.05)
+        assert_allclose(rdm2, rdm2ssr, atol=0.05)
 
 
 if __name__ == "__main__":
