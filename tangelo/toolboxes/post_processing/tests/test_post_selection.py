@@ -36,3 +36,7 @@ class PostSelectionTest(unittest.TestCase):
         hist_strip = strip_post_selection(hist, 2)
 
         self.assertDictEqual(hist_ref, hist_strip)
+
+
+if __name__ == "__main__":
+    unittest.main()
