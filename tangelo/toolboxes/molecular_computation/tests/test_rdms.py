@@ -63,8 +63,8 @@ rdm2 = np.array(
       [[ 5.92100152e-09+0.00000000e+00j,  0.00000000e+00+0.00000000e+00j],
        [ 0.00000000e+00+0.00000000e+00j,  2.54514569e-02+0.00000000e+00j]]]])
 
-class RDMsUtilitiesTest(unittest.TestCase):
 
+class RDMsUtilitiesTest(unittest.TestCase):
 
     def test_energy_from_rdms(self):
         """Computes energy using known spin-summed 1RDM and 2RDM"""
