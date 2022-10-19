@@ -43,23 +43,25 @@ def is_package_installed(package_name):
 
 
 def deprecated(custom_message=""):
-    """This is a decorator which can be used to mark functions as deprecated.
-    It will result in a warning being emitted when the function is used.
+    """This is a decorator which can be called to mark functions as deprecated.
+    It results in a warning being emitted when the function is used.
 
     Ref: https://stackoverflow.com/a/30253848
 
     Args:
         custom_message (str): Message to append to the deprecation warning.
     """
-    def deprecated_decorator(func):
+    def deprecated_wrapper(func):
         @functools.wraps(func)
         def new_func(*args, **kwargs):
-            warnings.warn(f"Function {func.__name__} will be deprecated in a future release. {custom_message}",
-                        category=DeprecationWarning,
-                        stacklevel=2)
+            warnings.warn(
+                f"Function {func.__name__} will be deprecated in a future release. {custom_message}",
+                category=DeprecationWarning,
+                stacklevel=2
+            )
             return func(*args, **kwargs)
         return new_func
-    return deprecated_decorator
+    return deprecated_wrapper
 
 
 # List all backends and statevector ones supported by Simulator class
