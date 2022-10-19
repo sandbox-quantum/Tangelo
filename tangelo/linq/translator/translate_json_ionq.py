@@ -94,7 +94,7 @@ def translate_c_to_json_ionq(source_circuit):
     return json_ionq_circ
 
 
-def translate_c_from_json_ionq(source_circuit) -> Circuit:
+def translate_c_from_json_ionq(source_circuit):
     """Take in a dictionary following the IonQ JSON format as described below,
     return an equivalent Tangelo Circuit.
     https://dewdrop.ionq.co/#json-specification

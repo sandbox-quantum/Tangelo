@@ -121,7 +121,7 @@ def translate_c_to_qiskit(source_circuit: Circuit):
     return target_circuit
 
 
-def translate_c_from_qiskit(source_circuit) -> Circuit:
+def translate_c_from_qiskit(source_circuit):
     """Take in a qiskit.QuantumCircuit, return an equivalent Tangelo Circuit
 
     Args:

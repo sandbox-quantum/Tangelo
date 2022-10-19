@@ -118,7 +118,7 @@ def translate_c_to_braket(source_circuit):
     return target_circuit
 
 
-def translate_c_from_braket(source_circuit) -> Circuit:
+def translate_c_from_braket(source_circuit):
     """Take in a quantum circuit object as defined in the Python Braket SDK,
     return an abstract circuit.
 

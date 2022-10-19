@@ -24,7 +24,7 @@ import time
 
 from tangelo.linq import Gate, Circuit
 from tangelo.linq.gate import PARAMETERIZED_GATES
-import tangelo.linq.translator as translator
+from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.helpers.utils import installed_backends
 
 path_data = os.path.dirname(os.path.realpath(__file__)) + '/data'
@@ -68,7 +68,7 @@ class TranslateCircuitTest(unittest.TestCase):
         import qulacs
 
         # Generates the qulacs circuit by translating from the abstract one
-        translated_circuit = translator.translate_circuit(abs_circ, "qulacs")
+        translated_circuit = translate_c(abs_circ, "qulacs")
 
         # Run the simulation
         state1 = qulacs.QuantumState(abs_circ.width)
@@ -92,7 +92,7 @@ class TranslateCircuitTest(unittest.TestCase):
         np.testing.assert_array_equal(state1.get_vector(), state2.get_vector())
 
         # Generates the qulacs circuit by translating from the abstract one
-        translated_circuit = translator.translate_circuit(abs_multi_circ, "qulacs")
+        translated_circuit = translate_c(abs_multi_circ, "qulacs")
 
         # Run the simulation
         state1 = qulacs.QuantumState(abs_multi_circ.width)
@@ -116,7 +116,7 @@ class TranslateCircuitTest(unittest.TestCase):
         np.testing.assert_array_equal(state1.get_vector(), state2.get_vector())
 
         # Test that the translated circuit reports the same result for all cross-supported gates
-        translated_circuit = translator.translate_circuit(big_circuit, "qulacs")
+        translated_circuit = translate_c(big_circuit, "qulacs")
 
         # Run the simulation
         state1 = qulacs.QuantumState(big_circuit.width)
@@ -134,7 +134,7 @@ class TranslateCircuitTest(unittest.TestCase):
         from qiskit.providers.aer import AerSimulator
 
         # Generate the qiskit circuit by translating from the abstract one and print it
-        translated_circuit = translator.translate_circuit(abs_circ, "qiskit")
+        translated_circuit = translate_c(abs_circ, "qiskit")
 
         # Generate the qiskit circuit directly and print it
         circ = qiskit.QuantumCircuit(3, 3)
@@ -161,20 +161,20 @@ class TranslateCircuitTest(unittest.TestCase):
         np.testing.assert_array_equal(v1, v2)
 
         # Return error when attempting to use qiskit with multiple controls
-        self.assertRaises(ValueError, translator.translate_circuit, abs_multi_circ, "qiskit")
+        self.assertRaises(ValueError, translate_c, abs_multi_circ, "qiskit")
 
         # Generate the qiskit circuit by translating from the abstract one and print it
-        translated_circuit = translator.translate_circuit(big_circuit, "qiskit")
+        translated_circuit = translate_c(big_circuit, "qiskit")
 
         # Big translate/translate back test (32000 gates)
         very_big_circuit = big_circuit*10**3
         tstart1 = time.time()
-        qc_very_big_circuit = translator.translate_circuit(very_big_circuit, "qiskit")
+        qc_very_big_circuit = translate_c(very_big_circuit, "qiskit")
         tstop1 = time.time()
         print(f"Circuit -> QuantumCircuit took {tstop1-tstart1:.2f} s")
 
         tstart2 = time.time()
-        c_very_big_circuit = translator.translate_circuit(qc_very_big_circuit, "tangelo", source="qiskit")
+        c_very_big_circuit = translate_c(qc_very_big_circuit, "tangelo", source="qiskit")
         tstop2 = time.time()
         print(f"QuantumCircuit -> Circuit took {tstop2-tstart2:.2f} s")
 
@@ -197,7 +197,7 @@ class TranslateCircuitTest(unittest.TestCase):
         import cirq
 
         # Generate the qiskit circuit by translating from the abstract one and print it
-        translated_circuit = translator.translate_circuit(abs_circ, "cirq")
+        translated_circuit = translate_c(abs_circ, "cirq")
 
         # Generate the cirq circuit directly and print it
         qubit_labels = cirq.LineQubit.range(3)
@@ -221,7 +221,7 @@ class TranslateCircuitTest(unittest.TestCase):
 
         np.testing.assert_array_equal(v1, v2)
 
-        translated_circuit = translator.translate_circuit(abs_multi_circ, "cirq")
+        translated_circuit = translate_c(abs_multi_circ, "cirq")
         circ = cirq.Circuit()
         circ.append(cirq.X(qubit_labels[0]))
         circ.append(cirq.X(qubit_labels[1]))
@@ -237,7 +237,7 @@ class TranslateCircuitTest(unittest.TestCase):
         np.testing.assert_array_equal(v1, v2)
 
         # Test that translated circuit is correct for all cross-supported gates
-        translated_circuit = translator.translate_circuit(big_circuit, "cirq")
+        translated_circuit = translate_c(big_circuit, "cirq")
         job_sim = cirq_simulator.simulate(translated_circuit)
         np.testing.assert_array_almost_equal(job_sim.final_state_vector, reference_big_lsq, decimal=6)
 
@@ -246,7 +246,7 @@ class TranslateCircuitTest(unittest.TestCase):
         """ Compares the frequencies computed by the QDK/Q# shot-based simulator to the theoretical ones """
 
         # Generate the qdk circuit by translating from the abstract one and print it
-        translated_circuit = translator.translate_circuit(abs_circ, "qdk")
+        translated_circuit = translate_c(abs_circ, "qdk")
         print(translated_circuit)
 
         # Write to file
@@ -267,7 +267,7 @@ class TranslateCircuitTest(unittest.TestCase):
         np.testing.assert_almost_equal(np.array(probabilities), np.array(references), 2)
 
         # Generate the qdk circuit by translating from the abstract one and print it
-        translated_circuit = translator.translate_circuit(abs_multi_circ, "qdk")
+        translated_circuit = translate_c(abs_multi_circ, "qdk")
         print(translated_circuit)
 
         # Write to file
@@ -293,7 +293,7 @@ class TranslateCircuitTest(unittest.TestCase):
         from projectq.ops import All, Measure, H, CX, Y, S, Rx
         from projectq import MainEngine
 
-        translated_circuit = translator.translate_circuit(abs_circ, "projectq")
+        translated_circuit = translate_c(abs_circ, "projectq")
         instructions = translated_circuit.split("\n")
 
         eng = MainEngine()
@@ -328,15 +328,15 @@ class TranslateCircuitTest(unittest.TestCase):
         ran with projectQ """
 
         # Compares original abstract circuit to the one obtained by translating to projectQ and back to abstract
-        projectq_circ = translator.translate_circuit(abs_circ, "projectq")
-        abs_circ2 = translator.translate_circuit(projectq_circ, "tangelo", source="projectq")
+        projectq_circ = translate_c(abs_circ, "projectq")
+        abs_circ2 = translate_c(projectq_circ, "tangelo", source="projectq")
         assert(abs_circ.__str__() == abs_circ2.__str__())
 
         # Inverse test: assume input is a ProjectQ circuit such as the output of the CommandPrinter engine
         with open(f"{path_data}/projectq_circuit.txt", 'r') as pq_circ_file:
             pq_circ1 = pq_circ_file.read()
-            abs_circ1 = translator.translate_circuit(pq_circ1, "tangelo", source="projectq")
-            pq_circ2 = translator.translate_circuit(abs_circ1, "projectq")
+            abs_circ1 = translate_c(pq_circ1, "tangelo", source="projectq")
+            pq_circ2 = translate_c(abs_circ1, "projectq")
 
             # This package does not generate final measurements and deallocations, so that simulation can retrieve
             # the statevector beforehand. We append them manually for the sake of this test.
@@ -355,7 +355,7 @@ class TranslateCircuitTest(unittest.TestCase):
         """
         openqasm_circuit1 = '''OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[3];\ncreg c[3];\nh q[2];\ncx q[0],q[1];\ncx '''\
                             '''q[1],q[2];\ny q[0];\ns q[0];\nrx(1.5) q[1];\nmeasure q[0] -> c[0];\n'''
-        openqasm_circuit2 = translator.translate_circuit(abs_circ_mixed, "openqasm")
+        openqasm_circuit2 = translate_c(abs_circ_mixed, "openqasm")
         print(openqasm_circuit2)
 
         # For DEBUG later, if the behavior of Qiskit changes
@@ -368,8 +368,8 @@ class TranslateCircuitTest(unittest.TestCase):
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_openqasm2abs(self):
         """ Translate from abstract format to openQASM and back, compare with original. """
-        openqasm_str = translator.translate_circuit(abs_circ_mixed, "openqasm")
-        abs_circ_mixed2 = translator.translate_circuit(openqasm_str, "tangelo", source="openqasm")
+        openqasm_str = translate_c(abs_circ_mixed, "openqasm")
+        abs_circ_mixed2 = translate_c(openqasm_str, "tangelo", source="openqasm")
 
         # Two abstract circuits are identical if and only if they have identical string representations
         assert(abs_circ_mixed.__str__() == abs_circ_mixed2.__str__())
@@ -380,7 +380,7 @@ class TranslateCircuitTest(unittest.TestCase):
         abs_gates = [Gate("X", 0), Gate("X", 1), Gate("RX", 0, parameter=1.5707963267948966),
                      Gate("H", 2), Gate("CNOT", target=1, control=0), Gate("RZ", 2, parameter=12.566170614359173)]
         abs_circ_ionq = Circuit(abs_gates)
-        json_ionq_circ = translator.translate_circuit(abs_circ_ionq, "ionq")
+        json_ionq_circ = translate_c(abs_circ_ionq, "ionq")
 
         ref_circuit = {'circuit': [{'gate': 'x', 'targets': [0]},
                                    {'gate': 'x', 'targets': [1]},
@@ -404,7 +404,7 @@ class TranslateCircuitTest(unittest.TestCase):
             {'gate': 'rz', 'targets': [2], 'rotation': 12.566170614359173}],
             'qubits': 3}
 
-        abs_circ = translator.translate_circuit(json_ionq_circuit, "tangelo", source="ionq")
+        abs_circ = translate_c(json_ionq_circuit, "tangelo", source="ionq")
 
         ref_gates = [Gate("X", 0), Gate("X", 1), Gate("RX", 0, parameter=1.5707963267948966),
                      Gate("H", 2), Gate("CNOT", target=1, control=0), Gate("RZ", 2, parameter=12.566170614359173)]
@@ -422,7 +422,7 @@ class TranslateCircuitTest(unittest.TestCase):
         from braket.devices import LocalSimulator as BraketLocalSimulator
 
         # Generate the braket circuit by translating from the abstract one and print it
-        translated_circuit = translator.translate_circuit(abs_circ, "braket")
+        translated_circuit = translate_c(abs_circ, "braket")
         print(translated_circuit)
 
         # Equivalent native braket circuit
@@ -446,10 +446,10 @@ class TranslateCircuitTest(unittest.TestCase):
         np.testing.assert_array_equal(circ_result.values[0], translated_result.values[0])
 
         # Return error when attempting to use braket with multiple controls
-        self.assertRaises(ValueError, translator.translate_circuit, abs_multi_circ, "braket")
+        self.assertRaises(ValueError, translate_c, abs_multi_circ, "braket")
 
         # Test that circuit is correct for all cross-supported gates
-        translated_circuit = translator.translate_circuit(big_circuit, "braket")
+        translated_circuit = translate_c(big_circuit, "braket")
         translated_circuit.state_vector()
         translated_result = device.run(translated_circuit, shots=0).result()
         np.testing.assert_array_almost_equal(translated_result.values[0], reference_big_lsq, decimal=6)
@@ -470,7 +470,7 @@ class TranslateCircuitTest(unittest.TestCase):
         circ.rx(1, 2.)
 
         # Generate the abstract circuit by translating from the braket one
-        translated_circuit = translator.translate_circuit(circ, "tangelo", source="braket")
+        translated_circuit = translate_c(circ, "tangelo", source="braket")
 
         self.assertEqual(translated_circuit, abs_circ)
 
@@ -479,7 +479,7 @@ class TranslateCircuitTest(unittest.TestCase):
         """ Must return an error if a gate is not supported for the target backend """
 
         circ = Circuit([Gate("Potato", 0)])
-        self.assertRaises(ValueError, translator.translate_circuit, circ, "qiskit")
+        self.assertRaises(ValueError, translate_c, circ, "qiskit")
 
 
 if __name__ == "__main__":
