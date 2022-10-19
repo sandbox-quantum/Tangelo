@@ -192,6 +192,8 @@ class VQESolver:
                                                      up_then_down=self.up_then_down,
                                                      spin=self.molecule.spin)
                 self.qubit_hamiltonian += pen_qubit
+                if self.ansatz == BuiltInAnsatze.QCC:
+                    self.ansatz_options["qubit_ham"] = self.qubit_hamiltonian.to_qubitoperator()
 
             # Verification of system compatibility with UCC1 or UCC3 circuits.
             if self.ansatz in [BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3]:
