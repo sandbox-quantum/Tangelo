@@ -36,16 +36,16 @@ import tangelo.toolboxes.ansatz_generator as agen
 
 class BuiltInAnsatze(Enum):
     """Enumeration of the ansatz circuits supported by VQE."""
-    UCCSD = 0
-    UCC1 = 1
-    UCC3 = 2
-    HEA = 3
-    UpCCGSD = 4
-    QMF = 5
-    QCC = 6
-    VSQS = 7
-    UCCGD = 8
-    ILC = 9
+    UCCSD = agen.UCCSD
+    UCC1 = agen.RUCC
+    UCC3 = agen.RUCC
+    HEA = agen.HEA
+    UpCCGSD = agen.UpCCGSD
+    QMF = agen.QMF
+    QCC = agen.QCC
+    VSQS = agen.VSQS
+    UCCGD = agen.UCCGD
+    ILC = agen.ILC
 
 
 class VQESolver:
@@ -210,9 +210,9 @@ class VQESolver:
             if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz in {BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3}:
                     n_var_params = 1 if self.ansatz == BuiltInAnsatze.UCC1 else 3
-                    self.ansatz = agen.RUCC(n_var_params)
+                    self.ansatz = self.ansatz.value(n_var_params)
                 elif self.ansatz in self.builtin_ansatze:
-                    self.ansatz = eval(f"agen.{self.ansatz.name}(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)")
+                    self.ansatz = self.ansatz.value(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, agen.Ansatz):
@@ -220,7 +220,7 @@ class VQESolver:
 
         # Building with a qubit Hamiltonian.
         elif self.ansatz in {BuiltInAnsatze.HEA, BuiltInAnsatze.VSQS}:
-            self.ansatz = eval(f"agen.{self.ansatz.name}(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)")
+            self.ansatz = self.ansatz.value(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
         elif not isinstance(self.ansatz, agen.Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 

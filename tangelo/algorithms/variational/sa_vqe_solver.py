@@ -134,7 +134,7 @@ class SA_VQESolver(VQESolver):
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz in self.builtin_ansatze:
-                    self.ansatz = eval(f"agen.{self.ansatz.name}(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)")
+                    self.ansatz = self.ansatz.value(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz for SA_VQESolver. Built-in ansatze:\n\t{self.builtin_ansatze}")
             elif not isinstance(self.ansatz, agen.Ansatz):
@@ -142,7 +142,7 @@ class SA_VQESolver(VQESolver):
 
         # Building with a qubit Hamiltonian.
         elif self.ansatz == BuiltInAnsatze.HEA:
-            self.ansatz = agen.HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+            self.ansatz = self.ansatz.value(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
         elif not isinstance(self.ansatz, agen.Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
