@@ -18,7 +18,7 @@ import numpy as np
 
 from tangelo.linq import Circuit
 from tangelo.linq.simulator_base import SimulatorBase
-import tangelo.linq.translator as translator
+from tangelo.linq.translator import translate_circuit as translate_c
 
 
 class QiskitSimulator(SimulatorBase):
@@ -55,7 +55,7 @@ class QiskitSimulator(SimulatorBase):
                 and requested by the user (if not, set to None).
         """
 
-        translated_circuit = translator.translate_circuit(source_circuit, "qiskit")
+        translated_circuit = translate_c(source_circuit, "qiskit")
 
         # If requested, set initial state
         if initial_statevector is not None:

@@ -18,7 +18,8 @@ import numpy as np
 
 from tangelo.linq import Circuit
 from tangelo.linq.simulator_base import SimulatorBase
-import tangelo.linq.translator as translator
+from tangelo.linq.translator import translate_circuit as translate_c
+from tangelo.linq.translator import get_cirq_gates
 
 
 class CirqSimulator(SimulatorBase):
@@ -59,7 +60,7 @@ class CirqSimulator(SimulatorBase):
                 and requested by the user (if not, set to None).
         """
 
-        translated_circuit = translator.translate_circuit(source_circuit, "cirq",
+        translated_circuit = translate_c(source_circuit, "cirq",
             output_options={"noise_model": self._noise_model})
 
         if source_circuit.is_mixed_state or self._noise_model:
@@ -93,7 +94,7 @@ class CirqSimulator(SimulatorBase):
 
     def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
 
-        GATE_CIRQ = translator.get_cirq_gates()
+        GATE_CIRQ = get_cirq_gates()
         qubit_labels = self.cirq.LineQubit.range(n_qubits)
         qubit_map = {q: i for i, q in enumerate(qubit_labels)}
         paulisum = 0.*self.cirq.PauliString(self.cirq.I(qubit_labels[0]))

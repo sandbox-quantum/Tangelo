@@ -20,7 +20,7 @@ import numpy as np
 
 from tangelo.linq import Circuit
 from tangelo.linq.simulator_base import SimulatorBase
-import tangelo.linq.translator as translator
+from tangelo.linq.translator import translate_circuit as translate_c
 
 
 class QulacsSimulator(SimulatorBase):
@@ -54,7 +54,7 @@ class QulacsSimulator(SimulatorBase):
                 and requested by the user (if not, set to None).
         """
 
-        translated_circuit = translator.translate_circuit(source_circuit, "qulacs",
+        translated_circuit = translate_c(source_circuit, "qulacs",
             output_options={"noise_model": self._noise_model})
 
         # Initialize state on GPU if available and desired. Default to CPU otherwise.
