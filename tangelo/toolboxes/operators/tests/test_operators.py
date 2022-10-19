@@ -76,7 +76,7 @@ class FermionOperatorTest(unittest.TestCase):
 
     def test_add_FermionOperator(self):
         # addition between two compatible tangelo FermionOperator
-        fop = FermionOperator("0^ 0", 2.) + FermionOperator("0^ 1", 3.)
+        FermionOperator("0^ 0", 2.) + FermionOperator("0^ 1", 3.)
 
         # addition between two incompatible tangelo FermionOperator
         fop_1 = FermionOperator("0^ 0", 2.)
@@ -94,9 +94,50 @@ class FermionOperatorTest(unittest.TestCase):
         fop_2 = of.FermionOperator("0^ 0", 2.) + FermionOperator("0^ 1", 3.)
         self.assertEqual(fop_1, fop_2)
 
+        # Test in-place addition
         fop = FermionOperator("0^ 0", 2.)
         fop += FermionOperator("0^ 1", 3.)
         self.assertEqual(fop, fop_1)
+
+    def test_mul_FermionOperator(self):
+        # Test in-place multiplication
+        fop_1 = FermionOperator("0^ 0", 2.)
+        fop_1 *= of.FermionOperator("0^ 1", 3.)
+        # Test multiplication
+        fop_2 = FermionOperator("0^ 0", 2.) * of.FermionOperator("0^ 1", 3.)
+        self.assertEqual(fop_1, fop_2)
+
+        # Test reverse multiplication
+        fop_3 = of.FermionOperator("0^ 1", 3.) * FermionOperator("0^ 0", 2.)
+        self.assertEqual(fop_2, fop_3)
+
+        # Test multiplication by number
+        fop_4 = 6. * FermionOperator("0^ 0 0^ 1", 1.)
+        self.assertEqual(fop_3, fop_4)
+
+    def test_sub_FermionOperator(self):
+        # Test in-place subtraction
+        fop_1 = FermionOperator("0^ 0", 2.)
+        fop_1 -= of.FermionOperator("0^ 1", 3.)
+        # Test subtraction
+        fop_2 = FermionOperator("0^ 0", 2.) - of.FermionOperator("0^ 1", 3.)
+        self.assertEqual(fop_1, fop_2)
+
+        # Test reverse subtraction
+        fop_3 = of.FermionOperator("0^ 1", 3.) - FermionOperator("0^ 0", 2.)
+        self.assertEqual(fop_2, fop_3)
+
+    def test_div_FermionOperator(self):
+        # Test in-place division
+        fop_1 = FermionOperator("0^ 0", 2.)
+        fop_1 /= 2.
+        # Test division
+        fop_2 = FermionOperator("0^ 0", 2.) / 2.
+        self.assertEqual(fop_1, fop_2)
+
+        # Test error for division by operator
+        with self.assertRaises(TypeError):
+            fop_1 / fop_2
 
 
 class QubitHamiltonianTest(unittest.TestCase):
@@ -128,8 +169,7 @@ class QubitHamiltonianTest(unittest.TestCase):
 
         qubit_ham = 1. * QubitHamiltonian("X0 Y1 Z2", mapping="JW",  up_then_down=True)
 
-        self.assertEqual(qubit_ham.to_qubitoperator(),
-            QubitOperator(term="X0 Y1 Z2", coefficient=1.))
+        self.assertEqual(qubit_ham.to_qubitoperator(), QubitOperator(term="X0 Y1 Z2", coefficient=1.))
 
     def test_get_operators(self):
         """Test get_operators methods, defined in QubitOperator class."""

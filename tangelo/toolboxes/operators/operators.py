@@ -18,16 +18,16 @@ broken down in several modules if needed.
 
 from math import sqrt
 from collections import OrderedDict
-from copy import copy, deepcopy
 
 import numpy as np
+from openfermion.ops.operators.symbolic_operator import COEFFICIENT_TYPES
 from scipy.special import comb
 
 # Later on, if needed, we can extract the code for the operators themselves to remove the dependencies and customize
-import openfermion
+import openfermion as of
 
 
-class FermionOperator(openfermion.FermionOperator):
+class FermionOperator(of.FermionOperator):
     """Add n_spinorbitals, n_electrons, and spin parameters to the openfermion.FermionOperator class
     """
 
@@ -37,6 +37,37 @@ class FermionOperator(openfermion.FermionOperator):
         self.n_spinorbitals = n_spinorbitals
         self.n_electrons = n_electrons
         self.spin = spin
+
+    def __imul__(self, other):
+        # Raise error if attributes are not the same across Operators.
+        if (self.n_spinorbitals is not None and other.n_spinorbitals is not None)\
+                or (self.n_electrons is not None and other.n_electrons is not None)\
+                or (self.spin is not None and other.spin is not None):
+
+            if self.n_spinorbitals != other.n_spinorbitals:
+                raise RuntimeError("n_spinorbitals must be the same for all FermionOperators.")
+            elif self.n_electrons != other.n_electrons:
+                raise RuntimeError("n_electrons must be the same for all FermionOperators.")
+            elif self.spin != other.spin:
+                raise RuntimeError("Spin must be the same for all FermionOperators.")
+
+        if isinstance(other, FermionOperator):
+            return super(FermionOperator, self).__imul__(other)
+        elif isinstance(other, of.FermionOperator):
+            if self.n_spinorbitals is not None or self.n_electrons is not None or self.spin is not None:
+                raise RuntimeError("openfermion FermionOperator did not define a necessary attribute")
+            else:
+                f_op = FermionOperator()
+                f_op.terms = other.terms.copy()
+                return super(FermionOperator, self).__imul__(f_op)
+        else:
+            return super(FermionOperator, self).__imul__(other)
+
+    def __mul__(self, other):
+        return self.__imul__(other)
+
+    def __rmul__(self, other):
+        return self.__imul__(other)
 
     def __iadd__(self, other):
         # Raise error if attributes are not the same across Operators.
@@ -53,7 +84,7 @@ class FermionOperator(openfermion.FermionOperator):
 
         if isinstance(other, FermionOperator):
             return super(FermionOperator, self).__iadd__(other)
-        elif isinstance(other, openfermion.FermionOperator):
+        elif isinstance(other, of.FermionOperator):
             if self.n_spinorbitals is not None or self.n_electrons is not None or self.spin is not None:
                 raise RuntimeError("openfermion FermionOperator did not define a necessary attribute")
             else:
@@ -67,9 +98,18 @@ class FermionOperator(openfermion.FermionOperator):
     def __radd__(self, other):
         return self.__iadd__(other)
 
+    def __isub__(self, other):
+        return self.__iadd__(-1. * other)
+
+    def __sub__(self, other):
+        return self.__isub__(other)
+
+    def __rsub__(self, other):
+        return self.__isub__(other)
+
     def __eq__(self, other):
         # Additional checks for == operator.
-        if isinstance(other, openfermion.FermionOperator):
+        if isinstance(other, of.FermionOperator):
             return super(FermionOperator, self).__eq__(other)
         elif (self.n_spinorbitals != other.n_spinorbitals) or (self.n_electrons != other.n_electrons) or (self.spin != other.spin):
             return False
@@ -88,7 +128,7 @@ class FermionOperator(openfermion.FermionOperator):
                 two-body coefficient matrices (N*N*N*N), where N is the number
                 of spinorbitals.
         """
-        n_sos = openfermion.count_qubits(self)
+        n_sos = of.count_qubits(self)
 
         constant = 0.
         one_body = np.zeros((n_sos, n_sos), complex)
@@ -120,13 +160,13 @@ class FermionOperator(openfermion.FermionOperator):
 
     def to_openfermion(self):
         """Converts Tangelo FermionOperator to openfermion"""
-        ferm_op = openfermion.FermionOperator()
+        ferm_op = of.FermionOperator()
         ferm_op.terms = self.terms.copy()
 
         return ferm_op
 
 
-class QubitOperator(openfermion.QubitOperator):
+class QubitOperator(of.QubitOperator):
     """Currently, this class is coming from openfermion. Can be later on be
     replaced by our own implementation.
     """
@@ -261,7 +301,7 @@ def normal_ordered(fe_op):
     """
 
     # Obtain normal ordered fermionic operator as list of terms
-    norm_ord_terms = openfermion.transforms.normal_ordered(fe_op).terms
+    norm_ord_terms = of.transforms.normal_ordered(fe_op).terms
 
     # Regeneratore full operator using class of tangelo.toolboxes.operators.FermionicOperator
     norm_ord_fe_op = FermionOperator()
