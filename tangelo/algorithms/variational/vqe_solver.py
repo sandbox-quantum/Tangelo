@@ -37,8 +37,8 @@ import tangelo.toolboxes.ansatz_generator as agen
 class BuiltInAnsatze(Enum):
     """Enumeration of the ansatz circuits supported by VQE."""
     UCCSD = agen.UCCSD
-    UCC1 = agen.RUCC
-    UCC3 = agen.RUCC
+    UCC1 = agen.RUCC(1)
+    UCC3 = agen.RUCC(3)
     HEA = agen.HEA
     UpCCGSD = agen.UpCCGSD
     QMF = agen.QMF
@@ -155,7 +155,6 @@ class VQESolver:
 
         default_backend_options.update(self.backend_options)
         self.backend_options = default_backend_options
-
         self.optimal_energy = None
         self.optimal_var_params = None
         self.builtin_ansatze = set(BuiltInAnsatze)
@@ -209,8 +208,7 @@ class VQESolver:
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz in {BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3}:
-                    n_var_params = 1 if self.ansatz == BuiltInAnsatze.UCC1 else 3
-                    self.ansatz = self.ansatz.value(n_var_params)
+                    self.ansatz = self.ansatz.value
                 elif self.ansatz in self.builtin_ansatze:
                     self.ansatz = self.ansatz.value(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
