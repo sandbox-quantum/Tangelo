@@ -107,8 +107,6 @@ def translate_c_from_json_ionq(source_circuit):
         Circuit: the corresponding quantum Circuit in Tangelo format.
     """
 
-    starting_circuit = Circuit(n_qubits=source_circuit["qubits"])
-
     gates = []
     for gate in source_circuit["circuit"]:
         name = gate["gate"].upper()
@@ -132,5 +130,5 @@ def translate_c_from_json_ionq(source_circuit):
         else:
             raise ValueError(f"Gate '{name}' not supported in Tangelo")
 
-    target_circuit = starting_circuit + Circuit(gates)
+    target_circuit = Circuit(n_qubits=source_circuit["qubits"]) + Circuit(gates)
     return target_circuit
