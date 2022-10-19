@@ -56,7 +56,6 @@ def translate_qsharp(source_circuit):
 
     Args:
         source_circuit: quantum circuit in the abstract format.
-        operation (str), optional: name of the Q# operation.
 
     Returns:
         str: The Q# code (operation + template). This needs to be written into a

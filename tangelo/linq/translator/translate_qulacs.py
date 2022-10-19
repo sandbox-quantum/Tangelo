@@ -61,7 +61,7 @@ def get_qulacs_gates():
 
 
 @deprecated("Please use the translate_circuit function.")
-def translate_qulacs(source_circuit):
+def translate_qulacs(source_circuit, noise_model=None):
     """Take in an abstract circuit, return an equivalent qulacs QuantumCircuit
     instance. If provided with a noise model, will add noisy gates at
     translation. Not very useful to look at, as qulacs does not provide much
@@ -75,7 +75,7 @@ def translate_qulacs(source_circuit):
     Returns:
         qulacs.QuantumCircuit: the corresponding qulacs quantum circuit.
     """
-    return translate_c_to_qulacs(source_circuit)
+    return translate_c_to_qulacs(source_circuit, noise_model)
 
 
 def translate_c_to_qulacs(source_circuit, noise_model=None):

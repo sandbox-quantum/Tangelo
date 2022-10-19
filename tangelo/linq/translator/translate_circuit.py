@@ -52,7 +52,8 @@ def translate_circuit(circuit, target, source="tangelo", output_options=None):
         circuit (source format): Self-explanatory.
         target (string): Identifier for the target format.
         source (string): Identifier for the source format.
-        output_options (dict): Backend specific options (e.g. a noise model).
+        output_options (dict): Backend specific options (e.g. a noise model,
+            number of qubits, etc.).
 
     Returns:
         (circuit in target format): Translated quantum circuit.
@@ -66,10 +67,14 @@ def translate_circuit(circuit, target, source="tangelo", output_options=None):
 
     if source == target:
         return circuit
+
+    # Convert to Tangelo format if necessary.
     if source != "tangelo":
         if source not in TO_TANGELO:
             raise NotImplementedError(f"Circuit conversion from {source} to {target} is not supported.")
         circuit = TO_TANGELO[source](circuit)
+
+    # Convert to another target format if necessary.
     if target != "tangelo":
         if target not in FROM_TANGELO:
             raise NotImplementedError(f"Circuit conversion from {source} to {target} is not supported.")

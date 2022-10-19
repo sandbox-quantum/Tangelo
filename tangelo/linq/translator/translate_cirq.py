@@ -78,7 +78,7 @@ def translate_cirq(source_circuit):
 
 def translate_c_to_cirq(source_circuit, noise_model=None):
     """Take in an abstract circuit, return an equivalent cirq QuantumCircuit
-    instance.
+    object.
 
     Args:
         source_circuit: quantum circuit in the abstract format.
