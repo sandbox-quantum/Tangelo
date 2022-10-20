@@ -297,6 +297,7 @@ class VQESolver:
         if self.deflation_circuits:
             circuit += self.deflation_circuits[0]
         resources["circuit_width"] = circuit.width
+        resources["circuit_depth"] = circuit.depth()
         resources["circuit_gates"] = circuit.size
         # For now, only CNOTs supported.
         resources["circuit_2qubit_gates"] = circuit.counts.get("CNOT", 0)

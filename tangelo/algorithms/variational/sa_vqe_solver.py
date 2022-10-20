@@ -234,6 +234,7 @@ class SA_VQESolver(VQESolver):
         circuit = (self.reference_circuits[0] + self.ansatz.circuit + self.deflation_circuits[0] if self.deflation_circuits else
                    self.reference_circuits[0] + self.ansatz.circuit)
         resources["circuit_width"] = circuit.width
+        resources["circuit_depth"] = circuit.depth()
         resources["circuit_gates"] = circuit.size
         # For now, only CNOTs supported.
         resources["circuit_2qubit_gates"] = circuit.counts.get("CNOT", 0)
