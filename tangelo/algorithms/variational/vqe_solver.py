@@ -300,7 +300,7 @@ class VQESolver:
         resources["circuit_depth"] = circuit.depth()
         resources["circuit_gates"] = circuit.size
         # For now, only CNOTs supported.
-        resources["circuit_2qubit_gates"] = circuit.counts.get("CNOT", 0)
+        resources["circuit_2qubit_gates"] = circuit.counts_n_qubit.get(2, 0)
         resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
         resources["vqe_variational_parameters"] = len(self.initial_var_params)
         return resources

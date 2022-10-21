@@ -52,6 +52,7 @@ class Circuit:
         self._qubits_simulated = n_qubits
         self._qubit_indices = set() if not n_qubits else set(range(n_qubits))
         self._gate_counts = dict()
+        self._n_qubit_gate_counts = dict()
         self._variational_gates = []
 
         if gates:
@@ -127,6 +128,11 @@ class Circuit:
         return self._gate_counts
 
     @property
+    def counts_n_qubit(self):
+        """Return the counts for all gate types included in the circuit."""
+        return self._n_qubit_gate_counts
+
+    @property
     def is_variational(self):
         """Returns true if the circuit holds any variational gate."""
         return True if self._variational_gates else False
@@ -172,6 +178,10 @@ class Circuit:
 
         # Keep track of the total gate count
         self._gate_counts[gate.name] = self._gate_counts.get(gate.name, 0) + 1
+
+        # Keep track of n_qubit gate count
+        n_qubit = len(g.target) if (g.control is None) else len(g.target) + len(g.control)
+        self._n_qubit_gate_counts[n_qubit] = self._n_qubit_gate_counts.get(n_qubit, 0) + 1
 
     def depth(self):
         """ Return the depth of the quantum circuit, by computing the number of moments. Does not count

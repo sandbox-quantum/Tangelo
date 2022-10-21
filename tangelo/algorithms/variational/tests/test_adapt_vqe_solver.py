@@ -58,7 +58,7 @@ class ADAPTSolverTest(unittest.TestCase):
         self.assertEqual(adapt_solver.get_resources(), resources)
 
     def test_multiple_cycle_adapt_majorana_pool(self):
-        """Solve H4 with one frozen orbtial with ADAPTSolver using 4 cycles and operators chosen
+        """Solve H4 with one frozen orbital with ADAPTSolver using 4 cycles and operators chosen
         from a Majorana UCCGSD pool and a Majorana UCCSD pool
         """
 
