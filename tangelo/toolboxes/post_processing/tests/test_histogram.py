@@ -29,7 +29,7 @@ class HistogramTest(unittest.TestCase):
 
         ref_freq = {"00": 0.6, "11": 0.4}
         for k, v in h.frequencies.items():
-            self.assertAlmostEquals(v, ref_freq.get(k))
+            self.assertAlmostEqual(v, ref_freq.get(k))
 
     def test_init_histogram_from_frequencies_and_nshots(self):
         """Initialize histogram object with a dictonary of probabilities and
@@ -45,7 +45,7 @@ class HistogramTest(unittest.TestCase):
 
         ref_freq = {"00": 0.6, "11": 0.4}
         for k, v in h.frequencies.items():
-            self.assertAlmostEquals(v, ref_freq.get(k))
+            self.assertAlmostEqual(v, ref_freq.get(k))
 
     def test_init_histogram_negative_nshots(self):
         """Initialize histogram object with a negative n_shots number."""

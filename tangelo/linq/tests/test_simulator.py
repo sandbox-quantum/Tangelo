@@ -24,7 +24,8 @@ import numpy as np
 from openfermion.ops import QubitOperator
 from openfermion import load_operator
 
-from tangelo.linq import Gate, Circuit, translator, Simulator
+from tangelo.linq import Gate, Circuit, Simulator
+from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
 from tangelo.linq.simulator_base import SimulatorBase, get_expectation_value_from_frequencies_oneterm
@@ -213,7 +214,7 @@ class TestSimulateStatevector(unittest.TestCase):
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
         expected = -1.1372704
         test_fail = False
 
@@ -242,7 +243,7 @@ class TestSimulateStatevector(unittest.TestCase):
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
         expected = -1.1372704
         test_fail = False
 
@@ -276,7 +277,7 @@ class TestSimulateStatevector(unittest.TestCase):
         with open(f"{path_data}/H4_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
         expected = -1.9778374
         test_fail = False
 
@@ -306,7 +307,7 @@ class TestSimulateStatevector(unittest.TestCase):
 
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
 
         simulator = Simulator(target="qulacs", n_shots=10 ** 6)
         expected = -1.1372704

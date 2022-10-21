@@ -17,8 +17,10 @@ the user's environment, for the purpose of running / skipping tests, and setting
 a default simulator.
 """
 
+import functools
 import os
 import sys
+import warnings
 from importlib import util
 
 
@@ -38,6 +40,28 @@ def is_package_installed(package_name):
     """Check if module is installed without importing."""
     spam_spec = util.find_spec(package_name)
     return spam_spec is not None
+
+
+def deprecated(custom_message=""):
+    """This is a decorator which can be called to mark functions as deprecated.
+    It results in a warning being emitted when the function is used.
+
+    Ref: https://stackoverflow.com/a/30253848
+
+    Args:
+        custom_message (str): Message to append to the deprecation warning.
+    """
+    def deprecated_wrapper(func):
+        @functools.wraps(func)
+        def new_func(*args, **kwargs):
+            warnings.warn(
+                f"Function {func.__name__} will be deprecated in a future release. {custom_message}",
+                category=DeprecationWarning,
+                stacklevel=2
+            )
+            return func(*args, **kwargs)
+        return new_func
+    return deprecated_wrapper
 
 
 # List all backends and statevector ones supported by Simulator class
