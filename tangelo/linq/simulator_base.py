@@ -77,6 +77,7 @@ def get_expectation_value_from_frequencies_oneterm(term, frequencies):
 
     return expectation_term
 
+
 def get_variance_from_frequencies_oneterm(term, frequencies):
     """Return the variance of the expectation value of a single-term qubit-operator, given
     the result of a state-preparation.
@@ -443,7 +444,7 @@ class SimulatorBase(abc.ABC):
                 # https://en.wikipedia.org/wiki/Propagation_of_uncertainty#Example_formulae
                 variance += coef * coef * variance_term
 
-        return variance 
+        return variance
 
     def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None):
         r"""Take as input a qubit operator H and a state preparation returning a

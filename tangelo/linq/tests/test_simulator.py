@@ -184,6 +184,7 @@ class TestSimulateAllBackends(unittest.TestCase):
                 decimal=2,
             )
 
+
 class TestSimulateStatevector(unittest.TestCase):
 
     def test_simulate_statevector(self):
