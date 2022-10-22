@@ -147,6 +147,42 @@ class TestSimulateAllBackends(unittest.TestCase):
             results[b] = sim.get_expectation_value(op1, circuit_mixed)
             np.testing.assert_almost_equal(results[b], reference, decimal=2)
 
+    def test_get_variance(self):
+        """ Test variance for simple analytical circuit. """
+
+        opx = 1.0 * QubitOperator("X0")
+        opy = 1.0 * QubitOperator("Y0")
+        opz = 1.0 * QubitOperator("Z0")
+
+        # prepares sqrt(2/3)|0> + -i*sqrt(1/3)|1>
+        circuit = Circuit([Gate("RX", 0, parameter=2*np.arcsin(np.sqrt(1/3)))])
+
+        for b in installed_simulator:
+            sim = Simulator(target=b, n_shots=10 ** 5)
+
+            # <X> = 0.0, <X^2> = 1.0, so Var(X) = <X^2> - <X>^2 = 1.0
+            np.testing.assert_almost_equal(sim.get_expectation_value(opx, circuit), 0.0, decimal=2)
+            np.testing.assert_almost_equal(sim.get_variance(opx, circuit), 1.0, decimal=2)
+
+            # <Y> = -2*sqrt(2)/3, <Y^2> = 1.0, so Var(Y) = <Y^2> - <Y>^2 = 1/9
+            np.testing.assert_almost_equal(sim.get_expectation_value(opy, circuit), -2*np.sqrt(2)/3, decimal=2)
+            np.testing.assert_almost_equal(sim.get_variance(opy, circuit), 1/9, decimal=2)
+
+            # <Z> = 1/3, <Z^2> = 1.0, so Var(Z) = <Z^2> - <Z>^2 = 8/9
+            np.testing.assert_almost_equal(sim.get_expectation_value(opz, circuit), 1/3, decimal=2)
+            np.testing.assert_almost_equal(sim.get_variance(opz, circuit), 8/9, decimal=2)
+
+            # using linearity of mean and variance, <H> = <X + Y + Z>
+            np.testing.assert_almost_equal(
+                sim.get_expectation_value(opx + opy + opz, circuit),
+                1/3 - 2*np.sqrt(2)/3,
+                decimal=2,
+            )
+            np.testing.assert_almost_equal(
+                sim.get_variance(opx + opy + opz, circuit),
+                1 + 1/9 + 8/9,
+                decimal=2,
+            )
 
 class TestSimulateStatevector(unittest.TestCase):
 
