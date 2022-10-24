@@ -51,7 +51,6 @@ class ADAPTSolverTest(unittest.TestCase):
         resources = {"qubit_hamiltonian_terms": 15,
                      "circuit_width": 4,
                      "circuit_depth": 73,
-                     "circuit_gates": 122,
                      "circuit_2qubit_gates": 48,
                      "circuit_var_gates": 8,
                      "vqe_variational_parameters": 1}
