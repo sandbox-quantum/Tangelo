@@ -18,6 +18,7 @@ functionalities.
 
 import copy
 from dataclasses import dataclass, field
+from itertools import product
 
 import numpy as np
 from pyscf import gto, scf, ao2mo, symm, lib
@@ -201,6 +202,7 @@ class SecondQuantizedMolecule(Molecule):
         symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.
             Can also specify point group using pyscf allowed string.
             e.g. "Dooh", "D2h", "C2v", ...
+        uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False
         mf_energy (float): Mean-field energy (RHF or ROHF energy depending
             on the spin).
         mo_energies (list of float): Molecular orbital energies.
@@ -234,6 +236,7 @@ class SecondQuantizedMolecule(Molecule):
     basis: str = "sto-3g"
     ecp: dict = field(default_factory=dict)
     symmetry: bool = False
+    uhf: bool = False
     frozen_orbitals: list or int = field(default="frozen_core", repr=False)
 
     # Defined in __post_init__.
@@ -258,15 +261,16 @@ class SecondQuantizedMolecule(Molecule):
 
     @property
     def n_active_electrons(self):
-        return int(sum([self.mo_occ[i] for i in self.active_occupied]))
+        return (int(sum([self.mo_occ[i] for i in self.active_occupied])) if not self.uhf else
+                int(sum([self.mo_occ[0][i] for i in self.active_occupied[0]]))+int(sum([self.mo_occ[1][i] for i in self.active_occupied[1]])))
 
     @property
     def n_active_sos(self):
-        return 2*len(self.active_mos)
+        return 2*len(self.active_mos) if not self.uhf else max(len(self.active_mos[0])*2, len(self.active_mos[1])*2)
 
     @property
     def n_active_mos(self):
-        return len(self.active_mos)
+        return len(self.active_mos) if not self.uhf else [len(self.active_mos[0]), len(self.active_mos[1])]
 
     @property
     def fermionic_hamiltonian(self):
@@ -284,7 +288,8 @@ class SecondQuantizedMolecule(Molecule):
             list: MOs indexes frozen (occupied + virtual).
         """
         if self.frozen_occupied and self.frozen_virtual:
-            return self.frozen_occupied + self.frozen_virtual
+            return (self.frozen_occupied + self.frozen_virtual if not self.uhf else
+                    [self.frozen_occupied[0] + self.frozen_virtual[0], self.frozen_occupied[1] + self.frozen_virtual[1]])
         elif self.frozen_occupied:
             return self.frozen_occupied
         elif self.frozen_virtual:
@@ -299,7 +304,7 @@ class SecondQuantizedMolecule(Molecule):
         Returns:
             list: MOs indexes that are active (occupied + virtual).
         """
-        return self.active_occupied + self.active_virtual
+        return self.active_occupied + self.active_virtual if not self.uhf else [self.active_occupied[i]+self.active_virtual[i] for i in range(2)]
 
     @property
     def active_spin(self):
@@ -322,10 +327,17 @@ class SecondQuantizedMolecule(Molecule):
     @mo_coeff.setter
     def mo_coeff(self, new_mo_coeff):
         # Asserting the new molecular coefficient matrix have the same dimensions.
-        assert self.mean_field.mo_coeff.shape == new_mo_coeff.shape, \
-            f"The new molecular coefficients matrix has a {new_mo_coeff.shape}"\
-            f" shape: expected shape is {self.mean_field.mo_coeff.shape}."
-        self.mean_field.mo_coeff = new_mo_coeff
+        if self.uhf:
+            assert len(new_mo_coeff) == 2, "Must provide [alpha mo_coeff, beta_mo_coeff]"
+            assert ((self.mean_field.mo_coeff[0].shape == new_mo_coeff[0].shape) and
+                    (self.mean_field.mo_coeff[1].shape == new_mo_coeff[1].shape)), \
+                   f"The new molecular coefficients has shape {[new_mo_coeff[0].shape, new_mo_coeff[1].shape]}"\
+                   f" shape: expected shape is {[self.mean_field.mo_coeff[0].shape, self.mean_field.mo_coeff[1].shape]}."
+        else:
+            assert self.mean_field.mo_coeff.shape == new_mo_coeff.shape, \
+                   f"The new molecular coefficients matrix has a {new_mo_coeff.shape}"\
+                   f" shape: expected shape is {self.mean_field.mo_coeff.shape}."
+        self.mean_field.mo_coeff = np.array(new_mo_coeff)
 
     def _compute_mean_field(self):
         """Computes the mean-field for the molecule. Depending on the molecule
@@ -338,9 +350,21 @@ class SecondQuantizedMolecule(Molecule):
 
         molecule = self.to_pyscf(self.basis, self.symmetry, self.ecp)
 
-        self.mean_field = scf.RHF(molecule)
+        self.mean_field = scf.RHF(molecule) if not self.uhf else scf.UHF(molecule)
         self.mean_field.verbose = 0
-        self.mean_field.kernel()
+        # Force broken symmetry for uhf calculation when spin is 0 as shown in
+        # https://github.com/sunqm/pyscf/blob/master/examples/scf/32-break_spin_symm.py
+        if self.uhf and self.spin == 0:
+            dm_alpha, dm_beta = self.mean_field.get_init_guess()
+            dm_beta[:1, :] = 0
+            dm = (dm_alpha, dm_beta)
+            self.mean_field.kernel(dm)
+        else:
+            self.mean_field.kernel()
+
+        self.mean_field.analyze()
+        if not self.mean_field.converged:
+            raise ValueError("Hartree-Fock calculation did not converge")
 
         if self.symmetry:
             self.mo_symm_ids = list(symm.label_orb_symm(self.mean_field.mol, self.mean_field.mol.irrep_id,
@@ -370,6 +394,8 @@ class SecondQuantizedMolecule(Molecule):
             FermionOperator: Self-explanatory.
         """
 
+        if self.uhf:
+            return get_fermion_operator(self._get_molecular_hamiltonian_uhf())
         core_constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals(mo_coeff)
 
         one_body_coefficients, two_body_coefficients = spinorb_from_spatial(one_body_integrals, two_body_integrals)
@@ -404,34 +430,71 @@ class SecondQuantizedMolecule(Molecule):
 
         # First case: frozen_orbitals is an int.
         # The first n MOs are frozen.
-        if isinstance(frozen_orbitals, int):
+        if isinstance(frozen_orbitals, (int, np.integer)):
             frozen_orbitals = list(range(frozen_orbitals))
+            if self.uhf:
+                frozen_orbitals = [frozen_orbitals, frozen_orbitals]
         # Second case: frozen_orbitals is a list of int.
         # All MOs with indexes in this list are frozen (first MO is 0, second is 1, ...).
         # Everything else raise an exception.
-        elif not (isinstance(frozen_orbitals, list) and all(isinstance(_, int) for _ in frozen_orbitals)):
-            raise TypeError("frozen_orbitals argument must be an (or a list of) integer(s).")
+        elif isinstance(frozen_orbitals, list):
+            if self.uhf and not (len(frozen_orbitals) == 2 and all(isinstance(_, (int, np.integer)) for _ in frozen_orbitals[0]) and
+                                 all(isinstance(_, (int, np.integer)) for _ in frozen_orbitals[0])):
+                raise TypeError("frozen_orbitals argument must be a list of int for both alpha and beta electrons")
+            elif not self.uhf and not all(isinstance(_, int) for _ in frozen_orbitals):
+                raise TypeError("frozen_orbitals argument must be an (or a list of) integer(s).")
+        else:
+            raise TypeError("frozen_orbitals argument must be an (or a list of) integer(s)")
 
-        occupied = [i for i in range(self.n_mos) if self.mo_occ[i] > 0.]
-        virtual = [i for i in range(self.n_mos) if self.mo_occ[i] == 0.]
+        if self.uhf:
+            occupied = list()
+            virtual = list()
+            frozen_occupied = list()
+            frozen_virtual = list()
+            active_occupied = list()
+            active_virtual = list()
+            n_active_electrons = list()
+            n_active_mos = list()
+            for e in range(2):
+                occupied.append([i for i in range(self.n_mos) if self.mo_occ[e][i] > 0.])
+                virtual.append([i for i in range(self.n_mos) if self.mo_occ[e][i] == 0.])
 
-        frozen_occupied = [i for i in frozen_orbitals if i in occupied]
-        frozen_virtual = [i for i in frozen_orbitals if i in virtual]
+                frozen_occupied.append([i for i in frozen_orbitals[e] if i in occupied[e]])
+                frozen_virtual.append([i for i in frozen_orbitals[e] if i in virtual[e]])
 
-        # Redefined active orbitals based on frozen ones.
-        active_occupied = [i for i in occupied if i not in frozen_occupied]
-        active_virtual = [i for i in virtual if i not in frozen_virtual]
+                # Redefined active orbitals based on frozen ones.
+                active_occupied.append([i for i in occupied[e] if i not in frozen_occupied[e]])
+                active_virtual.append([i for i in virtual[e] if i not in frozen_virtual[e]])
 
-        # Calculate number of active electrons and active_mos
-        n_active_electrons = round(sum([self.mo_occ[i] for i in active_occupied]))
-        n_active_mos = len(active_occupied + active_virtual)
+                # Calculate number of active electrons and active_mos
+                n_active_electrons.append(round(sum([self.mo_occ[e][i] for i in active_occupied[e]])))
+                n_active_mos.append(len(active_occupied[e] + active_virtual[e]))
 
-        # Exception raised here if there is no active electron.
-        # An exception is raised also if all active orbitals are fully occupied.
-        if n_active_electrons == 0:
-            raise ValueError("There are no active electrons.")
-        if n_active_electrons == 2*n_active_mos:
-            raise ValueError("All active orbitals are fully occupied.")
+            if n_active_electrons[0] + n_active_electrons[1] == 0:
+                raise ValueError("There are no active electrons.")
+            if (n_active_electrons[0] == 2*n_active_mos[0]) and (n_active_electrons[1] == 2*n_active_mos[1]):
+                raise ValueError("All active orbitals are fully occupied.")
+        else:
+            occupied = [i for i in range(self.n_mos) if self.mo_occ[i] > 0.]
+            virtual = [i for i in range(self.n_mos) if self.mo_occ[i] == 0.]
+
+            frozen_occupied = [i for i in frozen_orbitals if i in occupied]
+            frozen_virtual = [i for i in frozen_orbitals if i in virtual]
+
+            # Redefined active orbitals based on frozen ones.
+            active_occupied = [i for i in occupied if i not in frozen_occupied]
+            active_virtual = [i for i in virtual if i not in frozen_virtual]
+
+            # Calculate number of active electrons and active_mos
+            n_active_electrons = round(sum([self.mo_occ[i] for i in active_occupied]))
+            n_active_mos = len(active_occupied + active_virtual)
+
+            # Exception raised here if there is no active electron.
+            # An exception is raised also if all active orbitals are fully occupied.
+            if n_active_electrons == 0:
+                raise ValueError("There are no active electrons.")
+            if n_active_electrons == 2*n_active_mos:
+                raise ValueError("All active orbitals are fully occupied.")
 
         return active_occupied, frozen_occupied, active_virtual, frozen_virtual
 
@@ -440,8 +503,9 @@ class SecondQuantizedMolecule(Molecule):
 
         list_of_active_frozen = self._convert_frozen_orbitals(frozen_orbitals)
 
-        if any([self.mo_occ[i] == 1 for i in list_of_active_frozen[1]]):
-            raise NotImplementedError("Freezing half-filled orbitals is not implemented yet.")
+        if not self.uhf:
+            if any([self.mo_occ[i] == 1 for i in list_of_active_frozen[1]]):
+                raise NotImplementedError("Freezing half-filled orbitals is not implemented yet for RHF/ROHF.")
 
         if inplace:
             self.frozen_orbitals = frozen_orbitals
@@ -535,6 +599,13 @@ class SecondQuantizedMolecule(Molecule):
         if mo_coeff is None:
             mo_coeff = self.mean_field.mo_coeff
 
+        if self.uhf:
+            if consider_frozen:
+                return self.get_active_space_integrals_uhf(mo_coeff=mo_coeff)
+            else:
+                one_body, two_body = self._compute_uhf_integrals(mo_coeff)
+                return float(pyscf_mol.energy_nuc()), one_body, two_body
+
         # Corresponding to nuclear repulsion energy and static coulomb energy.
         core_constant = float(pyscf_mol.energy_nuc())
 
@@ -561,3 +632,207 @@ class SecondQuantizedMolecule(Molecule):
             core_constant += core_offset
 
         return core_constant, one_electron_integrals, two_electron_integrals
+
+    def _compute_uhf_integrals(self, mo_coeff):
+        """Compute 1-electron and 2-electron integrals
+        The return is formatted as
+        [As x As]*2 numpy array h_{pq} for alpha and beta blocks
+        [As x As x As x As]*3 numpy array storing h_{pqrs} for alpha-alpha, alpha-beta, beta-beta blocks
+        """
+        # step 1 : find nao, nmo (atomic orbitals & molecular orbitals)
+
+        # molecular orbitals (alpha and beta will be the same)
+        # Lets take alpha blocks to find the shape and things
+
+        # molecular orbitals
+        nmo = self.nmo = mo_coeff[0].shape[1]
+        # atomic orbitals
+        nao = self.nao = mo_coeff[0].shape[0]
+
+        # step 2 : obtain Hcore Hamiltonian in atomic orbitals basis
+        hcore = self.mean_field.get_hcore()
+
+        # step 3 : obatin two-electron integral in atomic basis
+        eri = ao2mo.restore(8, self.mean_field._eri, nao)
+
+        # step 4 : create the placeholder for the matrices
+        # one-electron matrix (alpha, beta)
+        self.hpq = []
+
+        # step 5 : do the mo transformation
+        # step the mo coeff alpha and beta
+        mo_a = mo_coeff[0]
+        mo_b = mo_coeff[1]
+
+        # mo transform the hcore
+        self.hpq.append(mo_a.T.dot(hcore).dot(mo_a))
+        self.hpq.append(mo_b.T.dot(hcore).dot(mo_b))
+
+        # mo transform the two-electron integrals
+        eri_a = ao2mo.incore.full(eri, mo_a)
+        eri_b = ao2mo.incore.full(eri, mo_b)
+        eri_ba = ao2mo.incore.general(eri, (mo_a, mo_a, mo_b, mo_b), compact=False)
+
+        # Change the format of integrals (full)
+        eri_a = ao2mo.restore(1, eri_a, nmo)
+        eri_b = ao2mo.restore(1, eri_b, nmo)
+        eri_ba = eri_ba.reshape(nmo, nmo, nmo, nmo)
+
+        # # convert this into the order OpenFemion like to receive
+        two_body_integrals_a = np.asarray(eri_a.transpose(0, 2, 3, 1), order='C')
+        two_body_integrals_b = np.asarray(eri_b.transpose(0, 2, 3, 1), order='C')
+        two_body_integrals_ab = np.asarray(eri_ba.transpose(0, 2, 3, 1), order='C')
+
+        # Gpqrs has alpha, alphaBeta, Beta blocks
+        self.Gpqrs = (two_body_integrals_a, two_body_integrals_ab, two_body_integrals_b)
+
+        return self.hpq, self.Gpqrs
+
+    def get_active_space_integrals_uhf(self, occupied_indices=None, active_indices=None, mo_coeff=None):
+        """Get active space integrals with uhf reference
+        Args:
+            occupied_indices (array-like): The frozen occupied orbital indices
+            active_indices (array-like): The active orbital indices
+            mo_coeff (array): The molecular orbital coefficients to use to generate the integrals.
+        Returns:
+            array: The integrals in the specified active space
+        """
+
+        if mo_coeff is None:
+            mo_coeff = self.mean_field.mo_coeff
+
+        # Get integrals.
+        one_body_integrals, two_body_integrals = self._compute_uhf_integrals(mo_coeff)
+
+        occupied_indices = self.frozen_occupied if occupied_indices is None else occupied_indices
+        active_indices = self.active_mos if active_indices is None else active_indices
+        if (len(active_indices) < 1):
+            raise ValueError('Some active indices required for reduction.')
+
+        # Determine core constant
+        core_constant = 0.0
+        # lets do the alpha part first i
+        for i in occupied_indices[0]:
+            core_constant += one_body_integrals[0][i, i]
+            # alpha part of j
+            for j in occupied_indices[0]:
+                core_constant += 0.5*(two_body_integrals[0][i, j, j, i]-two_body_integrals[0][i, j, i, j])
+            # beta part of j
+            for j in occupied_indices[1]:
+                core_constant += 0.5*(two_body_integrals[1][i, j, j, i])
+
+        # lets do the beta part for i
+        for i in occupied_indices[1]:
+            core_constant += one_body_integrals[1][i, i]
+            # alpha part j
+            for j in occupied_indices[0]:
+                core_constant += 0.5*(two_body_integrals[1][j, i, i, j])   # I, j are swaped to make BetaAlpha same as AlphaBeta
+            for j in occupied_indices[1]:
+                core_constant += 0.5*(two_body_integrals[2][i, j, j, i]-two_body_integrals[2][i, j, i, j])
+
+        # Modified one electon integrals
+        one_body_integrals_new_aa = np.copy(one_body_integrals[0])
+        one_body_integrals_new_bb = np.copy(one_body_integrals[1])
+
+        # Lets do alpha alpha block first
+        for u, v in product(active_indices[0], repeat=2):         # u is u_a, v i v_a
+            for i in occupied_indices[0]:  # i belongs to alpha block
+                one_body_integrals_new_aa[u, v] += (two_body_integrals[0][i, u, v, i] - two_body_integrals[0][i, u, i, v])
+            for i in occupied_indices[1]:  # I belongs to beta block
+                one_body_integrals_new_aa[u, v] += two_body_integrals[1][u, i, i, v]  # I am swaping u,v with I; to make AlphaBeta
+
+        # Lets do the beta beta block now
+        for u, v in product(active_indices[1], repeat=2):         # u is u_beta, v i v_beta
+            for i in occupied_indices[1]:  # i belongs to beta block
+                one_body_integrals_new_bb[u, v] += (two_body_integrals[2][i, u, v, i] - two_body_integrals[2][i, u, i, v])
+            for i in occupied_indices[0]:  # i belongs to alpha block
+                one_body_integrals_new_bb[u, v] += two_body_integrals[1][i, u, v, i]  # this is AlphaBeta
+
+        one_body_integrals_new = [one_body_integrals_new_aa[np.ix_(active_indices[0], active_indices[0])],
+                                  one_body_integrals_new_bb[np.ix_(active_indices[1], active_indices[1])]]
+
+        TwInt_aa = two_body_integrals[0][np.ix_(active_indices[0], active_indices[0],
+                                                active_indices[0], active_indices[0])]
+
+        TwInt_bb = two_body_integrals[2][np.ix_(active_indices[1], active_indices[1],
+                                                active_indices[1], active_indices[1])]
+
+        # (alpha|BetaBeta|alpha) is the format of openFermion
+
+        TwInt_ab = two_body_integrals[1][np.ix_(active_indices[0], active_indices[1],
+                                                active_indices[1], active_indices[0])]
+
+        two_body_integrals_new = [TwInt_aa, TwInt_ab, TwInt_bb]
+
+        return core_constant, one_body_integrals_new, two_body_integrals_new
+
+    def _get_molecular_hamiltonian_uhf(self, occupied_indices=None,
+                                       active_indices=None):
+        """Output arrays of the second quantized Hamiltonian coefficients.
+        Note:
+            The indexing convention used is that even indices correspond to
+            spin-up (alpha) modes and odd indices correspond to spin-down
+            (beta) modes.
+        Args:
+            occupied_indices(list): A list of spatial orbital indices
+                indicating which orbitals should be considered doubly occupied.
+            active_indices(list): A list of spatial orbital indices indicating
+                which orbitals should be considered active.
+        Returns:
+            InteractionOperator: The molecular hamiltonian
+        """
+
+        if occupied_indices is None and active_indices is None:
+            occupied_indices = self.frozen_occupied
+            active_indices = self.active_mos
+            core_adjustment, one_body_integrals, two_body_integrals = self.get_active_space_integrals_uhf(occupied_indices, active_indices)
+            constant = self.mean_field.mol.energy_nuc()
+        else:
+            core_adjustment, one_body_integrals, two_body_integrals = self.get_active_space_integrals_uhf(occupied_indices, active_indices)
+            constant = self.mean_field.mol.energy_nuc() + core_adjustment
+
+        # Lets find the dimensions
+        n_orb_a = one_body_integrals[0].shape[0]
+        n_orb_b = one_body_integrals[1].shape[0]
+
+        # This is not an optimum way to do things as I using some extra qubits
+        # Instead of
+        # n_qubits = n_orb_a + n_orb_b
+        # I will do do
+        n_qubits = 2*max(n_orb_a, n_orb_b)
+
+        # Initialize Hamiltonian coefficients.
+        one_body_coefficients = np.zeros((n_qubits, n_qubits))
+        two_body_coefficients = np.zeros((n_qubits, n_qubits, n_qubits, n_qubits))
+
+        # AA
+        for p, q in product(range(n_orb_a), repeat=2):
+            # Populate 1-body coefficients. Require p and q have same spin.
+            one_body_coefficients[2 * p, 2 * q] = one_body_integrals[0][p, q]
+            for r, s in product(range(n_orb_a), repeat=2):
+                two_body_coefficients[2 * p, 2 * q, 2 * r, 2 * s] = (two_body_integrals[0][p, q, r, s] / 2.)
+
+        # BB
+        for p, q in product(range(n_orb_b), repeat=2):
+            # Populate 1-body coefficients. Require p and q have same spin.
+            one_body_coefficients[2 * p + 1, 2 * q + 1] = one_body_integrals[1][p, q]
+            for r, s in product(range(n_orb_b), repeat=2):
+                two_body_coefficients[2 * p + 1, 2 * q + 1, 2 * r + 1, 2 * s + 1] = (two_body_integrals[2][p, q, r, s] / 2.)
+
+        # AbbA
+        for p, q, r, s in product(range(n_orb_a), range(n_orb_b), range(n_orb_b), range(n_orb_a)):
+            two_body_coefficients[2 * p, 2 * q + 1, 2 * r + 1, 2 * s] = (two_body_integrals[1][p, q, r, s] / 2.)
+
+        # BaaB
+        for p, q, r, s in product(range(n_orb_b), range(n_orb_a), range(n_orb_a), range(n_orb_b)):
+            two_body_coefficients[2 * p + 1, 2 * q, 2 * r, 2 * s + 1] = (two_body_integrals[1][q, p, s, r] / 2.)
+
+        # Truncate.
+        EQ_TOLERANCE = 1.e-8
+        one_body_coefficients[np.absolute(one_body_coefficients) < EQ_TOLERANCE] = 0.
+        two_body_coefficients[np.absolute(two_body_coefficients) < EQ_TOLERANCE] = 0.
+
+        # Cast to InteractionOperator class and return.
+        molecular_hamiltonian = openfermion.InteractionOperator(constant, one_body_coefficients, two_body_coefficients)
+
+        return molecular_hamiltonian

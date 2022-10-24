@@ -26,6 +26,12 @@ xyz_H2 = [
 mol_H2_sto3g = SecondQuantizedMolecule(xyz_H2, q=0, spin=0, basis="sto-3g")
 mol_H2_321g = SecondQuantizedMolecule(xyz_H2, q=0, spin=0, basis="3-21g")
 
+# Dihydrogen stretched. UHF different from HF.
+xyz_H2_stretch = [
+    ("H", (0., 0., 0.)),
+    ("H", (0., 0., 1.6))
+]
+mol_H2_sto3g_uhf = SecondQuantizedMolecule(xyz_H2_stretch, q=0, spin=0, basis="sto-3g", uhf=True)
 
 # Tetrahydrogen.
 xyz_H4 = [

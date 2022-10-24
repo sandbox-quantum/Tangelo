@@ -37,7 +37,7 @@ from tangelo.linq import Circuit
 
 from .ansatz import Ansatz
 from .ansatz_utils import exp_pauliword_to_gates
-from ._unitary_cc_openshell import uccsd_openshell_paramsize, uccsd_openshell_generator
+from ._unitary_cc_openshell import uccsd_openshell_paramsize, uccsd_openshell_generator, uccsd_openshell_get_packed_amplitudes
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 
@@ -69,14 +69,20 @@ class UCCSD(Ansatz):
         self.up_then_down = up_then_down
 
         # Later: refactor to handle various flavors of UCCSD
-        if self.n_spinorbitals % 2 != 0:
+        if not self.molecule.uhf and self.n_spinorbitals % 2 != 0:
             raise ValueError("The total number of spin-orbitals should be even.")
 
         # choose open-shell uccsd if spin not zero, else choose singlet ccsd
-        if self.spin != 0:
+        if self.spin != 0 or self.molecule.uhf:
             self.n_alpha = self.n_electrons//2 + self.spin//2 + 1 * (self.n_electrons % 2)
             self.n_beta = self.n_electrons//2 - self.spin//2
-            self.n_singles, self.n_doubles, _, _, _, _, _ = uccsd_openshell_paramsize(self.n_spinorbitals, self.n_alpha, self.n_beta)
+            if self.molecule.uhf:
+                self.n_orb_a = self.molecule.n_active_mos[0]
+                self.n_orb_b = self.molecule.n_active_mos[1]
+            else:
+                self.n_orb_a = self.n_spinorbitals//2
+                self.n_orb_b = self.n_spinorbitals//2
+            self.n_singles, self.n_doubles, _, _, _, _, _ = uccsd_openshell_paramsize(self.n_alpha, self.n_beta, self.n_orb_a, self.n_orb_b)
         else:
             self.n_spatial_orbitals = self.n_spinorbitals // 2
             self.n_occupied = int(np.ceil(self.n_electrons / 2))
@@ -91,11 +97,11 @@ class UCCSD(Ansatz):
         # TODO: support for others
         self.supported_reference_state = {"HF", "zero"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"ones", "random", "mp2"} if self.spin == 0 else {"ones", "random"}
+        self.supported_initial_var_params = {"ones", "random", "mp2"} if (self.spin == 0 and not self.molecule.uhf) else {"ones", "random"}
 
         # Default initial parameters for initialization
         # TODO: support for openshell MP2 initialization
-        self.var_params_default = "mp2" if self.spin == 0 else "ones"
+        self.var_params_default = "mp2" if (self.spin == 0 and not self.molecule.uhf) else "ones"
         self.reference_state = reference_state
 
         self.var_params = None
@@ -160,7 +166,7 @@ class UCCSD(Ansatz):
             self.set_var_params()
 
         # Build qubit operator required to build UCCSD
-        qubit_op = self._get_singlet_qubit_operator() if self.spin == 0 else self._get_openshell_qubit_operator()
+        qubit_op = self._get_singlet_qubit_operator() if (self.spin == 0 and not self.molecule.uhf) else self._get_openshell_qubit_operator()
 
         # Prepend reference state circuit
         reference_state_circuit = self.prepare_reference_state()
@@ -190,7 +196,7 @@ class UCCSD(Ansatz):
         self.set_var_params(var_params)
 
         # Build qubit operator required to build UCCSD
-        qubit_op = self._get_singlet_qubit_operator() if self.spin == 0 else self._get_openshell_qubit_operator()
+        qubit_op = self._get_singlet_qubit_operator() if (self.spin == 0 and not self.molecule.uhf) else self._get_openshell_qubit_operator()
 
         # If qubit operator terms have changed, rebuild circuit. Else, simply update variational gates directly
         if set(self.pauli_to_angles_mapping.keys()) != set(qubit_op.terms.keys()):
@@ -212,7 +218,8 @@ class UCCSD(Ansatz):
                                             mapping=self.mapping,
                                             n_spinorbitals=self.n_spinorbitals,
                                             n_electrons=self.n_electrons,
-                                            up_then_down=self.up_then_down)
+                                            up_then_down=self.up_then_down,
+                                            spin=self.spin)
 
         # Cast all coefs to floats (rotations angles are real)
         for key in qubit_op.terms:
@@ -228,14 +235,18 @@ class UCCSD(Ansatz):
             QubitOperator: qubit-encoded elements of the UCCSD ansatz.
         """
         fermion_op = uccsd_openshell_generator(self.var_params,
-                                               self.n_spinorbitals,
                                                self.n_alpha,
-                                               self.n_beta)
+                                               self.n_beta,
+                                               self.n_orb_a,
+                                               self.n_orb_b)
+        print(fermion_op)
+        print(self.n_spinorbitals)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
                                             mapping=self.mapping,
                                             n_spinorbitals=self.n_spinorbitals,
                                             n_electrons=self.n_electrons,
-                                            up_then_down=self.up_then_down)
+                                            up_then_down=self.up_then_down,
+                                            spin=self.spin)
 
         # Cast all coefs to floats (rotations angles are real)
         for key in qubit_op.terms:
@@ -254,6 +265,8 @@ class UCCSD(Ansatz):
         Returns:
             list of float: The initial variational parameters.
         """
+        if self.molecule.uhf:
+            raise NotImplementedError("MP2 initialization is not implemented for UHF reference in Tangelo.")
 
         mp2_fragment = mp.MP2(self.molecule.mean_field, frozen=self.molecule.frozen_mos)
         mp2_fragment.verbose = 0
