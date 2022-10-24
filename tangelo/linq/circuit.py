@@ -129,7 +129,7 @@ class Circuit:
 
     @property
     def counts_n_qubit(self):
-        """Return the counts for all gate types included in the circuit."""
+        """Return the number of 1-qubit gates, 2-qubit gates, and so on."""
         return self._n_qubit_gate_counts
 
     @property
@@ -179,7 +179,7 @@ class Circuit:
         # Keep track of the total gate count
         self._gate_counts[gate.name] = self._gate_counts.get(gate.name, 0) + 1
 
-        # Keep track of n_qubit gate count
+        # Keep track of gate counts separately for 1-qubit gates, 2-qubit gates, and so on
         n_qubit = len(g.target) if (g.control is None) else len(g.target) + len(g.control)
         self._n_qubit_gate_counts[n_qubit] = self._n_qubit_gate_counts.get(n_qubit, 0) + 1
 

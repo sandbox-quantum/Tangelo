@@ -235,7 +235,6 @@ class SA_VQESolver(VQESolver):
                    self.reference_circuits[0] + self.ansatz.circuit)
         resources["circuit_width"] = circuit.width
         resources["circuit_depth"] = circuit.depth()
-        resources["circuit_gates"] = circuit.size
         # For now, only CNOTs supported.
         resources["circuit_2qubit_gates"] = circuit.counts_n_qubit.get(2, 0)
         resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
