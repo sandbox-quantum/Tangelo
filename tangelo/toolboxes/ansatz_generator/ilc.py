@@ -88,8 +88,8 @@ class ILC(Ansatz):
         self.molecule = molecule
         if isinstance(self.molecule, SecondQuantizedMolecule):
             self.n_spinorbitals = self.molecule.n_active_sos
-            self.n_electrons = self.molecule.n_electrons
-            self.spin = self.molecule.spin
+            self.n_electrons = self.molecule.n_active_electrons
+            self.spin = self.molecule.active_spin
         elif isinstance(self.molecule, dict):
             self.n_spinorbitals = self.molecule["n_spinorbitals"]
             self.n_electrons = self.molecule["n_electrons"]

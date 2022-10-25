@@ -86,7 +86,7 @@ class QMF(Ansatz):
             raise ValueError("The total number of spin-orbitals should be even.")
 
         self.n_orbitals = self.n_spinorbitals // 2
-        self.spin = molecule.spin
+        self.spin = molecule.active_spin
         self.fermi_ham = self.molecule.fermionic_hamiltonian
         self.n_electrons = self.molecule.n_active_electrons
 

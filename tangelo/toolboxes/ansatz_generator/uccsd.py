@@ -64,7 +64,7 @@ class UCCSD(Ansatz):
         self.molecule = molecule
         self.n_spinorbitals = molecule.n_active_sos
         self.n_electrons = molecule.n_active_electrons
-        self.spin = molecule.spin if spin is None else spin
+        self.spin = molecule.active_spin if spin is None else spin
         self.mapping = mapping
         self.up_then_down = up_then_down
 
@@ -74,8 +74,7 @@ class UCCSD(Ansatz):
 
         # choose open-shell uccsd if spin not zero, else choose singlet ccsd
         if self.spin != 0 or self.molecule.uhf:
-            self.n_alpha = self.n_electrons//2 + self.spin//2 + 1 * (self.n_electrons % 2)
-            self.n_beta = self.n_electrons//2 - self.spin//2
+            self.n_alpha, self.n_beta = self.molecule.n_active_ab_electrons
             if self.molecule.uhf:
                 self.n_orb_a = self.molecule.n_active_mos[0]
                 self.n_orb_b = self.molecule.n_active_mos[1]
@@ -239,8 +238,6 @@ class UCCSD(Ansatz):
                                                self.n_beta,
                                                self.n_orb_a,
                                                self.n_orb_b)
-        print(fermion_op)
-        print(self.n_spinorbitals)
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
                                             mapping=self.mapping,
                                             n_spinorbitals=self.n_spinorbitals,

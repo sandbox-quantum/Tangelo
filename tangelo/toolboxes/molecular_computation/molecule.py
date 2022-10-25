@@ -265,6 +265,16 @@ class SecondQuantizedMolecule(Molecule):
                 int(sum([self.mo_occ[0][i] for i in self.active_occupied[0]]))+int(sum([self.mo_occ[1][i] for i in self.active_occupied[1]])))
 
     @property
+    def n_active_ab_electrons(self):
+        if self.uhf:
+            return [int(sum([self.mo_occ[0][i] for i in self.active_occupied[0]])), int(sum([self.mo_occ[1][i] for i in self.active_occupied[1]]))]
+        else:
+            n_active_electrons = self.n_active_electrons
+            n_alpha = n_active_electrons//2 + self.spin//2 + (n_active_electrons % 2)
+            n_beta = n_active_electrons//2 - self.spin//2
+            return (n_alpha, n_beta)
+
+    @property
     def n_active_sos(self):
         return 2*len(self.active_mos) if not self.uhf else max(len(self.active_mos[0])*2, len(self.active_mos[1])*2)
 
@@ -313,7 +323,8 @@ class SecondQuantizedMolecule(Molecule):
         Returns:
             int: n_alpha - n_beta electrons of the active occupied orbital space.
         """
-        return sum([self.mo_occ[i] == 1 for i in self.active_occupied])
+        n_alpha, n_beta = self.n_active_ab_electrons
+        return n_alpha - n_beta
 
     @property
     def mo_coeff(self):
@@ -657,7 +668,7 @@ class SecondQuantizedMolecule(Molecule):
 
         # step 4 : create the placeholder for the matrices
         # one-electron matrix (alpha, beta)
-        self.hpq = []
+        hpq = []
 
         # step 5 : do the mo transformation
         # step the mo coeff alpha and beta
@@ -665,8 +676,8 @@ class SecondQuantizedMolecule(Molecule):
         mo_b = mo_coeff[1]
 
         # mo transform the hcore
-        self.hpq.append(mo_a.T.dot(hcore).dot(mo_a))
-        self.hpq.append(mo_b.T.dot(hcore).dot(mo_b))
+        hpq.append(mo_a.T.dot(hcore).dot(mo_a))
+        hpq.append(mo_b.T.dot(hcore).dot(mo_b))
 
         # mo transform the two-electron integrals
         eri_a = ao2mo.incore.full(eri, mo_a)
@@ -684,9 +695,9 @@ class SecondQuantizedMolecule(Molecule):
         two_body_integrals_ab = np.asarray(eri_ba.transpose(0, 2, 3, 1), order='C')
 
         # Gpqrs has alpha, alphaBeta, Beta blocks
-        self.Gpqrs = (two_body_integrals_a, two_body_integrals_ab, two_body_integrals_b)
+        Gpqrs = (two_body_integrals_a, two_body_integrals_ab, two_body_integrals_b)
 
-        return self.hpq, self.Gpqrs
+        return hpq, Gpqrs
 
     def get_active_space_integrals_uhf(self, occupied_indices=None, active_indices=None, mo_coeff=None):
         """Get active space integrals with uhf reference
@@ -710,7 +721,7 @@ class SecondQuantizedMolecule(Molecule):
             raise ValueError('Some active indices required for reduction.')
 
         # Determine core constant
-        core_constant = 0.0
+        core_constant = self.mean_field.mol.energy_nuc()
         # lets do the alpha part first i
         for i in occupied_indices[0]:
             core_constant += one_body_integrals[0][i, i]
@@ -785,11 +796,9 @@ class SecondQuantizedMolecule(Molecule):
         if occupied_indices is None and active_indices is None:
             occupied_indices = self.frozen_occupied
             active_indices = self.active_mos
-            core_adjustment, one_body_integrals, two_body_integrals = self.get_active_space_integrals_uhf(occupied_indices, active_indices)
-            constant = self.mean_field.mol.energy_nuc()
+            constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals_uhf(occupied_indices, active_indices)
         else:
-            core_adjustment, one_body_integrals, two_body_integrals = self.get_active_space_integrals_uhf(occupied_indices, active_indices)
-            constant = self.mean_field.mol.energy_nuc() + core_adjustment
+            constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals_uhf(occupied_indices, active_indices)
 
         # Lets find the dimensions
         n_orb_a = one_body_integrals[0].shape[0]

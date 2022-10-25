@@ -140,7 +140,7 @@ class ADAPTSolver:
 
             self.n_spinorbitals = self.molecule.n_active_sos
             self.n_electrons = self.molecule.n_active_electrons
-            self.spin = self.molecule.spin
+            self.spin = self.molecule.active_spin
 
             # Compute qubit hamiltonian for the input molecular system
             self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
