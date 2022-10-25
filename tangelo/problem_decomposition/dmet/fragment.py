@@ -55,6 +55,7 @@ class SecondQuantizedDMETFragment:
         self.n_active_electrons = self.molecule.nelectron
         self.q = self.molecule.charge
         self.spin = self.molecule.spin
+        self.active_spin = self.spin
 
         self.basis = self.molecule.basis
         self.n_active_mos = len(self.mean_field.mo_energy)
@@ -62,6 +63,7 @@ class SecondQuantizedDMETFragment:
 
         self.fermionic_hamiltonian = self._get_fermionic_hamiltonian()
         self.frozen_mos = None
+        self.uhf = False
 
     def _get_fermionic_hamiltonian(self):
         """This method returns the fermionic hamiltonian. It written to take
