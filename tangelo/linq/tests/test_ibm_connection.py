@@ -33,6 +33,7 @@ def assert_freq_dict_almost_equal(d1, d2, atol):
                 raise AssertionError(f"Frequency {k}, difference above tolerance {atol}: {d1[k]} != {d2[k]}")
 
 
+os.environ['IBM_TOKEN'] = 'insert valid token'
 @unittest.skip("We do not want to store login information for automated testing. Manual testing only.")
 class TestIBMConnection(unittest.TestCase):
 
@@ -55,7 +56,8 @@ class TestIBMConnection(unittest.TestCase):
 
         connection = IBMConnection()
 
-        job_id = connection.job_submit('sampler', 'ibmq_qasm_simulator', circ, n_shots=10**5)
+        options = {'resilience_level': 1}
+        job_id = connection.job_submit('sampler', 'ibmq_qasm_simulator', circ, n_shots=10**5, runtime_options=options)
         print(connection.job_status(job_id))
 
         job_results = connection.job_results(job_id)
@@ -66,12 +68,14 @@ class TestIBMConnection(unittest.TestCase):
     def test_submit_job_estimator(self):
         """ Submit an estimator job to a valid backend, query status and retrieve results """
 
-        connection = IBMConnection()
+        conn = IBMConnection()
 
-        job_id = connection.job_submit('estimator', 'ibmq_qasm_simulator', circ2, operator=op, n_shots=10**5)
-        print(connection.job_status(job_id))
+        options = {'resilience_level': 1}
+        job_id = conn.job_submit('estimator', 'ibmq_qasm_simulator', circ2, operator=op, n_shots=10**5,
+                                 runtime_options=options)
+        print(conn.job_status(job_id))
 
-        job_results = connection.job_results(job_id)
+        job_results = conn.job_results(job_id)
         self.assertAlmostEqual(job_results, ref_estimator, delta=1e-2)
 
     def test_cancel_job(self):

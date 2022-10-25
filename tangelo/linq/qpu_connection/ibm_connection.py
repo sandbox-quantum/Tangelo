@@ -34,7 +34,7 @@ class IBMConnection(QpuConnection):
         """ Attempt to connect to the service. Fails if environment variable IBM_TOKEN
             has not been set to a correct value.
         """
-        api_key = os.getenv("IBM_TOKEN", None).strip('\'')
+        api_key = os.getenv("IBM_TOKEN", None)
         if not api_key:
             raise RuntimeError(f"Please set these environment variables: IBM_TOKEN")
         self.api_key = api_key
@@ -48,26 +48,45 @@ class IBMConnection(QpuConnection):
         """ Return configuration information for each device found on the service """
         return [b.configuration() for b in self.service.backends()]
 
-    def job_submit(self, program, backend, circ, **kwargs):
+    def job_submit(self, program, backend_name, circ, operator=None, n_shots=10**4, runtime_options=None):
         """ Submit job, return job ID.
 
         Args:
-            program (str): name of qiskit-runtime program (e.g sampler, estimator....)
-            backend (str): name of a qiskit backend
+            program (str): name of available qiskit-runtime program (e.g sampler, estimator currently)
+            backend_name (str): name of a qiskit backend
             circ (Circuit): Tangelo circuit
-            **kwargs (dict): extra keyword arguments. See body for what is currently supported.
+            operator (QubitOperator) : Optional, a qubit operator if an expectation value is required
+            n_shots (int): Optional, number of shots to use on the target backend
+            runtime_options (dict): Optional, extra keyword arguments for options supported in qiskit-runtime.
 
         Returns:
             str: string representing the job id
         """
 
-        n_shots = kwargs.get('n_shots', 10**4)
-        op = kwargs.get('operator', None)
+        # Set up options and intermediary Qiskit runtime objects
+        backend = self.service.backend(backend_name)
+        session = Session(service=self.service, backend=backend)
 
+        if runtime_options is None:
+            runtime_options = dict()
+        options = Options(optimization_level=runtime_options.get('optimization_level', 1),
+                          resilience_level=runtime_options.get('resilience_level', 0))
+
+        # Translate circuit in qiskit format, add final measurements
+        qiskit_c = translate_c_to_qiskit(circ)
+        qiskit_c.remove_final_measurements()
+        qiskit_c.measure_all(add_bits=False)
+
+        # If needed, translate qubit operator in qiskit format
+        if operator:
+            qiskit_op = translate_operator(operator, source="tangelo", target="qiskit")
+
+        # Execute qiskit-runtime program, retrieve job ID
         if program == 'sampler':
-            job = self._submit_sampler(backend, circ, n_shots)
+            job = self._submit_sampler(qiskit_c, n_shots, session, options)
         elif program == 'estimator':
-            job = self._submit_estimator(backend, circ, op, n_shots)
+            estimator = Estimator(session=session, options=options)
+            job = estimator.run(circuits=[qiskit_c], observables=[qiskit_op], shots=n_shots)
         else:
             raise NotImplementedError("Only Sampler and Estimator programs currently available.")
 
@@ -144,62 +163,29 @@ class IBMConnection(QpuConnection):
 
         return is_cancelled
 
-    def _submit_sampler(self, backend_name, circuit, n_shots):
+    def _submit_sampler(self, qiskit_c, n_shots, session, options):
         """ Submit job using Sampler primitive, return job ID.
 
         Args:
-            backend_name (str): name of a qiskit backend
-            circuit (Circuit): Tangelo circuit
+            qiskit_c (Qiskit.QuantumCircuit): Circuit in Qiskit format
             n_shots (int): Number of shots
+            session (qiskit_ibm_runtime.Session): Qiskit runtime Session object
+            options (qiskit_ibm_runtime.Options): Qiskit runtime Options object
 
         Returns:
             str: string representing the job id
         """
 
-        # Translate circuit in qiskit format, add final measurements
-        qiskit_c = translate_c_to_qiskit(circuit)
-        qiskit_c.remove_final_measurements()
-        qiskit_c.measure_all(add_bits=False)
-
-        options = {"backend_name": backend_name}
+        # Set up program inputs
         run_options = {"shots": n_shots}
-
-        # Future extra keywords and feature to support, error-mitigation and optimization of circuit
-        resilience_settings = {"level": 0}  # Default: no error-mitigation, raw results.
+        resilience_settings = {"level": options.resilience_level}
 
         program_inputs = {"circuits": qiskit_c, "circuit_indices": [0],
-                          "run_options": run_options, "resilience_settings": resilience_settings}
+                          "run_options": run_options,
+                          "resilience_settings": resilience_settings}
 
-        job = self.service.run(program_id="sampler", options=options, inputs=program_inputs)
-        return job
+        # Set backend
+        more_options = {"backend_name": session.backend()}
 
-    def _submit_estimator(self, backend_name, circuit, operator, n_shots):
-        """ Submit job using Estimator primitive, return job ID.
-
-        Args:
-            backend_name (str): name of a qiskit backend
-            circuit (Circuit): Tangelo circuit
-            operator (QubitOperator): Tangelo QubitOperator
-            n_shots (int): Number of shots
-
-        Returns:
-            str: string representing the job id
-        """
-
-        # Translate circuit in qiskit format, add final measurements
-        qiskit_c = translate_c_to_qiskit(circuit)
-        qiskit_c.remove_final_measurements()
-        qiskit_c.measure_all(add_bits=False)
-
-        # Translate qubit operator in qiskit format
-        qiskit_op = translate_operator(operator, source="tangelo", target="qiskit")
-
-        # Set up options and intermediary objects
-        options = {}
-        backend = self.service.backend(backend_name)
-        session = Session(service=self.service, backend=backend)
-        estimator = Estimator(session=session, options=options)
-
-        # Submit job to estimator
-        job = estimator.run(circuits=[qiskit_c], observables=[qiskit_op], shots=n_shots)
+        job = self.service.run(program_id="sampler", options=more_options, inputs=program_inputs)
         return job
