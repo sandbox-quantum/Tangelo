@@ -280,6 +280,8 @@ class SimulatorBase(abc.ABC):
             qubit_operator(openfermion-style QubitOperator class): a qubit
                 operator.
             state_prep_circuit: an abstract circuit used for state preparation.
+            initial_statevector(list/array) : A valid statevector in the format
+                supported by the target backend.
 
         Returns:
             complex: The variance of this operator with regards to the
@@ -300,11 +302,7 @@ class SimulatorBase(abc.ABC):
 
         # If the underlying operator is hermitian, expectation value is real and can be computed right away
         if are_coefficients_real:
-            if self._noise_model or not self.statevector_available \
-                    or state_prep_circuit.is_mixed_state or state_prep_circuit.size == 0:
-                return self._get_variance_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
-            elif self.statevector_available:
-                return self._get_variance_from_statevector(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
+            return self._get_variance_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
 
         # Else, separate the operator into 2 hermitian operators, use linearity and call this function twice
         else:
@@ -333,17 +331,15 @@ class SimulatorBase(abc.ABC):
             qubit_operator(openfermion-style QubitOperator class): a qubit
                 operator.
             state_prep_circuit: an abstract circuit used for state preparation.
+            initial_statevector(list/array) : A valid statevector in the format
+                supported by the target backend.
 
         Returns:
             complex: The standard error of this operator with regards to the
                 state preparation.
         """
         variance = self.get_variance(qubit_operator, state_prep_circuit, initial_statevector)
-
-        if not self.n_shots:
-            return 0.
-        else:
-            return np.sqrt(variance/self.n_shots)
+        return np.sqrt(variance/self.n_shots) if self.n_shots else 0.
 
     def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit, initial_statevector=None):
         r"""Take as input a qubit operator H and a state preparation returning a
@@ -398,50 +394,6 @@ class SimulatorBase(abc.ABC):
 
         return expectation_value
 
-    def _get_variance_from_statevector(self, qubit_operator, state_prep_circuit, initial_statevector=None):
-        r"""Take as input a qubit operator H and a state preparation returning a
-        ket |\psi>. Return the variance <\psi | H | \psi>, computed
-        without drawing samples (statevector only). Users should not be calling
-        this function directly, please call "get_expectation_value" instead.
-
-        Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit
-                operator.
-            state_prep_circuit: an abstract circuit used for state preparation
-                (only pure states).
-
-        Returns:
-            complex: The variance of this operator with regards to the
-                state preparation.
-        """
-        n_qubits = state_prep_circuit.width
-
-        variance = 0.
-        prepared_frequencies, prepared_state = self.simulate(state_prep_circuit, return_statevector=True, initial_statevector=initial_statevector)
-
-        # Otherwise, use generic statevector expectation value
-        for term, coef in qubit_operator.terms.items():
-
-            if len(term) > n_qubits:  # Cannot have a qubit index beyond circuit size
-                raise ValueError(f"Size of operator {qubit_operator} beyond circuit width ({n_qubits} qubits)")
-            elif not term:  # Empty term: no simulation needed
-                variance += 0.
-                continue
-
-            # If n_shots has been specified, then draw that amount of samples from the distribution
-            # and compute variance with empirical frequencies instead. Otherwise, use the exact frequencies
-            basis_circuit = Circuit(measurement_basis_gates(term), n_qubits=state_prep_circuit.width)
-            if basis_circuit.size > 0:
-                frequencies, _ = self.simulate(basis_circuit, initial_statevector=prepared_state)
-            else:
-                frequencies = prepared_frequencies
-            variance_term = self.get_variance_from_frequencies_oneterm(term, frequencies)
-            # Assumes no correlation between terms
-            # https://en.wikipedia.org/wiki/Propagation_of_uncertainty#Example_formulae
-            variance += coef * coef * variance_term
-
-        return variance
-
     def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None):
         r"""Take as input a qubit operator H and a state preparation returning a
         ket |\psi>. Return the expectation value <\psi | H | \psi> computed
@@ -493,6 +445,8 @@ class SimulatorBase(abc.ABC):
             qubit_operator(openfermion-style QubitOperator class): a qubit
                 operator.
             state_prep_circuit: an abstract circuit used for state preparation.
+            initial_statevector(list/array) : A valid statevector in the format
+                supported by the target backend.
 
         Returns:
             complex: The variance of this operator with regards to the
@@ -515,8 +469,7 @@ class SimulatorBase(abc.ABC):
             if len(term) > n_qubits:
                 raise ValueError(f"Size of operator {qubit_operator} beyond circuit width ({n_qubits} qubits)")
             elif not term:  # Empty term: no simulation needed
-                variance += 0.
-                continue
+                pass
 
             basis_circuit = Circuit(measurement_basis_gates(term))
             full_circuit = initial_circuit + basis_circuit if (basis_circuit.size > 0) else initial_circuit

@@ -157,37 +157,39 @@ class TestSimulateAllBackends(unittest.TestCase):
         # prepares sqrt(2/3)|0> + -i*sqrt(1/3)|1>
         circuit = Circuit([Gate("RX", 0, parameter=2*np.arcsin(np.sqrt(1/3)))])
 
-        for b in installed_simulator:
-            for shots in [None, 10**5]:
-                if shots is None:
-                    precision = 8
-                else:
-                    precision = 2
-                sim = Simulator(target=b, n_shots=shots)
+        for shots in [None, 10**6]:
+            if shots is None:
+                precision = 8
+            else:
+                precision = 2
+            sim = Simulator(target='cirq', n_shots=shots)
 
-                # <X> = 0.0, <X^2> = 1.0, so Var(X) = <X^2> - <X>^2 = 1.0
-                np.testing.assert_almost_equal(sim.get_expectation_value(opx, circuit), 0.0, decimal=precision)
-                np.testing.assert_almost_equal(sim.get_variance(opx, circuit), 1.0, decimal=precision)
+            # <X> = 0.0, <X^2> = 1.0, so Var(X) = <X^2> - <X>^2 = 1.0
+            np.testing.assert_almost_equal(sim.get_variance(opx, circuit), 1.0, decimal=precision)
 
-                # <Y> = -2*sqrt(2)/3, <Y^2> = 1.0, so Var(Y) = <Y^2> - <Y>^2 = 1/9
-                np.testing.assert_almost_equal(sim.get_expectation_value(opy, circuit), -2*np.sqrt(2)/3, decimal=precision)
-                np.testing.assert_almost_equal(sim.get_variance(opy, circuit), 1/9, decimal=precision)
+            # <Y> = -2*sqrt(2)/3, <Y^2> = 1.0, so Var(Y) = <Y^2> - <Y>^2 = 1/9
+            np.testing.assert_almost_equal(sim.get_variance(opy, circuit), 1/9, decimal=precision)
 
-                # <Z> = 1/3, <Z^2> = 1.0, so Var(Z) = <Z^2> - <Z>^2 = 8/9
-                np.testing.assert_almost_equal(sim.get_expectation_value(opz, circuit), 1/3, decimal=precision)
-                np.testing.assert_almost_equal(sim.get_variance(opz, circuit), 8/9, decimal=precision)
+            # <Z> = 1/3, <Z^2> = 1.0, so Var(Z) = <Z^2> - <Z>^2 = 8/9
+            np.testing.assert_almost_equal(sim.get_variance(opz, circuit), 8/9, decimal=precision)
 
-                # using linearity of mean and variance, <H> = <X + Y + Z>
-                np.testing.assert_almost_equal(
-                    sim.get_expectation_value(opx + opy + opz, circuit),
-                    1/3 - 2*np.sqrt(2)/3,
-                    decimal=precision,
-                )
-                np.testing.assert_almost_equal(
-                    sim.get_variance(opx + opy + opz, circuit),
-                    1 + 1/9 + 8/9,
-                    decimal=precision,
-                )
+            # using linearity of variance, Var(<H>) = Var(<X>) + Var(<Y>) + Var(<Z>)
+            sum_variance = sim.get_variance(opx + opy + opz, circuit)
+            np.testing.assert_almost_equal(sum_variance, 1 + 1/9 + 8/9, decimal=precision)
+
+    def test_get_variance_from_frequencies_oneterm(self):
+        """ Test variance given frequencies for one term. """
+        op = 1.0 * QubitOperator("Z0")
+        for shots in [None, 10**6]:
+            if shots is None:
+                precision = 8
+            else:
+                precision = 2
+            sim = Simulator(target='cirq', n_shots=shots)
+            # <Z> = 1/3, <Z^2> = 1.0, so Var(Z) = <Z^2> - <Z>^2 = 8/9
+            frequencies = {'1': 1/3, '0': 2/3}
+            oneterm_variance = sim.get_variance_from_frequencies_oneterm(list(op.terms.keys())[0], frequencies)
+            np.testing.assert_almost_equal(oneterm_variance, 8/9, decimal=precision)
 
 
 class TestSimulateStatevector(unittest.TestCase):
