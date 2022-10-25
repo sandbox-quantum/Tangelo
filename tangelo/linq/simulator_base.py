@@ -428,21 +428,17 @@ class SimulatorBase(abc.ABC):
                 variance += 0.
                 continue
 
-            if not self.n_shots:
-                # Without shots, variance using statevector is identically zero
-                variance += 0.
-
+            # If n_shots has been specified, then draw that amount of samples from the distribution
+            # and compute variance with empirical frequencies instead. Otherwise, use the exact frequencies
+            basis_circuit = Circuit(measurement_basis_gates(term), n_qubits=state_prep_circuit.width)
+            if basis_circuit.size > 0:
+                frequencies, _ = self.simulate(basis_circuit, initial_statevector=prepared_state)
             else:
-                # Run simulation with statevector but compute expectation value with samples directly drawn from it
-                basis_circuit = Circuit(measurement_basis_gates(term), n_qubits=state_prep_circuit.width)
-                if basis_circuit.size > 0:
-                    frequencies, _ = self.simulate(basis_circuit, initial_statevector=prepared_state)
-                else:
-                    frequencies = prepared_frequencies
-                variance_term = self.get_variance_from_frequencies_oneterm(term, frequencies)
-                # Assumes no correlation between terms
-                # https://en.wikipedia.org/wiki/Propagation_of_uncertainty#Example_formulae
-                variance += coef * coef * variance_term
+                frequencies = prepared_frequencies
+            variance_term = self.get_variance_from_frequencies_oneterm(term, frequencies)
+            # Assumes no correlation between terms
+            # https://en.wikipedia.org/wiki/Propagation_of_uncertainty#Example_formulae
+            variance += coef * coef * variance_term
 
         return variance
 

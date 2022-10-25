@@ -65,13 +65,12 @@ def deprecated(custom_message=""):
 
 
 # List all backends and statevector ones supported by Simulator class
-all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq", "qdk"}
-all_backends_simulator = {"qulacs", "qiskit", "cirq", "qdk"}
+all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq"}
+all_backends_simulator = {"qulacs", "qiskit", "cirq"}
 sv_backends_simulator = {"qulacs", "qiskit", "cirq"}
 
 # Dictionary mapping package names to their identifier in this module
 packages = {p: p for p in all_backends}
-packages["qdk"] = "qsharp"
 
 # Figure out what is install in user's environment
 installed_backends = {p_id for p_id, p_name in packages.items() if is_package_installed(p_name)}
