@@ -310,6 +310,6 @@ class QITESolver:
         resources["qubit_hamiltonian_terms"] = len(self.qubit_hamiltonian.terms)
         resources["pool_size"] = len(self.pool_operators)
         resources["circuit_width"] = self.final_circuit.width
-        resources["circuit_gates"] = self.final_circuit.size
-        resources["circuit_2qubit_gates"] = self.final_circuit.counts.get("CNOT", 0)
+        resources["circuit_depth"] = self.final_circuit.depth()
+        resources["circuit_2qubit_gates"] = self.final_circuit.counts_n_qubit.get(2, 0)
         return resources
