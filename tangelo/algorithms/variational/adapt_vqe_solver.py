@@ -261,6 +261,12 @@ class ADAPTSolver:
                 self.converged = True
                 break
 
+        # Reconstructing the optimal circuit at the end of the ADAPT iterations
+        # or when the algorithm has converged.
+        self.ansatz.build_circuit(self.optimal_var_params)
+        self.optimal_circuit = (self.vqe_solver.ansatz.circuit if self.ref_state is None else
+                                self.vqe_solver.reference_circuit + self.vqe_solver.ansatz.circuit)
+
         return self.energies[-1]
 
     def compute_gradients(self, circuit, backend):
@@ -320,13 +326,6 @@ class ADAPTSolver:
 
         self.optimal_var_params = result.x
         self.optimal_energy = result.fun
-
-        # Reconstructing the optimal circuit at the end of the ADAPT iterations
-        # or when the algorithm has converged.
-        if self.converged or self.iteration == self.max_cycles:
-            self.ansatz.build_circuit(self.optimal_var_params)
-            self.optimal_circuit = (self.vqe_solver.ansatz.circuit if self.ref_state is None else
-                                    self.vqe_solver.reference_circuit + self.vqe_solver.ansatz.circuit)
 
         if self.verbose:
             print(f"VQESolver optimization results:")
