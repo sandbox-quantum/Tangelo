@@ -153,7 +153,7 @@ class ADAPTSolver:
         # Build / set ansatz circuit.
         ansatz_options = {"mapping": self.qubit_mapping, "up_then_down": self.up_then_down,
                           "reference_state": "HF" if self.ref_state is None else "zero"}
-        self.ansatz = ADAPTAnsatz(self.n_spinorbitals, self.n_electrons, ansatz_options)
+        self.ansatz = ADAPTAnsatz(self.n_spinorbitals, self.n_electrons, self.spin, ansatz_options)
 
         # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles.
         self.vqe_options = {"qubit_hamiltonian": self.qubit_hamiltonian,
