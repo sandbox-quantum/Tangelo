@@ -166,6 +166,9 @@ class ADAPTSolver:
                             }
 
         self.vqe_solver = VQESolver(self.vqe_options)
+
+        # Circuits without variational parameter raise a warning in VQESolver.
+        warnings.filterwarnings("ignore", message="No variational gate found in the circuit.")
         self.vqe_solver.build()
 
         # If applicable, give vqe_solver access to molecule object
@@ -229,21 +232,21 @@ class ADAPTSolver:
 
             full_circuit = (self.vqe_solver.ansatz.circuit if self.ref_state is None else
                             self.vqe_solver.reference_circuit + self.vqe_solver.ansatz.circuit)
-            pool_select = self.rank_pool(self.pool_commutators, full_circuit,
-                                         backend=self.vqe_solver.backend, tolerance=self.tol)
+            gradients = self.compute_gradients(full_circuit, backend=self.vqe_solver.backend)
+            pool_select = self.choose_operator(gradients, tolerance=self.tol)
 
             # If pool selection returns an operator that changes the energy by
             # more than self.tol. Else, the loop is complete and the energy is
             # considered as converged.
-            if pool_select > -1:
-
+            if pool_select:
                 # Adding a new operator + initializing its parameters to 0.
                 # Previous parameters are kept as they were.
-                params += [0.]
-                if self.pool_type == 'fermion':
-                    self.vqe_solver.ansatz.add_operator(self.pool_operators[pool_select], self.fermionic_operators[pool_select])
-                else:
-                    self.vqe_solver.ansatz.add_operator(self.pool_operators[pool_select])
+                params += [0.] * len(pool_select)
+                for ps in pool_select:
+                    if self.pool_type == 'fermion':
+                        self.vqe_solver.ansatz.add_operator(self.pool_operators[ps], self.fermionic_operators[ps])
+                    else:
+                        self.vqe_solver.ansatz.add_operator(self.pool_operators[ps])
                 self.vqe_solver.initial_var_params = params
 
                 # Performs a VQE simulation and append the energy to a list.
@@ -260,22 +263,18 @@ class ADAPTSolver:
 
         return self.energies[-1]
 
-    def rank_pool(self, pool_commutators, circuit, backend, tolerance=1e-3):
-        """Rank pool of operators with a specific circuit.
+    def compute_gradients(self, circuit, backend):
+        """Compute gradients for the operators with a specific circuit.
 
         Args:
-            pool_commutators (QubitOperator): Commutator [H, operator] for each
-                generator.
             circuit (tangelo.linq.Circuit): Circuit for measuring each commutator.
             backend (tangelo.linq.Simulator): Backend to compute expectation values.
-            tolerance (float): Minimum value for gradient to be considered.
 
-        Returns:
-            int: Index of the operators with the highest gradient. If it is not
-                bigger than tolerance, returns -1.
+       Returns:
+            list of float: Operator gradient for all operators.
         """
 
-        gradient = [abs(backend.get_expectation_value(element, circuit)) for element in pool_commutators]
+        gradient = [abs(backend.get_expectation_value(element, circuit)) for element in self.pool_commutators]
         for deflate_circuit in self.deflation_circuits:
             for i, pool_op in enumerate(self.pool_operators):
                 op_circuit = Circuit([Gate(op[1], op[0]) for tuple in pool_op.terms for op in tuple])
@@ -285,12 +284,28 @@ class ADAPTSolver:
                 pool_over = deflate_circuit.inverse() + circuit
                 f_dict, _ = backend.simulate(pool_over)
                 gradient[i] += self.deflation_coeff * grad * f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
-        max_partial = max(gradient)
+
+        return gradient
+
+    def choose_operator(self, gradients, tolerance=1e-3):
+        """Choose next operator to add according to the ADAPT-VQE algorithm.
+
+        Args:
+            list of float: Operator gradient corresponding to self.pool_operators.
+            tolerance (float): Minimum value for gradient to be considered.
+
+        Returns:
+            list of int: Index (list of length=1) of the operator with the
+                highest gradient. If it is not bigger than tolerance, returns
+                an empty list.
+        """
+        sorted_op_indices = sorted(range(len(gradients)), key=lambda k: gradients[k])
+        max_partial = gradients[sorted_op_indices[-1]]
 
         if self.verbose:
-            print(f"LARGEST PARTIAL DERIVATIVE: {max_partial :4E} \t[{gradient.index(max_partial)}]")
+            print(f"LARGEST PARTIAL DERIVATIVE: {max_partial :4E} \t[{gradients.index(max_partial)}]")
 
-        return gradient.index(max_partial) if max_partial >= tolerance else -1
+        return [gradients.index(max_partial)] if max_partial >= tolerance else []
 
     def get_resources(self):
         """Returns resources currently used in underlying VQE."""
