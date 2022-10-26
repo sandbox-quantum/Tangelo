@@ -14,13 +14,31 @@
 
 import unittest
 
-from tangelo.toolboxes.post_processing import post_select, strip_post_selection
+from tangelo.linq import Circuit, Gate
+from tangelo.toolboxes.post_processing import post_select, strip_post_selection, ancilla_symmetry_circuit
+
+circ = Circuit([Gate("H", 0), Gate("CNOT", 1, 0)])
+
+sym_circ = Circuit([Gate("H", 0), Gate("CNOT", 1, 0),
+                    Gate('RY', 0, parameter=-1.5707963267948966),
+                    Gate("CNOT", 2, 0), Gate("CNOT", 2, 1),
+                    Gate('RY', 0, parameter=1.5707963267948966)])
 
 hist = {"000": 0.0087, "001": 0.0003, "010": 0.0056, "011": 0.0481,
         "100": 0.0053, "101": 0.0035, "110": 0.9136, "111": 0.0149}
 
 
 class PostSelectionTest(unittest.TestCase):
+
+    def test_symmetry_circuit(self):
+        """Test the ancilla symmetry circuit constructor"""
+        with self.assertRaises(RuntimeError):
+            ancilla_symmetry_circuit(circ, "XYZ")
+
+        with self.assertWarns(UserWarning):
+            test_circ = ancilla_symmetry_circuit(circ, "X")
+
+        self.assertEqual(sym_circ, test_circ)
 
     def test_post_select(self):
         """Test equality of post-selected frequencies with reference values rounded to 1e-4"""
