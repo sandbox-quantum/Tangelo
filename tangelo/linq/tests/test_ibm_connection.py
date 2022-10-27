@@ -7,6 +7,8 @@ import unittest
 import os
 import time
 
+import numpy as np
+
 from tangelo.linq import Gate, Circuit, Simulator
 from tangelo.linq.qpu_connection import IBMConnection
 from tangelo.toolboxes.operators import QubitOperator
@@ -71,12 +73,23 @@ class TestIBMConnection(unittest.TestCase):
         conn = IBMConnection()
 
         options = {'resilience_level': 1}
-        job_id = conn.job_submit('estimator', 'ibmq_qasm_simulator', circ2, operator=op, n_shots=10**5,
+        job_id = conn.job_submit('estimator', 'ibmq_qasm_simulator', circ2, operators=op, n_shots=10**5,
                                  runtime_options=options)
         print(conn.job_status(job_id))
 
         job_results = conn.job_results(job_id)
-        self.assertAlmostEqual(job_results, ref_estimator, delta=1e-2)
+        self.assertAlmostEqual(job_results[0], ref_estimator, delta=1e-2)
+
+    def test_submit_job_estimator_list(self):
+        """ Submit an estimator job to a valid backend, query status and retrieve results """
+
+        conn = IBMConnection()
+
+        job_id = conn.job_submit('estimator', 'ibmq_qasm_simulator', [circ2]*2, operators=[op]*2, n_shots=10**5)
+        print(conn.job_status(job_id))
+
+        job_results = conn.job_results(job_id)
+        np.testing.assert_almost_equal(np.array(job_results), np.array([ref_estimator]*2), decimal=2)
 
     def test_cancel_job(self):
         """ Submit a job to a valid backend, attempt to cancel """

@@ -48,14 +48,14 @@ class IBMConnection(QpuConnection):
         """ Return configuration information for each device found on the service """
         return [b.configuration() for b in self.service.backends()]
 
-    def job_submit(self, program, backend_name, circ, operator=None, n_shots=10**4, runtime_options=None):
+    def job_submit(self, program, backend_name, circuits, operators=None, n_shots=10**4, runtime_options=None):
         """ Submit job, return job ID.
 
         Args:
             program (str): name of available qiskit-runtime program (e.g sampler, estimator currently)
             backend_name (str): name of a qiskit backend
-            circ (Circuit): Tangelo circuit
-            operator (QubitOperator) : Optional, a qubit operator if an expectation value is required
+            circuits (Circuit | List[Circuit]): Tangelo circuit(s)
+            operators (QubitOperator | List[QubitOperator]) : Optional, qubit operators for computing expectation values
             n_shots (int): Optional, number of shots to use on the target backend
             runtime_options (dict): Optional, extra keyword arguments for options supported in qiskit-runtime.
 
@@ -72,21 +72,28 @@ class IBMConnection(QpuConnection):
         options = Options(optimization_level=runtime_options.get('optimization_level', 1),
                           resilience_level=runtime_options.get('resilience_level', 0))
 
-        # Translate circuit in qiskit format, add final measurements
-        qiskit_c = translate_c_to_qiskit(circ)
-        qiskit_c.remove_final_measurements()
-        qiskit_c.measure_all(add_bits=False)
+        # Translate circuits in qiskit format, add final measurements
+        if not isinstance(circuits, list):
+            circuits = [circuits]
+        qiskit_cs = list()
+        for c in circuits:
+            qiskit_c = translate_c_to_qiskit(c)
+            qiskit_c.remove_final_measurements()
+            qiskit_c.measure_all(add_bits=False)
+            qiskit_cs.append(qiskit_c)
 
-        # If needed, translate qubit operator in qiskit format
-        if operator:
-            qiskit_op = translate_operator(operator, source="tangelo", target="qiskit")
+        # If needed, translate qubit operators in qiskit format
+        if operators:
+            if not isinstance(operators, list):
+                operators = [operators]
+            qiskit_ops = [translate_operator(op, source="tangelo", target="qiskit") for op in operators]
 
         # Execute qiskit-runtime program, retrieve job ID
         if program == 'sampler':
             job = self._submit_sampler(qiskit_c, n_shots, session, options)
         elif program == 'estimator':
             estimator = Estimator(session=session, options=options)
-            job = estimator.run(circuits=[qiskit_c], observables=[qiskit_op], shots=n_shots)
+            job = estimator.run(circuits=qiskit_cs, observables=qiskit_ops, shots=n_shots)
         else:
             raise NotImplementedError("Only Sampler and Estimator programs currently available.")
 
@@ -137,9 +144,9 @@ class IBMConnection(QpuConnection):
                 freqs[state_binstr[::-1]] = freq
             return freqs
 
-        # Estimator: return the expectation value
+        # Estimator: return the array of expectation values
         elif isinstance(result, EstimatorResult):
-            return result.values[0]
+            return list(result.values)
 
     def job_cancel(self, job_id):
         """ Attempt to cancel an existing job. May fail depending on job status (e.g too late)
