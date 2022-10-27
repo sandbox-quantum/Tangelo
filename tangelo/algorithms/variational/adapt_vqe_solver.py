@@ -270,14 +270,14 @@ class ADAPTSolver:
         return self.energies[-1]
 
     def compute_gradients(self, circuit, backend):
-        """Compute gradients for the operators with a specific circuit.
+        """Compute gradients for the operator pool with a specific circuit.
 
         Args:
             circuit (tangelo.linq.Circuit): Circuit for measuring each commutator.
             backend (tangelo.linq.Simulator): Backend to compute expectation values.
 
        Returns:
-            list of float: Operator gradient for all operators.
+            list of float: Operator gradients.
         """
 
         gradient = [abs(backend.get_expectation_value(element, circuit)) for element in self.pool_commutators]
@@ -297,7 +297,7 @@ class ADAPTSolver:
         """Choose next operator to add according to the ADAPT-VQE algorithm.
 
         Args:
-            list of float: Operator gradient corresponding to self.pool_operators.
+            list of float: Operator gradients corresponding to self.pool_operators.
             tolerance (float): Minimum value for gradient to be considered.
 
         Returns:
@@ -309,9 +309,9 @@ class ADAPTSolver:
         max_partial = gradients[sorted_op_indices[-1]]
 
         if self.verbose:
-            print(f"LARGEST PARTIAL DERIVATIVE: {max_partial :4E} \t[{gradients.index(max_partial)}]")
+            print(f"LARGEST PARTIAL DERIVATIVE: {max_partial :4E}")
 
-        return [gradients.index(max_partial)] if max_partial >= tolerance else []
+        return [sorted_op_indices[-1]] if max_partial >= tolerance else []
 
     def get_resources(self):
         """Returns resources currently used in underlying VQE."""

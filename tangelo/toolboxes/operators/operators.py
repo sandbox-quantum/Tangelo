@@ -127,7 +127,7 @@ class QubitOperator(openfermion.QubitOperator):
     @property
     def qubit_indices(self):
         """Return a set of integers corresponding to qubit indices the qubit
-        operators act on.
+        operator acts on.
 
         Returns:
             set: Set of qubit indices.
@@ -141,7 +141,6 @@ class QubitOperator(openfermion.QubitOperator):
             qubit_indices.update(indices)
 
         return qubit_indices
-
 
 
 class QubitHamiltonian(QubitOperator):

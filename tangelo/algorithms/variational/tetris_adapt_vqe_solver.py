@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module that defines the TETRIS-ADAPT-VQE algorithm framework. Versus
-ADAPT-VQE, many operators that acts on different qubits can be added to the
-adaptive ansatz during the same ADAPT cycle.
+"""Module that defines the TETRIS-ADAPT-VQE algorithm framework. Differences vs
+ADAPT-VQE: more than one operators acting on different qubits can be added to
+the adaptive ansatz during the same ADAPT cycle. This algorithm creates denser
+circuits.
 
 Ref:
     Panagiotis G. Anastasiou, Yanzhu Chen, Nicholas J. Mayhall, Edwin Barnes,
@@ -29,37 +30,35 @@ from tangelo.algorithms.variational import ADAPTSolver
 
 class TETRISADAPTSolver(ADAPTSolver):
     """TETRIS-ADAPT-VQE class. This is an iterative algorithm that uses VQE. A
-    single method is redefined from ADAPTSolver to permit addition of many
+    single method is redefined from ADAPTSolver to permit the addition of many
     operators per ADAPT cycle.
     """
 
     def choose_operator(self, gradients, tolerance=1e-3):
-        """Choose next operator to add according to the TETRIS-ADAPT-VQE
+        """Choose the next operator(s) to add according to the TETRIS-ADAPT-VQE
         algorithm.
 
         Args:
-            list of float: Operator gradient corresponding to self.pool_operators.
+            list of float: Operator gradients (absolute values) corresponding to
+                self.pool_operators.
             tolerance (float): Minimum value for gradient to be considered.
 
         Returns:
-            list of int: Index (list of length=1) of the operator with the
-                highest gradient. If it is not bigger than tolerance, returns
-                None.
+            list of int: Indice(s) of the operator(s) to be considered for this
+                ADAPT cycle.
         """
 
         qubit_indices = set(range(self.ansatz.circuit.width))
 
-        # Sorting the pool operators according to the gradients (absolute).
+        # Sorting the pool operators according to the gradients.
         sorted_op_indices = sorted(range(len(gradients)), key=lambda k: gradients[k])
 
         op_indices_to_add = list()
-
-        # From highest to lowest absolute gradient.
         for i in sorted_op_indices[::-1]:
 
-            # If gradient is lower than the tolerance, all remaining operators
-            # have lower gradient also. IF there is no "available" qubit
-            # anymore, no more operator can be added.
+            # If gradient is lower than the tolerance, all the remaining
+            # operators have a lower gradient also. Also, if there is no
+            # "available" qubit anymore, no more operator can be added.
             if gradients[i] < tolerance or len(qubit_indices) == 0:
                 break
 
