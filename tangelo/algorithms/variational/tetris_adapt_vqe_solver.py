@@ -30,7 +30,7 @@ from tangelo.algorithms.variational import ADAPTSolver
 
 class TETRISADAPTSolver(ADAPTSolver):
     """TETRIS-ADAPT-VQE class. This is an iterative algorithm that uses VQE. A
-    single method is redefined from ADAPTSolver to permit the addition of many
+    single method is redefined from ADAPTSolver to allow the addition of many
     operators per ADAPT cycle.
     """
 
@@ -57,15 +57,16 @@ class TETRISADAPTSolver(ADAPTSolver):
         for i in sorted_op_indices[::-1]:
 
             # If gradient is lower than the tolerance, all the remaining
-            # operators have a lower gradient also. Also, if there is no
-            # "available" qubit anymore, no more operator can be added.
+            # operators have a lower gradient also. If there is no "available"
+            # qubit anymore, no more operator can be added.
             if gradients[i] < tolerance or len(qubit_indices) == 0:
                 break
 
             op_indices = self.pool_operators[i].qubit_indices
 
-            # If qubit acts on a subset of "available" qubits, it can be
-            # considered for this ADAPT cycle.
+            # If the operator acts on a subset of "available" qubits, it can be
+            # considered for this ADAPT cycle. Those qubit indices are then
+            # removed from consideration for this ADAPT cycle.
             if op_indices.issubset(qubit_indices):
                 qubit_indices -= op_indices
                 op_indices_to_add.append(i)
