@@ -38,7 +38,7 @@ class Histogram:
     Args:
         outcomes (dict of string: int or float): Results in the format of bitstring:
         outcome, where outcome can be a number of shots a probability.
-        n_shots (int): Self-explanatory. If it is greater than 0, the class
+        n_shots (int): Self-explanatory. If it is equal 0, the class
             considers that probabilities are provided.
         msq_first (bool): Bit ordering. For example, 011 (msq_first) = 110
             (lsq_first). This depends on the hardware provider convention.

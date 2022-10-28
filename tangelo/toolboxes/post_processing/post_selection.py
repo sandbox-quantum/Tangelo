@@ -19,6 +19,7 @@ import warnings
 from tangelo.linq import Circuit, Gate
 from tangelo.linq.helpers import measurement_basis_gates, pauli_string_to_of
 from tangelo.toolboxes.operators import QubitOperator, count_qubits
+from tangelo.toolboxes.post_processing import Histogram
 
 
 def ancilla_symmetry_circuit(circuit, sym_op):
@@ -60,12 +61,12 @@ def ancilla_symmetry_circuit(circuit, sym_op):
     return circuit_new
 
 
-def post_select(hist, expected_outcomes):
+def post_select(freqs, expected_outcomes):
     """Apply post selection to frequency data based on
     a dictionary of expected outcomes on ancilla qubits.
 
     Args:
-        hist (dict): A dictionary of {bitstring: frequency} pairs
+        freqs (dict): A dictionary of {bitstring: frequency} pairs
         expected_outcomes (dict): Desired outcomes on certain qubit indices
             and their expected state. For example, {0: "1", 1: "0"} would
             filter results based on the first qubit with the |1> state and
@@ -75,41 +76,21 @@ def post_select(hist, expected_outcomes):
         dict: A dictionary of post-selected, renormalized frequencies
             and bitstrings with removed ancilla qubits
     """
-    def f_post_select(bitstring):
-        for qubit_i, expected_bit in expected_outcomes.items():
-            if bitstring[qubit_i] != expected_bit:
-                return False
-        return True
-
-    counts_new = {}
-
-    for string, freq in hist.items():
-        if f_post_select(string):
-            new_str = "".join([s for i, s in enumerate(string) if i not in expected_outcomes.keys()])
-            counts_new[new_str] = freq
-
-    factor = sum(counts_new.values())
-    counts_new = {key: value/factor for key, value in counts_new.items()}
-    return counts_new
+    hist = Histogram(freqs, n_shots=0)
+    hist.post_select(expected_outcomes)
+    return hist.frequencies
 
 
-def strip_post_selection(freqs, qubits):
+def strip_post_selection(freqs, *qubits):
     """Convenience function to remove the symmetry ancilla qubit
     and aggregate data to recreate results without post-selection.
 
     Args:
         freqs (dict): A dictionary of {bitstring: frequency} as returned from a quantum device
-        qubits (int or list): An ancilla qubit index, or list of indices, to be removed from the bitstrings
+        qubits (variable number of int): The ancilla qubit indices to be removed from the bitstrings
 
     Returns:
         dict: A frequency dictionary with the qubits stripped and data aggregated"""
-    if isinstance(qubits, int):
-        qubits = [qubits]
-
-    counts_new = {}
-
-    for string, counts in freqs.items():
-        new_str = "".join([s for i, s in enumerate(string) if i not in qubits])
-        counts_new[new_str] = counts_new.get(new_str, 0) + counts
-
-    return counts_new
+    hist = Histogram(freqs, n_shots=0)
+    hist.remove_qubit_indices(*qubits)
+    return hist.frequencies
