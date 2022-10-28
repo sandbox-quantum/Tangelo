@@ -54,9 +54,12 @@ class UCCSD(Ansatz):
         up_then_down (bool): change basis ordering putting all spin up orbitals
             first, followed by all spin down. Default, False (i.e. has
             alternating spin up/down ordering).
+        reference_state (string): The reference state id for the ansatz. The
+            supported reference states are stored in the supported_reference_state
+            attributes. Default, "HF".
     """
 
-    def __init__(self, molecule, mapping="JW", up_then_down=False, spin=None):
+    def __init__(self, molecule, mapping="JW", up_then_down=False, spin=None, reference_state="HF"):
 
         self.molecule = molecule
         self.n_spinorbitals = molecule.n_active_sos
@@ -93,7 +96,7 @@ class UCCSD(Ansatz):
         # Default initial parameters for initialization
         # TODO: support for openshell MP2 initialization
         self.var_params_default = "mp2" if self.spin == 0 else "ones"
-        self.default_reference_state = "HF"
+        self.reference_state = reference_state
 
         self.var_params = None
         self.circuit = None
@@ -133,16 +136,16 @@ class UCCSD(Ansatz):
         the qubit operator.
         """
 
-        if self.default_reference_state not in self.supported_reference_state:
+        if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
-        if self.default_reference_state == "HF":
+        if self.reference_state == "HF":
             return get_reference_circuit(n_spinorbitals=self.n_spinorbitals,
                                          n_electrons=self.n_electrons,
                                          mapping=self.mapping,
                                          up_then_down=self.up_then_down,
                                          spin=self.spin)
-        elif self.default_reference_state == "zero":
+        elif self.reference_state == "zero":
             return Circuit()
 
     def build_circuit(self, var_params=None):

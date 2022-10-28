@@ -26,13 +26,11 @@ Phys. Rev. Research 1, 033062 (2019)
 import numpy as np
 
 from tangelo.linq import Simulator, Circuit
-from tangelo.toolboxes.operators import qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
-from tangelo.toolboxes.ansatz_generator import UCCSD, HEA, UpCCGSD, UCCGD, VariationalCircuitAnsatz
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
 from tangelo.algorithms.variational import BuiltInAnsatze, VQESolver
+import tangelo.toolboxes.ansatz_generator as agen
 
 
 class SA_VQESolver(VQESolver):
@@ -100,28 +98,28 @@ class SA_VQESolver(VQESolver):
             self.weights = np.array(self.weights)
             self.weights = self.weights/sum(self.weights)
 
+        self.ansatz_options["reference_state"] = "zero"
+
     def build(self):
         """Build the underlying objects required to run the SA-VQE algorithm
         afterwards.
         """
 
         if isinstance(self.ansatz, Circuit):
-            self.ansatz = VariationalCircuitAnsatz(self.ansatz)
+            self.ansatz = agen.VariationalCircuitAnsatz(self.ansatz)
 
         # Building VQE with a molecule as input.
         if self.molecule:
 
             # Compute qubit hamiltonian for the input molecular system
-            qubit_op = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
-                                                mapping=self.qubit_mapping,
-                                                n_spinorbitals=self.molecule.n_active_sos,
-                                                n_electrons=self.molecule.n_active_electrons,
-                                                up_then_down=self.up_then_down,
-                                                spin=self.molecule.spin)
+            self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
+                                                              mapping=self.qubit_mapping,
+                                                              n_spinorbitals=self.molecule.n_active_sos,
+                                                              n_electrons=self.molecule.n_active_electrons,
+                                                              up_then_down=self.up_then_down,
+                                                              spin=self.molecule.spin)
 
             self.core_constant, self.oneint, self.twoint = self.molecule.get_active_space_integrals()
-
-            self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
 
             if self.penalty_terms:
                 pen_ferm = combined_penalty(self.molecule.n_active_mos, self.penalty_terms)
@@ -131,32 +129,23 @@ class SA_VQESolver(VQESolver):
                                                      n_electrons=self.molecule.n_active_electrons,
                                                      up_then_down=self.up_then_down,
                                                      spin=self.molecule.spin)
-                pen_qubit = qubitop_to_qubitham(pen_qubit, self.qubit_hamiltonian.mapping, self.qubit_hamiltonian.up_then_down)
                 self.qubit_hamiltonian += pen_qubit
 
             # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
             if isinstance(self.ansatz, BuiltInAnsatze):
-                if self.ansatz == BuiltInAnsatze.UCCSD:
-                    self.ansatz = UCCSD(self.molecule, self.qubit_mapping, self.up_then_down, self.molecule.spin)
-                elif self.ansatz == BuiltInAnsatze.HEA:
-                    self.ansatz_options["reference_state"] = "zero"
-                    self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.UpCCGSD:
-                    self.ansatz = UpCCGSD(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-                elif self.ansatz == BuiltInAnsatze.UCCGD:
-                    self.ansatz = UCCGD(self.molecule, self.qubit_mapping, up_then_down=self.up_then_down)
+                if self.ansatz in self.builtin_ansatze:
+                    self.ansatz = self.ansatz.value(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
                     raise ValueError(f"Unsupported ansatz for SA_VQESolver. Built-in ansatze:\n\t{self.builtin_ansatze}")
-            elif not isinstance(self.ansatz, Ansatz):
+            elif not isinstance(self.ansatz, agen.Ansatz):
                 raise TypeError(f"Invalid ansatz dataype. Expecting instance of Ansatz class, or one of built-in options:\n\t{self.builtin_ansatze}")
 
         # Building with a qubit Hamiltonian.
         elif self.ansatz == BuiltInAnsatze.HEA:
-            self.ansatz = HEA(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-        elif not isinstance(self.ansatz, Ansatz):
+            self.ansatz = self.ansatz.value(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
+        elif not isinstance(self.ansatz, agen.Ansatz):
             raise TypeError(f"Invalid ansatz dataype. Expecting a custom Ansatz (Ansatz class).")
 
-        self.ansatz.default_reference_state = "zero"
         self.reference_circuits = list()
         for ref_state in self.ref_states:
             if isinstance(ref_state, Circuit):
@@ -171,10 +160,7 @@ class SA_VQESolver(VQESolver):
         self.ansatz.build_circuit()
 
         # Quantum circuit simulation backend options
-        t = self.backend_options.get("target", self.default_backend_options["target"])
-        ns = self.backend_options.get("n_shots", self.default_backend_options["n_shots"])
-        nm = self.backend_options.get("noise_model", self.default_backend_options["noise_model"])
-        self.backend = Simulator(target=t, n_shots=ns, noise_model=nm)
+        self.backend = Simulator(**self.backend_options)
 
     def simulate(self):
         """Run the SA-VQE algorithm, using the ansatz, classical optimizer, initial
