@@ -30,7 +30,7 @@ Refs:
 
 from tangelo.linq import Simulator
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
-from tangelo.algorithms.variational.vqe_solver import VQESolver
+from tangelo.algorithms.variational.vqe_solver import VQESolver, BuiltInAnsatze
 from tangelo.toolboxes.ansatz_generator._qubit_cc import qcc_op_dress
 
 
@@ -117,7 +117,7 @@ class iQCC_solver:
                 raise KeyError(f"Keyword {param} not available in self.__class__.__name__.")
 
         if not self.molecule:
-            raise ValueError("An instance of SecondQuantizedMolecule is required for initializing self.__class__.__name__.")
+            raise ValueError(f"An instance of SecondQuantizedMolecule is required for initializing {self.__class__.__name__}.")
 
         # initialize variables and lists to store useful data from each iQCC-VQE iteration
         self.energies = []
@@ -134,22 +134,22 @@ class iQCC_solver:
     def build(self):
         """Builds the underlying objects required to run the iQCC-VQE algorithm."""
 
-        # instantiate the QCC ansatz but do not build it here because vqe_solver builds it
-        self.qcc_ansatz = QCC(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
-
         # build an instance of VQESolver with options that remain fixed during the iQCC-VQE routine
         self.vqe_solver_options = {"molecule": self.molecule,
                                    "qubit_mapping": self.qubit_mapping,
-                                   "ansatz": self.qcc_ansatz,
+                                   "ansatz": BuiltInAnsatze.QCC,
                                    "initial_var_params": self.initial_var_params,
                                    "backend_options": self.backend_options,
                                    "penalty_terms": self.penalty_terms,
                                    "up_then_down": self.up_then_down,
                                    "qubit_hamiltonian": self.qubit_hamiltonian,
-                                   "verbose": self.verbose}
+                                   "verbose": self.verbose,
+                                   "ansatz_options": self.ansatz_options}
 
         self.vqe_solver = VQESolver(self.vqe_solver_options)
         self.vqe_solver.build()
+
+        self.qcc_ansatz = self.vqe_solver.ansatz
 
     def simulate(self):
         """Executes the iQCC-VQE algorithm. During each iteration,
@@ -246,9 +246,18 @@ class iQCC_solver:
             print(f"iQCC generators = {self.qcc_ansatz.dis}")
             print(f"iQCC resource estimates = {self.get_resources()}")
 
-        # dress and (optionally) compress the qubit Hamiltonian
-        self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham, self.qcc_ansatz.dis,
-                                                 optimal_qcc_var_params)
+        # Order of circuit does not follow dis list order, take order from pauli_to_angles_mapping
+        n_qcc_params = self.qcc_ansatz.n_qcc_params
+        ordered_dis, ordered_params = [None]*n_qcc_params, [None]*n_qcc_params
+        for i, qu_gen in enumerate(self.qcc_ansatz.dis):
+            pauli = next(iter(qu_gen.terms))
+            # Hamiltonian must be transformed in reverse order of appearance in circuit
+            pos = n_qcc_params - 1 - self.qcc_ansatz.pauli_to_angles_mapping[pauli]
+            ordered_dis[pos] = qu_gen
+            ordered_params[pos] = -optimal_qcc_var_params[i]
+
+        self.qcc_ansatz.qubit_ham = qcc_op_dress(self.qcc_ansatz.qubit_ham, ordered_dis,
+                                                 ordered_params)
         if self.compress_qubit_ham:
             self.qcc_ansatz.qubit_ham.frobenius_norm_compression(self.compress_eps, n_qubits)
 
@@ -257,6 +266,7 @@ class iQCC_solver:
         self.qcc_ansatz.var_params = None
         self.qcc_ansatz.build_circuit()
         self.vqe_solver.initial_var_params = self.qcc_ansatz.var_params
+        self.vqe_solver.qubit_hamiltonian = self.qcc_ansatz.qubit_ham
 
         if abs(delta_eqcc) < self.deqcc_thresh or self.iteration == self.max_iqcc_iter:
             self.converged = True

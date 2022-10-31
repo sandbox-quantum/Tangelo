@@ -70,9 +70,9 @@ class iQCC_solver_test(unittest.TestCase):
         self.assertAlmostEqual(iqcc_energy, -1.96259, places=4)
 
     def test_iqcc_h4_cation(self):
-        """Test the energy after 3 iterations for H4+"""
+        """Test the energy after 3 iterations for H4+ with generators limited to 8"""
 
-        ansatz_options = {"max_qcc_gens": None}
+        ansatz_options = {"max_qcc_gens": 8}
 
         iqcc_options = {"molecule": mol_H4_cation_sto3g,
                         "qubit_mapping": "scbk",
