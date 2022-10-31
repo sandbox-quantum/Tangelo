@@ -124,6 +124,23 @@ class QubitOperator(openfermion.QubitOperator):
 
         return sum([comb(n_qubits, 2*i, exact=True) * 3**(n_qubits-2*i) for i in range(n_qubits//2)])
 
+    @property
+    def qubit_indices(self):
+        """Return a set of integers corresponding to qubit indices the qubit
+        operator acts on.
+
+        Returns:
+            set: Set of qubit indices.
+        """
+
+        qubit_indices = set()
+        for term in self.terms:
+            if term:
+                indices = list(zip(*term))[0]
+                qubit_indices.update(indices)
+
+        return qubit_indices
+
 
 class QubitHamiltonian(QubitOperator):
     """QubitHamiltonian objects are essentially openfermion.QubitOperator
