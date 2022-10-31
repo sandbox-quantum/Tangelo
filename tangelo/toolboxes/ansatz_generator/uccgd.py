@@ -45,9 +45,12 @@ class UCCGD(Ansatz):
         up_then_down (bool): change basis ordering putting all spin up orbitals
             first, followed by all spin down. Default, False (i.e. has
             alternating spin up/down ordering).
+        reference_state (string): The reference state id for the ansatz. The
+            supported reference states are stored in the supported_reference_state
+            attributes. Default, "HF".
     """
 
-    def __init__(self, molecule, mapping="JW", up_then_down=False):
+    def __init__(self, molecule, mapping="JW", up_then_down=False, reference_state="HF"):
 
         self.n_spinorbitals = molecule.n_active_sos
         self.n_electrons = molecule.n_active_electrons
@@ -72,7 +75,7 @@ class UCCGD(Ansatz):
         self.supported_initial_var_params = {"ones", "random"}
 
         # Default initial parameters for initialization
-        self.default_reference_state = "HF"
+        self.reference_state = reference_state
 
         self.var_params = None
         self.circuit = None
@@ -109,16 +112,16 @@ class UCCGD(Ansatz):
         the qubit operator.
         """
 
-        if self.default_reference_state not in self.supported_reference_state:
+        if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
-        if self.default_reference_state == "HF":
+        if self.reference_state == "HF":
             return get_reference_circuit(n_spinorbitals=self.n_spinorbitals,
                                          n_electrons=self.n_electrons,
                                          mapping=self.qubit_mapping,
                                          up_then_down=self.up_then_down,
                                          spin=self.spin)
-        if self.default_reference_state == "zero":
+        if self.reference_state == "zero":
             return Circuit()
 
     def build_circuit(self, var_params=None):

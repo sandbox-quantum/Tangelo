@@ -77,11 +77,14 @@ class QCC(Ansatz):
         max_qcc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_qcc_gens)
             generators are selected in order of decreasing |dEQCC/dtau|. Default, None.
+        reference_state (string): The reference state id for the ansatz. The
+            supported reference states are stored in the supported_reference_state
+            attributes. Default, "HF".
     """
 
     def __init__(self, molecule, mapping="jw", up_then_down=False, dis=None,
                  qmf_circuit=None, qmf_var_params=None, qubit_ham=None, qcc_tau_guess=1e-2,
-                 deqcc_dtau_thresh=1e-3, max_qcc_gens=None):
+                 deqcc_dtau_thresh=1e-3, max_qcc_gens=None, reference_state="HF"):
 
         if not molecule and not (isinstance(molecule, SecondQuantizedMolecule) and isinstance(molecule, dict)):
             raise ValueError("An instance of SecondQuantizedMolecule or a dict is required for "
@@ -141,7 +144,7 @@ class QCC(Ansatz):
 
         # Default starting parameters for initialization
         self.pauli_to_angles_mapping = {}
-        self.default_reference_state = "HF"
+        self.reference_state = reference_state
         self.var_params_default = "qcc_tau_guess"
         self.var_params = None
         self.qcc_circuit = None
@@ -185,10 +188,10 @@ class QCC(Ansatz):
         wavefunction with HF, multi-reference state, etc). These preparations must be consistent
         with the transform used to obtain the qubit operator. """
 
-        if self.default_reference_state not in self.supported_reference_state:
+        if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
                              f"{self.supported_reference_state}.")
-        if self.default_reference_state == "HF":
+        if self.reference_state == "HF":
             reference_state_circuit = get_qmf_circuit(self.qmf_var_params, True)
         return reference_state_circuit
 
