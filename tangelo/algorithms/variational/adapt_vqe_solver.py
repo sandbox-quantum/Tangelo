@@ -297,7 +297,8 @@ class ADAPTSolver:
         """Choose next operator to add according to the ADAPT-VQE algorithm.
 
         Args:
-            list of float: Operator gradients corresponding to self.pool_operators.
+            gradients (list of float): Operator gradients corresponding to
+                self.pool_operators.
             tolerance (float): Minimum value for gradient to be considered.
 
         Returns:

@@ -39,8 +39,8 @@ class TETRISADAPTSolver(ADAPTSolver):
         algorithm.
 
         Args:
-            list of float: Operator gradients (absolute values) corresponding to
-                self.pool_operators.
+            gradients (list of float): Operator gradients (absolute values)
+                corresponding to self.pool_operators.
             tolerance (float): Minimum value for gradient to be considered.
 
         Returns:

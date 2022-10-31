@@ -27,7 +27,7 @@ class TETRISADAPTSolverTest(unittest.TestCase):
         adapt_solver = TETRISADAPTSolver(opt_dict)
         adapt_solver.build()
 
-    def test_single_cycle_adapt(self):
+    def test_single_cycle_tetris_adapt(self):
         """Try instantiating TETRISADAPTSolver with basic input."""
 
         opt_dict = {"molecule": mol_H2_sto3g, "max_cycles": 1, "verbose": False}

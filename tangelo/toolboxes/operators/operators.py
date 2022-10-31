@@ -135,10 +135,9 @@ class QubitOperator(openfermion.QubitOperator):
 
         qubit_indices = set()
         for term in self.terms:
-            if not term:
-                continue
-            indices = list(zip(*term))[0]
-            qubit_indices.update(indices)
+            if term:
+                indices = list(zip(*term))[0]
+                qubit_indices.update(indices)
 
         return qubit_indices
 
