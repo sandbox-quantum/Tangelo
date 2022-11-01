@@ -35,25 +35,28 @@ def ancilla_symmetry_circuit(circuit, sym_op):
     Returns:
         Circuit: The input circuit appended with the proper basis rotation
             and entanglement with an ancilla qubit, which is added as the last qubit.
-            Increases the input circuit width by 1."""
+            This appends an additional qubit to the circuit."""
     if isinstance(sym_op, QubitOperator):
         op_len = count_qubits(sym_op)
     else:
         op_len = len(sym_op)
+
     n_qubits = circuit.width
 
-    # Check if the operator size matches the circuit width
+    # Check if the operator size matches the number of qubits
     if n_qubits < op_len:
-        raise RuntimeError("The size of the symmetry operator is bigger than the circuit width.")
+        raise RuntimeError("The size of the symmetry operator is bigger than the number of qubits.")
     elif n_qubits > op_len:
-        warnings.warn("The size of the symmetry operator is smaller than the circuit width. Remaining qubits will be measured in the Z-basis.")
+        warnings.warn("The size of the symmetry operator is smaller than the number of qubits. Remaining qubits will be measured in the Z-basis.")
 
     if isinstance(sym_op, str):
         basis_gates = measurement_basis_gates(pauli_string_to_of(sym_op))
-    elif isinstance(sym_op, list or tuple):
+    elif isinstance(sym_op, (list, tuple)):
         basis_gates = measurement_basis_gates(sym_op)
     elif isinstance(sym_op, QubitOperator):
         basis_gates = measurement_basis_gates(list(sym_op.terms.keys())[0])
+    else:
+        raise RuntimeError("The symmetry operator must be an OpenFermion-style operator, a QubitOperator, or a Pauli word.")
 
     basis_circ = Circuit(basis_gates)
     parity_gates = [Gate("CNOT", n_qubits, i) for i in range(n_qubits)]
