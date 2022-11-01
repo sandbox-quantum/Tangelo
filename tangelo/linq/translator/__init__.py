@@ -27,7 +27,7 @@ from .translate_circuit import translate_circuit
 
 
 def get_supported_gates():
-    "List all supported gates for all backends found"
+    """List all supported gates for all backends found"""
     SUPPORTED_GATES = dict()
 
     SUPPORTED_GATES["projectq"] = sorted(get_projectq_gates().keys())
