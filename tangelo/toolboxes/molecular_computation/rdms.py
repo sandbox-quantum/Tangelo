@@ -15,9 +15,10 @@
 """Module containing functions to manipulate 1- and 2-RDMs."""
 
 import itertools as it
+
 import numpy as np
 
-from tangelo.linq.helpers import filter_bases, pauli_string_to_of
+from tangelo.linq.helpers import pauli_string_to_of, filter_measurement_bases
 from tangelo.toolboxes.operators import FermionOperator
 from tangelo.toolboxes.measurements import ClassicalShadow
 from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms
@@ -74,15 +75,13 @@ def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, 
     onerdm = np.zeros((ferm_ham.n_spinorbitals,) * 2, dtype=complex)
     twordm = np.zeros((ferm_ham.n_spinorbitals,) * 4, dtype=complex)
 
-    # Check if the data dict is expectation values or raw frequency data in the {basis: hist} format
-    if isinstance(exp_vals, dict) and (exp_data is None) and (shadow is None):
-        exp_vals = {pauli_string_to_of(term): exp_val for term, exp_val in exp_data.items()}
-    elif (exp_vals is None) and isinstance(exp_data, dict) and (shadow is None):
-        exp_vals = {}
-    elif (exp_vals is None) and (exp_data is None) and isinstance(shadow, ClassicalShadow):
-        pass
-    else:
-        raise RuntimeError("Arguments exp_vals, exp_data and shadow are mutually exclusive. Provide only one of them.")
+    # Optional arguments are mutually exclusive, return error if several of them have been passed
+    if [exp_vals, exp_data, shadow].count(None) != 2:
+        raise RuntimeError("Arguments exp_vals, exp_data and shadow are mutually exclusive. Provide exactly one of them.")
+
+    # Initialize exp_vals
+    exp_vals = {pauli_string_to_of(term): exp_val for term, exp_val in exp_data.items()} \
+        if isinstance(exp_vals, dict) else {}
 
     n_qubits = get_qubit_number(mapping, ferm_ham.n_spinorbitals)
 
@@ -114,12 +113,12 @@ def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, 
             for qterm, coeff in qubit_term.terms.items():
                 if coeff.real != 0:
 
-                    try:
+                    if qterm in exp_vals:
                         exp_val = exp_vals[qterm] if qterm else 1.
-                    except KeyError:
+                    else:
                         ps = pauli_of_to_string(qterm, n_qubits)
                         hist = aggregate_histograms(*[Histogram(exp_data[basis])
-                                                      for basis in filter_bases(ps, list(exp_data.keys()))])
+                                                      for basis in filter_measurement_bases(ps, list(exp_data.keys()))])
                         exp_val = hist.get_expectation_value(qterm, 1.)
                         exp_vals[qterm] = exp_val
 

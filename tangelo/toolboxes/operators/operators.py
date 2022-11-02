@@ -20,15 +20,12 @@ from math import sqrt
 from collections import OrderedDict
 
 import numpy as np
-from openfermion.ops.operators.symbolic_operator import COEFFICIENT_TYPES
 from scipy.special import comb
-
-# Later on, if needed, we can extract the code for the operators themselves to remove the dependencies and customize
 import openfermion as of
 
 
 class FermionOperator(of.FermionOperator):
-    """Add n_spinorbitals, n_electrons, and spin parameters to the openfermion.FermionOperator class
+    """Custom FermionOperator class. Based on openfermion's, with additional functionalities.
     """
 
     def __init__(self, term=None, coefficient=1., n_spinorbitals=None, n_electrons=None, spin=None):
@@ -39,27 +36,21 @@ class FermionOperator(of.FermionOperator):
         self.spin = spin
 
     def __imul__(self, other):
-        # Raise error if attributes are not the same across Operators.
-        if (self.n_spinorbitals is not None and other.n_spinorbitals is not None)\
-                or (self.n_electrons is not None and other.n_electrons is not None)\
-                or (self.spin is not None and other.spin is not None):
-
-            if self.n_spinorbitals != other.n_spinorbitals:
-                raise RuntimeError("n_spinorbitals must be the same for all FermionOperators.")
-            elif self.n_electrons != other.n_electrons:
-                raise RuntimeError("n_electrons must be the same for all FermionOperators.")
-            elif self.spin != other.spin:
-                raise RuntimeError("Spin must be the same for all FermionOperators.")
-
         if isinstance(other, FermionOperator):
-            return super(FermionOperator, self).__imul__(other)
+            # Raise error if attributes are not the same across Operators.
+            if (self.n_spinorbitals, self.n_electrons, self.spin) != (other.n_spinorbitals, other.n_electrons, other.spin):
+                raise RuntimeError("n_spinorbitals, n_electrons and spin must be the same for all FermionOperators.")
+            else:
+                return super(FermionOperator, self).__imul__(other)
+
         elif isinstance(other, of.FermionOperator):
-            if self.n_spinorbitals is not None or self.n_electrons is not None or self.spin is not None:
+            if (self.n_spinorbitals, self.n_electrons, self.spin) != (None, None, None):
                 raise RuntimeError("openfermion FermionOperator did not define a necessary attribute")
             else:
                 f_op = FermionOperator()
                 f_op.terms = other.terms.copy()
                 return super(FermionOperator, self).__imul__(f_op)
+
         else:
             return super(FermionOperator, self).__imul__(other)
 
@@ -70,27 +61,23 @@ class FermionOperator(of.FermionOperator):
         return self.__imul__(other)
 
     def __iadd__(self, other):
-        # Raise error if attributes are not the same across Operators.
-        if (self.n_spinorbitals is not None and other.n_spinorbitals is not None)\
-                or (self.n_electrons is not None and other.n_electrons is not None)\
-                or (self.spin is not None and other.spin is not None):
-
-            if self.n_spinorbitals != other.n_spinorbitals:
-                raise RuntimeError("n_spinorbitals must be the same for all FermionOperators.")
-            elif self.n_electrons != other.n_electrons:
-                raise RuntimeError("n_electrons must be the same for all FermionOperators.")
-            elif self.spin != other.spin:
-                raise RuntimeError("Spin must be the same for all FermionOperators.")
-
         if isinstance(other, FermionOperator):
-            return super(FermionOperator, self).__iadd__(other)
+            # Raise error if attributes are not the same across Operators.
+            if (self.n_spinorbitals, self.n_electrons, self.spin) != (other.n_spinorbitals, other.n_electrons, other.spin):
+                raise RuntimeError("n_spinorbitals, n_electrons and spin must be the same for all FermionOperators.")
+            else:
+                return super(FermionOperator, self).__iadd__(other)
+
         elif isinstance(other, of.FermionOperator):
-            if self.n_spinorbitals is not None or self.n_electrons is not None or self.spin is not None:
+            if (self.n_spinorbitals, self.n_electrons, self.spin) != (None, None, None):
                 raise RuntimeError("openfermion FermionOperator did not define a necessary attribute")
             else:
                 f_op = FermionOperator()
                 f_op.terms = other.terms.copy()
                 return super(FermionOperator, self).__iadd__(f_op)
+
+        else:
+            raise RuntimeError(f"You cannot add FermionOperator and {other.__class__}.")
 
     def __add__(self, other):
         return self.__iadd__(other)
@@ -105,16 +92,17 @@ class FermionOperator(of.FermionOperator):
         return self.__isub__(other)
 
     def __rsub__(self, other):
-        return self.__isub__(other)
+        return -1 * self.__isub__(other)
 
     def __eq__(self, other):
         # Additional checks for == operator.
-        if isinstance(other, of.FermionOperator):
+        if isinstance(other, FermionOperator):
+            if (self.n_spinorbitals, self.n_electrons, self.spin) == (other.n_spinorbitals, other.n_electrons, other.spin):
+                return super(FermionOperator, self).__eq__(other)
+            else:
+                return False
+        else:
             return super(FermionOperator, self).__eq__(other)
-        elif (self.n_spinorbitals != other.n_spinorbitals) or (self.n_electrons != other.n_electrons) or (self.spin != other.spin):
-            return False
-
-        return super(FermionOperator, self).__eq__(other)
 
     def get_coeffs(self, coeff_threshold=1e-8):
         """Method to get the coefficient tensors from a fermion operator.

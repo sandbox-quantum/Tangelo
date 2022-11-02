@@ -74,15 +74,22 @@ class FermionOperatorTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(ref_one_body, one_body)
         np.testing.assert_array_almost_equal(ref_two_body, two_body)
 
-    def test_add_FermionOperator(self):
+    def test_eq(self):
+        fop_1 = FermionOperator("0^ 0", 2., spin=1)
+        fop_2 = of.FermionOperator("0^ 0", 2.)
+        fop_3 = FermionOperator("0^ 0", 2., spin=0)
+        fop_4 = FermionOperator("0^ 0", 1., spin=0)
+        self.assertEqual(fop_1, fop_2)
+        self.assertNotEqual(fop_1, fop_3)
+        self.assertNotEqual(fop_3, fop_4)
+
+    def test_add(self):
         # addition between two compatible tangelo FermionOperator
         FermionOperator("0^ 0", 2.) + FermionOperator("0^ 1", 3.)
 
         # addition between two incompatible tangelo FermionOperator
-        fop_1 = FermionOperator("0^ 0", 2.)
-        fop_2 = FermionOperator("0^ 1", 3.)
-        fop_1.spin = 1
-        fop_2.spin = 0
+        fop_1 = FermionOperator("0^ 0", 2., spin=1)
+        fop_2 = FermionOperator("0^ 1", 3., spin=0)
         with self.assertRaises(RuntimeError):
             fop_1 + fop_2
 
@@ -99,7 +106,11 @@ class FermionOperatorTest(unittest.TestCase):
         fop += FermionOperator("0^ 1", 3.)
         self.assertEqual(fop, fop_1)
 
-    def test_mul_FermionOperator(self):
+        # Test addition with non-compatible type
+        with self.assertRaises(RuntimeError):
+            fop + 1
+
+    def test_mul(self):
         # Test in-place multiplication
         fop_1 = FermionOperator("0^ 0", 2.)
         fop_1 *= of.FermionOperator("0^ 1", 3.)
@@ -115,7 +126,7 @@ class FermionOperatorTest(unittest.TestCase):
         fop_4 = 6. * FermionOperator("0^ 0 0^ 1", 1.)
         self.assertEqual(fop_3, fop_4)
 
-    def test_sub_FermionOperator(self):
+    def test_sub(self):
         # Test in-place subtraction
         fop_1 = FermionOperator("0^ 0", 2.)
         fop_1 -= of.FermionOperator("0^ 1", 3.)
@@ -125,9 +136,9 @@ class FermionOperatorTest(unittest.TestCase):
 
         # Test reverse subtraction
         fop_3 = of.FermionOperator("0^ 1", 3.) - FermionOperator("0^ 0", 2.)
-        self.assertEqual(fop_2, fop_3)
+        self.assertEqual(fop_2, -1*fop_3)
 
-    def test_div_FermionOperator(self):
+    def test_div(self):
         # Test in-place division
         fop_1 = FermionOperator("0^ 0", 2.)
         fop_1 /= 2.
