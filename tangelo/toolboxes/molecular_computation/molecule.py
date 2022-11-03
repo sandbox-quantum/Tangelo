@@ -722,7 +722,7 @@ class SecondQuantizedMolecule(Molecule):
 
         # Determine core constant
         core_constant = self.mean_field.mol.energy_nuc()
-        # lets do the alpha part first i
+        # alpha part
         for i in occupied_indices[0]:
             core_constant += one_body_integrals[0][i, i]
             # alpha part of j
@@ -732,12 +732,13 @@ class SecondQuantizedMolecule(Molecule):
             for j in occupied_indices[1]:
                 core_constant += 0.5*(two_body_integrals[1][i, j, j, i])
 
-        # lets do the beta part for i
+        # beta part
         for i in occupied_indices[1]:
             core_constant += one_body_integrals[1][i, i]
-            # alpha part j
+            # alpha part of j
             for j in occupied_indices[0]:
-                core_constant += 0.5*(two_body_integrals[1][j, i, i, j])   # I, j are swaped to make BetaAlpha same as AlphaBeta
+                core_constant += 0.5*(two_body_integrals[1][j, i, i, j])   # i, j are swaped to make BetaAlpha same as AlphaBeta
+            # beta part of j
             for j in occupied_indices[1]:
                 core_constant += 0.5*(two_body_integrals[2][i, j, j, i]-two_body_integrals[2][i, j, i, j])
 
@@ -745,14 +746,14 @@ class SecondQuantizedMolecule(Molecule):
         one_body_integrals_new_aa = np.copy(one_body_integrals[0])
         one_body_integrals_new_bb = np.copy(one_body_integrals[1])
 
-        # Lets do alpha alpha block first
+        # alpha alpha block
         for u, v in product(active_indices[0], repeat=2):         # u is u_a, v i v_a
             for i in occupied_indices[0]:  # i belongs to alpha block
                 one_body_integrals_new_aa[u, v] += (two_body_integrals[0][i, u, v, i] - two_body_integrals[0][i, u, i, v])
-            for i in occupied_indices[1]:  # I belongs to beta block
+            for i in occupied_indices[1]:  # i belongs to beta block
                 one_body_integrals_new_aa[u, v] += two_body_integrals[1][u, i, i, v]  # I am swaping u,v with I; to make AlphaBeta
 
-        # Lets do the beta beta block now
+        # beta beta block
         for u, v in product(active_indices[1], repeat=2):         # u is u_beta, v i v_beta
             for i in occupied_indices[1]:  # i belongs to beta block
                 one_body_integrals_new_bb[u, v] += (two_body_integrals[2][i, u, v, i] - two_body_integrals[2][i, u, i, v])
@@ -768,7 +769,7 @@ class SecondQuantizedMolecule(Molecule):
         TwInt_bb = two_body_integrals[2][np.ix_(active_indices[1], active_indices[1],
                                                 active_indices[1], active_indices[1])]
 
-        # (alpha|BetaBeta|alpha) is the format of openFermion
+        # (alpha|BetaBeta|alpha) is the format of openfermion InteractionOperator
 
         TwInt_ab = two_body_integrals[1][np.ix_(active_indices[0], active_indices[1],
                                                 active_indices[1], active_indices[0])]
@@ -793,12 +794,7 @@ class SecondQuantizedMolecule(Molecule):
             InteractionOperator: The molecular hamiltonian
         """
 
-        if occupied_indices is None and active_indices is None:
-            occupied_indices = self.frozen_occupied
-            active_indices = self.active_mos
-            constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals_uhf(occupied_indices, active_indices)
-        else:
-            constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals_uhf(occupied_indices, active_indices)
+        constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals_uhf(occupied_indices, active_indices)
 
         # Lets find the dimensions
         n_orb_a = one_body_integrals[0].shape[0]
@@ -835,11 +831,6 @@ class SecondQuantizedMolecule(Molecule):
         # BaaB
         for p, q, r, s in product(range(n_orb_b), range(n_orb_a), range(n_orb_a), range(n_orb_b)):
             two_body_coefficients[2 * p + 1, 2 * q, 2 * r, 2 * s + 1] = (two_body_integrals[1][q, p, s, r] / 2.)
-
-        # Truncate.
-        EQ_TOLERANCE = 1.e-8
-        one_body_coefficients[np.absolute(one_body_coefficients) < EQ_TOLERANCE] = 0.
-        two_body_coefficients[np.absolute(two_body_coefficients) < EQ_TOLERANCE] = 0.
 
         # Cast to InteractionOperator class and return.
         molecular_hamiltonian = openfermion.InteractionOperator(constant, one_body_coefficients, two_body_coefficients)

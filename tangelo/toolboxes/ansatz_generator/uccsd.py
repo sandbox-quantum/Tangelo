@@ -70,7 +70,7 @@ class UCCSD(Ansatz):
 
         # Later: refactor to handle various flavors of UCCSD
         if not self.molecule.uhf and self.n_spinorbitals % 2 != 0:
-            raise ValueError("The total number of spin-orbitals should be even.")
+            raise ValueError("The total number of spin-orbitals should be even when reference is RHF or ROHF.")
 
         # choose open-shell uccsd if spin not zero, else choose singlet ccsd
         if self.spin != 0 or self.molecule.uhf:

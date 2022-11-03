@@ -20,7 +20,7 @@ import numpy as np
 
 from tangelo.linq import get_backend
 from tangelo.toolboxes.ansatz_generator.qmf import QMF
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_H4_sto3g_uhf_a1_frozen
 
 sim = get_backend()
 
@@ -136,6 +136,20 @@ class QMFTest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, qmf_ansatz.circuit)
         qmf_ansatz.update_var_params(qmf_var_params)
         self.assertAlmostEqual(energy, -1.5859184313544759, delta=1e-6)
+
+    def test_qmf_uhf_h4_cation(self):
+        """ Verify open-shell QMF functionalities for H4 + """
+
+        # Build ansatz and circuit
+        qmf_ansatz = QMF(mol_H4_sto3g_uhf_a1_frozen, "scbk", True)
+        qmf_ansatz.build_circuit()
+
+        # Build qubit hamiltonian for energy evaluation
+        qubit_hamiltonian = qmf_ansatz.qubit_ham
+
+        # Assert energy returned is as expected for given parameters
+        energy = sim.get_expectation_value(qubit_hamiltonian, qmf_ansatz.circuit)
+        self.assertAlmostEqual(energy, mol_H4_sto3g_uhf_a1_frozen.mean_field.e_tot, delta=1e-6)
 
 
 if __name__ == "__main__":
