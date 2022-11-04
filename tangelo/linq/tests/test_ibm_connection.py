@@ -24,7 +24,7 @@ ref_sampler = {'01': 0.5, '11': 0.5}
 sim = Simulator()
 ref_estimator = sim.get_expectation_value(op, circ2)
 
-os.environ['IBM_TOKEN'] = 'insert valid token here'
+os.environ['IBM_TOKEN'] = 'insert valid token'
 
 
 @unittest.skip("We do not want to store login information for automated testing. Manual testing only.")
@@ -51,7 +51,7 @@ class TestIBMConnection(unittest.TestCase):
         connection = IBMConnection()
 
         options = {'resilience_level': 1}
-        job_id = connection.job_submit('sampler', 'ibmq_qasm_simulator', circ, n_shots=10**5, runtime_options=options)
+        job_id = connection.job_submit('sampler', 'ibmq_qasm_simulator', 10**5, circ, runtime_options=options)
         print(connection.job_status(job_id))
 
         job_results = connection.job_results(job_id)
@@ -65,8 +65,7 @@ class TestIBMConnection(unittest.TestCase):
         conn = IBMConnection()
 
         options = {'resilience_level': 1}
-        job_id = conn.job_submit('estimator', 'ibmq_qasm_simulator', circ2, operators=op, n_shots=10**5,
-                                 runtime_options=options)
+        job_id = conn.job_submit('estimator', 'ibmq_qasm_simulator', 10**5, circ2, operators=op, runtime_options=options)
         print(conn.job_status(job_id))
 
         job_results = conn.job_results(job_id)
@@ -77,7 +76,7 @@ class TestIBMConnection(unittest.TestCase):
 
         conn = IBMConnection()
 
-        job_id = conn.job_submit('estimator', 'ibmq_qasm_simulator', [circ2]*2, operators=[op]*2, n_shots=10**5)
+        job_id = conn.job_submit('estimator', 'ibmq_qasm_simulator', 10**5, [circ2]*2, operators=[op]*2)
         print(conn.job_status(job_id))
 
         job_results = conn.job_results(job_id)
@@ -89,7 +88,7 @@ class TestIBMConnection(unittest.TestCase):
         connection = IBMConnection()
 
         for sleep_time in [0., 20.]:
-            job_id = connection.job_submit('sampler', 'ibmq_qasm_simulator', circ, n_shots=10**2)
+            job_id = connection.job_submit('sampler', 'ibmq_qasm_simulator', 10**2, circ)
             time.sleep(sleep_time)
             print(connection.job_cancel(job_id))
             print(connection.job_status(job_id))

@@ -45,15 +45,15 @@ class IBMConnection(QpuConnection):
         """ Return configuration information for each device found on the service """
         return {b.name: b.configuration() for b in self.service.backends()}
 
-    def job_submit(self, program, backend_name, circuits, operators=None, n_shots=10**4, runtime_options=None):
+    def job_submit(self, program, backend_name, n_shots, circuits, operators=None, runtime_options=None):
         """ Submit job, return job ID.
 
         Args:
             program (str): name of available qiskit-runtime program (e.g sampler, estimator currently)
             backend_name (str): name of a qiskit backend
+            n_shots (int): Number of shots to use on the target backend
             circuits (Circuit | List[Circuit]): Tangelo circuit(s)
             operators (QubitOperator | List[QubitOperator]) : Optional, qubit operators for computing expectation values
-            n_shots (int): Optional, number of shots to use on the target backend
             runtime_options (dict): Optional, extra keyword arguments for options supported in qiskit-runtime.
 
         Returns:
