@@ -24,8 +24,9 @@ ref_sampler = {'01': 0.5, '11': 0.5}
 sim = Simulator()
 ref_estimator = sim.get_expectation_value(op, circ2)
 
-
 os.environ['IBM_TOKEN'] = 'insert valid token here'
+
+
 @unittest.skip("We do not want to store login information for automated testing. Manual testing only.")
 class TestIBMConnection(unittest.TestCase):
 
