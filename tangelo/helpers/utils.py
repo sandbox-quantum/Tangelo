@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This file provides information about what the backends currently installed in
-the user's environment, for the purpose of running / skipping tests, and setting
-a default simulator.
-"""
+""" This file provides miscellaneous utility functions and sets up variables to facilitate testing. """
 
 import os
 import sys
@@ -32,6 +29,17 @@ class HiddenPrints:
     def __exit__(self, exc_type, exc_val, exc_tb):
         sys.stdout.close()
         sys.stdout = self._original_stdout
+
+
+def assert_freq_dict_almost_equal(d1, d2, atol):
+    """ Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance """
+    if d1.keys() != d2.keys():
+        raise AssertionError("Dictionary keys differ. Frequency dictionaries are not almost equal.\n"
+                             f"d1 keys: {d1.keys()} \nd2 keys: {d2.keys()}")
+    else:
+        for k in d1.keys():
+            if abs(d1[k] - d2[k]) > atol:
+                raise AssertionError(f"Frequency {k}, difference above tolerance {atol}: {d1[k]} != {d2[k]}")
 
 
 def is_package_installed(package_name):

@@ -20,12 +20,12 @@ except ModuleNotFoundError:
 class IBMConnection(QpuConnection):
     """ Wrapper around IBM Qiskit runtime API to facilitate job submission from Tangelo """
 
-    def __init__(self):
+    def __init__(self, ibm_quantum_token=None):
 
         if not is_qiskit_installed:
             raise ModuleNotFoundError("Both qiskit and qiskit_ibm_runtime need to be installed.")
 
-        self.api_key = None
+        self.api_key = ibm_quantum_token if ibm_quantum_token else os.getenv("IBM_TOKEN", None)
         self.service = self._login()
         self.jobs = dict()
         self.jobs_results = dict()
@@ -34,19 +34,16 @@ class IBMConnection(QpuConnection):
         """ Attempt to connect to the service. Fails if environment variable IBM_TOKEN
             has not been set to a correct value.
         """
-        api_key = os.getenv("IBM_TOKEN", None)
-        if not api_key:
-            raise RuntimeError(f"Please set these environment variables: IBM_TOKEN")
-        self.api_key = api_key
-        # Verify API key by instantiating the connection
+        if not self.api_key:
+            raise RuntimeError(f"Please provide IBM_TOKEN (as environment variable or at instantiation of connection.")
         try:
-            return QiskitRuntimeService(channel="ibm_quantum", token=api_key)
+            return QiskitRuntimeService(channel="ibm_quantum", token=self.api_key)
         except Exception as err:
             raise RuntimeError(f"{err}")
 
     def get_backend_info(self):
         """ Return configuration information for each device found on the service """
-        return [b.configuration() for b in self.service.backends()]
+        return {b.name: b.configuration() for b in self.service.backends()}
 
     def job_submit(self, program, backend_name, circuits, operators=None, n_shots=10**4, runtime_options=None):
         """ Submit job, return job ID.

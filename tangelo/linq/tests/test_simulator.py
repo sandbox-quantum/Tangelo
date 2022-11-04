@@ -28,6 +28,7 @@ from tangelo.linq import Gate, Circuit, translator, Simulator
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
 from tangelo.linq.simulator_base import SimulatorBase, get_expectation_value_from_frequencies_oneterm
+from tangelo.helpers.utils import assert_freq_dict_almost_equal
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
@@ -83,18 +84,6 @@ ref_freqs.append({'000': 0.15972060437359714, '100': 0.2828171838599203, '010': 
 reference_exp_values = np.array([[0., 0., 0.], [0., -1., 0.], [-0.41614684, 0.7651474, -1.6096484], [1., 0., 0.],
                                  [-0.20175269, -0.0600213, 1.2972912]])
 reference_mixed = {'01': 0.163, '11': 0.066, '10': 0.225, '00': 0.545}  # With Qiskit noiseless, 1M shots
-
-
-def assert_freq_dict_almost_equal(d1, d2, atol):
-    """ Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance """
-    if d1.keys() != d2.keys():
-        raise AssertionError("Dictionary keys differ. Frequency dictionaries are not almost equal.\n"
-                             f"d1 keys: {d1.keys()} \nd2 keys: {d2.keys()}")
-    else:
-        for k in d1.keys():
-            if abs(d1[k] - d2[k]) > atol:
-                raise AssertionError(f"Dictionary entries beyond tolerance {atol}: \n{d1} \n{d2}")
-    return True
 
 
 class TestSimulateAllBackends(unittest.TestCase):

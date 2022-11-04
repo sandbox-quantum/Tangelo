@@ -9,7 +9,7 @@ from tangelo.linq import Simulator, Circuit, Gate
 from tangelo.toolboxes.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.molecule_library import mol_H4_sto3g
-from tangelo.linq.tests.test_simulator import assert_freq_dict_almost_equal
+from tangelo.helpers.utils import assert_freq_dict_almost_equal
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import (givens_gate, trotterize, get_qft_circuit, controlled_swap_to_XX_gates,
                                                              derangement_circuit, controlled_pauliwords)
@@ -23,7 +23,7 @@ sim = Simulator(target="cirq")
 fermion_operator = mol_H4_sto3g._get_fermionic_hamiltonian()
 
 
-class ansatz_utils_Test(unittest.TestCase):
+class AnsatzUtilsTest(unittest.TestCase):
 
     def test_trotterize_fermion_input(self):
         """ Verify that the time evolution is correct for different mappings and a fermionic
