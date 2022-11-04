@@ -5,7 +5,7 @@
 
 import os
 
-from tangelo.linq.translator import translate_operator, translate_c_to_qiskit
+from tangelo.linq.translator import translate_operator, translate_circuit
 from tangelo.linq.qpu_connection.qpu_connection import QpuConnection
 
 try:
@@ -74,7 +74,7 @@ class IBMConnection(QpuConnection):
             circuits = [circuits]
         qiskit_cs = list()
         for c in circuits:
-            qiskit_c = translate_c_to_qiskit(c)
+            qiskit_c = translate_circuit(c, target="qiskit")
             qiskit_c.remove_final_measurements()
             qiskit_c.measure_all(add_bits=False)
             qiskit_cs.append(qiskit_c)
