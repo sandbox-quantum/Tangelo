@@ -9,20 +9,10 @@ import pprint
 
 from tangelo.linq import Gate, Circuit
 from tangelo.linq.qpu_connection import IonQConnection
+from tangelo.helpers.utils import assert_freq_dict_almost_equal
 
 circ1 = Circuit([Gate("H", 0), Gate("X", 1)])
 res_simulator_circ1 = {'01': 0.5, '11': 0.5}
-
-
-def assert_freq_dict_almost_equal(d1, d2, atol):
-    """ Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance """
-    if d1.keys() != d2.keys():
-        raise AssertionError("Dictionary keys differ. Frequency dictionaries are not almost equal.\n"
-                             f"d1 keys: {d1.keys()} \nd2 keys: {d2.keys()}")
-    else:
-        for k in d1.keys():
-            if abs(d1[k] - d2[k]) > atol:
-                raise AssertionError(f"Frequency {k}, difference above tolerance {atol}: {d1[k]} != {d2[k]}")
 
 
 @unittest.skip("We do not want to store login information for automated testing")

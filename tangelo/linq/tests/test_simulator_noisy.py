@@ -22,7 +22,7 @@ from openfermion.ops import QubitOperator
 
 from tangelo.linq import Gate, Circuit, Simulator, backend_info
 from tangelo.linq.noisy_simulation import NoiseModel, get_qiskit_noise_dict
-from tangelo.helpers.utils import default_simulator, installed_backends
+from tangelo.helpers.utils import default_simulator, installed_backends, assert_freq_dict_almost_equal
 
 # Noisy simulation: circuits, noise models, references
 cn1 = Circuit([Gate('X', target=0)])
@@ -44,18 +44,6 @@ ref_pauli2 = {'01': 2 / 9, '11': 4 / 9, '10': 2 / 9, '00': 1 / 9}
 ref_depol1 = {'1': 1 / 2, '0': 1 / 2}
 ref_depol2 = {'01': 1 / 4, '11': 1 / 4, '10': 1 / 4, '00': 1 / 4}
 ref_cumul = {'0': 1/3, '1': 2/3}
-
-
-def assert_freq_dict_almost_equal(d1, d2, atol):
-    """ Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance """
-    if d1.keys() != d2.keys():
-        raise AssertionError("Dictionary keys differ. Frequency dictionaries are not almost equal.\n"
-                             f"d1 keys: {d1.keys()} \nd2 keys: {d2.keys()}")
-    else:
-        for k in d1.keys():
-            if abs(d1[k] - d2[k]) > atol:
-                raise AssertionError(f"Dictionary entries beyond tolerance {atol}: \n{d1} \n{d2}")
-    return True
 
 
 class TestSimulate(unittest.TestCase):
