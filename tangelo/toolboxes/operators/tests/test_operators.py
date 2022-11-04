@@ -16,7 +16,8 @@ import unittest
 
 import numpy as np
 
-from tangelo.toolboxes.operators import QubitHamiltonian, FermionOperator, QubitOperator, count_qubits, qubitop_to_qubitham
+from tangelo.toolboxes.operators import QubitHamiltonian, FermionOperator, \
+    QubitOperator, count_qubits, qubitop_to_qubitham
 
 
 class OperatorsUtilitiesTest(unittest.TestCase):
@@ -72,6 +73,21 @@ class FermionOperatorTest(unittest.TestCase):
         self.assertAlmostEqual(ref_cte, cte)
         np.testing.assert_array_almost_equal(ref_one_body, one_body)
         np.testing.assert_array_almost_equal(ref_two_body, two_body)
+
+
+class QubitOperatorTest(unittest.TestCase):
+
+    def test_qubit_indices(self):
+        """Test the qubit_indices property of the QubitOperator class."""
+
+        q1 = QubitOperator()
+        self.assertEqual(q1.qubit_indices, set())
+
+        q2 = QubitOperator("Z0 Z1")
+        self.assertEqual(q2.qubit_indices, {0, 1})
+
+        q3 = QubitOperator("Z0 Z1") + QubitOperator("Z1 Z2")
+        self.assertEqual(q3.qubit_indices, {0, 1, 2})
 
 
 class QubitHamiltonianTest(unittest.TestCase):

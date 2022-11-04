@@ -14,7 +14,7 @@
 
 from tangelo.linq import Circuit
 from tangelo.linq.simulator_base import SimulatorBase
-import tangelo.linq.translator as translator
+from tangelo.linq.translator import translate_circuit as translate_c
 
 
 class QDKSimulator(SimulatorBase):
@@ -47,7 +47,7 @@ class QDKSimulator(SimulatorBase):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        translated_circuit = translator.translate_qsharp(source_circuit)
+        translated_circuit = translate_c(source_circuit, "qdk")
         with open('tmp_circuit.qs', 'w+') as f_out:
             f_out.write(translated_circuit)
 

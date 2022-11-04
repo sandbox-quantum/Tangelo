@@ -24,7 +24,8 @@ import numpy as np
 from openfermion.ops import QubitOperator
 from openfermion import load_operator
 
-from tangelo.linq import Gate, Circuit, translator, Simulator
+from tangelo.linq import Gate, Circuit, Simulator
+from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
 from tangelo.linq.simulator_base import SimulatorBase, get_expectation_value_from_frequencies_oneterm
@@ -135,6 +136,50 @@ class TestSimulateAllBackends(unittest.TestCase):
             results[b] = sim.get_expectation_value(op1, circuit_mixed)
             np.testing.assert_almost_equal(results[b], reference, decimal=2)
 
+    def test_get_variance(self):
+        """ Test variance for simple analytical circuit. """
+
+        opx = 1.0 * QubitOperator("X0")
+        opy = 1.0 * QubitOperator("Y0")
+        opz = 1.0 * QubitOperator("Z0")
+
+        # prepares sqrt(2/3)|0> + -i*sqrt(1/3)|1>
+        circuit = Circuit([Gate("RX", 0, parameter=2*np.arcsin(np.sqrt(1/3)))])
+
+        for shots in [None, 10**6]:
+            if shots is None:
+                precision = 8
+            else:
+                precision = 2
+            sim = Simulator(target='cirq', n_shots=shots)
+
+            # <X> = 0.0, <X^2> = 1.0, so Var(X) = <X^2> - <X>^2 = 1.0
+            np.testing.assert_almost_equal(sim.get_variance(opx, circuit), 1.0, decimal=precision)
+
+            # <Y> = -2*sqrt(2)/3, <Y^2> = 1.0, so Var(Y) = <Y^2> - <Y>^2 = 1/9
+            np.testing.assert_almost_equal(sim.get_variance(opy, circuit), 1/9, decimal=precision)
+
+            # <Z> = 1/3, <Z^2> = 1.0, so Var(Z) = <Z^2> - <Z>^2 = 8/9
+            np.testing.assert_almost_equal(sim.get_variance(opz, circuit), 8/9, decimal=precision)
+
+            # using linearity of variance, Var(<H>) = Var(<X>) + Var(<Y>) + Var(<Z>)
+            sum_variance = sim.get_variance(opx + opy + opz, circuit)
+            np.testing.assert_almost_equal(sum_variance, 1 + 1/9 + 8/9, decimal=precision)
+
+    def test_get_variance_from_frequencies_oneterm(self):
+        """ Test variance given frequencies for one term. """
+        op = 1.0 * QubitOperator("Z0")
+        for shots in [None, 10**6]:
+            if shots is None:
+                precision = 8
+            else:
+                precision = 2
+            sim = Simulator(target='cirq', n_shots=shots)
+            # <Z> = 1/3, <Z^2> = 1.0, so Var(Z) = <Z^2> - <Z>^2 = 8/9
+            frequencies = {'1': 1/3, '0': 2/3}
+            oneterm_variance = sim.get_variance_from_frequencies_oneterm(list(op.terms.keys())[0], frequencies)
+            np.testing.assert_almost_equal(oneterm_variance, 8/9, decimal=precision)
+
 
 class TestSimulateStatevector(unittest.TestCase):
 
@@ -202,7 +247,7 @@ class TestSimulateStatevector(unittest.TestCase):
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
         expected = -1.1372704
         test_fail = False
 
@@ -231,7 +276,7 @@ class TestSimulateStatevector(unittest.TestCase):
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
         expected = -1.1372704
         test_fail = False
 
@@ -265,7 +310,7 @@ class TestSimulateStatevector(unittest.TestCase):
         with open(f"{path_data}/H4_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
 
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
         expected = -1.9778374
         test_fail = False
 
@@ -295,7 +340,7 @@ class TestSimulateStatevector(unittest.TestCase):
 
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as circ_handle:
             openqasm_circ = circ_handle.read()
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
 
         simulator = Simulator(target="qulacs", n_shots=10 ** 6)
         expected = -1.1372704
