@@ -47,7 +47,7 @@ def get_backend(target: Union[None, str, Type[Backend]] = default_simulator, n_s
             target = target_dict[target]
         except KeyError:
             raise ValueError(f"Error: backend {target} not supported. Available built-in options: {list(target_dict.keys())}")
-    # If subclass of SimulatorBase, use target 
+    # If subclass of SimulatorBase, use target
     elif not issubclass(target, Backend):
         raise TypeError(f"target must be a str or a subclass of Backend but received class {type(target).__name__}")
 

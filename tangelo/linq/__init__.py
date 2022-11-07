@@ -17,3 +17,4 @@ from .circuit import Circuit, stack, remove_small_rotations, remove_redundant_ga
 from .translator import *
 from .simulator import get_backend
 from tangelo.linq.target.backend import get_expectation_value_from_frequencies_oneterm
+from tangelo.linq.target import backend_info
