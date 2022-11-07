@@ -16,5 +16,5 @@ from .gate import *
 from .circuit import Circuit, stack, remove_small_rotations, remove_redundant_gates
 from .translator import *
 from .simulator import get_backend
-from tangelo.linq.target.backend import get_expectation_value_from_frequencies_oneterm
-from tangelo.linq.target import backend_info
+from .target.backend import get_expectation_value_from_frequencies_oneterm
+from .target import backend_info

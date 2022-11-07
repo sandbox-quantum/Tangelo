@@ -246,7 +246,7 @@ class QITESolver:
         r"""Update self.final_statevector by propagating with next_circuit using backend
 
         Args:
-            backend: the backend to use for the statevector update
+            backend (Backend): the backend to use for the statevector update
             next_circuit (Circuit): The circuit to apply to the statevector
         """
         _, self.final_statevector = backend.simulate(next_circuit,
@@ -258,7 +258,7 @@ class QITESolver:
         The matrices are defined in section 3.5 of https://arxiv.org/pdf/2108.04413.pdf
 
         Args:
-            backend : the backend from which the matrices are generated
+            backend (Backend): the backend from which the matrices are generated
             new_energy (float): the current energy_expectation of the Hamiltonian
 
         Returns:
@@ -289,7 +289,7 @@ class QITESolver:
         backend.
 
         Args:
-             backend: the backend one computes the energy expectation with
+             backend (Backend): the backend one computes the energy expectation with
 
         Returns:
             float: energy computed by the backend
