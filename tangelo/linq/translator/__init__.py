@@ -40,4 +40,3 @@ def get_supported_gates():
     supported_gates["braket"] = sorted(get_braket_gates().keys())
 
     return supported_gates
-
