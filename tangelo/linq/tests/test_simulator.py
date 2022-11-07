@@ -28,7 +28,7 @@ from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
-from tangelo.linq.simulator_base import SimulatorBase, get_expectation_value_from_frequencies_oneterm
+from tangelo.linq.target.backend import Backend, get_expectation_value_from_frequencies_oneterm
 from tangelo.helpers.utils import assert_freq_dict_almost_equal
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
@@ -441,7 +441,7 @@ class TestSimulateMisc(unittest.TestCase):
     def test_user_provided_simulator(self):
         """Test user defined target simulator that disregards the circuit gates and only returns zero state or one state"""
 
-        class TrueFalseSimulator(SimulatorBase):
+        class TrueFalseSimulator(Backend):
             def __init__(self, n_shots=None, noise_model=None, return_zeros=True):
                 """Instantiate simulator object that always returns all zeros or all ones ignoring circuit operations."""
                 super().__init__(n_shots=n_shots, noise_model=noise_model)

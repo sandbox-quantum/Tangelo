@@ -112,10 +112,10 @@ def get_variance_from_frequencies_oneterm(term, frequencies):
     return variance_term
 
 
-class SimulatorBase(abc.ABC):
+class Backend(abc.ABC):
 
     def __init__(self, n_shots=None, noise_model=None):
-        """Instantiate Simulator object.
+        """Instantiate Backend object.
 
         Args:
             n_shots (int): Number of shots if using a shot-based simulator.
@@ -126,7 +126,7 @@ class SimulatorBase(abc.ABC):
         self._current_state = None
         self._noise_model = noise_model
 
-        # Can be modified later by user as long as long as it retains the same type (ex: cannot change to/from None)
+        # Can be modified later by user as long as it retains the same type (ex: cannot change to/from None)
         self.n_shots = n_shots
         self.freq_threshold = 1e-10
 
