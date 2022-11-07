@@ -25,6 +25,8 @@ from scipy.special import comb
 # Later on, if needed, we can extract the code for the operators themselves to remove the dependencies and customize
 import openfermion
 
+from tangelo.toolboxes.molecular_computation.coefficients import spatial_from_spinorb
+
 
 class FermionOperator(openfermion.FermionOperator):
     """Currently, this class is coming from openfermion. Can be later on be
@@ -70,6 +72,9 @@ class FermionOperator(openfermion.FermionOperator):
                 if [operator[1] for operator in term] == [1, 1, 0, 0]:
                     p, q, r, s = [operator[0] for operator in term]
                     two_body[p, q, r, s] = coefficient
+
+        if spatial:
+            one_body, two_body = spatial_from_spinorb(one_body, two_body)
 
         return constant, one_body, two_body
 

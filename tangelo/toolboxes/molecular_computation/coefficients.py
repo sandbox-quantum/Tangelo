@@ -14,6 +14,8 @@
 
 """Module containing functions to manipulate molecular coefficient arrays."""
 
+import numpy as np
+
 
 def spatial_from_spinorb(one_body_coefficients, two_body_coefficients):
     """Function to reverse openfermion.chem.molecular_data.spinorb_from_spatial.

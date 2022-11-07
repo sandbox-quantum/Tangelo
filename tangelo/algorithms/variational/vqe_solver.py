@@ -127,6 +127,9 @@ class VQESolver:
                 warnings.warn("Spin-orbital ordering shifted to all spin-up first then down to ensure efficient generator screening "
                               "for the Jordan-Wigner mapping with QCC-based ansatze.", RuntimeWarning)
                 self.up_then_down = True
+            if self.ansatz == BuiltInAnsatze.pUCCD and self.qubit_mapping.lower() != "hcb":
+                warnings.warn("Forcing the hard-core boson mapping for the pUCCD ansatz.", RuntimeWarning)
+                self.mapping = "HCB"
             # QCC and QMF and ILC require a reference state that can be represented by a single layer of RZ-RX gates on each qubit.
             # This decomposition can not be determined from a general Circuit reference state.
             if isinstance(self.ref_state, Circuit):
@@ -212,6 +215,8 @@ class VQESolver:
             if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz in {BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3}:
                     self.ansatz = self.ansatz.value
+                elif self.ansatz == BuiltInAnsatze.pUCCD:
+                    self.ansatz = self.ansatz.value(self.molecule, **self.ansatz_options)
                 elif self.ansatz in self.builtin_ansatze:
                     self.ansatz = self.ansatz.value(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
