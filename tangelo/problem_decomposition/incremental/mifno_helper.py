@@ -232,11 +232,16 @@ class MIFNOHelper():
         for n_body_fragments in self.frag_info.values():
             for frag_id, frag in n_body_fragments.items():
                 if frag.get("mo_coefficients", None):
-                    file_path = os.path.join(absolute_path, frag["mo_coefficients"]["key"] + ".hdf5")
+                    try:
+                        file_path = os.path.join(absolute_path, frag["mo_coefficients"]["key"] + ".hdf5")
+                        url_key = "s3_url"
+                    except KeyError:
+                        file_path = os.path.join(absolute_path, frag["mo_coefficients"]["file_name"])
+                        url_key = "url"
 
                     if not os.path.exists(file_path):
                         print(f"Downloading and writing MO coefficients file to {file_path} ({i_file} / {n_files})")
-                        response = requests.get(frag["mo_coefficients"]["s3_url"])
+                        response = requests.get(frag["mo_coefficients"][url_key])
 
                         with open(file_path, "wb") as file:
                             file.write(response.content)
