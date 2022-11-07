@@ -34,10 +34,10 @@ def get_supported_gates():
     supported_gates["ionq"] = sorted(get_ionq_gates().keys())
     supported_gates["qdk"] = sorted(get_qdk_gates().keys())
     supported_gates["openqasm"] = sorted(get_openqasm_gates().keys())
+    supported_gates["qulacs"] = sorted(get_qulacs_gates().keys())
+    supported_gates["qiskit"] = sorted(get_qiskit_gates().keys())
+    supported_gates["cirq"] = sorted(get_cirq_gates().keys())
+    supported_gates["braket"] = sorted(get_braket_gates().keys())
 
-    for v in installed_backends:
-        supported_gates[v] = sorted(eval(f'get_{v}_gates().keys()'))
     return supported_gates
 
-
-supported_gates = get_supported_gates()
