@@ -28,7 +28,7 @@ Refs:
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 """
 
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.algorithms.variational.vqe_solver import VQESolver, BuiltInAnsatze
 from tangelo.toolboxes.ansatz_generator._qubit_cc import qcc_op_dress
@@ -156,7 +156,7 @@ class iQCC_solver:
         QCC-VQE minimization is performed."""
 
         # initialize quantities; compute the QMF energy and set this as eqcc_old
-        sim = Simulator()
+        sim = get_backend()
         self.qmf_energy = sim.get_expectation_value(self.qcc_ansatz.qubit_ham, self.qcc_ansatz.qmf_circuit)
         e_qcc, eqcc_old, delta_eqcc = 0., self.qmf_energy, self.deqcc_thresh
 

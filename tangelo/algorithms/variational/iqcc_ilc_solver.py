@@ -30,7 +30,7 @@ Refs:
         J. Chem. Theory Comput. 2021, 17, 1, 66–78.
 """
 
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 from tangelo.toolboxes.ansatz_generator.ilc import ILC
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.algorithms.variational.vqe_solver import VQESolver
@@ -149,7 +149,7 @@ class iQCC_ILC_solver:
         is performed with the current set of generators, amplitudes, and qubit Hamiltonian."""
 
         # initialize quantities and compute the QMF energy
-        sim = Simulator()
+        sim = get_backend()
         self.qmf_energy = sim.get_expectation_value(self.ilc_ansatz.qubit_ham, self.ilc_ansatz.qmf_circuit)
         if self.verbose:
             print(f"The qubit mean field energy = {self.qmf_energy}")

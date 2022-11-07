@@ -10,7 +10,7 @@ import time
 import numpy as np
 
 from tangelo.helpers.utils import assert_freq_dict_almost_equal
-from tangelo.linq import Gate, Circuit, Simulator
+from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.linq.qpu_connection import IBMConnection
 from tangelo.toolboxes.operators import QubitOperator
 
@@ -21,7 +21,7 @@ op = 1.0 * QubitOperator('Y0') - 2.0 * QubitOperator('Z0 X1')
 
 # Reference values
 ref_sampler = {'01': 0.5, '11': 0.5}
-sim = Simulator()
+sim = get_backend()
 ref_estimator = sim.get_expectation_value(op, circ2)
 
 os.environ['IBM_TOKEN'] = 'insert valid token'

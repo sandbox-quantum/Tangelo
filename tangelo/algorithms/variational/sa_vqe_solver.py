@@ -25,7 +25,7 @@ Phys. Rev. Research 1, 033062 (2019)
 
 import numpy as np
 
-from tangelo.linq import Simulator, Circuit
+from tangelo.linq import get_backend, Circuit
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
@@ -160,7 +160,7 @@ class SA_VQESolver(VQESolver):
         self.ansatz.build_circuit()
 
         # Quantum circuit simulation backend options
-        self.backend = Simulator(**self.backend_options)
+        self.backend = get_backend(**self.backend_options)
 
     def simulate(self):
         """Run the SA-VQE algorithm, using the ansatz, classical optimizer, initial
