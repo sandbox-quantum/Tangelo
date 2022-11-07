@@ -74,6 +74,13 @@ class FermionOperator(openfermion.FermionOperator):
         return constant, one_body, two_body
 
 
+class BosonOperator(openfermion.BosonOperator):
+    """Currently, this class is coming from openfermion. Can be later on be
+    replaced by our own implementation.
+    """
+    pass
+
+
 class QubitOperator(openfermion.QubitOperator):
     """Currently, this class is coming from openfermion. Can be later on be
     replaced by our own implementation.

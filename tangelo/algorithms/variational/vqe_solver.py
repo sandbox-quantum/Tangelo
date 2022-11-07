@@ -46,6 +46,7 @@ class BuiltInAnsatze(Enum):
     VSQS = agen.VSQS
     UCCGD = agen.UCCGD
     ILC = agen.ILC
+    pUCCD = agen.pUCCD
 
 
 class VQESolver:

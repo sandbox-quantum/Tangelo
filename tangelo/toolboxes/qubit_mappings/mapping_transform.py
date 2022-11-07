@@ -19,16 +19,17 @@
  - symmetry-conserving Bravyi-Kitaev (2-qubit reduction via Z2 taper)
 """
 
-
-import warnings
+from math import ceil
 import numpy as np
 from collections.abc import Iterable
+
 from openfermion import FermionOperator as ofFermionOperator
 
 from tangelo.toolboxes.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.qubit_mappings import jordan_wigner, bravyi_kitaev, symmetry_conserving_bravyi_kitaev, jkmn
+from tangelo.toolboxes.qubit_mappings.hcb import hard_core_boson_operator, boson_to_qubit_mapping
 
-available_mappings = {"JW", "BK", "SCBK", "JKMN"}
+available_mappings = {"JW", "BK", "SCBK", "JKMN", "HCB"}
 
 
 def get_qubit_number(mapping, n_spinorbitals):
@@ -45,6 +46,8 @@ def get_qubit_number(mapping, n_spinorbitals):
     """
     if mapping.upper() == "SCBK":
         return n_spinorbitals - 2
+    elif mapping.upper() == "HCB":
+        return ceil(n_spinorbitals / 2)
     else:
         return n_spinorbitals
 
@@ -126,6 +129,9 @@ def fermion_to_qubit_mapping(fermion_operator, mapping, n_spinorbitals=None, n_e
                                                            spin=spin)
     elif mapping.upper() == "JKMN":
         qubit_operator = jkmn(fermion_operator, n_qubits=n_spinorbitals)
+    elif mapping.upper() == "HCB":
+        boson_operator = hard_core_boson_operator(fermion_operator)
+        qubit_operator = boson_to_qubit_mapping(boson_operator)
 
     converted_qubit_op = QubitOperator()
     converted_qubit_op.terms = qubit_operator.terms.copy()
