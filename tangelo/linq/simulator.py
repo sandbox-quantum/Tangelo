@@ -23,11 +23,11 @@ from typing import Union, Type
 
 from tangelo.linq.simulator_base import SimulatorBase
 from tangelo.linq.target import target_dict, backend_info
-from tangelo.helpers.utils import default_simulator
+from tangelo.helpers.utils import default_simulator, deprecated
 
 
-def Simulator(target: Union[None, str, Type[SimulatorBase]] = default_simulator, n_shots: Union[None, int] = None,
-              noise_model=None, **kwargs):
+def get_backend(target: Union[None, str, Type[SimulatorBase]] = default_simulator, n_shots: Union[None, int] = None,
+                noise_model=None, **kwargs):
     """Return requested target backend object.
 
     Args:
@@ -52,3 +52,9 @@ def Simulator(target: Union[None, str, Type[SimulatorBase]] = default_simulator,
         raise TypeError(f"target must be a str or a subclass of SimulatorBase but received class {type(target).__name__}")
 
     return target(n_shots=n_shots, noise_model=noise_model, **kwargs)
+
+
+@deprecated("Please use get_backend.")
+def Simulator(target: Union[None, str, Type[SimulatorBase]] = default_simulator, n_shots: Union[None, int] = None,
+              noise_model=None, **kwargs):
+    return get_backend(target, n_shots, noise_model, **kwargs)
