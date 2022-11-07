@@ -16,7 +16,7 @@
 
 import numpy as np
 
-from tangelo.toolboxes.molecular_computation.molecule import spatial_from_spinorb
+from tangelo.toolboxes.molecular_computation.coefficients import spatial_from_spinorb
 
 
 def matricize_2rdm(two_rdm, n_orbitals):

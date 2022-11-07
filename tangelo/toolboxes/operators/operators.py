@@ -31,7 +31,7 @@ class FermionOperator(openfermion.FermionOperator):
     replaced by our own implementation.
     """
 
-    def get_coeffs(self, coeff_threshold=1e-8):
+    def get_coeffs(self, coeff_threshold=1e-8, spatial=False):
         """Method to get the coefficient tensors from a fermion operator.
 
         Args:
@@ -90,7 +90,7 @@ class QubitOperator(openfermion.QubitOperator):
         """Reduces the number of operator terms based on its Frobenius norm
         and a user-defined threshold, epsilon. The eigenspectrum of the
         compressed operator will not deviate more than epsilon. For more
-        details, see J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
+        details, see J. Chem. Theory Comput. 2020, 16, 2, 1055-1063.
 
         Args:
             epsilon (float): Parameter controlling the degree of compression
@@ -120,7 +120,7 @@ class QubitOperator(openfermion.QubitOperator):
         """Compute the possible number of terms for a qubit Hamiltonian. In the
         absence of an external magnetic field, each Hamiltonian term must have
         an even number of Pauli Y operators to preserve time-reversal symmetry.
-        See J. Chem. Theory Comput. 2020, 16, 2, 1055–1063 for more details.
+        See J. Chem. Theory Comput. 2020, 16, 2, 1055-1063 for more details.
 
         Args:
             n_qubits (int): Number of qubits in the register.

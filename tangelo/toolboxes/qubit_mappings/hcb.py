@@ -15,15 +15,13 @@
 import itertools
 
 from tangelo.toolboxes.operators import BosonOperator
-from tangelo.toolboxes.molecular_computation.molecule import spatial_from_spinorb
 from tangelo.toolboxes.operators import QubitOperator
 
 
 def hard_core_boson_operator(ferm_op):
     """TBD"""
 
-    cte, h_p, h_pqrs = ferm_op.get_coeffs()
-    e_sei, e_tei = spatial_from_spinorb(h_p, h_pqrs)
+    cte, e_sei, e_tei = ferm_op.get_coeffs(spatial=True)
     e_tei *= 2
 
     boson_op = BosonOperator((), cte)

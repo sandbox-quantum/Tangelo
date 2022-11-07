@@ -54,16 +54,6 @@ class MoleculeUtilitiesTest(unittest.TestCase):
         """Verify conversion from string to list format for atom coordinates."""
         assert(atom_string_to_list(H2_string) == H2_list)
 
-    def test_spatial_from_spinorb(self):
-        """Test the conversion from spinorbitals to MO coefficients."""
-        _, one_body_mos, two_body_mos = mol_H2_sto3g.get_integrals()
-
-        one_body_sos, two_body_sos = spinorb_from_spatial(one_body_mos, two_body_mos)
-        one_body_mos_recomputed, two_body_mos_recomputed = spatial_from_spinorb(one_body_sos, two_body_sos)
-
-        np.testing.assert_array_almost_equal(one_body_mos, one_body_mos_recomputed)
-        np.testing.assert_array_almost_equal(two_body_mos, two_body_mos_recomputed)
-
 
 class SecondQuantizedMoleculeTest(unittest.TestCase):
 
