@@ -24,7 +24,7 @@ import numpy as np
 from openfermion.ops.operators.qubit_operator import QubitOperator
 
 from tangelo.helpers.utils import HiddenPrints
-from tangelo.linq import Simulator, Circuit
+from tangelo.linq import get_backend, Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
 from tangelo.toolboxes.operators import count_qubits, FermionOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -70,8 +70,7 @@ class VQESolver:
             and its behavior.
         initial_var_params (str or array-like) : initial value for the classical
             optimizer.
-        backend_options (dict) : parameters to build the tangelo.linq Simulator
-            class.
+        backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
         penalty_terms (dict): parameters for penalty terms to append to target
             qubit Hamiltonian (see penalty_terms for more details).
         deflation_circuits (list[Circuit]): Deflation circuits to add an
@@ -232,7 +231,7 @@ class VQESolver:
             warnings.warn("No variational gate found in the circuit.", RuntimeWarning)
 
         # Quantum circuit simulation backend options
-        self.backend = Simulator(**self.backend_options)
+        self.backend = get_backend(**self.backend_options)
 
     def simulate(self):
         """Run the VQE algorithm, using the ansatz, classical optimizer, initial

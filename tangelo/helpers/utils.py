@@ -72,7 +72,7 @@ def deprecated(custom_message=""):
     return deprecated_wrapper
 
 
-# List all backends and statevector ones supported by Simulator class
+# List all built-in backends supported
 all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq", "qdk"}
 all_backends_simulator = {"qulacs", "qiskit", "cirq", "qdk"}
 sv_backends_simulator = {"qulacs", "qiskit", "cirq"}
@@ -81,10 +81,10 @@ sv_backends_simulator = {"qulacs", "qiskit", "cirq"}
 packages = {p: p for p in all_backends}
 packages["qdk"] = "qsharp"
 
-# Figure out what is install in user's environment
+# Figure out what is installed in user's environment
 installed_backends = {p_id for p_id, p_name in packages.items() if is_package_installed(p_name)}
 installed_simulator = installed_backends & all_backends_simulator
 installed_sv_simulator = installed_backends & sv_backends_simulator
 
-# Check if qulacs installed (best performance for tests). If not, defaults to cirq (always installed with openfermion)
+# Check if qulacs installed (better performance for tests). If not, defaults to cirq (always installed with openfermion)
 default_simulator = "qulacs" if "qulacs" in installed_sv_simulator else "cirq"

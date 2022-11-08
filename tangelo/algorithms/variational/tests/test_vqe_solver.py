@@ -15,7 +15,7 @@
 import unittest
 import numpy as np
 
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 from tangelo.helpers.utils import installed_backends
 from tangelo.linq.target import QiskitSimulator
 from tangelo.algorithms import BuiltInAnsatze, VQESolver
@@ -348,7 +348,7 @@ class VQESolverTest(unittest.TestCase):
         vqe_solver.build()
         energy = vqe_solver.simulate()
 
-        sim = Simulator()
+        sim = get_backend()
         self.assertAlmostEqual(energy, sim.get_expectation_value(vqe_solver.qubit_hamiltonian, vqe_solver.optimal_circuit),
                                 delta=1e-10)
 

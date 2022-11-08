@@ -15,5 +15,6 @@
 from .gate import *
 from .circuit import Circuit, stack, remove_small_rotations, remove_redundant_gates
 from .translator import *
-from .simulator_base import get_expectation_value_from_frequencies_oneterm
-from .simulator import Simulator, backend_info
+from .simulator import get_backend
+from .target.backend import get_expectation_value_from_frequencies_oneterm
+from .target import backend_info, Backend

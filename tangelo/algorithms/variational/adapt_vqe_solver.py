@@ -274,7 +274,7 @@ class ADAPTSolver:
 
         Args:
             circuit (tangelo.linq.Circuit): Circuit for measuring each commutator.
-            backend (tangelo.linq.Simulator): Backend to compute expectation values.
+            backend (tangelo.linq.Backend): Backend to compute expectation values.
 
        Returns:
             list of float: Operator gradients.
