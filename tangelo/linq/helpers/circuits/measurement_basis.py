@@ -41,7 +41,7 @@ def measurement_basis_gates(term):
     return gates
 
 
-def filter_measurement_bases(op, basis_list):
+def get_compatible_bases(op, basis_list):
     """Return a list of measurement bases compatible with the given operator.
 
     Args:

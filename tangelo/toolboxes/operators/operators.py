@@ -57,9 +57,6 @@ class FermionOperator(of.FermionOperator):
     def __mul__(self, other):
         return self.__imul__(other)
 
-    def __rmul__(self, other):
-        return self.__imul__(other)
-
     def __iadd__(self, other):
         if isinstance(other, FermionOperator):
             # Raise error if attributes are not the same across Operators.

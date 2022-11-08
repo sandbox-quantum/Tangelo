@@ -119,7 +119,7 @@ class FermionOperatorTest(unittest.TestCase):
         self.assertEqual(fop_1, fop_2)
 
         # Test reverse multiplication
-        fop_3 = of.FermionOperator("0^ 1", 3.) * FermionOperator("0^ 0", 2.)
+        fop_3 = of.FermionOperator("0^ 0", 2.) * FermionOperator("0^ 1", 3.)
         self.assertEqual(fop_2, fop_3)
 
         # Test multiplication by number

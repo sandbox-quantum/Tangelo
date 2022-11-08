@@ -18,7 +18,7 @@ import itertools as it
 
 import numpy as np
 
-from tangelo.linq.helpers import pauli_string_to_of, filter_measurement_bases
+from tangelo.linq.helpers import pauli_string_to_of, get_compatible_bases
 from tangelo.toolboxes.operators import FermionOperator
 from tangelo.toolboxes.measurements import ClassicalShadow
 from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms
@@ -51,19 +51,21 @@ def matricize_2rdm(two_rdm, n_orbitals):
 
 def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, shadow=None, return_spinsum=True, **eval_args):
     """
-    Return the 1- and 2-RDM and their spin-summed versions
-    using a Molecule object and frequency data either in the form of a
+    Compute the 1- and 2-RDM and their spin-summed versions
+    using a FermionOperator and experimental frequency data in the form of a
     classical shadow or a dictionary of frequency histograms.
+    Exactly one of the following must be provided by the user:
+    exp_vals, exp_data or shadow
 
     Args:
         ferm_ham (FermionicOperator): Fermionic operator with n_spinorbitals, n_electrons, and spin defined
         mapping (str): Qubit mapping
         up_then_down (bool): Spin ordering for the mapping
-        exp_vals (dict): Dictionary of Pauli word expectation values
-        exp_data (dict): Dictionary of {basis: histogram} where basis is the measurement basis
+        exp_vals (dict): Optional, dictionary of Pauli word expectation values
+        exp_data (dict): Optional, dictionary of {basis: histogram} where basis is the measurement basis
             and histogram is a {bitstring: frequency} dictionary
-        shadow (ClassicalShadow): A classical shadow object
-        return_spinsum (bool): If True, return also the spin-summed RDMs
+        shadow (ClassicalShadow): Optional, a classical shadow object
+        return_spinsum (bool): Optional, if True, return also the spin-summed RDMs
         eval_args: Optional arguments to pass to the ClassicalShadow object
 
     Returns:
@@ -117,8 +119,12 @@ def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, 
                         exp_val = exp_vals[qterm] if qterm else 1.
                     else:
                         ps = pauli_of_to_string(qterm, n_qubits)
-                        hist = aggregate_histograms(*[Histogram(exp_data[basis])
-                                                      for basis in filter_measurement_bases(ps, list(exp_data.keys()))])
+                        bases = get_compatible_bases(ps, list(exp_data.keys()))
+
+                        if not bases:
+                            raise RuntimeError(f"No experimental data for basis {ps}")
+
+                        hist = aggregate_histograms(*[Histogram(exp_data[basis]) for basis in bases])
                         exp_val = hist.get_expectation_value(qterm, 1.)
                         exp_vals[qterm] = exp_val
 
