@@ -72,7 +72,7 @@ def deprecated(custom_message=""):
     return deprecated_wrapper
 
 
-# List all backends and statevector ones supported by Simulator class
+# List all built-in backends supported
 all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq", "qdk"}
 all_backends_simulator = {"qulacs", "qiskit", "cirq", "qdk"}
 sv_backends_simulator = {"qulacs", "qiskit", "cirq"}

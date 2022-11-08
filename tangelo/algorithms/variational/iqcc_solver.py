@@ -62,8 +62,7 @@ class iQCC_solver:
             followed by all spin down. Default, False.
         initial_var_params (str or array-like): Initial values of the variational parameters
             for the classical optimizer.
-        backend_options (dict): Parameters to build the tangelo.linq Simulator
-            class.
+        backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
         penalty_terms (dict): Parameters for penalty terms to append to target
             qubit Hamiltonian (see penaly_terms for more details).
         ansatz_options (dict): Parameters for the chosen ansatz (see given ansatz
