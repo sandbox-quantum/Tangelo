@@ -15,6 +15,7 @@
 import unittest
 
 import numpy as np
+import openfermion as of
 
 from tangelo.toolboxes.operators import QubitHamiltonian, FermionOperator, \
     QubitOperator, count_qubits, qubitop_to_qubitham
@@ -74,6 +75,82 @@ class FermionOperatorTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(ref_one_body, one_body)
         np.testing.assert_array_almost_equal(ref_two_body, two_body)
 
+    def test_eq(self):
+        fop_1 = FermionOperator("0^ 0", 2., spin=1)
+        fop_2 = of.FermionOperator("0^ 0", 2.)
+        fop_3 = FermionOperator("0^ 0", 2., spin=0)
+        fop_4 = FermionOperator("0^ 0", 1., spin=0)
+        self.assertEqual(fop_1, fop_2)
+        self.assertNotEqual(fop_1, fop_3)
+        self.assertNotEqual(fop_3, fop_4)
+
+    def test_add(self):
+        # addition between two compatible tangelo FermionOperator
+        FermionOperator("0^ 0", 2.) + FermionOperator("0^ 1", 3.)
+
+        # addition between two incompatible tangelo FermionOperator
+        fop_1 = FermionOperator("0^ 0", 2., spin=1)
+        fop_2 = FermionOperator("0^ 1", 3., spin=0)
+        with self.assertRaises(RuntimeError):
+            fop_1 + fop_2
+
+        # addition between openfermion FermionOperator and Tangelo equivalent
+        fop_1 = FermionOperator("0^ 0", 2.) + of.FermionOperator("0^ 1", 3.)
+        self.assertTrue(isinstance(fop_1, FermionOperator))
+
+        # Reverse order addition test
+        fop_2 = of.FermionOperator("0^ 0", 2.) + FermionOperator("0^ 1", 3.)
+        self.assertEqual(fop_1, fop_2)
+
+        # Test in-place addition
+        fop = FermionOperator("0^ 0", 2.)
+        fop += FermionOperator("0^ 1", 3.)
+        self.assertEqual(fop, fop_1)
+
+        # Test addition with non-compatible type
+        with self.assertRaises(RuntimeError):
+            fop + 1
+
+    def test_mul(self):
+        # Test in-place multiplication
+        fop_1 = FermionOperator("0^ 0", 2.)
+        fop_1 *= of.FermionOperator("0^ 1", 3.)
+        # Test multiplication
+        fop_2 = FermionOperator("0^ 0", 2.) * of.FermionOperator("0^ 1", 3.)
+        self.assertEqual(fop_1, fop_2)
+
+        # Test reverse multiplication
+        fop_3 = of.FermionOperator("0^ 0", 2.) * FermionOperator("0^ 1", 3.)
+        self.assertEqual(fop_2, fop_3)
+
+        # Test multiplication by number
+        fop_4 = 6. * FermionOperator("0^ 0 0^ 1", 1.)
+        self.assertEqual(fop_3, fop_4)
+
+    def test_sub(self):
+        # Test in-place subtraction
+        fop_1 = FermionOperator("0^ 0", 2.)
+        fop_1 -= of.FermionOperator("0^ 1", 3.)
+        # Test subtraction
+        fop_2 = FermionOperator("0^ 0", 2.) - of.FermionOperator("0^ 1", 3.)
+        self.assertEqual(fop_1, fop_2)
+
+        # Test reverse subtraction
+        fop_3 = of.FermionOperator("0^ 1", 3.) - FermionOperator("0^ 0", 2.)
+        self.assertEqual(fop_2, -1*fop_3)
+
+    def test_div(self):
+        # Test in-place division
+        fop_1 = FermionOperator("0^ 0", 2.)
+        fop_1 /= 2.
+        # Test division
+        fop_2 = FermionOperator("0^ 0", 2.) / 2.
+        self.assertEqual(fop_1, fop_2)
+
+        # Test error for division by operator
+        with self.assertRaises(TypeError):
+            fop_1 / fop_2
+
 
 class QubitOperatorTest(unittest.TestCase):
 
@@ -101,7 +178,7 @@ class QubitHamiltonianTest(unittest.TestCase):
 
         self.assertDictEqual(qubit_ham.__dict__, reference_attributes)
 
-    def test_instantiate_QubitHamiltonian(self):
+    def test_add_QubitHamiltonian(self):
         """Test error raising when 2 incompatible QubitHamiltonian are summed up
         together.
         """
@@ -119,8 +196,7 @@ class QubitHamiltonianTest(unittest.TestCase):
 
         qubit_ham = 1. * QubitHamiltonian("X0 Y1 Z2", mapping="JW",  up_then_down=True)
 
-        self.assertEqual(qubit_ham.to_qubitoperator(),
-            QubitOperator(term="X0 Y1 Z2", coefficient=1.))
+        self.assertEqual(qubit_ham.to_qubitoperator(), QubitOperator(term="X0 Y1 Z2", coefficient=1.))
 
     def test_get_operators(self):
         """Test get_operators methods, defined in QubitOperator class."""
