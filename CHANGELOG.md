@@ -13,7 +13,7 @@ This file documents the main changes between versions of the code.
 - TETRIS-ADAPT VQE
 - iQCC-ILC
 - Quantum signal processing time-evolution
-- higher even trotterization orders fortime-evolution
+- Higher even-order trotterization for time-evolution
 - Histogram class, featuring methods for renormalization, post-selection, aggregation
 - Computation of variance of expectation values
 - Function to compute RDMs from experimental data / classical shadow
