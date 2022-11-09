@@ -17,7 +17,7 @@ import os
 from openfermion import load_operator
 
 from tangelo.helpers.utils import default_simulator
-from tangelo.linq import translator, Simulator, Circuit
+from tangelo.linq import translator, get_backend, Circuit
 from tangelo.linq.helpers import measurement_basis_gates
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.measurements import get_measurement_estimate
@@ -83,7 +83,7 @@ class MeasurementsTest(unittest.TestCase):
         qb_ham = load_operator("mol_H2_qubitham.data", data_directory=path_data, plain_text=True)
 
         # Get exact expectation value using a simulator
-        sim_exact = Simulator()
+        sim_exact = get_backend()
         freqs_exact, _ = sim_exact.simulate(abs_circ)
         exp_val_exact = sim_exact.get_expectation_value(qb_ham, abs_circ)
 
@@ -95,7 +95,7 @@ class MeasurementsTest(unittest.TestCase):
         n_repeat = 50
         for i in range(n_repeat):
             exp_val = 0.
-            sim = Simulator(target=default_simulator, n_shots=1)
+            sim = get_backend(target=default_simulator, n_shots=1)
             for m_basis, coef in qb_ham.terms.items():
                 if m_basis:
                     term_circ = abs_circ + Circuit(measurement_basis_gates(m_basis))

@@ -19,21 +19,21 @@ from openfermion import get_sparse_operator
 import numpy as np
 from scipy.linalg import expm
 
-from tangelo.linq import Simulator, backend_info
+from tangelo.linq import get_backend
 from tangelo.helpers.utils import installed_backends
 from tangelo.linq.helpers.circuits.statevector import StateVector
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import get_qft_circuit
 from tangelo.molecule_library import mol_H2_sto3g
-from tangelo.toolboxes.circuits.lcu import get_lcu_circuit, get_truncated_taylor_series
+from tangelo.toolboxes.circuits.lcu import get_oaa_lcu_circuit, get_truncated_taylor_series
 
 # Test for both "cirq" and if available "qulacs". These have different orderings.
 # qiskit is not currently supported because does not have multi controlled general gates.
 backends = ["cirq", "qulacs"] if "qulacs" in installed_backends else ["cirq"]
 # Initiate Simulator using cirq for phase estimation tests as it has the same ordering as openfermion
 # and we are using an exact eigenvector for testing.
-sim_cirq = Simulator("cirq")
+sim_cirq = get_backend("cirq")
 
 
 class lcu_Test(unittest.TestCase):
@@ -52,8 +52,8 @@ class lcu_Test(unittest.TestCase):
         exact = expm(-1j*ham*time)@vec
 
         for backend in backends:
-            sim = Simulator(backend)
-            statevector_order = backend_info[backend]["statevector_order"]
+            sim = get_backend(backend)
+            statevector_order = sim.backend_info()["statevector_order"]
             sv = StateVector(vec, order=statevector_order)
             sv_circuit = sv.initializing_circuit()
 
@@ -69,7 +69,7 @@ class lcu_Test(unittest.TestCase):
         self.assertRaises(ValueError, get_truncated_taylor_series, qu_op, 0, time)
         self.assertRaises(ValueError, get_truncated_taylor_series, qu_op * 1j, 2, time)
 
-    def test_get_lcu_circuit(self):
+    def test_get_oaa_lcu_circuit(self):
         """Test time-evolution of truncated Taylor series for order k = 3 passing explicitly calculated qubit operator exponential"""
 
         qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons,
@@ -87,18 +87,18 @@ class lcu_Test(unittest.TestCase):
         len_ancilla = 2**(n_qubits_qu_op)
 
         for backend in backends:
-            sim = Simulator(backend)
-            statevector_order = backend_info[backend]["statevector_order"]
+            sim = get_backend(backend)
+            statevector_order = sim.backend_info()["statevector_order"]
             sv = StateVector(vec, order=statevector_order)
             sv_circuit = sv.initializing_circuit()
 
-            taylor_circuit = get_lcu_circuit(exp_qu_op)
+            taylor_circuit = get_oaa_lcu_circuit(exp_qu_op)
             _, v = sim.simulate(sv_circuit + taylor_circuit, return_statevector=True)
             v = v.reshape([4, len_ancilla])[:, 0] if statevector_order == "lsq_first" else v.reshape([len_ancilla, 4])[0, :]
             self.assertAlmostEqual(1, np.abs(v.conj().dot(exact)), delta=1.e-3)
 
         # Test return of ValueError if 1-norm is greater than 2.
-        self.assertRaises(ValueError, get_lcu_circuit, exp_qu_op+5)
+        self.assertRaises(ValueError, get_oaa_lcu_circuit, exp_qu_op+5)
 
     def test_controlled_time_evolution_by_phase_estimation_for_get_truncated_taylor_series(self):
         """ Verify that the controlled time-evolution is correct by calculating the eigenvalue of an eigenstate through
@@ -134,7 +134,7 @@ class lcu_Test(unittest.TestCase):
         # State 9 has eigenvalue 0.25 so return should be 010 (0*1/2 + 1*1/4 + 0*1/8)
         self.assertAlmostEqual(trace_freq["010"], 1.0, delta=1.e-4)
 
-    def test_controlled_time_evolution_by_phase_estimation_for_get_lcu_circuit(self):
+    def test_controlled_time_evolution_by_phase_estimation_for_get_oaa_lcu_circuit(self):
         """ Verify that the controlled time-evolution is correct by calculating the eigenvalue of an eigenstate through
         phase estimation.
         """
@@ -166,7 +166,7 @@ class lcu_Test(unittest.TestCase):
         # Build phase estimation circuit and simulate
         pe_circuit = get_qft_circuit(qubit_list)
         for i, qubit in enumerate(qubit_list):
-            pe_circuit += (6 * 2**i) * get_lcu_circuit(exp_qu_op, control=qubit)
+            pe_circuit += (6 * 2**i) * get_oaa_lcu_circuit(exp_qu_op, control=qubit)
         pe_circuit += get_qft_circuit(qubit_list, inverse=True)
 
         freqs, _ = sim_cirq.simulate(pe_circuit, initial_statevector=wave_9)

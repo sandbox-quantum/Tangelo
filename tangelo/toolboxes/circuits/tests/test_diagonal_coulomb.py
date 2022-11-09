@@ -16,12 +16,12 @@ import unittest
 
 from openfermion import get_sparse_operator, linalg
 
-from tangelo.linq import Simulator, Circuit
+from tangelo.linq import get_backend, Circuit
 from tangelo.molecule_library import mol_H4_sto3g
 from tangelo.toolboxes.circuits import get_orbital_rotations
 
 # Initiate simulator using cirq as it has the same ordering as openfermion and we are using an exact eigenvector to test
-sim = Simulator(target="cirq")
+sim = get_backend(target="cirq")
 
 
 class diagonal_coulomb_Test(unittest.TestCase):

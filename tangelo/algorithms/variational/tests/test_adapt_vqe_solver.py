@@ -50,14 +50,14 @@ class ADAPTSolverTest(unittest.TestCase):
 
         resources = {"qubit_hamiltonian_terms": 15,
                      "circuit_width": 4,
-                     "circuit_gates": 122,
+                     "circuit_depth": 73,
                      "circuit_2qubit_gates": 48,
                      "circuit_var_gates": 8,
                      "vqe_variational_parameters": 1}
         self.assertEqual(adapt_solver.get_resources(), resources)
 
     def test_multiple_cycle_adapt_majorana_pool(self):
-        """Solve H4 with one frozen orbtial with ADAPTSolver using 4 cycles and operators chosen
+        """Solve H4 with one frozen orbital with ADAPTSolver using 4 cycles and operators chosen
         from a Majorana UCCGSD pool and a Majorana UCCSD pool
         """
 

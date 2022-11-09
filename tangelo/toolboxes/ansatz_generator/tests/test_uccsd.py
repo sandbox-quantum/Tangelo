@@ -20,7 +20,7 @@ from openfermion import load_operator
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_doublecation_minao, mol_H4_cation_sto3g
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.uccsd import UCCSD
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 
 # For openfermion.load_operator function.
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))
@@ -99,7 +99,7 @@ class UCCSDTest(unittest.TestCase):
         qubit_hamiltonian = jordan_wigner(mol_H2_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator()
+        sim = get_backend()
         uccsd_ansatz.update_var_params([5.86665842e-06, 0.0565317429])
         energy = sim.get_expectation_value(qubit_hamiltonian, uccsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.137270174551959, delta=1e-6)
@@ -121,7 +121,7 @@ class UCCSDTest(unittest.TestCase):
         qubit_hamiltonian = jordan_wigner(mol_H4_cation_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator()
+        sim = get_backend()
         uccsd_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, uccsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.639461490, delta=1e-6)
@@ -141,7 +141,7 @@ class UCCSDTest(unittest.TestCase):
         qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_jw.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator()
+        sim = get_backend()
         uccsd_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, uccsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -0.854607, delta=1e-4)

@@ -203,7 +203,7 @@ def USelectkl(unitaries: List[QubitOperator], n_qubits_sv: int, kmax: int, contr
 
     n_qubits_u = math.ceil(math.log2(len(unitaries)))
     if control is not None:
-        control_list = control if isinstance(control, list) else [control]
+        control_list = control.copy() if isinstance(control, list) else [control]
     else:
         control_list = []
 
@@ -250,7 +250,7 @@ def sign_flip(qubit_list: List[int], control: Union[int, List[int]] = None) -> C
         Circuit: The circuit that generates the sign flip on |0>^n
     """
     if control is not None:
-        fcontrol_list = control if isinstance(control, list) else [control]
+        fcontrol_list = control.copy() if isinstance(control, list) else [control]
     else:
         fcontrol_list = []
     gate_list = []
@@ -259,13 +259,15 @@ def sign_flip(qubit_list: List[int], control: Union[int, List[int]] = None) -> C
     fcontrol_list += qubit_list[:-1]
 
     gate_list += x_ladder
-    gate_list.append(Gate('CZ', target=qubit_list[-1], control=fcontrol_list))
+    gate_list.append(Gate('H', target=qubit_list[-1]))
+    gate_list.append(Gate('CX', target=qubit_list[-1], control=fcontrol_list))
+    gate_list.append(Gate('H', target=qubit_list[-1]))
     gate_list += x_ladder
     return Circuit(gate_list)
 
 
-def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None) -> Circuit:
-    """Apply qu_op using the linear combination of unitaries algorithm
+def get_oaa_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None) -> Circuit:
+    """Apply qu_op using linear combination of unitaries (LCU) with oblivious amplitude amplification (OAA)
     1-norm of coefficients must be less than 2. The unitarity of qu_op is not checked by the algorithm
     Args:
         qu_op (QubitOperator): The qu_op to apply. Must be nearly unitary for algorithm to succeed with high probability.
@@ -274,8 +276,41 @@ def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None)
         Circuit: The circuit that implements the linear combination of unitaries for the qu_op
     """
 
+    uprep, uselect, qu_op_qubits, uprep_qubits, _ = get_uprep_uselect(qu_op, control, make_alpha_eq_2=True)
+
+    flip_op = sign_flip(uprep_qubits, control=control)
+    w = uprep + uselect + uprep.inverse()
+
+    amplified_lcu_circuit = w + flip_op + w.inverse() + flip_op + w
+
+    # Added gates below because current implementation applies -1j*exp(-1j*H*t) and global phase
+    # matters for controlled operations
+    # TODO: Find a way to incorporate this phase into the time propagation natively.
     if control is not None:
-        control_list = control if isinstance(control, list) else [control]
+        gates = [Gate("CRZ", q, control=control, parameter=np.pi) for q in qu_op_qubits]
+        gates += [Gate("CPHASE", q, control=control, parameter=-np.pi) for q in qu_op_qubits]
+        amplified_lcu_circuit += Circuit(gates)
+
+    return amplified_lcu_circuit
+
+
+def get_uprep_uselect(qu_op: QubitOperator, control: Union[int, List[int]] = None, make_alpha_eq_2: bool = False
+                      ) -> Tuple[Circuit, Circuit, List[int], List[int], float]:
+    """Get uprep and (controlled-)uselect circuits along with their corresponding qubits for a QubitOperator.
+    Args:
+        qu_op (QubitOperator): The qu_op to apply.
+        control (int or list[int]): Control qubit(s).
+        make_alpha_eq_2: Make 1-norm equal 2 by adding and subtracting identity terms. Useful for oblivious amplitude amplification
+    Returns:
+        Circuit: Uprep circuit
+        Circuit: Uselect circuit
+        List[int]: QubitOperator qubits
+        List[int]: Auxillary qubits
+        float: alpha = 1-norm of coefficients of applied qu_op
+    """
+
+    if control is not None:
+        control_list = control.copy() if isinstance(control, list) else [control]
     else:
         control_list = []
 
@@ -285,19 +320,23 @@ def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None)
     for term, coeff in qu_op.terms.items():
         acoeff = np.abs(coeff)
         vector += [acoeff]
-        unitaries += [QubitOperator(term, coeff / acoeff)]
-    vsum = sum(vector)
-
-    # Check that 1-norm is less than 2 and add and subtract terms proportional to the identity to obtain 1-norm equal to 2
-    if vsum > 2 + 1.e-10:
-        raise ValueError("Can not apply qu_op as its 1-norm is greater than 2")
-    vector += [max((2 - vsum)/2, 0), max((2 - vsum)/2, 0)]
-    unitaries += [QubitOperator(tuple(), 1), QubitOperator(tuple(), -1)]
+        unitaries += [QubitOperator(term, -coeff / acoeff)]
 
     # create U_{prep} from sqrt of coefficients
-    num_terms = len(vector)
     vector = np.array(vector)
-    vector = np.sqrt(vector)/np.sqrt(2)
+    alpha = sum(vector)
+
+    if make_alpha_eq_2:
+        # Check that 1-norm is less than 2 and add and subtract terms proportional to the identity to obtain 1-norm equal to 2
+        if alpha > 2 + 1.e-10:
+            raise ValueError("Can not make qu_op 1-norm equal 2 as it is already greater than 2")
+        vector = np.concatenate((vector, np.array([max((2 - alpha)/2, 0), max((2 - alpha)/2, 0)])))
+        unitaries += [QubitOperator(tuple(), 1), QubitOperator(tuple(), -1)]
+        alpha = 2
+
+    num_terms = len(vector)
+    vector = np.sqrt(vector)
+    vector = vector / np.linalg.norm(vector)
     n_qubits = math.ceil(math.log2(num_terms))
     newvec = np.zeros(2**n_qubits)
     newvec[0:num_terms] = vector[:]
@@ -327,17 +366,23 @@ def get_lcu_circuit(qu_op: QubitOperator, control: Union[int, List[int]] = None)
 
     uselect = Circuit(gate_list)
 
-    flip_op = sign_flip(uprep_qubits, control=control)
-    w = uprep + uselect + uprep.inverse()
+    return uprep, uselect, list(range(max_qu_op)), uprep_qubits, alpha
 
-    amplified_lcu_circuit = w + flip_op + w.inverse() + flip_op + w
 
-    # Added gates below because current implementation applies -1j*exp(-1j*H*t) and global phase
-    # matters for controlled operations
-    # TODO: Find a way to incorporate this phase into the time propagation natively.
-    if control is not None:
-        gates = [Gate("CRZ", q, control=control, parameter=np.pi/2) for q in range(max_qu_op)]
-        gates += [Gate("CPHASE", q, control=control, parameter=-np.pi/2) for q in range(max_qu_op)]
-        amplified_lcu_circuit += Circuit(gates)
+def get_lcu_qubit_op_info(qu_op: QubitOperator()) -> Tuple[List[int], List[int], float]:
+    """Return the operator and auxillary qubit indices and 1-norm for the LCU block decomposition of given QubitOperator.
+    Args:
+        qu_op (QubitOperator): The qubit operator to decompose into an Linear Combination of Unitaries block encoding.
 
-    return amplified_lcu_circuit
+    Returns:
+        List[int]: The qubit operator indices.
+        List[int]: The auxillary qubits for the uprep circuit.
+        float: The 1-norm of the qubit operator.
+    """
+
+    max_qu_op = count_qubits(qu_op)
+    num_terms = len(qu_op.terms)
+    alpha = sum([abs(v) for v in qu_op.terms.values()])
+    n_qubits = math.ceil(math.log2(num_terms))
+
+    return list(range(max_qu_op)), list(range(max_qu_op, max_qu_op + n_qubits)), alpha

@@ -109,7 +109,7 @@ class ClassicalShadow(abc.ABC):
         statevector.
 
         Args:
-            backend (Simulator): Backend for the simulation of a shadow.
+            backend (Backend): Backend for the simulation of a shadow.
             initial_statevector(list/array) : A valid statevector in the format
                 supported by the target backend.
         """

@@ -30,7 +30,7 @@ Refs:
         J. Chem. Theory Comput. 2021, 17, 1, 66–78.
 """
 
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 from tangelo.toolboxes.ansatz_generator.ilc import ILC
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.algorithms.variational.vqe_solver import VQESolver
@@ -60,8 +60,7 @@ class iQCC_ILC_solver:
             followed by all spin down. Default, False.
         initial_var_params (str or array-like): Initial values of the variational parameters
             for the classical optimizer.
-        backend_options (dict): Parameters to build the tangelo.linq Simulator
-            class.
+        backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
         penalty_terms (dict): Parameters for penalty terms to append to target
             qubit Hamiltonian (see penaly_terms for more details).
         ilc_ansatz_options (dict): Parameters for ILC ansatz (see ILC ansatz
@@ -149,7 +148,7 @@ class iQCC_ILC_solver:
         is performed with the current set of generators, amplitudes, and qubit Hamiltonian."""
 
         # initialize quantities and compute the QMF energy
-        sim = Simulator()
+        sim = get_backend()
         self.qmf_energy = sim.get_expectation_value(self.ilc_ansatz.qubit_ham, self.ilc_ansatz.qmf_circuit)
         if self.verbose:
             print(f"The qubit mean field energy = {self.qmf_energy}")

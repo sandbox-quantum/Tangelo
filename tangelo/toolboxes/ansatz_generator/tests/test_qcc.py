@@ -20,12 +20,12 @@ import unittest
 import numpy as np
 from openfermion import load_operator
 
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g, mol_H4_doublecation_minao
 
-sim = Simulator()
+sim = get_backend()
 
 # For openfermion.load_operator function.
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))

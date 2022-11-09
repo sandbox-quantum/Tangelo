@@ -23,15 +23,20 @@ from .translate_qdk import translate_qsharp, get_qdk_gates
 from .translate_projectq import translate_projectq, _translate_projectq2abs, get_projectq_gates
 from .translate_openqasm import translate_openqasm, _translate_openqasm2abs, get_openqasm_gates
 from .translate_qubitop import translate_operator
+from .translate_circuit import translate_circuit
 
 
-# List all supported gates for all backends found
-SUPPORTED_GATES = dict()
+def get_supported_gates():
+    """List all supported gates for all backends found"""
 
-SUPPORTED_GATES["projectq"] = sorted(get_projectq_gates().keys())
-SUPPORTED_GATES["ionq"] = sorted(get_ionq_gates().keys())
-SUPPORTED_GATES["qdk"] = sorted(get_qdk_gates().keys())
-SUPPORTED_GATES["openqasm"] = sorted(get_openqasm_gates().keys())
+    supported_gates = dict()
+    supported_gates["projectq"] = sorted(get_projectq_gates().keys())
+    supported_gates["ionq"] = sorted(get_ionq_gates().keys())
+    supported_gates["qdk"] = sorted(get_qdk_gates().keys())
+    supported_gates["openqasm"] = sorted(get_openqasm_gates().keys())
+    supported_gates["qulacs"] = sorted(get_qulacs_gates().keys())
+    supported_gates["qiskit"] = sorted(get_qiskit_gates().keys())
+    supported_gates["cirq"] = sorted(get_cirq_gates().keys())
+    supported_gates["braket"] = sorted(get_braket_gates().keys())
 
-for v in installed_backends:
-    SUPPORTED_GATES[v] = sorted(eval(f'get_{v}_gates().keys()'))
+    return supported_gates

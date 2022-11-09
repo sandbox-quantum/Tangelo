@@ -21,10 +21,10 @@ from tangelo.molecule_library import mol_H2_sto3g, mol_H4_doublecation_minao
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.hea import HEA
 
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 
 # Initiate simulator
-sim = Simulator()
+sim = get_backend()
 
 # For openfermion.load_operator function.
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))

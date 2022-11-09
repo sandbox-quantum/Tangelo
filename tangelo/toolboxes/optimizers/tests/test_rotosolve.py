@@ -16,7 +16,7 @@ import unittest
 
 import numpy as np
 
-from tangelo.linq import Simulator, Gate, Circuit
+from tangelo.linq import get_backend, Gate, Circuit
 from tangelo.toolboxes.optimizers.rotosolve import rotosolve
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -29,7 +29,7 @@ class OptimizerTest(unittest.TestCase):
         """Test rotosovle on H2 without VQE, using custom variational circuit
         and qubit Hamiltonian with JW qubit mapping on an exact simulator.
         """
-        sim = Simulator()
+        sim = get_backend()
         # Create qubit Hamiltonian compatible with UCC1 Ansatz
         qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=mol_H2_sto3g.fermionic_hamiltonian,
                                                      mapping="jw",

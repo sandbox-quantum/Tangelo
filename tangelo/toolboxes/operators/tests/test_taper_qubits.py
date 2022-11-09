@@ -58,6 +58,20 @@ class QubitTaperingTest(unittest.TestCase):
 
         self.assertAlmostEqual(e, e_taper, places=5)
 
+    def test_z2taper_h4_jw_spinup_first(self):
+        """Test that a small qubit operator will be tapered properly when using tapering from a larger operator.
+        In this case, a 6 qubit operator from an 8 qubit operator tapering."""
+
+        qu_op = load_operator("H4_JW_spinupfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
+
+        tapering = QubitTapering(qu_op, 8, 4, 0, "JW", True)
+
+        try:
+            tapered_ref_state_op = tapering.z2_tapering(QubitOperator("X0 X1 X4 X5", 1), n_qubits=8)
+            self.assertEqual(tapered_ref_state_op, QubitOperator("X0 X1 X3", 1.0))
+        except IndexError:
+            self.fail("z2_tapering raised IndexError unexpectedly")
+
     def test_z2taper_h2_bk_occupied_first(self):
         """Test Z2 tapering of H2 BK up_then_down=False."""
 

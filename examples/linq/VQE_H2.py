@@ -9,7 +9,7 @@
 import numpy as np
 from scipy.optimize import minimize
 
-from tangelo.linq import Gate, Circuit, Simulator
+from tangelo.linq import Gate, Circuit, get_backend
 
 
 class H2StatePreparationCircuit(Circuit):
@@ -72,7 +72,7 @@ def get_energy(var_params, simulation_backend, qb_ham, prep_circuit):
 
 
 # Instantiate a simulator object for a target backend (try "qiskit" or "qulacs", for example)
-my_simulator = Simulator(target="cirq")
+my_simulator = get_backend(target="cirq")
 
 # VQE attempts to reach ground state energy by minimizing the expectation value of the qubit Hamiltonian with regards
 # to the parametric state preparation provided by the user. The initial parameters can be changed.
