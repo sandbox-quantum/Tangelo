@@ -3,7 +3,7 @@
 This file documents the main changes between versions of the code.
 
 
-## [0.3.2] - 2022-11-09
+## [0.3.3] - 2022-11-09
 
 ### Added
 
@@ -29,6 +29,7 @@ This file documents the main changes between versions of the code.
 
 - Simulator class deprecated in favor of get_backend function in linq
 - backend-specific translate_xxx functions (e.g translate_qiskit, translate_qulacs...) deprecated in favor of translate_circuit in linq
+
 
 ## [0.3.2] - 2022-08-06
 
