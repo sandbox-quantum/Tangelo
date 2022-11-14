@@ -15,7 +15,7 @@
 import unittest
 import numpy as np
 
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 from tangelo.linq.helpers.circuits import StateVector
 from tangelo.helpers.utils import installed_backends
 
@@ -35,7 +35,7 @@ class StateVectorTest(unittest.TestCase):
 
     def test_circuits_representations_lsq(self):
         """Test initializing and uncomputing circuits with cirq lsq_first order"""
-        sim = Simulator("cirq")
+        sim = get_backend("cirq")
         v = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]) + 1j*np.array([0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1])
         v /= np.linalg.norm(v)
 
@@ -54,7 +54,7 @@ class StateVectorTest(unittest.TestCase):
     @unittest.skipIf("qulacs" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_circuits_representations_msq(self):
         """Test initializing and uncomputing circuits with qulacs msq_first order"""
-        sim = Simulator("qulacs")
+        sim = get_backend("qulacs")
         v = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]) + 1j*np.array([0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1])
         v /= np.linalg.norm(v)
 

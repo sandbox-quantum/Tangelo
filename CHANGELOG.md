@@ -3,6 +3,34 @@
 This file documents the main changes between versions of the code.
 
 
+## [0.3.3] - 2022-11-09
+
+### Added
+
+- Circuit translation from any supported source to any supported target format, with a single function
+- Translation for qubit / Pauli operators for qiskit format
+- All algorithms now run with any built-in or user-defined backend, simulator or QPU.
+- TETRIS-ADAPT VQE
+- iQCC-ILC
+- Quantum signal processing time-evolution
+- Higher even-order trotterization for time-evolution
+- Histogram class, featuring methods for renormalization, post-selection, aggregation
+- Computation of variance of expectation values
+- Function to compute RDMs from experimental data / classical shadow
+- IBMConnection Class for submission of experiments to IBM Quantum
+- qchem_modelling_basics and excited_states notebooks
+
+### Changed
+
+- All notebooks now launchable with Google Collab
+- Docker image updated
+
+### Deprecated
+
+- Simulator class deprecated in favor of get_backend function in linq
+- backend-specific translate_xxx functions (e.g translate_qiskit, translate_qulacs...) deprecated in favor of translate_circuit in linq
+
+
 ## [0.3.2] - 2022-08-06
 
 ### Added

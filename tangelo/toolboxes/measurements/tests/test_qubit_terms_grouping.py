@@ -18,7 +18,7 @@ import os
 from openfermion import load_operator
 from openfermion.ops import QubitOperator
 
-from tangelo.linq import translator, Simulator, Circuit
+from tangelo.linq import translator, get_backend, Circuit
 from tangelo.helpers import measurement_basis_gates
 from tangelo.toolboxes.measurements import group_qwc, exp_value_from_measurement_bases, \
     check_bases_commute_qwc, map_measurements_qwc
@@ -101,7 +101,7 @@ class TermsGroupingTest(unittest.TestCase):
 
         # Only simulate and measure the wavefunction in the required bases (simulator or QPU), store in dict.
         histograms = dict()
-        sim = Simulator()
+        sim = get_backend()
         for basis, sub_op in grouped_ops.items():
             full_circuit = abs_circ + Circuit(measurement_basis_gates(basis))
             histograms[basis], _ = sim.simulate(full_circuit)
@@ -129,7 +129,7 @@ class TermsGroupingTest(unittest.TestCase):
 
         # Only simulate and measure the wavefunction in the required bases (simulator or QPU), store in dict.
         histograms = dict()
-        sim = Simulator()
+        sim = get_backend()
         for basis, sub_op in grouped_ops.items():
             full_circuit = abs_circ + Circuit(measurement_basis_gates(basis))
             histograms[basis], _ = sim.simulate(full_circuit)

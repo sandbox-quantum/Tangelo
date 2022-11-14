@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .backend import Backend
 from .target_cirq import CirqSimulator
 from .target_qiskit import QiskitSimulator
 from .target_qulacs import QulacsSimulator

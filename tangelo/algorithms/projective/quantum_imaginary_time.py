@@ -26,7 +26,7 @@ from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_
 from tangelo.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
 from tangelo.toolboxes.operators import qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
-from tangelo.linq import Circuit, Simulator
+from tangelo.linq import Circuit, get_backend
 
 
 class QITESolver:
@@ -191,8 +191,8 @@ class QITESolver:
         self.final_circuit = copy(self.circuit_list[0])
 
         # Quantum circuit simulation backend options
-        self.backend = Simulator(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
-                                 noise_model=self.backend_options["noise_model"])
+        self.backend = get_backend(target=self.backend_options["target"], n_shots=self.backend_options["n_shots"],
+                                   noise_model=self.backend_options["noise_model"])
 
         self.use_statevector = self.backend.statevector_available and self.backend._noise_model is None
 
@@ -242,28 +242,28 @@ class QITESolver:
 
         return self.energies[-1]
 
-    def update_statevector(self, backend: Simulator, next_circuit: Circuit):
+    def update_statevector(self, backend, next_circuit):
         r"""Update self.final_statevector by propagating with next_circuit using backend
 
         Args:
-            Simulator: the backend to use for the statevector update
-            Circuit: The circuit to apply to the statevector
+            backend (Backend): the backend to use for the statevector update
+            next_circuit (Circuit): The circuit to apply to the statevector
         """
         _, self.final_statevector = backend.simulate(next_circuit,
                                                      return_statevector=True,
                                                      initial_statevector=self.final_statevector)
 
-    def calculate_matrices(self, backend: Simulator, new_energy: float):
+    def calculate_matrices(self, backend, new_energy):
         r"""Calculated matrix elements for imaginary time evolution.
         The matrices are defined in section 3.5 of https://arxiv.org/pdf/2108.04413.pdf
 
         Args:
-            backend (Simulator): the backend from which the matrices are generated
+            backend (Backend): the backend from which the matrices are generated
             new_energy (float): the current energy_expectation of the Hamiltonian
 
         Returns:
             matrix float: The expectation values <\psi| pu^+ pv |\psi>
-            array float: The expecation values <\psi| pu^+ H |\psi>
+            array float: The expectation values <\psi| pu^+ H |\psi>
         """
 
         circuit = Circuit(n_qubits=self.final_circuit.width) if self.use_statevector else self.final_circuit
@@ -284,12 +284,12 @@ class QITESolver:
 
         return suv, bu
 
-    def energy_expectation(self, backend: Simulator):
+    def energy_expectation(self, backend):
         """Estimate energy using the self.final_circuit, qubit hamiltonian and compute
         backend.
 
         Args:
-             backend (Simulator): the backend one computes the energy expectation with
+             backend (Backend): the backend one computes the energy expectation with
 
         Returns:
             float: energy computed by the backend

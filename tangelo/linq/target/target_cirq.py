@@ -17,12 +17,12 @@ from collections import Counter
 import numpy as np
 
 from tangelo.linq import Circuit
-from tangelo.linq.simulator_base import SimulatorBase
+from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.translator import get_cirq_gates
 
 
-class CirqSimulator(SimulatorBase):
+class CirqSimulator(Backend):
 
     def __init__(self, n_shots=None, noise_model=None):
         """Instantiate cirq simulator object.

@@ -25,7 +25,7 @@ Phys. Rev. Research 1, 033062 (2019)
 
 import numpy as np
 
-from tangelo.linq import Simulator, Circuit
+from tangelo.linq import get_backend, Circuit
 from tangelo.toolboxes.qubit_mappings import statevector_mapping
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.penalty_terms import combined_penalty
@@ -53,7 +53,7 @@ class SA_VQESolver(VQESolver):
         ansatz (Ansatze) : one of the supported ansatze.
         optimizer (function handle): a function defining the classical optimizer and its behavior.
         initial_var_params (str or array-like) : initial value for the classical optimizer.
-        backend_options (dict) : parameters to build the tangelo.linq Simulator class.
+        backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
         penalty_terms (dict): parameters for penalty terms to append to target qubit Hamiltonian (see penalty_terms
             for more details).
         deflation_circuits (list[Circuit]): Deflation circuits to add an orthogonalization penalty with.
@@ -160,7 +160,7 @@ class SA_VQESolver(VQESolver):
         self.ansatz.build_circuit()
 
         # Quantum circuit simulation backend options
-        self.backend = Simulator(**self.backend_options)
+        self.backend = get_backend(**self.backend_options)
 
     def simulate(self):
         """Run the SA-VQE algorithm, using the ansatz, classical optimizer, initial
@@ -221,7 +221,6 @@ class SA_VQESolver(VQESolver):
                    self.reference_circuits[0] + self.ansatz.circuit)
         resources["circuit_width"] = circuit.width
         resources["circuit_depth"] = circuit.depth()
-        # For now, only CNOTs supported.
         resources["circuit_2qubit_gates"] = circuit.counts_n_qubit.get(2, 0)
         resources["circuit_var_gates"] = len(self.ansatz.circuit._variational_gates)
         resources["vqe_variational_parameters"] = len(self.initial_var_params)

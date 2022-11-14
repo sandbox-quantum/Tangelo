@@ -19,7 +19,7 @@ import numpy as np
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.uccgd import UCCGD
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 
 
 class UCCGDTest(unittest.TestCase):
@@ -62,7 +62,7 @@ class UCCGDTest(unittest.TestCase):
         qubit_hamiltonian = jordan_wigner(mol_H2_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator()
+        sim = get_backend()
         uccgd_ansatz.update_var_params([0.78525105, 1.14993361, 1.57070471])
         energy = sim.get_expectation_value(qubit_hamiltonian, uccgd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.1372701, delta=1e-6)
@@ -86,7 +86,7 @@ class UCCGDTest(unittest.TestCase):
         qubit_hamiltonian = jordan_wigner(mol_H4_cation_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator()
+        sim = get_backend()
         uccgd_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, uccgd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.64190668, delta=1e-6)

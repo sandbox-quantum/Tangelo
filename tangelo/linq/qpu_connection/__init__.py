@@ -14,3 +14,4 @@
 
 from .qemist_cloud_connection import QEMISTCloudConnection
 from .ionq_connection import IonQConnection
+from .ibm_connection import IBMConnection

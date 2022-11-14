@@ -13,11 +13,11 @@
 # limitations under the License.
 
 from tangelo.linq import Circuit
-from tangelo.linq.simulator_base import SimulatorBase
+from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 
 
-class QDKSimulator(SimulatorBase):
+class QDKSimulator(Backend):
 
     def __init__(self, n_shots=None, noise_model=None):
         import qsharp

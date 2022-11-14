@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""SimulatorBase class, base class to define various target simulators and abstracting their
-differences from the user. Users can define their own target simulator as a child class of SimulatorBase.
+""" Base class to define backends (simulators or actual devices) and abstracting their
+differences from the user. Users can define their own backend as a child class of this one.
 Able to run noiseless and noisy simulations, leveraging the capabilities of different backends,
 quantum or classical.
 
@@ -54,7 +54,7 @@ def get_expectation_value_from_frequencies_oneterm(term, frequencies):
             to be in lsq-first format).
 
     Returns:
-        complex: The expectation value of this operator with regards to the
+        complex: The expectation value of this operator with regard to the
             state preparation.
     """
 
@@ -87,7 +87,7 @@ def get_variance_from_frequencies_oneterm(term, frequencies):
         frequencies(dict): histogram of frequencies of measurements (assumed
             to be in lsq-first format).
     Returns:
-        complex: The variance of this operator with regards to the
+        complex: The variance of this operator with regard to the
             state preparation.
     """
 
@@ -112,10 +112,10 @@ def get_variance_from_frequencies_oneterm(term, frequencies):
     return variance_term
 
 
-class SimulatorBase(abc.ABC):
+class Backend(abc.ABC):
 
     def __init__(self, n_shots=None, noise_model=None):
-        """Instantiate Simulator object.
+        """Instantiate Backend object.
 
         Args:
             n_shots (int): Number of shots if using a shot-based simulator.
@@ -126,7 +126,7 @@ class SimulatorBase(abc.ABC):
         self._current_state = None
         self._noise_model = noise_model
 
-        # Can be modified later by user as long as long as it retains the same type (ex: cannot change to/from None)
+        # Can be modified later by user as long as it retains the same type (ex: cannot change to/from None)
         self.n_shots = n_shots
         self.freq_threshold = 1e-10
 
@@ -194,7 +194,7 @@ class SimulatorBase(abc.ABC):
 
         if source_circuit.is_mixed_state and not self.n_shots:
             raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state."
-                             "Please set the Simulator.n_shots attribute to an appropriate value.")
+                             "Please set the n_shots attribute to an appropriate value.")
 
         if source_circuit.width == 0:
             raise ValueError("Cannot simulate an empty circuit (e.g identity unitary) with unknown number of qubits.")
@@ -284,7 +284,7 @@ class SimulatorBase(abc.ABC):
                 supported by the target backend.
 
         Returns:
-            complex: The variance of this operator with regards to the
+            complex: The variance of this operator with regard to the
                 state preparation.
         """
         # Check if simulator supports statevector
@@ -335,7 +335,7 @@ class SimulatorBase(abc.ABC):
                 supported by the target backend.
 
         Returns:
-            complex: The standard error of this operator with regards to the
+            complex: The standard error of this operator with regard to the
                 state preparation.
         """
         variance = self.get_variance(qubit_operator, state_prep_circuit, initial_statevector)
@@ -405,7 +405,7 @@ class SimulatorBase(abc.ABC):
             state_prep_circuit: an abstract circuit used for state preparation.
 
         Returns:
-            complex: The expectation value of this operator with regards to the
+            complex: The expectation value of this operator with regard to the
                 state preparation.
         """
         n_qubits = state_prep_circuit.width
@@ -449,7 +449,7 @@ class SimulatorBase(abc.ABC):
                 supported by the target backend.
 
         Returns:
-            complex: The variance of this operator with regards to the
+            complex: The variance of this operator with regard to the
                 state preparation.
         """
         n_qubits = state_prep_circuit.width
@@ -493,7 +493,7 @@ class SimulatorBase(abc.ABC):
                 to be in lsq-first format).
 
         Returns:
-            complex: The expectation value of this operator with regards to the
+            complex: The expectation value of this operator with regard to the
                 state preparation.
         """
 
@@ -511,7 +511,7 @@ class SimulatorBase(abc.ABC):
                 to be in lsq-first format).
 
         Returns:
-            complex: The variance of this operator with regards to the
+            complex: The variance of this operator with regard to the
                 state preparation.
         """
 

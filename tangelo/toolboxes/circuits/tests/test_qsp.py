@@ -18,7 +18,7 @@ from openfermion import get_sparse_operator
 import numpy as np
 from scipy.linalg import expm
 
-from tangelo.linq import Simulator, backend_info
+from tangelo.linq import get_backend, backend_info
 from tangelo.helpers.utils import installed_backends
 from tangelo.linq.helpers.circuits.statevector import StateVector
 from tangelo.toolboxes.operators.operators import QubitOperator
@@ -33,7 +33,7 @@ from tangelo.toolboxes.circuits.qsp import get_qsp_hamiltonian_simulation_circui
 backends = ["cirq", "qulacs"] if "qulacs" in installed_backends else ["cirq"]
 # Initiate Simulator using cirq for phase estimation tests as it has the same ordering as openfermion
 # and we are using an exact eigenvector for testing.
-sim_cirq = Simulator("cirq")
+sim_cirq = get_backend("cirq")
 
 
 class lcu_Test(unittest.TestCase):
@@ -53,7 +53,7 @@ class lcu_Test(unittest.TestCase):
         exact = expm(-1j*ham*time)@vec
 
         for backend in backends:
-            sim = Simulator(backend)
+            sim = get_backend(backend)
             statevector_order = backend_info[backend]["statevector_order"]
             sv = StateVector(vec, order=statevector_order)
             sv_circuit = sv.initializing_circuit()

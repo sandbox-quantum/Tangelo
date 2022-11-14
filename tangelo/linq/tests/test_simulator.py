@@ -24,11 +24,12 @@ import numpy as np
 from openfermion.ops import QubitOperator
 from openfermion import load_operator
 
-from tangelo.linq import Gate, Circuit, Simulator
+from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
-from tangelo.linq.simulator_base import SimulatorBase, get_expectation_value_from_frequencies_oneterm
+from tangelo.linq.target.backend import Backend, get_expectation_value_from_frequencies_oneterm
+from tangelo.helpers.utils import assert_freq_dict_almost_equal
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
@@ -86,37 +87,25 @@ reference_exp_values = np.array([[0., 0., 0.], [0., -1., 0.], [-0.41614684, 0.76
 reference_mixed = {'01': 0.163, '11': 0.066, '10': 0.225, '00': 0.545}  # With Qiskit noiseless, 1M shots
 
 
-def assert_freq_dict_almost_equal(d1, d2, atol):
-    """ Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance """
-    if d1.keys() != d2.keys():
-        raise AssertionError("Dictionary keys differ. Frequency dictionaries are not almost equal.\n"
-                             f"d1 keys: {d1.keys()} \nd2 keys: {d2.keys()}")
-    else:
-        for k in d1.keys():
-            if abs(d1[k] - d2[k]) > atol:
-                raise AssertionError(f"Dictionary entries beyond tolerance {atol}: \n{d1} \n{d2}")
-    return True
-
-
 class TestSimulateAllBackends(unittest.TestCase):
 
     def test_get_exp_value_operator_too_long(self):
         """ Ensure an error is returned if the qubit operator acts on more qubits than are present in the circuit """
         for b in installed_simulator:
-            simulator = Simulator(target=b, n_shots=1)
+            simulator = get_backend(target=b, n_shots=1)
             self.assertRaises(ValueError, simulator.get_expectation_value, op4, circuit1)
 
     def test_get_exp_value_empty_operator(self):
         """ If qubit operator is empty, the expectation value is 0 and no computation occurs """
         for b in installed_simulator:
-            simulator = Simulator(target=b, n_shots=1)
+            simulator = get_backend(target=b, n_shots=1)
             exp_value = simulator.get_expectation_value(QubitOperator(), circuit1)
             self.assertTrue(exp_value == 0.)
 
     def test_get_exp_value_constant_operator(self):
         """ The expectation of the identity term must be 1. """
         for b in installed_simulator:
-            simulator = Simulator(target=b, n_shots=1)
+            simulator = get_backend(target=b, n_shots=1)
             const_op = QubitOperator()
             const_op.terms = {(): 777.}
             exp_value = simulator._get_expectation_value_from_frequencies(const_op, circuit1)
@@ -132,7 +121,7 @@ class TestSimulateAllBackends(unittest.TestCase):
 
         results = dict()
         for b in installed_simulator:
-            sim = Simulator(target=b, n_shots=10 ** 5)
+            sim = get_backend(target=b, n_shots=10 ** 5)
             results[b], _ = sim.simulate(circuit_mixed)
             assert_freq_dict_almost_equal(results[b], reference_mixed, 1e-2)
 
@@ -143,7 +132,7 @@ class TestSimulateAllBackends(unittest.TestCase):
         reference = 0.41614683  # Exact value
         results = dict()
         for b in installed_simulator:
-            sim = Simulator(target=b, n_shots=10 ** 5)
+            sim = get_backend(target=b, n_shots=10 ** 5)
             results[b] = sim.get_expectation_value(op1, circuit_mixed)
             np.testing.assert_almost_equal(results[b], reference, decimal=2)
 
@@ -162,7 +151,7 @@ class TestSimulateAllBackends(unittest.TestCase):
                 precision = 8
             else:
                 precision = 2
-            sim = Simulator(target='cirq', n_shots=shots)
+            sim = get_backend(target='cirq', n_shots=shots)
 
             # <X> = 0.0, <X^2> = 1.0, so Var(X) = <X^2> - <X>^2 = 1.0
             np.testing.assert_almost_equal(sim.get_variance(opx, circuit), 1.0, decimal=precision)
@@ -185,7 +174,7 @@ class TestSimulateAllBackends(unittest.TestCase):
                 precision = 8
             else:
                 precision = 2
-            sim = Simulator(target='cirq', n_shots=shots)
+            sim = get_backend(target='cirq', n_shots=shots)
             # <Z> = 1/3, <Z^2> = 1.0, so Var(Z) = <Z^2> - <Z>^2 = 8/9
             frequencies = {'1': 1/3, '0': 2/3}
             oneterm_variance = sim.get_variance_from_frequencies_oneterm(list(op.terms.keys())[0], frequencies)
@@ -197,7 +186,7 @@ class TestSimulateStatevector(unittest.TestCase):
     def test_simulate_statevector(self):
         """ Must return correct frequencies for simulation of different quantum circuits with statevector """
         for b in installed_sv_simulator:
-            simulator = Simulator(target=b)
+            simulator = get_backend(target=b)
             for i, circuit in enumerate(circuits):
                 frequencies, _ = simulator.simulate(circuit)
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
@@ -209,7 +198,7 @@ class TestSimulateStatevector(unittest.TestCase):
             the exact one.
         """
         for b in installed_sv_simulator:
-            simulator = Simulator(target=b, n_shots=10**6)
+            simulator = get_backend(target=b, n_shots=10 ** 6)
             for i, circuit in enumerate(circuits):
                 frequencies, _ = simulator.simulate(circuit)
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-2)
@@ -217,7 +206,7 @@ class TestSimulateStatevector(unittest.TestCase):
     def test_simulate_empty_circuit_from_statevector(self):
         """ Test the generation of frequencies using an initial_statevector and an empty_circuit """
         for b in installed_sv_simulator:
-            simulator = Simulator(target=b)
+            simulator = get_backend(target=b)
             for i, circuit in enumerate(circuits):
                 _, statevector = simulator.simulate(circuit, return_statevector=True)
                 frequencies, _ = simulator.simulate(Circuit(n_qubits=circuit.width), initial_statevector=statevector)
@@ -226,7 +215,7 @@ class TestSimulateStatevector(unittest.TestCase):
     def test_get_exp_value_from_statevector(self):
         """ Compute the expectation value from the statevector for each statevector backend """
         for b in installed_sv_simulator:
-            simulator = Simulator(target=b)
+            simulator = get_backend(target=b)
             exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
             for i, circuit in enumerate(circuits):
                 for j, op in enumerate(ops):
@@ -239,7 +228,7 @@ class TestSimulateStatevector(unittest.TestCase):
         """
 
         for b in installed_sv_simulator:
-            simulator = Simulator(target=b)
+            simulator = get_backend(target=b)
             exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
             for i, circuit in enumerate(circuits):
                 _, statevector = simulator.simulate(circuit, return_statevector=True)
@@ -263,7 +252,7 @@ class TestSimulateStatevector(unittest.TestCase):
         test_fail = False
 
         for b in installed_sv_simulator:
-            sim = Simulator(target=b)
+            sim = get_backend(target=b)
             tstart = time.time()
             energy = sim.get_expectation_value(qubit_operator, abs_circ)
             tstop = time.time()
@@ -292,7 +281,7 @@ class TestSimulateStatevector(unittest.TestCase):
         test_fail = False
 
         for b in installed_sv_simulator:
-            sim = Simulator(target=b)
+            sim = get_backend(target=b)
             tstart = time.time()
             _, statevector = sim.simulate(abs_circ, return_statevector=True)
             energy = sim.get_expectation_value(qubit_operator, Circuit(n_qubits=abs_circ.width),
@@ -326,7 +315,7 @@ class TestSimulateStatevector(unittest.TestCase):
         test_fail = False
 
         for b in installed_sv_simulator:
-            sim = Simulator(target=b)
+            sim = get_backend(target=b)
             tstart = time.time()
             energy = sim.get_expectation_value(qubit_operator, abs_circ)
             tstop = time.time()
@@ -353,7 +342,7 @@ class TestSimulateStatevector(unittest.TestCase):
             openqasm_circ = circ_handle.read()
         abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
 
-        simulator = Simulator(target="qulacs", n_shots=10 ** 6)
+        simulator = get_backend(target="qulacs", n_shots=10 ** 6)
         expected = -1.1372704
 
         energy = simulator.get_expectation_value(qubit_operator, abs_circ)
@@ -367,7 +356,7 @@ class TestSimulateStatevector(unittest.TestCase):
         identity_circuit = Circuit([Gate('X', 0), Gate('X', 1)] * 2)
 
         for b in installed_sv_simulator:
-            simulator = Simulator(target=b)
+            simulator = get_backend(target=b)
             for op in [op1, op2]:
                 exp_value_empty = simulator.get_expectation_value(op, empty_circuit)
                 exp_value_identity = simulator.get_expectation_value(op, identity_circuit)
@@ -377,7 +366,7 @@ class TestSimulateStatevector(unittest.TestCase):
         """ Get expectation value of qubit operator with complex coefficients """
 
         for b in installed_sv_simulator:
-            simulator = Simulator(target=b)
+            simulator = get_backend(target=b)
 
             # Return complex expectation value corresponding to linear combinations of real and imaginary parts
             op_c = op1 + 1.0j * op2
@@ -396,7 +385,7 @@ class TestSimulateStatevector(unittest.TestCase):
         """ Test the method computing the expectation value from frequencies, with a given simulator """
 
         for b in installed_sv_simulator:
-            simulator = Simulator(target=b)
+            simulator = get_backend(target=b)
             exp_values = np.zeros((len(circuits), len(ops)), dtype=float)
             for i, circuit in enumerate(circuits):
                 for j, op in enumerate(ops):
@@ -412,7 +401,7 @@ class TestSimulateMisc(unittest.TestCase):
             Raise an error if user chooses a target backend that does not provide access to a statevector and
             also does not provide a number of shots for the simulation.
         """
-        self.assertRaises(ValueError, Simulator, target="qdk")
+        self.assertRaises(ValueError, get_backend, target="qdk")
 
     @unittest.skipIf("qdk" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_simulate_qdk(self):
@@ -421,7 +410,7 @@ class TestSimulateMisc(unittest.TestCase):
             The accuracy is correlated to the number of shots taken in the simulation.
             Backend: qdk.
         """
-        simulator = Simulator(target="qdk", n_shots=10**4)
+        simulator = get_backend(target="qdk", n_shots=10 ** 4)
         for i, circuit in enumerate(circuits):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-1)
@@ -431,7 +420,7 @@ class TestSimulateMisc(unittest.TestCase):
         """ Test specific to QDK to ensure results are not impacted by code specific to frequency computation
             as well as the recompilation of the Q# file used in successive simulations """
 
-        simulator = Simulator(target="qdk", n_shots=10**4)
+        simulator = get_backend(target="qdk", n_shots=10 ** 4)
         exp_values = np.zeros((len(ops)), dtype=float)
         for j, op in enumerate(ops):
             exp_values[j] = simulator.get_expectation_value(op, circuit3)
@@ -447,12 +436,12 @@ class TestSimulateMisc(unittest.TestCase):
 
     def test_invalid_target(self):
         """ Ensure an error is returned if the target simulator is not supported."""
-        self.assertRaises(ValueError, Simulator, 'banana')
+        self.assertRaises(ValueError, get_backend, 'banana')
 
     def test_user_provided_simulator(self):
         """Test user defined target simulator that disregards the circuit gates and only returns zero state or one state"""
 
-        class TrueFalseSimulator(SimulatorBase):
+        class TrueFalseSimulator(Backend):
             def __init__(self, n_shots=None, noise_model=None, return_zeros=True):
                 """Instantiate simulator object that always returns all zeros or all ones ignoring circuit operations."""
                 super().__init__(n_shots=n_shots, noise_model=noise_model)
@@ -475,13 +464,13 @@ class TestSimulateMisc(unittest.TestCase):
             def backend_info():
                 return {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": False}
 
-        sim = Simulator(TrueFalseSimulator, n_shots=1, noise_model=None, return_zeros=True)
+        sim = get_backend(TrueFalseSimulator, n_shots=1, noise_model=None, return_zeros=True)
         f, sv = sim.simulate(circuit1, return_statevector=True)
         assert_freq_dict_almost_equal(f, {"00": 1}, 1.e-7)
         np.testing.assert_almost_equal(np.array([1., 0., 0., 0.]), sv)
         self.assertAlmostEqual(sim.get_expectation_value(QubitOperator("Z0", 1.), circuit1), 1.)
 
-        sim = Simulator(TrueFalseSimulator, n_shots=1, noise_model=None, return_zeros=False)
+        sim = get_backend(TrueFalseSimulator, n_shots=1, noise_model=None, return_zeros=False)
         f, sv = sim.simulate(circuit1, return_statevector=True)
         assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
         np.testing.assert_almost_equal(np.array([0., 0., 0., 1.]), sv)

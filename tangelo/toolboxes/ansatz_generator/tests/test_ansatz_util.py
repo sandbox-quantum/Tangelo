@@ -5,11 +5,11 @@ import numpy as np
 from numpy.linalg import eigh
 from openfermion import get_sparse_operator
 
-from tangelo.linq import Simulator, Circuit, Gate
+from tangelo.linq import get_backend, Circuit, Gate
 from tangelo.toolboxes.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.molecule_library import mol_H4_sto3g
-from tangelo.linq.tests.test_simulator import assert_freq_dict_almost_equal
+from tangelo.helpers.utils import assert_freq_dict_almost_equal
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import (givens_gate, trotterize, get_qft_circuit, controlled_swap_to_XX_gates,
                                                              derangement_circuit, controlled_pauliwords)
@@ -18,12 +18,12 @@ from tangelo.toolboxes.ansatz_generator.ansatz_utils import (givens_gate, trotte
 # This is important when converting the openfermion QubitOperator toarray(), propagating exactly and comparing
 # to the statevector output of the simulator. All other simulators will produce the same statevector values but
 # in a different order (i.e. msq_first instead of lsq_first)
-sim = Simulator(target="cirq")
+sim = get_backend(target="cirq")
 
 fermion_operator = mol_H4_sto3g._get_fermionic_hamiltonian()
 
 
-class ansatz_utils_Test(unittest.TestCase):
+class AnsatzUtilsTest(unittest.TestCase):
 
     def test_trotterize_fermion_input(self):
         """ Verify that the time evolution is correct for different mappings and a fermionic
