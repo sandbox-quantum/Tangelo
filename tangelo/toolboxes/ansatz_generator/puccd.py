@@ -12,22 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""TBD
-V.E. Elfving, M. Millaruelo, J.A. Gámez, and C. Gogolin, Phys. Rev. A 103, 032605 (2021).
+"""This module defines the pUCCD ansatz class. The molecular FermionOperator is
+expected to be converted to a BosonOperator (electrons in pairs). Single bosonic
+excitations (corresponding to double fermion excitations) form the ansatz. Those
+excitations are transformed into a quantum circuit via Givens rotations.
+
+Ref:
+    - V.E. Elfving, M. Millaruelo, J.A. Gámez, and C. Gogolin.
+        Phys. Rev. A 103, 032605 (2021).
 """
 
 import itertools
 import numpy as np
 
-from tangelo.linq import Circuit, Gate
+from tangelo.linq import Circuit
 from tangelo.toolboxes.ansatz_generator import Ansatz
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import givens_gate
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import vector_to_circuit
-from tangelo.toolboxes.operators import BosonOperator
 
 
 class pUCCD(Ansatz):
-    """TBD.
+    """This class implements the pUCCD ansatz. Only closed-shell molecules are
+    supported.
+
+    Args:
+        molecule (SecondQuantizedMolecule): Self-explanatory.
+        reference_state (string): String refering to an initial state.
+            Default: "HF".
     """
 
     def __init__(self, molecule, reference_state="HF"):
@@ -39,7 +50,7 @@ class pUCCD(Ansatz):
         self.n_spatial_orbitals = molecule.n_active_mos
         self.n_electrons = molecule.n_active_electrons
 
-        # Set total number of parameters
+        # Set total number of parameters.
         self.n_occupied = int(self.n_electrons / 2)
         self.n_virtual = self.n_spatial_orbitals - self.n_occupied
         self.n_var_params = self.n_occupied * self.n_virtual
@@ -57,7 +68,10 @@ class pUCCD(Ansatz):
         self.circuit = None
 
     def set_var_params(self, var_params=None):
-        """TDB.
+        """Set values for variational parameters, such as ones, zeros or random
+        numbers providing some keywords for users, and also supporting direct
+        user input (list or numpy array). Return the parameters so that
+        workflows such as VQE can retrieve these values.
         """
         if var_params is None:
             var_params = self.var_params_default
@@ -79,8 +93,12 @@ class pUCCD(Ansatz):
         return initial_var_params
 
     def prepare_reference_state(self):
-        """TBD.
+        """Returns circuit preparing the reference state of the ansatz (e.g
+        prepare reference wavefunction with HF, multi-reference state, etc).
+        These preparations must be consistent with the transform used to obtain
+        the qubit operator.
         """
+
         if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
 
@@ -91,8 +109,11 @@ class pUCCD(Ansatz):
             return Circuit()
 
     def build_circuit(self, var_params=None):
-        """TBD.
+        """Build and return the quantum circuit implementing the state
+        preparation ansatz (with currently specified initial_state and
+        var_params).
         """
+
         if var_params is not None:
             self.set_var_params(var_params)
         elif self.var_params is None:
@@ -150,8 +171,11 @@ class pUCCD(Ansatz):
         return self.circuit
 
     def update_var_params(self, var_params):
-        """TBD.
+        """Shortcut: set value of variational parameters in the already-built
+        ansatz circuit member. Preferable to rebuilt your circuit from scratch,
+        which can be an involved process.
         """
+
         self.set_var_params(var_params)
         var_params = self.var_params
 
@@ -161,7 +185,13 @@ class pUCCD(Ansatz):
             self.circuit._variational_gates[gate_index].parameter = var_params[i]
 
     def _get_double_excitations(self):
-        """TBD"""
+        """Construct the UCC double excitations for the given amount of occupied
+        and virtual orbitals.
+
+        Returns:
+            list of int tuples: List of (p, q) excitations corresponding to the
+                occupied orbital p to virtual orbital q.
+        """
 
         # Generate double indices in seniority 0 space.
         excitations = list()

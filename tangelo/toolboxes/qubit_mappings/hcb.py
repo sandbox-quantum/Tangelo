@@ -13,7 +13,9 @@
 # limitations under the License.
 
 
-"""TBD"""
+"""Module that defines function to convert a fermionic operator to a boson
+operator. For electronic system, it means to couple all the electrons by pair.
+"""
 
 import itertools
 
@@ -22,15 +24,22 @@ from tangelo.toolboxes.operators import QubitOperator
 
 
 def hard_core_boson_operator(ferm_op):
-    """TBD"""
+    """Function to extract the coefficient of the Hard-Core Bosonic (HCB)
+    Hamiltonian.
 
+    Refs:
+        - V.E. Elfving, M. Millaruelo, J.A. Gámez, and C. Gogolin. Phys. Rev. A
+            103, 032605 (2021).
+        - N.T. Thang and P.T.T. Nga, Communications in Physics 21, 301 (2011).
+    """
+
+    # Getting the molecular integrals.
     cte, e_sei, e_tei = ferm_op.get_coeffs(spatial=True)
     e_tei *= 2
 
     boson_op = BosonOperator((), cte)
     n_mos = e_sei.shape[0]
     for i, j in itertools.product(range(n_mos), repeat=2):
-
         if i == j:
             coeff = 2*e_sei[i, i] + e_tei[i, i, i, i]
             boson_op += BosonOperator(f"{i}^ {i}", coeff)
@@ -45,7 +54,22 @@ def hard_core_boson_operator(ferm_op):
 
 
 def boson_to_qubit_mapping(bos_op):
-    """TBD"""
+    """Function to convert a Bosonic operator to a qubit operator. As qubits are
+    bosons, the mapping is similar to the Jordan-Wigner mapping, but without the
+    trailing Pauli-Z to account for anticommutation of the creation and
+    anhilation operators.
+
+    In short, every creation operator b^{\dagger} (resp. anhilation b) are
+    mapped to X+iY strings (resp. X-iY), where X and Y are refering to the
+    Pauli matrices.
+
+    Args:
+        bos_op (BosonOperator): Self-explanatory.
+
+    Returns:
+        QubitOperator: Self-explanatory.
+
+    """
 
     def b(p, dagger=False):
         prefactor = -1 if dagger else 1
@@ -53,7 +77,6 @@ def boson_to_qubit_mapping(bos_op):
 
     qu_op = QubitOperator((), bos_op.constant)
     for term, coeff in bos_op.terms.items():
-
         if not term:
             continue
 
