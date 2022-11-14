@@ -30,7 +30,7 @@ class pUCCD(Ansatz):
     """TBD.
     """
 
-    def __init__(self, molecule, reference_state="HF", swap_network=False):
+    def __init__(self, molecule, reference_state="HF"):
 
         if molecule.spin != 0:
             raise NotImplementedError("pUCCD is implemented only for closed-shell system.")
@@ -52,8 +52,6 @@ class pUCCD(Ansatz):
         # Default initial parameters for initialization.
         self.var_params_default = "ones"
         self.reference_state = reference_state
-
-        self.swap_network = swap_network
 
         self.var_params = None
         self.circuit = None
@@ -110,25 +108,35 @@ class pUCCD(Ansatz):
         self.exc_to_param_mapping = dict()
         rotation_gates = []
 
-        if self.swap_network:
-            pass
-        else:
-            # Parrallel ordering.
-            excitations_to_build = excitations.copy()
+        # Parallel ordering (rotations on different qubits can happen at the
+        # same time.
+        excitations_per_layer = [[]]
+        free_qubits_per_layer = [set(range(self.n_spatial_orbitals))]
 
-            while len(excitations_to_build) > 0:
-                used_p = set()
-                used_q = set()
-                for i, (p, q) in enumerate(excitations_to_build):
-                    if p in used_p or q in used_q:
-                        continue
+        # Classify excitations into circuit layers (single pass on all
+        # excitations).
+        for p, q in excitations:
+            excitations_added = False
+            for qubit_indices, gates in zip(free_qubits_per_layer, excitations_per_layer):
+                if p in qubit_indices and q in qubit_indices:
+                    qubit_indices -= {p, q}
+                    gates += [(p, q)]
+                    excitations_added = True
+                    break
 
-                    rotation_gates += givens_gate((p, q), 0., is_variational=True)
+            # If the excitation cannot be added to at least one previous layer,
+            # create a new layer.
+            if not excitations_added:
+                excitations_per_layer.append([(p, q)])
+                qubit_indices = set(range(self.n_spatial_orbitals))
+                qubit_indices -= {p, q}
+                free_qubits_per_layer.append(qubit_indices)
 
-                    self.exc_to_param_mapping[(p, q)] = len(self.exc_to_param_mapping)
-                    excitations_to_build.pop(i)
-                    used_p.add(p)
-                    used_q.add(q)
+        excitations = list(itertools.chain.from_iterable(excitations_per_layer))
+        self.exc_to_param_mapping = {v: k for k, v in enumerate(excitations)}
+
+        rotation_gates = [givens_gate((p, q), 0., is_variational=True) for (p, q) in excitations]
+        rotation_gates = list(itertools.chain.from_iterable(rotation_gates))
 
         puccd_circuit = Circuit(rotation_gates)
 
@@ -157,7 +165,10 @@ class pUCCD(Ansatz):
 
         # Generate double indices in seniority 0 space.
         excitations = list()
-        for p, q in itertools.product(range(self.n_occupied), range(self.n_occupied, self.n_occupied+self.n_virtual)):
+        for p, q in itertools.product(
+            range(self.n_occupied),
+            range(self.n_occupied, self.n_occupied+self.n_virtual)
+        ):
             excitations += [(p, q)]
 
         return excitations
