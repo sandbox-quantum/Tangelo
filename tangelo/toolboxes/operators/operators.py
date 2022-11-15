@@ -103,17 +103,18 @@ class FermionOperator(of.FermionOperator):
         else:
             return super(FermionOperator, self).__eq__(other)
 
-    def get_coeffs(self, coeff_threshold=1e-8):
+    def get_coeffs(self, coeff_threshold=1e-8, spatial=False):
         """Method to get the coefficient tensors from a fermion operator.
 
         Args:
             coeff_threshold (float): Ignore coefficient below the threshold.
                 Default value is 1e-8.
+            spatial (bool): Spatial orbital or spin orbital.
 
         Returns:
             (float, array float, array of float): Core constant, one- (N*N) and
                 two-body coefficient matrices (N*N*N*N), where N is the number
-                of spinorbitals.
+                of spinorbitals or spatial orbitals.
         """
         n_sos = of.count_qubits(self)
 

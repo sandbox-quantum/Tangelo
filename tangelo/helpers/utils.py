@@ -44,6 +44,22 @@ def assert_freq_dict_almost_equal(d1, d2, atol):
                 raise AssertionError(f"Frequency {k}, difference above tolerance {atol}: {d1[k]} != {d2[k]}")
 
 
+def assert_term_dict_almost_equal(d1, d2, delta=1e-6):
+    """Utility function to check whether two qubit operators are almost equal,
+    looking at their term dictionary, for an arbitrary absolute tolerance.
+    """
+    d1k, d2k = set(d1.keys()), set(d2.keys())
+    if d1k != d2k:
+        d1_minus_d2 = d1k.difference(d2k)
+        d2_minus_d1 = d2k.difference(d1k)
+        raise AssertionError("Term dictionary keys differ. Qubit operators are not almost equal.\n"
+                             f"d1-d2 keys: {d1_minus_d2} \nd2-d1 keys: {d2_minus_d1}")
+    else:
+        for k in d1k:
+            if abs(d1[k] - d2[k]) > delta:
+                raise AssertionError(f"Term {k}, difference={abs(d1[k]-d2[k])} > delta={delta}:\n {d1[k]} != {d2[k]}")
+
+
 def is_package_installed(package_name):
     """Check if module is installed without importing."""
     spam_spec = util.find_spec(package_name)
