@@ -69,6 +69,5 @@ class pUCCDTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.13727, delta=1e-4)
 
 
-
 if __name__ == "__main__":
     unittest.main()
