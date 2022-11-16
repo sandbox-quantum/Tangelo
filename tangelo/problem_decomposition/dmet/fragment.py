@@ -66,7 +66,7 @@ class SecondQuantizedDMETFragment:
 
     @property
     def __class__(self):
-        # Tricking isinstance fucntion.
+        # Tricking isinstance function.
         return SecondQuantizedMolecule
 
     def _get_fermionic_hamiltonian(self):
