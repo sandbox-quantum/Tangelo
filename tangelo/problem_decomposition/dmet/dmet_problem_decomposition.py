@@ -176,6 +176,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
         self.orb_list2 = None
         self.onerdm_low = None
 
+        # If save_results in _oneshot_loop is True, the dict is populated.
+        self.solver_fragment_dict = dict()
+
     @property
     def quantum_fragments_data(self):
         """This aims to return a dictionary with all necessary components to
