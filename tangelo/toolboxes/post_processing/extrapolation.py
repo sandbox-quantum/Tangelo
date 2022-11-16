@@ -177,7 +177,7 @@ def richardson_with_exp_estimation(coeffs, energies, stderr=None):
             Eh[j] = (ti*Eh[j+1] - Eh[j])/(ti - 1)
             if stderr is not None:
                 stderr[j] = np.sqrt(((ti*stderr[j+1])**2 + stderr[j]**2)/(ti - 1)**2)
-                
+
         p_old = p
 
     if stderr is None:
