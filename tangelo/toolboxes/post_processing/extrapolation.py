@@ -18,7 +18,7 @@ import scipy.optimize as sp
 
 def diis(coeffs, energies, stderr=None):
     """
-    DIIS extrapolation, originally developped by Pulay in
+    DIIS extrapolation, originally developed by Pulay in
     Chemical Physics Letters 73, 393-398 (1980)
 
     Args:
@@ -100,7 +100,7 @@ def extrapolation(coeffs, energies, stderr=None, taylor_order=None):
 def richardson_analytical(coeffs, energies, stderr=None):
     """
     Richardson extrapolation explicit result as found in
-    Phys. Rev. Lett. 119, 180509 [arXiv:1612.02058]
+    Phys. Rev. Lett. 119, 180509 [arXiv:1612.02058] (up to sign difference)
 
     Args:
         coeffs (array-like): Noise rate amplification factors
@@ -113,8 +113,7 @@ def richardson_analytical(coeffs, energies, stderr=None):
     """
     Eh = np.array(energies)
     ck = np.array(coeffs)
-    n = len(ck)
-    x = np.array([(-1)**(n-1) * np.prod(ai/(a - ai)) for i, a in enumerate(ck) for ai in [np.delete(ck, i)]])
+    x = np.array([np.prod(ai / (ai - a)) for i, a in enumerate(ck) for ai in [np.delete(ck, i)]])
 
     if stderr is None:
         return np.dot(Eh, x)
@@ -130,9 +129,11 @@ def richardson_with_exp_estimation(coeffs, energies, stderr=None):
     Args:
         energies (array-like): Energy expectation values for amplified noise rates
         coeffs (array-like): Noise rate amplification factors
+        stderr (array-like): Energy standard error estimates
 
     Returns:
         float: Extrapolated energy
+        float: Error estimation for extrapolated energy
     """
     n = len(coeffs)
     Eh = np.array(energies)
