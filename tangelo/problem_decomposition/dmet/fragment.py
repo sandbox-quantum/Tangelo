@@ -20,6 +20,7 @@ import numpy as np
 import pyscf
 from pyscf import ao2mo
 
+from tangelo import SecondQuantizedMolecule
 from tangelo.toolboxes.operators import FermionOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
@@ -62,6 +63,11 @@ class SecondQuantizedDMETFragment:
 
         self.fermionic_hamiltonian = self._get_fermionic_hamiltonian()
         self.frozen_mos = None
+
+    @property
+    def __class__(self):
+        # Tricking isinstance fucntion.
+        return SecondQuantizedMolecule
 
     def _get_fermionic_hamiltonian(self):
         """This method returns the fermionic hamiltonian. It written to take
