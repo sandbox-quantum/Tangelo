@@ -24,7 +24,7 @@ def diis(coeffs, energies, stderr=None):
     Args:
         coeffs (array-like): Noise rate amplification factors
         energies (array-like): Energy expectation values for amplified noise rates
-        stderr (array-like): Energy standard error estimates
+        stderr (array-like, optional): Energy standard error estimates
 
     Returns:
         float: Extrapolated energy
@@ -41,13 +41,14 @@ def richardson(coeffs, energies, stderr=None, estimate_exp=False):
     Args:
         coeffs (array-like): Noise rate amplification factors
         energies (array-like): Energy expectation values for amplified noise rates
-        stderr (array-like): Energy standard error estimates
+        stderr (array-like, optional): Energy standard error estimates
+        estimate_exp (bool, optional): Choose to estimate exponent in the Richardson method. Default is False.
 
     Returns:
         float: Extrapolated energy
         float: Error estimation for extrapolated energy
     """
-    if estimate_exp is False:
+    if not estimate_exp:
         # If no exponent estimation, run the direct Richardson solution
         return richardson_analytical(coeffs, energies, stderr)
     else:
@@ -63,8 +64,10 @@ def extrapolation(coeffs, energies, stderr=None, taylor_order=None):
     Args:
         coeffs (array-like): Noise rate amplification factors
         energies (array-like): Energy expectation values for amplified noise rates
-        stderr (array-like): Energy standard error estimates
-        taylor_order (int): Taylor expansion order; None for Richardson extrapolation (order determined from number of datapoints), 1 for DIIS extrapolation
+        stderr (array-like, optional): Energy standard error estimates
+        taylor_order (int, optional): Taylor expansion order;
+            None for Richardson extrapolation (order determined from number of datapoints),
+            1 for DIIS extrapolation
 
     Returns:
         float: Extrapolated energy
@@ -105,7 +108,7 @@ def richardson_analytical(coeffs, energies, stderr=None):
     Args:
         coeffs (array-like): Noise rate amplification factors
         energies (array-like): Energy expectation values for amplified noise rates
-        stderr (array-like): Energy standard error estimates
+        stderr (array-like, optional): Energy standard error estimates
 
     Returns:
         float: Extrapolated energy
@@ -129,7 +132,7 @@ def richardson_with_exp_estimation(coeffs, energies, stderr=None):
     Args:
         energies (array-like): Energy expectation values for amplified noise rates
         coeffs (array-like): Noise rate amplification factors
-        stderr (array-like): Energy standard error estimates
+        stderr (array-like, optional): Energy standard error estimates
 
     Returns:
         float: Extrapolated energy
