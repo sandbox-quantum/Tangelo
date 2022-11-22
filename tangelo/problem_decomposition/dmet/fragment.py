@@ -64,11 +64,6 @@ class SecondQuantizedDMETFragment:
         self.fermionic_hamiltonian = self._get_fermionic_hamiltonian()
         self.frozen_mos = None
 
-    @property
-    def __class__(self):
-        # Tricking isinstance function.
-        return SecondQuantizedMolecule
-
     def _get_fermionic_hamiltonian(self):
         """This method returns the fermionic hamiltonian. It written to take
         into account calls for this function is without argument, and attributes
