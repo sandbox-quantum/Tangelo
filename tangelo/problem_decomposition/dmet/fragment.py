@@ -20,7 +20,6 @@ import numpy as np
 import pyscf
 from pyscf import ao2mo
 
-from tangelo import SecondQuantizedMolecule
 from tangelo.toolboxes.operators import FermionOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
