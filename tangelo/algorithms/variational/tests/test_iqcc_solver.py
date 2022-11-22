@@ -85,7 +85,7 @@ class iQCC_solver_test(unittest.TestCase):
         iqcc.build()
         iqcc_energy = iqcc.simulate()
 
-        self.assertAlmostEqual(iqcc_energy, -1.638524, places=4)
+        self.assertAlmostEqual(iqcc_energy, -1.639, places=3)
 
     def test_iqcc_h4_double_cation(self):
         """Test the energy after 1 iteration for H4+2"""
