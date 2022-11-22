@@ -612,7 +612,7 @@ class SecondQuantizedMolecule(Molecule):
 
         if self.uhf:
             if consider_frozen:
-                return self.get_active_space_integrals_uhf(mo_coeff=mo_coeff)
+                return self._get_active_space_integrals_uhf(mo_coeff=mo_coeff)
             else:
                 one_body, two_body = self._compute_uhf_integrals(mo_coeff)
                 return float(pyscf_mol.energy_nuc()), one_body, two_body
@@ -699,7 +699,7 @@ class SecondQuantizedMolecule(Molecule):
 
         return hpq, Gpqrs
 
-    def get_active_space_integrals_uhf(self, occupied_indices=None, active_indices=None, mo_coeff=None):
+    def _get_active_space_integrals_uhf(self, occupied_indices=None, active_indices=None, mo_coeff=None):
         """Get active space integrals with uhf reference
         Args:
             occupied_indices (array-like): The frozen occupied orbital indices
@@ -794,7 +794,7 @@ class SecondQuantizedMolecule(Molecule):
             InteractionOperator: The molecular hamiltonian
         """
 
-        constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals_uhf(occupied_indices, active_indices)
+        constant, one_body_integrals, two_body_integrals = self._get_active_space_integrals_uhf(occupied_indices, active_indices)
 
         # Lets find the dimensions
         n_orb_a = one_body_integrals[0].shape[0]
