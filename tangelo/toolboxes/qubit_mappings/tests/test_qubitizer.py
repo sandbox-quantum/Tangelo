@@ -16,8 +16,7 @@ import unittest
 
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
-from tangelo.helpers.utils import assert_term_dict_almost_equal
-
+from tangelo.toolboxes.operators import QubitOperator
 
 class QubitizerTest(unittest.TestCase):
 
@@ -37,8 +36,10 @@ class QubitizerTest(unittest.TestCase):
                            ((0, "X"), (1, "Y"), (2, "Y"), (3, "X")): 0.045322202052874,
                            ((0, "Y"), (1, "X"), (2, "X"), (3, "Y")): 0.045322202052874,
                            ((0, "Y"), (1, "Y"), (2, "X"), (3, "X")): -0.045322202052874}
+        reference_op = QubitOperator()
+        reference_op.terms = reference_terms
 
-        assert_term_dict_almost_equal(qubit_hamiltonian.terms, reference_terms)
+        self.assertTrue(qubit_hamiltonian.isclose(reference_op, tol=1e-5))
 
 
 if __name__ == "__main__":

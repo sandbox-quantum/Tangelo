@@ -25,7 +25,6 @@ from openfermion.linalg.sparse_tools import qubit_operator_sparse
 from tangelo.toolboxes.operators import QubitOperator, FermionOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping, make_up_then_down
 from tangelo.molecule_library import mol_H2_sto3g
-from tangelo.helpers.utils import assert_term_dict_almost_equal
 
 
 class MappingTest(unittest.TestCase):
@@ -191,7 +190,7 @@ class MappingTest(unittest.TestCase):
 
         hcb = fermion_to_qubit_mapping(fermion_operator=mol_H2_sto3g.fermionic_hamiltonian, mapping="hcb")
 
-        assert_term_dict_almost_equal(hcb_operator.terms, hcb.terms)
+        self.assertTrue(hcb_operator.isclose(hcb, tol=1e-5))
 
 
 if __name__ == "__main__":

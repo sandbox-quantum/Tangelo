@@ -57,10 +57,10 @@ def boson_to_qubit_mapping(bos_op):
     """Function to convert a Bosonic operator to a qubit operator. As qubits are
     bosons, the mapping is similar to the Jordan-Wigner mapping, but without the
     trailing Pauli-Z to account for anticommutation of the creation and
-    anhilation operators.
+    annihilation operators.
 
-    In short, every creation operator b^{\dagger} (resp. anhilation b) are
-    mapped to X+iY strings (resp. X-iY), where X and Y are refering to the
+    In short, every creation operator b^{\dagger} (resp. annihilation b) are
+    mapped to X+iY strings (resp. X-iY), where X and Y are referring to the
     Pauli matrices.
 
     Args:

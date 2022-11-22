@@ -32,8 +32,9 @@ from tangelo.toolboxes.qubit_mappings.statevector_mapping import vector_to_circu
 
 
 class pUCCD(Ansatz):
-    """This class implements the pUCCD ansatz. Only closed-shell molecules are
-    supported.
+    """This class implements the pUCCD ansatz, as described in Phys. Rev. A 103,
+    032605 (2021). Electrons are described as hard-core boson and only double
+    excitations are considered.
 
     Args:
         molecule (SecondQuantizedMolecule): Self-explanatory.

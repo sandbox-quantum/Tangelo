@@ -24,7 +24,6 @@ from tangelo.toolboxes.operators import FermionOperator
 from tangelo.toolboxes.measurements import ClassicalShadow
 from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping, get_qubit_number
-from tangelo.toolboxes.molecular_computation.coefficients import spatial_from_spinorb
 from tangelo.linq.helpers.circuits import pauli_of_to_string
 
 
