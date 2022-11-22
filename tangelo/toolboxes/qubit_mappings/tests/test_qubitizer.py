@@ -18,6 +18,7 @@ from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.operators import QubitOperator
 
+
 class QubitizerTest(unittest.TestCase):
 
     def test_qubit_hamiltonian_JW_h2(self):
