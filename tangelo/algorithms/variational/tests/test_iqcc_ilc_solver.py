@@ -62,7 +62,7 @@ class iQCC_ILC_solver_test(unittest.TestCase):
         iqcc_ilc_solver.build()
         iqcc_ilc_energy = iqcc_ilc_solver.simulate()
 
-        self.assertAlmostEqual(iqcc_ilc_energy, -1.976817, places=4)
+        self.assertAlmostEqual(iqcc_ilc_energy, -1.9786, places=3)
 
     def test_iqcc_ilc_h4_cation(self):
         """Test the energy after 2 iterations for H4+ using the maximum
