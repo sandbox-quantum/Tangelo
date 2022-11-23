@@ -19,8 +19,7 @@ operator. For electronic system, it means to couple all the electrons by pair.
 
 import itertools
 
-from tangelo.toolboxes.operators import BosonOperator
-from tangelo.toolboxes.operators import QubitOperator
+from tangelo.toolboxes.operators import BosonOperator, QubitOperator
 
 
 def hard_core_boson_operator(ferm_op):
@@ -31,6 +30,12 @@ def hard_core_boson_operator(ferm_op):
         - V.E. Elfving, M. Millaruelo, J.A. Gámez, and C. Gogolin. Phys. Rev. A
             103, 032605 (2021).
         - N.T. Thang and P.T.T. Nga, Communications in Physics 21, 301 (2011).
+
+    Args:
+        ferm_op (FermionOperator): Self-explanatory.
+
+    Returns:
+        BosonOperator: Self-explanatory.
     """
 
     # Getting the molecular integrals.
@@ -68,7 +73,6 @@ def boson_to_qubit_mapping(bos_op):
 
     Returns:
         QubitOperator: Self-explanatory.
-
     """
 
     def b(p, dagger=False):
