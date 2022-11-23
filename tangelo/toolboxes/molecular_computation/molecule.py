@@ -549,8 +549,10 @@ class SecondQuantizedMolecule(Molecule):
         are supported with this method.
 
         Args:
-            one_rdm (numpy.array): One-particle density matrix in MO basis.
-            two_rdm (numpy.array): Two-particle density matrix in MO basis.
+            one_rdm (array or List[array]): One-particle density matrix in MO basis.
+                If UHF [alpha one_rdm, beta one_rdm]
+            two_rdm (array or List[array]): Two-particle density matrix in MO basis.
+                If UHF [alpha-alpha two_rdm, alpha-beta two_rdm, beta-beta two_rdm]
 
         Returns:
             float: Molecular energy.
@@ -563,47 +565,63 @@ class SecondQuantizedMolecule(Molecule):
         # h[p,q,r,s]=\int \phi_p(x)* \phi_q(y)* V_{elec-elec} \phi_r(y) \phi_s(x) dxdy
         # The convention is not the same with PySCF integrals. So, a change is
         # reverse back after performing the truncation for frozen orbitals
-        two_electron_integrals = two_electron_integrals.transpose(0, 3, 1, 2)
+        if self.uhf:
+            two_electron_integrals = [two_electron_integrals[i].transpose(0, 3, 1, 2) for i in range(3)]
+            factor = [1/2, 1, 1/2]
+            e = (core_constant +
+                 np.sum([np.sum(one_electron_integrals[i] * one_rdm[i]) for i in range(2)]) +
+                 np.sum([np.sum(two_electron_integrals[i] * two_rdm[i]) * factor[i] for i in range(3)]))
+        else:
+            two_electron_integrals = two_electron_integrals.transpose(0, 3, 1, 2)
 
-        # Computing the total energy from integrals and provided RDMs.
-        e = core_constant + np.sum(one_electron_integrals * one_rdm) + 0.5*np.sum(two_electron_integrals * two_rdm)
+            # Computing the total energy from integrals and provided RDMs.
+            e = core_constant + np.sum(one_electron_integrals * one_rdm) + 0.5*np.sum(two_electron_integrals * two_rdm)
 
         return e.real
 
     def get_active_space_integrals(self, mo_coeff=None):
         """Computes core constant, one_body, and two-body coefficients with frozen orbitals folded into one-body coefficients
         and core constant
+        For UHF
+        one_body coefficients are [alpha one_body, beta one_body]
+        two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]
 
         Args:
             mo_coeff (array): The molecular orbital coefficients to use to generate the integrals
 
         Returns:
-            (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
+            (float, array or List[array], array or List[array]): (core_constant, one_body coefficients, two_body coefficients)
         """
 
         return self.get_integrals(mo_coeff, True)
 
     def get_full_space_integrals(self, mo_coeff=None):
         """Computes core constant, one_body, and two-body integrals for all orbitals
+        For UHF
+        one_body coefficients are [alpha one_body, beta one_body]
+        two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]
 
         Args:
             mo_coeff (array): The molecular orbital coefficients to use to generate the integrals.
 
         Returns:
-            (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
+            (float, array or List[array], array or List[array]): (core_constant, one_body coefficients, two_body coefficients)
         """
 
         return self.get_integrals(mo_coeff, False)
 
     def get_integrals(self, mo_coeff=None, consider_frozen=True):
         """Computes core constant, one_body, and two-body coefficients for a given active space and mo_coeff
+        For UHF
+        one_body coefficients are [alpha one_body, beta one_body]
+        two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]
 
         Args:
             mo_coeff (array): The molecular orbital coefficients to use to generate the integrals.
             consider_frozen (bool): If True, the frozen orbitals are folded into the one_body and core constant terms.
 
         Returns:
-            (float, array, array): (core_constant, one_body coefficients, two_body coefficients)
+            (float, array or List[array], array or List[array]): (core_constant, one_body coefficients, two_body coefficients)
         """
 
         # Pyscf molecule to get integrals.
@@ -648,8 +666,14 @@ class SecondQuantizedMolecule(Molecule):
     def _compute_uhf_integrals(self, mo_coeff):
         """Compute 1-electron and 2-electron integrals
         The return is formatted as
-        [As x As]*2 numpy array h_{pq} for alpha and beta blocks
-        [As x As x As x As]*3 numpy array storing h_{pqrs} for alpha-alpha, alpha-beta, beta-beta blocks
+        [numpy.ndarray]*2 numpy array h_{pq} for alpha and beta blocks
+        [numpy.ndarray]*3 numpy array storing h_{pqrs} for alpha-alpha, alpha-beta, beta-beta blocks
+
+        Args:
+            List[array]: The molecular orbital coefficients for both spins [alpha, beta]
+
+        Returns:
+            List[array], List[array]: One and two body integrals
         """
         # step 1 : find nao, nmo (atomic orbitals & molecular orbitals)
 
@@ -702,12 +726,18 @@ class SecondQuantizedMolecule(Molecule):
 
     def _get_active_space_integrals_uhf(self, occupied_indices=None, active_indices=None, mo_coeff=None):
         """Get active space integrals with uhf reference
+        The return is
+        (core_constant,
+        [alpha one_body, beta one_body],
+        [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body])
+
         Args:
             occupied_indices (array-like): The frozen occupied orbital indices
             active_indices (array-like): The active orbital indices
-            mo_coeff (array): The molecular orbital coefficients to use to generate the integrals.
+            mo_coeff (List[array]): The molecular orbital coefficients to use to generate the integrals.
+
         Returns:
-            array: The integrals in the specified active space
+            (float, List[array], List[array]): Core constant, one body integrals, two body integrals
         """
 
         if mo_coeff is None:
@@ -786,11 +816,13 @@ class SecondQuantizedMolecule(Molecule):
             The indexing convention used is that even indices correspond to
             spin-up (alpha) modes and odd indices correspond to spin-down
             (beta) modes.
+
         Args:
             occupied_indices(list): A list of spatial orbital indices
                 indicating which orbitals should be considered doubly occupied.
             active_indices(list): A list of spatial orbital indices indicating
                 which orbitals should be considered active.
+
         Returns:
             InteractionOperator: The molecular hamiltonian
         """

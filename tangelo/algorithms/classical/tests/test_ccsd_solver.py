@@ -37,6 +37,10 @@ class CCSDSolverTest(unittest.TestCase):
 
         self.assertAlmostEqual(energy, -1.95831052, places=6)
 
+        one_rdms, two_rdms = solver.get_rdm()
+
+        self.assertAlmostEqual(mol_H4_sto3g_uhf_a1_frozen.energy_from_rdms(one_rdms, two_rdms), -1.95831052, places=6)
+
     def test_ccsd_be(self):
         """Test CCSDSolver against result from reference implementation."""
 
