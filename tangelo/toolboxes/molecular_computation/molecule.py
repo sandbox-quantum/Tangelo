@@ -24,6 +24,7 @@ import numpy as np
 from pyscf import gto, scf, ao2mo, symm, lib
 import openfermion
 import openfermion.ops.representations as reps
+from openfermion.utils import down_index, up_index
 from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 
@@ -800,37 +801,41 @@ class SecondQuantizedMolecule(Molecule):
         n_orb_a = one_body_integrals[0].shape[0]
         n_orb_b = one_body_integrals[1].shape[0]
 
-        # This is not an optimum way to do things as I using some extra qubits
+        # TODO: Implement more compact ordering. May be possible by defining own up_index and down_index functions
         # Instead of
         # n_qubits = n_orb_a + n_orb_b
-        # I will do do
+        # We use
         n_qubits = 2*max(n_orb_a, n_orb_b)
 
         # Initialize Hamiltonian coefficients.
         one_body_coefficients = np.zeros((n_qubits, n_qubits))
         two_body_coefficients = np.zeros((n_qubits, n_qubits, n_qubits, n_qubits))
 
-        # AA
+        # aa
         for p, q in product(range(n_orb_a), repeat=2):
+            pi = up_index(p)
+            qi = up_index(q)
             # Populate 1-body coefficients. Require p and q have same spin.
-            one_body_coefficients[2 * p, 2 * q] = one_body_integrals[0][p, q]
+            one_body_coefficients[pi, qi] = one_body_integrals[0][p, q]
             for r, s in product(range(n_orb_a), repeat=2):
-                two_body_coefficients[2 * p, 2 * q, 2 * r, 2 * s] = (two_body_integrals[0][p, q, r, s] / 2.)
+                two_body_coefficients[pi, qi, up_index(r), up_index(s)] = (two_body_integrals[0][p, q, r, s] / 2.)
 
-        # BB
+        # bb
         for p, q in product(range(n_orb_b), repeat=2):
+            pi = down_index(p)
+            qi = down_index(q)
             # Populate 1-body coefficients. Require p and q have same spin.
-            one_body_coefficients[2 * p + 1, 2 * q + 1] = one_body_integrals[1][p, q]
+            one_body_coefficients[pi, qi] = one_body_integrals[1][p, q]
             for r, s in product(range(n_orb_b), repeat=2):
-                two_body_coefficients[2 * p + 1, 2 * q + 1, 2 * r + 1, 2 * s + 1] = (two_body_integrals[2][p, q, r, s] / 2.)
+                two_body_coefficients[pi, qi, down_index(r), down_index(s)] = (two_body_integrals[2][p, q, r, s] / 2.)
 
-        # AbbA
+        # abba
         for p, q, r, s in product(range(n_orb_a), range(n_orb_b), range(n_orb_b), range(n_orb_a)):
-            two_body_coefficients[2 * p, 2 * q + 1, 2 * r + 1, 2 * s] = (two_body_integrals[1][p, q, r, s] / 2.)
+            two_body_coefficients[up_index(p), down_index(q), down_index(r), up_index(s)] = (two_body_integrals[1][p, q, r, s] / 2.)
 
-        # BaaB
+        # baab
         for p, q, r, s in product(range(n_orb_b), range(n_orb_a), range(n_orb_a), range(n_orb_b)):
-            two_body_coefficients[2 * p + 1, 2 * q, 2 * r, 2 * s + 1] = (two_body_integrals[1][q, p, s, r] / 2.)
+            two_body_coefficients[down_index(p), up_index(q), up_index(r), down_index(s)] = (two_body_integrals[1][q, p, s, r] / 2.)
 
         # Cast to InteractionOperator class and return.
         molecular_hamiltonian = openfermion.InteractionOperator(constant, one_body_coefficients, two_body_coefficients)
