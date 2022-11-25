@@ -24,6 +24,7 @@ from openfermion.linalg.sparse_tools import qubit_operator_sparse
 
 from tangelo.toolboxes.operators import QubitOperator, FermionOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping, make_up_then_down
+from tangelo.molecule_library import mol_H2_sto3g
 
 
 class MappingTest(unittest.TestCase):
@@ -174,6 +175,22 @@ class MappingTest(unittest.TestCase):
                                                      n_electrons=2,
                                                      up_then_down=False)
         self.assertEqual(scBK_reordered, scBK_notreordered)
+
+    def test_hcb(self):
+        """The HCB mapping forces the fermionic operator to be expressed as a
+        bosonic operator.
+        """
+
+        hcb_operator = QubitOperator((), 0.244107)
+        hcb_operator += QubitOperator(((0, "X"), (1, "X")), 0.090644)
+        hcb_operator += QubitOperator(((0, "Y"), (1, "Y")), 0.090644)
+        hcb_operator += QubitOperator(((0, "Z")), 0.342395)
+        hcb_operator += QubitOperator(((0, "Z"), (1, "Z")), 0.572824)
+        hcb_operator += QubitOperator(((1, "Z")), -0.445572)
+
+        hcb = fermion_to_qubit_mapping(fermion_operator=mol_H2_sto3g.fermionic_hamiltonian, mapping="hcb")
+
+        self.assertTrue(hcb_operator.isclose(hcb, tol=1e-5))
 
 
 if __name__ == "__main__":

@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .operators import FermionOperator, QubitOperator, QubitHamiltonian
+from .operators import FermionOperator, QubitOperator, QubitHamiltonian, BosonOperator
 from .operators import count_qubits, normal_ordered, squared_normal_ordered, list_to_fermionoperator, qubitop_to_qubitham
 from .multiformoperator import MultiformOperator

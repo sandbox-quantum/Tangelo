@@ -16,12 +16,11 @@ import unittest
 import os
 
 import numpy as np
-from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.utils import load_operator
 
 from tangelo import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H2_sto3g, xyz_H2O
-from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list, spatial_from_spinorb
+from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list
 
 # For openfermion.load_operator function.
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))
@@ -53,16 +52,6 @@ class MoleculeUtilitiesTest(unittest.TestCase):
     def test_atoms_string_to_list(self):
         """Verify conversion from string to list format for atom coordinates."""
         assert(atom_string_to_list(H2_string) == H2_list)
-
-    def test_spatial_from_spinorb(self):
-        """Test the conversion from spinorbitals to MO coefficients."""
-        _, one_body_mos, two_body_mos = mol_H2_sto3g.get_integrals()
-
-        one_body_sos, two_body_sos = spinorb_from_spatial(one_body_mos, two_body_mos)
-        one_body_mos_recomputed, two_body_mos_recomputed = spatial_from_spinorb(one_body_sos, two_body_sos)
-
-        np.testing.assert_array_almost_equal(one_body_mos, one_body_mos_recomputed)
-        np.testing.assert_array_almost_equal(two_body_mos, two_body_mos_recomputed)
 
 
 class SecondQuantizedMoleculeTest(unittest.TestCase):
