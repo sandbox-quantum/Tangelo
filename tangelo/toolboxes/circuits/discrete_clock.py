@@ -18,8 +18,7 @@ Refs:
     Simulation using Discrete Clock Constructions" arXiv: 2203.11353
 """
 import math
-from typing import List
-from collections.abc import Callable
+from typing import List, Callable
 
 import numpy as np
 

@@ -19,8 +19,7 @@ Refs:
 """
 
 import math
-from typing import Union, Tuple, List
-from collections.abc import Callable
+from typing import Union, Tuple, List, Callable
 
 import numpy as np
 
