@@ -36,7 +36,7 @@ class CirqSimulator(Backend):
         super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.cirq = cirq
 
-    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
+    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on the availability of the
@@ -59,13 +59,12 @@ class CirqSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-
-        translated_circuit = translate_c(source_circuit, "cirq",
-            output_options={"noise_model": self._noise_model})
-
-        if source_circuit.is_mixed_state or self._noise_model:
-            # Only DensityMatrixSimulator handles noise well, can use Simulator but it is slower
+        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+        if (source_circuit.is_mixed_state or self._noise_model) and not save_mid_circuit_meas:
+            # Only DensityMatrixSimulator handles noise well, can use Simulator, but it is slower
             cirq_simulator = self.cirq.DensityMatrixSimulator(dtype=np.complex128)
+        elif save_mid_circuit_meas:
+            cirq_simulator = self.cirq.DensityMatrixSimulator(dtype=np.complex128) if self._noise_model else self.cirq.Simulator(dtype=np.complex128)
         else:
             cirq_simulator = self.cirq.Simulator(dtype=np.complex128)
 
@@ -73,7 +72,10 @@ class CirqSimulator(Backend):
         cirq_initial_statevector = initial_statevector if initial_statevector is not None else 0
 
         # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
-        if self._noise_model or source_circuit.is_mixed_state:
+        # Calculate final density matrix and sample from that for noisy simulation or simulating non-saved mixed states
+        if (self._noise_model or source_circuit.is_mixed_state) and not save_mid_circuit_meas:
+            translated_circuit = translate_c(source_circuit, "cirq",
+                    output_options={"noise_model": self._noise_model, "save_measurements": save_mid_circuit_meas})
             # cirq.dephase_measurements changes measurement gates to Krauss operators so simulators
             # can be called once and density matrix sampled repeatedly.
             translated_circuit = self.cirq.dephase_measurements(translated_circuit)
@@ -85,7 +87,41 @@ class CirqSimulator(Backend):
 
             frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
         # Noiseless simulation using the statevector simulator otherwise
+        # Run all shots at once and post-process to return measured frequencies on qubits only
+        elif save_mid_circuit_meas and not return_statevector:
+            translated_circuit = translate_c(source_circuit, "cirq",
+                    output_options={"noise_model": self._noise_model, "save_measurements": True})
+            qubit_list = self.cirq.LineQubit.range(source_circuit.width)
+            for i, qubit in enumerate(qubit_list):
+                translated_circuit.append(self.cirq.measure(qubit, key=str(i + n_meas)))
+            job_sim = cirq_simulator.run(translated_circuit, repetitions=self.n_shots)
+            samples = list()
+            for j in range(self.n_shots):
+                samples += ["".join([str(job_sim.measurements[str(i)][j, 0]) for i in range(n_meas + source_circuit.width)])]
+            self.all_frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
+
+            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
+                                                                                 list(range(n_meas)))
+        # Run shot by shot and keep track of desired_meas_result only (generally slower)
+        elif save_mid_circuit_meas and return_statevector:
+            translated_circuit = translate_c(source_circuit, "cirq",
+                    output_options={"noise_model": self._noise_model, "save_measurements": True})
+            all_measurements = list()
+            self._current_state = None
+            indices = list(range(source_circuit.width))
+            for _ in range(self.n_shots):
+                job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
+                measure = "".join([str(job_sim.measurements[str(i)][0]) for i in range(n_meas)])
+                current_state = job_sim.final_density_matrix if self._noise_model else job_sim.final_state_vector
+                isamples = (self.cirq.sample_density_matrix(current_state, indices, repetitions=1) if self._noise_model
+                            else self.cirq.sample_state_vector(current_state, indices, repetitions=1))
+                sample = "".join([str(int(q)) for q in isamples[0]])
+                all_measurements += [measure + sample]
+            self.all_frequencies = {k: v / self.n_shots for k, v in Counter(all_measurements).items()}
+            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
+                                                                                 list(range(n_meas)))
         else:
+            translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model})
             job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
             self._current_state = job_sim.final_state_vector
             frequencies = self._statevector_to_frequencies(self._current_state)

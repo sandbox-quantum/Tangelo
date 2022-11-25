@@ -30,7 +30,7 @@ class QulacsSimulator(Backend):
         super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.qulacs = qulacs
 
-    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
+    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on the availability of the
@@ -55,7 +55,7 @@ class QulacsSimulator(Backend):
         """
 
         translated_circuit = translate_c(source_circuit, "qulacs",
-            output_options={"noise_model": self._noise_model})
+                output_options={"noise_model": self._noise_model, "save_measurements": save_mid_circuit_meas})
 
         # Initialize state on GPU if available and desired. Default to CPU otherwise.
         if ('QuantumStateGpu' in dir(self.qulacs)) and (int(os.getenv("QULACS_USE_GPU", 0)) != 0):
@@ -65,7 +65,7 @@ class QulacsSimulator(Backend):
         if initial_statevector is not None:
             state.load(initial_statevector)
 
-        if (source_circuit.is_mixed_state or self._noise_model):
+        if (source_circuit.is_mixed_state or self._noise_model) and not save_mid_circuit_meas:
             samples = list()
             for i in range(self.n_shots):
                 translated_circuit.update_quantum_state(state)
@@ -75,6 +75,25 @@ class QulacsSimulator(Backend):
                 else:
                     state.set_zero_state()
             python_statevector = None
+        elif save_mid_circuit_meas:
+            n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+            samples = list()
+            full_samples = list()
+            python_statevector = None
+            for _ in range(self.n_shots):
+                translated_circuit.update_quantum_state(state)
+                join = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
+                measurement = join
+                sample = self._int_to_binstr(state.sampling(1)[0], source_circuit.width)
+                full_samples += [measurement + sample]
+                if initial_statevector is not None:
+                    state.load(initial_statevector)
+                else:
+                    state.set_zero_state()
+            self.all_frequencies = {k: v / self.n_shots for k, v in Counter(full_samples).items()}
+            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
+                                                                                 list(range(n_meas)))
+            return (frequencies, python_statevector) if return_statevector else (frequencies, None)
         elif self.n_shots is not None:
             translated_circuit.update_quantum_state(state)
             self._current_state = state

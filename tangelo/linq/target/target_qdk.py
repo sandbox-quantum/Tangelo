@@ -24,7 +24,7 @@ class QDKSimulator(Backend):
         super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.qsharp = qsharp
 
-    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
+    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on the availability of the
@@ -47,21 +47,29 @@ class QDKSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        translated_circuit = translate_c(source_circuit, "qdk")
+        translated_circuit = translate_c(source_circuit, "qdk",
+                output_options={"save_measurements": save_mid_circuit_meas})
         with open('tmp_circuit.qs', 'w+') as f_out:
             f_out.write(translated_circuit)
 
+        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+        key_length = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
         # Compile, import and call Q# operation to compute frequencies. Only import qsharp module if qdk is running
         # TODO: A try block to catch an exception at compile time, for Q#? Probably as an ImportError.
         self.qsharp.reload()
         from MyNamespace import EstimateFrequencies
-        frequencies_list = EstimateFrequencies.simulate(nQubits=source_circuit.width, nShots=self.n_shots)
+        frequencies_list = EstimateFrequencies.simulate(nQubits=key_length, nShots=self.n_shots)
         print("Q# frequency estimation with {0} shots: \n {1}".format(self.n_shots, frequencies_list))
 
         # Convert Q# output to frequency dictionary, apply threshold
         frequencies = {bin(i).split('b')[-1]: freq for i, freq in enumerate(frequencies_list)}
-        frequencies = {("0"*(source_circuit.width-len(k))+k)[::-1]: v for k, v in frequencies.items()
+        frequencies = {("0" * (key_length - len(k)) + k)[::-1]: v for k, v in frequencies.items()
                        if v > self.freq_threshold}
+        self.all_frequencies = frequencies.copy()
+        # Post process if needed
+        if save_mid_circuit_meas:
+            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
+                                                                                 list(range(n_meas)))
         return (frequencies, None)
 
     @staticmethod
