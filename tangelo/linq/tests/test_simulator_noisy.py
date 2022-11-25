@@ -129,7 +129,7 @@ class TestSimulate(unittest.TestCase):
         res_cumul, _ = s_nmc.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
-        s_nmm = Simulator(target="qulacs", n_shots=10 ** 4, noise_model=nmm)
+        s_nmm = get_backend(target="qulacs", n_shots=10 ** 4, noise_model=nmm)
         res_mixed, _ = s_nmm.simulate(circuit_mixed)
         assert_freq_dict_almost_equal(res_mixed, ref_mixed, 7.e-2)
 
@@ -159,7 +159,7 @@ class TestSimulate(unittest.TestCase):
         res_cumul, _ = s_nmp.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
-        s_nmm = Simulator(target="qiskit", n_shots=10 ** 4, noise_model=nmm)
+        s_nmm = get_backend(target="qiskit", n_shots=10 ** 4, noise_model=nmm)
         res_mixed, _ = s_nmm.simulate(circuit_mixed)
         assert_freq_dict_almost_equal(ref_mixed, res_mixed, 7.e-2)
 
@@ -190,7 +190,7 @@ class TestSimulate(unittest.TestCase):
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
         # Noisy mixed state without returning mid-circuit measurements
-        s_nmm = Simulator(target="cirq", n_shots=10 ** 4, noise_model=nmm)
+        s_nmm = get_backend(target="cirq", n_shots=10 ** 4, noise_model=nmm)
         res_mixed, _ = s_nmm.simulate(circuit_mixed)
         assert_freq_dict_almost_equal(ref_mixed, res_mixed, 7.e-2)
 

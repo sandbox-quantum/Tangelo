@@ -133,7 +133,7 @@ class TestSimulateAllBackends(unittest.TestCase):
         """
         results = dict()
         for b in installed_simulator:
-            sim = Simulator(target=b, n_shots=10 ** 3)
+            sim = get_backend(target=b, n_shots=10 ** 3)
             results[b], _ = sim.simulate(circuit_mixed, save_mid_circuit_meas=True)
             print(b)
             assert_freq_dict_almost_equal(results[b], reference_mixed, 8e-2)
@@ -460,7 +460,7 @@ class TestSimulateMisc(unittest.TestCase):
                 super().__init__(n_shots=n_shots, noise_model=noise_model)
                 self.return_zeros = return_zeros
 
-            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
+            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
                 """Perform state preparation corresponding self.return_zeros."""
 
                 statevector = np.zeros(2**source_circuit.width, dtype=complex)
