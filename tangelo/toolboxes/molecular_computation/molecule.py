@@ -269,7 +269,7 @@ class SecondQuantizedMolecule(Molecule):
         if self.uhf:
             return (int(sum([self.mo_occ[0][i] for i in self.active_occupied[0]])), int(sum([self.mo_occ[1][i] for i in self.active_occupied[1]])))
         else:
-            n_active_electrons = self.n_active_electrons
+            n_active_electrons = int(sum([self.mo_occ[i] for i in self.active_occupied]))
             n_alpha = n_active_electrons//2 + self.spin//2 + (n_active_electrons % 2)
             n_beta = n_active_electrons//2 - self.spin//2
             return (n_alpha, n_beta)
