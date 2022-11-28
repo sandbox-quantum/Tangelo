@@ -449,8 +449,9 @@ class SecondQuantizedMolecule(Molecule):
         # All MOs with indexes in this list are frozen (first MO is 0, second is 1, ...).
         # Everything else raise an exception.
         elif isinstance(frozen_orbitals, list):
-            if self.uhf and not (len(frozen_orbitals) == 2 and all(isinstance(_, (int, np.integer)) for _ in frozen_orbitals[0]) and
-                                 all(isinstance(_, (int, np.integer)) for _ in frozen_orbitals[0])):
+            if self.uhf and not (len(frozen_orbitals) == 2 and
+                                 all(isinstance(_, (int, np.integer)) for _ in frozen_orbitals[0]) and
+                                 all(isinstance(_, (int, np.integer)) for _ in frozen_orbitals[1])):
                 raise TypeError("frozen_orbitals argument must be a list of int for both alpha and beta electrons")
             elif not self.uhf and not all(isinstance(_, int) for _ in frozen_orbitals):
                 raise TypeError("frozen_orbitals argument must be an (or a list of) integer(s).")
@@ -458,12 +459,9 @@ class SecondQuantizedMolecule(Molecule):
             raise TypeError("frozen_orbitals argument must be an (or a list of) integer(s)")
 
         if self.uhf:
-            occupied = list()
-            virtual = list()
-            frozen_occupied = list()
-            frozen_virtual = list()
-            active_occupied = list()
-            active_virtual = list()
+            occupied, virtual = list(), list()
+            frozen_occupied, frozen_virtual = list(), list()
+            active_occupied, active_virtual = list(), list()
             n_active_electrons = list()
             n_active_mos = list()
             for e in range(2):
