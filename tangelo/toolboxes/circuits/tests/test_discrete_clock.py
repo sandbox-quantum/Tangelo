@@ -37,7 +37,7 @@ backends = ["cirq", "qulacs"] if "qulacs" in installed_backends else ["cirq"]
 sim_cirq = get_backend("cirq")
 
 
-class discrete_clock_Test(unittest.TestCase):
+class DiscreteClockTest(unittest.TestCase):
 
     def test_time_independant_hamiltonian(self):
         """Test time-evolution of discrete clock for a time-independant Hamiltonian"""

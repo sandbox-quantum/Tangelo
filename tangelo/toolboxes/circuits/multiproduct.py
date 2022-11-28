@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module to generate the circuits necessary to implement multiproduct time-evolution
+"""Module to generate the circuits necessary to implement multi-product time-evolution
 Refs:
-    [1] Guang Hao Low, Vadym Kliuchnikov and Nathan Wiebe, "Well-conditioned multiproduct
+    [1] Guang Hao Low, Vadym Kliuchnikov and Nathan Wiebe, "Well-conditioned multi-product
     Hamiltonian simulation" arXiv: 1907.11679
 """
 
@@ -31,7 +31,7 @@ from tangelo.toolboxes.operators import QubitOperator, FermionOperator
 
 
 def get_ajs_kjs(order: int) -> Tuple[List[float], List[int], int]:
-    """Return aj coefficients and number of steps kj for multi product order
+    """Return aj coefficients and number of steps kj for multi-product order
     The first two indices of aj coefficients are the portion need to make the one-norm sum to two.
 
     Args:
@@ -77,6 +77,7 @@ def get_multi_product_circuit(time: float, order: int, n_state_qus: int,
 
     Args:
         time (float): The time to evolve.
+        order (int): The order of the multi-product expansion
         n_state_qus (int): The number of qubits in the state to evolve.
         operator (Union[QubitOperator, FermionOperator]): The operator to evolve in time. Default None
         control (Union[int, List[int]]): The control qubit(s). Default None
@@ -85,7 +86,7 @@ def get_multi_product_circuit(time: float, order: int, n_state_qus: int,
         trotter_kwargs (dict): Other keyword arguments necessary to evaluate second_order_trotter.
 
     Returns:
-        Circuit: The circuit representing the time-evolution using the multi_product construction.
+        Circuit: The circuit representing the time-evolution using the multi-product construction.
     """
 
     if second_order_trotter is None:
@@ -112,7 +113,7 @@ def get_multi_product_circuit(time: float, order: int, n_state_qus: int,
         x2_ladder = Circuit([Gate("X", c+n_state_qus) for c, j in enumerate(birep) if j == "0"])
         ctrott += x2_ladder
         ctrott += second_order_trotter(control=cont_list+prep_qus, n_trotter_steps=kjs[ii], **trotter_kwargs)
-        # Add -1 phase for every other term in multiproduct expansion
+        # Add -1 phase for every other term in multi-product expansion
         if ii % 2 == 0:
             ctrott += Circuit([Gate("CRZ", 0, parameter=2*np.pi, control=cont_list+prep_qus)])
         ctrott += x2_ladder

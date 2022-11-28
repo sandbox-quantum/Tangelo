@@ -36,7 +36,7 @@ backends = ["cirq", "qulacs"] if "qulacs" in installed_backends else ["cirq"]
 sim_cirq = get_backend("cirq")
 
 
-class multi_product_Test(unittest.TestCase):
+class MultiProductTest(unittest.TestCase):
 
     def test_time_evolution(self):
         """Test time-evolution of multi-product circuit for different orders"""

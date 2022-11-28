@@ -34,7 +34,7 @@ backends = ["cirq", "qulacs"] if "qulacs" in installed_backends else ["cirq"]
 sim_cirq = get_backend("cirq")
 
 
-class grid_Test(unittest.TestCase):
+class GridTest(unittest.TestCase):
 
     def test_controlled_time_evolution_by_phase_estimation(self):
         """ Verify that the controlled time-evolution is correct by calculating the eigenvalue of an eigenstate of the
