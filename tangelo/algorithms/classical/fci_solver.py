@@ -16,7 +16,6 @@
 interaction (CI) method.
 """
 
-from xml.dom import NotSupportedErr
 from pyscf import ao2mo, fci, mcscf
 
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
@@ -40,7 +39,7 @@ class FCISolver(ElectronicStructureSolver):
     def __init__(self, molecule):
 
         if molecule.uhf:
-            raise NotImplementedError(f"SecondQuantizedMolecule that use UHF are not supported in {self.__class__.__name__}. Use CCSDSolver")
+            raise NotImplementedError(f"SecondQuantizedMolecule that use UHF are not currently supported in {self.__class__.__name__}. Use CCSDSolver")
 
         self.ci = None
         self.norb = molecule.n_active_mos

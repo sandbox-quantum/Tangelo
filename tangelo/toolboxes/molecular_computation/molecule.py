@@ -262,13 +262,12 @@ class SecondQuantizedMolecule(Molecule):
 
     @property
     def n_active_electrons(self):
-        return (int(sum([self.mo_occ[i] for i in self.active_occupied])) if not self.uhf else
-                int(sum([self.mo_occ[0][i] for i in self.active_occupied[0]]))+int(sum([self.mo_occ[1][i] for i in self.active_occupied[1]])))
+        return sum(self.n_active_ab_electrons)
 
     @property
     def n_active_ab_electrons(self):
         if self.uhf:
-            return [int(sum([self.mo_occ[0][i] for i in self.active_occupied[0]])), int(sum([self.mo_occ[1][i] for i in self.active_occupied[1]]))]
+            return (int(sum([self.mo_occ[0][i] for i in self.active_occupied[0]])), int(sum([self.mo_occ[1][i] for i in self.active_occupied[1]])))
         else:
             n_active_electrons = self.n_active_electrons
             n_alpha = n_active_electrons//2 + self.spin//2 + (n_active_electrons % 2)

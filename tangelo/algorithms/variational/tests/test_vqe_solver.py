@@ -300,7 +300,7 @@ class VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.6394, delta=1e-3)
 
     def test_simulate_h4_open(self):
-        """Run VQE on H4 molecule, with UCCSD ansatz, JW qubit mapping, initial parameters, exact simulator """
+        """Run VQE on H4 molecule, with UCCSD ansatz, scbk qubit mapping, initial parameters, exact simulator """
         vqe_options = {"molecule": mol_H4_sto3g_uhf_a1_frozen, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "scbk",
                         "initial_var_params": [0.001]*15, "verbose": False, "up_then_down": True}
         vqe_solver = VQESolver(vqe_options)

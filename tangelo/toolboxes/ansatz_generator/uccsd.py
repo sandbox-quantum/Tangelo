@@ -263,7 +263,7 @@ class UCCSD(Ansatz):
             list of float: The initial variational parameters.
         """
         if self.molecule.uhf:
-            raise NotImplementedError("MP2 initialization is not implemented for UHF reference in Tangelo.")
+            raise NotImplementedError(f"MP2 initialization is not currently implemented for UHF reference in {self.__class__}")
 
         mp2_fragment = mp.MP2(self.molecule.mean_field, frozen=self.molecule.frozen_mos)
         mp2_fragment.verbose = 0
