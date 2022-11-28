@@ -100,7 +100,7 @@ class QCC(Ansatz):
         else:
             self.n_spinorbitals = self.molecule.n_active_sos
             self.n_electrons = self.molecule.n_active_electrons
-            self.spin = self.molecule.spin
+            self.spin = self.molecule.active_spin
 
         self.mapping = mapping
         self.up_then_down = up_then_down

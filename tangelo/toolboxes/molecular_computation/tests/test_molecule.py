@@ -98,6 +98,12 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         assert(freeze_with_list.frozen_occupied == [0, 1, 2])
         assert(freeze_with_list.frozen_virtual == [6])
 
+        freeze_with_list_uhf = SecondQuantizedMolecule(H2O_list, frozen_orbitals=[[0, 1, 2, 6], [0, 1, 2]], uhf=True)
+        assert(freeze_with_list_uhf.active_occupied == [[3, 4], [3, 4]])
+        assert(freeze_with_list_uhf.active_virtual == [[5], [5, 6]])
+        assert(freeze_with_list_uhf.frozen_occupied == [[0, 1, 2], [0, 1, 2]])
+        assert(freeze_with_list_uhf.frozen_virtual == [[6], []])
+
     def test_freezing_empty(self):
         """Verify freezing orbitals empty input."""
 
@@ -115,6 +121,13 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         assert(empty_as_frozen.frozen_occupied == [])
         assert(empty_as_frozen.frozen_virtual == [])
 
+        # An empty list should result in the same as nothing.
+        empty_as_frozen = SecondQuantizedMolecule(H2O_list, frozen_orbitals=None, uhf=True)
+        assert(empty_as_frozen.active_occupied == [[0, 1, 2, 3, 4]]*2)
+        assert(empty_as_frozen.active_virtual == [[5, 6]]*2)
+        assert(empty_as_frozen.frozen_occupied == [[]]*2)
+        assert(empty_as_frozen.frozen_virtual == [[]]*2)
+
     def test_freezing_type_exception(self):
         """Verify freezing orbitals exceptions."""
 
@@ -125,6 +138,8 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
             SecondQuantizedMolecule(H2O_list, frozen_orbitals=3.141592)
         with self.assertRaises(TypeError):
             SecondQuantizedMolecule(H2O_list, frozen_orbitals=[0, 1, 2.2222, 3, 4, 5])
+        with self.assertRaises(TypeError):
+            SecondQuantizedMolecule(H2O_list, frozen_orbitals=[[0, 1, 2.2222, 3, 4, 5]]*2, uhf=True)
 
     def test_no_active_electron(self):
         """Verify if freezing all active orbitals fails."""
@@ -214,6 +229,17 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
 
         # Should raise an AssertionError.
         bad_dummy_mo_coeff = np.ones((3, 3))
+        with self.assertRaises(AssertionError):
+            molecule.mo_coeff = bad_dummy_mo_coeff
+
+        molecule = SecondQuantizedMolecule(H2_list, 0, 0, "sto-3g", uhf=True)
+
+        # Should work.
+        dummy_mo_coeff = [np.ones((2, 2))]*2
+        molecule.mo_coeff = dummy_mo_coeff
+
+        # Should raise an AssertionError.
+        bad_dummy_mo_coeff = [np.ones((3, 3))]*2
         with self.assertRaises(AssertionError):
             molecule.mo_coeff = bad_dummy_mo_coeff
 

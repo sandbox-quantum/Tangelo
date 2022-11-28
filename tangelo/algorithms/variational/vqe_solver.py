@@ -184,7 +184,7 @@ class VQESolver:
                                                               n_spinorbitals=self.molecule.n_active_sos,
                                                               n_electrons=self.molecule.n_active_electrons,
                                                               up_then_down=self.up_then_down,
-                                                              spin=self.molecule.spin)
+                                                              spin=self.molecule.active_spin)
 
             if self.penalty_terms:
                 pen_ferm = agen.penalty_terms.combined_penalty(self.molecule.n_active_mos, self.penalty_terms)
@@ -193,7 +193,7 @@ class VQESolver:
                                                      n_spinorbitals=self.molecule.n_active_sos,
                                                      n_electrons=self.molecule.n_active_electrons,
                                                      up_then_down=self.up_then_down,
-                                                     spin=self.molecule.spin)
+                                                     spin=self.molecule.active_spin)
                 self.qubit_hamiltonian += pen_qubit
                 if self.ansatz == BuiltInAnsatze.QCC:
                     self.ansatz_options["qubit_ham"] = self.qubit_hamiltonian.to_qubitoperator()
@@ -368,7 +368,7 @@ class VQESolver:
                 if self.molecule:
                     n_active_electrons = self.molecule.n_active_electrons
                     n_active_sos = self.molecule.n_active_sos
-                    spin = self.molecule.spin
+                    spin = self.molecule.active_spin
                 else:
                     raise KeyError("Must supply n_active_electrons, n_active_sos, and spin with a FermionOperator and scbk mapping.")
 

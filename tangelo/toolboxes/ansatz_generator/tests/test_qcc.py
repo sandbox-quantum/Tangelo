@@ -23,7 +23,8 @@ from openfermion import load_operator
 from tangelo.linq import get_backend
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.toolboxes.operators.operators import QubitOperator
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g, mol_H4_doublecation_minao
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g, mol_H4_doublecation_minao, mol_H4_sto3g_uhf_a1_frozen
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 
 sim = get_backend()
 
@@ -140,6 +141,18 @@ class QCCTest(unittest.TestCase):
         qcc_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
         self.assertAlmostEqual(energy, -0.85465810, delta=1e-6)
+
+    def test_qmf_qcc_h4_uhf_ref(self):
+        """ Verify unrestricted open-shell functionality when using the QCC ansatz for H4 a1 frozen """
+
+        qcc_ansatz = QCC(mol_H4_sto3g_uhf_a1_frozen, "scbk", True)
+
+        mol = mol_H4_sto3g_uhf_a1_frozen
+        qu_op = fermion_to_qubit_mapping(mol.fermionic_hamiltonian, "scbk", mol.n_active_sos, mol.n_active_electrons, True, mol.active_spin)
+
+        # Assert energy returned is the same as mean_field for reference state
+        energy = sim.get_expectation_value(qu_op, qcc_ansatz.prepare_reference_state())
+        self.assertAlmostEqual(energy, mol.mean_field.e_tot, delta=1e-6)
 
 
 if __name__ == "__main__":

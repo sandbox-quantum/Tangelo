@@ -54,7 +54,7 @@ class UCCGD(Ansatz):
 
         self.n_spinorbitals = molecule.n_active_sos
         self.n_electrons = molecule.n_active_electrons
-        self.spin = molecule.spin
+        self.spin = molecule.active_spin
 
         self.qubit_mapping = mapping
         self.up_then_down = up_then_down
