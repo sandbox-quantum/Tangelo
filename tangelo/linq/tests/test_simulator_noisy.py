@@ -133,6 +133,10 @@ class TestSimulate(unittest.TestCase):
         res_mixed, _ = s_nmm.simulate(circuit_mixed)
         assert_freq_dict_almost_equal(res_mixed, ref_mixed, 7.e-2)
 
+        s_nmm = get_backend(target="qulacs", n_shots=10**4, noise_model=nmm)
+        res_mixed, _ = s_nmm.simulate(circuit_mixed, desired_meas_result="0")
+        assert_freq_dict_almost_equal(ref_mixed_0, res_mixed, 7.e-2)
+
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_noisy_simulation_qiskit(self):
         """
@@ -162,6 +166,10 @@ class TestSimulate(unittest.TestCase):
         s_nmm = get_backend(target="qiskit", n_shots=10 ** 4, noise_model=nmm)
         res_mixed, _ = s_nmm.simulate(circuit_mixed)
         assert_freq_dict_almost_equal(ref_mixed, res_mixed, 7.e-2)
+
+        s_nmm = get_backend(target="qiskit", n_shots=10**4, noise_model=nmm)
+        res_mixed, _ = s_nmm.simulate(circuit_mixed, desired_meas_result="0")
+        assert_freq_dict_almost_equal(ref_mixed_0, res_mixed, 7.e-2)
 
     @unittest.skipIf("cirq" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_noisy_simulation_cirq(self):
@@ -193,6 +201,20 @@ class TestSimulate(unittest.TestCase):
         s_nmm = get_backend(target="cirq", n_shots=10 ** 4, noise_model=nmm)
         res_mixed, _ = s_nmm.simulate(circuit_mixed)
         assert_freq_dict_almost_equal(ref_mixed, res_mixed, 7.e-2)
+
+        s_nmm = get_backend(target="cirq", n_shots=10**4, noise_model=nmm)
+        res_mixed, _ = s_nmm.simulate(circuit_mixed, desired_meas_result="0")
+        assert_freq_dict_almost_equal(ref_mixed_0, res_mixed, 7.e-2)
+
+        # Noisy mixed-state with specified measurement result and returning density matrix
+        s_nmm = get_backend(target="cirq", n_shots=10**4, noise_model=nmm)
+        res_mixed, sv = s_nmm.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
+        assert_freq_dict_almost_equal(ref_mixed_0, res_mixed, 7.e-2)
+        exact_sv = np.array([[ 0.15403023 + 0.j, -0.08414710 - 0.j,  0.00000000 + 0.j,  0.00000000 - 0.j],
+                             [-0.08414710 - 0.j,  0.04596977 + 0.j,  0.00000000 - 0.j,  0.00000000 + 0.j],
+                             [ 0.00000000 + 0.j,  0.00000000 - 0.j,  0.61612092 + 0.j, -0.33658839 - 0.j],
+                             [ 0.00000000 - 0.j,  0.00000000 + 0.j, -0.33658839 - 0.j,  0.18387908 + 0.j]])
+        np.testing.assert_array_almost_equal(sv, exact_sv)
 
     def test_get_expectation_value_noisy(self):
         """Test of the get_expectation_value function with a noisy simulator"""

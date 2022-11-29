@@ -36,7 +36,8 @@ class CirqSimulator(Backend):
         super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.cirq = cirq
 
-    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
+    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None,
+                         desired_meas_result=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on the availability of the
@@ -101,7 +102,8 @@ class CirqSimulator(Backend):
             self.all_frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
 
             self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                 list(range(n_meas)))
+                                                                                 list(range(n_meas)),
+                                                                                 desired_measurement=desired_meas_result)
         # Run shot by shot and keep track of desired_meas_result only (generally slower)
         elif save_mid_circuit_meas and return_statevector:
             translated_circuit = translate_c(source_circuit, "cirq",
@@ -117,9 +119,13 @@ class CirqSimulator(Backend):
                             else self.cirq.sample_state_vector(current_state, indices, repetitions=1))
                 sample = "".join([str(int(q)) for q in isamples[0]])
                 all_measurements += [measure + sample]
+                if measure == desired_meas_result:
+                    self._current_state = current_state
             self.all_frequencies = {k: v / self.n_shots for k, v in Counter(all_measurements).items()}
             self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                 list(range(n_meas)))
+                                                                                 list(range(n_meas)),
+                                                                                 desired_measurement=desired_meas_result)
+            self.success_probability = self.mid_circuit_meas_freqs.get(desired_meas_result, 0)
         else:
             translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model})
             job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)

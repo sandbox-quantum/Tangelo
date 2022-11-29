@@ -168,7 +168,7 @@ class Backend(abc.ABC):
         """
         pass
 
-    def simulate(self, source_circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
+    def simulate(self, source_circuit, return_statevector=False, initial_statevector=None, desired_meas_result=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on the availability of the
@@ -184,6 +184,8 @@ class Backend(abc.ABC):
                 if available.
             initial_statevector(list/array) : A valid statevector in the format
                 supported by the target backend.
+            desired_meas_result (str): The binary string of the desired measurement.
+                Must have the same length as the number of MEASURE gates in source_circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
                 self.all_frequencies.
@@ -204,6 +206,13 @@ class Backend(abc.ABC):
             raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state."
                              "Please set the n_shots attribute to an appropriate value.")
 
+        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+        if desired_meas_result is not None:
+            if len(desired_meas_result) != n_meas or not isinstance(desired_meas_result, str):
+                raise ValueError("desired_meas result is not a string with the same length as the number of measurements"
+                    "in the circuit.")
+            save_mid_circuit_meas = True
+
         if source_circuit.width == 0:
             raise ValueError("Cannot simulate an empty circuit (e.g identity unitary) with unknown number of qubits.")
 
@@ -219,32 +228,37 @@ class Backend(abc.ABC):
                 statevector[0] = 1.0
             return (frequencies, statevector) if return_statevector else (frequencies, None)
 
-        return self.simulate_circuit(source_circuit, return_statevector=return_statevector,
-                            initial_statevector=initial_statevector, save_mid_circuit_meas=save_mid_circuit_meas)
+        return self.simulate_circuit(source_circuit, return_statevector=return_statevector, initial_statevector=initial_statevector,
+                                     desired_meas_result=desired_meas_result, save_mid_circuit_meas=save_mid_circuit_meas)
 
     @staticmethod
-    def marginal_frequencies(frequencies, indices):
+    def marginal_frequencies(frequencies, indices, desired_measurement=None):
         """Return the marginal frequencies for indices. If desired_measurement
         is given, frequencies returned for the other indices are conditional on the
         measurement of the indices being the desired measurement.
         Args:
             frequencies (dict): The frequency dictionary to perform the marginal computation
             indices (list): The list of indices in the frequency dictionary to marginalize over
+            desired_measurement (str): The bit string that is to be selected
+
         Returns:
             dict, dict: The marginal frequencies for indices, The marginal frequencies for other indices"""
-        from tangelo.toolboxes.post_processing import Histogram
+        from tangelo.toolboxes.post_processing import post_select, strip_post_selection
 
         key_length = len(next(iter(frequencies)))
         other_indices = [i for i in range(key_length) if i not in indices]
 
-        new_hist = Histogram(frequencies)
-        new_hist.remove_qubit_indices(*other_indices)
-        other_hist = Histogram(frequencies)
-        other_hist.remove_qubit_indices(*indices)
+        new_dict = strip_post_selection(frequencies, *other_indices)
 
-        return new_hist.frequencies, other_hist.frequencies
+        if desired_measurement is None:
+            other_dict = strip_post_selection(frequencies, *indices)
+        else:
+            expected_outcomes = {i: m for i, m in zip(indices, desired_measurement)}
+            other_dict = post_select(frequencies, expected_outcomes)
 
-    def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None):
+        return new_dict, other_dict
+
+    def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a quantum circuit preparing a
         state |\psi>. Return the expectation value <\psi | H | \psi>.
 
@@ -259,7 +273,8 @@ class Backend(abc.ABC):
             qubit_operator(openfermion-style QubitOperator class): a qubit
                 operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
-            initial_statevector (array): The initial statevector for the simulation
+            initial_statevector (array): The initial statevector for the simulation.
+            desired_meas_result (str): The mid-circuit measurement results to select for.
 
         Returns:
             complex: The expectation value of this operator with regards to the
@@ -282,7 +297,8 @@ class Backend(abc.ABC):
         if are_coefficients_real:
             if self._noise_model or not self.statevector_available \
                     or state_prep_circuit.is_mixed_state or state_prep_circuit.size == 0:
-                return self._get_expectation_value_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
+                return self._get_expectation_value_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector,
+                                                                    desired_meas_result=desired_meas_result)
             elif self.statevector_available:
                 return self._get_expectation_value_from_statevector(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
 
@@ -297,7 +313,7 @@ class Backend(abc.ABC):
             exp_imag = self.get_expectation_value(qb_op_imag, state_prep_circuit, initial_statevector=initial_statevector)
             return exp_real if (exp_imag == 0.) else exp_real + 1.0j * exp_imag
 
-    def get_variance(self, qubit_operator, state_prep_circuit, initial_statevector=None):
+    def get_variance(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a quantum circuit preparing a
         state |\psi>. Return the variance <\psi | H | \psi>.
 
@@ -334,7 +350,8 @@ class Backend(abc.ABC):
 
         # If the underlying operator is hermitian, expectation value is real and can be computed right away
         if are_coefficients_real:
-            return self._get_variance_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
+            return self._get_variance_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector,
+                                                       desired_meas_result=desired_meas_result)
 
         # Else, separate the operator into 2 hermitian operators, use linearity and call this function twice
         else:
@@ -348,7 +365,7 @@ class Backend(abc.ABC):
             # https://en.wikipedia.org/wiki/Complex_random_variable#Variance_and_pseudo-variance
             return var_real if (var_imag == 0.) else var_real + var_imag  # always non-negative real number
 
-    def get_standard_error(self, qubit_operator, state_prep_circuit, initial_statevector=None):
+    def get_standard_error(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a quantum circuit preparing a
         state |\psi>. Return the standard error of <\psi | H | \psi>, e.g. sqrt(Var H / n_shots).
 
@@ -370,7 +387,7 @@ class Backend(abc.ABC):
             complex: The standard error of this operator with regard to the
                 state preparation.
         """
-        variance = self.get_variance(qubit_operator, state_prep_circuit, initial_statevector)
+        variance = self.get_variance(qubit_operator, state_prep_circuit, initial_statevector, desired_meas_result=desired_meas_result)
         return np.sqrt(variance/self.n_shots) if self.n_shots else 0.
 
     def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit, initial_statevector=None):
@@ -383,6 +400,8 @@ class Backend(abc.ABC):
             qubit_operator(openfermion-style QubitOperator class): a qubit operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation (only pure states).
             initial_statevector (array): The initial state of the system
+            desired_meas_result (str): The expectation value is taken for over the frequencies
+                derived when the mid-circuit measurements match this string.
 
         Returns:
             complex: The expectation value of this operator with regards to the
@@ -425,7 +444,7 @@ class Backend(abc.ABC):
 
         return expectation_value
 
-    def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None):
+    def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a state preparation returning a
         ket |\psi>. Return the expectation value <\psi | H | \psi> computed
         using the frequencies of observable states.
@@ -461,13 +480,13 @@ class Backend(abc.ABC):
 
             basis_circuit = Circuit(measurement_basis_gates(term))
             full_circuit = initial_circuit + basis_circuit if (basis_circuit.size > 0) else initial_circuit
-            frequencies, _ = self.simulate(full_circuit, initial_statevector=updated_statevector)
+            frequencies, _ = self.simulate(full_circuit, initial_statevector=updated_statevector, desired_meas_result=desired_meas_result)
             expectation_term = self.get_expectation_value_from_frequencies_oneterm(term, frequencies)
             expectation_value += coef * expectation_term
 
         return expectation_value
 
-    def _get_variance_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None):
+    def _get_variance_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a state preparation returning a
         ket |\psi>. Return the variance of <\psi | H | \psi> computed
         using the frequencies of observable states.
@@ -491,7 +510,8 @@ class Backend(abc.ABC):
                 updated_statevector = initial_statevector
         else:
             initial_circuit = Circuit(n_qubits=n_qubits)
-            _, updated_statevector = self.simulate(state_prep_circuit, return_statevector=True, initial_statevector=initial_statevector)
+            _, updated_statevector = self.simulate(state_prep_circuit, return_statevector=True, initial_statevector=initial_statevector,
+                                                   desired_meas_result=desired_meas_result)
 
         variance = 0.
         for term, coef in qubit_operator.terms.items():
@@ -602,7 +622,8 @@ class Backend(abc.ABC):
         Args:
             i (int): integer to convert to bit string.
             n_qubits (int): The number of qubits and length of returned bit string.
-            use_ordering (bool): Flip the order of the returned bit string depending on self.statevector_order being "msq_first" or "lsq_first"
+            use_ordering (bool): Flip the order of the returned bit string
+                depending on self.statevector_order being "msq_first" or "lsq_first"
 
         Returns:
             string: The bit string of the integer in lsq-first order.

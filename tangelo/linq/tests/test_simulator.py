@@ -22,7 +22,7 @@ import os
 import time
 import numpy as np
 from openfermion.ops import QubitOperator
-from openfermion import load_operator
+from openfermion import load_operator, get_sparse_operator
 
 from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.linq.translator import translate_circuit as translate_c
@@ -138,6 +138,20 @@ class TestSimulateAllBackends(unittest.TestCase):
             print(b)
             assert_freq_dict_almost_equal(results[b], reference_mixed, 8e-2)
 
+    def test_simulate_mixed_state_desired_state(self):
+        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
+        Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
+        Simulating individual shots is suitable.
+        Some simulators are NOT good at this, by design
+        """
+
+        results = dict()
+        exact = {'11': 0.23046888414227926, '10': 0.7695311158577207}
+        for b in installed_simulator:
+            sim = get_backend(target=b, n_shots=10 ** 3)
+            results[b], _ = sim.simulate(circuit_mixed, desired_meas_result="0")
+            assert_freq_dict_almost_equal(results[b], exact, 8.e-2)
+
     def test_get_exp_value_mixed_state(self):
         """ Test expectation value for mixed-state simulation. Computation done by drawing individual shots.
         Some simulators are NOT good at this, by design (ProjectQ). """
@@ -203,6 +217,24 @@ class TestSimulateStatevector(unittest.TestCase):
             for i, circuit in enumerate(circuits):
                 frequencies, _ = simulator.simulate(circuit)
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
+
+    def test_simulate_mixed_state_desired_statevector(self):
+        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
+        Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
+        Simulating individual shots is suitable.
+        Some simulators are NOT good at this, by design
+        """
+
+        results = dict()
+        results["qulacs"] = np.array([0. + 0.j, 0.87758256 + 0.j, 0. + 0.j, -0.47942554 + 0.j])
+        results["qiskit"] = np.array([0. + 0.j, 0.87758256 + 0.j, 0. + 0.j, -0.47942554 + 0.j])
+        results["cirq"] = np.array([0. + 0.j, 0. + 0.j, 0.87758256 + 0.j, -0.47942554 + 0.j])
+        for b in installed_sv_simulator:
+            sim = get_backend(target=b, n_shots=10 ** 3)
+            _, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
+            np.testing.assert_array_almost_equal(sv, results[b])
+            print(b, sim.success_probability)
+            print(b, sim.all_frequencies)
 
     def test_simulate_nshots_from_statevector(self):
         """
@@ -361,6 +393,18 @@ class TestSimulateStatevector(unittest.TestCase):
         energy = simulator.get_expectation_value(qubit_operator, abs_circ)
         self.assertAlmostEqual(energy, expected, delta=1e-3)
 
+    def test_get_exp_value_mixed_state_desired_measurement_with_shots(self):
+        """ Get expectation value of mixed state post-selecting on desired measurement"""
+        qubit_operator = QubitOperator("X0 X1") + QubitOperator("Y0 Y1") + QubitOperator("Z0 Z1")
+
+        ham = get_sparse_operator(qubit_operator).toarray()
+        exact_sv = np.array([0.+0.j, 0.+0.j, 0.87758256+0.j, -0.47942554+0.j])
+        exact_exp = np.vdot(exact_sv, ham @ exact_sv)
+
+        simulator = get_backend(n_shots=10**4)
+        sim_exp = simulator.get_expectation_value(qubit_operator, circuit_mixed, desired_meas_result="0")
+        self.assertAlmostEqual(exact_exp, sim_exp, delta=1.e-1)
+
     def test_get_exp_value_empty_circuit(self):
         """ If the circuit is empty and we have a non-zero number of qubits, frequencies just only show all-|0> state
         observed and compute the expectation value using these frequencies """
@@ -460,7 +504,8 @@ class TestSimulateMisc(unittest.TestCase):
                 super().__init__(n_shots=n_shots, noise_model=noise_model)
                 self.return_zeros = return_zeros
 
-            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
+            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None,
+                                 desired_meas_result=None, save_mid_circuit_meas=False):
                 """Perform state preparation corresponding self.return_zeros."""
 
                 statevector = np.zeros(2**source_circuit.width, dtype=complex)

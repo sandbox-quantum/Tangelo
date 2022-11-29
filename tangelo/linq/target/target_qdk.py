@@ -24,7 +24,8 @@ class QDKSimulator(Backend):
         super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.qsharp = qsharp
 
-    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
+    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None,
+                         desired_meas_result=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on the availability of the
@@ -69,7 +70,8 @@ class QDKSimulator(Backend):
         # Post process if needed
         if save_mid_circuit_meas:
             self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                 list(range(n_meas)))
+                                                                                 list(range(n_meas)),
+                                                                                 desired_measurement=desired_meas_result)
         return (frequencies, None)
 
     @staticmethod
