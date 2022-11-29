@@ -41,12 +41,19 @@ class QiskitSimulator(Backend):
         equivalent gates.
 
         Args:
-            source_circuit: a circuit in the abstract format to be translated
+            source_circuit (Circuit): a circuit in the abstract format to be translated
                 for the target backend.
-            return_statevector(bool): option to return the statevector as well,
+            return_statevector (bool): option to return the statevector as well,
                 if available.
-            initial_statevector(list/array) : A valid statevector in the format
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
+            save_mid_circuit_meas (bool): Save mid-circuit measurement results to
+                self.mid_circuit_meas_freqs. All measurements will be saved to
+                self.all_frequencies, with keys of length (n_meas + n_qubits).
+                The leading n_meas values will hold the results of the MEASURE gates,
+                ordered by their appearance in the source_circuit.
+                The last n_qubits values will hold the measurements performed on
+                each of qubits at the end of the circuit.
 
         Returns:
             dict: A dictionary mapping multi-qubit states to their corresponding
@@ -55,8 +62,7 @@ class QiskitSimulator(Backend):
                 and requested by the user (if not, set to None).
         """
 
-        translated_circuit = translate_c(source_circuit, "qiskit",
-                output_options={"save_measurements": save_mid_circuit_meas})
+        translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
 
         # If requested, set initial state
         if initial_statevector is not None:
@@ -64,7 +70,8 @@ class QiskitSimulator(Backend):
                 raise ValueError("Cannot load an initial state if using a noise model, with Qiskit")
             else:
                 n_qubits = int(math.log2(len(initial_statevector)))
-                n_registers = source_circuit._gate_counts.get("MEASURE", 0) + source_circuit.width
+                n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+                n_registers = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
                 initial_state_circuit = self.qiskit.QuantumCircuit(n_qubits, n_registers)
                 initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
                 translated_circuit = initial_state_circuit.compose(translated_circuit)

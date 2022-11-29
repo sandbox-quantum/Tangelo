@@ -153,12 +153,19 @@ class Backend(abc.ABC):
         equivalent gates.
 
         Args:
-            source_circuit: a circuit in the abstract format to be translated
+            source_circuit (Circuit): a circuit in the abstract format to be translated
                 for the target backend.
-            return_statevector(bool): option to return the statevector as well,
+            return_statevector (bool): option to return the statevector as well,
                 if available.
-            initial_statevector(list/array) : A valid statevector in the format
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
+            save_mid_circuit_meas (bool): Save mid-circuit measurement results to
+                self.mid_circuit_meas_freqs. All measurements will be saved to
+                self.all_frequencies, with keys of length (n_meas + n_qubits).
+                The leading n_meas values will hold the results of the MEASURE gates,
+                ordered by their appearance in the source_circuit.
+                The last n_qubits values will hold the measurements performed on
+                each of qubits at the end of the circuit.
 
         Returns:
             dict: A dictionary mapping multi-qubit states to their corresponding
@@ -178,19 +185,18 @@ class Backend(abc.ABC):
         equivalent gates.
 
         Args:
-            source_circuit: a circuit in the abstract format to be translated
+            source_circuit (Circuit): a circuit in the abstract format to be translated
                 for the target backend.
-            return_statevector(bool): option to return the statevector as well,
+            return_statevector (bool): option to return the statevector as well,
                 if available.
-            initial_statevector(list/array) : A valid statevector in the format
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
-                self.all_frequencies.
-                self.all_frequencies will have keys of length m + n_qubits
-                The first m values in each key will be the result of the m MEASURE gates ordered
-                by their appearance in the list of gates in the source_circuit.
-                The last n_qubits values in each key will be the measurements performed on
+                self.all_frequencies, with keys of length (n_meas + n_qubits).
+                The leading n_meas values will hold the results of the MEASURE gates,
+                ordered by their appearance in the source_circuit.
+                The last n_qubits values will hold the measurements performed on
                 each of qubits at the end of the circuit.
 
         Returns:
@@ -227,9 +233,11 @@ class Backend(abc.ABC):
         """Return the marginal frequencies for indices. If desired_measurement
         is given, frequencies returned for the other indices are conditional on the
         measurement of the indices being the desired measurement.
+
         Args:
             frequencies (dict): The frequency dictionary to perform the marginal computation
             indices (list): The list of indices in the frequency dictionary to marginalize over
+
         Returns:
             dict, dict: The marginal frequencies for indices, The marginal frequencies for other indices"""
         from tangelo.toolboxes.post_processing import Histogram
