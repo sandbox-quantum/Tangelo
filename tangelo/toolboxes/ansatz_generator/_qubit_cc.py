@@ -130,8 +130,8 @@ def get_idxs_deriv(qham_term, *qham_qmf_data):
             gen = (idx, "Y") if idxs == "" else (idx, "X")
             idxs = idxs + f" {idx}" if idxs != "" else f"{idx}"
             gen_tup += (gen, )
-    # Generators must have at least two flip indices
-    if len(gen_tup) > 1:
+    # Generators must have at least one flip index
+    if len(gen_tup) > 0:
         qham_gen_comm = QubitOperator(qham_term, -1j * coef)
         qham_gen_comm *= QubitOperator(gen_tup, 1.)
         deriv = get_op_expval(qham_gen_comm, pure_params).real
@@ -152,7 +152,7 @@ def get_gens_from_idxs(group_idxs):
     """
 
     dis_group_gens = []
-    for n_y in range(1, len(group_idxs), 2):
+    for n_y in range(1, len(group_idxs)+1, 2):
         # Create combinations of odd numbers of flip indices for the Pauli Y operators
         for xy_idx in combinations(group_idxs, n_y):
             # If a flip index idx matches xy_idx, add a Y operator

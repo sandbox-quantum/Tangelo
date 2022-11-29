@@ -12,5 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .histogram import Histogram, aggregate_histograms, filter_hist
 from .mc_weeny_rdm_purification import mcweeny_purify_2rdm
-from .extrapolation import diis, richardson
+from .extrapolation import diis, richardson, extrapolation
+from .post_selection import ancilla_symmetry_circuit, post_select, strip_post_selection

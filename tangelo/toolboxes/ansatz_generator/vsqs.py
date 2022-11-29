@@ -75,6 +75,8 @@ class VSQS(Ansatz):
                 raise ValueError("Reference state Circuit must be provided when simulating a qubit hamiltonian directly")
             self.reference_state = reference_state
         else:
+            if molecule.uhf:
+                raise NotImplementedError("VSQS does not currently support UHF reference states.")
             self.n_electrons = molecule.n_active_electrons
             self.n_spinorbitals = int(molecule.n_sos)
             self.n_qubits = get_qubit_number(mapping, self.n_spinorbitals)

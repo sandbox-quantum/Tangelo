@@ -25,7 +25,9 @@ necessary to account for:
 
 import re
 from math import pi
+
 from tangelo.linq import Gate, Circuit
+from tangelo.helpers import deprecated
 
 
 def get_openqasm_gates():
@@ -47,6 +49,7 @@ def get_openqasm_gates():
     return GATE_OPENQASM
 
 
+@deprecated("Please use the translate_circuit function.")
 def translate_openqasm(source_circuit):
     """Take in an abstract circuit, return a OpenQASM 2.0 string using IBM
     Qiskit (they are the reference for OpenQASM).
@@ -57,12 +60,47 @@ def translate_openqasm(source_circuit):
     Returns:
         str: the corresponding OpenQASM program, as per IBM Qiskit.
     """
-    from .translate_qiskit import translate_qiskit
-
-    return translate_qiskit(source_circuit).qasm()
+    return translate_c_to_openqasm(source_circuit)
 
 
-def _translate_openqasm2abs(openqasm_str):
+@deprecated("Please use the translate_circuit function.")
+def _translate_openqasm2abs(source_circuit):
+    """Take an OpenQASM 2.0 string as input (as defined by IBM Qiskit), return
+    the equivalent abstract circuit. Only a subset of OpenQASM supported, mostly
+    to be able to go back and forth QASM and abstract representations to
+    leverage tools and innovation implemented to work in the QASM format. Not
+    designed to support elaborate QASM programs defining their own operations.
+    Compatible with qiskit.QuantumCircuit.from_qasm method.
+
+    Assumes single-qubit measurement instructions only. Final qubit register
+    measurement is implicit.
+
+    Args:
+        openqasm_string(str): an OpenQASM program, as a string, as defined by
+            IBM Qiskit.
+
+    Returns:
+        Circuit: corresponding quantum circuit in the abstract format.
+    """
+    return translate_c_from_openqasm(source_circuit)
+
+
+def translate_c_to_openqasm(source_circuit):
+    """Take in an abstract circuit, return a OpenQASM 2.0 string using IBM
+    Qiskit (they are the reference for OpenQASM).
+
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        str: the corresponding OpenQASM program, as per IBM Qiskit.
+    """
+    from .translate_qiskit import translate_c_to_qiskit
+
+    return translate_c_to_qiskit(source_circuit).qasm()
+
+
+def translate_c_from_openqasm(openqasm_str):
     """Take an OpenQASM 2.0 string as input (as defined by IBM Qiskit), return
     the equivalent abstract circuit. Only a subset of OpenQASM supported, mostly
     to be able to go back and forth QASM and abstract representations to
@@ -93,7 +131,7 @@ def _translate_openqasm2abs(openqasm_str):
             return s
 
     # Get number of qubits, extract gate operations
-    n_qubits = int(re.findall('qreg q\[(\d+)\];', openqasm_str)[0])
+    n_qubits = int(re.findall(r'qreg q\[(\d+)\];', openqasm_str)[0])
     openqasm_gates = openqasm_str.split(f"qreg q[{n_qubits}];\ncreg c[{n_qubits}];")[-1]
     openqasm_gates = [instruction for instruction in openqasm_gates.split("\n") if instruction]
 
@@ -102,9 +140,9 @@ def _translate_openqasm2abs(openqasm_str):
     for openqasm_gate in openqasm_gates:
 
         # Extract gate name, qubit indices and parameter value (single parameter for now)
-        gate_name = re.split('\s|\(', openqasm_gate)[0]
-        qubit_indices = [int(index) for index in re.findall('q\[(\d+)\]', openqasm_gate)]
-        parameters = [parse_param(index) for index in re.findall('\((.*)\)', openqasm_gate)]
+        gate_name = re.split(r'\s|\(', openqasm_gate)[0]
+        qubit_indices = [int(index) for index in re.findall(r'q\[(\d+)\]', openqasm_gate)]
+        parameters = [parse_param(index) for index in re.findall(r'\((.*)\)', openqasm_gate)]
         # TODO: controlled operation, will need to store value in classical register
         #  bit_indices = [int(index) for index in re.findall('c\[(\d+)\]', openqasm_gate)]
 

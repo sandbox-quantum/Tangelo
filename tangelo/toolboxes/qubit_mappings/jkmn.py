@@ -136,8 +136,8 @@ def _jkmn_dict(n_qubits):
                 stjkmn_map[2*tup[0]] = tjkmn_map[2*i]
                 stjkmn_map[2*tup[0]+1] = tjkmn_map[2*i+1]
             elif tup[1] == 'Y' and (tup[0], 'X') in q2:
-                stjkmn_map[2*tup[0]+1] = tjkmn_map[2*i]
-                stjkmn_map[2*tup[0]] = tjkmn_map[2*i+1]
+                stjkmn_map[2*tup[0]] = -tjkmn_map[2*i]
+                stjkmn_map[2*tup[0]+1] = tjkmn_map[2*i+1]
 
     return stjkmn_map
 
@@ -202,7 +202,7 @@ def jkmn_prep_vector(vector):
         vector (list of int) : The occupation of each spinorbital
 
     Returns:
-        list[int] : The state preparation vector that defines which qubits to apply X gates to
+        numpy array of int : The state preparation vector that defines which qubits to apply X gates to
     """
     n_qubits = len(vector)
     jkmn_map = _jkmn_dict(n_qubits)
@@ -216,4 +216,4 @@ def jkmn_prep_vector(vector):
     for k in state_prep_qu_op.terms:
         for i in k:
             x_vector[i[0]] = 1 if i[1] in ["X", "Y"] else 0
-    return list(x_vector)
+    return x_vector

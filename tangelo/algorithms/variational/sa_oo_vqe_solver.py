@@ -48,7 +48,7 @@ class SA_OO_Solver(SA_VQESolver):
         ansatz (Ansatze) : one of the supported ansatze.
         optimizer (function handle): a function defining the classical optimizer and its behavior.
         initial_var_params (str or array-like) : initial value for the classical optimizer.
-        backend_options (dict) : parameters to build the tangelo.linq Simulator class.
+        backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
         penalty_terms (dict): parameters for penalty terms to append to target qubit Hamiltonian (see penalty_terms
             for more details).
         ansatz_options (dict): parameters for the given ansatz (see given ansatz file for details).

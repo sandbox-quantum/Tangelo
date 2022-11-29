@@ -26,9 +26,9 @@ from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_vector, vec
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H4_sto3g, mol_H4_cation_sto3g, xyz_H2O
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 
-sim = Simulator()
+sim = get_backend()
 spin_ind_transforms = ["BK", "JW", "JKMN"]
 spin_dep_transforms = ["SCBK"]
 all_transforms = spin_ind_transforms + spin_dep_transforms

@@ -20,7 +20,7 @@ from tangelo.linq import Circuit
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import exp_pauliword_to_gates
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
-from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number
 
 
 class ADAPTAnsatz(Ansatz):
@@ -32,6 +32,7 @@ class ADAPTAnsatz(Ansatz):
     Attributes:
         n_spinorbitals (int): Number of spin orbitals in a given basis.
         n_electrons (int): Number of electrons.
+        spin (int): Spin of system.
         operators (list of QubitOperator): List of operators to consider at the
             construction step. Can be useful for restarting computation.
         ferm_operators (list of FermionOperator): Same as operators, but in
@@ -43,7 +44,7 @@ class ADAPTAnsatz(Ansatz):
         circuit (Circuit): Quantum circuit defined by a list of Gates.
     """
 
-    def __init__(self, n_spinorbitals, n_electrons, ansatz_options=None):
+    def __init__(self, n_spinorbitals, n_electrons, spin, ansatz_options=None):
         default_options = {"operators": list(), "ferm_operators": list(),
                            "mapping": "jw", "up_then_down": False,
                            "reference_state": "HF"}
@@ -60,6 +61,7 @@ class ADAPTAnsatz(Ansatz):
 
         self.n_spinorbitals = n_spinorbitals
         self.n_electrons = n_electrons
+        self.spin = spin
 
         self.var_params = None
         self.circuit = None
@@ -105,16 +107,17 @@ class ADAPTAnsatz(Ansatz):
     def prepare_reference_state(self):
         """Prepare a circuit generating the HF reference state."""
         if self.reference_state.upper() == "HF":
-            return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons, mapping=self.mapping, up_then_down=self.up_then_down)
+            return get_reference_circuit(n_spinorbitals=self.n_spinorbitals, n_electrons=self.n_electrons,
+                                         mapping=self.mapping, up_then_down=self.up_then_down, spin=self.spin)
         else:
-            return Circuit(n_qubits=self.n_spinorbitals)
+            return Circuit(n_qubits=get_qubit_number(self.mapping, self.n_spinorbitals))
 
     def build_circuit(self, var_params=None):
         """Construct the variational circuit to be used as our ansatz."""
 
         self.set_var_params(var_params)
 
-        self.circuit = Circuit(n_qubits=self.n_spinorbitals)
+        self.circuit = Circuit(n_qubits=get_qubit_number(self.mapping, self.n_spinorbitals))
         self.circuit += self.prepare_reference_state()
         adapt_circuit = list()
         for op in self.operators:

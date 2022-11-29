@@ -22,7 +22,7 @@ from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings import jordan_wigner, symmetry_conserving_bravyi_kitaev
 from tangelo.toolboxes.ansatz_generator import VSQS
-from tangelo.linq import Simulator
+from tangelo.linq import get_backend
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 
 # For openfermion.load_operator function.
@@ -65,7 +65,7 @@ class VSQSTest(unittest.TestCase):
         qubit_hamiltonian = jordan_wigner(mol_H2_sto3g.fermionic_hamiltonian)
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator()
+        sim = get_backend()
         vsqs_ansatz.update_var_params([0.66666667, 0.9698286, 0.21132472, 0.6465473])
         energy = sim.get_expectation_value(qubit_hamiltonian, vsqs_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.1372701255155757, delta=1e-6)
@@ -87,7 +87,7 @@ class VSQSTest(unittest.TestCase):
         vsqs_ansatz.build_circuit()
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator()
+        sim = get_backend()
         vsqs_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, vsqs_ansatz.circuit)
         self.assertAlmostEqual(energy, -0.85425, delta=1e-4)
@@ -106,7 +106,7 @@ class VSQSTest(unittest.TestCase):
         vsqs_ansatz.build_circuit()
 
         # Assert energy returned is as expected for given parameters
-        sim = Simulator()
+        sim = get_backend()
         vsqs_ansatz.update_var_params([0.50000001, -0.02494214, 3.15398767])
         energy = sim.get_expectation_value(qubit_hamiltonian, vsqs_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.1372701255155757, delta=1e-6)

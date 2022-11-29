@@ -38,6 +38,9 @@ class FCISolver(ElectronicStructureSolver):
 
     def __init__(self, molecule):
 
+        if molecule.uhf:
+            raise NotImplementedError(f"SecondQuantizedMolecule that use UHF are not currently supported in {self.__class__.__name__}. Use CCSDSolver")
+
         self.ci = None
         self.norb = molecule.n_active_mos
         self.nelec = molecule.n_active_electrons

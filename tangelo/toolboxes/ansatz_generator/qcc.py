@@ -40,7 +40,6 @@ import numpy as np
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,\
                                                                fermion_to_qubit_mapping
 from tangelo.linq import Circuit
-from tangelo import SecondQuantizedMolecule
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import exp_pauliword_to_gates
 from tangelo.toolboxes.ansatz_generator._qubit_mf import init_qmf_from_hf, get_qmf_circuit, purify_qmf_state
@@ -55,9 +54,11 @@ class QCC(Ansatz):
     state is obtained using a RHF or ROHF Hamiltonian, respectively.
 
     Args:
-        molecule (SecondQuantizedMolecule or dict): The molecular system, which can
-            be passed as a SecondQuantizedMolecule or a dictionary with keys that
-            specify n_spinoribtals, n_electrons, and spin. Default, None.
+        molecule (SecondQuantizedMolecule, SecondQuantizedDMETFragment or dict):
+            The molecular system, which can be passed as a
+            SecondQuantizedMolecule/SecondQuantizedDMETFragment or a dictionary
+            with keys that specify n_spinoribtals, n_electrons, and spin.
+            Default, None.
         mapping (str): One of the supported qubit mapping identifiers. Default, "jw".
         up_then_down (bool): Change basis ordering putting all spin-up orbitals first,
             followed by all spin-down. Default, False.
@@ -77,24 +78,29 @@ class QCC(Ansatz):
         max_qcc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_qcc_gens)
             generators are selected in order of decreasing |dEQCC/dtau|. Default, None.
+        reference_state (string): The reference state id for the ansatz. The
+            supported reference states are stored in the supported_reference_state
+            attributes. Default, "HF".
     """
 
     def __init__(self, molecule, mapping="jw", up_then_down=False, dis=None,
                  qmf_circuit=None, qmf_var_params=None, qubit_ham=None, qcc_tau_guess=1e-2,
-                 deqcc_dtau_thresh=1e-3, max_qcc_gens=None):
+                 deqcc_dtau_thresh=1e-3, max_qcc_gens=None, reference_state="HF"):
 
-        if not molecule and not (isinstance(molecule, SecondQuantizedMolecule) and isinstance(molecule, dict)):
-            raise ValueError("An instance of SecondQuantizedMolecule or a dict is required for "
-                             "initializing the self.__class__.__name__ ansatz class.")
+        if isinstance(molecule, dict) and not qubit_ham:
+            raise ValueError(f"An instance of SecondQuantizedMolecule or a dict"
+                " + qubit operator is required for initializing the "
+                f"{self.__class__.__name__} ansatz class.")
+
         self.molecule = molecule
-        if isinstance(self.molecule, SecondQuantizedMolecule):
-            self.n_spinorbitals = self.molecule.n_active_sos
-            self.n_electrons = self.molecule.n_electrons
-            self.spin = self.molecule.spin
-        elif isinstance(self.molecule, dict):
+        if isinstance(self.molecule, dict):
             self.n_spinorbitals = self.molecule["n_spinorbitals"]
             self.n_electrons = self.molecule["n_electrons"]
             self.spin = self.molecule["spin"]
+        else:
+            self.n_spinorbitals = self.molecule.n_active_sos
+            self.n_electrons = self.molecule.n_active_electrons
+            self.spin = self.molecule.active_spin
 
         self.mapping = mapping
         self.up_then_down = up_then_down
@@ -141,7 +147,7 @@ class QCC(Ansatz):
 
         # Default starting parameters for initialization
         self.pauli_to_angles_mapping = {}
-        self.default_reference_state = "HF"
+        self.reference_state = reference_state
         self.var_params_default = "qcc_tau_guess"
         self.var_params = None
         self.qcc_circuit = None
@@ -185,10 +191,10 @@ class QCC(Ansatz):
         wavefunction with HF, multi-reference state, etc). These preparations must be consistent
         with the transform used to obtain the qubit operator. """
 
-        if self.default_reference_state not in self.supported_reference_state:
+        if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
                              f"{self.supported_reference_state}.")
-        if self.default_reference_state == "HF":
+        if self.reference_state == "HF":
             reference_state_circuit = get_qmf_circuit(self.qmf_var_params, True)
         return reference_state_circuit
 

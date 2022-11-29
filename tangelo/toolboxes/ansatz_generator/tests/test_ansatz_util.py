@@ -5,11 +5,11 @@ import numpy as np
 from numpy.linalg import eigh
 from openfermion import get_sparse_operator
 
-from tangelo.linq import Simulator, Circuit, Gate
+from tangelo.linq import get_backend, Circuit, Gate
 from tangelo.toolboxes.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.molecule_library import mol_H4_sto3g
-from tangelo.linq.tests.test_simulator import assert_freq_dict_almost_equal
+from tangelo.helpers.utils import assert_freq_dict_almost_equal
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import (givens_gate, trotterize, get_qft_circuit, controlled_swap_to_XX_gates,
                                                              derangement_circuit, controlled_pauliwords)
@@ -18,12 +18,12 @@ from tangelo.toolboxes.ansatz_generator.ansatz_utils import (givens_gate, trotte
 # This is important when converting the openfermion QubitOperator toarray(), propagating exactly and comparing
 # to the statevector output of the simulator. All other simulators will produce the same statevector values but
 # in a different order (i.e. msq_first instead of lsq_first)
-sim = Simulator(target="cirq")
+sim = get_backend(target="cirq")
 
 fermion_operator = mol_H4_sto3g._get_fermionic_hamiltonian()
 
 
-class ansatz_utils_Test(unittest.TestCase):
+class AnsatzUtilsTest(unittest.TestCase):
 
     def test_trotterize_fermion_input(self):
         """ Verify that the time evolution is correct for different mappings and a fermionic
@@ -89,7 +89,7 @@ class ansatz_utils_Test(unittest.TestCase):
         """ Verify that the time evolution is correct for different orders and number of steps
             with a qubit_hamiltonian input"""
 
-        time = 0.2
+        time = 2.
         mapping = "bk"
         reference_circuit = get_reference_circuit(n_spinorbitals=mol_H4_sto3g.n_active_sos,
                                                   n_electrons=mol_H4_sto3g.n_active_electrons,
@@ -106,19 +106,17 @@ class ansatz_utils_Test(unittest.TestCase):
         ham_mat = get_sparse_operator(qubit_hamiltonian).toarray()
         evolve_exact = expm(-1j * time * ham_mat) @ refwave
 
-        for trotter_order, n_trotter_steps in [(1, 1), (2, 1), (1, 2)]:
+        for trotter_order, n_trotter_steps in [(1, 1), (2, 1), (1, 2), (4, 1), (6, 1)]:
 
             tcircuit, phase = trotterize(qubit_hamiltonian, time, n_trotter_steps, trotter_order, return_phase=True)
             _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
             wavefunc *= phase
             overlap = np.dot(np.conj(evolve_exact), wavefunc)
-            self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
+            self.assertAlmostEqual(overlap, 1.0, delta=(6.e-1 / n_trotter_steps)**(trotter_order+1))
+
             # Test to make sure the same circuit is returned when return_phase=False.
-            tcircuit = trotterize(qubit_hamiltonian, time, n_trotter_steps, trotter_order, return_phase=False)
-            _, wavefunc = sim.simulate(tcircuit, return_statevector=True, initial_statevector=refwave)
-            wavefunc *= phase
-            overlap = np.dot(np.conj(evolve_exact), wavefunc)
-            self.assertAlmostEqual(overlap, 1.0, delta=1e-3)
+            tcircuit_no_phase = trotterize(qubit_hamiltonian, time, n_trotter_steps, trotter_order, return_phase=False)
+            self.assertEqual(tcircuit, tcircuit_no_phase)
 
     def test_trotterize_fermionic_input_different_times(self):
         """ Verify that the time evolution is correct for a FermionOperator input with different times

@@ -20,9 +20,9 @@ import unittest
 
 from openfermion.ops import QubitOperator
 
-from tangelo.linq import Gate, Circuit, Simulator, backend_info
+from tangelo.linq import Gate, Circuit, get_backend, backend_info
 from tangelo.linq.noisy_simulation import NoiseModel, get_qiskit_noise_dict
-from tangelo.helpers.utils import default_simulator, installed_backends
+from tangelo.helpers.utils import default_simulator, installed_backends, assert_freq_dict_almost_equal
 
 # Noisy simulation: circuits, noise models, references
 cn1 = Circuit([Gate('X', target=0)])
@@ -46,18 +46,6 @@ ref_depol2 = {'01': 1 / 4, '11': 1 / 4, '10': 1 / 4, '00': 1 / 4}
 ref_cumul = {'0': 1/3, '1': 2/3}
 
 
-def assert_freq_dict_almost_equal(d1, d2, atol):
-    """ Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance """
-    if d1.keys() != d2.keys():
-        raise AssertionError("Dictionary keys differ. Frequency dictionaries are not almost equal.\n"
-                             f"d1 keys: {d1.keys()} \nd2 keys: {d2.keys()}")
-    else:
-        for k in d1.keys():
-            if abs(d1[k] - d2[k]) > atol:
-                raise AssertionError(f"Dictionary entries beyond tolerance {atol}: \n{d1} \n{d2}")
-    return True
-
-
 class TestSimulate(unittest.TestCase):
 
     def test_noisy_simulation_not_supported(self):
@@ -67,7 +55,7 @@ class TestSimulate(unittest.TestCase):
         """
         for b, s in backend_info.items():
             if not s['noisy_simulation']:
-                self.assertRaises(ValueError, Simulator, target=b, n_shots=1, noise_model=True)
+                self.assertRaises(ValueError, get_backend, target=b, n_shots=1, noise_model=True)
 
     def test_cannot_cumulate_same_noise_same_gate(self):
         """ Ensures an error is returned if user attempts to cumulate the same type of noise on the same gate """
@@ -117,21 +105,21 @@ class TestSimulate(unittest.TestCase):
         """
 
         # Pauli noise for one- and two-qubit gates. Circuits are only a X gate, or just a CNOT gate.
-        s_nmp = Simulator(target='qulacs', n_shots=10**6, noise_model=nmp)
+        s_nmp = get_backend(target='qulacs', n_shots=10 ** 6, noise_model=nmp)
         res_pauli1, _ = s_nmp.simulate(cn1)
         assert_freq_dict_almost_equal(res_pauli1, ref_pauli1, 1e-2)
         res_pauli2, _ = s_nmp.simulate(cn2)
         assert_freq_dict_almost_equal(res_pauli2, ref_pauli2, 1e-2)
 
         # Depol noise for one- and two-qubit gates. Circuits are only a X gate or just a CNOT gate.
-        s_nmd = Simulator(target='qulacs', n_shots=10**6, noise_model=nmd)
+        s_nmd = get_backend(target='qulacs', n_shots=10 ** 6, noise_model=nmd)
         res_depol1, _ = s_nmd.simulate(cn1)
         assert_freq_dict_almost_equal(res_depol1, ref_depol1, 1e-2)
         res_depol2, _ = s_nmd.simulate(cn2)
         assert_freq_dict_almost_equal(res_depol2, ref_depol2, 1e-2)
 
         # Cumulate several noises on a given gate (here noise simplifies to identity)
-        s_nmc = Simulator(target='qulacs', n_shots=10**6, noise_model=nmc)
+        s_nmc = get_backend(target='qulacs', n_shots=10 ** 6, noise_model=nmc)
         res_cumul, _ = s_nmc.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
@@ -143,21 +131,21 @@ class TestSimulate(unittest.TestCase):
         """
 
         # Pauli noise for one- and two-qubit gates. Circuits are only a X gate, or just a CNOT gate.
-        s_nmp = Simulator(target='qiskit', n_shots=10**6, noise_model=nmp)
+        s_nmp = get_backend(target='qiskit', n_shots=10 ** 6, noise_model=nmp)
         res_pauli1, _ = s_nmp.simulate(cn1)
         assert_freq_dict_almost_equal(res_pauli1, ref_pauli1, 1e-2)
         res_pauli2, _ = s_nmp.simulate(cn2)
         assert_freq_dict_almost_equal(res_pauli2, ref_pauli2, 1e-2)
 
         # Depol noise for one- and two-qubit gates. Circuits are only a X gate or just a CNOT gate.
-        s_nmd = Simulator(target='qiskit', n_shots=10**6, noise_model=nmd)
+        s_nmd = get_backend(target='qiskit', n_shots=10 ** 6, noise_model=nmd)
         res_depol1, _ = s_nmd.simulate(cn1)
         assert_freq_dict_almost_equal(res_depol1, ref_depol1, 1e-2)
         res_depol2, _ = s_nmd.simulate(cn2)
         assert_freq_dict_almost_equal(res_depol2, ref_depol2, 1e-2)
 
         # Cumulate several noises on a given gate (here noise simplifies to identity)
-        s_nmp = Simulator(target='qiskit', n_shots=10**6, noise_model=nmc)
+        s_nmp = get_backend(target='qiskit', n_shots=10 ** 6, noise_model=nmc)
         res_cumul, _ = s_nmp.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
@@ -169,21 +157,21 @@ class TestSimulate(unittest.TestCase):
         """
 
         # Pauli noise for one- and two-qubit gates. Circuits are only a X gate, or just a CNOT gate.
-        s_nmp = Simulator(target='cirq', n_shots=10**6, noise_model=nmp)
+        s_nmp = get_backend(target='cirq', n_shots=10 ** 6, noise_model=nmp)
         res_pauli1, _ = s_nmp.simulate(cn1)
         assert_freq_dict_almost_equal(res_pauli1, ref_pauli1, 1e-2)
         res_pauli2, _ = s_nmp.simulate(cn2)
         assert_freq_dict_almost_equal(res_pauli2, ref_pauli2, 1e-2)
 
         # Depol noise for one- and two-qubit gates. Circuits are only a X gate or just a CNOT gate.
-        s_nmd = Simulator(target='cirq', n_shots=10**6, noise_model=nmd)
+        s_nmd = get_backend(target='cirq', n_shots=10 ** 6, noise_model=nmd)
         res_depol1, _ = s_nmd.simulate(cn1)
         assert_freq_dict_almost_equal(res_depol1, ref_depol1, 1e-2)
         res_depol2, _ = s_nmd.simulate(cn2)
         assert_freq_dict_almost_equal(res_depol2, ref_depol2, 1e-2)
 
         # Cumulate several noises on a given gate (here noise simplifies to identity)
-        s_nmc = Simulator(target='cirq', n_shots=10**6, noise_model=nmc)
+        s_nmc = get_backend(target='cirq', n_shots=10 ** 6, noise_model=nmc)
         res_cumul, _ = s_nmc.simulate(cn1)
         assert_freq_dict_almost_equal(res_cumul, ref_cumul, 1e-2)
 
@@ -211,13 +199,13 @@ class TestSimulate(unittest.TestCase):
         nmp_no_noise = NoiseModel()
         noise = 0.00
         nmp_no_noise.add_quantum_error("CNOT", "pauli", [noise, noise, noise])
-        sim_no_noise = Simulator(target=default_simulator, n_shots=10**6, noise_model=nmp_no_noise)
+        sim_no_noise = get_backend(target=default_simulator, n_shots=10 ** 6, noise_model=nmp_no_noise)
 
         # Small Noise model
         nmp_small_noise = NoiseModel()
         noise = 0.01
         nmp_small_noise.add_quantum_error("CNOT", "pauli", [noise, noise, noise])
-        sim_small_noise = Simulator(target=default_simulator, n_shots=10**6, noise_model=nmp_small_noise)
+        sim_small_noise = get_backend(target=default_simulator, n_shots=10 ** 6, noise_model=nmp_small_noise)
 
         energy_no_noise = sim_no_noise.get_expectation_value(H, circuit)
         energy_small_noise = sim_small_noise.get_expectation_value(H, circuit)

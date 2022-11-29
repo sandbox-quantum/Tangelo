@@ -41,9 +41,9 @@ class MIFNOHelperTest(unittest.TestCase):
 
         beh2_mifno = MIFNOHelper(mi_json_file=mi_results, fno_json_folder=json_files)
 
-        self.assertAlmostEquals(beh2_mifno.e_tot, -15.595177739)
-        self.assertAlmostEquals(beh2_mifno.e_corr, -0.034865396)
-        self.assertAlmostEquals(beh2_mifno.e_mf, -15.560312343)
+        self.assertAlmostEqual(beh2_mifno.e_tot, -15.595177739)
+        self.assertAlmostEqual(beh2_mifno.e_corr, -0.034865396)
+        self.assertAlmostEqual(beh2_mifno.e_mf, -15.560312343)
 
         # Testing the number of detected increments.
         self.assertEqual(len(beh2_mifno.frag_info), 2)
@@ -53,9 +53,9 @@ class MIFNOHelperTest(unittest.TestCase):
 
         beh2_mifno = MIFNOHelper(mi_dict=mi_object, fno_dicts=frag_objects)
 
-        self.assertAlmostEquals(beh2_mifno.e_tot, -15.595177739)
-        self.assertAlmostEquals(beh2_mifno.e_corr, -0.034865396)
-        self.assertAlmostEquals(beh2_mifno.e_mf, -15.560312343)
+        self.assertAlmostEqual(beh2_mifno.e_tot, -15.595177739)
+        self.assertAlmostEqual(beh2_mifno.e_corr, -0.034865396)
+        self.assertAlmostEqual(beh2_mifno.e_mf, -15.560312343)
 
         # Testing the number of detected increments.
         self.assertEqual(len(beh2_mifno.frag_info), 2)
@@ -66,7 +66,7 @@ class MIFNOHelperTest(unittest.TestCase):
         beh2_mifno = MIFNOHelper(mi_json_file=mi_results, fno_json_folder=json_files)
         frag_ids = beh2_mifno.fragment_ids
 
-        self.assertEquals(frag_ids, ["(0,)", "(1,)", "(2,)", "(0, 1)", "(0, 2)", "(1, 2)"])
+        self.assertEqual(frag_ids, ["(0,)", "(1,)", "(2,)", "(0, 1)", "(0, 2)", "(1, 2)"])
 
     def test_mi_summation(self):
         """Verify that the energy can be recomputed with the incremental method."""

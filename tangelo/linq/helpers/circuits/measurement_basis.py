@@ -41,6 +41,19 @@ def measurement_basis_gates(term):
     return gates
 
 
+def get_compatible_bases(op, basis_list):
+    """Return a list of measurement bases compatible with the given operator.
+
+    Args:
+        op (str): Pauli string representing the operator to be measured
+        basis_list (list): List of Pauli strings for the measurement bases to be checked
+
+    Returns:
+        list: List of measurement bases compatible with the operator
+    """
+    return [b for b in basis_list if all([(o == p or o == "I") for o, p in zip(op, b)])]
+
+
 def pauli_string_to_of(pauli_string):
     """ Converts a string of I,X,Y,Z Pauli operators to an Openfermion-style
     representation.

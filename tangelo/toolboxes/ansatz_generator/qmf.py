@@ -69,9 +69,12 @@ class QMF(Ansatz):
             <N> = n_electrons, <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z, where
             spin_z = spin // 2. Key, value pairs are case sensitive and mu > 0.
             Default, {"init_params": "hf_state"}.
+        reference_state (string): The reference state id for the ansatz. The
+            supported reference states are stored in the supported_reference_state
+            attributes. Default, "HF".
     """
 
-    def __init__(self, molecule, mapping="jw", up_then_down=False, init_qmf=None):
+    def __init__(self, molecule, mapping="jw", up_then_down=False, init_qmf=None, reference_state="HF"):
 
         if not molecule:
             raise ValueError("An instance of SecondQuantizedMolecule is required for initializing "
@@ -83,7 +86,7 @@ class QMF(Ansatz):
             raise ValueError("The total number of spin-orbitals should be even.")
 
         self.n_orbitals = self.n_spinorbitals // 2
-        self.spin = molecule.spin
+        self.spin = molecule.active_spin
         self.fermi_ham = self.molecule.fermionic_hamiltonian
         self.n_electrons = self.molecule.n_active_electrons
 
@@ -138,7 +141,7 @@ class QMF(Ansatz):
 
         # Default starting parameters for initialization
         self.n_var_params = 2 * self.n_qubits
-        self.default_reference_state = "HF"
+        self.reference_state = reference_state
         self.var_params = None
         self.circuit = None
 
@@ -192,10 +195,10 @@ class QMF(Ansatz):
         wavefunction with HF, multi-reference state, etc). These preparations must be consistent
         with the transform used to obtain the qubit operator. """
 
-        if self.default_reference_state not in self.supported_reference_state:
+        if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
                              f"{self.supported_reference_state}")
-        if self.default_reference_state == "HF":
+        if self.reference_state == "HF":
             reference_state_circuit = get_qmf_circuit(self.var_params, True)
         return reference_state_circuit
 

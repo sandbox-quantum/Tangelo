@@ -22,6 +22,8 @@ necessary to account for:
     may also differ.
 """
 
+from tangelo.helpers import deprecated
+
 
 def get_qdk_gates():
     """Map gate name of the abstract format to the equivalent gate name used in
@@ -46,7 +48,23 @@ def get_qdk_gates():
     return GATE_QDK
 
 
-def translate_qsharp(source_circuit, operation="MyQsharpOperation"):
+@deprecated("Please use the translate_circuit function.")
+def translate_qsharp(source_circuit):
+    """Take in an abstract circuit, generate the corresponding Q# operation
+    (state prep + measurement) string, in the appropriate Q# template. The Q#
+    output can be written to file and will be compiled at runtime.
+
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+
+    Returns:
+        str: The Q# code (operation + template). This needs to be written into a
+            .qs file, and compiled at runtime.
+    """
+    return translate_c_to_qsharp(source_circuit)
+
+
+def translate_c_to_qsharp(source_circuit, operation="MyQsharpOperation"):
     """Take in an abstract circuit, generate the corresponding Q# operation
     (state prep + measurement) string, in the appropriate Q# template. The Q#
     output can be written to file and will be compiled at runtime.

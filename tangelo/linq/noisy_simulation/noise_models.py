@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """Generic noise model representation and backend-specific translation function.
-The Simulator class is responsible for taking in the generic noise model at
+The Backend class is responsible for taking in the generic noise model at
 runtime and applying it accordingly to the target compute backend.
 
 Only works for simulators supporting noisy simulation.
