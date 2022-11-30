@@ -41,11 +41,11 @@ class QulacsSimulator(Backend):
         equivalent gates.
 
         Args:
-            source_circuit: a circuit in the abstract format to be translated
+            source_circuit (Circuit): a circuit in the abstract format to be translated
                 for the target backend.
-            return_statevector(bool): option to return the statevector as well,
+            return_statevector (bool): option to return the statevector as well,
                 if available.
-            initial_statevector(list/array) : A valid statevector in the format
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
             desired_meas_result (str): The binary string of the desired measurement.
                 Must have the same length as the number of MEASURE gates in source_circuit
@@ -64,7 +64,6 @@ class QulacsSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-
         translated_circuit = translate_c(source_circuit, "qulacs",
                 output_options={"noise_model": self._noise_model, "save_measurements": save_mid_circuit_meas})
 
@@ -73,28 +72,33 @@ class QulacsSimulator(Backend):
             state = self.qulacs.QuantumStateGpu(source_circuit.width)
         else:
             state = self.qulacs.QuantumState(source_circuit.width)
+
+        python_statevector = None
         if initial_statevector is not None:
             state.load(initial_statevector)
 
         if (source_circuit.is_mixed_state or self._noise_model) and (desired_meas_result is None and not save_mid_circuit_meas):
-            samples = list()
+            samples = dict()
             for i in range(self.n_shots):
                 translated_circuit.update_quantum_state(state)
-                samples.append(state.sampling(1)[0])
+                bitstr = state.sampling(1)[0]
+                samples[bitstr] = samples.get(bitstr, 0) + 1
                 if initial_statevector is not None:
                     state.load(initial_statevector)
                 else:
                     state.set_zero_state()
-            python_statevector = None
         elif desired_meas_result is not None or save_mid_circuit_meas:
+            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
+
             n_meas = source_circuit._gate_counts.get("MEASURE", 0)
-            full_samples = list()
-            python_statevector = None
+            samples = dict()
+
             for _ in range(self.n_shots):
                 translated_circuit.update_quantum_state(state)
                 measurement = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
                 sample = self._int_to_binstr(state.sampling(1)[0], source_circuit.width)
-                full_samples += [measurement + sample]
+                bitstr = measurement + sample
+                samples[bitstr] = samples.get(bitstr, 0) + 1
                 if measurement == desired_meas_result:
                     python_statevector = state.get_vector()
                     self._current_state = python_statevector
@@ -102,27 +106,29 @@ class QulacsSimulator(Backend):
                     state.load(initial_statevector)
                 else:
                     state.set_zero_state()
-            self.all_frequencies = {k: v / self.n_shots for k, v in Counter(full_samples).items()}
-            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                 list(range(n_meas)),
-                                                                                 desired_measurement=desired_meas_result)
+
+            self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
+            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(self.all_frequencies,
+                                                                            list(range(n_meas)),
+                                                                            desired_measurement=desired_meas_result)
             self.success_probability = self.mid_circuit_meas_freqs.get(desired_meas_result, 0)
+
             return (frequencies, python_statevector) if return_statevector else (frequencies, None)
         elif self.n_shots is not None:
             translated_circuit.update_quantum_state(state)
             self._current_state = state
             python_statevector = np.array(state.get_vector()) if return_statevector else None
-            samples = state.sampling(self.n_shots)
+            samples = Counter(state.sampling(self.n_shots))  # this sampling still returns a list
         else:
             translated_circuit.update_quantum_state(state)
             self._current_state = state
-            python_statevector = state.get_vector()
+            python_statevector = np.array(state.get_vector())
             frequencies = self._statevector_to_frequencies(python_statevector)
-            return (frequencies, np.array(python_statevector)) if return_statevector else (frequencies, None)
+            return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
         frequencies = {self._int_to_binstr(k, source_circuit.width): v / self.n_shots
-                       for k, v in Counter(samples).items()}
-        return (frequencies, python_statevector)
+                       for k, v in samples.items()}
+        return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
     def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
 

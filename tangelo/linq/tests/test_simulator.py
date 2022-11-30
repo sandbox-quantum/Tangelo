@@ -85,6 +85,8 @@ ref_freqs.append({'000': 0.15972060437359714, '100': 0.2828171838599203, '010': 
 reference_exp_values = np.array([[0., 0., 0.], [0., -1., 0.], [-0.41614684, 0.7651474, -1.6096484], [1., 0., 0.],
                                  [-0.20175269, -0.0600213, 1.2972912]])
 reference_mixed = {'01': 0.163, '11': 0.066, '10': 0.225, '00': 0.545}  # With Qiskit noiseless, 1M shots
+reference_all = {'101': 0.163, '011': 0.066, '010': 0.225, '100': 0.545}
+reference_mid = {'1': 0.7, '0': 0.3}
 
 
 class TestSimulateAllBackends(unittest.TestCase):
@@ -135,8 +137,9 @@ class TestSimulateAllBackends(unittest.TestCase):
         for b in installed_simulator:
             sim = get_backend(target=b, n_shots=10 ** 3)
             results[b], _ = sim.simulate(circuit_mixed, save_mid_circuit_meas=True)
-            print(b)
             assert_freq_dict_almost_equal(results[b], reference_mixed, 8e-2)
+            assert_freq_dict_almost_equal(sim.all_frequencies, reference_all, 8e-2)
+            assert_freq_dict_almost_equal(sim.mid_circuit_meas_freqs, reference_mid, 8e-2)
 
     def test_simulate_mixed_state_desired_state(self):
         """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.

@@ -43,11 +43,11 @@ class QiskitSimulator(Backend):
         equivalent gates.
 
         Args:
-            source_circuit: a circuit in the abstract format to be translated
+            source_circuit (Circuit): a circuit in the abstract format to be translated
                 for the target backend.
-            return_statevector(bool): option to return the statevector as well,
+            return_statevector (bool): option to return the statevector as well,
                 if available.
-            initial_statevector(list/array) : A valid statevector in the format
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
             desired_meas_result (str): The binary string of the desired measurement.
                 Must have the same length as the number of MEASURE gates in source_circuit
@@ -67,8 +67,7 @@ class QiskitSimulator(Backend):
                 and requested by the user (if not, set to None).
         """
 
-        translated_circuit = translate_c(source_circuit, "qiskit",
-                output_options={"save_measurements": save_mid_circuit_meas})
+        translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
 
         # If requested, set initial state
         if initial_statevector is not None:
@@ -76,7 +75,8 @@ class QiskitSimulator(Backend):
                 raise ValueError("Cannot load an initial state if using a noise model, with Qiskit")
             else:
                 n_qubits = int(math.log2(len(initial_statevector)))
-                n_registers = source_circuit._gate_counts.get("MEASURE", 0) + source_circuit.width
+                n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+                n_registers = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
                 initial_state_circuit = self.qiskit.QuantumCircuit(n_qubits, n_registers)
                 initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
                 translated_circuit = initial_state_circuit.compose(translated_circuit)
@@ -102,9 +102,11 @@ class QiskitSimulator(Backend):
 
             self.all_frequencies = frequencies.copy()
             if source_circuit.is_mixed_state and save_mid_circuit_meas:
-                self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                     list(range(n_meas)),
-                                                                                     desired_measurement=desired_meas_result)
+                from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
+
+                self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(self.all_frequencies,
+                                                                                list(range(n_meas)),
+                                                                                desired_measurement=desired_meas_result)
             self._current_state = None
 
         # desired_meas_result is not None and return_statevector is requested so loop shot by shot (much slower)
