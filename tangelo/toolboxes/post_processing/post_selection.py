@@ -97,3 +97,32 @@ def strip_post_selection(freqs, *qubits):
     hist = Histogram(freqs, n_shots=0)
     hist.remove_qubit_indices(*qubits)
     return hist.frequencies
+
+
+def split_frequency_dict(frequencies, indices, desired_measurement=None):
+    """Marginalize the frequencies dictionary over the indices.
+    This splits the frequency dictionary into two frequency dictionaries
+    and aggregates the corresponding frequencies.
+    If desired_measurement is provided, the marginalized frequencies are
+    post-selected for that outcome on the mid-circuit measurements.
+
+    Args:
+        frequencies (dict): The frequency dictionary to perform the marginal computation
+        indices (list): The list of indices in the frequency dictionary to marginalize over
+        desired_measurement (str): The bit string that is to be selected
+
+    Returns:
+        dict: The marginal frequencies for provided indices
+        dict: The marginal frequencies for remaining indices"""
+    key_length = len(next(iter(frequencies)))
+    other_indices = [i for i in range(key_length) if i not in indices]
+
+    midcirc_dict = strip_post_selection(frequencies, *other_indices)
+
+    if desired_measurement is None:
+        marginal_dict = strip_post_selection(frequencies, *indices)
+    else:
+        expected_outcomes = {i: m for i, m in zip(indices, desired_measurement)}
+        marginal_dict = post_select(frequencies, expected_outcomes)
+
+    return midcirc_dict, marginal_dict
