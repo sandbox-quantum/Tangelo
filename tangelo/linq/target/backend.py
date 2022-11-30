@@ -228,30 +228,6 @@ class Backend(abc.ABC):
         return self.simulate_circuit(source_circuit, return_statevector=return_statevector,
                             initial_statevector=initial_statevector, save_mid_circuit_meas=save_mid_circuit_meas)
 
-    @staticmethod
-    def marginal_frequencies(frequencies, indices):
-        """Return the marginal frequencies for indices. If desired_measurement
-        is given, frequencies returned for the other indices are conditional on the
-        measurement of the indices being the desired measurement.
-
-        Args:
-            frequencies (dict): The frequency dictionary to perform the marginal computation
-            indices (list): The list of indices in the frequency dictionary to marginalize over
-
-        Returns:
-            dict, dict: The marginal frequencies for indices, The marginal frequencies for other indices"""
-        from tangelo.toolboxes.post_processing import Histogram
-
-        key_length = len(next(iter(frequencies)))
-        other_indices = [i for i in range(key_length) if i not in indices]
-
-        new_hist = Histogram(frequencies)
-        new_hist.remove_qubit_indices(*other_indices)
-        other_hist = Histogram(frequencies)
-        other_hist.remove_qubit_indices(*indices)
-
-        return new_hist.frequencies, other_hist.frequencies
-
     def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None):
         r"""Take as input a qubit operator H and a quantum circuit preparing a
         state |\psi>. Return the expectation value <\psi | H | \psi>.

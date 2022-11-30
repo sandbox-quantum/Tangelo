@@ -75,8 +75,10 @@ class QDKSimulator(Backend):
         self.all_frequencies = frequencies.copy()
         # Post process if needed
         if save_mid_circuit_meas:
-            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                 list(range(n_meas)))
+            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
+
+            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(self.all_frequencies,
+                                                                            list(range(n_meas)))
         return (frequencies, None)
 
     @staticmethod

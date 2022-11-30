@@ -97,8 +97,10 @@ class QiskitSimulator(Backend):
 
             self.all_frequencies = frequencies.copy()
             if source_circuit.is_mixed_state and save_mid_circuit_meas:
-                self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                     list(range(n_meas)))
+                from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
+
+                self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(self.all_frequencies,
+                                                                                list(range(n_meas)))
             self._current_state = None
 
         # Noiseless simulation using the statevector simulator otherwise

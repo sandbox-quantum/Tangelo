@@ -84,6 +84,8 @@ class QulacsSimulator(Backend):
                 else:
                     state.set_zero_state()
         elif save_mid_circuit_meas:
+            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
+
             n_meas = source_circuit._gate_counts.get("MEASURE", 0)
             samples = dict()
             for _ in range(self.n_shots):
@@ -97,8 +99,8 @@ class QulacsSimulator(Backend):
                 else:
                     state.set_zero_state()
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
-            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                 list(range(n_meas)))
+            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(self.all_frequencies,
+                                                                            list(range(n_meas)))
             return (frequencies, python_statevector) if return_statevector else (frequencies, None)
         elif self.n_shots is not None:
             translated_circuit.update_quantum_state(state)

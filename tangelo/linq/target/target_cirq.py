@@ -94,6 +94,8 @@ class CirqSimulator(Backend):
         # Noiseless simulation using the statevector simulator otherwise
         # Run all shots at once and post-process to return measured frequencies on qubits only
         elif save_mid_circuit_meas and not return_statevector:
+            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
+
             translated_circuit = translate_c(source_circuit, "cirq",
                     output_options={"noise_model": self._noise_model, "save_measurements": True})
             qubit_list = self.cirq.LineQubit.range(source_circuit.width)
@@ -105,8 +107,8 @@ class CirqSimulator(Backend):
                 samples += ["".join([str(job_sim.measurements[str(i)][j, 0]) for i in range(n_meas + source_circuit.width)])]
             self.all_frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
 
-            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                 list(range(n_meas)))
+            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(self.all_frequencies,
+                                                                            list(range(n_meas)))
         # Run shot by shot and keep track of desired_meas_result only (generally slower)
         elif save_mid_circuit_meas and return_statevector:
             translated_circuit = translate_c(source_circuit, "cirq",
