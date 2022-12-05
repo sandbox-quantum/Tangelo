@@ -225,6 +225,16 @@ class Backend(abc.ABC):
                 statevector[0] = 1.0
             return (frequencies, statevector) if return_statevector else (frequencies, None)
 
+        if save_mid_circuit_meas:
+            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
+
+            (all_frequencies, statevector) = self.simulate_circuit(source_circuit, return_statevector=return_statevector,
+                                  initial_statevector=initial_statevector, save_mid_circuit_meas=save_mid_circuit_meas)
+            n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(all_frequencies,
+                                                                            list(range(n_meas)))
+            return (frequencies, statevector)
+
         return self.simulate_circuit(source_circuit, return_statevector=return_statevector,
                             initial_statevector=initial_statevector, save_mid_circuit_meas=save_mid_circuit_meas)
 

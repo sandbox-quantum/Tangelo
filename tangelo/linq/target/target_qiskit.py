@@ -61,7 +61,6 @@ class QiskitSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-
         translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
 
         # If requested, set initial state
@@ -96,11 +95,6 @@ class QiskitSimulator(Backend):
             frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
 
             self.all_frequencies = frequencies.copy()
-            if source_circuit.is_mixed_state and save_mid_circuit_meas:
-                from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
-
-                self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(self.all_frequencies,
-                                                                                list(range(n_meas)))
             self._current_state = None
 
         # Noiseless simulation using the statevector simulator otherwise

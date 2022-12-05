@@ -94,26 +94,23 @@ class CirqSimulator(Backend):
         # Noiseless simulation using the statevector simulator otherwise
         # Run all shots at once and post-process to return measured frequencies on qubits only
         elif save_mid_circuit_meas and not return_statevector:
-            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
-
             translated_circuit = translate_c(source_circuit, "cirq",
                     output_options={"noise_model": self._noise_model, "save_measurements": True})
             qubit_list = self.cirq.LineQubit.range(source_circuit.width)
             for i, qubit in enumerate(qubit_list):
                 translated_circuit.append(self.cirq.measure(qubit, key=str(i + n_meas)))
             job_sim = cirq_simulator.run(translated_circuit, repetitions=self.n_shots)
-            samples = list()
+            samples = dict()
             for j in range(self.n_shots):
-                samples += ["".join([str(job_sim.measurements[str(i)][j, 0]) for i in range(n_meas + source_circuit.width)])]
-            self.all_frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
-
-            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(self.all_frequencies,
-                                                                            list(range(n_meas)))
+                bitstr = "".join([str(job_sim.measurements[str(i)][j, 0]) for i in range(n_meas + source_circuit.width)])
+                samples[bitstr] = samples.get(bitstr, 0) + 1
+            self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
+            frequencies = self.all_frequencies
         # Run shot by shot and keep track of desired_meas_result only (generally slower)
         elif save_mid_circuit_meas and return_statevector:
             translated_circuit = translate_c(source_circuit, "cirq",
                     output_options={"noise_model": self._noise_model, "save_measurements": True})
-            all_measurements = list()
+            samples = dict()
             self._current_state = None
             indices = list(range(source_circuit.width))
             for _ in range(self.n_shots):
@@ -123,10 +120,10 @@ class CirqSimulator(Backend):
                 isamples = (self.cirq.sample_density_matrix(current_state, indices, repetitions=1) if self._noise_model
                             else self.cirq.sample_state_vector(current_state, indices, repetitions=1))
                 sample = "".join([str(int(q)) for q in isamples[0]])
-                all_measurements += [measure + sample]
-            self.all_frequencies = {k: v / self.n_shots for k, v in Counter(all_measurements).items()}
-            self.mid_circuit_meas_freqs, frequencies = self.marginal_frequencies(self.all_frequencies,
-                                                                                 list(range(n_meas)))
+                bitstr = measure + sample
+                samples[bitstr] = samples.get(bitstr, 0) + 1
+            self.all_frequencies = {k: v / self.n_shots for k, v in sample.items()}
+            frequencies = self.all_frequencies
         else:
             translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model})
             job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
