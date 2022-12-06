@@ -48,9 +48,9 @@ def get_expectation_value_from_frequencies_oneterm(term, frequencies):
     the result of a state-preparation.
 
     Args:
-        term(openfermion-style QubitOperator object): a qubit operator, with
+        term (openfermion-style QubitOperator object): a qubit operator, with
             only a single term.
-        frequencies(dict): histogram of frequencies of measurements (assumed
+        frequencies (dict): histogram of frequencies of measurements (assumed
             to be in lsq-first format).
 
     Returns:
@@ -82,9 +82,9 @@ def get_variance_from_frequencies_oneterm(term, frequencies):
     """Return the variance of the expectation value of a single-term qubit-operator, given
     the result of a state-preparation.
     Args:
-        term(openfermion-style QubitOperator object): a qubit operator, with
+        term (openfermion-style QubitOperator object): a qubit operator, with
             only a single term.
-        frequencies(dict): histogram of frequencies of measurements (assumed
+        frequencies (dict): histogram of frequencies of measurements (assumed
             to be in lsq-first format).
     Returns:
         complex: The variance of this operator with regard to the
@@ -250,7 +250,7 @@ class Backend(abc.ABC):
         actual QPU.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit
+            qubit_operator (openfermion-style QubitOperator class): a qubit
                 operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (array): The initial statevector for the simulation
@@ -303,10 +303,10 @@ class Backend(abc.ABC):
         actual QPU.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit
+            qubit_operator (openfermion-style QubitOperator class): a qubit
                 operator.
-            state_prep_circuit(Circuit): an abstract circuit used for state preparation.
-            initial_statevector(list/array) : A valid statevector in the format
+            state_prep_circuit (Circuit): an abstract circuit used for state preparation.
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
 
         Returns:
@@ -354,10 +354,10 @@ class Backend(abc.ABC):
         actual QPU.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit
+            qubit_operator (openfermion-style QubitOperator class): a qubit
                 operator.
-            state_prep_circuit(Circuit): an abstract circuit used for state preparation.
-            initial_statevector(list/array) : A valid statevector in the format
+            state_prep_circuit (Circuit): an abstract circuit used for state preparation.
+            initial_statevector (list/array): A valid statevector in the format
                 supported by the target backend.
 
         Returns:
@@ -374,7 +374,7 @@ class Backend(abc.ABC):
         this function directly, please call "get_expectation_value" instead.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit operator.
+            qubit_operator (openfermion-style QubitOperator class): a qubit operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation (only pure states).
             initial_statevector (array): The initial state of the system
 
@@ -425,7 +425,7 @@ class Backend(abc.ABC):
         using the frequencies of observable states.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubitoperator.
+            qubit_operator (openfermion-style QubitOperator class): a qubitoperator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (array): The initial state of the system
 
@@ -467,9 +467,9 @@ class Backend(abc.ABC):
         using the frequencies of observable states.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit operator.
-            state_prep_circuit(Circuit): an abstract circuit used for state preparation.
-            initial_statevector(list/array) : A valid statevector in the format
+            qubit_operator (openfermion-style QubitOperator class): a qubit operator.
+            state_prep_circuit (Circuit): an abstract circuit used for state preparation.
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
 
         Returns:
@@ -511,9 +511,9 @@ class Backend(abc.ABC):
         the result of a state-preparation.
 
         Args:
-            term(openfermion-style QubitOperator object): a qubit operator, with
+            term (openfermion-style QubitOperator object): a qubit operator, with
                 only a single term.
-            frequencies(dict): histogram of frequencies of measurements (assumed
+            frequencies (dict): histogram of frequencies of measurements (assumed
                 to be in lsq-first format).
 
         Returns:
@@ -529,9 +529,9 @@ class Backend(abc.ABC):
         the result of a state-preparation.
 
         Args:
-            term(openfermion-style QubitOperator object): a qubit operator, with
+            term (openfermion-style QubitOperator object): a qubit operator, with
                 only a single term.
-            frequencies(dict): histogram of frequencies of measurements (assumed
+            frequencies (dict): histogram of frequencies of measurements (assumed
                 to be in lsq-first format).
 
         Returns:
@@ -549,7 +549,7 @@ class Backend(abc.ABC):
         state |0>.
 
         Args:
-            statevector(list or ndarray(complex)): an iterable 1D data-structure
+            statevector (list or ndarray(complex)): an iterable 1D data-structure
                 containing the amplitudes.
 
         Returns:
