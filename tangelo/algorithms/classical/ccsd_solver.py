@@ -79,9 +79,11 @@ class CCSDSolver(ElectronicStructureSolver):
             raise RuntimeError("CCSDSolver: Cannot retrieve RDM. Please run the 'simulate' method first")
 
         # Solve the lambda equation and obtain the reduced density matrix from CC calculation
+        self.cc_fragment.solve_lambda()
         t1 = self.cc_fragment.t1
         t2 = self.cc_fragment.t2
-        l1, l2 = self.cc_fragment.solve_lambda(t1, t2)
+        l1 = self.cc_fragment.l1
+        l2 = self.cc_fragment.l2
 
         d1 = _gamma1_intermediates(self.cc_fragment, t1, t2, l1, l2) if not self.uhf else _ugamma1_intermediates(self.cc_fragment, t1, t2, l1, l2)
         f = lib.H5TmpFile()
