@@ -207,12 +207,12 @@ class Backend(abc.ABC):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
+        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
 
         if source_circuit.is_mixed_state and not self.n_shots:
             raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state."
                              "Please set the n_shots attribute to an appropriate value.")
 
-        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
         if desired_meas_result is not None:
             if len(desired_meas_result) != n_meas or not isinstance(desired_meas_result, str):
                 raise ValueError("desired_meas result is not a string with the same length as the number of measurements"
@@ -234,8 +234,20 @@ class Backend(abc.ABC):
                 statevector[0] = 1.0
             return (frequencies, statevector) if return_statevector else (frequencies, None)
 
-        return self.simulate_circuit(source_circuit, return_statevector=return_statevector, initial_statevector=initial_statevector,
-                                     desired_meas_result=desired_meas_result, save_mid_circuit_meas=save_mid_circuit_meas)
+        # For mid-circuit measurements post-process the result
+        if save_mid_circuit_meas:
+            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
+
+            (all_frequencies, statevector) = self.simulate_circuit(source_circuit, return_statevector=return_statevector,
+                                  initial_statevector=initial_statevector, desired_meas_result=desired_meas_result, save_mid_circuit_meas=save_mid_circuit_meas)
+            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(all_frequencies,
+                                                                            list(range(n_meas)),
+                                                                            desired_measurement=desired_meas_result)
+            self.success_probability = self.mid_circuit_meas_freqs.get(desired_meas_result, 0)
+            return (frequencies, statevector)
+
+        return self.simulate_circuit(source_circuit, return_statevector=return_statevector,
+                            initial_statevector=initial_statevector, save_mid_circuit_meas=save_mid_circuit_meas)
 
     def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a quantum circuit preparing a

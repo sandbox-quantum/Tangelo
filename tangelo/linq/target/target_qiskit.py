@@ -66,7 +66,6 @@ class QiskitSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-
         translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
 
         # If requested, set initial state
@@ -98,15 +97,9 @@ class QiskitSimulator(Backend):
             job_sim = self.qiskit.execute(translated_circuit, backend, noise_model=qiskit_noise_model,
                                           shots=self.n_shots, basis_gates=None, optimization_level=opt_level)
             sim_results = job_sim.result()
-            frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
+            self.all_frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
 
-            self.all_frequencies = frequencies.copy()
-            if source_circuit.is_mixed_state and save_mid_circuit_meas:
-                from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
-
-                self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(self.all_frequencies,
-                                                                                list(range(n_meas)),
-                                                                                desired_measurement=desired_meas_result)
+            frequencies = self.all_frequencies
             self._current_state = None
 
         # desired_meas_result is not None and return_statevector is requested so loop shot by shot (much slower)
@@ -117,29 +110,20 @@ class QiskitSimulator(Backend):
             qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
             translated_circuit = self.qiskit.transpile(translated_circuit, backend)
             translated_circuit.save_statevector()
-            self.mid_circuit_meas_freqs = dict()
-            self.all_frequencies = dict()
-            samples = list()
-            successful_measures = 0
+            samples = dict()
             self._current_state = None
 
             for _ in range(self.n_shots):
                 sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
                 current_state = sim_results.get_statevector(translated_circuit)
-                measurement = next(
-                    iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
+                measurement = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
                 (sample, _) = self.qiskit.quantum_info.states.Statevector(current_state).measure()
-                key = measurement + sample[::-1]
-                self.all_frequencies[key] = self.all_frequencies.get(key, 0) + 1
-                self.mid_circuit_meas_freqs[measurement] = self.mid_circuit_meas_freqs.get(measurement, 0) + 1
+                bitstr = measurement + sample[::-1]
+                samples[bitstr] = samples.get(bitstr, 0) + 1
                 if measurement == desired_meas_result:
                     self._current_state = current_state
-                    successful_measures += 1
-                    samples += [sample[::-1]]
-            self.all_frequencies = {k: v / self.n_shots for k, v in self.all_frequencies.items()}
-            self.mid_circuit_meas_freqs = {k: v / self.n_shots for k, v in self.mid_circuit_meas_freqs.items()}
-            frequencies = {k: v / successful_measures for k, v in Counter(samples).items()}
-            self.success_probability = successful_measures / self.n_shots
+            self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
+            frequencies = self.all_frequencies
 
         # Noiseless simulation using the statevector simulator otherwise
         else:

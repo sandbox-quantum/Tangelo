@@ -87,9 +87,8 @@ class QulacsSimulator(Backend):
                     state.load(initial_statevector)
                 else:
                     state.set_zero_state()
-        elif desired_meas_result is not None or save_mid_circuit_meas:
-            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
 
+        elif save_mid_circuit_meas:
             n_meas = source_circuit._gate_counts.get("MEASURE", 0)
             samples = dict()
 
@@ -108,12 +107,9 @@ class QulacsSimulator(Backend):
                     state.set_zero_state()
 
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
-            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(self.all_frequencies,
-                                                                            list(range(n_meas)),
-                                                                            desired_measurement=desired_meas_result)
-            self.success_probability = self.mid_circuit_meas_freqs.get(desired_meas_result, 0)
 
-            return (frequencies, python_statevector) if return_statevector else (frequencies, None)
+            return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)
+
         elif self.n_shots is not None:
             translated_circuit.update_quantum_state(state)
             self._current_state = state

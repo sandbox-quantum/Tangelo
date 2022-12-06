@@ -236,8 +236,6 @@ class TestSimulateStatevector(unittest.TestCase):
             sim = get_backend(target=b, n_shots=10 ** 3)
             _, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
             np.testing.assert_array_almost_equal(sv, results[b])
-            print(b, sim.success_probability)
-            print(b, sim.all_frequencies)
 
     def test_simulate_nshots_from_statevector(self):
         """
