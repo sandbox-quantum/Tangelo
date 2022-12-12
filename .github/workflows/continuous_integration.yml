@@ -43,6 +43,7 @@ jobs:
         pip install amazon-braket-sdk
         pip install cirq
         pip install projectq
+        pip install pennylane
       if: always()
 
     - name: Install Microsoft qsharp/qdk
