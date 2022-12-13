@@ -488,13 +488,13 @@ class TranslateCircuitTest(unittest.TestCase):
 
         translated_circuit = translate_c(big_circuit, "pennylane")
 
-        dev = qml.device('default.qubit', wires=list(range(big_circuit.width)))    
+        dev = qml.device('default.qubit', wires=list(range(big_circuit.width)))
 
         @qml.qnode(dev)
         def circuit(ops):
             for op in ops:
                 qml.apply(op)
-            return qml.state()   
+            return qml.state()
 
         v1 = circuit(translated_circuit)
 
