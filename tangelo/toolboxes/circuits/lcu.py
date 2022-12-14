@@ -319,8 +319,9 @@ def get_uprep_uselect(qu_op: QubitOperator, control: Union[int, List[int]] = Non
     max_qu_op = count_qubits(qu_op)
     for term, coeff in qu_op.terms.items():
         acoeff = np.abs(coeff)
-        vector += [acoeff]
-        unitaries += [QubitOperator(term, -coeff / acoeff)]
+        if acoeff > 1.e-8:
+            vector += [acoeff]
+            unitaries += [QubitOperator(term, -coeff / acoeff)]
 
     # create U_{prep} from sqrt of coefficients
     vector = np.array(vector)
@@ -381,7 +382,7 @@ def get_lcu_qubit_op_info(qu_op: QubitOperator()) -> Tuple[List[int], List[int],
     """
 
     max_qu_op = count_qubits(qu_op)
-    num_terms = len(qu_op.terms)
+    num_terms = len([coeff for coeff in qu_op.terms.values() if abs(coeff) > 1.e-8])
     alpha = sum([abs(v) for v in qu_op.terms.values()])
     n_qubits = math.ceil(math.log2(num_terms))
 
