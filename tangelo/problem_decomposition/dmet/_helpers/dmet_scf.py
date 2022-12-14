@@ -65,22 +65,17 @@ def dmet_fragment_scf(t_list, two_ele, fock, number_electrons, number_orbitals, 
     mf_frag._eri = ao2mo.restore(8, two_ele, number_orbitals)
     mf_frag.scf(guess_orbitals)
 
-    # Calculate the density matrix for the fragment
-    dm_frag = reduce(np.dot, (mf_frag.mo_coeff, np.diag(mf_frag.mo_occ), mf_frag.mo_coeff.T))
-
     # Use newton-raphson algorithm if the above SCF calculation is not converged
     if (mf_frag.converged is False):
         mf_frag.get_hcore = lambda *args: fock_frag_copy
         mf_frag.get_ovlp = lambda *args: np.eye(number_orbitals)
         mf_frag._eri = ao2mo.restore(8, two_ele, number_orbitals)
         mf_frag = scf.RHF(mol_frag).newton()
-        energy = mf_frag.kernel(dm0=dm_frag)
-        dm_frag = reduce(np.dot, (mf_frag.mo_coeff, np.diag(mf_frag.mo_occ), mf_frag.mo_coeff.T))
 
     return mf_frag, fock_frag_copy, mol_frag
 
 
-def dmet_fragment_scf_rohf(nele_ab, two_ele, fock, number_electrons, number_orbitals, guess_orbitals, chemical_potential):
+def dmet_fragment_scf_rohf(nele_ab, two_ele, fock, number_electrons, number_orbitals, guess_orbitals, chemical_potential, uhf):
     """Perform SCF calculation.
 
     Args:
@@ -115,23 +110,22 @@ def dmet_fragment_scf_rohf(nele_ab, two_ele, fock, number_electrons, number_orbi
     mol_frag.spin = nele_ab[0] - nele_ab[1]
 
     # Perform SCF calculation (set mean field object of pyscf)
-    mf_frag = scf.ROHF(mol_frag)
+    mf_frag = scf.UHF(mol_frag) if uhf else scf.ROHF(mol_frag)
     mf_frag.get_hcore = lambda *args: fock_frag_copy
     mf_frag.get_ovlp = lambda *args: np.eye(number_orbitals)
     mf_frag._eri = ao2mo.restore(8, two_ele, number_orbitals)
-    #mf_frag.verbose = 4
     mf_frag.scf(guess_orbitals)
 
     orb_temp = mf_frag.mo_coeff
     occ_temp = mf_frag.mo_occ
 
     # Use newton-raphson algorithm if the above SCF calculation is not converged
-    if (mf_frag.converged == False):
+    if (not mf_frag.converged):
         mf_frag.get_hcore = lambda *args: fock_frag_copy
         mf_frag.get_ovlp = lambda *args: np.eye(number_orbitals)
         mf_frag._eri = ao2mo.restore(8, two_ele, number_orbitals)
         nr = scf.newton(mf_frag)
-        energy = nr.kernel(orb_temp, occ_temp)
+        _ = nr.kernel(orb_temp, occ_temp)
         mf_frag = nr
 
     return mf_frag, fock_frag_copy, mol_frag

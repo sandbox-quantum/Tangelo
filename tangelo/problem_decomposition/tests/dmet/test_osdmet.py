@@ -18,20 +18,21 @@ from tangelo import SecondQuantizedMolecule
 from tangelo.problem_decomposition import DMETProblemDecomposition
 from tangelo.problem_decomposition.dmet import Localization
 
+LiO2 = """
+    Li              0.000000    0.000000    1.380605
+    O               0.000000    0.676045   -0.258863
+    O               0.000000   -0.676045   -0.258863
+"""
+
 
 class OSDMETProblemDecompositionTest(unittest.TestCase):
 
-    def test_lio2_sto6g(self):
-        """Tests the result from OS-DMET against a value from a reference
+    def test_lio2_sto6g_rohf(self):
+        """Tests the result from OS-DMET (ROHF) against a value from a reference
         implementation with nao localization and CCSD solution to fragments.
         """
 
-        LiO2 = """
-            Li              0.000000    0.000000    1.380605
-            O               0.000000    0.676045   -0.258863
-            O               0.000000   -0.676045   -0.258863
-        """
-        mol_lio2 = SecondQuantizedMolecule(LiO2, q=0, spin=1, basis="STO-6G", frozen_orbitals=None)
+        mol_lio2 = SecondQuantizedMolecule(LiO2, q=0, spin=1, basis="STO-6G", frozen_orbitals=None, uhf=False)
 
         opt_dmet = {"molecule": mol_lio2,
                     "fragment_atoms": [1, 1, 1],
@@ -45,6 +46,26 @@ class OSDMETProblemDecompositionTest(unittest.TestCase):
         energy = dmet_solver.simulate()
 
         self.assertAlmostEqual(energy, -156.6317605935, places=4)
+
+    def test_lio2_sto6g_uhf(self):
+        """Tests the result from OS-DMET (UHF) against a value from a reference
+        implementation with nao localization and CCSD solution to fragments.
+        """
+
+        mol_lio2 = SecondQuantizedMolecule(LiO2, q=0, spin=1, basis="STO-6G", frozen_orbitals=None, uhf=True)
+
+        opt_dmet = {"molecule": mol_lio2,
+                    "fragment_atoms": [1, 1, 1],
+                    "fragment_solvers": "ccsd",
+                    "electron_localization": Localization.nao,
+                    "verbose": False
+                    }
+
+        dmet_solver = DMETProblemDecomposition(opt_dmet)
+        dmet_solver.build()
+        energy = dmet_solver.simulate()
+
+        self.assertAlmostEqual(energy, -156.6243118102, places=4)
 
 
 if __name__ == "__main__":

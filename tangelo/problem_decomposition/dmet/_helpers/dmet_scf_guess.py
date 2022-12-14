@@ -23,7 +23,7 @@ import numpy as np
 from functools import reduce
 
 
-def dmet_fragment_guess(t_list, bath_orb, chemical_potential, norb_high, number_active_electron, active_fock):
+def dmet_fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, number_active_electron, active_fock):
     """Construct the guess orbitals.
 
     Args:
@@ -57,7 +57,9 @@ def dmet_fragment_guess(t_list, bath_orb, chemical_potential, norb_high, number_
     return frag_guess
 
 
-def dmet_fragment_guess_rohf(t_list, bath_orb, chemical_potential, norb_high, number_active_electron, active_fock_alpha, active_fock_beta, nactive_alpha, nactive_beta):
+def dmet_fragment_guess_rohf(t_list, bath_orb, chemical_potential, norb_high,
+    number_active_electron, active_fock_alpha, active_fock_beta, nactive_alpha,
+     nactive_beta):
     """Construct the guess orbitals.
 
     Args:
@@ -80,28 +82,28 @@ def dmet_fragment_guess_rohf(t_list, bath_orb, chemical_potential, norb_high, nu
     norb = t_list[0]
 
     # Construct the fock matrix of the fragment (subtract the chemical potential for consistency)
-    fock_fragment = reduce(np.dot, (bath_orb[ : , : norb_high].T, active_fock_alpha, bath_orb[ : , : norb_high]))
+    fock_fragment = reduce(np.dot, (bath_orb[:, : norb_high].T, active_fock_alpha, bath_orb[:, : norb_high]))
     if(chemical_potential != 0):
         for i in range(norb):
             fock_fragment[i, i] -= chemical_potential
 
     # Diagonalize the fock matrix and get the eigenvectors
     eigenvalues, eigenvectors = scipy.linalg.eigh(fock_fragment)
-    eigenvectors = eigenvectors[ : , eigenvalues.argsort()]
+    eigenvectors = eigenvectors[:, eigenvalues.argsort()]
 
     # Extract the eigenvectors of the occupied orbitals as the guess orbitals
     # Introduce alpha- and beta-electrons
-    frag_guess_alpha = np.dot(eigenvectors[ :, : int(new_alpha)], eigenvectors[ :, : int(new_alpha)].T)
+    frag_guess_alpha = np.dot(eigenvectors[:, :int(new_alpha)], eigenvectors[:, :int(new_alpha)].T)
 
     # Construct the fock matrix of the fragment (subtract the chemical potential for consistency)
-    fock_fragment = reduce(np.dot, (bath_orb[ : , : norb_high].T, active_fock_beta, bath_orb[ : , : norb_high]))
+    fock_fragment = reduce(np.dot, (bath_orb[:, :norb_high].T, active_fock_beta, bath_orb[:, :norb_high]))
     if(chemical_potential != 0):
         for i in range(norb):
             fock_fragment[i, i] -= chemical_potential
 
     # Diagonalize the fock matrix and get the eigenvectors
     eigenvalues, eigenvectors = scipy.linalg.eigh(fock_fragment)
-    eigenvectors = eigenvectors[ : , eigenvalues.argsort()]
+    eigenvectors = eigenvectors[:, eigenvalues.argsort()]
 
     frag_guess_beta = np.dot(eigenvectors[ :, : int(new_beta)], eigenvectors[ :, : int(new_beta)].T)
 

@@ -96,6 +96,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
         if not self.molecule:
             raise ValueError(f"A SecondQuantizedMolecule object must be provided when instantiating DMETProblemDecomposition.")
 
+        self.uhf = self.molecule.uhf
+
         # Converting our interface to pyscf.mol.gto and pyscf.scf (used by this
         # code).
         self.mean_field = self.molecule.mean_field
@@ -132,7 +134,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Force recomputing the mean field if the atom ordering has been changed.
             warnings.warn("The mean field will be recomputed even if one has been provided by the user.", RuntimeWarning)
-            self.mean_field = scf.RHF(self.molecule)
+            self.mean_field = scf.UHF(self.molecule) if self.uhf else scf.RHF(self.molecule)
             self.mean_field.verbose = 0
             self.mean_field.scf()
 
@@ -180,6 +182,10 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # If save_results in _oneshot_loop is True, the dict is populated.
         self.solver_fragment_dict = dict()
 
+        # To keep track the number of iteration (was done with an energy list before).
+        # TODO: A decorator function to do the same thing?
+        self.n_iter = 0
+
     @property
     def quantum_fragments_data(self):
         """This aims to return a dictionary with all necessary components to
@@ -218,14 +224,19 @@ class DMETProblemDecomposition(ProblemDecomposition):
             raise TypeError(f"Invalid electron localization function. Expecting a function.")
 
         # Construct orbital object.
-        self.orbitals = helpers._orbitals(self.molecule, self.mean_field, range(self.molecule.nao_nr()), self.electron_localization)
+        self.orbitals = helpers._orbitals(self.molecule, self.mean_field, range(self.molecule.nao_nr()), self.electron_localization, self.uhf)
 
         # TODO: remove last argument, combining fragments not supported.
         self.orb_list, self.orb_list2, _ = helpers._fragment_constructor(self.molecule, self.fragment_atoms, 0)
 
         # Calculate the 1-RDM for the entire molecule.
-        if self.molecule.spin == 0:
-            self.onerdm_low = helpers._low_rdm(self.orbitals.active_fock, self.orbitals.number_active_electrons)
+        if self.uhf:
+            self.onerdm_low = helpers._low_rdm_uhf(self.orbitals.active_fock_alpha,
+                                                   self.orbitals.active_fock_beta,
+                                                   self.orbitals.number_active_electrons_alpha,
+                                                   self.orbitals.number_active_electrons_beta)
+        elif self.molecule.spin == 0:
+            self.onerdm_low = helpers._low_rdm_rhf(self.orbitals.active_fock, self.orbitals.number_active_electrons)
         else:
             self.onerdm_low = helpers._low_rdm_rohf(self.orbitals.active_fock_alpha,
                                                     self.orbitals.active_fock_beta,
@@ -240,10 +251,6 @@ class DMETProblemDecomposition(ProblemDecomposition):
         Returns:
             float: The DMET energy (dmet_energy).
         """
-
-        # To keep track the number of iteration (was done with an energy list before).
-        # TODO: A decorator function to do the same thing?
-        self.n_iter = 0
 
         # Initialize the energy list and SCF procedure employing newton-raphson algorithm.
         # TODO : find a better initial guess than 0.0 for chemical potential. DMET fails often currently.
@@ -339,16 +346,21 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Construct guess orbitals for fragment SCF calculations.
             # Carry out SCF calculation for a fragment.
-            if self.molecule.spin == 0:
-                guess_orbitals = helpers._fragment_guess(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
-                                                        self.orbitals.active_fock)
+            if self.uhf or self.molecule.spin != 0:
+                guess_orbitals, nelec_high_ab = helpers._fragment_guess_rohf(
+                    t_list, bath_orb, chemical_potential, norb_high, nelec_high,
+                    self.orbitals.active_fock_alpha, self.orbitals.active_fock_beta,
+                    self.orbitals.number_active_electrons_alpha,
+                    self.orbitals.number_active_electrons_beta)
+
+                mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf_rohf(
+                    nelec_high_ab, two_ele, fock, nelec_high, norb_high,
+                    guess_orbitals, chemical_potential, self.uhf)
+            else:
+                guess_orbitals = helpers._fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
+                                                             self.orbitals.active_fock)
                 mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf(t_list, two_ele, fock, nelec_high, norb_high,
                                                                             guess_orbitals, chemical_potential)
-            else:
-                guess_orbitals, nelec_high_ab = helpers._fragment_guess_rohf(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
-                    self.orbitals.active_fock_alpha, self.orbitals.active_fock_beta, self.orbitals.number_active_electrons_alpha, self.orbitals.number_active_electrons_beta)
-
-                mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf_rohf(nelec_high_ab, two_ele, fock, nelec_high, norb_high, guess_orbitals, chemical_potential)
 
             scf_fragments.append([mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock])
 
@@ -424,7 +436,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele)
+            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele, self.uhf)
 
             if self.verbose:
                 print("\t\tFragment Number : # ", i + 1)
@@ -462,28 +474,35 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     solver_fragment.build()
                     solver_fragment.simulate()
 
-                if purify and solver_fragment.molecule.n_active_electrons == 2:
+                if purify and solver_fragment.molecule.n_active_electrons == 2 and not self.uhf:
                     onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, resample=resample, sum_spin=False)
                     onerdm, twordm = mcweeny_purify_2rdm(twordm)
+                elif self.uhf:
+                    onerdm, twordm = solver_fragment.get_rdm_uhf(solver_fragment.optimal_var_params, resample=resample)
                 else:
                     onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, resample=resample)
                 if save_results:
                     self.solver_fragment_dict[i] = solver_fragment
                     self.rdm_measurements[i] = self.solver_fragment_dict[i].rdm_freq_dict
 
-            fragment_energy, _, one_rdm = self._compute_energy(mf_fragment, onerdm, twordm,
-                                                               fock_frag_copy, t_list, one_ele,
-                                                               two_ele, fock)
+            # Compute the fragment energy and sum up the number of electrons
+            if self.uhf:
+                fragment_energy, _, one_rdm_alpha, one_rdm_beta = self._compute_energy_unrestricted(
+                    mf_fragment, onerdm, twordm, fock_frag_copy, t_list, one_ele, two_ele, fock)
+                number_of_electron_frag = np.trace(one_rdm_alpha[ : t_list[0], : t_list[0]]) + np.trace(one_rdm_beta[ : t_list[0], : t_list[0]])
+            else:
+                fragment_energy, _, one_rdm = self._compute_energy_restricted(mf_fragment, onerdm, twordm,
+                    fock_frag_copy, t_list, one_ele, two_ele, fock)
+                number_of_electron_frag = np.trace(one_rdm[: t_list[0], : t_list[0]])
+
+            number_of_electron += number_of_electron_frag
 
             # Sum up the energy.
             energy_temp += fragment_energy
 
-            # Sum up the number of electrons.
-            number_of_electron += np.trace(one_rdm[: t_list[0], : t_list[0]])
-
             if self.verbose:
                 print("\t\tFragment Energy                 = " + "{:17.10f}".format(fragment_energy))
-                print("\t\tNumber of Electrons in Fragment = " + "{:17.10f}".format(np.trace(one_rdm)))
+                print("\t\tNumber of Electrons in Fragment = " + "{:17.10f}".format(number_of_electron_frag))
                 print("")
 
         energy_temp += self.orbitals.core_constant_energy
@@ -513,7 +532,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele)
+            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele, self.uhf)
 
             # Buiding SCF fragments and quantum circuit. Resources are then
             # estimated. For classical sovlers, this functionality is not
@@ -534,7 +553,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         return resources_fragments
 
-    def _compute_energy(self, mf_frag, onerdm, twordm, fock_frag_copy, t_list, oneint, twoint, fock):
+    def _compute_energy_restricted(self, mf_frag, onerdm, twordm, fock_frag_copy, t_list, oneint, twoint, fock):
         """Calculate the fragment energy.
 
         Args:
@@ -581,6 +600,86 @@ class DMETProblemDecomposition(ProblemDecomposition):
         fragment_energy = fragment_energy_one_rdm + fragment_energy_twordm
 
         return fragment_energy, total_energy_rdm, one_rdm
+
+    def _compute_energy_unrestricted(self, mf_frag, onerdm, twordm, fock_frag_copy, t_list, oneint, twoint, fock):
+        """Calculate the fragment energy.
+
+        Args:
+            mean_field (pyscf.scf.RHF): The mean field of the fragment.
+            cc_onerdm (numpy.array): one-particle reduced density matrix (float64).
+            cc_twordm (numpy.array): two-particle reduced density matrix (float64).
+            fock_frag_copy (numpy.array): Fock matrix with the chemical potential subtracted (float64).
+            t_list (list): List of number of fragment and bath orbitals (int).
+            oneint (numpy.array): One-electron integrals of fragment (float64).
+            twoint (numpy.array): Two-electron integrals of fragment (float64).
+            fock (numpy.array): Fock matrix of fragment (float64).
+
+        Returns:
+            float64: Fragment energy (fragment_energy).
+            float64: Total energy for fragment using RDMs (total_energy_rdm).
+            numpy.array: One-particle RDM for a fragment (one_rdm, float64).
+        """
+
+        # Execute CCSD calculation
+        norb = t_list[0]
+
+        # Calculate the one- and two- RDM for DMET energy calculation (Transform to AO basis)
+        one_rdm_a, one_rdm_b = onerdm
+
+        onerdm_a = reduce(np.dot, (mf_frag.mo_coeff[0], one_rdm_a, mf_frag.mo_coeff[0].T))
+        onerdm_b = reduce(np.dot, (mf_frag.mo_coeff[1], one_rdm_b, mf_frag.mo_coeff[1].T))
+
+        two_rdm_aa, two_rdm_ab, two_rdm_bb = twordm
+
+        twordm_aa = np.einsum("pi,ijkl->pjkl", mf_frag.mo_coeff[0], two_rdm_aa)
+        twordm_aa = np.einsum("qj,pjkl->pqkl", mf_frag.mo_coeff[0], twordm_aa)
+        twordm_aa = np.einsum("rk,pqkl->pqrl", mf_frag.mo_coeff[0], twordm_aa)
+        twordm_aa = np.einsum("sl,pqrl->pqrs", mf_frag.mo_coeff[0], twordm_aa)
+
+        twordm_ab = np.einsum("pi,ijkl->pjkl", mf_frag.mo_coeff[0], two_rdm_ab)
+        twordm_ab = np.einsum("qj,pjkl->pqkl", mf_frag.mo_coeff[0], twordm_ab)
+        twordm_ab = np.einsum("rk,pqkl->pqrl", mf_frag.mo_coeff[1], twordm_ab)
+        twordm_ab = np.einsum("sl,pqrl->pqrs", mf_frag.mo_coeff[1], twordm_ab)
+
+        twordm_bb = np.einsum("pi,ijkl->pjkl", mf_frag.mo_coeff[1], two_rdm_bb)
+        twordm_bb = np.einsum("qj,pjkl->pqkl", mf_frag.mo_coeff[1], twordm_bb)
+        twordm_bb = np.einsum("rk,pqkl->pqrl", mf_frag.mo_coeff[1], twordm_bb)
+        twordm_bb = np.einsum("sl,pqrl->pqrs", mf_frag.mo_coeff[1], twordm_bb)
+
+        # Calculate the total energy based on RDMs
+        total_energy_rdm = np.einsum("ij,ij->", fock_frag_copy, onerdm_a ) \
+                         + np.einsum("ij,ij->", fock_frag_copy, onerdm_b ) \
+                         + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_aa ) \
+                         + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_ab ) \
+                         + 0.5 * np.einsum("ijkl,klij->", twoint, twordm_ab ) \
+                         + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_bb )
+
+        # Calculate fragment expectation value
+        fragment_energy_one_rdm = 0.25 * np.einsum("ij,ij->", onerdm_a[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
+                               + 0.25 * np.einsum("ij,ij->", onerdm_a[:, : norb ], fock[:, : norb] + oneint[:, : norb]) \
+                               + 0.25 * np.einsum("ij,ij->", onerdm_b[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
+                               + 0.25 * np.einsum("ij,ij->", onerdm_b[:, : norb ], fock[:, : norb] + oneint[:, : norb])
+
+        fragment_energy_twordm = 0.125 * np.einsum("ijkl,ijkl->", twordm_aa[: norb, :, :, :], twoint[: norb, :, :, :]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_aa[:, : norb, :, :], twoint[:, : norb, :, :]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_aa[:, :, : norb, :], twoint[:, :, : norb, :]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_aa[:, :, :, : norb], twoint[:, :, :, : norb]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_ab[: norb, :, :, :], twoint[: norb, :, :, :]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_ab[:, : norb, :, :], twoint[:, : norb, :, :]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_ab[:, :, : norb, :], twoint[:, :, : norb, :]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_ab[:, :, :, : norb], twoint[:, :, :, : norb]) \
+                               + 0.125 * np.einsum("klij,ijkl->", twordm_ab[:, :, : norb, :], twoint[: norb, :, :, :]) \
+                               + 0.125 * np.einsum("klij,ijkl->", twordm_ab[:, :, :, : norb], twoint[:, : norb, :, :]) \
+                               + 0.125 * np.einsum("klij,ijkl->", twordm_ab[: norb, :, :, :], twoint[:, :, : norb, :]) \
+                               + 0.125 * np.einsum("klij,ijkl->", twordm_ab[:, : norb, :, :], twoint[:, :, :, : norb]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_bb[: norb, :, :, :], twoint[: norb, :, :, :]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_bb[:, : norb, :, :], twoint[:, : norb, :, :]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_bb[:, :, : norb, :], twoint[:, :, : norb, :]) \
+                               + 0.125 * np.einsum("ijkl,ijkl->", twordm_bb[:, :, :, : norb], twoint[:, :, :, : norb])
+
+        fragment_energy = fragment_energy_one_rdm + fragment_energy_twordm
+
+        return fragment_energy, total_energy_rdm, onerdm_a, onerdm_b
 
     def _default_optimizer(self, func, var_params):
         """Function used as a default optimizer for DMET when user does not

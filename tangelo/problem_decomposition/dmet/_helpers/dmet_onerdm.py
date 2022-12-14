@@ -21,7 +21,7 @@ import numpy as np
 from functools import reduce
 
 
-def dmet_low_rdm(active_fock, number_active_electrons):
+def dmet_low_rdm_rhf(active_fock, number_active_electrons):
     """Construct the one-particle RDM from low-level calculation.
 
     Args:
@@ -60,17 +60,38 @@ def dmet_low_rdm_rohf(active_fock_alpha, active_fock_beta, nactive_alpha, nactiv
     e, c = np.linalg.eigh(active_fock_alpha)
     new_index = e.argsort()
     e = e[new_index]
-    c = c[ : , new_index]
+    c = c[:, new_index]
 
-    onerdm_alpha = np.dot(c[ : , : int(nactive_alpha)], c[ : , : int(nactive_alpha)].T)
+    onerdm_alpha = np.dot(c[:, :int(nactive_alpha)], c[:, :int(nactive_alpha)].T)
 
     e, c = np.linalg.eigh(active_fock_beta)
     new_index = e.argsort()
     e = e[new_index]
-    c = c[ : , new_index]
-    onerdm_beta = np.dot(c[ : , : int(nactive_beta)], c[ : , : int(nactive_beta)].T)
+    c = c[:, new_index]
+    onerdm_beta = np.dot(c[:, :int(nactive_beta)], c[:, :int(nactive_beta)].T)
 
     onerdm = onerdm_alpha + onerdm_beta
+
+    return onerdm
+
+
+def dmet_low_rdm_uhf(active_fock_alpha, active_fock_beta, nactive_alpha, nactive_beta):
+    """Construct the one-particle RDM from low-level calculation.
+
+    Args:
+        active_fock (numpy.array): Fock matrix from low-level calculation (float64).
+        number_active_electrons (int): Number of electrons in the entire system.
+
+    Returns:
+        onerdm (numpy.array): One-particle RDM of the low-level calculation (float64).
+    """
+
+    # Extract the occupied part of the one-particle RDM.
+    _, c = np.linalg.eigh(active_fock_alpha)
+    onerdm = np.dot(c[:, int(nactive_alpha)], c[:, :int(nactive_alpha)].T)
+
+    _, c2 = np.linalg.eigh(active_fock_beta)
+    onerdm += np.dot(c2[:, :int(nactive_beta)], c2[:, :int(nactive_beta)].T)
 
     return onerdm
 
