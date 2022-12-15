@@ -565,7 +565,7 @@ class VQESolver:
                 tup1 = key[1]
                 pele = int(tup0[0])
                 qele = int(tup1[0])
-                iele = pele / /2
+                iele = pele // 2
                 jele = qele // 2
                 iele_r = pele % 2
                 jele_r = qele % 2
