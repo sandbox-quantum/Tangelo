@@ -483,7 +483,7 @@ class TranslateCircuitTest(unittest.TestCase):
 
     @unittest.skipIf("pennylane" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_pennylane(self):
-        """ Compares state vector of native ProjectQ circuit against translated one """
+        """ Compares state vector of translated pennylane circuit against the expected one."""
         import pennylane as qml
 
         translated_circuit = translate_c(big_circuit, "pennylane")
