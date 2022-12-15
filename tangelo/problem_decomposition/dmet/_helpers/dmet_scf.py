@@ -22,7 +22,7 @@ from functools import reduce
 import numpy as np
 
 
-def dmet_fragment_scf(t_list, two_ele, fock, number_electrons, number_orbitals, guess_orbitals, chemical_potential):
+def dmet_fragment_scf_rhf(t_list, two_ele, fock, number_electrons, number_orbitals, guess_orbitals, chemical_potential):
     """Perform SCF calculation.
 
     Args:
@@ -75,7 +75,8 @@ def dmet_fragment_scf(t_list, two_ele, fock, number_electrons, number_orbitals, 
     return mf_frag, fock_frag_copy, mol_frag
 
 
-def dmet_fragment_scf_rohf(nele_ab, two_ele, fock, number_electrons, number_orbitals, guess_orbitals, chemical_potential, uhf):
+def dmet_fragment_scf_rohf_uhf(nele_ab, two_ele, fock, number_electrons,
+    number_orbitals, guess_orbitals, chemical_potential, uhf):
     """Perform SCF calculation.
 
     Args:
