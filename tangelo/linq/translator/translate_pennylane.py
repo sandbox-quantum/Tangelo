@@ -59,7 +59,7 @@ def get_pennylane_gates():
 
 
 def translate_c_to_pennylane(source_circuit):
-    """Take in an tangelo Circuit, return an equivalent pennylane List[Type[pennylane.operation.Operation]].
+    """Take in an tangelo Circuit, return an equivalent pennylane List[subclass of pennylane.operator.Operation].
 
     Args:
         source_circuit (Circuit): quantum circuit in the abstract format.

@@ -24,7 +24,7 @@ from .translate_projectq import translate_projectq, _translate_projectq2abs, get
 from .translate_openqasm import translate_openqasm, _translate_openqasm2abs, get_openqasm_gates
 from .translate_qubitop import translate_operator
 from .translate_circuit import translate_circuit
-from .translate_pennylane import translate_c_to_pennylane, get_pennylane_gates
+from .translate_pennylane import get_pennylane_gates
 
 
 def get_supported_gates():
