@@ -30,7 +30,7 @@ def nao_localization(mol, mf):
 
     Args:
         mol (pyscf.gto.Mole): The molecule to simulate.
-        mf (pyscf.scf.RHF): The mean field of the molecule.
+        mf (pyscf.scf): The mean field of the molecule.
 
     Returns:
         numpy.array: The localized orbitals (float64).
