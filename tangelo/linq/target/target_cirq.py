@@ -66,7 +66,7 @@ class CirqSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+        n_meas = source_circuit.counts.get("MEASURE", 0)
         # Only DensityMatrixSimulator handles noise well, can use Simulator, but it is slower
         if self._noise_model or (source_circuit.is_mixed_state and not save_mid_circuit_meas):
             cirq_simulator = self.cirq.DensityMatrixSimulator(dtype=np.complex128)
@@ -77,7 +77,6 @@ class CirqSimulator(Backend):
         cirq_initial_statevector = initial_statevector if initial_statevector is not None else 0
 
         # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
-        # Calculate final density matrix and sample from that for noisy simulation or simulating non-saved mixed states
         if (self._noise_model or source_circuit.is_mixed_state) and not save_mid_circuit_meas:
             translated_circuit = translate_c(source_circuit, "cirq",
                     output_options={"noise_model": self._noise_model, "save_measurements": save_mid_circuit_meas})
@@ -89,8 +88,8 @@ class CirqSimulator(Backend):
             indices = list(range(source_circuit.width))
             isamples = self.cirq.sample_density_matrix(sim.final_density_matrix, indices, repetitions=self.n_shots)
             samples = [''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots)]
-
             frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
+
         # Noiseless simulation using the statevector simulator otherwise
         # Run all shots at once and post-process to return measured frequencies on qubits only
         elif save_mid_circuit_meas and not return_statevector:
@@ -106,6 +105,7 @@ class CirqSimulator(Backend):
                 samples[bitstr] = samples.get(bitstr, 0) + 1
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
             frequencies = self.all_frequencies
+
         # Run shot by shot and keep track of desired_meas_result only (generally slower)
         elif save_mid_circuit_meas and return_statevector:
             translated_circuit = translate_c(source_circuit, "cirq",
@@ -124,6 +124,7 @@ class CirqSimulator(Backend):
                 samples[bitstr] = samples.get(bitstr, 0) + 1
             self.all_frequencies = {k: v / self.n_shots for k, v in sample.items()}
             frequencies = self.all_frequencies
+
         else:
             translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model})
             job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)

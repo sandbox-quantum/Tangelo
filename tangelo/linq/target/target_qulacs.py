@@ -73,6 +73,7 @@ class QulacsSimulator(Backend):
         if initial_statevector is not None:
             state.load(initial_statevector)
 
+        # If you don't want to save the mid-circuit measurements for a mixed state
         if (source_circuit.is_mixed_state or self._noise_model) and not save_mid_circuit_meas:
             samples = dict()
             for _ in range(self.n_shots):
@@ -83,8 +84,10 @@ class QulacsSimulator(Backend):
                     state.load(initial_statevector)
                 else:
                     state.set_zero_state()
+
+        # To save mid-circuit measurement results
         elif save_mid_circuit_meas:
-            n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+            n_meas = source_circuit.counts.get("MEASURE", 0)
             samples = dict()
             for _ in range(self.n_shots):
                 translated_circuit.update_quantum_state(state)
@@ -98,11 +101,15 @@ class QulacsSimulator(Backend):
                     state.set_zero_state()
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
             return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)
+
+        # All other cases for shot-based simulation
         elif self.n_shots is not None:
             translated_circuit.update_quantum_state(state)
             self._current_state = state
             python_statevector = np.array(state.get_vector()) if return_statevector else None
             samples = Counter(state.sampling(self.n_shots))  # this sampling still returns a list
+
+        # Statevector simulation
         else:
             translated_circuit.update_quantum_state(state)
             self._current_state = state

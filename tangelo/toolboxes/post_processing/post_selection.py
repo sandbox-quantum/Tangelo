@@ -107,7 +107,7 @@ def split_frequency_dict(frequencies, indices):
     and aggregates the corresponding frequencies.
 
     Args:
-        frequencies (dict): The frequency dictionary to perform the marginal computation
+        frequencies (dict): The input frequency dictionary
         indices (list): The list of indices in the frequency dictionary to marginalize over
 
     Returns:

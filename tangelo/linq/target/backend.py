@@ -205,7 +205,6 @@ class Backend(abc.ABC):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-
         if source_circuit.is_mixed_state and not self.n_shots:
             raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state."
                              "Please set the n_shots attribute to an appropriate value.")
@@ -228,15 +227,18 @@ class Backend(abc.ABC):
         if save_mid_circuit_meas:
             from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
 
-            (all_frequencies, statevector) = self.simulate_circuit(source_circuit, return_statevector=return_statevector,
-                                  initial_statevector=initial_statevector, save_mid_circuit_meas=save_mid_circuit_meas)
-            n_meas = source_circuit._gate_counts.get("MEASURE", 0)
-            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(all_frequencies,
-                                                                            list(range(n_meas)))
+            (all_frequencies, statevector) = self.simulate_circuit(source_circuit,
+                                                                   return_statevector=return_statevector,
+                                                                   initial_statevector=initial_statevector,
+                                                                   save_mid_circuit_meas=save_mid_circuit_meas)
+            n_meas = source_circuit.counts.get("MEASURE", 0)
+            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(all_frequencies, list(range(n_meas)))
             return (frequencies, statevector)
 
-        return self.simulate_circuit(source_circuit, return_statevector=return_statevector,
-                            initial_statevector=initial_statevector, save_mid_circuit_meas=save_mid_circuit_meas)
+        return self.simulate_circuit(source_circuit,
+                                     return_statevector=return_statevector,
+                                     initial_statevector=initial_statevector,
+                                     save_mid_circuit_meas=save_mid_circuit_meas)
 
     def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None):
         r"""Take as input a qubit operator H and a quantum circuit preparing a

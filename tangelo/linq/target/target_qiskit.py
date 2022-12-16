@@ -69,7 +69,7 @@ class QiskitSimulator(Backend):
                 raise ValueError("Cannot load an initial state if using a noise model, with Qiskit")
             else:
                 n_qubits = int(math.log2(len(initial_statevector)))
-                n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+                n_meas = source_circuit.counts.get("MEASURE", 0)
                 n_registers = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
                 initial_state_circuit = self.qiskit.QuantumCircuit(n_qubits, n_registers)
                 initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
@@ -79,7 +79,7 @@ class QiskitSimulator(Backend):
         if self._noise_model or source_circuit.is_mixed_state and not return_statevector:
             from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
 
-            n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+            n_meas = source_circuit.counts.get("MEASURE", 0)
             meas_start = n_meas if save_mid_circuit_meas else 0
             meas_range = range(meas_start, meas_start + source_circuit.width)
             translated_circuit.measure(range(source_circuit.width), meas_range)
