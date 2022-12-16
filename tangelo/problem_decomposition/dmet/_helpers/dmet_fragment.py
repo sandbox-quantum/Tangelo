@@ -43,7 +43,7 @@ def dmet_fragment_constructor(mol, atom_list, number_fragment):
         atom_list2 = atom_list
     else:
         # Calculate the number of DMET calculations
-        number_new_fragment = int(len(atom_list)/(number_fragment+1))  # number of DMET calulation per loop
+        number_new_fragment = int(len(atom_list)/(number_fragment+1))
         atom_list2 = []
 
         # Define the number of atoms per DMET calculation

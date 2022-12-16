@@ -80,17 +80,22 @@ def dmet_fragment_scf_rohf_uhf(nele_ab, two_ele, fock, number_electrons, number_
 
     Args:
         t_list (list): Number of [0] fragment & [1] bath orbitals (int).
-        two_ele (numpy.array): Two-electron integrals for fragment calculation (float64).
+        two_ele (numpy.array): Two-electron integrals for fragment calculation
+            (float64).
         fock (numpy.array): The fock matrix for fragment calculation (float64).
         number_electrons (int): Number of electrons for fragment calculation.
         number_orbitals (int): Number of orbitals for fragment calculation.
-        guess_orbitals (numpy.array): Guess orbitals for SCF calculation (float64).
+        guess_orbitals (numpy.array): Guess orbitals for SCF calculation
+            (float64).
         chemical_potential (float64): The chemical potential.
 
     Returns:
-        mf_frag (pyscf.scf.RHF): The mean field of the molecule (Fragment calculation).
-        fock_frag_copy (numpy.array): The fock matrix with chemical potential subtracted (float64).
-        mol_frag (pyscf.gto.Mole): The molecule to simulate (Fragment calculation).
+        mf_frag (pyscf.scf.RHF): The mean field of the molecule (Fragment
+            calculation).
+        fock_frag_copy (numpy.array): The fock matrix with chemical potential
+            subtracted (float64).
+        mol_frag (pyscf.gto.Mole): The molecule to simulate (Fragment
+            calculation).
     """
 
     # Deep copy the fock matrix

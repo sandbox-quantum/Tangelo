@@ -48,13 +48,16 @@ def dmet_low_rdm_rohf_uhf(active_fock_alpha, active_fock_beta, nactive_alpha, na
     """Construct the one-particle RDM from low-level calculation.
 
     Args:
-        active_fock_alpha (numpy.array): Fock matrix from low-level calculation (float64).
-        active_fock_beta (numpy.array): Fock matrix from low-level calculation (float64).
+        active_fock_alpha (numpy.array): Fock matrix from low-level calculation
+            (float64).
+        active_fock_beta (numpy.array): Fock matrix from low-level calculation
+            (float64).
         nactive_alpha (int): Number of alpha electrons.
         nactive_beta (int): Number of beta electrons.
 
     Returns:
-        onerdm (numpy.array): One-particle RDM of the low-level calculation (float64).
+        onerdm (numpy.array): One-particle RDM of the low-level calculation
+            (float64).
     """
 
     e, c = np.linalg.eigh(active_fock_alpha)

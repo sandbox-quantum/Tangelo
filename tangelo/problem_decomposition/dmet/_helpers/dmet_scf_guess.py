@@ -67,8 +67,10 @@ def dmet_fragment_guess_rohf_uhf(t_list, bath_orb, chemical_potential, norb_high
         bath_orb (numpy.array): The bath orbitals (float64).
         chemical_potential (float64): The chemical potential.
         norb_high (int): The number of orbitals in the fragment calculation.
-        number_active_electron (int): The number of electrons in the fragment calculation.
-        active_fock (numpy.array): The fock matrix from the low-level calculation (float64).
+        number_active_electron (int): The number of electrons in the fragment
+            calculation.
+        active_fock (numpy.array): The fock matrix from the low-level
+            calculation (float64).
 
     Returns:
         frag_guess (numpy.array): The guess orbitals (float64).

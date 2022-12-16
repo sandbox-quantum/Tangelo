@@ -44,6 +44,10 @@ class DMETProblemDecomposition(ProblemDecomposition):
     used instead of the Meta-Lowdin localization scheme, but it cannot be used
     for minimal basis set.
 
+    The underlying mean-field for the computation is automatically detected
+    from the SecondQuantizedMolecule. RHF, ROHF and UHF mean-field are
+    compatible.
+
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
         electron_localization (Localization): A type of localization scheme.

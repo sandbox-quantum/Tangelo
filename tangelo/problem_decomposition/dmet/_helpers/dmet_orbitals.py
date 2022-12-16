@@ -51,6 +51,7 @@ class dmet_orbitals:
         active_oneint (numpy.array): One-electron integral in localized MO basis
             (float64).
         active_fock (numpy.array): Fock matrix in localized MO basis (float64).
+        uhf (bool): Flag for an unrestricted mean-field.
     """
 
     def __init__(self, mol, mf, active_space, localization_function, uhf):
@@ -88,8 +89,11 @@ class dmet_orbitals:
             self._restricted_init()
 
     def _restricted_init(self):
+        """Initialize the attributes for a restricted mean-field."""
+
         self.number_active_electrons = int(np.rint(self.mf_full.mol.nelectron - np.sum(self.mf_full.mo_occ[self.dmet_active_orbitals == 0])))
 
+        # RHF
         if self.mol_full.spin == 0:
             # Obtain the elements from the low-level SCF calculations.
             low_scf_dm = reduce(np.dot, (self.mf_full.mo_coeff, np.diag(self.mf_full.mo_occ), self.mf_full.mo_coeff.T))
@@ -107,6 +111,7 @@ class dmet_orbitals:
             self.core_constant_energy = self.mf_full.mol.energy_nuc() + np.einsum("ij,ij->", core_oneint - 0.5*core_twoint, core_ao_dm)
             self.active_oneint = reduce(np.dot, (self.localized_mo.T, core_oneint, self.localized_mo))
             self.active_fock = reduce(np.dot, (self.localized_mo.T, self.low_scf_fock, self.localized_mo))
+        # ROHF
         else:
             # Obtain the elements from the low-level SCF calculations.
             low_scf_rdm = self.mf_full.make_rdm1()
@@ -140,6 +145,8 @@ class dmet_orbitals:
             self.active_fock = scf.rohf.get_roothaan_fock(fock_total, rdm_total, overlap)
 
     def _unrestricted_init(self):
+        """Initialize the attributes for an unrestricted mean-field."""
+
         low_scf_fock_total = self.mf_full.get_fock()
         core_oneint = self.mf_full.get_hcore()
         low_scf_fock_alpha = low_scf_fock_total[0]
