@@ -65,7 +65,7 @@ def translate_c_to_pennylane(source_circuit):
         source_circuit (Circuit): quantum circuit in the abstract format.
 
     Returns:
-        List[Type[pennylane.operator.Operation]]: a corresponding List of child classes of pennylane.operation.Operation.
+        List[Type[pennylane.operator.Operation]]: corresponding list of objects from child classes of pennylane.operator.Operation.
     """
 
     GATE_PENNYLANE = get_pennylane_gates()
