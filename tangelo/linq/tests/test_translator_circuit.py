@@ -481,6 +481,26 @@ class TranslateCircuitTest(unittest.TestCase):
         circ = Circuit([Gate("Potato", 0)])
         self.assertRaises(ValueError, translate_c, circ, "qiskit")
 
+    @unittest.skipIf("pennylane" not in installed_backends, "Test Skipped: Backend not available \n")
+    def test_pennylane(self):
+        """ Compares state vector of translated pennylane circuit against the expected one."""
+        import pennylane as qml
+
+        translated_circuit = translate_c(big_circuit, "pennylane")
+
+        dev = qml.device('default.qubit', wires=list(range(big_circuit.width)))
+
+        @qml.qnode(dev)
+        def circuit(ops):
+            for op in ops:
+                qml.apply(op)
+            return qml.state()
+
+        v1 = circuit(translated_circuit)
+
+        # Compare statevectors
+        np.testing.assert_array_almost_equal(v1, reference_big_lsq, decimal=6)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -39,4 +39,4 @@ RUN pip3 install tangelo-gc
 
 # OPTIONAL: common dependencies (quantum circuit simulator and quantum cloud services)
 # ====================================================================================
- RUN pip3 install cirq amazon-braket-sdk qiskit qulacs projectq
+ RUN pip3 install cirq amazon-braket-sdk qiskit qulacs projectq pennylane
