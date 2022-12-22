@@ -501,7 +501,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             if self.verbose:
                 print("\t\tFragment Energy                 = " + "{:17.10f}".format(fragment_energy))
-                print("\t\tNumber of Electrons in Fragment = " + "{:17.10f}".format(number_of_electron_frag))
+                print("\t\tNumber of Electrons in Fragment = " + "{:17.10f}".format(n_electron_frag))
                 print("")
 
         energy_temp += self.orbitals.core_constant_energy
