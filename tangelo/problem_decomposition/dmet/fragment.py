@@ -76,44 +76,9 @@ class SecondQuantizedDMETFragment:
             return self._fermionic_hamiltonian_unrestricted()
         return self._fermionic_hamiltonian_restricted()
 
-    @property
-    def fermionic_hamiltonian_old(self):
-        """This method returns the fermionic hamiltonian. It written to take
-        into account calls for this function is without argument, and attributes
-        are parsed into it.
-
-        Returns:
-            FermionOperator: Self-explanatory.
-        """
-
-        dummy_of_molecule = openfermion.MolecularData([["C", (0., 0., 0.)]], "sto-3g", self.spin+1, self.q)
-
-        # Overwrting nuclear repulsion term.
-        dummy_of_molecule.nuclear_repulsion = self.mean_field.mol.energy_nuc()
-
-        canonical_orbitals = self.mean_field.mo_coeff
-        h_core = self.mean_field.get_hcore()
-        n_orbitals = len(self.mean_field.mo_energy)
-
-        # Overwriting 1-electron integrals.
-        dummy_of_molecule._one_body_integrals = canonical_orbitals.T @ h_core @ canonical_orbitals
-
-        twoint = self.mean_field._eri
-        eri = ao2mo.restore(8, twoint, n_orbitals)
-        eri = ao2mo.incore.full(eri, canonical_orbitals)
-        eri = ao2mo.restore(1, eri, n_orbitals)
-
-        # Overwriting 2-electrons integrals.
-        dummy_of_molecule._two_body_integrals = np.asarray(eri.transpose(0, 2, 3, 1), order="C")
-
-        fragment_hamiltonian = dummy_of_molecule.get_molecular_hamiltonian()
-
-        return get_fermion_operator(fragment_hamiltonian)
-
     def _fermionic_hamiltonian_restricted(self):
-        """This method returns the fermionic hamiltonian. It written to take
-        into account calls for this function is without argument, and attributes
-        are parsed into it.
+        """Computes the restricted Fermionic Hamiltonian, using the fragment
+        attributes.
 
         Returns:
             FermionOperator: Self-explanatory.
@@ -138,46 +103,40 @@ class SecondQuantizedDMETFragment:
         two_electron_integrals = two_electron_integrals.transpose(0, 2, 3, 1)
 
         one_body_coefficients, two_body_coefficients = spinorb_from_spatial(one_electron_integrals, two_electron_integrals)
-        fragment_hamiltonian = reps.InteractionOperator(core_constant, one_body_coefficients, 1 / 2 * two_body_coefficients)
+        fragment_hamiltonian = reps.InteractionOperator(core_constant, one_body_coefficients, 0.5 * two_body_coefficients)
 
         return get_fermion_operator(fragment_hamiltonian)
 
     def _fermionic_hamiltonian_unrestricted(self):
-        """This method returns the fermionic hamiltonian. It written to take
-        into account calls for this function is without argument, and attributes
-        are parsed into it.
+        """Computes the unrestricted Fermionic Hamiltonian, using the fragment
+        attributes.
 
         Returns:
             FermionOperator: Self-explanatory.
         """
         mo_coeff = self.mean_field.mo_coeff
 
-        # ------------------------------------------------------------------------------------------------------------------------------------------
-        # molecular orbitals
-        nmo = mo_coeff[0].shape[1]
-        # atomic orbitals
-        nao = mo_coeff[0].shape[0]
+        # Molecular and atomic orbitals
+        nao, nmo = mo_coeff[0].shape
 
-        # step 2 : obtain Hcore Hamiltonian in atomic orbitals basis
+        # Obtain Hcore Hamiltonian in atomic orbitals basis
         hcore = self.mean_field.get_hcore()
 
-        # step 3 : obatin two-electron integral in atomic basis
+        # Obtain two-electron integral in atomic basis
         eri = ao2mo.restore(8, self.mean_field._eri, nao)
 
-        # step 4 : create the placeholder for the matrices
-        # one-electron matrix (alpha, beta)
+        # Create the placeholder for the matrices  one-electron matrix (alpha,
+        # beta)
         hpq = []
 
-        # step 5 : do the mo transformation
-        # step the mo coeff alpha and beta
-        mo_a = mo_coeff[0]
-        mo_b = mo_coeff[1]
+        # Do the MO transformation step the mo coeff alpha and beta
+        mo_a, mo_b = mo_coeff
 
-        # mo transform the hcore
+        # MO transform the hcore
         hpq.append(mo_a.T.dot(hcore).dot(mo_a))
         hpq.append(mo_b.T.dot(hcore).dot(mo_b))
 
-        # mo transform the two-electron integrals
+        # MO transform the two-electron integrals
         eri_a = ao2mo.incore.full(eri, mo_a)
         eri_b = ao2mo.incore.full(eri, mo_b)
         eri_ba = ao2mo.incore.general(eri, (mo_a, mo_a, mo_b, mo_b), compact=False)
@@ -187,7 +146,7 @@ class SecondQuantizedDMETFragment:
         eri_b = ao2mo.restore(1, eri_b, nmo)
         eri_ba = eri_ba.reshape(nmo, nmo, nmo, nmo)
 
-        # # convert this into the order OpenFemion like to receive
+        # Convert this into the order OpenFemion like to receive
         two_body_integrals_a = np.asarray(eri_a.transpose(0, 2, 3, 1), order='C')
         two_body_integrals_b = np.asarray(eri_b.transpose(0, 2, 3, 1), order='C')
         two_body_integrals_ab = np.asarray(eri_ba.transpose(0, 2, 3, 1), order='C')
@@ -202,20 +161,15 @@ class SecondQuantizedDMETFragment:
         n_orb_a = one_body_integrals[0].shape[0]
         n_orb_b = one_body_integrals[1].shape[0]
 
-        # TODO: Implement more compact ordering. May be possible by defining own up_index and down_index functions
-        # Instead of
-        # n_qubits = n_orb_a + n_orb_b
-        # We use
         n_qubits = 2*max(n_orb_a, n_orb_b)
 
         # Initialize Hamiltonian coefficients.
-        one_body_coefficients = np.zeros((n_qubits, n_qubits))
-        two_body_coefficients = np.zeros((n_qubits, n_qubits, n_qubits, n_qubits))
+        one_body_coefficients = np.zeros((n_qubits,) * 2)
+        two_body_coefficients = np.zeros((n_qubits,) * 4)
 
         # aa
         for p, q in product(range(n_orb_a), repeat=2):
-            pi = up_index(p)
-            qi = up_index(q)
+            pi, qi = up_index(p), up_index(q)
             # Populate 1-body coefficients. Require p and q have same spin.
             one_body_coefficients[pi, qi] = one_body_integrals[0][p, q]
             for r, s in product(range(n_orb_a), repeat=2):
@@ -223,8 +177,7 @@ class SecondQuantizedDMETFragment:
 
         # bb
         for p, q in product(range(n_orb_b), repeat=2):
-            pi = down_index(p)
-            qi = down_index(q)
+            pi, qi = down_index(p), down_index(q)
             # Populate 1-body coefficients. Require p and q have same spin.
             one_body_coefficients[pi, qi] = one_body_integrals[1][p, q]
             for r, s in product(range(n_orb_b), repeat=2):

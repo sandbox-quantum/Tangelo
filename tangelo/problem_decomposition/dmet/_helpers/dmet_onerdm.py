@@ -21,7 +21,7 @@ import numpy as np
 from functools import reduce
 
 
-def dmet_low_rdm_rhf(active_fock, number_active_electrons):
+def dmet_low_rdm_rhf(active_fock, n_active_electrons):
     """Construct the one-particle RDM from low-level calculation.
 
     Args:
@@ -34,17 +34,16 @@ def dmet_low_rdm_rhf(active_fock, number_active_electrons):
     """
 
     # Extract the occupied part of the one-particle RDM
-    num_occ = number_active_electrons / 2
+    num_occ = n_active_electrons / 2
     e, c = np.linalg.eigh(active_fock)
     new_index = e.argsort()
-    e = e[new_index]
     c = c[:, new_index]
     onerdm = np.dot(c[:, : int(num_occ)], c[:, : int(num_occ)].T) * 2
 
     return onerdm
 
 
-def dmet_low_rdm_rohf_uhf(active_fock_alpha, active_fock_beta, nactive_alpha, nactive_beta):
+def dmet_low_rdm_rohf_uhf(active_fock_alpha, active_fock_beta, n_active_alpha, n_active_beta):
     """Construct the one-particle RDM from low-level calculation.
 
     Args:
@@ -62,20 +61,15 @@ def dmet_low_rdm_rohf_uhf(active_fock_alpha, active_fock_beta, nactive_alpha, na
 
     e, c = np.linalg.eigh(active_fock_alpha)
     new_index = e.argsort()
-    e = e[new_index]
     c = c[:, new_index]
-
-    onerdm_alpha = np.dot(c[:, :int(nactive_alpha)], c[:, :int(nactive_alpha)].T)
+    onerdm_alpha = np.dot(c[:, :int(n_active_alpha)], c[:, :int(n_active_alpha)].T)
 
     e, c = np.linalg.eigh(active_fock_beta)
     new_index = e.argsort()
-    e = e[new_index]
     c = c[:, new_index]
-    onerdm_beta = np.dot(c[:, :int(nactive_beta)], c[:, :int(nactive_beta)].T)
+    onerdm_beta = np.dot(c[:, :int(n_active_beta)], c[:, :int(n_active_beta)].T)
 
-    onerdm = onerdm_alpha + onerdm_beta
-
-    return onerdm
+    return onerdm_alpha + onerdm_beta
 
 
 def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):

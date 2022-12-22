@@ -24,7 +24,6 @@ PySCF program. However, using Boys localization is not recommended.
 
 from pyscf import scf, ao2mo
 import numpy as np
-from functools import reduce
 
 
 class dmet_orbitals:
@@ -96,21 +95,21 @@ class dmet_orbitals:
         # RHF
         if self.mol_full.spin == 0:
             # Obtain the elements from the low-level SCF calculations.
-            low_scf_dm = reduce(np.dot, (self.mf_full.mo_coeff, np.diag(self.mf_full.mo_occ), self.mf_full.mo_coeff.T))
+            low_scf_dm = self.mf_full.mo_coeff @ np.diag(self.mf_full.mo_occ) @ self.mf_full.mo_coeff.T
             low_scf_twoint = scf.hf.get_veff(self.mf_full.mol, low_scf_dm, 0, 0, 1)
             self.low_scf_fock = self.mf_full.mol.intor("cint1e_kin_sph") + self.mf_full.mol.intor("cint1e_nuc_sph") + low_scf_twoint
 
             # Define the core space if possible (Initial calculations treat the entire molecule ...).
             core_mo_dm = np.array(self.mf_full.mo_occ, copy=True)
             core_mo_dm[self.dmet_active_orbitals == 1] = 0
-            core_ao_dm = reduce(np.dot, (self.mf_full.mo_coeff, np.diag(core_mo_dm), self.mf_full.mo_coeff.T))
+            core_ao_dm = self.mf_full.mo_coeff @ np.diag(core_mo_dm) @ self.mf_full.mo_coeff.T
             core_twoint = scf.hf.get_veff(self.mf_full.mol, core_ao_dm, 0, 0, 1)
             core_oneint = self.low_scf_fock - low_scf_twoint + core_twoint
 
             # Define the energies and matrix elements based on the localized orbitals.
             self.core_constant_energy = self.mf_full.mol.energy_nuc() + np.einsum("ij,ij->", core_oneint - 0.5*core_twoint, core_ao_dm)
-            self.active_oneint = reduce(np.dot, (self.localized_mo.T, core_oneint, self.localized_mo))
-            self.active_fock = reduce(np.dot, (self.localized_mo.T, self.low_scf_fock, self.localized_mo))
+            self.active_oneint = self.localized_mo.T @ core_oneint @ self.localized_mo
+            self.active_fock = self.localized_mo.T @ self.low_scf_fock @ self.localized_mo
         # ROHF
         else:
             # Obtain the elements from the low-level SCF calculations.
@@ -128,29 +127,27 @@ class dmet_orbitals:
 
             # Define the energies and matrix elements based on the localized orbitals.
             self.core_constant_energy = self.mf_full.mol.energy_nuc()
-            self.active_oneint = reduce(np.dot, (self.localized_mo.T, core_oneint, self.localized_mo))
+            self.active_oneint = self.localized_mo.T @ core_oneint @ self.localized_mo
 
-            self.active_fock_alpha = reduce(np.dot, (self.localized_mo.T, low_scf_fock_alpha, self.localized_mo))
-            self.active_fock_beta = reduce(np.dot, (self.localized_mo.T, low_scf_fock_beta, self.localized_mo))
+            self.active_fock_alpha = self.localized_mo.T @ low_scf_fock_alpha @ self.localized_mo
+            self.active_fock_beta = self.localized_mo.T @ low_scf_fock_beta @ self.localized_mo
 
-            rdm_a = reduce(np.dot, (self.localized_mo.T, low_scf_rdm[0], self.localized_mo))
-            rdm_b = reduce(np.dot, (self.localized_mo.T, low_scf_rdm[1], self.localized_mo))
+            rdm_a = self.localized_mo.T @ low_scf_rdm[0] @ self.localized_mo
+            rdm_b = self.localized_mo.T @ low_scf_rdm[1] @ self.localized_mo
             rdm_total = np.array((rdm_a, rdm_b))
 
             overlap = np.eye(self.number_active_orbitals)
             two_int = scf.hf.get_veff(self.mol_full, rdm_total, 0, 0, 1)
-            new_fock_alpha = self.active_oneint + reduce(np.dot, ((self.localized_mo.T, two_int[0], self.localized_mo)))
-            new_fock_beta = self.active_oneint + reduce(np.dot, ((self.localized_mo.T, two_int[1], self.localized_mo)))
+            new_fock_alpha = self.active_oneint + (self.localized_mo.T @ two_int[0] @ self.localized_mo)
+            new_fock_beta = self.active_oneint + (self.localized_mo.T @ two_int[1] @ self.localized_mo)
             fock_total = np.array((new_fock_alpha, new_fock_beta))
             self.active_fock = scf.rohf.get_roothaan_fock(fock_total, rdm_total, overlap)
 
     def _unrestricted_init(self):
         """Initialize the attributes for an unrestricted mean-field."""
 
-        low_scf_fock_total = self.mf_full.get_fock()
+        low_scf_fock_alpha, low_scf_fock_beta = self.mf_full.get_fock()
         core_oneint = self.mf_full.get_hcore()
-        low_scf_fock_alpha = low_scf_fock_total[0]
-        low_scf_fock_beta = low_scf_fock_total[1]
 
         self.number_active_electrons = self.mf_full.mol.nelectron
 
@@ -161,10 +158,10 @@ class dmet_orbitals:
         self.number_active_electrons_beta = orbital_paired
 
         self.core_constant_energy = self.mf_full.mol.energy_nuc()
-        self.active_oneint = reduce(np.dot, (self.localized_mo.T, core_oneint, self.localized_mo))
+        self.active_oneint = self.localized_mo.T @ core_oneint @ self.localized_mo
 
-        self.active_fock_alpha = reduce(np.dot, (self.localized_mo.T, low_scf_fock_alpha, self.localized_mo))
-        self.active_fock_beta = reduce(np.dot, (self.localized_mo.T, low_scf_fock_beta, self.localized_mo))
+        self.active_fock_alpha = self.localized_mo.T @ low_scf_fock_alpha @ self.localized_mo
+        self.active_fock_beta = self.localized_mo.T @ low_scf_fock_beta @ self.localized_mo
 
     def dmet_fragment_hamiltonian(self, bath_orb, norb_high, onerdm_core):
         """Construct the Hamiltonian for a DMET fragment.
@@ -184,13 +181,13 @@ class dmet_orbitals:
         """
 
         # Calculate one-electron integrals.
-        frag_oneint = reduce(np.dot, (bath_orb[:, : norb_high].T, self.active_oneint, bath_orb[:, : norb_high]))
+        frag_oneint = bath_orb[:, : norb_high].T @ self.active_oneint @ bath_orb[:, : norb_high]
 
         # Calculate the fock matrix.
-        density_matrix = reduce(np.dot, (self.localized_mo, onerdm_core, self.localized_mo.T))
+        density_matrix = self.localized_mo @ onerdm_core @ self.localized_mo.T
         two_int = scf.hf.get_veff(self.mol_full, density_matrix, 0, 0, 1)
-        new_fock = self.active_oneint + reduce(np.dot, ((self.localized_mo.T, two_int, self.localized_mo)))
-        frag_fock = reduce(np.dot, (bath_orb[:, : norb_high].T, new_fock, bath_orb[:, : norb_high]))
+        new_fock = self.active_oneint + (self.localized_mo.T @ two_int @ self.localized_mo)
+        frag_fock = bath_orb[:, : norb_high].T @ new_fock @ bath_orb[:, : norb_high]
 
         # Calculate the two-electron integrals.
         coefficients = np.dot(self.localized_mo, bath_orb[:, : norb_high])

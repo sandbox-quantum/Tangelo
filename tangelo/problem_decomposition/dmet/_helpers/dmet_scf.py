@@ -67,9 +67,6 @@ def dmet_fragment_scf_rhf(t_list, two_ele, fock, number_electrons, number_orbita
 
     # Use newton-raphson algorithm if the above SCF calculation is not converged
     if (mf_frag.converged is False):
-        mf_frag.get_hcore = lambda *args: fock_frag_copy
-        mf_frag.get_ovlp = lambda *args: np.eye(number_orbitals)
-        mf_frag._eri = ao2mo.restore(8, two_ele, number_orbitals)
         mf_frag = scf.RHF(mol_frag).newton()
 
     return mf_frag, fock_frag_copy, mol_frag
@@ -79,7 +76,7 @@ def dmet_fragment_scf_rohf_uhf(nele_ab, two_ele, fock, number_electrons, number_
     """Perform SCF calculation.
 
     Args:
-        t_list (list): Number of [0] fragment & [1] bath orbitals (int).
+        nele_ab (list): List of the alpha and beta electron number (int).
         two_ele (numpy.array): Two-electron integrals for fragment calculation
             (float64).
         fock (numpy.array): The fock matrix for fragment calculation (float64).
@@ -88,6 +85,8 @@ def dmet_fragment_scf_rohf_uhf(nele_ab, two_ele, fock, number_electrons, number_
         guess_orbitals (numpy.array): Guess orbitals for SCF calculation
             (float64).
         chemical_potential (float64): The chemical potential.
+        uhf (bool): Flag for UHF mean-field. If not, a ROHF mean-field is
+            considered.
 
     Returns:
         mf_frag (pyscf.scf.RHF): The mean field of the molecule (Fragment
@@ -101,7 +100,6 @@ def dmet_fragment_scf_rohf_uhf(nele_ab, two_ele, fock, number_electrons, number_
     # Deep copy the fock matrix
     fock_frag_copy = fock.copy()
 
-    # Subtract the chemical potential to make the number of electrons consistent
     if (chemical_potential != 0.0):
         for orb in range(nele_ab[0]):
             fock_frag_copy[orb, orb] -= chemical_potential
@@ -125,12 +123,8 @@ def dmet_fragment_scf_rohf_uhf(nele_ab, two_ele, fock, number_electrons, number_
     occ_temp = mf_frag.mo_occ
 
     # Use newton-raphson algorithm if the above SCF calculation is not converged
-    if (not mf_frag.converged):
-        mf_frag.get_hcore = lambda *args: fock_frag_copy
-        mf_frag.get_ovlp = lambda *args: np.eye(number_orbitals)
-        mf_frag._eri = ao2mo.restore(8, two_ele, number_orbitals)
-        nr = scf.newton(mf_frag)
-        _ = nr.kernel(orb_temp, occ_temp)
-        mf_frag = nr
+    if not mf_frag.converged:
+        mf_frag = scf.newton(mf_frag)
+        _ = mf_frag.kernel(orb_temp, occ_temp)
 
     return mf_frag, fock_frag_copy, mol_frag

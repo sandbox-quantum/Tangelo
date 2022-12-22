@@ -534,11 +534,11 @@ class VQESolver:
 
         # Initialize the RDM arrays
         n_mol_orbitals = max(self.molecule.n_active_mos)
-        rdm1_np_a = np.zeros((n_mol_orbitals, n_mol_orbitals))
-        rdm1_np_b = np.zeros((n_mol_orbitals, n_mol_orbitals))
-        rdm2_np_a = np.zeros((n_mol_orbitals, n_mol_orbitals, n_mol_orbitals, n_mol_orbitals))
-        rdm2_np_b = np.zeros((n_mol_orbitals, n_mol_orbitals, n_mol_orbitals, n_mol_orbitals))
-        rdm2_np_ba = np.zeros((n_mol_orbitals, n_mol_orbitals, n_mol_orbitals, n_mol_orbitals))
+        rdm1_np_a = np.zeros((n_mol_orbitals,) * 2)
+        rdm1_np_b = np.zeros((n_mol_orbitals,) * 2)
+        rdm2_np_a = np.zeros((n_mol_orbitals,) * 2)
+        rdm2_np_b = np.zeros((n_mol_orbitals,) * 2)
+        rdm2_np_ba = np.zeros((n_mol_orbitals,) * 2)
 
         # If resampling is requested, check that a previous savefrequencies run has been called
         if resample:
@@ -561,32 +561,14 @@ class VQESolver:
             length = len(key)
             # One-body terms.
             if(length == 2):
-                tup0 = key[0]
-                tup1 = key[1]
-                pele = int(tup0[0])
-                qele = int(tup1[0])
-                iele = pele // 2
-                jele = qele // 2
-                iele_r = pele % 2
-                jele_r = qele % 2
+                pele, qele = int(key[0][0]), int(key[1][0])
+                iele, jele = pele // 2, qele // 2
+                iele_r, jele_r = pele % 2, qele % 2
             # Two-body terms.
             elif(length == 4):
-                tup0 = key[0]
-                tup1 = key[1]
-                tup2 = key[2]
-                tup3 = key[3]
-                pele = int(tup0[0])
-                qele = int(tup1[0])
-                rele = int(tup2[0])
-                sele = int(tup3[0])
-                iele = pele // 2
-                jele = qele // 2
-                kele = rele // 2
-                lele = sele // 2
-                iele_r = pele % 2
-                jele_r = qele % 2
-                kele_r = rele % 2
-                lele_r = sele % 2
+                pele, qele, rele, sele = int(key[0][0]), int(key[1][0]), int(key[2][0]), int(key[3][0])
+                iele, jele, kele, lele = pele // 2, qele // 2, rele // 2, sele // 2
+                iele_r, jele_r, kele_r, lele_r = pele % 2, qele % 2, rele % 2, sele % 2
 
             # Create the Hamiltonian with the correct key (Set coefficient to one)
             hamiltonian_temp = FermionOperator(key)
@@ -626,28 +608,28 @@ class VQESolver:
 
             # Put the values in np arrays (differentiate 1- and 2-RDM)
             if length == 2:
-                if((iele_r == 0) and (jele_r == 0)):
-                    rdm1_np_a[iele, jele] = rdm1_np_a[iele, jele] + opt_energy2
-                elif((iele_r == 1) and (jele_r == 1)):
-                    rdm1_np_b[iele, jele] = rdm1_np_b[iele, jele] + opt_energy2
+                if (iele_r, jele_r) == (0, 0):
+                    rdm1_np_a[iele, jele] += opt_energy2
+                elif (iele_r, jele_r) == (1, 1):
+                    rdm1_np_b[iele, jele] += opt_energy2
             elif length == 4:
-                if((iele != lele) or (jele != kele)):
-                    if((iele_r == 0) and (jele_r == 0) and (kele_r == 0) and (lele_r == 0)):
-                        rdm2_np_a[lele, iele, kele, jele] = rdm2_np_a[lele, iele, kele, jele] + 0.5 * opt_energy2
-                        rdm2_np_a[iele, lele, jele, kele] = rdm2_np_a[iele, lele, jele, kele] + 0.5 * opt_energy2
-                    elif((iele_r == 1) and (jele_r == 1) and (kele_r == 1) and (lele_r == 1)):
-                        rdm2_np_b[lele, iele, kele, jele] = rdm2_np_b[lele, iele, kele, jele] + 0.5 * opt_energy2
-                        rdm2_np_b[iele, lele, jele, kele] = rdm2_np_b[iele, lele, jele, kele] + 0.5 * opt_energy2
-                    elif((iele_r == 0) and (jele_r == 1) and (kele_r == 1) and (lele_r == 0)):
-                        rdm2_np_ba[iele, lele, jele, kele] = rdm2_np_ba[iele, lele, jele, kele] + 0.5 * opt_energy2
-                        rdm2_np_ba[lele, iele, kele, jele] = rdm2_np_ba[lele, iele, kele, jele] + 0.5 * opt_energy2
+                if ((iele != lele) or (jele != kele)):
+                    if (iele_r, jele_r, kele_r, lele_r) == (0, 0, 0, 0):
+                        rdm2_np_a[lele, iele, kele, jele] += 0.5 * opt_energy2
+                        rdm2_np_a[iele, lele, jele, kele] += 0.5 * opt_energy2
+                    elif (iele_r, jele_r, kele_r, lele_r) == (1, 1, 1, 1):
+                        rdm2_np_b[lele, iele, kele, jele] += 0.5 * opt_energy2
+                        rdm2_np_b[iele, lele, jele, kele] += 0.5 * opt_energy2
+                    elif (iele_r, jele_r, kele_r, lele_r) == (0, 1, 1, 0):
+                        rdm2_np_ba[iele, lele, jele, kele] += 0.5 * opt_energy2
+                        rdm2_np_ba[lele, iele, kele, jele] += 0.5 * opt_energy2
                 else:
-                    if((iele_r == 0) and (jele_r == 0) and (kele_r == 0) and (lele_r == 0)):
-                        rdm2_np_a[iele, lele, jele, kele] = rdm2_np_a[iele, lele, jele, kele] + opt_energy2
-                    elif((iele_r == 1) and (jele_r == 1) and (kele_r == 1) and (lele_r == 1)):
-                        rdm2_np_b[iele, lele, jele, kele] = rdm2_np_b[iele, lele, jele, kele] + opt_energy2
-                    elif((iele_r == 0) and (jele_r == 1) and (kele_r == 1) and (lele_r == 0)):
-                        rdm2_np_ba[iele, lele, jele, kele] = rdm2_np_ba[iele, lele, jele, kele] + opt_energy2
+                    if (iele_r, jele_r, kele_r, lele_r) == (0, 0, 0, 0):
+                        rdm2_np_a[iele, lele, jele, kele] += opt_energy2
+                    elif (iele_r, jele_r, kele_r, lele_r) == (1, 1, 1, 1):
+                        rdm2_np_b[iele, lele, jele, kele] += opt_energy2
+                    elif (iele_r, jele_r, kele_r, lele_r) == (0, 1, 1, 0):
+                        rdm2_np_ba[iele, lele, jele, kele] += opt_energy2
 
         # save rdm frequency dictionary
         self.rdm_freq_dict = qb_freq_dict
