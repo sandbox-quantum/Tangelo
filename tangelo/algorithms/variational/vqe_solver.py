@@ -536,9 +536,9 @@ class VQESolver:
         n_mol_orbitals = max(self.molecule.n_active_mos)
         rdm1_np_a = np.zeros((n_mol_orbitals,) * 2)
         rdm1_np_b = np.zeros((n_mol_orbitals,) * 2)
-        rdm2_np_a = np.zeros((n_mol_orbitals,) * 2)
-        rdm2_np_b = np.zeros((n_mol_orbitals,) * 2)
-        rdm2_np_ba = np.zeros((n_mol_orbitals,) * 2)
+        rdm2_np_a = np.zeros((n_mol_orbitals,) * 4)
+        rdm2_np_b = np.zeros((n_mol_orbitals,) * 4)
+        rdm2_np_ba = np.zeros((n_mol_orbitals,) * 4)
 
         # If resampling is requested, check that a previous savefrequencies run has been called
         if resample:

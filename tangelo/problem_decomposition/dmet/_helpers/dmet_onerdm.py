@@ -18,7 +18,6 @@ Construction of the one-particle reduced density matrix (RDM) is done here.
 """
 
 import numpy as np
-from functools import reduce
 
 
 def dmet_low_rdm_rhf(active_fock, n_active_electrons):
@@ -103,6 +102,6 @@ def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
     number_electrons = int(round(number_active_electrons - number_ele_temp))
 
     # Obtain the one particle RDM for the fragment (core)
-    core_occupied_onerdm = reduce(np.dot, (bath_orb, np.diag(core_occupied), bath_orb.T))
+    core_occupied_onerdm = bath_orb @ np.diag(core_occupied) @ bath_orb.T
 
     return number_orbitals, number_electrons, core_occupied_onerdm

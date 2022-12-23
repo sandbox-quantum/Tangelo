@@ -18,7 +18,6 @@ The fragment SCF calculation for DMET calculation is done here.
 """
 
 from pyscf import gto, scf, ao2mo
-from functools import reduce
 import numpy as np
 
 
