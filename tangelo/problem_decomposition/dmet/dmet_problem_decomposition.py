@@ -584,19 +584,21 @@ class DMETProblemDecomposition(ProblemDecomposition):
         twordm = np.einsum("sl,pqrl->pqrs", mf_frag.mo_coeff, twordm)
 
         # Calculate the total energy based on RDMs
-        total_energy_rdm = np.einsum("ij,ij->", fock_frag_copy, one_rdm) + 0.5 * np.einsum("ijkl,ijkl->", twoint,
-                                                                                           twordm)
+        total_energy_rdm = np.einsum("ij,ij->", fock_frag_copy, one_rdm)
+        + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm)
 
         # Calculate fragment expectation value
-        fragment_energy_one_rdm = 0.25 * np.einsum("ij,ij->", one_rdm[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
-                                  + 0.25 * np.einsum("ij,ij->", one_rdm[:, : norb], fock[:, : norb] + oneint[:, : norb])
+        fragment_energy_one_rdm = np.einsum("ij,ij->", one_rdm[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
+            + np.einsum("ij,ij->", one_rdm[:, : norb], fock[:, : norb] + oneint[:, : norb])
+        fragment_energy_one_rdm *= 0.25
 
-        fragment_energy_twordm = 0.125 * np.einsum("ijkl,ijkl->", twordm[: norb, :, :, :], twoint[: norb, :, :, :]) \
-                                 + 0.125 * np.einsum("ijkl,ijkl->", twordm[:, : norb, :, :], twoint[:, : norb, :, :]) \
-                                 + 0.125 * np.einsum("ijkl,ijkl->", twordm[:, :, : norb, :], twoint[:, :, : norb, :]) \
-                                 + 0.125 * np.einsum("ijkl,ijkl->", twordm[:, :, :, : norb], twoint[:, :, :, : norb])
+        fragment_energy_two_rdm = np.einsum("ijkl,ijkl->", twordm[: norb, :, :, :], twoint[: norb, :, :, :]) \
+            + np.einsum("ijkl,ijkl->", twordm[:, : norb, :, :], twoint[:, : norb, :, :]) \
+            + np.einsum("ijkl,ijkl->", twordm[:, :, : norb, :], twoint[:, :, : norb, :]) \
+            + np.einsum("ijkl,ijkl->", twordm[:, :, :, : norb], twoint[:, :, :, : norb])
+        fragment_energy_two_rdm *= 0.125
 
-        fragment_energy = fragment_energy_one_rdm + fragment_energy_twordm
+        fragment_energy = fragment_energy_one_rdm + fragment_energy_two_rdm
 
         return fragment_energy, total_energy_rdm, one_rdm
 
@@ -647,36 +649,36 @@ class DMETProblemDecomposition(ProblemDecomposition):
         twordm_bb = np.einsum("sl,pqrl->pqrs", mf_frag.mo_coeff[1], twordm_bb)
 
         # Calculate the total energy based on RDMs
-        total_energy_rdm = np.einsum("ij,ij->", fock_frag_copy, onerdm_a ) \
-                         + np.einsum("ij,ij->", fock_frag_copy, onerdm_b ) \
-                         + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_aa ) \
-                         + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_ab ) \
-                         + 0.5 * np.einsum("ijkl,klij->", twoint, twordm_ab ) \
-                         + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_bb )
+        total_energy_rdm = np.einsum("ij,ij->", fock_frag_copy, onerdm_a) \
+            + np.einsum("ij,ij->", fock_frag_copy, onerdm_b) \
+            + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_aa) \
+            + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_ab) \
+            + 0.5 * np.einsum("ijkl,klij->", twoint, twordm_ab) \
+            + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_bb) \
 
         # Calculate fragment expectation value
         fragment_energy_one = np.einsum("ij,ij->", onerdm_a[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
-                            + np.einsum("ij,ij->", onerdm_a[:, : norb ], fock[:, : norb] + oneint[:, : norb]) \
-                            + np.einsum("ij,ij->", onerdm_b[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
-                            + np.einsum("ij,ij->", onerdm_b[:, : norb ], fock[:, : norb] + oneint[:, : norb])
+            + np.einsum("ij,ij->", onerdm_a[:, : norb ], fock[:, : norb] + oneint[:, : norb]) \
+            + np.einsum("ij,ij->", onerdm_b[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
+            + np.einsum("ij,ij->", onerdm_b[:, : norb ], fock[:, : norb] + oneint[:, : norb])
         fragment_energy_one *= 0.25
 
         fragment_energy_two = np.einsum("ijkl,ijkl->", twordm_aa[: norb, :, :, :], twoint[: norb, :, :, :]) \
-                            + np.einsum("ijkl,ijkl->", twordm_aa[:, : norb, :, :], twoint[:, : norb, :, :]) \
-                            + np.einsum("ijkl,ijkl->", twordm_aa[:, :, : norb, :], twoint[:, :, : norb, :]) \
-                            + np.einsum("ijkl,ijkl->", twordm_aa[:, :, :, : norb], twoint[:, :, :, : norb]) \
-                            + np.einsum("ijkl,ijkl->", twordm_ab[: norb, :, :, :], twoint[: norb, :, :, :]) \
-                            + np.einsum("ijkl,ijkl->", twordm_ab[:, : norb, :, :], twoint[:, : norb, :, :]) \
-                            + np.einsum("ijkl,ijkl->", twordm_ab[:, :, : norb, :], twoint[:, :, : norb, :]) \
-                            + np.einsum("ijkl,ijkl->", twordm_ab[:, :, :, : norb], twoint[:, :, :, : norb]) \
-                            + np.einsum("klij,ijkl->", twordm_ab[:, :, : norb, :], twoint[: norb, :, :, :]) \
-                            + np.einsum("klij,ijkl->", twordm_ab[:, :, :, : norb], twoint[:, : norb, :, :]) \
-                            + np.einsum("klij,ijkl->", twordm_ab[: norb, :, :, :], twoint[:, :, : norb, :]) \
-                            + np.einsum("klij,ijkl->", twordm_ab[:, : norb, :, :], twoint[:, :, :, : norb]) \
-                            + np.einsum("ijkl,ijkl->", twordm_bb[: norb, :, :, :], twoint[: norb, :, :, :]) \
-                            + np.einsum("ijkl,ijkl->", twordm_bb[:, : norb, :, :], twoint[:, : norb, :, :]) \
-                            + np.einsum("ijkl,ijkl->", twordm_bb[:, :, : norb, :], twoint[:, :, : norb, :]) \
-                            + np.einsum("ijkl,ijkl->", twordm_bb[:, :, :, : norb], twoint[:, :, :, : norb])
+            + np.einsum("ijkl,ijkl->", twordm_aa[:, : norb, :, :], twoint[:, : norb, :, :]) \
+            + np.einsum("ijkl,ijkl->", twordm_aa[:, :, : norb, :], twoint[:, :, : norb, :]) \
+            + np.einsum("ijkl,ijkl->", twordm_aa[:, :, :, : norb], twoint[:, :, :, : norb]) \
+            + np.einsum("ijkl,ijkl->", twordm_ab[: norb, :, :, :], twoint[: norb, :, :, :]) \
+            + np.einsum("ijkl,ijkl->", twordm_ab[:, : norb, :, :], twoint[:, : norb, :, :]) \
+            + np.einsum("ijkl,ijkl->", twordm_ab[:, :, : norb, :], twoint[:, :, : norb, :]) \
+            + np.einsum("ijkl,ijkl->", twordm_ab[:, :, :, : norb], twoint[:, :, :, : norb]) \
+            + np.einsum("klij,ijkl->", twordm_ab[:, :, : norb, :], twoint[: norb, :, :, :]) \
+            + np.einsum("klij,ijkl->", twordm_ab[:, :, :, : norb], twoint[:, : norb, :, :]) \
+            + np.einsum("klij,ijkl->", twordm_ab[: norb, :, :, :], twoint[:, :, : norb, :]) \
+            + np.einsum("klij,ijkl->", twordm_ab[:, : norb, :, :], twoint[:, :, :, : norb]) \
+            + np.einsum("ijkl,ijkl->", twordm_bb[: norb, :, :, :], twoint[: norb, :, :, :]) \
+            + np.einsum("ijkl,ijkl->", twordm_bb[:, : norb, :, :], twoint[:, : norb, :, :]) \
+            + np.einsum("ijkl,ijkl->", twordm_bb[:, :, : norb, :], twoint[:, :, : norb, :]) \
+            + np.einsum("ijkl,ijkl->", twordm_bb[:, :, :, : norb], twoint[:, :, :, : norb])
         fragment_energy_two *= 0.125
 
         fragment_energy = fragment_energy_one + fragment_energy_two
