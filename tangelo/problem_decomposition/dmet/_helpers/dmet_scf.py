@@ -122,7 +122,7 @@ def dmet_fragment_scf_rohf_uhf(nele_ab, two_ele, fock, number_electrons, number_
     orb_temp = mf_frag.mo_coeff
     occ_temp = mf_frag.mo_occ
 
-    # Use newton-raphson algorithm if the above SCF calculation is not converged
+    # Use Newton-Raphson algorithm if the above SCF calculation is not converged
     if not mf_frag.converged:
         mf_frag = scf.newton(mf_frag)
         _ = mf_frag.kernel(orb_temp, occ_temp)

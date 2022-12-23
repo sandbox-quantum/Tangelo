@@ -28,7 +28,7 @@ def dmet_fragment_constructor(mol, atom_list, n_fragment):
     Args:
         mol (pyscf.gto.Mole): The molecule to simulate (The full molecule).
         atom_list (list): The atom list for each fragment (int).
-        n_fragment (list): Number of element in atom list per fragment (int).
+        n_fragment (list): Number of atoms per fragment (int).
 
     Returns:
         list: The number of orbitals for each fragment (int).

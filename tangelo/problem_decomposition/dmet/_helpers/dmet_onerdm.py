@@ -34,11 +34,11 @@ def dmet_low_rdm_rhf(active_fock, n_active_electrons):
     """
 
     # Extract the occupied part of the one-particle RDM
-    num_occ = n_active_electrons / 2
+    num_occ = n_active_electrons // 2
     e, c = np.linalg.eigh(active_fock)
     new_index = e.argsort()
     c = c[:, new_index]
-    onerdm = np.dot(c[:, : int(num_occ)], c[:, : int(num_occ)].T) * 2
+    onerdm = np.dot(c[:, : num_occ], c[:, : num_occ].T) * 2
 
     return onerdm
 

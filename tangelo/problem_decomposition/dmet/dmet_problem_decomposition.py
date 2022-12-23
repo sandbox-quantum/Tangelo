@@ -346,7 +346,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Carry out SCF calculation for a fragment.
             if self.uhf or self.molecule.spin != 0:
                 guess_orbitals, nelec_high_ab = helpers._fragment_guess_rohf_uhf(
-                    t_list, bath_orb, chemical_potential, norb_high, nelec_high,
+                    bath_orb, chemical_potential, norb_high, nelec_high,
                     self.orbitals.active_fock_alpha, self.orbitals.active_fock_beta,
                     self.orbitals.number_active_electrons_alpha,
                     self.orbitals.number_active_electrons_beta)
@@ -355,7 +355,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     nelec_high_ab, two_ele, fock, nelec_high, norb_high,
                     guess_orbitals, chemical_potential, self.uhf)
             else:
-                guess_orbitals = helpers._fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
+                guess_orbitals = helpers._fragment_guess_rhf(bath_orb, chemical_potential, norb_high, nelec_high,
                                                              self.orbitals.active_fock)
                 mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf_rhf(
                     t_list, two_ele, fock, nelec_high, norb_high, guess_orbitals,
@@ -604,9 +604,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
         """Calculate the fragment energy.
 
         Args:
-            mean_field (pyscf.scf.UHF): The mean field of the fragment.
-            cc_onerdm (numpy.array): one-particle reduced density matrix (float64).
-            cc_twordm (numpy.array): two-particle reduced density matrix (float64).
+            mf_frag (pyscf.scf.UHF): The mean field of the fragment.
+            onerdm (numpy.array): one-particle reduced density matrix (float64).
+            twordm (numpy.array): two-particle reduced density matrix (float64).
             fock_frag_copy (numpy.array): Fock matrix with the chemical potential subtracted (float64).
             t_list (list): List of number of fragment and bath orbitals (int).
             oneint (numpy.array): One-electron integrals of fragment (float64).
