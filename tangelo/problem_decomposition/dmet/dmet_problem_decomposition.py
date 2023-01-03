@@ -44,8 +44,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
     for minimal basis set.
 
     The underlying mean-field for the computation is automatically detected
-    from the SecondQuantizedMolecule. RHF, ROHF and UHF mean-field are
-    compatible.
+    from the SecondQuantizedMolecule. RHF, ROHF and UHF mean-fields are
+    supported.
 
     Attributes:
         molecule (SecondQuantizedMolecule): The molecular system.
@@ -185,8 +185,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # If save_results in _oneshot_loop is True, the dict is populated.
         self.solver_fragment_dict = dict()
 
-        # To keep track the number of iteration (was done with an energy list before).
-        # TODO: A decorator function to do the same thing?
+        # To keep track the number of iteration (was done with an energy list
+        # before).
         self.n_iter = 0
 
     @property
@@ -346,7 +346,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Carry out SCF calculation for a fragment.
             if self.uhf or self.molecule.spin != 0:
                 guess_orbitals, nelec_high_ab = helpers._fragment_guess_rohf_uhf(
-                    bath_orb, chemical_potential, norb_high, nelec_high,
+                    t_list, bath_orb, chemical_potential, norb_high, nelec_high,
                     self.orbitals.active_fock_alpha, self.orbitals.active_fock_beta,
                     self.orbitals.number_active_electrons_alpha,
                     self.orbitals.number_active_electrons_beta)
@@ -355,7 +355,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     nelec_high_ab, two_ele, fock, nelec_high, norb_high,
                     guess_orbitals, chemical_potential, self.uhf)
             else:
-                guess_orbitals = helpers._fragment_guess_rhf(bath_orb, chemical_potential, norb_high, nelec_high,
+                guess_orbitals = helpers._fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
                                                              self.orbitals.active_fock)
                 mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf_rhf(
                     t_list, two_ele, fock, nelec_high, norb_high, guess_orbitals,
@@ -500,9 +500,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             energy_temp += fragment_energy
 
             if self.verbose:
-                print("\t\tFragment Energy                 = " + "{:17.10f}".format(fragment_energy))
-                print("\t\tNumber of Electrons in Fragment = " + "{:17.10f}".format(n_electron_frag))
-                print("")
+                print(f"\t\tFragment Energy = {fragment_energy}\n\t\tNumber of Electrons in Fragment = {n_electron_frag}")
 
         energy_temp += self.orbitals.core_constant_energy
         self.dmet_energy = energy_temp.real

@@ -26,7 +26,7 @@ def dmet_low_rdm_rhf(active_fock, n_active_electrons):
     Args:
         active_fock (numpy.array): Fock matrix from low-level calculation
             (float64).
-        number_active_electrons (int): Number of electrons in the entire system.
+        n_active_electrons (int): Number of electrons in the entire system.
 
     Returns:
         numpy.array: One-particle RDM of the low-level calculation (float64).
@@ -50,8 +50,8 @@ def dmet_low_rdm_rohf_uhf(active_fock_alpha, active_fock_beta, n_active_alpha, n
             (float64).
         active_fock_beta (numpy.array): Fock matrix from low-level calculation
             (float64).
-        nactive_alpha (int): Number of alpha electrons.
-        nactive_beta (int): Number of beta electrons.
+        n_active_alpha (int): Number of alpha electrons.
+        n_active_beta (int): Number of beta electrons.
 
     Returns:
         onerdm (numpy.array): One-particle RDM of the low-level calculation
@@ -71,7 +71,7 @@ def dmet_low_rdm_rohf_uhf(active_fock_alpha, active_fock_beta, n_active_alpha, n
     return onerdm_alpha + onerdm_beta
 
 
-def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
+def dmet_fragment_rdm(t_list, bath_orb, core_occupied, n_active_electrons):
     """Construct the one-particle RDM for the core orbitals.
 
     Args:
@@ -79,7 +79,7 @@ def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
         bath_orb (numpy.array): The bath orbitals (float64).
         core_occupied (numpy.array): Core occupied part of the MO coefficients
             (float64).
-        number_active_electrons (int): Number of electrons in the entire system.
+        n_active_electrons (int): Number of electrons in the entire system.
 
     Returns:
         int: Number of orbitals for fragment calculation.
@@ -99,7 +99,7 @@ def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
 
     # Define the number of electrons in the fragment
     number_ele_temp = np.sum(core_occupied)
-    number_electrons = int(round(number_active_electrons - number_ele_temp))
+    number_electrons = int(round(n_active_electrons - number_ele_temp))
 
     # Obtain the one particle RDM for the fragment (core)
     core_occupied_onerdm = bath_orb @ np.diag(core_occupied) @ bath_orb.T

@@ -22,14 +22,15 @@ import scipy
 import numpy as np
 
 
-def dmet_fragment_guess_rhf(bath_orb, chemical_potential, norb_high, number_active_electron, active_fock):
+def dmet_fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, n_active_electron, active_fock):
     """Construct the guess orbitals.
 
     Args:
+        t_list (list): Number of [0] fragment & [1] bath orbitals (int).
         bath_orb (numpy.array): The bath orbitals (float64).
         chemical_potential (float64): The chemical potential.
         norb_high (int): The number of orbitals in the fragment calculation.
-        number_active_electron (int): The number of electrons in the fragment
+        n_active_electron (int): The number of electrons in the fragment
             calculation.
         active_fock (numpy.array): The fock matrix from the low-level
             calculation (float64).
@@ -40,30 +41,30 @@ def dmet_fragment_guess_rhf(bath_orb, chemical_potential, norb_high, number_acti
 
     # Construct the fock matrix of the fragment (subtract the chemical potential for consistency)
     fock_fragment = bath_orb[:, : norb_high].T @ active_fock @ bath_orb[:, : norb_high]
-    potential_diag = np.zeros_like(fock_fragment)
-    np.fill_diagonal(potential_diag, chemical_potential)
-    fock_fragment -= potential_diag
+    for i in range(t_list[0]):
+        fock_fragment[i, i] -= chemical_potential
 
     # Diagonalize the fock matrix and get the eigenvectors
     eigenvalues, eigenvectors = scipy.linalg.eigh(fock_fragment)
     eigenvectors = eigenvectors[:, eigenvalues.argsort()]
 
     # Extract the eigenvectors of the occupied orbitals as the guess orbitals
-    frag_guess = np.dot(eigenvectors[ :, : int(number_active_electron/2)], eigenvectors[ :, : int(number_active_electron/2)].T) * 2
+    frag_guess = np.dot(eigenvectors[ :, : int(n_active_electron/2)], eigenvectors[ :, : int(n_active_electron/2)].T) * 2
 
     return frag_guess
 
 
-def dmet_fragment_guess_rohf_uhf(bath_orb, chemical_potential, norb_high,
-    number_active_electron, active_fock_alpha, active_fock_beta, n_active_alpha,
-     n_active_beta):
+def dmet_fragment_guess_rohf_uhf(t_list, bath_orb, chemical_potential, norb_high,
+    n_active_electron, active_fock_alpha, active_fock_beta, n_active_alpha,
+    n_active_beta):
     """Construct the guess orbitals.
 
     Args:
+        t_list (list): Number of [0] fragment & [1] bath orbitals (int).
         bath_orb (numpy.array): The bath orbitals (float64).
         chemical_potential (float64): The chemical potential.
         norb_high (int): The number of orbitals in the fragment calculation.
-        number_active_electron (int): The number of electrons in the fragment
+        n_active_electron (int): The number of electrons in the fragment
             calculation.
         active_fock_alpha (numpy.array): The fock matrix from the low-level
             calculation for the alpha electrons (float64).
@@ -73,11 +74,12 @@ def dmet_fragment_guess_rohf_uhf(bath_orb, chemical_potential, norb_high,
         n_active_beta (int): The number octive beta electrons.
 
     Returns:
-        frag_guess (numpy.array): The guess orbitals (float64).
+        numpy.array, list: The guess orbitals (float64), list of the new
+            occupation numbers (alpha then beta electrons).
     """
 
     n_spin = n_active_alpha - n_active_beta
-    n_pair = (number_active_electron - n_spin) // 2
+    n_pair = (n_active_electron - n_spin) // 2
     new = {"alpha": n_pair + n_spin, "beta": n_pair}
     active_fock = {"alpha": active_fock_alpha, "beta": active_fock_beta}
     frag_guess = dict()
@@ -85,9 +87,8 @@ def dmet_fragment_guess_rohf_uhf(bath_orb, chemical_potential, norb_high,
     for spin in {"alpha", "beta"}:
         # Construct the fock matrix of the fragment (subtract the chemical potential for consistency)
         fock_fragment = bath_orb[:, : norb_high].T @ active_fock[spin] @ bath_orb[:, : norb_high]
-        potential_diag = np.zeros_like(fock_fragment)
-        np.fill_diagonal(potential_diag, chemical_potential)
-        fock_fragment -= potential_diag
+        for i in range(t_list[0]):
+            fock_fragment[i, i] -= chemical_potential
 
         # Diagonalize the fock matrix and get the eigenvectors
         eigenvalues, eigenvectors = scipy.linalg.eigh(fock_fragment)

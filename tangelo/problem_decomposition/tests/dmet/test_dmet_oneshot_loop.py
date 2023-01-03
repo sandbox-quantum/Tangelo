@@ -101,7 +101,7 @@ class TestDMETloop(unittest.TestCase):
         one_ele, fock, two_ele = dmet_orbs.dmet_fragment_hamiltonian(bath_orb, norb_high, onerdm_high)
 
         # Test the construction of the guess orbitals for fragment SCF calculation
-        guess_orbitals = dmet_fragment_guess_rhf(bath_orb, chemical_potential, norb_high, nelec_high, dmet_orbs.active_fock)
+        guess_orbitals = dmet_fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, nelec_high, dmet_orbs.active_fock)
 
         # Test the fock matrix in the SCF calculation for a fragment
         mf_fragments, fock_frag_copy, mol = dmet_fragment_scf_rhf(t_list, two_ele, fock, nelec_high, norb_high, guess_orbitals, chemical_potential)
