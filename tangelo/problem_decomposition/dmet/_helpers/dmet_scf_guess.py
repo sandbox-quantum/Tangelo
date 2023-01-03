@@ -74,7 +74,7 @@ active_fock_alpha, active_fock_beta, n_active_alpha, n_active_beta):
 
     Returns:
         numpy.array: The guess orbitals (float64).
-        tuple: New electron numbers (alpha then beta electrons).
+        tuple: New electron numbers (alpha then beta electrons) (int).
     """
 
     n_spin = n_active_alpha - n_active_beta
