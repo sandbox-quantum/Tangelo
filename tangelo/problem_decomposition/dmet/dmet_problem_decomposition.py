@@ -582,8 +582,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
         twordm = np.einsum("sl,pqrl->pqrs", mf_frag.mo_coeff, twordm)
 
         # Calculate the total energy based on RDMs
-        total_energy_rdm = np.einsum("ij,ij->", fock_frag_copy, one_rdm)
-        + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm)
+        total_energy_rdm = np.einsum("ij,ij->", fock_frag_copy, one_rdm) \
+            + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm)
 
         # Calculate fragment expectation value
         fragment_energy_one_rdm = np.einsum("ij,ij->", one_rdm[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
@@ -652,7 +652,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_aa) \
             + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_ab) \
             + 0.5 * np.einsum("ijkl,klij->", twoint, twordm_ab) \
-            + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_bb) \
+            + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_bb)
 
         # Calculate fragment expectation value
         fragment_energy_one = np.einsum("ij,ij->", onerdm_a[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
