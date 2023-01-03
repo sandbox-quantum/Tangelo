@@ -69,8 +69,8 @@ active_fock_alpha, active_fock_beta, n_active_alpha, n_active_beta):
             calculation for the alpha electrons (float64).
         active_fock_beta (numpy.array): The fock matrix from the low-level
             calculation for the beta electrons (float64).
-        n_active_alpha (int): The number octive alpha electrons.
-        n_active_beta (int): The number octive beta electrons.
+        n_active_alpha (int): The number of active alpha electrons.
+        n_active_beta (int): The number of active beta electrons.
 
     Returns:
         numpy.array, list: The guess orbitals (float64), list of the new
