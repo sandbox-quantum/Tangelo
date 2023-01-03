@@ -73,8 +73,8 @@ active_fock_alpha, active_fock_beta, n_active_alpha, n_active_beta):
         n_active_beta (int): The number of active beta electrons.
 
     Returns:
-        numpy.array, list: The guess orbitals (float64), list of the new
-            occupation numbers (alpha then beta electrons).
+        numpy.array: The guess orbitals (float64).
+        tuple: New electron numbers (alpha then beta electrons).
     """
 
     n_spin = n_active_alpha - n_active_beta
@@ -97,4 +97,4 @@ active_fock_alpha, active_fock_beta, n_active_alpha, n_active_beta):
         # Introduce alpha- and beta-electrons
         frag_guess[spin] = np.dot(eigenvectors[:, :int(new[spin])], eigenvectors[:, :int(new[spin])].T)
 
-    return np.array((frag_guess["alpha"], frag_guess["beta"])), [new["alpha"], new["beta"]]
+    return np.array((frag_guess["alpha"], frag_guess["beta"])), (new["alpha"], new["beta"])
