@@ -54,9 +54,8 @@ def dmet_fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, n_a
     return frag_guess
 
 
-def dmet_fragment_guess_rohf_uhf(t_list, bath_orb, chemical_potential, norb_high,
-    n_active_electron, active_fock_alpha, active_fock_beta, n_active_alpha,
-    n_active_beta):
+def dmet_fragment_guess_rohf_uhf(t_list, bath_orb, chemical_potential, norb_high, n_active_electron,
+active_fock_alpha, active_fock_beta, n_active_alpha, n_active_beta):
     """Construct the guess orbitals.
 
     Args:
