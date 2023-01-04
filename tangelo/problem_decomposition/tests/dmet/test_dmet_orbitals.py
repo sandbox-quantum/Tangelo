@@ -69,7 +69,7 @@ class TestDMETorbitals(unittest.TestCase):
         mf = scf.RHF(mol)
         mf.scf()
 
-        dmet_orbs = dmet_orbitals(mol, mf, range(mol.nao_nr()), iao_localization)
+        dmet_orbs = dmet_orbitals(mol, mf, range(mol.nao_nr()), iao_localization, False)
         dmet_orbitals_ref = np.loadtxt("{}/data/test_dmet_orbitals.txt".format(path_file))
 
         # Test the construction of IAOs

@@ -20,10 +20,10 @@ from pyscf import gto, scf
 import numpy as np
 
 from tangelo.problem_decomposition.dmet._helpers.dmet_orbitals import dmet_orbitals
-from tangelo.problem_decomposition.dmet._helpers.dmet_onerdm import dmet_low_rdm, dmet_fragment_rdm
+from tangelo.problem_decomposition.dmet._helpers.dmet_onerdm import dmet_low_rdm_rhf, dmet_fragment_rdm
 from tangelo.problem_decomposition.dmet._helpers.dmet_bath import dmet_fragment_bath
-from tangelo.problem_decomposition.dmet._helpers.dmet_scf_guess import dmet_fragment_guess
-from tangelo.problem_decomposition.dmet._helpers.dmet_scf import dmet_fragment_scf
+from tangelo.problem_decomposition.dmet._helpers.dmet_scf_guess import dmet_fragment_guess_rhf
+from tangelo.problem_decomposition.dmet._helpers.dmet_scf import dmet_fragment_scf_rhf
 from tangelo.problem_decomposition.electron_localization import iao_localization
 
 path_file = os.path.dirname(os.path.abspath(__file__))
@@ -74,10 +74,10 @@ class TestDMETloop(unittest.TestCase):
         mf = scf.RHF(mol)
         mf.scf()
 
-        dmet_orbs = dmet_orbitals(mol, mf, range(mol.nao_nr()), iao_localization)
+        dmet_orbs = dmet_orbitals(mol, mf, range(mol.nao_nr()), iao_localization, False)
 
         # Test the construction of one particle RDM from low-level calculation
-        onerdm_low = dmet_low_rdm(dmet_orbs.active_fock, dmet_orbs.number_active_electrons)
+        onerdm_low = dmet_low_rdm_rhf(dmet_orbs.active_fock, dmet_orbs.number_active_electrons)
         onerdm_low_ref = np.loadtxt("{}/data/test_dmet_oneshot_loop_low_rdm.txt".format(path_file))
         for index, value_ref in np.ndenumerate(onerdm_low_ref):
             self.assertAlmostEqual(value_ref, onerdm_low[index], msg=f"Low-level RDM error at index {str(index)}",
@@ -101,10 +101,10 @@ class TestDMETloop(unittest.TestCase):
         one_ele, fock, two_ele = dmet_orbs.dmet_fragment_hamiltonian(bath_orb, norb_high, onerdm_high)
 
         # Test the construction of the guess orbitals for fragment SCF calculation
-        guess_orbitals = dmet_fragment_guess(t_list, bath_orb, chemical_potential, norb_high, nelec_high, dmet_orbs.active_fock)
+        guess_orbitals = dmet_fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, nelec_high, dmet_orbs.active_fock)
 
         # Test the fock matrix in the SCF calculation for a fragment
-        mf_fragments, fock_frag_copy, mol = dmet_fragment_scf(t_list, two_ele, fock, nelec_high, norb_high, guess_orbitals, chemical_potential)
+        mf_fragments, fock_frag_copy, mol = dmet_fragment_scf_rhf(t_list, two_ele, fock, nelec_high, norb_high, guess_orbitals, chemical_potential)
 
         # Test the energy calculation and construction of the one-particle RDM from the CC calculation for a fragment
         # fragment_energy, onerdm_frag, _, _ = dmet_fragment_cc_classical(mf_fragments, fock_frag_copy, t_list, one_ele, two_ele, fock)
