@@ -225,6 +225,7 @@ class Backend(abc.ABC):
             return (frequencies, statevector) if return_statevector else (frequencies, None)
 
         if save_mid_circuit_meas:
+            # TODO: refactor to break a circular import. May involve by relocating get_xxx_oneterm functions
             from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
 
             (all_frequencies, statevector) = self.simulate_circuit(source_circuit,

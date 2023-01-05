@@ -134,7 +134,19 @@ class CirqSimulator(Backend):
         return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
     def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
+        """ Compute an expectation value using a representation of the state (density matrix, state vector...)
+        using Cirq functionalities.
 
+        Args:
+            qubit_operator (QubitOperator): a qubit operator in tangelo format
+            n_qubits (int): the number of qubits the operator acts on
+            prepared_state (np.array): a numpy array encoding the state (can be a vector or a matrix)
+
+        Returns:
+            float64 : the expectation value of the qubit operator w.r.t the input state
+        """
+
+        # Construct equivalent Pauli operator in Cirq format
         GATE_CIRQ = get_cirq_gates()
         qubit_labels = self.cirq.LineQubit.range(n_qubits)
         qubit_map = {q: i for i, q in enumerate(qubit_labels)}
@@ -142,6 +154,8 @@ class CirqSimulator(Backend):
         for term, coef in qubit_operator.terms.items():
             pauli_list = [GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
             paulisum += self.cirq.PauliString(pauli_list, coefficient=coef)
+
+        # Compute expectation value using Cirq's features
         if self._noise_model:
             exp_value = paulisum.expectation_from_density_matrix(prepared_state, qubit_map)
         else:
