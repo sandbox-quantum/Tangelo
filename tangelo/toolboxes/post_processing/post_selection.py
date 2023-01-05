@@ -47,7 +47,8 @@ def ancilla_symmetry_circuit(circuit, sym_op):
     if n_qubits < op_len:
         raise RuntimeError("The size of the symmetry operator is bigger than the number of qubits.")
     elif n_qubits > op_len:
-        warnings.warn("The size of the symmetry operator is smaller than the number of qubits. Remaining qubits will be measured in the Z-basis.")
+        warnings.warn(
+            "The size of the symmetry operator is smaller than the number of qubits. Remaining qubits will be measured in the Z-basis.")
 
     if isinstance(sym_op, str):
         basis_gates = measurement_basis_gates(pauli_string_to_of(sym_op))
@@ -56,7 +57,8 @@ def ancilla_symmetry_circuit(circuit, sym_op):
     elif isinstance(sym_op, QubitOperator):
         basis_gates = measurement_basis_gates(list(sym_op.terms.keys())[0])
     else:
-        raise RuntimeError("The symmetry operator must be an OpenFermion-style operator, a QubitOperator, or a Pauli word.")
+        raise RuntimeError(
+            "The symmetry operator must be an OpenFermion-style operator, a QubitOperator, or a Pauli word.")
 
     basis_circ = Circuit(basis_gates)
     parity_gates = [Gate("CNOT", n_qubits, i) for i in range(n_qubits)]
@@ -97,3 +99,26 @@ def strip_post_selection(freqs, *qubits):
     hist = Histogram(freqs, n_shots=0)
     hist.remove_qubit_indices(*qubits)
     return hist.frequencies
+
+
+def split_frequency_dict(frequencies, indices):
+    """Marginalize the frequencies dictionary over the indices.
+    This splits the frequency dictionary into two frequency dictionaries
+    and aggregates the corresponding frequencies.
+
+    Args:
+        frequencies (dict): The input frequency dictionary
+        indices (list): The list of indices in the frequency dictionary to marginalize over
+
+    Returns:
+        dict: The marginal frequencies for provided indices
+        dict: The marginal frequencies for remaining indices"""
+    key_length = len(next(iter(frequencies)))
+    other_indices = [i for i in range(key_length) if i not in indices]
+
+    new_hist = Histogram(frequencies)
+    new_hist.remove_qubit_indices(*other_indices)
+    other_hist = Histogram(frequencies)
+    other_hist.remove_qubit_indices(*indices)
+
+    return new_hist.frequencies, other_hist.frequencies

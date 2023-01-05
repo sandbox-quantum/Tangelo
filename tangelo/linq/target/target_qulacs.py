@@ -30,7 +30,7 @@ class QulacsSimulator(Backend):
         super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.qulacs = qulacs
 
-    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
+    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on the availability of the
@@ -40,12 +40,19 @@ class QulacsSimulator(Backend):
         equivalent gates.
 
         Args:
-            source_circuit: a circuit in the abstract format to be translated
+            source_circuit (Circuit): a circuit in the abstract format to be translated
                 for the target backend.
-            return_statevector(bool): option to return the statevector as well,
+            return_statevector (bool): option to return the statevector as well,
                 if available.
-            initial_statevector(list/array) : A valid statevector in the format
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
+            save_mid_circuit_meas (bool): Save mid-circuit measurement results to
+                self.mid_circuit_meas_freqs. All measurements will be saved to
+                self.all_frequencies, with keys of length (n_meas + n_qubits).
+                The leading n_meas values will hold the results of the MEASURE gates,
+                ordered by their appearance in the source_circuit.
+                The last n_qubits values will hold the measurements performed on
+                each of qubits at the end of the circuit.
 
         Returns:
             dict: A dictionary mapping multi-qubit states to their corresponding
@@ -53,43 +60,66 @@ class QulacsSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-
         translated_circuit = translate_c(source_circuit, "qulacs",
-            output_options={"noise_model": self._noise_model})
+                output_options={"noise_model": self._noise_model, "save_measurements": save_mid_circuit_meas})
 
         # Initialize state on GPU if available and desired. Default to CPU otherwise.
         if ('QuantumStateGpu' in dir(self.qulacs)) and (int(os.getenv("QULACS_USE_GPU", 0)) != 0):
             state = self.qulacs.QuantumStateGpu(source_circuit.width)
         else:
             state = self.qulacs.QuantumState(source_circuit.width)
+
+        python_statevector = None
         if initial_statevector is not None:
             state.load(initial_statevector)
 
-        if (source_circuit.is_mixed_state or self._noise_model):
-            samples = list()
-            for i in range(self.n_shots):
+        # If you don't want to save the mid-circuit measurements for a mixed state
+        if (source_circuit.is_mixed_state or self._noise_model) and not save_mid_circuit_meas:
+            samples = dict()
+            for _ in range(self.n_shots):
                 translated_circuit.update_quantum_state(state)
-                samples.append(state.sampling(1)[0])
+                bitstr = state.sampling(1)[0]
+                samples[bitstr] = samples.get(bitstr, 0) + 1
                 if initial_statevector is not None:
                     state.load(initial_statevector)
                 else:
                     state.set_zero_state()
-            python_statevector = None
+
+        # To save mid-circuit measurement results
+        elif save_mid_circuit_meas:
+            n_meas = source_circuit.counts.get("MEASURE", 0)
+            samples = dict()
+            for _ in range(self.n_shots):
+                translated_circuit.update_quantum_state(state)
+                measurement = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
+                sample = self._int_to_binstr(state.sampling(1)[0], source_circuit.width)
+                bitstr = measurement + sample
+                samples[bitstr] = samples.get(bitstr, 0) + 1
+                if initial_statevector is not None:
+                    state.load(initial_statevector)
+                else:
+                    state.set_zero_state()
+            self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
+            return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)
+
+        # All other cases for shot-based simulation
         elif self.n_shots is not None:
             translated_circuit.update_quantum_state(state)
             self._current_state = state
             python_statevector = np.array(state.get_vector()) if return_statevector else None
-            samples = state.sampling(self.n_shots)
+            samples = Counter(state.sampling(self.n_shots))  # this sampling still returns a list
+
+        # Statevector simulation
         else:
             translated_circuit.update_quantum_state(state)
             self._current_state = state
-            python_statevector = state.get_vector()
+            python_statevector = np.array(state.get_vector())
             frequencies = self._statevector_to_frequencies(python_statevector)
-            return (frequencies, np.array(python_statevector)) if return_statevector else (frequencies, None)
+            return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
         frequencies = {self._int_to_binstr(k, source_circuit.width): v / self.n_shots
-                       for k, v in Counter(samples).items()}
-        return (frequencies, python_statevector)
+                       for k, v in samples.items()}
+        return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
     def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
 
