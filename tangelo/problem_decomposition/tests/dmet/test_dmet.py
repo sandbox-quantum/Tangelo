@@ -201,7 +201,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
                     "fragment_atoms": [1]*10,
                     "fragment_solvers": ["vqe"] + ["ccsd"]*9,
                     "electron_localization": Localization.meta_lowdin,
-                    "verbose": True,
+                    "verbose": False,
                     "solvers_options": [{"qubit_mapping": "scBK",
                                          "initial_var_params": "ones",
                                          "up_then_down": True,

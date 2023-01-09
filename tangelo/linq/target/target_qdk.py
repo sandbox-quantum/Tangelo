@@ -60,7 +60,7 @@ class QDKSimulator(Backend):
         with open('tmp_circuit.qs', 'w+') as f_out:
             f_out.write(translated_circuit)
 
-        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+        n_meas = source_circuit.counts.get("MEASURE", 0)
         key_length = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
         # Compile, import and call Q# operation to compute frequencies. Only import qsharp module if qdk is running
         # TODO: A try block to catch an exception at compile time, for Q#? Probably as an ImportError.

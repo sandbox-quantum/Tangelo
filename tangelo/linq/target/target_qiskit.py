@@ -53,11 +53,10 @@ class QiskitSimulator(Backend):
                 Must have the same length as the number of MEASURE gates in source_circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
-                self.all_frequencies.
-                self.all_frequencies will have keys of length m + n_qubits
-                The first m values in each key will be the result of the m MEASURE gates ordered
-                by their appearance in the list of gates in the source_circuit.
-                The last n_qubits values in each key will be the measurements performed on
+                self.all_frequencies, with keys of length (n_meas + n_qubits).
+                The leading n_meas values will hold the results of the MEASURE gates,
+                ordered by their appearance in the source_circuit.
+                The last n_qubits values will hold the measurements performed on
                 each of qubits at the end of the circuit.
 
         Returns:
@@ -74,7 +73,7 @@ class QiskitSimulator(Backend):
                 raise ValueError("Cannot load an initial state if using a noise model, with Qiskit")
             else:
                 n_qubits = int(math.log2(len(initial_statevector)))
-                n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+                n_meas = source_circuit.counts.get("MEASURE", 0)
                 n_registers = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
                 initial_state_circuit = self.qiskit.QuantumCircuit(n_qubits, n_registers)
                 initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
@@ -84,7 +83,7 @@ class QiskitSimulator(Backend):
         if self._noise_model or source_circuit.is_mixed_state and (desired_meas_result is None or not return_statevector):
             from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
 
-            n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+            n_meas = source_circuit.counts.get("MEASURE", 0)
             meas_start = n_meas if save_mid_circuit_meas else 0
             meas_range = range(meas_start, meas_start + source_circuit.width)
             translated_circuit.measure(range(source_circuit.width), meas_range)
@@ -105,7 +104,7 @@ class QiskitSimulator(Backend):
         # desired_meas_result is not None and return_statevector is requested so loop shot by shot (much slower)
         elif desired_meas_result is not None:
             from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
-            n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+            n_meas = source_circuit.counts.get("MEASURE", 0)
             backend = self.AerSimulator(method='statevector')
             qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
             translated_circuit = self.qiskit.transpile(translated_circuit, backend)

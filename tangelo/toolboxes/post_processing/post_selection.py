@@ -109,7 +109,7 @@ def split_frequency_dict(frequencies, indices, desired_measurement=None):
     post-selected for that outcome on the mid-circuit measurements.
 
     Args:
-        frequencies (dict): The frequency dictionary to perform the marginal computation
+        frequencies (dict): The input frequency dictionary
         indices (list): The list of indices in the frequency dictionary to marginalize over
         desired_measurement (str): The bit string that is to be selected
 

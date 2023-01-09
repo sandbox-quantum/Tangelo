@@ -46,6 +46,7 @@ class BuiltInAnsatze(Enum):
     VSQS = agen.VSQS
     UCCGD = agen.UCCGD
     ILC = agen.ILC
+    pUCCD = agen.pUCCD
 
 
 class VQESolver:
@@ -125,6 +126,9 @@ class VQESolver:
                 warnings.warn("Spin-orbital ordering shifted to all spin-up first then down to ensure efficient generator screening "
                               "for the Jordan-Wigner mapping with QCC-based ansatze.", RuntimeWarning)
                 self.up_then_down = True
+            if self.ansatz == BuiltInAnsatze.pUCCD and self.qubit_mapping.lower() != "hcb":
+                warnings.warn("Forcing the hard-core boson mapping for the pUCCD ansatz.", RuntimeWarning)
+                self.mapping = "HCB"
             # QCC and QMF and ILC require a reference state that can be represented by a single layer of RZ-RX gates on each qubit.
             # This decomposition can not be determined from a general Circuit reference state.
             if isinstance(self.ref_state, Circuit):
@@ -180,7 +184,7 @@ class VQESolver:
                                                               n_spinorbitals=self.molecule.n_active_sos,
                                                               n_electrons=self.molecule.n_active_electrons,
                                                               up_then_down=self.up_then_down,
-                                                              spin=self.molecule.spin)
+                                                              spin=self.molecule.active_spin)
 
             if self.penalty_terms:
                 pen_ferm = agen.penalty_terms.combined_penalty(self.molecule.n_active_mos, self.penalty_terms)
@@ -189,7 +193,7 @@ class VQESolver:
                                                      n_spinorbitals=self.molecule.n_active_sos,
                                                      n_electrons=self.molecule.n_active_electrons,
                                                      up_then_down=self.up_then_down,
-                                                     spin=self.molecule.spin)
+                                                     spin=self.molecule.active_spin)
                 self.qubit_hamiltonian += pen_qubit
                 if self.ansatz == BuiltInAnsatze.QCC:
                     self.ansatz_options["qubit_ham"] = self.qubit_hamiltonian.to_qubitoperator()
@@ -210,6 +214,8 @@ class VQESolver:
             if isinstance(self.ansatz, BuiltInAnsatze):
                 if self.ansatz in {BuiltInAnsatze.UCC1, BuiltInAnsatze.UCC3}:
                     self.ansatz = self.ansatz.value
+                elif self.ansatz == BuiltInAnsatze.pUCCD:
+                    self.ansatz = self.ansatz.value(self.molecule, **self.ansatz_options)
                 elif self.ansatz in self.builtin_ansatze:
                     self.ansatz = self.ansatz.value(self.molecule, self.qubit_mapping, self.up_then_down, **self.ansatz_options)
                 else:
@@ -362,7 +368,7 @@ class VQESolver:
                 if self.molecule:
                     n_active_electrons = self.molecule.n_active_electrons
                     n_active_sos = self.molecule.n_active_sos
-                    spin = self.molecule.spin
+                    spin = self.molecule.active_spin
                 else:
                     raise KeyError("Must supply n_active_electrons, n_active_sos, and spin with a FermionOperator and scbk mapping.")
 
@@ -499,6 +505,136 @@ class VQESolver:
             return rdm1_np, rdm2_np
 
         return rdm1_spin, rdm2_spin
+
+    def get_rdm_uhf(self, var_params, resample=False, ref_state=Circuit()):
+        """Compute the 1- and 2- RDM matrices using the VQE energy evaluation.
+        This method allows to combine the DMET problem decomposition technique
+        with the VQE as an electronic structure solver. The RDMs are computed by
+        using each fermionic Hamiltonian term, transforming them and computing
+        the elements one-by-one. Note that the Hamiltonian coefficients will not
+        be multiplied as in the energy evaluation. The first element of the
+        Hamiltonian is the nuclear repulsion energy term, not the Hamiltonian
+        term.
+
+        Args:
+            var_params (numpy.array or list): variational parameters to use for
+                rdm calculation
+            resample (bool): Whether to resample saved frequencies. get_rdm with
+                savefrequencies=True must be called or a dictionary for each
+                qubit terms' frequencies must be set to self.rdm_freq_dict
+            ref_state (Circuit): A reference state preparation circuit.
+
+        Returns: TODO
+            (numpy.array, numpy.array): One & two-particle spin summed RDMs if
+                sumspin=True or the full One & two-Particle RDMs if
+                sumspin=False.
+        """
+
+        self.ansatz.update_var_params(var_params)
+
+        # Initialize the RDM arrays
+        n_mol_orbitals = max(self.molecule.n_active_mos)
+        rdm1_np_a = np.zeros((n_mol_orbitals,) * 2)
+        rdm1_np_b = np.zeros((n_mol_orbitals,) * 2)
+        rdm2_np_a = np.zeros((n_mol_orbitals,) * 4)
+        rdm2_np_b = np.zeros((n_mol_orbitals,) * 4)
+        rdm2_np_ba = np.zeros((n_mol_orbitals,) * 4)
+
+        # If resampling is requested, check that a previous savefrequencies run has been called
+        if resample:
+            if hasattr(self, "rdm_freq_dict"):
+                qb_freq_dict = self.rdm_freq_dict
+                resampled_expect_dict = dict()
+            else:
+                raise AttributeError("Need to run RDM calculation with savefrequencies=True")
+        else:
+            qb_freq_dict = dict()
+            qb_expect_dict = dict()
+
+        # Loop over each element of Hamiltonian (non-zero value)
+        for key in self.molecule.fermionic_hamiltonian.terms:
+            # Ignore constant / empty term
+            if not key:
+                continue
+
+            # Assign indices depending on one- or two-body term
+            length = len(key)
+            # One-body terms.
+            if(length == 2):
+                pele, qele = int(key[0][0]), int(key[1][0])
+                iele, jele = pele // 2, qele // 2
+                iele_r, jele_r = pele % 2, qele % 2
+            # Two-body terms.
+            elif(length == 4):
+                pele, qele, rele, sele = int(key[0][0]), int(key[1][0]), int(key[2][0]), int(key[3][0])
+                iele, jele, kele, lele = pele // 2, qele // 2, rele // 2, sele // 2
+                iele_r, jele_r, kele_r, lele_r = pele % 2, qele % 2, rele % 2, sele % 2
+
+            # Create the Hamiltonian with the correct key (Set coefficient to one)
+            hamiltonian_temp = FermionOperator(key)
+
+            # Obtain qubit Hamiltonian
+            qubit_hamiltonian2 = fermion_to_qubit_mapping(fermion_operator=hamiltonian_temp,
+                                                          mapping=self.qubit_mapping,
+                                                          n_spinorbitals=self.molecule.n_active_sos,
+                                                          n_electrons=self.molecule.n_active_electrons,
+                                                          up_then_down=self.up_then_down,
+                                                          spin=self.molecule.spin)
+            qubit_hamiltonian2.compress()
+
+            # Run through each qubit term separately, use previously calculated result for the qubit term or
+            # calculate and save results for that qubit term
+            opt_energy2 = 0.
+            for qb_term, qb_coef in qubit_hamiltonian2.terms.items():
+                if qb_term:
+                    if qb_term not in qb_freq_dict:
+                        if resample:
+                            warnings.warn(f"Warning: rerunning circuit for missing qubit term {qb_term}")
+                        basis_circuit = Circuit(measurement_basis_gates(qb_term))
+                        full_circuit = ref_state + self.ansatz.circuit + basis_circuit
+                        qb_freq_dict[qb_term], _ = self.backend.simulate(full_circuit)
+                    if resample:
+                        if qb_term not in resampled_expect_dict:
+                            resampled_freq_dict = get_resampled_frequencies(qb_freq_dict[qb_term], self.backend.n_shots)
+                            resampled_expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, resampled_freq_dict)
+                        expectation = resampled_expect_dict[qb_term]
+                    else:
+                        if qb_term not in qb_expect_dict:
+                            qb_expect_dict[qb_term] = self.backend.get_expectation_value_from_frequencies_oneterm(qb_term, qb_freq_dict[qb_term])
+                        expectation = qb_expect_dict[qb_term]
+                    opt_energy2 += qb_coef * expectation
+                else:
+                    opt_energy2 += qb_coef
+
+            # Put the values in np arrays (differentiate 1- and 2-RDM)
+            if length == 2:
+                if (iele_r, jele_r) == (0, 0):
+                    rdm1_np_a[iele, jele] += opt_energy2
+                elif (iele_r, jele_r) == (1, 1):
+                    rdm1_np_b[iele, jele] += opt_energy2
+            elif length == 4:
+                if ((iele != lele) or (jele != kele)):
+                    if (iele_r, jele_r, kele_r, lele_r) == (0, 0, 0, 0):
+                        rdm2_np_a[lele, iele, kele, jele] += 0.5 * opt_energy2
+                        rdm2_np_a[iele, lele, jele, kele] += 0.5 * opt_energy2
+                    elif (iele_r, jele_r, kele_r, lele_r) == (1, 1, 1, 1):
+                        rdm2_np_b[lele, iele, kele, jele] += 0.5 * opt_energy2
+                        rdm2_np_b[iele, lele, jele, kele] += 0.5 * opt_energy2
+                    elif (iele_r, jele_r, kele_r, lele_r) == (0, 1, 1, 0):
+                        rdm2_np_ba[iele, lele, jele, kele] += 0.5 * opt_energy2
+                        rdm2_np_ba[lele, iele, kele, jele] += 0.5 * opt_energy2
+                else:
+                    if (iele_r, jele_r, kele_r, lele_r) == (0, 0, 0, 0):
+                        rdm2_np_a[iele, lele, jele, kele] += opt_energy2
+                    elif (iele_r, jele_r, kele_r, lele_r) == (1, 1, 1, 1):
+                        rdm2_np_b[iele, lele, jele, kele] += opt_energy2
+                    elif (iele_r, jele_r, kele_r, lele_r) == (0, 1, 1, 0):
+                        rdm2_np_ba[iele, lele, jele, kele] += opt_energy2
+
+        # save rdm frequency dictionary
+        self.rdm_freq_dict = qb_freq_dict
+
+        return (rdm1_np_a, rdm1_np_b), (rdm2_np_a, rdm2_np_ba, rdm2_np_b)
 
     def _default_optimizer(self, func, var_params):
         """Function used as a default optimizer for VQE when user does not

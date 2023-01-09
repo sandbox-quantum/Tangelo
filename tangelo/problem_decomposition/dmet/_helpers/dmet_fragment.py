@@ -19,7 +19,7 @@ fragment, from the atom list, showing how many atoms included in each fragment.
 """
 
 
-def dmet_fragment_constructor(mol, atom_list, number_fragment):
+def dmet_fragment_constructor(mol, atom_list, n_fragment):
     """Construct orbital list.
 
     Make a list of number of orbitals for each fragment while obtaining the list
@@ -28,8 +28,7 @@ def dmet_fragment_constructor(mol, atom_list, number_fragment):
     Args:
         mol (pyscf.gto.Mole): The molecule to simulate (The full molecule).
         atom_list (list): The atom list for each fragment (int).
-        number_fragment (list): Number of element in atom list per fragment
-            (int).
+        n_fragment (list): Number of atoms per fragment (int).
 
     Returns:
         list: The number of orbitals for each fragment (int).
@@ -39,18 +38,18 @@ def dmet_fragment_constructor(mol, atom_list, number_fragment):
     """
 
     # Make a new atom list based on how many fragments for DMET calculation
-    if number_fragment == 0:
+    if n_fragment == 0:
         atom_list2 = atom_list
     else:
         # Calculate the number of DMET calculations
-        number_new_fragment = int(len(atom_list)/(number_fragment+1))  # number of DMET calulation per loop
+        n_new_fragment = int(len(atom_list)/(n_fragment+1))
         atom_list2 = []
 
         # Define the number of atoms per DMET calculation
-        for i in range(number_new_fragment):
+        for i in range(n_new_fragment):
             num = 0
-            for j in range(number_fragment + 1):
-                k = (number_fragment+1)*i+j
+            for j in range(n_fragment + 1):
+                k = (n_fragment + 1) * i + j
                 num += atom_list[k]
             atom_list2.append(num)
 

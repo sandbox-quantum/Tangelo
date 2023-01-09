@@ -22,6 +22,7 @@ from tangelo.linq.translator.translate_projectq import translate_c_to_projectq, 
 from tangelo.linq.translator.translate_qdk import translate_c_to_qsharp
 from tangelo.linq.translator.translate_qiskit import translate_c_to_qiskit, translate_c_from_qiskit
 from tangelo.linq.translator.translate_qulacs import translate_c_to_qulacs
+from tangelo.linq.translator.translate_pennylane import translate_c_to_pennylane
 
 
 FROM_TANGELO = {
@@ -32,7 +33,8 @@ FROM_TANGELO = {
     "projectq": translate_c_to_projectq,
     "qdk": translate_c_to_qsharp,
     "qiskit": translate_c_to_qiskit,
-    "qulacs": translate_c_to_qulacs
+    "qulacs": translate_c_to_qulacs,
+    "pennylane": translate_c_to_pennylane
 }
 
 TO_TANGELO = {

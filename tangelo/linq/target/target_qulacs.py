@@ -51,11 +51,10 @@ class QulacsSimulator(Backend):
                 Must have the same length as the number of MEASURE gates in source_circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
-                self.all_frequencies.
-                self.all_frequencies will have keys of length m + n_qubits
-                The first m values in each key will be the result of the m MEASURE gates ordered
-                by their appearance in the list of gates in the source_circuit.
-                The last n_qubits values in each key will be the measurements performed on
+                self.all_frequencies, with keys of length (n_meas + n_qubits).
+                The leading n_meas values will hold the results of the MEASURE gates,
+                ordered by their appearance in the source_circuit.
+                The last n_qubits values will hold the measurements performed on
                 each of qubits at the end of the circuit.
 
         Returns:
@@ -77,6 +76,7 @@ class QulacsSimulator(Backend):
         if initial_statevector is not None:
             state.load(initial_statevector)
 
+        # If you don't want to save the mid-circuit measurements for a mixed state
         if (source_circuit.is_mixed_state or self._noise_model) and (desired_meas_result is None and not save_mid_circuit_meas):
             samples = dict()
             for i in range(self.n_shots):
@@ -88,16 +88,17 @@ class QulacsSimulator(Backend):
                 else:
                     state.set_zero_state()
 
+        # To save mid-circuit measurement results
         elif save_mid_circuit_meas:
-            n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+            n_meas = source_circuit.counts.get("MEASURE", 0)
             samples = dict()
-
             for _ in range(self.n_shots):
                 translated_circuit.update_quantum_state(state)
                 measurement = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
                 sample = self._int_to_binstr(state.sampling(1)[0], source_circuit.width)
                 bitstr = measurement + sample
                 samples[bitstr] = samples.get(bitstr, 0) + 1
+
                 if measurement == desired_meas_result:
                     python_statevector = state.get_vector()
                     self._current_state = python_statevector
@@ -107,14 +108,16 @@ class QulacsSimulator(Backend):
                     state.set_zero_state()
 
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
-
             return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)
 
+        # All other cases for shot-based simulation
         elif self.n_shots is not None:
             translated_circuit.update_quantum_state(state)
             self._current_state = state
             python_statevector = np.array(state.get_vector()) if return_statevector else None
             samples = Counter(state.sampling(self.n_shots))  # this sampling still returns a list
+
+        # Statevector simulation
         else:
             translated_circuit.update_quantum_state(state)
             self._current_state = state

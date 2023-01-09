@@ -128,10 +128,8 @@ class TestSimulateAllBackends(unittest.TestCase):
             assert_freq_dict_almost_equal(results[b], reference_mixed, 1e-2)
 
     def test_simulate_mixed_state_save_measures(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
-        Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
-        Simulating individual shots is suitable.
-        Some simulators are NOT good at this, by design
+        """ Test mid-circuit measurement (mixed-state simulation) for all installed backends.
+        Mixed-states do not have a statevector representation, as they are a statistical mixture of several quantum states.
         """
         results = dict()
         for b in installed_simulator:

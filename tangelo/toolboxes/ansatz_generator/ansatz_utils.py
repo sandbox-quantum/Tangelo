@@ -425,10 +425,10 @@ def givens_gate(target, theta, is_variational=False):
     """Generates the list of gates corresponding to a givens rotation exp(-theta*(XX+YY))
 
     Explicitly the two-qubit matrix is
-    [[0,      0,           0,       0],
+    [[1,      0,           0,       0],
      [0,  cos(theta), -sin(theta),  0],
      [0,  sin(theta),  cos(theta),  0],
-     [0,      0,            0,      0]]
+     [0,      0,            0,      1]]
 
     Args:
         target (list): list of two integers that indicate which qubits are involved in the givens rotation

@@ -48,9 +48,9 @@ def get_expectation_value_from_frequencies_oneterm(term, frequencies):
     the result of a state-preparation.
 
     Args:
-        term(openfermion-style QubitOperator object): a qubit operator, with
+        term (openfermion-style QubitOperator object): a qubit operator, with
             only a single term.
-        frequencies(dict): histogram of frequencies of measurements (assumed
+        frequencies (dict): histogram of frequencies of measurements (assumed
             to be in lsq-first format).
 
     Returns:
@@ -82,9 +82,9 @@ def get_variance_from_frequencies_oneterm(term, frequencies):
     """Return the variance of the expectation value of a single-term qubit-operator, given
     the result of a state-preparation.
     Args:
-        term(openfermion-style QubitOperator object): a qubit operator, with
+        term (openfermion-style QubitOperator object): a qubit operator, with
             only a single term.
-        frequencies(dict): histogram of frequencies of measurements (assumed
+        frequencies (dict): histogram of frequencies of measurements (assumed
             to be in lsq-first format).
     Returns:
         complex: The variance of this operator with regard to the
@@ -207,7 +207,7 @@ class Backend(abc.ABC):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+        n_meas = source_circuit.counts.get("MEASURE", 0)
 
         if source_circuit.is_mixed_state and not self.n_shots:
             raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state."
@@ -236,18 +236,25 @@ class Backend(abc.ABC):
 
         # For mid-circuit measurements post-process the result
         if save_mid_circuit_meas:
+            # TODO: refactor to break a circular import. May involve by relocating get_xxx_oneterm functions
             from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
 
-            (all_frequencies, statevector) = self.simulate_circuit(source_circuit, return_statevector=return_statevector,
-                                  initial_statevector=initial_statevector, desired_meas_result=desired_meas_result, save_mid_circuit_meas=save_mid_circuit_meas)
+            (all_frequencies, statevector) = self.simulate_circuit(source_circuit,
+                                                                   return_statevector=return_statevector,
+                                                                   initial_statevector=initial_statevector,
+                                                                   desired_meas_result=desired_meas_result,
+                                                                   save_mid_circuit_meas=save_mid_circuit_meas)
             self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(all_frequencies,
                                                                             list(range(n_meas)),
                                                                             desired_measurement=desired_meas_result)
             self.success_probability = self.mid_circuit_meas_freqs.get(desired_meas_result, 0)
             return (frequencies, statevector)
 
-        return self.simulate_circuit(source_circuit, return_statevector=return_statevector,
-                            initial_statevector=initial_statevector, save_mid_circuit_meas=save_mid_circuit_meas)
+        return self.simulate_circuit(source_circuit,
+                                     return_statevector=return_statevector,
+                                     initial_statevector=initial_statevector,
+                                     desired_meas_result=desired_meas_result,
+                                     save_mid_circuit_meas=save_mid_circuit_meas)
 
     def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a quantum circuit preparing a
@@ -261,10 +268,10 @@ class Backend(abc.ABC):
         actual QPU.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit
+            qubit_operator (openfermion-style QubitOperator class): a qubit
                 operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
-            initial_statevector (array): The initial statevector for the simulation.
+            initial_statevector (array): The initial statevector for the simulation
             desired_meas_result (str): The mid-circuit measurement results to select for.
 
         Returns:
@@ -316,10 +323,10 @@ class Backend(abc.ABC):
         actual QPU.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit
+            qubit_operator (openfermion-style QubitOperator class): a qubit
                 operator.
-            state_prep_circuit(Circuit): an abstract circuit used for state preparation.
-            initial_statevector(list/array) : A valid statevector in the format
+            state_prep_circuit (Circuit): an abstract circuit used for state preparation.
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
 
         Returns:
@@ -368,10 +375,10 @@ class Backend(abc.ABC):
         actual QPU.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit
+            qubit_operator (openfermion-style QubitOperator class): a qubit
                 operator.
-            state_prep_circuit(Circuit): an abstract circuit used for state preparation.
-            initial_statevector(list/array) : A valid statevector in the format
+            state_prep_circuit (Circuit): an abstract circuit used for state preparation.
+            initial_statevector (list/array): A valid statevector in the format
                 supported by the target backend.
 
         Returns:
@@ -388,7 +395,7 @@ class Backend(abc.ABC):
         this function directly, please call "get_expectation_value" instead.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit operator.
+            qubit_operator (openfermion-style QubitOperator class): a qubit operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation (only pure states).
             initial_statevector (array): The initial state of the system
             desired_meas_result (str): The expectation value is taken for over the frequencies
@@ -441,7 +448,7 @@ class Backend(abc.ABC):
         using the frequencies of observable states.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubitoperator.
+            qubit_operator (openfermion-style QubitOperator class): a qubitoperator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (array): The initial state of the system
 
@@ -483,9 +490,9 @@ class Backend(abc.ABC):
         using the frequencies of observable states.
 
         Args:
-            qubit_operator(openfermion-style QubitOperator class): a qubit operator.
-            state_prep_circuit(Circuit): an abstract circuit used for state preparation.
-            initial_statevector(list/array) : A valid statevector in the format
+            qubit_operator (openfermion-style QubitOperator class): a qubit operator.
+            state_prep_circuit (Circuit): an abstract circuit used for state preparation.
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
 
         Returns:
@@ -528,9 +535,9 @@ class Backend(abc.ABC):
         the result of a state-preparation.
 
         Args:
-            term(openfermion-style QubitOperator object): a qubit operator, with
+            term (openfermion-style QubitOperator object): a qubit operator, with
                 only a single term.
-            frequencies(dict): histogram of frequencies of measurements (assumed
+            frequencies (dict): histogram of frequencies of measurements (assumed
                 to be in lsq-first format).
 
         Returns:
@@ -546,9 +553,9 @@ class Backend(abc.ABC):
         the result of a state-preparation.
 
         Args:
-            term(openfermion-style QubitOperator object): a qubit operator, with
+            term (openfermion-style QubitOperator object): a qubit operator, with
                 only a single term.
-            frequencies(dict): histogram of frequencies of measurements (assumed
+            frequencies (dict): histogram of frequencies of measurements (assumed
                 to be in lsq-first format).
 
         Returns:
@@ -566,7 +573,7 @@ class Backend(abc.ABC):
         state |0>.
 
         Args:
-            statevector(list or ndarray(complex)): an iterable 1D data-structure
+            statevector (list or ndarray(complex)): an iterable 1D data-structure
                 containing the amplitudes.
 
         Returns:

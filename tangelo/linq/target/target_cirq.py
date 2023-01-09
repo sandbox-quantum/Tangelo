@@ -67,7 +67,7 @@ class CirqSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        n_meas = source_circuit._gate_counts.get("MEASURE", 0)
+        n_meas = source_circuit.counts.get("MEASURE", 0)
         # Only DensityMatrixSimulator handles noise well, can use Simulator, but it is slower
         if self._noise_model or (source_circuit.is_mixed_state and not save_mid_circuit_meas):
             cirq_simulator = self.cirq.DensityMatrixSimulator(dtype=np.complex128)
@@ -78,7 +78,6 @@ class CirqSimulator(Backend):
         cirq_initial_statevector = initial_statevector if initial_statevector is not None else 0
 
         # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
-        # Calculate final density matrix and sample from that for noisy simulation or simulating non-saved mixed states
         if (self._noise_model or source_circuit.is_mixed_state) and not save_mid_circuit_meas:
             translated_circuit = translate_c(source_circuit, "cirq",
                     output_options={"noise_model": self._noise_model, "save_measurements": save_mid_circuit_meas})
@@ -90,8 +89,8 @@ class CirqSimulator(Backend):
             indices = list(range(source_circuit.width))
             isamples = self.cirq.sample_density_matrix(sim.final_density_matrix, indices, repetitions=self.n_shots)
             samples = [''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots)]
-
             frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
+
         # Noiseless simulation using the statevector simulator otherwise
         # Run all shots at once and post-process to return measured frequencies on qubits only
         elif save_mid_circuit_meas and not return_statevector:
@@ -138,7 +137,19 @@ class CirqSimulator(Backend):
         return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
     def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
+        """ Compute an expectation value using a representation of the state (density matrix, state vector...)
+        using Cirq functionalities.
 
+        Args:
+            qubit_operator (QubitOperator): a qubit operator in tangelo format
+            n_qubits (int): the number of qubits the operator acts on
+            prepared_state (np.array): a numpy array encoding the state (can be a vector or a matrix)
+
+        Returns:
+            float64 : the expectation value of the qubit operator w.r.t the input state
+        """
+
+        # Construct equivalent Pauli operator in Cirq format
         GATE_CIRQ = get_cirq_gates()
         qubit_labels = self.cirq.LineQubit.range(n_qubits)
         qubit_map = {q: i for i, q in enumerate(qubit_labels)}
@@ -146,6 +157,8 @@ class CirqSimulator(Backend):
         for term, coef in qubit_operator.terms.items():
             pauli_list = [GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
             paulisum += self.cirq.PauliString(pauli_list, coefficient=coef)
+
+        # Compute expectation value using Cirq's features
         if self._noise_model:
             exp_value = paulisum.expectation_from_density_matrix(prepared_state, qubit_map)
         else:

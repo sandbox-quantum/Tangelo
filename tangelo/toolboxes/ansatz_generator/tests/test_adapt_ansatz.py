@@ -29,13 +29,13 @@ class ADAPTAnsatzTest(unittest.TestCase):
     def test_adaptansatz_init(self):
         """Verify behavior of ADAPTAnsatz class."""
 
-        ansatz = ADAPTAnsatz(n_spinorbitals=4, n_electrons=2)
+        ansatz = ADAPTAnsatz(n_spinorbitals=4, n_electrons=2, spin=0)
         ansatz.build_circuit()
 
     def test_adaptansatz_adding(self):
         """Verify operator addition behavior of ADAPTAnsatz class."""
 
-        ansatz = ADAPTAnsatz(n_spinorbitals=4, n_electrons=2)
+        ansatz = ADAPTAnsatz(n_spinorbitals=4, n_electrons=2, spin=0)
         ansatz.build_circuit()
 
         ansatz.add_operator(qu_op)
@@ -46,7 +46,7 @@ class ADAPTAnsatzTest(unittest.TestCase):
     def test_adaptansatz_set_var_params(self):
         """Verify variational parameter tuning behavior of ADAPTAnsatz class."""
 
-        ansatz = ADAPTAnsatz(n_spinorbitals=4, n_electrons=2)
+        ansatz = ADAPTAnsatz(n_spinorbitals=4, n_electrons=2, spin=0)
         ansatz.build_circuit()
 
         ansatz.add_operator(qu_op)

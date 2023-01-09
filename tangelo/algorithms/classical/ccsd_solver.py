@@ -15,8 +15,11 @@
 """Class performing electronic structure calculation employing the CCSD method.
 """
 
+import numpy as np
 from pyscf import cc, lib
 from pyscf.cc.ccsd_rdm import _make_rdm1, _make_rdm2, _gamma1_intermediates, _gamma2_outcore
+from pyscf.cc.uccsd_rdm import (_make_rdm1 as _umake_rdm1, _make_rdm2 as _umake_rdm2,
+                                _gamma1_intermediates as _ugamma1_intermediates, _gamma2_outcore as _ugamma2_outcore)
 
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
 
@@ -37,8 +40,11 @@ class CCSDSolver(ElectronicStructureSolver):
     def __init__(self, molecule):
         self.cc_fragment = None
 
+        self.spin = molecule.spin
+
         self.mean_field = molecule.mean_field
         self.frozen = molecule.frozen_mos
+        self.uhf = molecule.uhf
 
     def simulate(self):
         """Perform the simulation (energy calculation) for the molecule.
@@ -74,17 +80,27 @@ class CCSDSolver(ElectronicStructureSolver):
             raise RuntimeError("CCSDSolver: Cannot retrieve RDM. Please run the 'simulate' method first")
 
         # Solve the lambda equation and obtain the reduced density matrix from CC calculation
-        self.cc_fragment.solve_lambda()
         t1 = self.cc_fragment.t1
         t2 = self.cc_fragment.t2
-        l1 = self.cc_fragment.l1
-        l2 = self.cc_fragment.l2
+        l1, l2 = self.cc_fragment.solve_lambda(t1, t2)
 
-        d1 = _gamma1_intermediates(self.cc_fragment, t1, t2, l1, l2)
-        f = lib.H5TmpFile()
-        d2 = _gamma2_outcore(self.cc_fragment, t1, t2, l1, l2, f, False)
+        if self.spin == 0 and not self.uhf:
+            d1 = _gamma1_intermediates(self.cc_fragment, t1, t2, l1, l2)
+            f = lib.H5TmpFile()
+            d2 = _gamma2_outcore(self.cc_fragment, t1, t2, l1, l2, f, False)
 
-        one_rdm = _make_rdm1(self.cc_fragment, d1, with_frozen=False)
-        two_rdm = _make_rdm2(self.cc_fragment, d1, d2, with_dm1=True, with_frozen=False)
+            one_rdm = _make_rdm1(self.cc_fragment, d1, with_frozen=False)
+            two_rdm = _make_rdm2(self.cc_fragment, d1, d2, with_dm1=True, with_frozen=False)
+        else:
+            d1 = _ugamma1_intermediates(self.cc_fragment, t1, t2, l1, l2)
+            f = lib.H5TmpFile()
+            d2 = _ugamma2_outcore(self.cc_fragment, t1, t2, l1, l2, f, False)
+
+            one_rdm = _umake_rdm1(self.cc_fragment, d1, with_frozen=False)
+            two_rdm = _umake_rdm2(self.cc_fragment, d1, d2, with_dm1=True, with_frozen=False)
+
+            if not self.uhf:
+                one_rdm = np.sum(one_rdm, axis=0)
+                two_rdm = np.sum((two_rdm[0], 2*two_rdm[1], two_rdm[2]), axis=0)
 
         return one_rdm, two_rdm

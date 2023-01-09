@@ -24,3 +24,4 @@ from .upccgsd import UpCCGSD
 from .hea import HEA
 from .variational_circuit import VariationalCircuitAnsatz
 from .uccgd import UCCGD
+from .puccd import pUCCD

@@ -23,6 +23,8 @@ import numpy as np
 from scipy.special import comb
 import openfermion as of
 
+from tangelo.toolboxes.molecular_computation.coefficients import spatial_from_spinorb
+
 
 class FermionOperator(of.FermionOperator):
     """Custom FermionOperator class. Based on openfermion's, with additional functionalities.
@@ -101,17 +103,18 @@ class FermionOperator(of.FermionOperator):
         else:
             return super(FermionOperator, self).__eq__(other)
 
-    def get_coeffs(self, coeff_threshold=1e-8):
+    def get_coeffs(self, coeff_threshold=1e-8, spatial=False):
         """Method to get the coefficient tensors from a fermion operator.
 
         Args:
             coeff_threshold (float): Ignore coefficient below the threshold.
                 Default value is 1e-8.
+            spatial (bool): Spatial orbital or spin orbital.
 
         Returns:
             (float, array float, array of float): Core constant, one- (N*N) and
                 two-body coefficient matrices (N*N*N*N), where N is the number
-                of spinorbitals.
+                of spinorbitals or spatial orbitals.
         """
         n_sos = of.count_qubits(self)
 
@@ -141,14 +144,23 @@ class FermionOperator(of.FermionOperator):
                     p, q, r, s = [operator[0] for operator in term]
                     two_body[p, q, r, s] = coefficient
 
+        if spatial:
+            one_body, two_body = spatial_from_spinorb(one_body, two_body)
+
         return constant, one_body, two_body
 
     def to_openfermion(self):
         """Converts Tangelo FermionOperator to openfermion"""
         ferm_op = of.FermionOperator()
         ferm_op.terms = self.terms.copy()
-
         return ferm_op
+
+
+class BosonOperator(of.BosonOperator):
+    """Currently, this class is coming from openfermion. Can be later on be
+    replaced by our own implementation.
+    """
+    pass
 
 
 class QubitOperator(of.QubitOperator):
@@ -160,7 +172,7 @@ class QubitOperator(of.QubitOperator):
         """Reduces the number of operator terms based on its Frobenius norm
         and a user-defined threshold, epsilon. The eigenspectrum of the
         compressed operator will not deviate more than epsilon. For more
-        details, see J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
+        details, see J. Chem. Theory Comput. 2020, 16, 2, 1055-1063.
 
         Args:
             epsilon (float): Parameter controlling the degree of compression
@@ -190,7 +202,7 @@ class QubitOperator(of.QubitOperator):
         """Compute the possible number of terms for a qubit Hamiltonian. In the
         absence of an external magnetic field, each Hamiltonian term must have
         an even number of Pauli Y operators to preserve time-reversal symmetry.
-        See J. Chem. Theory Comput. 2020, 16, 2, 1055–1063 for more details.
+        See J. Chem. Theory Comput. 2020, 16, 2, 1055-1063 for more details.
 
         Args:
             n_qubits (int): Number of qubits in the register.

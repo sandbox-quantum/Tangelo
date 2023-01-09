@@ -19,7 +19,7 @@ from tangelo.linq import get_backend
 from tangelo.helpers.utils import installed_backends
 from tangelo.linq.target import QiskitSimulator
 from tangelo.algorithms import BuiltInAnsatze, VQESolver
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_NaH_sto3g, mol_H4_sto3g_symm
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_NaH_sto3g, mol_H4_sto3g_symm, mol_H4_sto3g_uhf_a1_frozen
 from tangelo.toolboxes.ansatz_generator.uccsd import UCCSD
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.molecular_computation.rdms import matricize_2rdm
@@ -298,6 +298,16 @@ class VQESolverTest(unittest.TestCase):
 
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.6394, delta=1e-3)
+
+    def test_simulate_h4_open(self):
+        """Run VQE on H4 molecule, with UCCSD ansatz, scbk qubit mapping, initial parameters, exact simulator """
+        vqe_options = {"molecule": mol_H4_sto3g_uhf_a1_frozen, "ansatz": BuiltInAnsatze.UCCSD, "qubit_mapping": "scbk",
+                        "initial_var_params": [0.001]*15, "verbose": False, "up_then_down": True}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        energy = vqe_solver.simulate()
+        self.assertAlmostEqual(energy, -1.95831, delta=1e-3)
 
     def test_simulate_qmf_h4_open(self):
         """Run VQE on H4 + molecule, with QMF ansatz, JW qubit mapping, initial

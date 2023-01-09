@@ -16,12 +16,11 @@ import unittest
 import os
 
 import numpy as np
-from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.utils import load_operator
 
 from tangelo import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H2_sto3g, xyz_H2O
-from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list, spatial_from_spinorb
+from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list
 
 # For openfermion.load_operator function.
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))
@@ -53,16 +52,6 @@ class MoleculeUtilitiesTest(unittest.TestCase):
     def test_atoms_string_to_list(self):
         """Verify conversion from string to list format for atom coordinates."""
         assert(atom_string_to_list(H2_string) == H2_list)
-
-    def test_spatial_from_spinorb(self):
-        """Test the conversion from spinorbitals to MO coefficients."""
-        _, one_body_mos, two_body_mos = mol_H2_sto3g.get_integrals()
-
-        one_body_sos, two_body_sos = spinorb_from_spatial(one_body_mos, two_body_mos)
-        one_body_mos_recomputed, two_body_mos_recomputed = spatial_from_spinorb(one_body_sos, two_body_sos)
-
-        np.testing.assert_array_almost_equal(one_body_mos, one_body_mos_recomputed)
-        np.testing.assert_array_almost_equal(two_body_mos, two_body_mos_recomputed)
 
 
 class SecondQuantizedMoleculeTest(unittest.TestCase):
@@ -109,6 +98,12 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         assert(freeze_with_list.frozen_occupied == [0, 1, 2])
         assert(freeze_with_list.frozen_virtual == [6])
 
+        freeze_with_list_uhf = SecondQuantizedMolecule(H2O_list, frozen_orbitals=[[0, 1, 2, 6], [0, 1, 2]], uhf=True)
+        assert(freeze_with_list_uhf.active_occupied == [[3, 4], [3, 4]])
+        assert(freeze_with_list_uhf.active_virtual == [[5], [5, 6]])
+        assert(freeze_with_list_uhf.frozen_occupied == [[0, 1, 2], [0, 1, 2]])
+        assert(freeze_with_list_uhf.frozen_virtual == [[6], []])
+
     def test_freezing_empty(self):
         """Verify freezing orbitals empty input."""
 
@@ -126,6 +121,13 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         assert(empty_as_frozen.frozen_occupied == [])
         assert(empty_as_frozen.frozen_virtual == [])
 
+        # An empty list should result in the same as nothing.
+        empty_as_frozen = SecondQuantizedMolecule(H2O_list, frozen_orbitals=None, uhf=True)
+        assert(empty_as_frozen.active_occupied == [[0, 1, 2, 3, 4]]*2)
+        assert(empty_as_frozen.active_virtual == [[5, 6]]*2)
+        assert(empty_as_frozen.frozen_occupied == [[]]*2)
+        assert(empty_as_frozen.frozen_virtual == [[]]*2)
+
     def test_freezing_type_exception(self):
         """Verify freezing orbitals exceptions."""
 
@@ -136,6 +138,8 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
             SecondQuantizedMolecule(H2O_list, frozen_orbitals=3.141592)
         with self.assertRaises(TypeError):
             SecondQuantizedMolecule(H2O_list, frozen_orbitals=[0, 1, 2.2222, 3, 4, 5])
+        with self.assertRaises(TypeError):
+            SecondQuantizedMolecule(H2O_list, frozen_orbitals=[[0, 1, 2.2222, 3, 4, 5]]*2, uhf=True)
 
     def test_no_active_electron(self):
         """Verify if freezing all active orbitals fails."""
@@ -225,6 +229,17 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
 
         # Should raise an AssertionError.
         bad_dummy_mo_coeff = np.ones((3, 3))
+        with self.assertRaises(AssertionError):
+            molecule.mo_coeff = bad_dummy_mo_coeff
+
+        molecule = SecondQuantizedMolecule(H2_list, 0, 0, "sto-3g", uhf=True)
+
+        # Should work.
+        dummy_mo_coeff = [np.ones((2, 2))]*2
+        molecule.mo_coeff = dummy_mo_coeff
+
+        # Should raise an AssertionError.
+        bad_dummy_mo_coeff = [np.ones((3, 3))]*2
         with self.assertRaises(AssertionError):
             molecule.mo_coeff = bad_dummy_mo_coeff
 
