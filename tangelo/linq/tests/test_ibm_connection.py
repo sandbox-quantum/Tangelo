@@ -24,7 +24,7 @@ ref_sampler = {'01': 0.5, '11': 0.5}
 sim = get_backend()
 ref_estimator = sim.get_expectation_value(op, circ2)
 
-os.environ['IBM_TOKEN'] = 'INSERT VALID TOKEN HERE FOR TESTS. REMOVE AFTERWARDS'
+os.environ['IBM_TOKEN'] = 'INSERT VALID TOKEN HERE, FOR TESTS. REMOVE AFTERWARDS'
 
 
 @unittest.skip("We do not want to store login information for automated testing. Manual testing only.")
