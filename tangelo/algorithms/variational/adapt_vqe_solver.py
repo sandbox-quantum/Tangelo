@@ -140,7 +140,7 @@ class ADAPTSolver:
 
             self.n_spinorbitals = self.molecule.n_active_sos
             self.n_electrons = self.molecule.n_active_electrons
-            self.spin = self.molecule.spin
+            self.spin = self.molecule.active_spin
 
             # Compute qubit hamiltonian for the input molecular system
             self.qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=self.molecule.fermionic_hamiltonian,
@@ -153,7 +153,7 @@ class ADAPTSolver:
         # Build / set ansatz circuit.
         ansatz_options = {"mapping": self.qubit_mapping, "up_then_down": self.up_then_down,
                           "reference_state": "HF" if self.ref_state is None else "zero"}
-        self.ansatz = ADAPTAnsatz(self.n_spinorbitals, self.n_electrons, ansatz_options)
+        self.ansatz = ADAPTAnsatz(self.n_spinorbitals, self.n_electrons, self.spin, ansatz_options)
 
         # Build underlying VQE solver. Options remain consistent throughout the ADAPT cycles.
         self.vqe_options = {"qubit_hamiltonian": self.qubit_hamiltonian,

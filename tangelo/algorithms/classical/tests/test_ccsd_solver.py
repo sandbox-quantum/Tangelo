@@ -15,7 +15,7 @@
 import unittest
 
 from tangelo.algorithms.classical.ccsd_solver import CCSDSolver
-from tangelo.molecule_library import mol_H2_321g, mol_Be_321g
+from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_sto3g_uhf_a1_frozen
 
 
 # TODO: Can we test the get_rdm method on H2 ? How do we get our reference? Whole matrix or its properties?
@@ -28,6 +28,18 @@ class CCSDSolverTest(unittest.TestCase):
         energy = solver.simulate()
 
         self.assertAlmostEqual(energy, -1.1478300596229851, places=6)
+
+    def test_ccsd_h4_uhf_a1_frozen(self):
+        """Test CCSDSolver against result from reference implementation."""
+
+        solver = CCSDSolver(mol_H4_sto3g_uhf_a1_frozen)
+        energy = solver.simulate()
+
+        self.assertAlmostEqual(energy, -1.95831052, places=6)
+
+        one_rdms, two_rdms = solver.get_rdm()
+
+        self.assertAlmostEqual(mol_H4_sto3g_uhf_a1_frozen.energy_from_rdms(one_rdms, two_rdms), -1.95831052, places=6)
 
     def test_ccsd_be(self):
         """Test CCSDSolver against result from reference implementation."""

@@ -85,6 +85,8 @@ ref_freqs.append({'000': 0.15972060437359714, '100': 0.2828171838599203, '010': 
 reference_exp_values = np.array([[0., 0., 0.], [0., -1., 0.], [-0.41614684, 0.7651474, -1.6096484], [1., 0., 0.],
                                  [-0.20175269, -0.0600213, 1.2972912]])
 reference_mixed = {'01': 0.163, '11': 0.066, '10': 0.225, '00': 0.545}  # With Qiskit noiseless, 1M shots
+reference_all = {'101': 0.163, '011': 0.066, '010': 0.225, '100': 0.545}
+reference_mid = {'1': 0.7, '0': 0.3}
 
 
 class TestSimulateAllBackends(unittest.TestCase):
@@ -124,6 +126,18 @@ class TestSimulateAllBackends(unittest.TestCase):
             sim = get_backend(target=b, n_shots=10 ** 5)
             results[b], _ = sim.simulate(circuit_mixed)
             assert_freq_dict_almost_equal(results[b], reference_mixed, 1e-2)
+
+    def test_simulate_mixed_state_save_measures(self):
+        """ Test mid-circuit measurement (mixed-state simulation) for all installed backends.
+        Mixed-states do not have a statevector representation, as they are a statistical mixture of several quantum states.
+        """
+        results = dict()
+        for b in installed_simulator:
+            sim = get_backend(target=b, n_shots=10 ** 3)
+            results[b], _ = sim.simulate(circuit_mixed, save_mid_circuit_meas=True)
+            assert_freq_dict_almost_equal(results[b], reference_mixed, 8e-2)
+            assert_freq_dict_almost_equal(sim.all_frequencies, reference_all, 8e-2)
+            assert_freq_dict_almost_equal(sim.mid_circuit_meas_freqs, reference_mid, 8e-2)
 
     def test_get_exp_value_mixed_state(self):
         """ Test expectation value for mixed-state simulation. Computation done by drawing individual shots.
@@ -447,7 +461,7 @@ class TestSimulateMisc(unittest.TestCase):
                 super().__init__(n_shots=n_shots, noise_model=noise_model)
                 self.return_zeros = return_zeros
 
-            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
+            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
                 """Perform state preparation corresponding self.return_zeros."""
 
                 statevector = np.zeros(2**source_circuit.width, dtype=complex)

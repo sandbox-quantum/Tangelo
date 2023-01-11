@@ -17,7 +17,7 @@
 import unittest
 
 from tangelo.algorithms.variational import iQCC_solver
-from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g,\
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_sto3g_uhf_a1_frozen,\
                                      mol_H4_doublecation_minao
 
 
@@ -69,12 +69,12 @@ class iQCC_solver_test(unittest.TestCase):
 
         self.assertAlmostEqual(iqcc_energy, -1.96259, places=4)
 
-    def test_iqcc_h4_cation(self):
-        """Test the energy after 3 iterations for H4+ with generators limited to 8"""
+    def test_iqcc_h4_uhf(self):
+        """Test the energy after 3 iterations for H4 uhf with 1 alpha orbital frozen and generators limited to 8"""
 
         ansatz_options = {"max_qcc_gens": 8}
 
-        iqcc_options = {"molecule": mol_H4_cation_sto3g,
+        iqcc_options = {"molecule": mol_H4_sto3g_uhf_a1_frozen,
                         "qubit_mapping": "scbk",
                         "up_then_down": True,
                         "ansatz_options": ansatz_options,
@@ -85,7 +85,7 @@ class iQCC_solver_test(unittest.TestCase):
         iqcc.build()
         iqcc_energy = iqcc.simulate()
 
-        self.assertAlmostEqual(iqcc_energy, -1.639, places=3)
+        self.assertAlmostEqual(iqcc_energy, -1.95831, places=3)
 
     def test_iqcc_h4_double_cation(self):
         """Test the energy after 1 iteration for H4+2"""

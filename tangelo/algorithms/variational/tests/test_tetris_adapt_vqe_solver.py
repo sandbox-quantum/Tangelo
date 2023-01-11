@@ -15,7 +15,8 @@
 import unittest
 
 from tangelo.algorithms.variational import TETRISADAPTSolver
-from tangelo.molecule_library import mol_H2_sto3g
+from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g_uhf_a1_frozen
+from tangelo.toolboxes.ansatz_generator._unitary_majorana_cc import get_majorana_uccgsd_pool
 
 
 class TETRISADAPTSolverTest(unittest.TestCase):
@@ -36,6 +37,19 @@ class TETRISADAPTSolverTest(unittest.TestCase):
         adapt_solver.simulate()
 
         self.assertAlmostEqual(adapt_solver.optimal_energy, -1.13727, places=4)
+
+    def test_multiple_cycle_tetris_adapt_uhf(self):
+        """Try running TETRISADAPTSolver with JKMN mapping and uhf H4 with majorana uccgsd pool for 7 iterations"""
+
+        opt_dict = {"molecule": mol_H4_sto3g_uhf_a1_frozen, "max_cycles": 7, "verbose": False,
+                    "pool": get_majorana_uccgsd_pool, "pool_args": {"molecule": mol_H4_sto3g_uhf_a1_frozen},
+                    "qubit_mapping": "JKMN"}
+        adapt_solver = TETRISADAPTSolver(opt_dict)
+        adapt_solver.build()
+        adapt_solver.simulate()
+
+        self.assertAlmostEqual(adapt_solver.optimal_energy, -1.95831, places=3)
+        self.assertTrue(adapt_solver.ansatz.n_var_params > 7)
 
 
 if __name__ == "__main__":

@@ -18,33 +18,60 @@ Construction of the one-particle reduced density matrix (RDM) is done here.
 """
 
 import numpy as np
-from functools import reduce
 
 
-def dmet_low_rdm(active_fock, number_active_electrons):
+def dmet_low_rdm_rhf(active_fock, n_active_electrons):
     """Construct the one-particle RDM from low-level calculation.
 
     Args:
         active_fock (numpy.array): Fock matrix from low-level calculation
             (float64).
-        number_active_electrons (int): Number of electrons in the entire system.
+        n_active_electrons (int): Number of electrons in the entire system.
 
     Returns:
         numpy.array: One-particle RDM of the low-level calculation (float64).
     """
 
     # Extract the occupied part of the one-particle RDM
-    num_occ = number_active_electrons / 2
+    num_occ = n_active_electrons // 2
     e, c = np.linalg.eigh(active_fock)
     new_index = e.argsort()
-    e = e[new_index]
     c = c[:, new_index]
-    onerdm = np.dot(c[:, : int(num_occ)], c[:, : int(num_occ)].T) * 2
+    onerdm = np.dot(c[:, : num_occ], c[:, : num_occ].T) * 2
 
     return onerdm
 
 
-def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
+def dmet_low_rdm_rohf_uhf(active_fock_alpha, active_fock_beta, n_active_alpha, n_active_beta):
+    """Construct the one-particle RDM from low-level calculation.
+
+    Args:
+        active_fock_alpha (numpy.array): Fock matrix from low-level calculation
+            (float64).
+        active_fock_beta (numpy.array): Fock matrix from low-level calculation
+            (float64).
+        n_active_alpha (int): Number of alpha electrons.
+        n_active_beta (int): Number of beta electrons.
+
+    Returns:
+        onerdm (numpy.array): One-particle RDM of the low-level calculation
+            (float64).
+    """
+
+    e, c = np.linalg.eigh(active_fock_alpha)
+    new_index = e.argsort()
+    c = c[:, new_index]
+    onerdm_alpha = np.dot(c[:, :int(n_active_alpha)], c[:, :int(n_active_alpha)].T)
+
+    e, c = np.linalg.eigh(active_fock_beta)
+    new_index = e.argsort()
+    c = c[:, new_index]
+    onerdm_beta = np.dot(c[:, :int(n_active_beta)], c[:, :int(n_active_beta)].T)
+
+    return onerdm_alpha + onerdm_beta
+
+
+def dmet_fragment_rdm(t_list, bath_orb, core_occupied, n_active_electrons):
     """Construct the one-particle RDM for the core orbitals.
 
     Args:
@@ -52,7 +79,7 @@ def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
         bath_orb (numpy.array): The bath orbitals (float64).
         core_occupied (numpy.array): Core occupied part of the MO coefficients
             (float64).
-        number_active_electrons (int): Number of electrons in the entire system.
+        n_active_electrons (int): Number of electrons in the entire system.
 
     Returns:
         int: Number of orbitals for fragment calculation.
@@ -72,9 +99,9 @@ def dmet_fragment_rdm(t_list, bath_orb, core_occupied, number_active_electrons):
 
     # Define the number of electrons in the fragment
     number_ele_temp = np.sum(core_occupied)
-    number_electrons = int(round(number_active_electrons - number_ele_temp))
+    number_electrons = int(round(n_active_electrons - number_ele_temp))
 
     # Obtain the one particle RDM for the fragment (core)
-    core_occupied_onerdm = reduce(np.dot, (bath_orb, np.diag(core_occupied), bath_orb.T))
+    core_occupied_onerdm = bath_orb @ np.diag(core_occupied) @ bath_orb.T
 
     return number_orbitals, number_electrons, core_occupied_onerdm

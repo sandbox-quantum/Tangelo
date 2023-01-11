@@ -49,20 +49,22 @@ class HEA(Ansatz):
         """
 
     def __init__(self, molecule=None, mapping="jw", up_then_down=False,
-                n_layers=2, rot_type="euler", n_qubits=None, n_electrons=None,
-                reference_state="HF"):
+                 n_layers=2, rot_type="euler", n_qubits=None, n_electrons=None,
+                 spin=None, reference_state="HF"):
 
         if not (bool(molecule) ^ (bool(n_qubits) and (bool(n_electrons) | (reference_state == "zero")))):
             raise ValueError(f"A molecule OR qubit + electrons number must be "
-                "provided when instantiating the HEA with the HF reference state. "
-                "For reference_state='zero', only the number of qubits is needed.")
+                             "provided when instantiating the HEA with the HF reference state. "
+                             "For reference_state='zero', only the number of qubits is needed.")
 
         if n_qubits:
             self.n_qubits = n_qubits
             self.n_electrons = n_electrons
+            self.spin = spin
         else:
             self.n_qubits = get_qubit_number(mapping, molecule.n_active_sos)
             self.n_electrons = molecule.n_active_electrons
+            self.spin = molecule.active_spin
 
         self.qubit_mapping = mapping
         self.up_then_down = up_then_down
@@ -129,12 +131,14 @@ class HEA(Ansatz):
             return get_reference_circuit(n_spinorbitals=self.n_qubits,
                                          n_electrons=self.n_electrons,
                                          mapping=self.qubit_mapping,
-                                         up_then_down=self.up_then_down)
+                                         up_then_down=self.up_then_down,
+                                         spin=self.spin)
         elif self.reference_state == "zero":
             return get_reference_circuit(n_spinorbitals=self.n_qubits,
                                          n_electrons=0,
                                          mapping=self.qubit_mapping,
-                                         up_then_down=self.up_then_down)
+                                         up_then_down=self.up_then_down,
+                                         spin=self.spin)
 
     def build_circuit(self, var_params=None):
         """Construct the variational circuit to be used as our ansatz."""
