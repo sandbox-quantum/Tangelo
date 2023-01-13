@@ -203,10 +203,7 @@ def translate_op_from_cirq(qubit_operator):
 
         term_string = ""
         for line_qubit, cirq_pauli in pauli_word.items():
-
             term_string += f"{cirq_pauli_to_string[cirq_pauli]}{line_qubit.x} "
-
-        term_string.strip()
 
         tangelo_op += QubitOperator(term_string.strip(), pauli_word.coefficient)
 

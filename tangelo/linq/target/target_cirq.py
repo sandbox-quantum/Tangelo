@@ -19,7 +19,7 @@ import numpy as np
 from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
-from tangelo.linq.translator import get_cirq_gates
+from tangelo.linq.translator import translate_operator
 
 
 class CirqSimulator(Backend):
@@ -147,13 +147,9 @@ class CirqSimulator(Backend):
         """
 
         # Construct equivalent Pauli operator in Cirq format
-        GATE_CIRQ = get_cirq_gates()
         qubit_labels = self.cirq.LineQubit.range(n_qubits)
         qubit_map = {q: i for i, q in enumerate(qubit_labels)}
-        paulisum = 0.*self.cirq.PauliString(self.cirq.I(qubit_labels[0]))
-        for term, coef in qubit_operator.terms.items():
-            pauli_list = [GATE_CIRQ[pauli](qubit_labels[index]) for index, pauli in term]
-            paulisum += self.cirq.PauliString(pauli_list, coefficient=coef)
+        paulisum = translate_operator(qubit_operator, source="tangelo", target="cirq")
 
         # Compute expectation value using Cirq's features
         if self._noise_model:
