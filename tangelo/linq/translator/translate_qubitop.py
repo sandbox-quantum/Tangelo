@@ -16,14 +16,17 @@
 
 from tangelo.toolboxes.operators import count_qubits
 from tangelo.linq.translator.translate_qiskit import translate_op_from_qiskit, translate_op_to_qiskit
+from tangelo.linq.translator.translate_cirq import translate_op_from_cirq, translate_op_to_cirq
 
 
 FROM_TANGELO = {
-    "qiskit": translate_op_to_qiskit
+    "qiskit": translate_op_to_qiskit,
+    "cirq": translate_op_to_cirq
 }
 
 TO_TANGELO = {
-    "qiskit": translate_op_from_qiskit
+    "qiskit": translate_op_from_qiskit,
+    "cirq": translate_op_from_cirq
 }
 
 
