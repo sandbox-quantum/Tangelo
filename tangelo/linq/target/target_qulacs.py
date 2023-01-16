@@ -122,12 +122,14 @@ class QulacsSimulator(Backend):
                        for k, v in samples.items()}
         return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
-    def expectation_value_from_prepared_state(self, qubit_operator, prepared_state=None):
+    def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state=None):
         """ Compute an expectation value using a representation of the state
         using qulacs functionalities.
 
         Args:
             qubit_operator (QubitOperator): a qubit operator in tangelo format
+            n_qubits (int): Number of qubits (not used, to be consistent in the
+                Backend interface).
             prepared_state (np.array): a numpy array encoding the state (can be
                 a vector or a matrix). Default is None, in this case it is set
                 to the current state in the simulator object.
