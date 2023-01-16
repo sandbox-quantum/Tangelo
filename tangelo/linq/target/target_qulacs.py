@@ -131,7 +131,7 @@ class QulacsSimulator(Backend):
             n_qubits (int): Number of qubits.
             prepared_state (np.array): a numpy array encoding the state (can be
                 a vector or a matrix). It is internally transformed into a
-                qulacs.QuantumState object. Default is None, in this case it is <
+                qulacs.QuantumState object. Default is None, in this case it is
                 set to the current state in the simulator object.
 
         Returns:

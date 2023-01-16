@@ -24,6 +24,8 @@ necessary to account for:
 
 from math import pi
 
+from tangelo.toolboxes.operators import QubitOperator
+
 
 def get_pennylane_gates():
     """Map gate name of the abstract format to the equivalent methods of the
@@ -127,5 +129,9 @@ def translate_op_from_pennylane(qubit_operator):
         (tangelo.toolboxes.operators.QubitOperator): Tangelo qubit operator.
     """
     from pennylane.qchem.convert import _pennylane_to_openfermion
+    of_op = _pennylane_to_openfermion(qubit_operator.coeffs, qubit_operator.ops)
 
-    return _pennylane_to_openfermion(qubit_operator.coeffs, qubit_operator.ops)
+    tangelo_op = QubitOperator()
+    tangelo_op.terms = of_op.terms
+
+    return tangelo_op

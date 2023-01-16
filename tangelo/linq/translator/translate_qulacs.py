@@ -207,7 +207,8 @@ def translate_op_from_qulacs(qubit_operator):
 
     tangelo_op = QubitOperator()
 
-    # Not considering 0: "I", because it is not a valid action in openfermion.
+    # Not considering 0: "I", because it is not a valid action in
+    # openfermion-like qubit operators.
     qulacs_pauli_id_to_string = {1: "X", 2: "Y", 3: "Z"}
 
     n_terms = qubit_operator.get_term_count()
