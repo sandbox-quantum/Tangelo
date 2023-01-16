@@ -128,8 +128,8 @@ class QulacsSimulator(Backend):
 
         Args:
             qubit_operator (QubitOperator): a qubit operator in tangelo format
-            n_qubits (int): Number of qubits (not used, to be consistent in the
-                Backend interface).
+            n_qubits (int): Number of qubits (not used, to be consistent with
+                the call from the Backend class).
             prepared_state (np.array): a numpy array encoding the state (can be
                 a vector or a matrix). Default is None, in this case it is set
                 to the current state in the simulator object.
