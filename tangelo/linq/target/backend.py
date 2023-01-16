@@ -462,6 +462,8 @@ class Backend(abc.ABC):
                 state preparation.
         """
         n_qubits = state_prep_circuit.width
+        if hasattr(self, "expectation_value_from_stabilizer_circuit") and initial_statevector is None:
+            return self.expectation_value_from_stabilizer_circuit(qubit_operator, state_prep_circuit, n_qubits)
 
         expectation_value = 0.
         prepared_frequencies, prepared_state = self.simulate(state_prep_circuit, return_statevector=True,

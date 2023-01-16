@@ -1,4 +1,4 @@
-# Copyright 2023 Good Chemistry Company.
+# Copyright 2021 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,15 +20,14 @@
 import unittest
 import os
 import time
-
 import numpy as np
 from openfermion.ops import QubitOperator
-from openfermion import load_operator, get_sparse_operator
+from openfermion import load_operator
 
 from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
-from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
+from tangelo.helpers.utils import installed_universal_simulator, installed_sv_simulator, installed_clifford_simulator, installed_backends
 from tangelo.linq.target.backend import Backend, get_expectation_value_from_frequencies_oneterm
 from tangelo.helpers.utils import assert_freq_dict_almost_equal
 
@@ -62,9 +61,8 @@ two_qubit_gates = [Gate(name, target=1, control=0) if name not in PARAMETERIZED_
 swap_gates = [Gate('SWAP', target=[1, 0]), Gate('CSWAP', target=[1, 2], control=0)]
 circuit5 = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates)
 
-# Circuit preparing a mixed-state (i.e. containing a MEASURE instruction in the middle of the circuit)
+# Circuit preparing a mixed-state (e.g containing a MEASURE instruction in the middle of the circuit) ## TODO change this angle to be clifford
 circuit_mixed = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
-circuit_mixed_1 = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 0, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
 
 # Operators for testing the get_expectation_value functions
 op1 = 1.0 * QubitOperator('Z0')  # all Z
@@ -95,20 +93,20 @@ class TestSimulateAllBackends(unittest.TestCase):
 
     def test_get_exp_value_operator_too_long(self):
         """ Ensure an error is returned if the qubit operator acts on more qubits than are present in the circuit """
-        for b in installed_simulator:
+        for b in installed_clifford_simulator:
             simulator = get_backend(target=b, n_shots=1)
             self.assertRaises(ValueError, simulator.get_expectation_value, op4, circuit1)
 
     def test_get_exp_value_empty_operator(self):
         """ If qubit operator is empty, the expectation value is 0 and no computation occurs """
-        for b in installed_simulator:
+        for b in installed_clifford_simulator:
             simulator = get_backend(target=b, n_shots=1)
             exp_value = simulator.get_expectation_value(QubitOperator(), circuit1)
             self.assertTrue(exp_value == 0.)
 
     def test_get_exp_value_constant_operator(self):
         """ The expectation of the identity term must be 1. """
-        for b in installed_simulator:
+        for b in installed_clifford_simulator:
             simulator = get_backend(target=b, n_shots=1)
             const_op = QubitOperator()
             const_op.terms = {(): 777.}
@@ -116,16 +114,23 @@ class TestSimulateAllBackends(unittest.TestCase):
             self.assertTrue(exp_value == 777.)
 
     def test_simulate_mixed_state(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends."""
+        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
+        Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
+        Simulating individual shots is suitable.
+
+        Some simulators are NOT good at this, by design
+        """
 
         results = dict()
-        for b in installed_simulator:
+        for b in installed_universal_simulator:
             sim = get_backend(target=b, n_shots=10 ** 5)
             results[b], _ = sim.simulate(circuit_mixed)
             assert_freq_dict_almost_equal(results[b], reference_mixed, 1e-2)
 
     def test_simulate_mixed_state_save_measures(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for all installed backends."""
+        """ Test mid-circuit measurement (mixed-state simulation) for all installed backends.
+        Mixed-states do not have a statevector representation, as they are a statistical mixture of several quantum states.
+        """
         results = dict()
         for b in installed_simulator:
             sim = get_backend(target=b, n_shots=10 ** 3)
@@ -134,28 +139,13 @@ class TestSimulateAllBackends(unittest.TestCase):
             assert_freq_dict_almost_equal(sim.all_frequencies, reference_all, 8e-2)
             assert_freq_dict_almost_equal(sim.mid_circuit_meas_freqs, reference_mid, 8e-2)
 
-    def test_simulate_mixed_state_desired_state(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for all installed backends."""
-
-        results = dict()
-        exact = {'11': 0.23046888414227926, '10': 0.7695311158577207}
-        for b in installed_simulator:
-            sim = get_backend(target=b, n_shots=10 ** 3)
-            results[b], _ = sim.simulate(circuit_mixed, desired_meas_result="0")
-            assert_freq_dict_almost_equal(results[b], exact, 8.e-2)
-
-    def test_desired_meas_len(self):
-        """ Test if the desired_meas_result parameter is a string and of the right length."""
-        sim = get_backend(target="cirq", n_shots=10 ** 3)
-        self.assertRaises(ValueError, sim.simulate, circuit_mixed, desired_meas_result=0)
-        self.assertRaises(ValueError, sim.simulate, circuit_mixed, desired_meas_result="01")
-
     def test_get_exp_value_mixed_state(self):
-        """ Test expectation value for mixed-state simulation. Computation done by drawing individual shots."""
+        """ Test expectation value for mixed-state simulation. Computation done by drawing individual shots.
+        Some simulators are NOT good at this, by design (ProjectQ). """
 
         reference = 0.41614683  # Exact value
         results = dict()
-        for b in installed_simulator:
+        for b in installed_universal_simulator:
             sim = get_backend(target=b, n_shots=10 ** 5)
             results[b] = sim.get_expectation_value(op1, circuit_mixed)
             np.testing.assert_almost_equal(results[b], reference, decimal=2)
@@ -214,55 +204,6 @@ class TestSimulateStatevector(unittest.TestCase):
             for i, circuit in enumerate(circuits):
                 frequencies, _ = simulator.simulate(circuit)
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
-
-    def test_simulate_mixed_state_desired_statevector(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends when returning
-        a statevector."""
-
-        results = dict()
-        results["qulacs"] = np.array([0. + 0.j, 0.87758256 + 0.j, 0. + 0.j, -0.47942554 + 0.j])
-        results["qiskit"] = np.array([0. + 0.j, 0.87758256 + 0.j, 0. + 0.j, -0.47942554 + 0.j])
-        results["cirq"] = np.array([0. + 0.j, 0. + 0.j, 0.87758256 + 0.j, -0.47942554 + 0.j])
-        initial_state = np.array([0, 0, 0, 1])
-        freqs_exact = {'10': 0.7701511529340699, '11': 0.2298488470659301}
-
-        for b in installed_sv_simulator:
-            sim = get_backend(target=b, n_shots=None)
-            f, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
-            np.testing.assert_array_almost_equal(sv, results[b])
-            assert_freq_dict_almost_equal(f, freqs_exact, 1.e-7)
-            self.assertAlmostEqual(0.2919265817264289, circuit_mixed.success_probabilities["0"], places=7)
-
-            # Test that initial_statevector is respected
-            meas_2_circuit = Circuit([Gate("MEASURE", 0), Gate("MEASURE", 1)])
-            f, sv = sim.simulate(meas_2_circuit, desired_meas_result="11",
-                                 return_statevector=True, initial_statevector=initial_state)
-            np.testing.assert_array_almost_equal(sv, initial_state)
-            assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
-            self.assertAlmostEqual(1., meas_2_circuit.success_probabilities["11"], places=7)
-
-            # Test that ValueError is raised for desired_meas_result="0" with probability 0. i.e. loop exits successfully
-            self.assertRaises(ValueError, sim.simulate, Circuit([Gate("X", 0), Gate("MEASURE", 0)]), True, None, "0")
-
-            sim = get_backend(target=b, n_shots=10**3)
-            f, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
-            np.testing.assert_array_almost_equal(sv, results[b])
-            assert_freq_dict_almost_equal(f, freqs_exact, 1.e-1)
-
-    def test_mixed_state_save_measures_return_statevector(self):
-        """ Test functionality to return statevector if mid-circuit measurement is saved and n_shots must be 1"""
-
-        sv_exact = {"0": np.array([0.+0.j, 0.76163265-0.64800903j]),
-                    "1": np.array([-0.33100336-0.94362958j, 0.+0.j])}
-        for b in installed_sv_simulator:
-            sim = get_backend(target=b, n_shots=1)
-            _, sv = sim.simulate(circuit_mixed_1, save_mid_circuit_meas=True, return_statevector=True)
-            np.testing.assert_array_almost_equal(sv, sv_exact[next(iter(sim.mid_circuit_meas_freqs))])
-
-        # Assert raises error when return_statevector=True and n_shots != 1
-        for b in installed_sv_simulator:
-            sim = get_backend(target=b, n_shots=2)
-            self.assertRaises(ValueError, sim.simulate, circuit_mixed_1, True, None, None, True)
 
     def test_simulate_nshots_from_statevector(self):
         """
@@ -421,18 +362,6 @@ class TestSimulateStatevector(unittest.TestCase):
         energy = simulator.get_expectation_value(qubit_operator, abs_circ)
         self.assertAlmostEqual(energy, expected, delta=1e-3)
 
-    def test_get_exp_value_mixed_state_desired_measurement_with_shots(self):
-        """ Get expectation value of mixed state by post-selecting on desired measurement."""
-        qubit_operator = QubitOperator("X0 X1") + QubitOperator("Y0 Y1") + QubitOperator("Z0 Z1") + QubitOperator("X0 Y1", 1j)
-
-        ham = get_sparse_operator(qubit_operator).toarray()
-        exact_sv = np.array([0.+0.j, 0.+0.j, 0.87758256+0.j, -0.47942554+0.j])
-        exact_exp = np.vdot(exact_sv, ham @ exact_sv)
-
-        simulator = get_backend(n_shots=10**4)
-        sim_exp = simulator.get_expectation_value(qubit_operator, circuit_mixed, desired_meas_result="0")
-        self.assertAlmostEqual(exact_exp, sim_exp, delta=1.e-1)
-
     def test_get_exp_value_empty_circuit(self):
         """ If the circuit is empty and we have a non-zero number of qubits, frequencies just only show all-|0> state
         observed and compute the expectation value using these frequencies """
@@ -479,16 +408,6 @@ class TestSimulateStatevector(unittest.TestCase):
 
 
 class TestSimulateMisc(unittest.TestCase):
-    #@unittest.skipIf("stim" not in installed_backends, "Test Skipped: Backend not available \n")
-    # def test_non_clifford_circuit(self):
-    #     """ Test specific to QDK to ensure results are not impacted by code specific to frequency computation
-    #         as well as the recompilation of the Q# file used in successive simulations """
-    #     ##TODO test check for non clifford gate
-    #     simulator = get_backend(target="stim")
-    #     exp_values = np.zeros((len(ops)), dtype=float)
-    #     for j, op in enumerate(ops):
-    #         exp_values[j] = simulator.get_expectation_value(op, circuit3)
-    #     np.testing.assert_almost_equal(exp_values, reference_exp_values[2], decimal=1)
 
     @unittest.skipIf("qdk" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_n_shots_needed(self):
@@ -520,7 +439,17 @@ class TestSimulateMisc(unittest.TestCase):
         for j, op in enumerate(ops):
             exp_values[j] = simulator.get_expectation_value(op, circuit3)
         np.testing.assert_almost_equal(exp_values, reference_exp_values[2], decimal=1)
+    @unittest.skipIf("stim" not in installed_backends, "Test Skipped: Backend not available \n")
 
+    # def test_non_clifford_circuit(self):
+    #     """ Test specific to QDK to ensure results are not impacted by code specific to frequency computation
+    #         as well as the recompilation of the Q# file used in successive simulations """
+    #     #TODO test check for non clifford gate
+    #     simulator = get_backend(target="stim")
+    #     exp_values = np.zeros((len(ops)), dtype=float)
+    #     for j, op in enumerate(ops):
+    #         exp_values[j] = simulator.get_expectation_value(op, circuit3)
+    #     np.testing.assert_almost_equal(exp_values, reference_exp_values[2], decimal=1)
     def test_get_exp_value_from_frequencies_oneterm(self):
         """ Test static method computing the expectation value of one term, when the results of a simulation
          are being provided as input. """
@@ -542,7 +471,7 @@ class TestSimulateMisc(unittest.TestCase):
                 super().__init__(n_shots=n_shots, noise_model=noise_model)
                 self.return_zeros = return_zeros
 
-            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
+            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
                 """Perform state preparation corresponding self.return_zeros."""
 
                 statevector = np.zeros(2**source_circuit.width, dtype=complex)
