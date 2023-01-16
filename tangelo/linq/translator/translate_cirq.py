@@ -207,7 +207,4 @@ def translate_op_from_cirq(qubit_operator):
 
         tangelo_op += QubitOperator(term_string.strip(), pauli_word.coefficient)
 
-    # Clean the QubitOperator.
-    tangelo_op.compress()
-
     return tangelo_op

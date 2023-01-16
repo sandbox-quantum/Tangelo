@@ -56,6 +56,8 @@ def translate_operator(qubit_operator, source, target, n_qubits=None):
         if source not in TO_TANGELO:
             raise NotImplementedError(f"Qubit operator conversion from {source} to {target} is not supported.")
         qubit_operator = TO_TANGELO[source](qubit_operator)
+        # Clean the very small terms.
+        qubit_operator.compress()
     if target != "tangelo":
         if target not in FROM_TANGELO:
             raise NotImplementedError(f"Qubit operator conversion from {source} to {target} is not supported.")

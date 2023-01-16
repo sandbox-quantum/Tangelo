@@ -219,7 +219,4 @@ def translate_op_from_qulacs(qubit_operator):
 
         tangelo_op += QubitOperator(pauli_term, qubit_operator.get_term(term_i).get_coef())
 
-    # Clean the QubitOperator.
-    tangelo_op.compress()
-
     return tangelo_op
