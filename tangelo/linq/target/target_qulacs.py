@@ -128,17 +128,21 @@ class QulacsSimulator(Backend):
 
         Args:
             qubit_operator (QubitOperator): a qubit operator in tangelo format
-            n_qubits (int): Number of qubits (not used, to be consistent with
-                the call from the Backend class).
+            n_qubits (int): Number of qubits.
             prepared_state (np.array): a numpy array encoding the state (can be
-                a vector or a matrix). Default is None, in this case it is set
-                to the current state in the simulator object.
+                a vector or a matrix). It is internally transformed into a
+                qulacs.QuantumState object. Default is None, in this case it is <
+                set to the current state in the simulator object.
 
         Returns:
             float64 : the expectation value of the qubit operator w.r.t the input state
         """
         if prepared_state is None:
             prepared_state = self._current_state
+        else:
+            qulacs_state = self.qulacs.QuantumState(n_qubits)
+            qulacs_state.load(prepared_state)
+            prepared_state = qulacs_state
 
         operator = translate_operator(qubit_operator, source="tangelo", target="qulacs")
         return operator.get_expectation_value(prepared_state).real
