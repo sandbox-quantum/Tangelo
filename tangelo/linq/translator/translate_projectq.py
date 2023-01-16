@@ -171,9 +171,9 @@ def translate_op_to_projectq(qubit_operator):
     Returns:
         (projectq.ops.QubitOperator): ProjectQ QubitOperator.
     """
-    from projectq.ops import QubitOperator as projectqQubitOperator
+    from projectq.ops import QubitOperator as ProjectQQubitOperator
 
-    projectq_quop = projectqQubitOperator()
+    projectq_quop = ProjectQQubitOperator()
     projectq_quop.terms = qubit_operator.terms
 
     return projectq_quop

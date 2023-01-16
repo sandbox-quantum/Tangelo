@@ -65,6 +65,107 @@ class TranslateOperatorTest(unittest.TestCase):
         test_op = translate_operator(tangelo_op, source="tangelo", target="qiskit")
         self.assertEqual(qiskit_op, test_op)
 
+    @unittest.skipIf("cirq" not in installed_backends, "Test Skipped: Cirq not available \n")
+    def test_cirq_to_tangelo(self):
+        """Test translation from a cirq to a tangelo operator."""
+
+        from cirq import PauliSum, PauliString, LineQubit, X, Y, Z
+        qubit_a, qubit_b, qubit_c = LineQubit.range(3)
+        cirq_op = PauliSum.from_pauli_strings([
+            PauliString(1., X(qubit_a), Y(qubit_b), Z(qubit_c))
+        ])
+
+        test_op = translate_operator(cirq_op, source="cirq", target="tangelo")
+        self.assertEqual(test_op, tangelo_op)
+
+    @unittest.skipIf("cirq" not in installed_backends, "Test Skipped: Cirq not available \n")
+    def test_tangelo_to_cirq(self):
+        """Test translation from a tangelo to a cirq operator."""
+
+        from cirq import PauliSum, PauliString, LineQubit, X, Y, Z
+        qubit_a, qubit_b, qubit_c = LineQubit.range(3)
+        cirq_op = PauliSum.from_pauli_strings([
+            PauliString(1., X(qubit_a), Y(qubit_b), Z(qubit_c))
+        ])
+
+        test_op = translate_operator(tangelo_op, source="tangelo", target="cirq")
+        self.assertEqual(cirq_op, test_op)
+
+    @unittest.skipIf("qulacs" not in installed_backends, "Test Skipped: qulacs not available \n")
+    def test_qulacs_to_tangelo(self):
+        """Test translation from a qulacs to a tangelo operator."""
+
+        from qulacs import GeneralQuantumOperator
+        qulacs_op = GeneralQuantumOperator(3)
+        qulacs_op.add_operator(1., "X 0 Y 1 Z 2")
+
+        test_op = translate_operator(qulacs_op, source="qulacs", target="tangelo")
+        self.assertEqual(test_op, tangelo_op)
+
+    @unittest.skipIf("qulacs" not in installed_backends, "Test Skipped: qulacs not available \n")
+    def test_tangelo_to_qulacs(self):
+        """Test translation from a tangelo to a qulacs operator."""
+
+        from qulacs import GeneralQuantumOperator
+        qulacs_op = GeneralQuantumOperator(3)
+        qulacs_op.add_operator(1., "X 0 Y 1 Z 2")
+
+        test_op = translate_operator(tangelo_op, source="tangelo", target="qulacs")
+
+        # __eq__ method is not implemented for GeneralQuantumOperator. It is
+        # checking the addresses in memory when comparing 2 qulacs objects.
+        self.assertEqual(qulacs_op.get_term_count(), test_op.get_term_count())
+        self.assertEqual(qulacs_op.get_term(0).get_coef(), test_op.get_term(0).get_coef())
+        self.assertEqual(qulacs_op.get_term(0).get_pauli_string(), test_op.get_term(0).get_pauli_string())
+
+    @unittest.skipIf("pennylane" not in installed_backends, "Test Skipped: Pennylane not available \n")
+    def test_pennylane_to_tangelo(self):
+        """Test translation from a pennylane to a tangelo operator."""
+
+        import pennylane as qml
+        coeffs = [1.]
+        obs = [qml.PauliX(0) @ qml.PauliY(1) @ qml.PauliZ(2)]
+        pennylane_H = qml.Hamiltonian(coeffs, obs)
+
+        test_op = translate_operator(pennylane_H, source="pennylane", target="tangelo")
+        self.assertEqual(test_op, tangelo_op)
+
+    @unittest.skipIf("pennylane" not in installed_backends, "Test Skipped: Pennylane not available \n")
+    def test_tangelo_to_pennylane(self):
+        """Test translation from a tangelo to a pennylane operator."""
+
+        import pennylane as qml
+        coeffs = [1.]
+        obs = [qml.PauliX(0) @ qml.PauliY(1) @ qml.PauliZ(2)]
+        pennylane_H = qml.Hamiltonian(coeffs, obs)
+
+        test_op = translate_operator(tangelo_op, source="tangelo", target="pennylane")
+
+        # __eq__ method not implemented in pennylane.Hamiltonian.
+        self.assertTrue(pennylane_H.compare(test_op))
+
+    @unittest.skipIf("projectq" not in installed_backends, "Test Skipped: ProjectQ not available \n")
+    def test_projectq_to_tangelo(self):
+        """Test translation from a projectq to a tangelo operator."""
+
+        from projectq.ops import QubitOperator as ProjectQQubitOperator
+        projectq_op = ProjectQQubitOperator("X0 Y1 Z2", 1.)
+
+        test_op = translate_operator(projectq_op, source="projectq", target="tangelo")
+
+        self.assertEqual(test_op, tangelo_op)
+
+    @unittest.skipIf("projectq" not in installed_backends, "Test Skipped: ProjectQ not available \n")
+    def test_tangelo_to_projectq(self):
+        """Test translation from a tangelo to a projectq operator."""
+
+        from projectq.ops import QubitOperator as ProjectQQubitOperator
+        projectq_op = ProjectQQubitOperator("X0 Y1 Z2", 1.)
+
+        test_op = translate_operator(tangelo_op, source="tangelo", target="projectq")
+
+        self.assertEqual(projectq_op, test_op)
+
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Qiskit not available \n")
     def test_tangelo_to_qiskit_H2_eigenvalues(self):
         """Test eigenvalues resulting from a tangelo to qiskit translation."""
