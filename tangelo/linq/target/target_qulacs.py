@@ -21,6 +21,7 @@ import numpy as np
 from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
+from tangelo.linq.translator import translate_operator
 
 
 class QulacsSimulator(Backend):
@@ -126,10 +127,7 @@ class QulacsSimulator(Backend):
         # TODO: This section previously used qulacs.quantum_operator.create_quantum_operator_from_openfermion_text but was changed
         # due to a memory leak. We can re-evaluate the implementation if/when Issue #303 (https://github.com/qulacs/qulacs/issues/303)
         # is fixed.
-        operator = self.qulacs.Observable(n_qubits)
-        for term, coef in qubit_operator.terms.items():
-            pauli_string = "".join(f" {op} {qu}" for qu, op in term)
-            operator.add_operator(coef, pauli_string)
+        operator = translate_operator(qubit_operator, source="tangelo", target="qulacs")
         return operator.get_expectation_value(self._current_state).real
 
     @staticmethod

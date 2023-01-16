@@ -23,6 +23,8 @@ necessary to account for:
 """
 
 from numpy import exp, cos, sin
+
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.helpers import deprecated
 
 
@@ -175,3 +177,49 @@ def translate_c_to_qulacs(source_circuit, noise_model=None, save_measurements=Fa
                         raise ValueError(f'{gate.name} has more than 2 qubits, Qulacs DepolarizingNoise only supports 1- and 2-qubits')
 
     return target_circuit
+
+
+def translate_op_to_qulacs(qubit_operator):
+    """Helper function to translate a Tangelo QubitOperator to a qulacs general
+    quantum operator.
+
+    Args:
+        qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
+
+    Returns:
+        (qulacs_core.GeneralQuantumOperator): Qulacs quantum operator.
+    """
+    from qulacs.quantum_operator import create_quantum_operator_from_openfermion_text
+
+    return create_quantum_operator_from_openfermion_text(qubit_operator.__repr__())
+
+
+def translate_op_from_qulacs(qubit_operator):
+    """Helper function to translate qulacs general quantum operator to a Tangelo
+    QubitOperator.
+
+    Args:
+        qubit_operator (qulacs_core.GeneralQuantumOperator): Self-explanatory.
+
+    Returns:
+        (tangelo.toolboxes.operators.QubitOperator): Tangelo qubit operator.
+    """
+
+    tangelo_op = QubitOperator()
+
+    # Not considering 0: "I", because it is not a valid action in openfermion.
+    qulacs_pauli_id_to_string = {1: "X", 2: "Y", 3: "Z"}
+
+    n_terms = qubit_operator.get_term_count()
+    for term_i in range(n_terms):
+        pauli_ids = qubit_operator.get_term(term_i).get_pauli_id_list()
+        pauli_word = [qulacs_pauli_id_to_string[i] for i in pauli_ids if i != 0]
+        qubit_indices = qubit_operator.get_term(term_i).get_index_list()
+        pauli_term = tuple(zip(qubit_indices, pauli_word))
+
+        tangelo_op += QubitOperator(pauli_term, qubit_operator.get_term(term_i).get_coef())
+
+    # Clean the QubitOperator.
+    tangelo_op.compress()
+
+    return tangelo_op
