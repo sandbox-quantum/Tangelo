@@ -122,13 +122,24 @@ class QulacsSimulator(Backend):
                        for k, v in samples.items()}
         return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
-    def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
+    def expectation_value_from_prepared_state(self, qubit_operator, prepared_state=None):
+        """ Compute an expectation value using a representation of the state
+        using qulacs functionalities.
 
-        # TODO: This section previously used qulacs.quantum_operator.create_quantum_operator_from_openfermion_text but was changed
-        # due to a memory leak. We can re-evaluate the implementation if/when Issue #303 (https://github.com/qulacs/qulacs/issues/303)
-        # is fixed.
+        Args:
+            qubit_operator (QubitOperator): a qubit operator in tangelo format
+            prepared_state (np.array): a numpy array encoding the state (can be
+                a vector or a matrix). Default is None, in this case it is set
+                to the current state in the simulator object.
+
+        Returns:
+            float64 : the expectation value of the qubit operator w.r.t the input state
+        """
+        if prepared_state is None:
+            prepared_state = self._current_state
+
         operator = translate_operator(qubit_operator, source="tangelo", target="qulacs")
-        return operator.get_expectation_value(self._current_state).real
+        return operator.get_expectation_value(prepared_state).real
 
     @staticmethod
     def backend_info():
