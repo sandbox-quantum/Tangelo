@@ -19,19 +19,23 @@ from tangelo.linq.translator.translate_qiskit import translate_op_from_qiskit, t
 from tangelo.linq.translator.translate_cirq import translate_op_from_cirq, translate_op_to_cirq
 from tangelo.linq.translator.translate_qulacs import translate_op_from_qulacs, translate_op_to_qulacs
 from tangelo.linq.translator.translate_pennylane import translate_op_from_pennylane, translate_op_to_pennylane
+from tangelo.linq.translator.translate_projectq import translate_op_from_projectq, translate_op_to_projectq
+
 
 FROM_TANGELO = {
     "qiskit": translate_op_to_qiskit,
     "cirq": translate_op_to_cirq,
     "qulacs": translate_op_to_qulacs,
-    "pennylane": translate_op_to_pennylane
+    "pennylane": translate_op_to_pennylane,
+    "projectq": translate_op_to_projectq
 }
 
 TO_TANGELO = {
     "qiskit": translate_op_from_qiskit,
     "cirq": translate_op_from_cirq,
     "qulacs": translate_op_from_qulacs,
-    "pennylane": translate_op_from_pennylane
+    "pennylane": translate_op_from_pennylane,
+    "projectq": translate_op_from_projectq
 }
 
 
