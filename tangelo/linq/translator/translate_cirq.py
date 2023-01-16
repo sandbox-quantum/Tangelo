@@ -194,7 +194,6 @@ def translate_op_from_cirq(qubit_operator):
     """
     import cirq
 
-    # Create a dictionary to append all terms at once.
     tangelo_op = QubitOperator()
 
     cirq_pauli_to_string = {cirq.X: "X", cirq.Y: "Y", cirq.Z: "Z"}

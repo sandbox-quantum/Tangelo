@@ -195,8 +195,8 @@ def translate_op_to_qulacs(qubit_operator):
 
 
 def translate_op_from_qulacs(qubit_operator):
-    """Helper function to translate qulacs general quantum operator to a Tangelo
-    QubitOperator.
+    """Helper function to translate a qulacs general quantum operator to a
+    Tangelo QubitOperator.
 
     Args:
         qubit_operator (qulacs_core.GeneralQuantumOperator): Self-explanatory.
