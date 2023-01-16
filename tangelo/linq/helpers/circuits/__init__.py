@@ -14,3 +14,4 @@
 
 from .measurement_basis import *
 from .statevector import StateVector
+from .clifford_circuits import *

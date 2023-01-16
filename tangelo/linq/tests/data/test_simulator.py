@@ -27,7 +27,7 @@ from openfermion import load_operator
 from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
-from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends
+from tangelo.helpers.utils import installed_universal_simulator, installed_sv_simulator, installed_clifford_simulator, installed_backends
 from tangelo.linq.target.backend import Backend, get_expectation_value_from_frequencies_oneterm
 from tangelo.helpers.utils import assert_freq_dict_almost_equal
 
@@ -61,7 +61,7 @@ two_qubit_gates = [Gate(name, target=1, control=0) if name not in PARAMETERIZED_
 swap_gates = [Gate('SWAP', target=[1, 0]), Gate('CSWAP', target=[1, 2], control=0)]
 circuit5 = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates)
 
-# Circuit preparing a mixed-state (e.g containing a MEASURE instruction in the middle of the circuit)
+# Circuit preparing a mixed-state (e.g containing a MEASURE instruction in the middle of the circuit) ## TODO change this angle to be clifford
 circuit_mixed = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
 
 # Operators for testing the get_expectation_value functions
@@ -93,20 +93,20 @@ class TestSimulateAllBackends(unittest.TestCase):
 
     def test_get_exp_value_operator_too_long(self):
         """ Ensure an error is returned if the qubit operator acts on more qubits than are present in the circuit """
-        for b in installed_simulator:
+        for b in installed_clifford_simulator:
             simulator = get_backend(target=b, n_shots=1)
             self.assertRaises(ValueError, simulator.get_expectation_value, op4, circuit1)
 
     def test_get_exp_value_empty_operator(self):
         """ If qubit operator is empty, the expectation value is 0 and no computation occurs """
-        for b in installed_simulator:
+        for b in installed_clifford_simulator:
             simulator = get_backend(target=b, n_shots=1)
             exp_value = simulator.get_expectation_value(QubitOperator(), circuit1)
             self.assertTrue(exp_value == 0.)
 
     def test_get_exp_value_constant_operator(self):
         """ The expectation of the identity term must be 1. """
-        for b in installed_simulator:
+        for b in installed_clifford_simulator:
             simulator = get_backend(target=b, n_shots=1)
             const_op = QubitOperator()
             const_op.terms = {(): 777.}
@@ -122,7 +122,7 @@ class TestSimulateAllBackends(unittest.TestCase):
         """
 
         results = dict()
-        for b in installed_simulator:
+        for b in installed_universal_simulator:
             sim = get_backend(target=b, n_shots=10 ** 5)
             results[b], _ = sim.simulate(circuit_mixed)
             assert_freq_dict_almost_equal(results[b], reference_mixed, 1e-2)
@@ -145,7 +145,7 @@ class TestSimulateAllBackends(unittest.TestCase):
 
         reference = 0.41614683  # Exact value
         results = dict()
-        for b in installed_simulator:
+        for b in installed_universal_simulator:
             sim = get_backend(target=b, n_shots=10 ** 5)
             results[b] = sim.get_expectation_value(op1, circuit_mixed)
             np.testing.assert_almost_equal(results[b], reference, decimal=2)
@@ -408,16 +408,6 @@ class TestSimulateStatevector(unittest.TestCase):
 
 
 class TestSimulateMisc(unittest.TestCase):
-    #@unittest.skipIf("stim" not in installed_backends, "Test Skipped: Backend not available \n")
-    # def test_non_clifford_circuit(self):
-    #     """ Test specific to QDK to ensure results are not impacted by code specific to frequency computation
-    #         as well as the recompilation of the Q# file used in successive simulations """
-    #     ##TODO test check for non clifford gate
-    #     simulator = get_backend(target="stim")
-    #     exp_values = np.zeros((len(ops)), dtype=float)
-    #     for j, op in enumerate(ops):
-    #         exp_values[j] = simulator.get_expectation_value(op, circuit3)
-    #     np.testing.assert_almost_equal(exp_values, reference_exp_values[2], decimal=1)
 
     @unittest.skipIf("qdk" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_n_shots_needed(self):
@@ -449,7 +439,17 @@ class TestSimulateMisc(unittest.TestCase):
         for j, op in enumerate(ops):
             exp_values[j] = simulator.get_expectation_value(op, circuit3)
         np.testing.assert_almost_equal(exp_values, reference_exp_values[2], decimal=1)
+    @unittest.skipIf("stim" not in installed_backends, "Test Skipped: Backend not available \n")
 
+    # def test_non_clifford_circuit(self):
+    #     """ Test specific to QDK to ensure results are not impacted by code specific to frequency computation
+    #         as well as the recompilation of the Q# file used in successive simulations """
+    #     #TODO test check for non clifford gate
+    #     simulator = get_backend(target="stim")
+    #     exp_values = np.zeros((len(ops)), dtype=float)
+    #     for j, op in enumerate(ops):
+    #         exp_values[j] = simulator.get_expectation_value(op, circuit3)
+    #     np.testing.assert_almost_equal(exp_values, reference_exp_values[2], decimal=1)
     def test_get_exp_value_from_frequencies_oneterm(self):
         """ Test static method computing the expectation value of one term, when the results of a simulation
          are being provided as input. """
