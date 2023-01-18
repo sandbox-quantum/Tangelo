@@ -80,16 +80,16 @@ def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, 
     if [exp_vals, exp_data, shadow].count(None) != 2:
         raise RuntimeError("Arguments exp_vals, exp_data and shadow are mutually exclusive. Provide exactly one of them.")
 
-    if isinstance(exp_data, dict) and set(map(type, exp_data)) == {tuple}:
-        exp_vals = {pauli_of_to_string(term): data for term, data in exp_data.items()}
-
     # Initialize exp_vals
     if isinstance(exp_vals, dict) and set(map(type, exp_vals)) == {str}:
-        exp_vals = {pauli_string_to_of(term): exp_val for term, exp_val in exp_vals.items()}
+        exp_vals = {tuple(pauli_string_to_of(term)): exp_val for term, exp_val in exp_vals.items()}
     elif exp_vals is None:
         exp_vals = dict()
 
     n_qubits = get_qubit_number(mapping, ferm_ham.n_spinorbitals)
+
+    if isinstance(exp_data, dict) and set(map(type, exp_data)) == {tuple}:
+        exp_vals = {pauli_of_to_string(term, n_qubits): data for term, data in exp_data.items()}
 
     # Go over all terms in fermionic Hamiltonian
     for term in ferm_ham.terms:
