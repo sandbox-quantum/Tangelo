@@ -115,11 +115,11 @@ class QiskitSimulator(Backend):
             for _ in range(self.n_shots):
                 sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
                 current_state = sim_results.get_statevector(translated_circuit)
-                measurement = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
+                measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
                 (sample, _) = self.qiskit.quantum_info.states.Statevector(current_state).measure()
-                bitstr = measurement + sample[::-1]
+                bitstr = measure + sample[::-1]
                 samples[bitstr] = samples.get(bitstr, 0) + 1
-                if measurement == desired_meas_result:
+                if measure == desired_meas_result or self._current_state is None:
                     self._current_state = current_state
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
             frequencies = self.all_frequencies

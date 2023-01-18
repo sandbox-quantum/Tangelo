@@ -214,7 +214,7 @@ class Backend(abc.ABC):
                              "Please set the n_shots attribute to an appropriate value.")
 
         if desired_meas_result is not None:
-            if len(desired_meas_result) != n_meas or not isinstance(desired_meas_result, str):
+            if not isinstance(desired_meas_result, str) or len(desired_meas_result) != n_meas:
                 raise ValueError("desired_meas result is not a string with the same length as the number of measurements"
                     "in the circuit.")
             save_mid_circuit_meas = True

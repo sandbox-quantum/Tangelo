@@ -61,7 +61,7 @@ two_qubit_gates = [Gate(name, target=1, control=0) if name not in PARAMETERIZED_
 swap_gates = [Gate('SWAP', target=[1, 0]), Gate('CSWAP', target=[1, 2], control=0)]
 circuit5 = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates)
 
-# Circuit preparing a mixed-state (e.g containing a MEASURE instruction in the middle of the circuit)
+# Circuit preparing a mixed-state (i.e. containing a MEASURE instruction in the middle of the circuit)
 circuit_mixed = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
 
 # Operators for testing the get_expectation_value functions
@@ -140,10 +140,8 @@ class TestSimulateAllBackends(unittest.TestCase):
             assert_freq_dict_almost_equal(sim.mid_circuit_meas_freqs, reference_mid, 8e-2)
 
     def test_simulate_mixed_state_desired_state(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
-        Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
-        Simulating individual shots is suitable.
-        Some simulators are NOT good at this, by design
+        """ Test mid-circuit measurement (mixed-state simulation) for all installed backends.
+        Mixed-states do not have a statevector representation, as they are statistical mixtures of several quantum states.
         """
 
         results = dict()
@@ -152,6 +150,13 @@ class TestSimulateAllBackends(unittest.TestCase):
             sim = get_backend(target=b, n_shots=10 ** 3)
             results[b], _ = sim.simulate(circuit_mixed, desired_meas_result="0")
             assert_freq_dict_almost_equal(results[b], exact, 8.e-2)
+
+    def test_desired_meas_len(self):
+        """ Test if the desired_meas_result parameter is a string and of the right length."""
+        for b in installed_simulator:
+            sim = get_backend(target=b, n_shots=10 ** 3)
+            self.assertRaises(ValueError, sim.simulate, circuit_mixed, desired_meas_result=0)
+            self.assertRaises(ValueError, sim.simulate, circuit_mixed, desired_meas_result="01")
 
     def test_get_exp_value_mixed_state(self):
         """ Test expectation value for mixed-state simulation. Computation done by drawing individual shots.
@@ -393,7 +398,7 @@ class TestSimulateStatevector(unittest.TestCase):
         self.assertAlmostEqual(energy, expected, delta=1e-3)
 
     def test_get_exp_value_mixed_state_desired_measurement_with_shots(self):
-        """ Get expectation value of mixed state post-selecting on desired measurement"""
+        """ Get expectation value of mixed state by post-selecting on desired measurement."""
         qubit_operator = QubitOperator("X0 X1") + QubitOperator("Y0 Y1") + QubitOperator("Z0 Z1")
 
         ham = get_sparse_operator(qubit_operator).toarray()

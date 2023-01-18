@@ -123,7 +123,7 @@ class CirqSimulator(Backend):
                 sample = "".join([str(int(q)) for q in isamples[0]])
                 bitstr = measure + sample
                 samples[bitstr] = samples.get(bitstr, 0) + 1
-                if measure == desired_meas_result:
+                if measure == desired_meas_result or self._current_state is None:
                     self._current_state = current_state
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
             frequencies = self.all_frequencies

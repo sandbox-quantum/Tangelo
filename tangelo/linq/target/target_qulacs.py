@@ -79,7 +79,7 @@ class QulacsSimulator(Backend):
         # If you don't want to save the mid-circuit measurements for a mixed state
         if (source_circuit.is_mixed_state or self._noise_model) and (desired_meas_result is None and not save_mid_circuit_meas):
             samples = dict()
-            for i in range(self.n_shots):
+            for _ in range(self.n_shots):
                 translated_circuit.update_quantum_state(state)
                 bitstr = state.sampling(1)[0]
                 samples[bitstr] = samples.get(bitstr, 0) + 1
@@ -94,12 +94,12 @@ class QulacsSimulator(Backend):
             samples = dict()
             for _ in range(self.n_shots):
                 translated_circuit.update_quantum_state(state)
-                measurement = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
+                measure = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
                 sample = self._int_to_binstr(state.sampling(1)[0], source_circuit.width)
-                bitstr = measurement + sample
+                bitstr = measure + sample
                 samples[bitstr] = samples.get(bitstr, 0) + 1
 
-                if measurement == desired_meas_result:
+                if measure == desired_meas_result or self._current_state is None:
                     python_statevector = state.get_vector()
                     self._current_state = python_statevector
                 if initial_statevector is not None:
