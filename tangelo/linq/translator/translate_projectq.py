@@ -161,12 +161,13 @@ def translate_c_from_projectq(projectq_str):
     return abs_circ
 
 
-def translate_op_to_projectq(qubit_operator):
+def translate_op_to_projectq(qubit_operator, n_qubits=None):
     """Helper function to translate a Tangelo QubitOperator to a projectq qubit
     operator.
 
     Args:
         qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
+        n_qubits (int): Number of qubits, ignored.
 
     Returns:
         (projectq.ops.QubitOperator): ProjectQ QubitOperator.

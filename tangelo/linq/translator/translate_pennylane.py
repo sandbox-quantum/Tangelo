@@ -102,13 +102,14 @@ def translate_c_to_pennylane(source_circuit):
     return target_circuit
 
 
-def translate_op_to_pennylane(qubit_operator):
+def translate_op_to_pennylane(qubit_operator, n_qubits=None):
     """Helper function to translate a Tangelo QubitOperator to a pennylane
     Hamiltonian operator. For the pennylane package, all the coefficients must
     be real.
 
     Args:
         qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
+        n_qubits (int): Number of qubits, ignored.
 
     Returns:
         (pennylane.ops.qubit.hamiltonian.Hamiltonian): Pennylane Hamiltonian.

@@ -28,7 +28,7 @@ from tangelo.toolboxes.operators import QubitOperator
 # For openfermion.load_operator function.
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
-tangelo_op = QubitOperator("X0 Y1 Z2", 2.)
+tangelo_op = QubitOperator("X0 Y1 Z2", 2.) + QubitOperator("", 3.)
 
 
 class TranslateOperatorTest(unittest.TestCase):
@@ -50,7 +50,7 @@ class TranslateOperatorTest(unittest.TestCase):
         """Test translation from a qiskit to a tangelo operator."""
 
         from qiskit.opflow.primitive_ops import PauliSumOp
-        qiskit_op = PauliSumOp.from_list([("ZYX", 2.)])
+        qiskit_op = PauliSumOp.from_list([("ZYX", 2.), ("III", 3.)])
 
         test_op = translate_operator(qiskit_op, source="qiskit", target="tangelo")
         self.assertEqual(test_op, tangelo_op)
@@ -60,7 +60,7 @@ class TranslateOperatorTest(unittest.TestCase):
         """Test translation from a tangelo to a qiskit operator."""
 
         from qiskit.opflow.primitive_ops import PauliSumOp
-        qiskit_op = PauliSumOp.from_list([("ZYX", 2.)])
+        qiskit_op = PauliSumOp.from_list([("ZYX", 2.), ("III", 3.)])
 
         test_op = translate_operator(tangelo_op, source="tangelo", target="qiskit")
         self.assertEqual(qiskit_op, test_op)
@@ -72,7 +72,8 @@ class TranslateOperatorTest(unittest.TestCase):
         from cirq import PauliSum, PauliString, LineQubit, X, Y, Z
         qubit_a, qubit_b, qubit_c = LineQubit.range(3)
         cirq_op = PauliSum.from_pauli_strings([
-            PauliString(2., X(qubit_a), Y(qubit_b), Z(qubit_c))
+            PauliString(2., X(qubit_a), Y(qubit_b), Z(qubit_c)),
+            PauliString(3.)
         ])
 
         test_op = translate_operator(cirq_op, source="cirq", target="tangelo")
@@ -85,7 +86,8 @@ class TranslateOperatorTest(unittest.TestCase):
         from cirq import PauliSum, PauliString, LineQubit, X, Y, Z
         qubit_a, qubit_b, qubit_c = LineQubit.range(3)
         cirq_op = PauliSum.from_pauli_strings([
-            PauliString(2., X(qubit_a), Y(qubit_b), Z(qubit_c))
+            PauliString(2., X(qubit_a), Y(qubit_b), Z(qubit_c)),
+            PauliString(3.)
         ])
 
         test_op = translate_operator(tangelo_op, source="tangelo", target="cirq")
@@ -98,6 +100,7 @@ class TranslateOperatorTest(unittest.TestCase):
         from qulacs import GeneralQuantumOperator
         qulacs_op = GeneralQuantumOperator(3)
         qulacs_op.add_operator(2., "X 0 Y 1 Z 2")
+        qulacs_op.add_operator(3., "")
 
         test_op = translate_operator(qulacs_op, source="qulacs", target="tangelo")
         self.assertEqual(test_op, tangelo_op)
@@ -109,22 +112,31 @@ class TranslateOperatorTest(unittest.TestCase):
         from qulacs import GeneralQuantumOperator
         qulacs_op = GeneralQuantumOperator(3)
         qulacs_op.add_operator(2., "X 0 Y 1 Z 2")
+        qulacs_op.add_operator(3., "")
 
         test_op = translate_operator(tangelo_op, source="tangelo", target="qulacs")
 
+        n_terms = qulacs_op.get_term_count()
+        coeffs = [qulacs_op.get_term(i).get_coef() for i in range(n_terms)]
+        terms = [qulacs_op.get_term(i).get_pauli_string() for i in range(n_terms)]
+
         # __eq__ method is not implemented for GeneralQuantumOperator. It is
         # checking the addresses in memory when comparing 2 qulacs objects.
-        self.assertEqual(qulacs_op.get_term_count(), test_op.get_term_count())
-        self.assertEqual(qulacs_op.get_term(0).get_coef(), test_op.get_term(0).get_coef())
-        self.assertEqual(qulacs_op.get_term(0).get_pauli_string(), test_op.get_term(0).get_pauli_string())
+        self.assertEqual(n_terms, test_op.get_term_count())
+        for i in range(test_op.get_term_count()):
+            self.assertIn(test_op.get_term(i).get_coef(), coeffs)
+            self.assertIn(test_op.get_term(i).get_pauli_string(), terms)
 
     @unittest.skipIf("pennylane" not in installed_backends, "Test Skipped: Pennylane not available \n")
     def test_pennylane_to_tangelo(self):
         """Test translation from a pennylane to a tangelo operator."""
 
         import pennylane as qml
-        coeffs = [2.]
-        obs = [qml.PauliX(0) @ qml.PauliY(1) @ qml.PauliZ(2)]
+        coeffs = [2., 3.]
+        obs = [
+            qml.PauliX(0) @ qml.PauliY(1) @ qml.PauliZ(2),
+            qml.Identity(0) @ qml.Identity(1) @ qml.Identity(2)
+        ]
         pennylane_H = qml.Hamiltonian(coeffs, obs)
 
         test_op = translate_operator(pennylane_H, source="pennylane", target="tangelo")
@@ -135,8 +147,11 @@ class TranslateOperatorTest(unittest.TestCase):
         """Test translation from a tangelo to a pennylane operator."""
 
         import pennylane as qml
-        coeffs = [2.]
-        obs = [qml.PauliX(0) @ qml.PauliY(1) @ qml.PauliZ(2)]
+        coeffs = [2., 3.]
+        obs = [
+            qml.PauliX(0) @ qml.PauliY(1) @ qml.PauliZ(2),
+            qml.Identity(0) @ qml.Identity(1) @ qml.Identity(2)
+        ]
         pennylane_H = qml.Hamiltonian(coeffs, obs)
 
         test_op = translate_operator(tangelo_op, source="tangelo", target="pennylane")
@@ -149,7 +164,7 @@ class TranslateOperatorTest(unittest.TestCase):
         """Test translation from a projectq to a tangelo operator."""
 
         from projectq.ops import QubitOperator as ProjectQQubitOperator
-        projectq_op = ProjectQQubitOperator("X0 Y1 Z2", 2.)
+        projectq_op = ProjectQQubitOperator("X0 Y1 Z2", 2.) + ProjectQQubitOperator("", 3.)
 
         test_op = translate_operator(projectq_op, source="projectq", target="tangelo")
 
@@ -160,7 +175,7 @@ class TranslateOperatorTest(unittest.TestCase):
         """Test translation from a tangelo to a projectq operator."""
 
         from projectq.ops import QubitOperator as ProjectQQubitOperator
-        projectq_op = ProjectQQubitOperator("X0 Y1 Z2", 2.)
+        projectq_op = ProjectQQubitOperator("X0 Y1 Z2", 2.) + ProjectQQubitOperator("", 3.)
 
         test_op = translate_operator(tangelo_op, source="tangelo", target="projectq")
 
