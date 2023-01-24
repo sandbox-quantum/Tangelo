@@ -20,7 +20,6 @@ characteristics (width, size ...).
 
 import copy
 from typing import List
-import warnings
 
 import numpy as np
 from cirq.contrib.svg import SVGCircuit
@@ -150,7 +149,6 @@ class Circuit:
         """Method to output a prettier version of the circuit for use in jupyter notebooks that uses cirq SVGCircuit"""
         # circular import
         from tangelo.linq.translator.translate_cirq import translate_c_to_cirq
-        warnings.filterwarnings("ignore", message=".*findfont.*")
         cirq_circ = translate_c_to_cirq(self)
         # Remove identity gates that are added in translate_c_to_cirq (to ensure all qubits are initialized) before drawing.
         cirq_circ.__delitem__(0)
