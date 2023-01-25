@@ -213,13 +213,10 @@ def translate_op_from_qiskit(qubit_operator):
         # Inversion of the string because of qiskit ordering.
         term_string = pauli_word.to_pauli_op().primitive.to_label()[::-1]
         term_tuple = pauli_string_to_of(term_string)
-        terms_dict[tuple(term_tuple)] = pauli_word.coeff
+        terms_dict[tuple(term_tuple)] = complex(pauli_word.coeffs)
 
     # Create and copy the information into a new QubitOperator.
     tangelo_op = QubitOperator()
     tangelo_op.terms = terms_dict
-
-    # Clean the QubitOperator.
-    tangelo_op.compress()
 
     return tangelo_op

@@ -25,6 +25,7 @@ necessary to account for:
 import re
 
 from tangelo.linq import Gate, Circuit
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.helpers import deprecated
 
 
@@ -158,3 +159,38 @@ def translate_c_from_projectq(projectq_str):
         abs_circ.add_gate(gate)
 
     return abs_circ
+
+
+def translate_op_to_projectq(qubit_operator):
+    """Helper function to translate a Tangelo QubitOperator to a projectq qubit
+    operator.
+
+    Args:
+        qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
+
+    Returns:
+        (projectq.ops.QubitOperator): ProjectQ QubitOperator.
+    """
+    from projectq.ops import QubitOperator as ProjectQQubitOperator
+
+    projectq_quop = ProjectQQubitOperator()
+    projectq_quop.terms = qubit_operator.terms
+
+    return projectq_quop
+
+
+def translate_op_from_projectq(qubit_operator):
+    """Helper function to translate projectq qubit operator to a Tangelo
+    QubitOperator.
+
+    Args:
+        qubit_operator (projectq.ops.QubitOperator): Self-explanatory.
+
+    Returns:
+        (tangelo.toolboxes.operators.QubitOperator): Tangelo qubit operator.
+    """
+
+    tangelo_op = QubitOperator()
+    tangelo_op.terms = qubit_operator.terms
+
+    return tangelo_op
