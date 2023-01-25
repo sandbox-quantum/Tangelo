@@ -181,13 +181,12 @@ def translate_c_to_qulacs(source_circuit, noise_model=None, save_measurements=Fa
     return target_circuit
 
 
-def translate_op_to_qulacs(qubit_operator, n_qubits=None):
+def translate_op_to_qulacs(qubit_operator):
     """Helper function to translate a Tangelo QubitOperator to a qulacs general
     quantum operator.
 
     Args:
         qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
-        n_qubits (int): Number of qubits, ignored.
 
     Returns:
         (qulacs_core.GeneralQuantumOperator): Qulacs quantum operator.
