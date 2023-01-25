@@ -47,9 +47,9 @@ def translate_operator(qubit_operator, source, target, n_qubits=None):
         qubit_operator (source format): Self-explanatory.
         source (string): Identifier for the source format.
         target (string): Identifier for the target format.
-        n_qubits (int): Number of qubits relevant to the operator. It is
-            used for target="qiskit", and can be automatically computed from the
-            count_qubits function. For the other targets, it is ignored.
+        n_qubits (int): Number of qubits relevant to the operator. Not used by
+            all format conversion functions, will be computed automatically if
+            not specified.
 
     Returns:
         (operator in target format): Translated qubit operator.
