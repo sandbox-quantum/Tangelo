@@ -22,8 +22,6 @@ necessary to account for:
     may also differ.
 """
 
-import warnings
-
 from numpy import exp, cos, sin
 
 from tangelo.toolboxes.operators import QubitOperator
