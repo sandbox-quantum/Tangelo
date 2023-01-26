@@ -37,7 +37,7 @@ ferm_op.n_electrons = 2
 ferm_op.spin = 0
 
 exp_data_strings = json.load(open(pwd_this_test + "/data/H2_raw_exact.dat", "r"))
-exp_data_tuples = {pauli_string_to_of(k): v for k,v in exp_data_strings.items()}
+exp_data_tuples = {pauli_string_to_of(k): v for k, v in exp_data_strings.items()}
 
 temp_hist_tuples = {k: Histogram(freqs, 10000) for k, freqs in exp_data_tuples.items()}
 temp_hist_tuples[((0, "Z"),)] = aggregate_histograms(temp_hist_tuples[((0, "Z"), (1, "Z"))], temp_hist_tuples[((0, "Z"), (1, "X"))])
@@ -46,7 +46,7 @@ temp_hist_tuples[((0, "X"),)] = aggregate_histograms(temp_hist_tuples[((0, "X"),
 temp_hist_tuples[((1, "X"),)] = aggregate_histograms(temp_hist_tuples[((0, "Z"), (1, "X"))], temp_hist_tuples[((0, "X"), (1, "X"))])
 
 exp_values_tuples = {term: hist.get_expectation_value(term) for term, hist in temp_hist_tuples.items()}
-exp_values_strings = {pauli_of_to_string(k, 2): v for k,v in exp_values_tuples.items()}
+exp_values_strings = {pauli_of_to_string(k, 2): v for k, v in exp_values_tuples.items()}
 
 rdm1ssr = np.array([[1.97454854+0.j, 0.+0.j],
                  [0.+0.j, 0.02545146+0.j]])
