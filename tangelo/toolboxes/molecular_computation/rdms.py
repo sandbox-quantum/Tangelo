@@ -19,12 +19,11 @@ import itertools as it
 import numpy as np
 
 from tangelo.toolboxes.molecular_computation.coefficients import spatial_from_spinorb
-from tangelo.linq.helpers import pauli_string_to_of, get_compatible_bases
+from tangelo.linq.helpers import pauli_string_to_of, pauli_of_to_string, get_compatible_bases
 from tangelo.toolboxes.operators import FermionOperator
 from tangelo.toolboxes.measurements import ClassicalShadow
 from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping, get_qubit_number
-from tangelo.linq.helpers.circuits import pauli_of_to_string
 
 
 def matricize_2rdm(two_rdm, n_orbitals):
@@ -82,8 +81,14 @@ def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, 
         raise RuntimeError("Arguments exp_vals, exp_data and shadow are mutually exclusive. Provide exactly one of them.")
 
     # Initialize exp_vals
-    exp_vals = {pauli_string_to_of(term): exp_val for term, exp_val in exp_data.items()} \
-        if isinstance(exp_vals, dict) else {}
+    if isinstance(exp_vals, dict) and set(map(type, exp_vals)) == {str}:
+        exp_vals = {pauli_string_to_of(term): exp_val for term, exp_val in exp_vals.items()}
+
+    if isinstance(exp_data, dict) and set(map(type, exp_data)) == {str}:
+        exp_data = {pauli_string_to_of(term): data for term, data in exp_data.items()}
+
+    if exp_vals is None:
+        exp_vals = dict()
 
     n_qubits = get_qubit_number(mapping, ferm_ham.n_spinorbitals)
 
@@ -110,21 +115,30 @@ def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, 
 
         if isinstance(shadow, ClassicalShadow):
             eigenvalue = shadow.get_observable(qubit_term, **eval_args)
-
         else:
             for qterm, coeff in qubit_term.terms.items():
                 if coeff.real != 0:
 
-                    if qterm in exp_vals:
-                        exp_val = exp_vals[qterm] if qterm else 1.
+                    # qterm = (), i.e. tensor product of I.
+                    if not qterm:
+                        exp_val = 1.
+                    # Already computed expectation value of qterm.
+                    elif qterm in exp_vals:
+                        exp_val = exp_vals[qterm]
+                    # Case where there is at least one missing entry in exp_vals
+                    # (in this case, exp_data is None and we cannot compute the
+                    # eigenvalue).
+                    elif exp_data is None:
+                        raise RuntimeError(f"Missing {qterm} entry in exp_vals.")
+                    # Expectation value that can be computed from exp_data.
                     else:
                         ps = pauli_of_to_string(qterm, n_qubits)
-                        bases = get_compatible_bases(ps, list(exp_data.keys()))
+                        bases = get_compatible_bases(ps, [pauli_of_to_string(term, n_qubits) for term in exp_data.keys()])
 
                         if not bases:
-                            raise RuntimeError(f"No experimental data for basis {ps}")
+                            raise RuntimeError(f"No experimental data for basis {qterm}.")
 
-                        hist = aggregate_histograms(*[Histogram(exp_data[basis]) for basis in bases])
+                        hist = aggregate_histograms(*[Histogram(exp_data[pauli_string_to_of(basis)]) for basis in bases])
                         exp_val = hist.get_expectation_value(qterm, 1.)
                         exp_vals[qterm] = exp_val
 
