@@ -27,6 +27,7 @@ LiO2 = """
 
 class OSDMETProblemDecompositionTest(unittest.TestCase):
 
+    @unittest.skip("Open-shell DMET has been disabled.")
     def test_lio2_sto6g_rohf(self):
         """Tests the result from OS-DMET (ROHF) against a value from a reference
         implementation with nao localization and CCSD solution to fragments.
@@ -47,6 +48,7 @@ class OSDMETProblemDecompositionTest(unittest.TestCase):
 
         self.assertAlmostEqual(energy, -156.6317605935, places=4)
 
+    @unittest.skip("Open-shell DMET has been disabled.")
     def test_lio2_sto6g_uhf(self):
         """Tests the result from OS-DMET (UHF) against a value from a reference
         implementation with nao localization and CCSD solution to fragments.
