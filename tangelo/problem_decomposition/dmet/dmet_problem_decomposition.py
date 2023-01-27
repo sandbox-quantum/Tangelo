@@ -339,15 +339,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Construct guess orbitals for fragment SCF calculations.
             # Carry out SCF calculation for a fragment.
-            guess_orbitals, nelec_high_ab = helpers._fragment_guess_rohf_uhf(
-                t_list, bath_orb, chemical_potential, norb_high, nelec_high,
-                self.orbitals.active_fock_alpha, self.orbitals.active_fock_beta,
-                self.orbitals.number_active_electrons_alpha,
-                self.orbitals.number_active_electrons_beta)
-
-            mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf_rohf_uhf(
-                nelec_high_ab, two_ele, fock, nelec_high, norb_high,
-                guess_orbitals, chemical_potential, False)
+            guess_orbitals = helpers._fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
+                                                            self.orbitals.active_fock)
+            mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf_rhf(
+                t_list, two_ele, fock, nelec_high, norb_high, guess_orbitals,
+                chemical_potential)
 
             scf_fragments.append([mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock])
 
