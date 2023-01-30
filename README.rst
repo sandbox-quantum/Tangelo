@@ -70,7 +70,7 @@ The easiest way to install Tangelo in your local environment. We recommend upgra
 
 .. code-block::
 
-   python -m pip install -–upgrade pip.
+   python -m pip install --upgrade pip.
    pip install tangelo-gc
 
 
@@ -184,7 +184,7 @@ find and run all tests (assuming you are in the ``tangelo`` subfolder that conta
 Contributions
 -------------
 
-Thank you very much for considering contributing to this project; we’d love to have you on board !
+Thank you very much for considering contributing to this project; we'd love to have you on board !
 You do not need to be a seasoned software developer or expert in your field to make contributions to this project: it will take various kinds of people and backgrounds to tackle the challenges that await us.
 
 However we need some guidelines and processes to ensure that we build something of quality for the community. We describe them in the `contributions <./CONTRIBUTIONS.rst>`_ file.

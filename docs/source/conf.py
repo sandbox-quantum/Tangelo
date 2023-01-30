@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'tangelo'
-copyright = '2022 Good Chemistry Company'
+copyright = '2023 Good Chemistry Company'
 author = 'Valentin senicourt, Alexandre Fleury, Ryan Day, James Brown'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3.1'
+release = '0.3.4'
 
 
 # -- General configuration ---------------------------------------------------

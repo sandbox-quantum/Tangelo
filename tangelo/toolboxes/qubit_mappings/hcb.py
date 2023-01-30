@@ -65,7 +65,7 @@ def boson_to_qubit_mapping(bos_op):
     annihilation operators.
 
     In short, every creation operator b^{\dagger} (resp. annihilation b) are
-    mapped to X+iY strings (resp. X-iY), where X and Y are referring to the
+    mapped to X-iY strings (resp. X+iY), where X and Y are referring to the
     Pauli matrices.
 
     Args:
