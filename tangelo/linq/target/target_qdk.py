@@ -41,6 +41,8 @@ class QDKSimulator(Backend):
                 if available.
             initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
+            desired_meas_result (str): The binary string of the desired measurement.
+                Must have the same length as the number of MEASURE gates in source_circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
                 self.all_frequencies, with keys of length (n_meas + n_qubits).

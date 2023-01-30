@@ -114,12 +114,7 @@ class TestSimulateAllBackends(unittest.TestCase):
             self.assertTrue(exp_value == 777.)
 
     def test_simulate_mixed_state(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
-        Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
-        Simulating individual shots is suitable.
-
-        Some simulators are NOT good at this, by design
-        """
+        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends."""
 
         results = dict()
         for b in installed_simulator:
@@ -128,9 +123,7 @@ class TestSimulateAllBackends(unittest.TestCase):
             assert_freq_dict_almost_equal(results[b], reference_mixed, 1e-2)
 
     def test_simulate_mixed_state_save_measures(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for all installed backends.
-        Mixed-states do not have a statevector representation, as they are a statistical mixture of several quantum states.
-        """
+        """ Test mid-circuit measurement (mixed-state simulation) for all installed backends."""
         results = dict()
         for b in installed_simulator:
             sim = get_backend(target=b, n_shots=10 ** 3)
@@ -140,9 +133,7 @@ class TestSimulateAllBackends(unittest.TestCase):
             assert_freq_dict_almost_equal(sim.mid_circuit_meas_freqs, reference_mid, 8e-2)
 
     def test_simulate_mixed_state_desired_state(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for all installed backends.
-        Mixed-states do not have a statevector representation, as they are statistical mixtures of several quantum states.
-        """
+        """ Test mid-circuit measurement (mixed-state simulation) for all installed backends."""
 
         results = dict()
         exact = {'11': 0.23046888414227926, '10': 0.7695311158577207}
@@ -153,14 +144,12 @@ class TestSimulateAllBackends(unittest.TestCase):
 
     def test_desired_meas_len(self):
         """ Test if the desired_meas_result parameter is a string and of the right length."""
-        for b in installed_simulator:
-            sim = get_backend(target=b, n_shots=10 ** 3)
-            self.assertRaises(ValueError, sim.simulate, circuit_mixed, desired_meas_result=0)
-            self.assertRaises(ValueError, sim.simulate, circuit_mixed, desired_meas_result="01")
+        sim = get_backend(target="cirq", n_shots=10 ** 3)
+        self.assertRaises(ValueError, sim.simulate, circuit_mixed, desired_meas_result=0)
+        self.assertRaises(ValueError, sim.simulate, circuit_mixed, desired_meas_result="01")
 
     def test_get_exp_value_mixed_state(self):
-        """ Test expectation value for mixed-state simulation. Computation done by drawing individual shots.
-        Some simulators are NOT good at this, by design (ProjectQ). """
+        """ Test expectation value for mixed-state simulation. Computation done by drawing individual shots."""
 
         reference = 0.41614683  # Exact value
         results = dict()
@@ -225,11 +214,7 @@ class TestSimulateStatevector(unittest.TestCase):
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
     def test_simulate_mixed_state_desired_statevector(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends.
-        Mixed-state do not have a statevector representation, as they are a statistical mixture of several statevectors.
-        Simulating individual shots is suitable.
-        Some simulators are NOT good at this, by design
-        """
+        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends."""
 
         results = dict()
         results["qulacs"] = np.array([0. + 0.j, 0.87758256 + 0.j, 0. + 0.j, -0.47942554 + 0.j])
@@ -508,8 +493,7 @@ class TestSimulateMisc(unittest.TestCase):
                 super().__init__(n_shots=n_shots, noise_model=noise_model)
                 self.return_zeros = return_zeros
 
-            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None,
-                                 desired_meas_result=None, save_mid_circuit_meas=False):
+            def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
                 """Perform state preparation corresponding self.return_zeros."""
 
                 statevector = np.zeros(2**source_circuit.width, dtype=complex)

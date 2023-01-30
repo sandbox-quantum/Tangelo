@@ -20,6 +20,7 @@ import numpy as np
 from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
+from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
 
 
 class QiskitSimulator(Backend):
@@ -81,8 +82,6 @@ class QiskitSimulator(Backend):
 
         # Drawing individual shots with the qasm simulator, for noisy simulation or simulating mixed states
         if self._noise_model or source_circuit.is_mixed_state and (desired_meas_result is None or not return_statevector):
-            from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
-
             n_meas = source_circuit.counts.get("MEASURE", 0)
             meas_start = n_meas if save_mid_circuit_meas else 0
             meas_range = range(meas_start, meas_start + source_circuit.width)
@@ -103,7 +102,6 @@ class QiskitSimulator(Backend):
 
         # desired_meas_result is not None and return_statevector is requested so loop shot by shot (much slower)
         elif desired_meas_result is not None:
-            from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
             n_meas = source_circuit.counts.get("MEASURE", 0)
             backend = self.AerSimulator(method='statevector')
             qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None

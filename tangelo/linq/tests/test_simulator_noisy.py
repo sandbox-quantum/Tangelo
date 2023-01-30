@@ -167,6 +167,7 @@ class TestSimulate(unittest.TestCase):
         res_mixed, _ = s_nmm.simulate(circuit_mixed)
         assert_freq_dict_almost_equal(ref_mixed, res_mixed, 7.e-2)
 
+        # Test noise with desired measurement result
         s_nmm = get_backend(target="qiskit", n_shots=10**4, noise_model=nmm)
         res_mixed, _ = s_nmm.simulate(circuit_mixed, desired_meas_result="0")
         assert_freq_dict_almost_equal(ref_mixed_0, res_mixed, 7.e-2)

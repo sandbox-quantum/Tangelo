@@ -247,14 +247,11 @@ class Backend(abc.ABC):
             self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(all_frequencies,
                                                                             list(range(n_meas)),
                                                                             desired_measurement=desired_meas_result)
-            self.success_probability = self.mid_circuit_meas_freqs.get(desired_meas_result, 0)
             return (frequencies, statevector)
 
         return self.simulate_circuit(source_circuit,
                                      return_statevector=return_statevector,
-                                     initial_statevector=initial_statevector,
-                                     desired_meas_result=desired_meas_result,
-                                     save_mid_circuit_meas=save_mid_circuit_meas)
+                                     initial_statevector=initial_statevector)
 
     def get_expectation_value(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a quantum circuit preparing a
@@ -295,10 +292,14 @@ class Backend(abc.ABC):
         if are_coefficients_real:
             if self._noise_model or not self.statevector_available \
                     or state_prep_circuit.is_mixed_state or state_prep_circuit.size == 0:
-                return self._get_expectation_value_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector,
+                return self._get_expectation_value_from_frequencies(qubit_operator,
+                                                                    state_prep_circuit,
+                                                                    initial_statevector=initial_statevector,
                                                                     desired_meas_result=desired_meas_result)
             elif self.statevector_available:
-                return self._get_expectation_value_from_statevector(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector)
+                return self._get_expectation_value_from_statevector(qubit_operator,
+                                                                    state_prep_circuit,
+                                                                    initial_statevector=initial_statevector)
 
         # Else, separate the operator into 2 hermitian operators, use linearity and call this function twice
         else:
@@ -328,6 +329,7 @@ class Backend(abc.ABC):
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
+            desired_meas_result (str): The mid-circuit measurement results to select for.
 
         Returns:
             complex: The variance of this operator with regard to the
@@ -348,7 +350,9 @@ class Backend(abc.ABC):
 
         # If the underlying operator is hermitian, expectation value is real and can be computed right away
         if are_coefficients_real:
-            return self._get_variance_from_frequencies(qubit_operator, state_prep_circuit, initial_statevector=initial_statevector,
+            return self._get_variance_from_frequencies(qubit_operator,
+                                                       state_prep_circuit,
+                                                       initial_statevector=initial_statevector,
                                                        desired_meas_result=desired_meas_result)
 
         # Else, separate the operator into 2 hermitian operators, use linearity and call this function twice
@@ -380,6 +384,7 @@ class Backend(abc.ABC):
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (list/array): A valid statevector in the format
                 supported by the target backend.
+            desired_meas_result (str): The mid-circuit measurement results to select for.
 
         Returns:
             complex: The standard error of this operator with regard to the
@@ -398,8 +403,6 @@ class Backend(abc.ABC):
             qubit_operator (openfermion-style QubitOperator class): a qubit operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation (only pure states).
             initial_statevector (array): The initial state of the system
-            desired_meas_result (str): The expectation value is taken for over the frequencies
-                derived when the mid-circuit measurements match this string.
 
         Returns:
             complex: The expectation value of this operator with regards to the
@@ -451,6 +454,7 @@ class Backend(abc.ABC):
             qubit_operator (openfermion-style QubitOperator class): a qubitoperator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (array): The initial state of the system
+            desired_meas_result (str): The mid-circuit measurement results to select for.
 
         Returns:
             complex: The expectation value of this operator with regard to the
@@ -465,7 +469,10 @@ class Backend(abc.ABC):
                 updated_statevector = initial_statevector
         else:
             initial_circuit = Circuit(n_qubits=n_qubits)
-            _, updated_statevector = self.simulate(state_prep_circuit, return_statevector=True, initial_statevector=initial_statevector)
+            _, updated_statevector = self.simulate(state_prep_circuit,
+                                                   return_statevector=True,
+                                                   initial_statevector=initial_statevector,
+                                                   desired_meas_result=desired_meas_result)
 
         expectation_value = 0.
         for term, coef in qubit_operator.terms.items():
@@ -478,7 +485,9 @@ class Backend(abc.ABC):
 
             basis_circuit = Circuit(measurement_basis_gates(term))
             full_circuit = initial_circuit + basis_circuit if (basis_circuit.size > 0) else initial_circuit
-            frequencies, _ = self.simulate(full_circuit, initial_statevector=updated_statevector, desired_meas_result=desired_meas_result)
+            frequencies, _ = self.simulate(full_circuit,
+                                           initial_statevector=updated_statevector,
+                                           desired_meas_result=desired_meas_result)
             expectation_term = self.get_expectation_value_from_frequencies_oneterm(term, frequencies)
             expectation_value += coef * expectation_term
 
@@ -494,6 +503,7 @@ class Backend(abc.ABC):
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
+            desired_meas_result (str): The mid-circuit measurement results to select for.
 
         Returns:
             complex: The variance of this operator with regard to the
@@ -508,7 +518,9 @@ class Backend(abc.ABC):
                 updated_statevector = initial_statevector
         else:
             initial_circuit = Circuit(n_qubits=n_qubits)
-            _, updated_statevector = self.simulate(state_prep_circuit, return_statevector=True, initial_statevector=initial_statevector,
+            _, updated_statevector = self.simulate(state_prep_circuit,
+                                                   return_statevector=True,
+                                                   initial_statevector=initial_statevector,
                                                    desired_meas_result=desired_meas_result)
 
         variance = 0.
