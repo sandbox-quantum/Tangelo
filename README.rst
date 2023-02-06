@@ -155,7 +155,7 @@ them in whatever way your OS supports it, or even inside your python script usin
 Tutorials and examples
 ----------------------
 
-We have a `dedicated repository<https://github.com/goodchemistryco/Tangelo-Examples>`_ for examples and tutorials ! 
+We have a `dedicated repository <https://github.com/goodchemistryco/Tangelo-Examples>`_ for examples and tutorials ! 
 
 We wrote a number of them, and tried to provide material that doesn't just explain how to use the software, but provides insights into the complex topics of chemistry, quantum computing, and digs into the challenges we encountered in our previous hardware experiments.
 Nothing prevents users from contributing and showcasing what they have been doing with Tangelo.
