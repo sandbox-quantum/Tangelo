@@ -138,7 +138,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Force recomputing the mean field if the atom ordering has been changed.
             warnings.warn("The mean field will be recomputed even if one has been provided by the user.", RuntimeWarning)
-            self.mean_field = scf.RHF(self.molecule)
+            self.mean_field = scf.UHF(self.molecule) if self.uhf else scf.RHF(self.molecule)
             self.mean_field.verbose = 0
             self.mean_field.scf()
 
@@ -457,9 +457,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     solver_fragment.build()
                     solver_fragment.simulate()
 
-                if purify and solver_fragment.molecule.n_active_electrons == 2:
+                if purify and solver_fragment.molecule.n_active_electrons == 2 and not self.uhf:
                     onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, resample=resample, sum_spin=False)
                     onerdm, twordm = mcweeny_purify_2rdm(twordm)
+                elif self.uhf:
+                    onerdm, twordm = solver_fragment.get_rdm_uhf(solver_fragment.optimal_var_params, resample=resample)
                 else:
                     onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, resample=resample)
                 if save_results:
@@ -505,7 +507,6 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
-
             dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele, False)
 
             # Buiding SCF fragments and quantum circuit. Resources are then
