@@ -73,6 +73,11 @@ The easiest way to install Tangelo in your local environment. We recommend upgra
    python -m pip install -–upgrade pip.
    pip install tangelo-gc
 
+If you'd like to install via pip the code in a specific branch of this Github repository (let's say ``develop``)
+
+.. code-block::
+
+   pip install git+https://github.com/goodchemistryco/Tangelo.git@develop
 
 From source, using setuptools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -147,13 +152,15 @@ the desired values in your environment, you can run this shell script in Linux w
 ``source env_var.sh`` (you may need to set execution permissions with ``chmod +x set_env_var.sh`` first), or you can set
 them in whatever way your OS supports it, or even inside your python script using the ``os`` package.
 
-Tutorials
----------
+Tutorials and examples
+----------------------
 
-The ``examples`` folder of this repository contains various Jupyter notebook tutorials, and other examples.
-We wrote a number of them, but nothing prevents users from contributing more notebook content, to show what they have been doing with Tangelo!
+We have a `dedicated repository<https://github.com/goodchemistryco/Tangelo-Examples>`_ for examples and tutorials ! 
+
+We wrote a number of them, and tried to provide material that doesn't just explain how to use the software, but provides insights into the complex topics of chemistry, quantum computing, and digs into the challenges we encountered in our previous hardware experiments.
+Nothing prevents users from contributing and showcasing what they have been doing with Tangelo.
+
 You can visualize notebooks directly on Github, most of them have been pre-run.
-
 If you'd like to be able to run them locally, we suggest you use `Jupyter notebooks inside a virtual environment <https://janakiev.com/blog/jupyter-virtual-envs/>`_.
 
 - Install Jupyter and ipykernel in your environment:
