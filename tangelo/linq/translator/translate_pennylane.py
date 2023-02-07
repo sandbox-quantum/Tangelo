@@ -26,6 +26,7 @@ from math import pi
 
 from tangelo.toolboxes.operators import QubitOperator
 
+
 def get_pennylane_gates():
     """Map gate name of the abstract format to the equivalent methods of the
     pennylane class API and supported gates:https://docs.pennylane.ai/en/stable/code/qml.html#classes.
