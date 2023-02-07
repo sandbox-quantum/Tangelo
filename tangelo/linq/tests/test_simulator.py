@@ -221,10 +221,16 @@ class TestSimulateStatevector(unittest.TestCase):
         results["qulacs"] = np.array([0. + 0.j, 0.87758256 + 0.j, 0. + 0.j, -0.47942554 + 0.j])
         results["qiskit"] = np.array([0. + 0.j, 0.87758256 + 0.j, 0. + 0.j, -0.47942554 + 0.j])
         results["cirq"] = np.array([0. + 0.j, 0. + 0.j, 0.87758256 + 0.j, -0.47942554 + 0.j])
+        freqs_exact = {'10': 0.7701511529340699, '11': 0.2298488470659301}
         for b in installed_sv_simulator:
-            sim = get_backend(target=b, n_shots=10 ** 3)
-            _, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
+            sim = get_backend(target=b, n_shots=None)
+            f, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
             np.testing.assert_array_almost_equal(sv, results[b])
+            assert_freq_dict_almost_equal(f, freqs_exact, 1.e-7)
+            sim = get_backend(target=b, n_shots=10**3)
+            f, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
+            np.testing.assert_array_almost_equal(sv, results[b])
+            assert_freq_dict_almost_equal(f, freqs_exact, 1.e-1)
 
     def test_mixed_state_save_measures_return_statevector(self):
         """ Test functionality to return statevector if mid-circuit measurement is saved and n_shots must be 1"""
