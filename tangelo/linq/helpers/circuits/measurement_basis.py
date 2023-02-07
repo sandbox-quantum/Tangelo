@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ def pauli_string_to_of(pauli_string):
     """ Converts a string of I,X,Y,Z Pauli operators to an Openfermion-style
     representation.
     """
-    return [(i, p) for i, p in enumerate(pauli_string) if p != 'I']
+    return tuple([(i, p) for i, p in enumerate(pauli_string) if p != 'I'])
 
 
 def pauli_of_to_string(pauli_op, n_qubits):

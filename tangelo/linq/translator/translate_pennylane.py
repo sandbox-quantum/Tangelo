@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ necessary to account for:
 
 from math import pi
 
+from tangelo.toolboxes.operators import QubitOperator
 
 def get_pennylane_gates():
     """Map gate name of the abstract format to the equivalent methods of the
@@ -98,3 +99,38 @@ def translate_c_to_pennylane(source_circuit):
             raise ValueError(f"Gate '{gate.name}' not supported for translation to pennylane")
 
     return target_circuit
+
+
+def translate_op_to_pennylane(qubit_operator):
+    """Helper function to translate a Tangelo QubitOperator to a pennylane
+    Hamiltonian operator. For the pennylane package, all the coefficients must
+    be real.
+
+    Args:
+        qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
+
+    Returns:
+        (pennylane.ops.qubit.hamiltonian.Hamiltonian): Pennylane Hamiltonian.
+    """
+    from pennylane import import_operator
+
+    return import_operator(qubit_operator, format="openfermion")
+
+
+def translate_op_from_pennylane(qubit_operator):
+    """Helper function to translate pennylane Hamiltonian (only real
+    coefficients) to a Tangelo QubitOperator.
+
+    Args:
+        qubit_operator (pennylane.ops.qubit.hamiltonian.Hamiltonian): Self-explanatory.
+
+    Returns:
+        (tangelo.toolboxes.operators.QubitOperator): Tangelo qubit operator.
+    """
+    from pennylane.qchem.convert import _pennylane_to_openfermion
+    of_op = _pennylane_to_openfermion(qubit_operator.coeffs, qubit_operator.ops)
+
+    tangelo_op = QubitOperator()
+    tangelo_op.terms = of_op.terms
+
+    return tangelo_op
