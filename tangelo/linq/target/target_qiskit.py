@@ -80,8 +80,45 @@ class QiskitSimulator(Backend):
                 initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
                 translated_circuit = initial_state_circuit.compose(translated_circuit)
 
-        # Drawing individual shots with the qasm simulator, for noisy simulation or simulating mixed states
-        if self._noise_model or source_circuit.is_mixed_state and (desired_meas_result is None or not return_statevector):
+        # return_statevector is requested with mid-circuit measurements so loop shot by shot (much slower)
+        if desired_meas_result is not None or (save_mid_circuit_meas and self.n_shots in [None, 1]):
+            n_meas = source_circuit.counts.get("MEASURE", 0)
+            backend = self.AerSimulator(method='statevector')
+            qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
+            translated_circuit = self.qiskit.transpile(translated_circuit, backend)
+            translated_circuit.save_statevector()
+            samples = dict()
+            self._current_state = None
+            n_attempts = 0
+            n_success = 0
+            n_shots = self.n_shots if self.n_shots is not None else -1
+            while self._current_state is None and n_attempts < 1000000 and n_success != n_shots:
+                sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
+                current_state = sim_results.get_statevector(translated_circuit)
+                measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
+                if measure == desired_meas_result:
+                    if not self._noise_model:
+                        self._current_state = current_state
+                        if self.n_shots is not None:
+                            self.all_frequencies = {measure + state[::-1]: count for state, count in current_state.sample_counts(self.n_shots).items()}
+                        else:
+                            freqs = self._statevector_to_frequencies(np.array(current_state))
+                            self.all_frequencies = {measure + meas: val for meas, val in freqs.items()}
+                        return (self.all_frequencies, np.array(self._current_state)) if return_statevector else (self.all_frequencies, None)
+                    else:
+                        (sample, _) = current_state.measure()
+                        bitstr = measure + sample[::-1]
+                        samples[bitstr] = samples.get(bitstr, 0) + 1
+                        n_success += 1
+                elif desired_meas_result is None:
+                    self._current_state = current_state
+                    self.all_frequencies = {measure + state[::-1]: count for state, count in current_state.sample_counts(self.n_shots).items()}
+                    return (self.all_frequencies, np.array(self._current_state))
+                n_attempts += 1
+
+            self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
+            frequencies = self.all_frequencies
+        elif self._noise_model or source_circuit.is_mixed_state:
             n_meas = source_circuit.counts.get("MEASURE", 0)
             meas_start = n_meas if save_mid_circuit_meas else 0
             meas_range = range(meas_start, meas_start + source_circuit.width)
@@ -99,28 +136,6 @@ class QiskitSimulator(Backend):
 
             frequencies = self.all_frequencies
             self._current_state = None
-
-        # desired_meas_result is not None and return_statevector is requested so loop shot by shot (much slower)
-        elif desired_meas_result is not None:
-            n_meas = source_circuit.counts.get("MEASURE", 0)
-            backend = self.AerSimulator(method='statevector')
-            qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
-            translated_circuit = self.qiskit.transpile(translated_circuit, backend)
-            translated_circuit.save_statevector()
-            samples = dict()
-            self._current_state = None
-
-            for _ in range(self.n_shots):
-                sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
-                current_state = sim_results.get_statevector(translated_circuit)
-                measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
-                (sample, _) = self.qiskit.quantum_info.states.Statevector(current_state).measure()
-                bitstr = measure + sample[::-1]
-                samples[bitstr] = samples.get(bitstr, 0) + 1
-                if measure == desired_meas_result or self._current_state is None:
-                    self._current_state = current_state
-            self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
-            frequencies = self.all_frequencies
 
         # Noiseless simulation using the statevector simulator otherwise
         else:

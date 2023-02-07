@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warnings import WarningMessage
+
 from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
@@ -57,10 +59,12 @@ class QDKSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        translated_circuit = translate_c(source_circuit, "qdk",
-                output_options={"save_measurements": save_mid_circuit_meas})
+        translated_circuit = translate_c(source_circuit, "qdk", output_options={"save_measurements": save_mid_circuit_meas})
         with open('tmp_circuit.qs', 'w+') as f_out:
             f_out.write(translated_circuit)
+
+        if desired_meas_result:
+            raise WarningMessage("qsharp uses statistics from n_shots instead of statistics on n_successful desired_meas_result.")
 
         n_meas = source_circuit.counts.get("MEASURE", 0)
         key_length = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width

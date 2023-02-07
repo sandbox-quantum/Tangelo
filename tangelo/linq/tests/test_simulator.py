@@ -63,6 +63,7 @@ circuit5 = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates)
 
 # Circuit preparing a mixed-state (i.e. containing a MEASURE instruction in the middle of the circuit)
 circuit_mixed = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
+circuit_mixed_1 = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 0, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
 
 # Operators for testing the get_expectation_value functions
 op1 = 1.0 * QubitOperator('Z0')  # all Z
@@ -224,6 +225,20 @@ class TestSimulateStatevector(unittest.TestCase):
             sim = get_backend(target=b, n_shots=10 ** 3)
             _, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
             np.testing.assert_array_almost_equal(sv, results[b])
+
+    def test_mixed_state_save_measures_return_statevector(self):
+        """ Test functionality to return statevector if mid-circuit measurement is saved and n_shots must be 1"""
+
+        sv_exact = {"0": np.array([0.+0.j, 0.76163265-0.64800903j]),
+                    "1": np.array([-0.33100336-0.94362958j, 0.+0.j])}
+        for b in installed_sv_simulator:
+            sim = get_backend(target=b, n_shots=1)
+            _, sv = sim.simulate(circuit_mixed_1, save_mid_circuit_meas=True, return_statevector=True)
+            np.testing.assert_array_almost_equal(sv, sv_exact[next(iter(sim.mid_circuit_meas_freqs))])
+
+        for b in installed_sv_simulator:
+            sim = get_backend(target=b, n_shots=2)
+            self.assertRaises(ValueError, sim.simulate, circuit_mixed_1, True, None, None, True)
 
     def test_simulate_nshots_from_statevector(self):
         """

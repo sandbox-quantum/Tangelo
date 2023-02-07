@@ -175,7 +175,8 @@ class Backend(abc.ABC):
         """
         pass
 
-    def simulate(self, source_circuit, return_statevector=False, initial_statevector=None, desired_meas_result=None, save_mid_circuit_meas=False):
+    def simulate(self, source_circuit, return_statevector=False, initial_statevector=None,
+                 desired_meas_result=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on the availability of the
@@ -193,6 +194,7 @@ class Backend(abc.ABC):
                 supported by the target backend.
             desired_meas_result (str): The binary string of the desired measurement.
                 Must have the same length as the number of MEASURE gates in source_circuit
+                If self.n_shots is set, statistics are performed assuming self.n_shots successes
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
                 self.all_frequencies, with keys of length (n_meas + n_qubits).
@@ -209,15 +211,19 @@ class Backend(abc.ABC):
         """
         n_meas = source_circuit.counts.get("MEASURE", 0)
 
-        if source_circuit.is_mixed_state and not self.n_shots:
-            raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state."
-                             "Please set the n_shots attribute to an appropriate value.")
-
         if desired_meas_result is not None:
             if not isinstance(desired_meas_result, str) or len(desired_meas_result) != n_meas:
                 raise ValueError("desired_meas result is not a string with the same length as the number of measurements"
-                    "in the circuit.")
+                                 "in the circuit.")
             save_mid_circuit_meas = True
+        elif save_mid_circuit_meas and return_statevector:
+            if self.n_shots != 1:
+                raise ValueError("The combination of save_mid_circuit_meas and return_statevector without specifying desired_meas_result"
+                                 "is only valid for self.n_shots=1 as the result is a mixed state otherwise, "
+                                 f"but you requested n_shots={self.n_shots}.")
+        elif source_circuit.is_mixed_state and not self.n_shots:
+            raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state."
+                             "Please set the n_shots attribute to an appropriate value.")
 
         if source_circuit.width == 0:
             raise ValueError("Cannot simulate an empty circuit (e.g identity unitary) with unknown number of qubits.")
