@@ -10,8 +10,8 @@ from tangelo.linq.qpu_connection.qpu_connection import QpuConnection
 
 try:
     from qiskit.providers.jobstatus import JobStatus
-    from qiskit_ibm_runtime import QiskitRuntimeService, Sampler, Estimator, Session, Options, \
-        SamplerResult, EstimatorResult
+    from qiskit.primitives import SamplerResult, EstimatorResult
+    from qiskit_ibm_runtime import QiskitRuntimeService, Sampler, Estimator, Session, Options
     is_qiskit_installed = True
 except ModuleNotFoundError:
     is_qiskit_installed = False

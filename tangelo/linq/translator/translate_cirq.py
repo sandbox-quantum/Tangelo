@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ necessary to account for:
 
 from math import pi
 
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.helpers import deprecated
 
 
@@ -164,3 +165,45 @@ def translate_c_to_cirq(source_circuit, noise_model=None, save_measurements=Fals
                     target_circuit.append(depo(*depo_list))  # gates targeted
 
     return target_circuit
+
+
+def translate_op_to_cirq(qubit_operator):
+    """Helper function to translate a Tangelo QubitOperator to a cirq linear
+    combination of Pauli strings.
+
+    Args:
+        qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
+
+    Returns:
+        (cirq.ops.linear_combinations.PauliSum): Cirq summation of Pauli strings.
+    """
+    from openfermion.transforms import qubit_operator_to_pauli_sum
+
+    return qubit_operator_to_pauli_sum(qubit_operator)
+
+
+def translate_op_from_cirq(qubit_operator):
+    """Helper function to translate a cirq linear combination of Pauli strings
+    to a Tangelo QubitOperator.
+
+    Args:
+        qubit_operator (cirq.ops.linear_combinations.PauliSum): Self-explanatory.
+
+    Returns:
+        (tangelo.toolboxes.operators.QubitOperator): Tangelo qubit operator.
+    """
+    import cirq
+
+    tangelo_op = QubitOperator()
+
+    cirq_pauli_to_string = {cirq.X: "X", cirq.Y: "Y", cirq.Z: "Z"}
+
+    for pauli_word in qubit_operator:
+
+        term_string = ""
+        for line_qubit, cirq_pauli in pauli_word.items():
+            term_string += f"{cirq_pauli_to_string[cirq_pauli]}{line_qubit.x} "
+
+        tangelo_op += QubitOperator(term_string.strip(), pauli_word.coefficient)
+
+    return tangelo_op

@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import numpy as np
 from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
+from tangelo.linq.translator import translate_operator
 
 
 class QulacsSimulator(Backend):
@@ -121,16 +122,30 @@ class QulacsSimulator(Backend):
                        for k, v in samples.items()}
         return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
-    def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state):
+    def expectation_value_from_prepared_state(self, qubit_operator, n_qubits, prepared_state=None):
+        """ Compute an expectation value using a representation of the state
+        using qulacs functionalities.
 
-        # TODO: This section previously used qulacs.quantum_operator.create_quantum_operator_from_openfermion_text but was changed
-        # due to a memory leak. We can re-evaluate the implementation if/when Issue #303 (https://github.com/qulacs/qulacs/issues/303)
-        # is fixed.
-        operator = self.qulacs.Observable(n_qubits)
-        for term, coef in qubit_operator.terms.items():
-            pauli_string = "".join(f" {op} {qu}" for qu, op in term)
-            operator.add_operator(coef, pauli_string)
-        return operator.get_expectation_value(self._current_state).real
+        Args:
+            qubit_operator (QubitOperator): a qubit operator in tangelo format
+            n_qubits (int): Number of qubits.
+            prepared_state (np.array): a numpy array encoding the state (can be
+                a vector or a matrix). It is internally transformed into a
+                qulacs.QuantumState object. Default is None, in this case it is
+                set to the current state in the simulator object.
+
+        Returns:
+            float64 : the expectation value of the qubit operator w.r.t the input state
+        """
+        if prepared_state is None:
+            prepared_state = self._current_state
+        else:
+            qulacs_state = self.qulacs.QuantumState(n_qubits)
+            qulacs_state.load(prepared_state)
+            prepared_state = qulacs_state
+
+        operator = translate_operator(qubit_operator, source="tangelo", target="qulacs")
+        return operator.get_expectation_value(prepared_state).real
 
     @staticmethod
     def backend_info():

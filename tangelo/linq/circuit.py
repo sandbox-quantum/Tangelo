@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import copy
 from typing import List
 
 import numpy as np
+from cirq.contrib.svg import SVGCircuit
 
 from tangelo.linq import Gate
 
@@ -143,6 +144,15 @@ class Circuit:
         if any MEASURE gate was explicitly added by the user.
         """
         return "MEASURE" in self.counts
+
+    def draw(self):
+        """Method to output a prettier version of the circuit for use in jupyter notebooks that uses cirq SVGCircuit"""
+        # circular import
+        from tangelo.linq.translator.translate_cirq import translate_c_to_cirq
+        cirq_circ = translate_c_to_cirq(self)
+        # Remove identity gates that are added in translate_c_to_cirq (to ensure all qubits are initialized) before drawing.
+        cirq_circ.__delitem__(0)
+        return SVGCircuit(cirq_circ)
 
     def copy(self):
         """Return a deepcopy of circuit"""
