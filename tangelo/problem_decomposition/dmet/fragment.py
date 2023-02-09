@@ -28,6 +28,7 @@ import pyscf
 from pyscf import ao2mo
 
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
+from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 
 
 @dataclass
@@ -70,8 +71,7 @@ class SecondQuantizedDMETFragment:
         self.n_mos = len(self.mean_field.mo_energy)
         self.mo_occ = self.mean_field.mo_occ
 
-        list_of_active_frozen = self._convert_frozen_orbitals(self.frozen_orbitals)
-
+        list_of_active_frozen = convert_frozen_orbitals(self, self.frozen_orbitals)
         self.active_occupied = list_of_active_frozen[0]
         self.frozen_occupied = list_of_active_frozen[1]
         self.active_virtual = list_of_active_frozen[2]
@@ -81,10 +81,11 @@ class SecondQuantizedDMETFragment:
             self.active_mos = [self.active_occupied[i]+self.active_virtual[i] for i in range(2)]
             self.n_active_mos = [len(self.active_mos[0]), len(self.active_mos[1])]
             self.n_active_sos = max(2*self.n_active_mos[0], 2*self.n_active_mos[1])
-            self.n_active_ab_electrons = (int(sum([self.mo_occ[0][i] for i in self.active_occupied[0]])), int(sum([self.mo_occ[1][i] for i in self.active_occupied[1]])))
+            self.n_active_ab_electrons = (int(sum([self.mo_occ[0][i] for i in self.active_occupied[0]])),
+                int(sum([self.mo_occ[1][i] for i in self.active_occupied[1]])))
         else:
             self.active_mos = self.active_occupied + self.active_virtual
-            self.n_active_mos =  len(self.active_mos)
+            self.n_active_mos = len(self.active_mos)
             self.n_active_sos = 2*self.n_active_mos
 
             n_active_electrons = int(sum([self.mo_occ[i] for i in self.active_occupied]))
@@ -92,78 +93,6 @@ class SecondQuantizedDMETFragment:
             n_beta = n_active_electrons//2 - self.spin//2
             self.n_active_ab_electrons = (n_alpha, n_beta)
         self.n_active_electrons = sum(self.n_active_ab_electrons)
-
-    def _convert_frozen_orbitals(self, frozen_orbitals):
-        if frozen_orbitals is None:
-            frozen_orbitals = 0
-
-        # First case: frozen_orbitals is an int.
-        # The first n MOs are frozen.
-        if isinstance(frozen_orbitals, (int, np.integer)):
-            frozen_orbitals = list(range(frozen_orbitals))
-            if self.uhf:
-                frozen_orbitals = [frozen_orbitals, frozen_orbitals]
-        # Second case: frozen_orbitals is a list of int.
-        # All MOs with indexes in this list are frozen (first MO is 0, second is 1, ...).
-        # Everything else raise an exception.
-        elif isinstance(frozen_orbitals, list):
-            if self.uhf and not (len(frozen_orbitals) == 2 and
-                                 all(isinstance(_, (int, np.integer)) for _ in frozen_orbitals[0]) and
-                                 all(isinstance(_, (int, np.integer)) for _ in frozen_orbitals[1])):
-                raise TypeError("frozen_orbitals argument must be a list of int for both alpha and beta electrons")
-            elif not self.uhf and not all(isinstance(_, int) for _ in frozen_orbitals):
-                raise TypeError("frozen_orbitals argument must be an (or a list of) integer(s).")
-        else:
-            raise TypeError("frozen_orbitals argument must be an (or a list of) integer(s)")
-
-        if self.uhf:
-            occupied, virtual = list(), list()
-            frozen_occupied, frozen_virtual = list(), list()
-            active_occupied, active_virtual = list(), list()
-            n_active_electrons = list()
-            n_active_mos = list()
-            for e in range(2):
-                occupied.append([i for i in range(self.n_mos) if self.mo_occ[e][i] > 0.])
-                virtual.append([i for i in range(self.n_mos) if self.mo_occ[e][i] == 0.])
-
-                frozen_occupied.append([i for i in frozen_orbitals[e] if i in occupied[e]])
-                frozen_virtual.append([i for i in frozen_orbitals[e] if i in virtual[e]])
-
-                # Redefined active orbitals based on frozen ones.
-                active_occupied.append([i for i in occupied[e] if i not in frozen_occupied[e]])
-                active_virtual.append([i for i in virtual[e] if i not in frozen_virtual[e]])
-
-                # Calculate number of active electrons and active_mos
-                n_active_electrons.append(round(sum([self.mo_occ[e][i] for i in active_occupied[e]])))
-                n_active_mos.append(len(active_occupied[e] + active_virtual[e]))
-
-            if n_active_electrons[0] + n_active_electrons[1] == 0:
-                raise ValueError("There are no active electrons.")
-            if (n_active_electrons[0] == 2*n_active_mos[0]) and (n_active_electrons[1] == 2*n_active_mos[1]):
-                raise ValueError("All active orbitals are fully occupied.")
-        else:
-            occupied = [i for i in range(self.n_mos) if self.mo_occ[i] > 0.]
-            virtual = [i for i in range(self.n_mos) if self.mo_occ[i] == 0.]
-
-            frozen_occupied = [i for i in frozen_orbitals if i in occupied]
-            frozen_virtual = [i for i in frozen_orbitals if i in virtual]
-
-            # Redefined active orbitals based on frozen ones.
-            active_occupied = [i for i in occupied if i not in frozen_occupied]
-            active_virtual = [i for i in virtual if i not in frozen_virtual]
-
-            # Calculate number of active electrons and active_mos
-            n_active_electrons = round(sum([self.mo_occ[i] for i in active_occupied]))
-            n_active_mos = len(active_occupied + active_virtual)
-
-            # Exception raised here if there is no active electron.
-            # An exception is raised also if all active orbitals are fully occupied.
-            if n_active_electrons == 0:
-                raise ValueError("There are no active electrons.")
-            if n_active_electrons == 2*n_active_mos:
-                raise ValueError("All active orbitals are fully occupied.")
-
-        return active_occupied, frozen_occupied, active_virtual, frozen_virtual
 
     @property
     def frozen_mos(self):
@@ -327,10 +256,3 @@ class SecondQuantizedDMETFragment:
             pyscf.gto.Mole: PySCF molecule.
         """
         return self.molecule
-
-    def get_fragment_integrals(self):
-        core_offset, one_electron_integrals, two_electron_integrals = of_get_active_space_integrals(self.fock + self.one_ele,
-                                                                                                    self.two_ele,
-                                                                                                    self.frozen_occupied,
-                                                                                                    self.active_mos)
-        return core_offset, one_electron_integrals, two_electron_integrals

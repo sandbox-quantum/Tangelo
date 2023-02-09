@@ -197,3 +197,79 @@ def energy_from_rdms(ferm_op, one_rdm, two_rdm):
     e = core_constant + np.sum(one_electron_integrals * one_rdm) + np.sum(two_electron_integrals * two_rdm)
 
     return e.real
+
+
+def pad_rdms_with_frozen_orbitals(sec_mol, onerdm, twordm):
+    """Function to pad the RDMs with the frozen orbitals data. It is based on
+    the pyscf.cccsd_rdm code, where we can set with_frozen=True.
+
+    Source:
+        https://github.com/pyscf/pyscf/blob/master/pyscf/cc/ccsd_rdm.py
+
+    Args:
+        sec_mol (SecondQuantizedMolecule): Self-explanatory.
+        onerdm (numpy.array): One-particle reduced density matrix (shape of
+            (N_active_mos,)*2).
+        twordm (numpy.array): Two-particle reduced density matrix (shape of
+            (N_active_mos,)*4).
+
+    Returns:
+        numpy.array: One-particle reduced density matrix (shape of
+            (N_total_mos,)*2).
+        numpy.array: Two-particle reduced density matrix (shape of
+            (N_total_mos,)*4).
+    """
+
+    if sec_mol.uhf:
+        raise NotImplementedError("The RDMs padding with an UHF mean-field is not implemented.")
+
+    from pyscf.lib import takebak_2d
+
+    n_mos = sec_mol.n_mos
+    n_mos0 = sec_mol.n_active_mos
+    n_occ = np.count_nonzero(sec_mol.mo_occ > 0)
+    n_occ0 = n_occ - len(sec_mol.frozen_occupied)
+    moidx = np.array(sec_mol.active_mos)
+
+    onerdm_padded = np.zeros((n_mos,)*2, dtype=onerdm.dtype)
+    onerdm_padded[np.diag_indices(n_occ)] = 2.
+    onerdm_padded[moidx[:, None], moidx] = onerdm
+
+    twordm = twordm.transpose(1, 0, 3, 2)
+
+    onerdm_without_diag = np.copy(onerdm)
+    onerdm_without_diag[np.diag_indices(n_occ0)] -= 2
+    for i in range(n_occ0):
+        twordm[i, i, :, :] -= onerdm_without_diag * 2
+        twordm[:, :, i, i] -= onerdm_without_diag * 2
+        twordm[:, i, i, :] += onerdm_without_diag
+        twordm[i, :, :, i] += onerdm_without_diag.T
+
+    for i in range(n_occ0):
+        for j in range(n_occ0):
+            twordm[i, i, j, j] -= 4
+            twordm[i, j, j, i] += 2
+
+    dm2 = np.zeros((n_mos,)*4, dtype=twordm.dtype)
+    idx = (moidx.reshape(-1, 1) * n_mos + moidx).ravel()
+    takebak_2d(dm2.reshape(n_mos**2, n_mos**2),
+               twordm.reshape(n_mos0**2, n_mos0**2), idx, idx)
+    twordm_padded = dm2
+
+    onerdm_padded_without_diag = np.copy(onerdm_padded)
+    onerdm_padded_without_diag[np.diag_indices(n_occ)] -= 2
+
+    for i in range(n_occ):
+        twordm_padded[i, i, :, :] += onerdm_padded_without_diag * 2
+        twordm_padded[:, :, i, i] += onerdm_padded_without_diag * 2
+        twordm_padded[:, i, i, :] -= onerdm_padded_without_diag
+        twordm_padded[i, :, :, i] -= onerdm_padded_without_diag.T
+
+    for i in range(n_occ):
+        for j in range(n_occ):
+            twordm_padded[i, i, j, j] += 4
+            twordm_padded[i, j, j, i] -= 2
+
+    twordm_padded = twordm_padded.transpose(1, 0, 3, 2)
+
+    return onerdm_padded, twordm_padded
