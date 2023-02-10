@@ -22,7 +22,6 @@ import openfermion
 from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.utils import down_index, up_index
 import openfermion.ops.representations as reps
-from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 import numpy as np
 import pyscf
 from pyscf import ao2mo
@@ -147,10 +146,8 @@ class SecondQuantizedDMETFragment:
         # made before performing the truncation for frozen orbitals.
         two_electron_integrals = two_electron_integrals.transpose(0, 2, 3, 1)
 
-        core_offset, one_electron_integrals, two_electron_integrals = of_get_active_space_integrals(one_electron_integrals,
-                                                                                                    two_electron_integrals,
-                                                                                                    self.frozen_occupied,
-                                                                                                    self.active_mos)
+        core_offset, one_electron_integrals, two_electron_integrals = reps.get_active_space_integrals(
+            one_electron_integrals, two_electron_integrals, self.frozen_occupied, self.active_mos)
 
         # Adding frozen electron contribution to core constant.
         core_constant += core_offset

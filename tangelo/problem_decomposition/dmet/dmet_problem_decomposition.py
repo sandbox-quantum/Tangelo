@@ -541,11 +541,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         return resources_fragments
 
-    def _compute_energy_restricted(self, dummy_mol, onerdm, twordm):
+    def _compute_energy_restricted(self, dmet_fragment, onerdm, twordm):
         """Calculate the fragment energy.
 
         Args:
-            dummy_mol (SecondQuantizedDMETFragment): Self-explanatory.
+            dmet_fragment (SecondQuantizedDMETFragment): Self-explanatory.
             onerdm (numpy.array): one-particle reduced density matrix (float).
             twordm (numpy.array): two-particle reduced density matrix (float).
 
@@ -554,11 +554,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
             numpy.array: One-particle RDM for a fragment (onerdm, float).
         """
 
-        fock = dummy_mol.fock
-        t_list = dummy_mol.t_list
-        oneint = dummy_mol.one_ele
-        twoint = dummy_mol.two_ele
-        mo_coeff = dummy_mol.mean_field.mo_coeff
+        fock = dmet_fragment.fock
+        t_list = dmet_fragment.t_list
+        oneint = dmet_fragment.one_ele
+        twoint = dmet_fragment.two_ele
+        mo_coeff = dmet_fragment.mean_field.mo_coeff
 
         norb = t_list[0]
 
@@ -585,11 +585,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         return fragment_energy, onerdm
 
-    def _compute_energy_unrestricted(self, dummy_mol, onerdm, twordm):
+    def _compute_energy_unrestricted(self, dmet_fragment, onerdm, twordm):
         """Calculate the fragment energy (unrestricted mean-field).
 
         Args:
-            dummy_mol (SecondQuantizedDMETFragment): Self-explanatory.
+            dmet_fragment (SecondQuantizedDMETFragment): Self-explanatory.
             onerdm (numpy.array): one-particle reduced density matrix (float).
             twordm (numpy.array): two-particle reduced density matrix (float).
 
@@ -599,11 +599,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
             numpy.array: One-particle (beta) RDM for a fragment (onerdm_b, float64).
         """
 
-        fock = dummy_mol.fock
-        t_list = dummy_mol.t_list
-        oneint = dummy_mol.one_ele
-        twoint = dummy_mol.two_ele
-        mo_coeff = dummy_mol.mean_field.mo_coeff
+        fock = dmet_fragment.fock
+        t_list = dmet_fragment.t_list
+        oneint = dmet_fragment.one_ele
+        twoint = dmet_fragment.two_ele
+        mo_coeff = dmet_fragment.mean_field.mo_coeff
 
         norb = t_list[0]
 

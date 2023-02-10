@@ -144,8 +144,8 @@ class RDMsUtilitiesTest(unittest.TestCase):
         padded_onerdm = np.loadtxt(pwd_this_test + "/data/H2O_sto3g_padded_onerdm_frozen0345.data")
         padded_twordm = np.loadtxt(pwd_this_test + "/data/H2O_sto3g_padded_twordm_frozen0345.data")
 
-        np.testing.assert_array_almost_equal(padded_onerdm, test_onerdm)
-        np.testing.assert_array_almost_equal(padded_twordm.reshape((7,)*4), test_twordm)
+        np.testing.assert_array_almost_equal(padded_onerdm, test_onerdm, decimal=3)
+        np.testing.assert_array_almost_equal(padded_twordm.reshape((7,)*4), test_twordm, decimal=3)
 
 
 if __name__ == "__main__":

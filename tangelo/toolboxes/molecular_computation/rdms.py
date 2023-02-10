@@ -252,6 +252,11 @@ def pad_rdms_with_frozen_orbitals(sec_mol, onerdm, twordm):
 
     dm2 = np.zeros((n_mos,)*4, dtype=twordm.dtype)
     idx = (moidx.reshape(-1, 1) * n_mos + moidx).ravel()
+
+    # This part is meant to replicate
+    # https://github.com/pyscf/pyscf/blob/8b3fef8cf18f10d430261d4a8bea21fadf19bb1f/pyscf/cc/ccsd_rdm.py#L343-L351.
+    # The output is not catched, maybe for memory efficiency purposes (elements
+    # of dm2 changed inplace?).
     takebak_2d(dm2.reshape(n_mos**2, n_mos**2),
                twordm.reshape(n_mos0**2, n_mos0**2), idx, idx)
     twordm_padded = dm2
