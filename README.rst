@@ -47,7 +47,7 @@ published in scientific journals, co-authored by professionals from the chemical
 
 We hope to grow a healthy community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
 
-- Our `release document on arXiv <https://arxiv.org/pdf/2206.12424.pdf>`_.
+- Our `release document on arXiv <https://arxiv.org/abs/2206.12424>`_.
 - Our `Sphinx documentation <http://tangelo-docs.goodchemistry.com>`_.
 
 What will you do with Tangelo ?
@@ -155,7 +155,7 @@ them in whatever way your OS supports it, or even inside your python script usin
 Tutorials and examples
 ----------------------
 
-We have a `dedicated repository <https://github.com/goodchemistryco/Tangelo-Examples>`_ for examples and tutorials ! 
+We have a `dedicated repository <https://github.com/goodchemistryco/Tangelo-Examples>`_ for examples and tutorials !
 
 We wrote a number of them, and tried to provide material that doesn't just explain how to use the software, but provides insights into the complex topics of chemistry, quantum computing, and digs into the challenges we encountered in our previous hardware experiments.
 Nothing prevents users from contributing and showcasing what they have been doing with Tangelo.
