@@ -11,8 +11,8 @@ Welcome to Tangelo's documentation!
    :caption: Contents:
 
    overview
-   tutorials_page
-   contributions_page
+   TUTORIALS
+   CONTRIBUTIONS
    tangelo
 
 Indices and tables
