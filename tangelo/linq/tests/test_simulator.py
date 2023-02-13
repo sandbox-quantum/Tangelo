@@ -215,18 +215,30 @@ class TestSimulateStatevector(unittest.TestCase):
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
     def test_simulate_mixed_state_desired_statevector(self):
-        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends."""
+        """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends when returning
+        a statevector."""
 
         results = dict()
         results["qulacs"] = np.array([0. + 0.j, 0.87758256 + 0.j, 0. + 0.j, -0.47942554 + 0.j])
         results["qiskit"] = np.array([0. + 0.j, 0.87758256 + 0.j, 0. + 0.j, -0.47942554 + 0.j])
         results["cirq"] = np.array([0. + 0.j, 0. + 0.j, 0.87758256 + 0.j, -0.47942554 + 0.j])
+        initial_state = np.array([0, 0, 0, 1])
         freqs_exact = {'10': 0.7701511529340699, '11': 0.2298488470659301}
         for b in installed_sv_simulator:
             sim = get_backend(target=b, n_shots=None)
             f, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
             np.testing.assert_array_almost_equal(sv, results[b])
             assert_freq_dict_almost_equal(f, freqs_exact, 1.e-7)
+
+            # Test that initial_statevector is respected
+            f, sv = sim.simulate(Circuit([Gate("MEASURE", 0), Gate("MEASURE", 1)]), desired_meas_result="11",
+                                 return_statevector=True, initial_statevector=initial_state)
+            np.testing.assert_array_almost_equal(sv, initial_state)
+            assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
+
+            # Test that ValueError is raised for desired_meas_result="0" with probability 0. i.e. loop exits successfully
+            self.assertRaises(ValueError, sim.simulate, Circuit([Gate("X", 0), Gate("MEASURE", 0)]), True, None, "0")
+
             sim = get_backend(target=b, n_shots=10**3)
             f, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)
             np.testing.assert_array_almost_equal(sv, results[b])
@@ -242,6 +254,7 @@ class TestSimulateStatevector(unittest.TestCase):
             _, sv = sim.simulate(circuit_mixed_1, save_mid_circuit_meas=True, return_statevector=True)
             np.testing.assert_array_almost_equal(sv, sv_exact[next(iter(sim.mid_circuit_meas_freqs))])
 
+        # Assert raises error when return_statevector=True and n_shots != 1
         for b in installed_sv_simulator:
             sim = get_backend(target=b, n_shots=2)
             self.assertRaises(ValueError, sim.simulate, circuit_mixed_1, True, None, None, True)

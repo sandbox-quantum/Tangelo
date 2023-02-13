@@ -80,19 +80,26 @@ class QiskitSimulator(Backend):
                 initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
                 translated_circuit = initial_state_circuit.compose(translated_circuit)
 
-        # return_statevector is requested with mid-circuit measurements so loop shot by shot (much slower)
+        # return_statevector is requested with mid-circuit measurements or
+        # noisy simulation with desired_meas_result so need n_samples with success
+        # so loop shot by shot until (1 success for noiseless simulation, n_shots successes for noisy simulation)
         if desired_meas_result is not None or (save_mid_circuit_meas and self.n_shots in [None, 1]):
             n_meas = source_circuit.counts.get("MEASURE", 0)
             backend = self.AerSimulator(method='statevector')
             qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
             translated_circuit = self.qiskit.transpile(translated_circuit, backend)
             translated_circuit.save_statevector()
+
             samples = dict()
             self._current_state = None
             n_attempts = 0
             n_success = 0
             n_shots = self.n_shots if self.n_shots is not None else -1
-            while self._current_state is None and n_attempts < 1000000 and n_success != n_shots:
+
+            # Permit 0.1% probability events
+            max_attempts = 1000*abs(n_shots)
+
+            while self._current_state is None and n_attempts < max_attempts and n_success != n_shots:
                 sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
                 current_state = sim_results.get_statevector(translated_circuit)
                 measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
@@ -116,8 +123,13 @@ class QiskitSimulator(Backend):
                     return (self.all_frequencies, np.array(self._current_state))
                 n_attempts += 1
 
+            if n_attempts == max_attempts:
+                raise ValueError(f"desired_meas_result was not measured after {n_attempts} attempts")
+
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
             frequencies = self.all_frequencies
+
+        # use qiskit to sample circuit for n_shots.
         elif self._noise_model or source_circuit.is_mixed_state:
             n_meas = source_circuit.counts.get("MEASURE", 0)
             meas_start = n_meas if save_mid_circuit_meas else 0

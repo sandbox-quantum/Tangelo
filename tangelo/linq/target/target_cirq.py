@@ -115,7 +115,11 @@ class CirqSimulator(Backend):
             self._current_state = None
             indices = list(range(source_circuit.width))
             n_attempts = 0
-            while self._current_state is None and n_attempts < 1000000:
+
+            # Permit 0.1% probability events
+            max_attempts = 1000 if self.n_shots is None else 1000*self.n_shots
+
+            while self._current_state is None and n_attempts < max_attempts:
                 job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
                 measure = "".join([str(job_sim.measurements[str(i)][0]) for i in range(n_meas)])
                 current_state = job_sim.final_density_matrix if self._noise_model else job_sim.final_state_vector
@@ -141,6 +145,9 @@ class CirqSimulator(Backend):
                 self.all_frequencies = dict()
                 for meas, val in frequencies.items():
                     self.all_frequencies[desired_meas_result + meas] = val
+
+            if n_attempts == max_attempts:
+                raise ValueError(f"desired_meas_result was not measured after {n_attempts} attempts")
 
             frequencies = self.all_frequencies
 
