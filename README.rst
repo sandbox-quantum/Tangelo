@@ -49,7 +49,7 @@ We hope to grow a healthy community around Tangelo, collaborate, and together le
 
 - Our `release document on arXiv <https://arxiv.org/pdf/2206.12424.pdf>`_.
 - Our `Sphinx documentation <http://tangelo-docs.goodchemistry.com>`_.
-- Our `examples repository <https://github.com/goodchemistryco/Tangelo-Examples>`
+- Our `examples repository <https://github.com/goodchemistryco/Tangelo-Examples>`_.
 
 What will you do with Tangelo ?
 
