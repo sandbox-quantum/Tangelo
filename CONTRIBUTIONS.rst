@@ -1,7 +1,7 @@
 Contributions guidelines
 ========================
 
-Thank you very much for considering contributing to this project ! 
+Thank you very much for considering contributing to this project !
 
 Do not feel intimidated by the guidelines and processes we describe in this document: we are here to assist you and help you take things to the finish line. We do not expect you to be an expert in software development or to get everything right on the first attempt: don’t hesitate to open an issue or a pull request, or simply contact us.
 
@@ -42,7 +42,7 @@ In your terminal, clone the repo on your local machine, and move into the newly 
   git clone https://github.com/USERNAME/Tangelo.git
   cd Tangelo
 
-From the perspective of your local clone, your fork is called the ``origin`` remote. 
+From the perspective of your local clone, your fork is called the ``origin`` remote.
 Let's synchronize your fork with the main Tangelo repo by adding the latter as the upstream remote, and then update your local ``main`` branch:
 
 .. code-block:: shell
@@ -85,7 +85,7 @@ Every time you open a PR or push more code into an open one, several automated p
 
 
 Continuous integration
-======================
+----------------------
 
 When a pull request is created or updated, several automated processes are launched. You will find most of them in the "checks" tab of your pull request, and can look into the details. These processes check for a few things:
 
@@ -112,7 +112,7 @@ When a pull request is created or updated, several automated processes are launc
   We rely on a tool called pycodestyle. If you want to know exactly what this linting enforces and ignores, you can refer to this `file <./dev_tools/pycodestyle>`_ and `pycodestyle's documentation <https://pycodestyle.pycqa.org/en/latest/intro.html>`_.
 
 
-Developing notebooks 
-====================
+Developing notebooks
+--------------------
 
 Jupyter notebooks are great ! If you feel like making a notebook to show how to do something cool with Tangelo and educate others, don't hesitate to reach out. It counts as code, so it will go through the standard PR process and will need to meet a few requirements. The developer team has made several notebooks you can look at, for inspiration.
