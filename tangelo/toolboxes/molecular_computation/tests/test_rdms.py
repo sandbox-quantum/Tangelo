@@ -20,9 +20,10 @@ import numpy as np
 from numpy.testing import assert_allclose
 from openfermion.utils import load_operator
 
+from tangelo.molecule_library import mol_H2O_sto3g
 from tangelo.toolboxes.measurements import RandomizedClassicalShadow
 from tangelo.toolboxes.operators import FermionOperator
-from tangelo.toolboxes.molecular_computation.rdms import energy_from_rdms, compute_rdms
+from tangelo.toolboxes.molecular_computation.rdms import energy_from_rdms, compute_rdms, pad_rdms_with_frozen_orbitals
 from tangelo.linq.helpers import pauli_string_to_of, pauli_of_to_string
 from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms
 
@@ -129,6 +130,22 @@ class RDMsUtilitiesTest(unittest.TestCase):
         # Have to adjust tolerance to account for classical shadow rounding to 10000 shots
         assert_allclose(rdm1ssr, rdm1ss, atol=0.05)
         assert_allclose(rdm2ssr, rdm2ss, atol=0.05)
+
+    def test_pad_rdms_with_frozen_orbitals(self):
+        """Test padding of RDMs with frozen orbitals indices."""
+
+        mol = mol_H2O_sto3g.freeze_mos([0, 3, 4, 5], inplace=False)
+
+        onerdm_to_pad = np.loadtxt(pwd_this_test + "/data/H2O_sto3g_onerdm_frozen0345.data")
+        twordm_to_pad = np.loadtxt(pwd_this_test + "/data/H2O_sto3g_twordm_frozen0345.data")
+
+        test_onerdm, test_twordm = pad_rdms_with_frozen_orbitals(mol, onerdm_to_pad, twordm_to_pad.reshape((3,)*4))
+
+        padded_onerdm = np.loadtxt(pwd_this_test + "/data/H2O_sto3g_padded_onerdm_frozen0345.data")
+        padded_twordm = np.loadtxt(pwd_this_test + "/data/H2O_sto3g_padded_twordm_frozen0345.data")
+
+        np.testing.assert_array_almost_equal(padded_onerdm, test_onerdm, decimal=3)
+        np.testing.assert_array_almost_equal(padded_twordm.reshape((7,)*4), test_twordm, decimal=3)
 
 
 if __name__ == "__main__":
