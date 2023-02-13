@@ -17,6 +17,7 @@
 import itertools as it
 
 import numpy as np
+from pyscf.lib import takebak_2d
 
 from tangelo.toolboxes.molecular_computation.coefficients import spatial_from_spinorb
 from tangelo.linq.helpers import pauli_string_to_of, pauli_of_to_string, get_compatible_bases
@@ -223,34 +224,43 @@ def pad_rdms_with_frozen_orbitals(sec_mol, onerdm, twordm):
     if sec_mol.uhf:
         raise NotImplementedError("The RDMs padding with an UHF mean-field is not implemented.")
 
-    from pyscf.lib import takebak_2d
-
+    # Defining the number of MOs and occupation numbers with and without the
+    # frozen orbitals.
     n_mos = sec_mol.n_mos
     n_mos0 = sec_mol.n_active_mos
     n_occ = np.count_nonzero(sec_mol.mo_occ > 0)
     n_occ0 = n_occ - len(sec_mol.frozen_occupied)
     moidx = np.array(sec_mol.active_mos)
 
+    # Creating a dummy one rdm with all diagonal elements set to 2. After that,
+    # the true one rdm is embedded in this bigger matrix.
     onerdm_padded = np.zeros((n_mos,)*2, dtype=onerdm.dtype)
     onerdm_padded[np.diag_indices(n_occ)] = 2.
     onerdm_padded[moidx[:, None], moidx] = onerdm
 
+    # Deleting the one rdm contribution in the two rdm. This must be done to
+    # redo the operation later with the one rdm with the frozen orbital.
     twordm = twordm.transpose(1, 0, 3, 2)
 
     onerdm_without_diag = np.copy(onerdm)
     onerdm_without_diag[np.diag_indices(n_occ0)] -= 2
+
+    onerdm_without_diag_times_2 = onerdm_without_diag * 2
+    onerdm_without_diag_T = onerdm_without_diag.T
+
     for i in range(n_occ0):
-        twordm[i, i, :, :] -= onerdm_without_diag * 2
-        twordm[:, :, i, i] -= onerdm_without_diag * 2
+        twordm[i, i, :, :] -= onerdm_without_diag_times_2
+        twordm[:, :, i, i] -= onerdm_without_diag_times_2
         twordm[:, i, i, :] += onerdm_without_diag
-        twordm[i, :, :, i] += onerdm_without_diag.T
+        twordm[i, :, :, i] += onerdm_without_diag_T
 
-    for i in range(n_occ0):
-        for j in range(n_occ0):
-            twordm[i, i, j, j] -= 4
-            twordm[i, j, j, i] += 2
+    for i, j in it.product(range(n_occ0), repeat=2):
+        twordm[i, i, j, j] -= 4
+        twordm[i, j, j, i] += 2
 
+    # Creating a dummy two rdm.
     dm2 = np.zeros((n_mos,)*4, dtype=twordm.dtype)
+
     idx = (moidx.reshape(-1, 1) * n_mos + moidx).ravel()
 
     # This part is meant to replicate
@@ -261,19 +271,23 @@ def pad_rdms_with_frozen_orbitals(sec_mol, onerdm, twordm):
                twordm.reshape(n_mos0**2, n_mos0**2), idx, idx)
     twordm_padded = dm2
 
+    # The next few lines will reembed the on rdm, but with the frozen orbital
+    # elements of the one rdm matrix.
     onerdm_padded_without_diag = np.copy(onerdm_padded)
     onerdm_padded_without_diag[np.diag_indices(n_occ)] -= 2
 
-    for i in range(n_occ):
-        twordm_padded[i, i, :, :] += onerdm_padded_without_diag * 2
-        twordm_padded[:, :, i, i] += onerdm_padded_without_diag * 2
-        twordm_padded[:, i, i, :] -= onerdm_padded_without_diag
-        twordm_padded[i, :, :, i] -= onerdm_padded_without_diag.T
+    onerdm_padded_without_diag_times_2 = onerdm_padded_without_diag * 2
+    onerdm_padded_without_diag_T = onerdm_padded_without_diag.T
 
     for i in range(n_occ):
-        for j in range(n_occ):
-            twordm_padded[i, i, j, j] += 4
-            twordm_padded[i, j, j, i] -= 2
+        twordm_padded[i, i, :, :] += onerdm_padded_without_diag_times_2
+        twordm_padded[:, :, i, i] += onerdm_padded_without_diag_times_2
+        twordm_padded[:, i, i, :] -= onerdm_padded_without_diag
+        twordm_padded[i, :, :, i] -= onerdm_padded_without_diag_T
+
+    for i, j in it.product(range(n_occ), repeat=2):
+        twordm_padded[i, i, j, j] += 4
+        twordm_padded[i, j, j, i] -= 2
 
     twordm_padded = twordm_padded.transpose(1, 0, 3, 2)
 
