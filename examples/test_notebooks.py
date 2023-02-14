@@ -23,7 +23,6 @@ class TestNotebooks(unittest.TestCase):
     def test_linq_noisy_simulation_notebook(self):
         run_notebook_as_test('linq/3.noisy_simulation.ipynb')
 
-    @unittest.skip("Takes too long for get_resources")
     def test_dmet_notebook(self):
         run_notebook_as_test('./dmet.ipynb')
 
