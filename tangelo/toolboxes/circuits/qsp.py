@@ -46,7 +46,7 @@ def ham_sim_phases(tau: float, eps: float = 1.e-2, n_attempts: int = 10, method:
     try:
         import pyqsp
     except ModuleNotFoundError:
-        raise ModuleNotFoundError("pyqsp package is required to calculate QSP time-evolution phases using 'lauren' or 'tf' method.")
+        raise ModuleNotFoundError("pyqsp package is required to calculate QSP time-evolution phases using 'laurent' or 'tf' method.")
 
     from pyqsp import angle_sequence
     from pyqsp.angle_sequence import AngleFindingError

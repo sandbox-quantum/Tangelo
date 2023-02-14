@@ -11,6 +11,8 @@ Welcome to Tangelo's documentation!
    :caption: Contents:
 
    overview
+   TUTORIALS
+   CONTRIBUTIONS
    tangelo
 
 Indices and tables
