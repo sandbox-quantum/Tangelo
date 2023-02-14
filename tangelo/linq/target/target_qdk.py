@@ -64,7 +64,7 @@ class QDKSimulator(Backend):
             f_out.write(translated_circuit)
 
         if desired_meas_result:
-            warnings.warn("qsharp uses statistics from n_shots instead of statistics on n_successful desired_meas_result.")
+            warnings.warn("qdk uses statistics from n_shots instead of statistics on the number of successful desired_meas_result.")
 
         n_meas = source_circuit.counts.get("MEASURE", 0)
         key_length = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width

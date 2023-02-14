@@ -20,6 +20,7 @@
 import unittest
 import os
 import time
+
 import numpy as np
 from openfermion.ops import QubitOperator
 from openfermion import load_operator, get_sparse_operator
@@ -224,6 +225,7 @@ class TestSimulateStatevector(unittest.TestCase):
         results["cirq"] = np.array([0. + 0.j, 0. + 0.j, 0.87758256 + 0.j, -0.47942554 + 0.j])
         initial_state = np.array([0, 0, 0, 1])
         freqs_exact = {'10': 0.7701511529340699, '11': 0.2298488470659301}
+
         for b in installed_sv_simulator:
             sim = get_backend(target=b, n_shots=None)
             f, sv = sim.simulate(circuit_mixed, desired_meas_result="0", return_statevector=True)

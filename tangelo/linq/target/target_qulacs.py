@@ -77,12 +77,25 @@ class QulacsSimulator(Backend):
         if initial_statevector is not None:
             state.load(initial_statevector)
 
-        if desired_meas_result is not None:
+        if not self._noise_model and not source_circuit.is_mixed_state:
+            translated_circuit.update_quantum_state(state)
+            self._current_state = state
+
+            if self.n_shots is not None:
+                python_statevector = np.array(state.get_vector()) if return_statevector else None
+                samples = Counter(state.sampling(self.n_shots))  # this sampling still returns a list
+            else:
+                python_statevector = np.array(state.get_vector())
+                frequencies = self._statevector_to_frequencies(python_statevector)
+                return (frequencies, python_statevector) if return_statevector else (frequencies, None)
+
+        elif desired_meas_result is not None:
             n_meas = source_circuit.counts.get("MEASURE", 0)
             self._current_state = None
             n_attempts = 0
             n_success = 0
             n_shots = self.n_shots if self.n_shots is not None else -1
+
             # Permit 0.1% probability events
             max_attempts = 1000*abs(n_shots)
             samples = dict()
@@ -112,12 +125,12 @@ class QulacsSimulator(Backend):
                     state.set_zero_state()
                 n_attempts += 1
 
+            if n_attempts == max_attempts:
+                raise ValueError(f"desired_meas_result was not measured after {n_attempts} attempts")
+
             if self.n_shots is not None:
                 self.all_frequencies = {measure + self._int_to_binstr(k, source_circuit.width): v / self.n_shots
                                         for k, v in samples.items()}
-
-            if n_attempts == max_attempts:
-                raise ValueError(f"desired_meas_result was not measured after {n_attempts} attempts")
 
             return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)
 
@@ -154,21 +167,6 @@ class QulacsSimulator(Backend):
                     state.load(initial_statevector)
                 else:
                     state.set_zero_state()
-
-        # All other cases for shot-based simulation, run once sample from statevector
-        elif self.n_shots is not None:
-            translated_circuit.update_quantum_state(state)
-            self._current_state = state
-            python_statevector = np.array(state.get_vector()) if return_statevector else None
-            samples = Counter(state.sampling(self.n_shots))  # this sampling still returns a list
-
-        # Statevector simulation
-        else:
-            translated_circuit.update_quantum_state(state)
-            self._current_state = state
-            python_statevector = np.array(state.get_vector())
-            frequencies = self._statevector_to_frequencies(python_statevector)
-            return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
         frequencies = {self._int_to_binstr(k, source_circuit.width): v / self.n_shots
                        for k, v in samples.items()}
