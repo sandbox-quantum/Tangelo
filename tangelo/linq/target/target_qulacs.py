@@ -67,6 +67,8 @@ class QulacsSimulator(Backend):
         translated_circuit = translate_c(source_circuit, "qulacs", output_options={"noise_model": self._noise_model,
                                                                                    "save_measurements": save_mid_circuit_meas})
 
+        n_meas = source_circuit.counts.get("MEASURE", 0)
+
         # Initialize state on GPU if available and desired. Default to CPU otherwise.
         if ('QuantumStateGpu' in dir(self.qulacs)) and (int(os.getenv("QULACS_USE_GPU", 0)) != 0):
             state = self.qulacs.QuantumStateGpu(source_circuit.width)
@@ -92,7 +94,6 @@ class QulacsSimulator(Backend):
 
         # If a desired_meas_result, repeat until success if no noise model or repeat until n_shots desired_meas_results.
         elif desired_meas_result is not None:
-            n_meas = source_circuit.counts.get("MEASURE", 0)
             self._current_state = None
             n_attempts = 0
             n_success = 0
@@ -139,7 +140,6 @@ class QulacsSimulator(Backend):
         # No desired_meas_result, repeat simulation n_shot times and collect measurement data.
         # Same process for if noise model present or not.
         elif save_mid_circuit_meas:
-            n_meas = source_circuit.counts.get("MEASURE", 0)
             samples = dict()
             for _ in range(self.n_shots):
                 translated_circuit.update_quantum_state(state)
