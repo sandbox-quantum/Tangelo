@@ -66,20 +66,6 @@ class QiskitSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
-
-        # If requested, set initial state
-        if initial_statevector is not None:
-            if self._noise_model:
-                raise ValueError("Cannot load an initial state if using a noise model, with Qiskit")
-            else:
-                n_qubits = int(math.log2(len(initial_statevector)))
-                n_meas = source_circuit.counts.get("MEASURE", 0)
-                n_registers = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
-                initial_state_circuit = self.qiskit.QuantumCircuit(n_qubits, n_registers)
-                initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
-                translated_circuit = initial_state_circuit.compose(translated_circuit)
-
         def aer_backend_with_statevector(translated_circuit):
             "Generate AerSimulator backend and append save statevector instruction to translated_circuit"
             backend = self.AerSimulator(method='statevector')
@@ -96,6 +82,20 @@ class QiskitSimulator(Backend):
             current_state = sim_results.get_statevector(translated_circuit)
             measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
             return current_state, measure
+
+        translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
+
+        # If requested, set initial state
+        if initial_statevector is not None:
+            if self._noise_model:
+                raise ValueError("Cannot load an initial state if using a noise model, with Qiskit")
+            else:
+                n_qubits = int(math.log2(len(initial_statevector)))
+                n_meas = source_circuit.counts.get("MEASURE", 0)
+                n_registers = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
+                initial_state_circuit = self.qiskit.QuantumCircuit(n_qubits, n_registers)
+                initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
+                translated_circuit = initial_state_circuit.compose(translated_circuit)
 
         # Noiseless simulation using the statevector simulator
         if not self._noise_model and not source_circuit.is_mixed_state:
@@ -138,7 +138,7 @@ class QiskitSimulator(Backend):
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
             frequencies = self.all_frequencies
 
-        # return_statevector is requested with mid-circuit measurements
+        # desired_meas_result without a noise model
         elif desired_meas_result is not None:
             backend, translated_circuit = aer_backend_with_statevector(translated_circuit)
 
@@ -167,6 +167,7 @@ class QiskitSimulator(Backend):
 
             frequencies = self.all_frequencies.copy()
 
+        # mixed state with return statevector. Can be used to test the returned statevector given a measurement outcome.
         elif save_mid_circuit_meas and self.n_shots in [1]:
             backend, translated_circuit = aer_backend_with_statevector(translated_circuit)
 
@@ -175,7 +176,7 @@ class QiskitSimulator(Backend):
             self.all_frequencies = {measure + state[::-1]: count for state, count in self._current_state.sample_counts(self.n_shots).items()}
             frequencies = self.all_frequencies.copy()
 
-        # use qiskit to sample circuit for n_shots.
+        # No desired_meas_result so use qiskit execute to sample n_shots as it is faster than run.
         elif self._noise_model or source_circuit.is_mixed_state:
             meas_start = n_meas if save_mid_circuit_meas else 0
             meas_range = range(meas_start, meas_start + source_circuit.width)

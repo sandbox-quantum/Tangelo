@@ -77,6 +77,7 @@ class QulacsSimulator(Backend):
         if initial_statevector is not None:
             state.load(initial_statevector)
 
+        # Deterministic circuit, run once and sample from statevector
         if not self._noise_model and not source_circuit.is_mixed_state:
             translated_circuit.update_quantum_state(state)
             self._current_state = state
@@ -89,6 +90,7 @@ class QulacsSimulator(Backend):
                 frequencies = self._statevector_to_frequencies(python_statevector)
                 return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
+        # If a desired_meas_result, repeat until success if no noise model or repeat until n_shots desired_meas_results.
         elif desired_meas_result is not None:
             n_meas = source_circuit.counts.get("MEASURE", 0)
             self._current_state = None
@@ -134,6 +136,8 @@ class QulacsSimulator(Backend):
 
             return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)
 
+        # No desired_meas_result, repeat simulation n_shot times and collect measurement data.
+        # Same process for if noise model present or not.
         elif save_mid_circuit_meas:
             n_meas = source_circuit.counts.get("MEASURE", 0)
             samples = dict()
@@ -156,7 +160,7 @@ class QulacsSimulator(Backend):
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
             return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)
 
-        # If saving mid-circuit measurements is not necessary or a noise model
+        # Not saving mid-circuit measurements or a noise model, repeat simulation n_shots times.
         elif source_circuit.is_mixed_state or self._noise_model:
             samples = dict()
             for _ in range(self.n_shots):
