@@ -20,13 +20,14 @@ from itertools import product
 
 import openfermion
 from openfermion.chem.molecular_data import spinorb_from_spatial
-import openfermion.ops.representations as reps
 from openfermion.utils import down_index, up_index
+import openfermion.ops.representations as reps
 import numpy as np
 import pyscf
 from pyscf import ao2mo
 
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
+from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 
 
 @dataclass
@@ -48,6 +49,8 @@ class SecondQuantizedDMETFragment:
 
     uhf: bool
 
+    frozen_orbitals: list
+
     n_active_electrons: int = field(init=False)
     n_active_sos: int = field(init=False)
     q: int = field(init=False)
@@ -55,20 +58,61 @@ class SecondQuantizedDMETFragment:
 
     basis: str = field(init=False)
     n_active_mos: int = field(init=False)
-    frozen_mos: None = field(init=False)
 
     def __post_init__(self):
-        self.n_active_electrons = self.molecule.nelectron
-        self.n_active_ab_electrons = self.mean_field.nelec if self.uhf else self.n_active_electrons
+
         self.q = self.molecule.charge
         self.spin = self.molecule.spin
         self.active_spin = self.spin
 
         self.basis = self.molecule.basis
-        self.n_active_mos = len(self.mean_field.mo_energy) if not self.uhf else (len(self.mean_field.mo_energy[0]), len(self.mean_field.mo_energy[1]))
-        self.n_active_sos = 2*self.n_active_mos if not self.uhf else max(2*self.n_active_mos[0], 2*self.n_active_mos[1])
 
-        self.frozen_mos = None
+        self.n_mos = len(self.mean_field.mo_energy)
+        self.mo_occ = self.mean_field.mo_occ
+
+        list_of_active_frozen = convert_frozen_orbitals(self, self.frozen_orbitals)
+        self.active_occupied = list_of_active_frozen[0]
+        self.frozen_occupied = list_of_active_frozen[1]
+        self.active_virtual = list_of_active_frozen[2]
+        self.frozen_virtual = list_of_active_frozen[3]
+
+        if self.uhf:
+            self.active_mos = [self.active_occupied[i]+self.active_virtual[i] for i in range(2)]
+            self.n_active_mos = [len(self.active_mos[0]), len(self.active_mos[1])]
+            self.n_active_sos = max(2*self.n_active_mos[0], 2*self.n_active_mos[1])
+            self.n_active_ab_electrons = (int(sum([self.mo_occ[0][i] for i in self.active_occupied[0]])),
+                int(sum([self.mo_occ[1][i] for i in self.active_occupied[1]])))
+        else:
+            self.active_mos = self.active_occupied + self.active_virtual
+            self.n_active_mos = len(self.active_mos)
+            self.n_active_sos = 2*self.n_active_mos
+
+            n_active_electrons = int(sum([self.mo_occ[i] for i in self.active_occupied]))
+            n_alpha = n_active_electrons//2 + self.spin//2 + (n_active_electrons % 2)
+            n_beta = n_active_electrons//2 - self.spin//2
+            self.n_active_ab_electrons = (n_alpha, n_beta)
+        self.n_active_electrons = sum(self.n_active_ab_electrons)
+
+    @property
+    def frozen_mos(self):
+        """This property returns MOs indexes for the frozen orbitals. It was
+        written to take into account if one of the two possibilities (occ or
+        virt) is None. In fact, list + None, None + list or None + None return
+        an error. An empty list cannot be sent because PySCF mp2 returns
+        "IndexError: list index out of range".
+
+        Returns:
+            list: MOs indexes frozen (occupied + virtual).
+        """
+        if self.frozen_occupied and self.frozen_virtual:
+            return (self.frozen_occupied + self.frozen_virtual if not self.uhf else
+                    [self.frozen_occupied[0] + self.frozen_virtual[0], self.frozen_occupied[1] + self.frozen_virtual[1]])
+        elif self.frozen_occupied:
+            return self.frozen_occupied
+        elif self.frozen_virtual:
+            return self.frozen_virtual
+        else:
+            return None
 
     @property
     def fermionic_hamiltonian(self):
@@ -101,6 +145,12 @@ class SecondQuantizedDMETFragment:
         # The convention is not the same with PySCF integrals. So, a change is
         # made before performing the truncation for frozen orbitals.
         two_electron_integrals = two_electron_integrals.transpose(0, 2, 3, 1)
+
+        core_offset, one_electron_integrals, two_electron_integrals = reps.get_active_space_integrals(
+            one_electron_integrals, two_electron_integrals, self.frozen_occupied, self.active_mos)
+
+        # Adding frozen electron contribution to core constant.
+        core_constant += core_offset
 
         one_body_coefficients, two_body_coefficients = spinorb_from_spatial(one_electron_integrals, two_electron_integrals)
         fragment_hamiltonian = reps.InteractionOperator(core_constant, one_body_coefficients, 0.5 * two_body_coefficients)

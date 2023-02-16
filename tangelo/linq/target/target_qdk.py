@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
+
 from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
@@ -24,7 +26,8 @@ class QDKSimulator(Backend):
         super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.qsharp = qsharp
 
-    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
+    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None,
+                         desired_meas_result=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on the availability of the
@@ -40,6 +43,8 @@ class QDKSimulator(Backend):
                 if available.
             initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
+            desired_meas_result (str): The binary string of the desired measurement.
+                Must have the same length as the number of MEASURE gates in source_circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
                 self.all_frequencies, with keys of length (n_meas + n_qubits).
@@ -54,10 +59,12 @@ class QDKSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        translated_circuit = translate_c(source_circuit, "qdk",
-                output_options={"save_measurements": save_mid_circuit_meas})
+        translated_circuit = translate_c(source_circuit, "qdk", output_options={"save_measurements": save_mid_circuit_meas})
         with open('tmp_circuit.qs', 'w+') as f_out:
             f_out.write(translated_circuit)
+
+        if desired_meas_result:
+            warnings.warn("qdk uses statistics from n_shots instead of statistics on the number of successful desired_meas_result.")
 
         n_meas = source_circuit.counts.get("MEASURE", 0)
         key_length = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width

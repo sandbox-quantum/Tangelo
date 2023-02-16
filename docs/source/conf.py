@@ -4,6 +4,9 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+from tangelo._version import __version__
+
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -18,11 +21,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'tangelo'
-copyright = '2022 Good Chemistry Company'
+copyright = '2023 Good Chemistry Company'
 author = 'Valentin senicourt, Alexandre Fleury, Ryan Day, James Brown'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3.1'
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
