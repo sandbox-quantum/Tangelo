@@ -420,7 +420,7 @@ class TestSimulateStatevector(unittest.TestCase):
 
     def test_get_exp_value_mixed_state_desired_measurement_with_shots(self):
         """ Get expectation value of mixed state by post-selecting on desired measurement."""
-        qubit_operator = QubitOperator("X0 X1") + QubitOperator("Y0 Y1") + QubitOperator("Z0 Z1")
+        qubit_operator = QubitOperator("X0 X1") + QubitOperator("Y0 Y1") + QubitOperator("Z0 Z1") + QubitOperator("X0 Y1", 1j)
 
         ham = get_sparse_operator(qubit_operator).toarray()
         exact_sv = np.array([0.+0.j, 0.+0.j, 0.87758256+0.j, -0.47942554+0.j])

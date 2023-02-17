@@ -314,8 +314,10 @@ class Backend(abc.ABC):
                 qb_op_real.terms[term], qb_op_imag.terms[term] = coef.real, coef.imag
             qb_op_real.compress()
             qb_op_imag.compress()
-            exp_real = self.get_expectation_value(qb_op_real, state_prep_circuit, initial_statevector=initial_statevector)
-            exp_imag = self.get_expectation_value(qb_op_imag, state_prep_circuit, initial_statevector=initial_statevector)
+            exp_real = self.get_expectation_value(qb_op_real, state_prep_circuit, initial_statevector=initial_statevector,
+                                                  desired_meas_result=desired_meas_result)
+            exp_imag = self.get_expectation_value(qb_op_imag, state_prep_circuit, initial_statevector=initial_statevector,
+                                                  desired_meas_result=desired_meas_result)
             return exp_real if (exp_imag == 0.) else exp_real + 1.0j * exp_imag
 
     def get_variance(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
