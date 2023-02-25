@@ -195,30 +195,44 @@ class Circuit:
 
     def depth(self):
         """ Return the depth of the quantum circuit, by computing the number of moments. Does not count
-        qubit initialization as a moment (unlike Cirq, for example).
+        qubit initialization as a moment (unlike Cirq, for example). Computes from scratch.
         """
+        # List of qubit indices involved in each moment. Look up dict for latest moment for each index.
         moments = list()
+        latest_moment = dict()
 
-        for g in self._gates:
+        # Traverse gates and compute moments
+        for g in self:
             qubits = set(g.target) if g.control is None else set(g.target + g.control)
 
             if not moments:
                 moments.append(qubits)
+                for i in qubits:
+                    latest_moment[i] = 0
             else:
-                # Find latest moment involving at least one of the qubits targeted by the current gate
-                # The current gate is part of the moment following that one
-                for i, m in reversed(list(enumerate(moments))):
-                    if m & qubits:
-                        if (i+1) < len(moments):
-                            moments[i+1] = moments[i+1] | qubits
-                        else:
-                            moments.append(qubits)
-                        break
-                    # Case where none of the target qubits have been used before
-                    elif i == 0:
-                        moments[0] = moments[0] | qubits
+                # Find latest moment involving one of the qubits targeted by the gate
+                # -1 means the qubit index was encountered for the very first time
+                b = max([latest_moment.get(i, -1) for i in qubits])
+                for i in qubits:
+                    latest_moment[i] = b + 1
 
+                # Case 1: Gate can be included in a previous moment
+                # Includes b = -1 case where all qubits are encountered for the 1st time
+                if (b + 1) < len(moments):
+                    moments[b + 1] = moments[b + 1] | qubits
+                # Case 2: Gate is part of a new moment
+                else:
+                    moments.append(qubits)
         return len(moments)
+
+        # Option 2: No moment info. Thats the whole thing. 2x speedup on h20_321g example
+        # latest_moment = dict()
+        # for g in self:
+        #     qubits = set(g.target) if g.control is None else set(g.target + g.control)
+        #     b = max([latest_moment.get(i, -1) for i in qubits])
+        #     for i in qubits:
+        #         latest_moment[i] = b + 1
+        # return max(latest_moment.values()) + 1
 
     def trim_qubits(self):
         """Trim unnecessary qubits and update indices with the lowest values possible.
