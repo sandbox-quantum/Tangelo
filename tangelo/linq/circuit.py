@@ -195,7 +195,7 @@ class Circuit:
 
     def depth(self):
         """ Return the depth of the quantum circuit, by computing the number of moments. Does not count
-        qubit initialization as a moment (unlike Cirq, for example). Computes from scratch.
+        qubit initialization as a moment (unlike Cirq, for example). Compute from scratch.
         """
         # List of qubit indices involved in each moment. Look up dict for latest moment for each index.
         moments = list()
@@ -224,15 +224,6 @@ class Circuit:
                 else:
                     moments.append(qubits)
         return len(moments)
-
-        # Option 2: No moment info. Thats the whole thing. 2x speedup on h20_321g example
-        # latest_moment = dict()
-        # for g in self:
-        #     qubits = set(g.target) if g.control is None else set(g.target + g.control)
-        #     b = max([latest_moment.get(i, -1) for i in qubits])
-        #     for i in qubits:
-        #         latest_moment[i] = b + 1
-        # return max(latest_moment.values()) + 1
 
     def trim_qubits(self):
         """Trim unnecessary qubits and update indices with the lowest values possible.
