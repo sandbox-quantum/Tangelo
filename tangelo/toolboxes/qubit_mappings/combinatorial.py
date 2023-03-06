@@ -83,95 +83,117 @@ def combinatorial(ferm_op, n_modes, n_electrons):
             unique_int = (int_alpha * n_choose_alpha) + int_beta
             basis_set[sigma] = unique_int
 
-    # H_1 and H_2 initialization to 2^n * 2^n matrices.
-    h_one = np.zeros((2**n, 2**n), dtype=complex)
-    h_two = np.zeros((2**n, 2**n), dtype=complex)
+    # Compact Hamiltonian initialization to 2^n * 2^n matrices.
+    h_c = np.zeros((2**n, 2**n), dtype=complex)
 
     # Check what is the effect of every term.
     for term, coeff in ferm_op_chemist.terms.items():
-        # Core term
+        # Core term.
         if not term:
             continue
 
+        # Get the effect of each operator to the basis set items.
         for b, unique_int in basis_set.items():
-            if len(term) == 2:
-                new_state, phase = one_body_op_on_state(term, b)
 
-                if new_state:
-                    new_unique_int = basis_set[new_state]
-                    h_one[unique_int][new_unique_int] += phase * coeff
+            new_state, phase = one_body_op_on_state(term[-2:], b)
 
-            elif len(term) == 4:
-                new_state, phase = two_body_op_on_state(term, b)
+            if len(term) == 4 and new_state:
+                new_state, phase_two = one_body_op_on_state(term[:2], new_state)
+                phase *= phase_two
 
-                if new_state:
-                    new_unique_int = basis_set[new_state]
-                    h_two[unique_int][new_unique_int] += phase * coeff
+            if not new_state:
+                continue
 
-    # Return the compact Hamiltonian H_c.
-    h_c = h_one + h_two
+            new_unique_int = basis_set[new_state]
+            h_c[unique_int][new_unique_int] += phase * coeff
 
-    return h_to_qubitop(h_c, n)
-
-
-def f(sigma, M):
-    """TODO
-
-    Args:
-
-    Returns:
-
-    """
-    N = len(sigma)
-
-    terms_k = [comb(M - sigma[N - 1 - k] - 1, k + 1) for k in range(N)]
-    unique_int = comb(M, N) - 1 - np.sum(terms_k)
-
-    if not unique_int.is_integer():
-        raise ValueError
-
-    return int(unique_int)
+    return h_to_qubitop(h_c, n) + ferm_op_chemist.constant
 
 
 def basis(M, N):
-    """TODO
+    """Function to construct the combinatorial basis set, i.e. a basis set
+    respecting the number of electrons and the total spin.
 
     Args:
+        M (int): Number of spatial orbitals.
+        N (int): Number of alpha or beta electrons.
 
     Returns:
-
+        OrderedDict: Lexicographically sorted basis set, mapping electronic
+            configuration to unique integers.
     """
+
     mapping = [(sigma, f(sigma, M)) for sigma in itertools.combinations(range(M), N)]
     return OrderedDict(mapping)
 
 
+def f(sigma, M):
+    """Function to map an electronic configuration to a unique integer, as done
+    in arXiv.2205.11742 eq. (14).
+
+    Args:
+        sigma (tuple of int): Orbital indices where the electron are in the
+            electronic configuration.
+        M (int): Number of modes, i.e. number of spatial orbitals.
+
+    Returns:
+        int: Unique integer for the input electronic state.
+    """
+
+    # Equivalent to the number of electrons.
+    N = len(sigma)
+
+    # Eq. (14) in the reference.
+    terms_k = [comb(M - sigma[N - 1 - k] - 1, k + 1) for k in range(N)]
+    unique_int = comb(M, N) - 1 - np.sum(terms_k)
+
+    return int(unique_int)
+
+
 def one_body_op_on_state(op, state_in):
-    """"""
+    """Function to apply a a^{\dagger}_i a_j operator as described in Phys. Rev.
+    A 81, 022124 (2010) eq. (8).
 
-    assert len(op) == 2, f"{op}"
+    Args:
+        op (tuple): Operator, written as ((qubit_i, 1), (qubit_j, 0)), where 0/1
+            means anhilation/creation on the specified qubit.
+        state_in (tuple): Electronic configuration described as tuple of
+            spinorbital indices where there is an electron.
 
+    Returns:
+        tuple or 0: Resulting state with the same form as in the input state.
+            Can be 0.
+        int: Phase shift. Can be -1 or 1.
+    """
+
+    assert len(op) == 2, f"Operator {op} has length {len(op)}, a length of 2 is expected."
+
+    # Copy the state, then transform it into a list (it will be mutated).
     state = deepcopy(state_in)
     state = list(state)
 
+    # Unpack the creation and anhilation operators.
     creation_op, anhilation_op = op
+    creation_qubit, creation_dagger = creation_op
+    anhilation_qubit, anhilation_dagger = anhilation_op
 
-    # Confirm dagger order to the left.
-    assert creation_op[1] == 1
-    assert anhilation_op[1] == 0
+    # Confirm dagger operator to the left.
+    assert creation_dagger == 1
+    assert anhilation_dagger == 0
 
-    creation_qubit, _ = creation_op
-    anhilation_qubit, _ = anhilation_op
-
+    # Anhilation logics on the state.
     if anhilation_qubit in state:
         state.remove(anhilation_qubit)
     else:
-        return 0, 0.
+        return 0, 0
 
+    # Creation logics on the state.
     if creation_qubit not in state:
         state = [*state, creation_qubit]
     else:
-        return 0, 0.
+        return 0, 0
 
+    # Compute the phase shift.
     if anhilation_qubit > creation_qubit:
         d = sum(creation_qubit < i < anhilation_qubit for i in state)
     elif anhilation_qubit < creation_qubit:
@@ -182,33 +204,22 @@ def one_body_op_on_state(op, state_in):
     return tuple(sorted(state)), (-1)**d
 
 
-def two_body_op_on_state(ops, state_in):
-    """
-    """
-
-    op_kq = (ops[-2], ops[-1])
-    state_kq, phase_kq = one_body_op_on_state(op_kq, state_in)
-
-    if not state_kq:
-        return state_kq, phase_kq
-
-    op_sl = (ops[0], ops[1])
-    state, phase_sl = one_body_op_on_state(op_sl, state_kq)
-
-    return state, phase_kq * phase_sl
-
-
-# TODO: change the algorithm to not need the full matrix.
 def h_to_qubitop(h_c, n):
-    """TODO
+    """Function to map a matrix of 2^n * 2^n into a sum of tensor
+    product of Pauli operators (max n elements per product, i.e. maximum number
+    of qubits is n).
 
     Args:
+        h_c (array of im): Hamiltonian matrix.
 
     Returns:
-
+        QubitOperator: Self-explanatory.
     """
+
     qu_op = QubitOperator()
 
+    # Go through every combinations and get the trace for the Pauli operator.
+    # The trace is then taken as the coefficient for this operator.
     for pauli_tensor in itertools.product("IXYZ", repeat=n):
         pauli_word = "".join(pauli_tensor)
         term = pauli_string_to_of(pauli_word)
@@ -218,5 +229,6 @@ def h_to_qubitop(h_c, n):
         c_j = np.trace(h_c.conj().T @ qubit_operator_sparse(term_op, n_qubits=n).todense())
         qu_op += QubitOperator(term, c_j)
 
+    # Normalization.
     qu_op /= np.sqrt(4**n)
     return qu_op
