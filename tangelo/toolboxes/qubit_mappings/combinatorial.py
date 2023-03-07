@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Combinatorial mapping as described in references (1) and (2). Instead of the
-occupation (or other quantity), the Fock configurations are the elements of the
-basis set. In consequence, the number of required qubits scales with the number
-of electronic configuration instead of the number of spinorbitals.
+"""Combinatorial mapping as described in references (1) and (2). In contrast to
+qubit mappings such as JW, BK that use occupation/parity, the mappings in this
+file use the Fock configurations as the elements of the basis set. Thus, the
+number of required qubits scales with the number of electronic configuration
+instead of the number of spinorbitals.
 
 References:
     1. Streltsov, A. I., Alon, O. E. & Cederbaum, L. S. General mapping for
@@ -48,9 +49,9 @@ def combinatorial(ferm_op, n_modes, n_electrons):
     Args:
         ferm_op (FermionOperator). Fermionic operator, with alternate ordering
             as followed in the openfermion package
-        n_modes: Number of relevant molecular orbitals, i.e. active molecular
+        n_modes (int): Number of relevant molecular orbitals, i.e. active molecular
             orbitals.
-        n_electrons: Number of active electrons.
+        n_electrons (int): Number of active electrons.
 
     Returns:
         QubitOperator: Self-explanatory.
@@ -123,11 +124,11 @@ def basis(M, N):
             configuration to unique integers.
     """
 
-    mapping = [(sigma, f(sigma, M)) for sigma in itertools.combinations(range(M), N)]
+    mapping = [(sigma, conf_to_integer(sigma, M)) for sigma in itertools.combinations(range(M), N)]
     return OrderedDict(mapping)
 
 
-def f(sigma, M):
+def conf_to_integer(sigma, M):
     """Function to map an electronic configuration to a unique integer, as done
     in arXiv.2205.11742 eq. (14).
 
@@ -161,7 +162,7 @@ def one_body_op_on_state(op, state_in):
             spinorbital indices where there is an electron.
 
     Returns:
-        tuple or 0: Resulting state with the same form as in the input state.
+        tuple: Resulting state with the same form as in the input state.
             Can be 0.
         int: Phase shift. Can be -1 or 1.
     """
@@ -185,13 +186,13 @@ def one_body_op_on_state(op, state_in):
     if anhilation_qubit in state:
         state.remove(anhilation_qubit)
     else:
-        return 0, 0
+        return (), 0
 
     # Creation logics on the state.
     if creation_qubit not in state:
         state = [*state, creation_qubit]
     else:
-        return 0, 0
+        return (), 0
 
     # Compute the phase shift.
     if anhilation_qubit > creation_qubit:
