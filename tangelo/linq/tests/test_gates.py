@@ -126,6 +126,17 @@ class TestGates(unittest.TestCase):
         # Try to create a XX gate acting on qubits 0, 1 and 2.
         self.assertRaises(ValueError, Gate, "XX", target=[0, 1, 2])
 
+    def test_non_hermitian_gates_inverse(self):
+        """ Test that non-hermitian gates (S, T) can be inversed."""
+
+        S_gate = Gate("S", 0)
+        S_gate_inverse = Gate("PHASE", 0, parameter=-np.pi/2)
+        self.assertEqual(S_gate.inverse(), S_gate_inverse)
+
+        T_gate = Gate("T", 0)
+        T_gate_inverse = Gate("PHASE", 0, parameter=-np.pi/4)
+        self.assertEqual(T_gate.inverse(), T_gate_inverse)
+
 
 if __name__ == "__main__":
     unittest.main()
