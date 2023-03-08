@@ -30,10 +30,7 @@ from tangelo.linq.translator.translate_circuit import FROM_TANGELO as FROM_TANGE
 from tangelo.linq.translator.translate_circuit import TO_TANGELO as TO_TANGELO_C
 
 
-# For openfermion.load_operator function.
-pwd_this_test = os.path.dirname(os.path.abspath(__file__))
-
-# Build artifically large operator made of all possible "full" Pauli words (no 'I') of length n_qubits
+# Build artificially large operator made of all possible "full" Pauli words (no 'I') of length n_qubits
 n_qubits_op = 10
 n_terms = 3 ** n_qubits_op
 terms = {tuple(zip(range(n_qubits_op), pw)): 1.0 for pw in product(['X', 'Y', 'Z'], repeat=n_qubits_op)}
@@ -46,23 +43,20 @@ n_repeat = 4000
 gates = [Gate('X', i) for i in range(n_qubits)] + [Gate("CNOT", (i+1) % n_qubits, control=i) for i in range(n_qubits)]
 tangelo_c = Circuit(gates * n_repeat)
 
-# Number of spaces padded to align output characters, for readability
-a = 12
-
 
 class PerfTranslatorTest(unittest.TestCase):
 
     def test_perf_operator(self):
         """ Performance test with a reasonable large input for operator """
 
-        print(f'\n[Performance Test :: linq operator format convertion]')
+        print(f'\n[Performance Test :: linq operator format conversion]')
         print(f'\tInput size: n_qubits={n_qubits_op}, n_terms={n_terms}\n')
 
         for f in FROM_TANGELO_OP:
             try:
                 tstart = time.time()
                 target_op = translate_operator(tangelo_op, source="tangelo", target=f)
-                print(f"\tFormat convertion from {'tangelo':12} to {f:12} :: {time.time()-tstart} s")
+                print(f"\tFormat conversion from {'tangelo':12} to {f:12} :: {time.time()-tstart} s")
             except:
                 continue
 
@@ -70,21 +64,21 @@ class PerfTranslatorTest(unittest.TestCase):
                 try:
                     tstart = time.time()
                     translate_operator(target_op, source=f, target="tangelo")
-                    print(f"\tFormat convertion from {f:12} to {'tangelo':12} :: {time.time()-tstart} s")
+                    print(f"\tFormat conversion from {f:12} to {'tangelo':12} :: {time.time()-tstart} s")
                 except:
                     continue
 
     def test_perf_circuit(self):
         """ Performance test with a reasonable large input for quantum circuit """
 
-        print(f'\n[Performance Test :: linq circuit format convertion]')
+        print(f'\n[Performance Test :: linq circuit format conversion]')
         print(f'\tInput size: n_qubits={tangelo_c.width}, n_gates={tangelo_c.size}\n')
 
         for f in FROM_TANGELO_C:
             try:
                 tstart = time.time()
                 target_c = translate_circuit(tangelo_c, source="tangelo", target=f)
-                print(f"\tFormat convertion from {'tangelo':12} to {f:12} :: {time.time()-tstart} s")
+                print(f"\tFormat conversion from {'tangelo':12} to {f:12} :: {time.time()-tstart} s")
             except:
                 continue
 
@@ -92,6 +86,6 @@ class PerfTranslatorTest(unittest.TestCase):
                 try:
                     tstart = time.time()
                     translate_circuit(target_c, source=f, target="tangelo")
-                    print(f"\tFormat convertion from {f:12} to {'tangelo':12} :: {time.time()-tstart} s")
+                    print(f"\tFormat conversion from {f:12} to {'tangelo':12} :: {time.time()-tstart} s")
                 except:
                     continue
