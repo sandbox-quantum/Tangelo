@@ -57,7 +57,7 @@ class PerfTranslatorTest(unittest.TestCase):
                 tstart = time.time()
                 target_op = translate_operator(tangelo_op, source="tangelo", target=f)
                 print(f"\tFormat conversion from {'tangelo':12} to {f:12} :: {time.time()-tstart} s")
-            except:
+            except Exception:
                 continue
 
             if f in TO_TANGELO_OP:
@@ -65,7 +65,7 @@ class PerfTranslatorTest(unittest.TestCase):
                     tstart = time.time()
                     translate_operator(target_op, source=f, target="tangelo")
                     print(f"\tFormat conversion from {f:12} to {'tangelo':12} :: {time.time()-tstart} s")
-                except:
+                except Exception:
                     continue
 
     def test_perf_circuit(self):
@@ -79,7 +79,7 @@ class PerfTranslatorTest(unittest.TestCase):
                 tstart = time.time()
                 target_c = translate_circuit(tangelo_c, source="tangelo", target=f)
                 print(f"\tFormat conversion from {'tangelo':12} to {f:12} :: {time.time()-tstart} s")
-            except:
+            except Exception:
                 continue
 
             if f in TO_TANGELO_C:
@@ -87,5 +87,5 @@ class PerfTranslatorTest(unittest.TestCase):
                     tstart = time.time()
                     translate_circuit(target_c, source=f, target="tangelo")
                     print(f"\tFormat conversion from {f:12} to {'tangelo':12} :: {time.time()-tstart} s")
-                except:
+                except Exception:
                     continue
