@@ -19,7 +19,7 @@ characteristics (width, size ...).
 """
 
 import copy
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from cirq.contrib.svg import SVGCircuit
@@ -442,3 +442,30 @@ def remove_redundant_gates(circuit):
     gates = [gate for gate_i, gate in enumerate(circuit._gates) if gate_i not in indices_to_remove]
 
     return Circuit(gates)
+
+
+def get_unitary_circuit_pieces(circuit: Circuit) -> Tuple[List[Circuit], List[int]]:
+    """Split circuit into the unitary circuits between non-unitary MEASURE gates.
+
+    Args:
+        circuit (Circuit): the circuit to split
+
+    Returns:
+        List[Circuit]: The set of unitary circuits with a terminal non-unitary operation.
+        List[int]: The qubits that the "MEASURE" operation is applied to.
+    """
+
+    n_qubits = circuit.width
+    circuit_list = list()
+    measure_qubits = list()
+    gate_list = list()
+    for g in circuit._gates:
+        if g.name != "MEASURE":
+            gate_list += [Gate(g.name, g.target, g.control, g.parameter, g.is_variational)]
+        else:
+            circuit_list += [Circuit(gate_list.copy(), n_qubits=n_qubits)]
+            measure_qubits += [g.target[0]]
+            gate_list = list()
+    circuit_list += [Circuit(gate_list.copy(), n_qubits=n_qubits)]
+
+    return circuit_list, measure_qubits

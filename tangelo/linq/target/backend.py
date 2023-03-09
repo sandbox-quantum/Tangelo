@@ -112,6 +112,46 @@ def get_variance_from_frequencies_oneterm(term, frequencies):
     return variance_term
 
 
+def collapse_statevector_to_desired_measurement(statevector, qubit, result, n_qubits, order="lsq_first"):
+    """Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.
+
+    Args:
+        statevector (array): The statevector for which the collapse to the desired qubit value is performed.
+        qubit (int): The qubit to retrieve 0 or 1 portion.
+        result (int): 0 or 1.
+        n_qubits: The number of qubits in the statevector.
+        order (string): The qubit ordering of the statevector, lsq_first or msq_first.
+
+    Returns:
+        array: the collapsed and renormalized statevector
+        float: the probability this occured
+    """
+
+    if qubit > n_qubits-1:
+        raise ValueError("qubit to measure is larger than number of qubits in statevector")
+
+    if result not in [0, 1]:
+        raise ValueError(f"Result is not valid, must be an integer of 0 or 1 but received {result}")
+
+    if len(statevector) != 2**n_qubits:
+        raise ValueError("Statevector length is not 2**n_qubits")
+
+    before_length = 2**qubit if order == "lsq_first" else 2**(n_qubits-1-qubit)
+    after_length = 2**(n_qubits-1-qubit) if order == "lsq_first" else 2**qubit
+
+    sv_selected = np.reshape(statevector, (before_length, 2, after_length))
+    sv_selected[:, (result + 1) % 2, :] = 0
+    sv_selected = sv_selected.flatten()
+
+    sqrt_probability = np.linalg.norm(sv_selected)
+
+    if sqrt_probability < 1.e-14:
+        raise ValueError("Probability of desired measurement result is zero.")
+    sv_selected /= sqrt_probability
+
+    return sv_selected, sqrt_probability**2
+
+
 class Backend(abc.ABC):
 
     def __init__(self, n_shots=None, noise_model=None):
@@ -650,6 +690,24 @@ class Backend(abc.ABC):
         state_binstr = "0" * (n_qubits - len(bs)) + bs
 
         return state_binstr if use_ordering and (self.statevector_order == "lsq_first") else state_binstr[::-1]
+
+    def collapse_statevector_to_desired_measurement(self, statevector, qubit, result, n_qubits, use_ordering=True):
+        """Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.
+
+        Args:
+            statevector (array): The statevector for which the collapse to the desired qubit value is performed.
+            qubit (int): The qubit to retrieve 0 or 1 portion.
+            result (string): "0" or "1".
+            n_qubits: The number of qubits in the statevector.
+            use_ordering (bool): Whether to use the ordering of the backend when selecting the qubit.
+
+        Returns:
+            array: the collapsed and renormalized statevector
+            float: the probability this occured
+        """
+        order = self.backend_info()['statevector_order'] if use_ordering else "lsq_first"
+
+        return collapse_statevector_to_desired_measurement(statevector, qubit, result, n_qubits, order)
 
     @staticmethod
     @abc.abstractmethod

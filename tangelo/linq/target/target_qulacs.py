@@ -18,7 +18,7 @@ from collections import Counter
 
 import numpy as np
 
-from tangelo.linq import Circuit
+from tangelo.linq import Circuit, get_unitary_circuit_pieces
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.translator import translate_operator
@@ -64,8 +64,9 @@ class QulacsSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        translated_circuit = translate_c(source_circuit, "qulacs", output_options={"noise_model": self._noise_model,
-                                                                                   "save_measurements": save_mid_circuit_meas})
+        if desired_meas_result is None:
+            translated_circuit = translate_c(source_circuit, "qulacs", output_options={"noise_model": self._noise_model,
+                                                                                       "save_measurements": save_mid_circuit_meas})
 
         n_meas = source_circuit.counts.get("MEASURE", 0)
 
@@ -94,45 +95,64 @@ class QulacsSimulator(Backend):
 
         # If a desired_meas_result, repeat until success if no noise model or repeat until n_shots desired_meas_results.
         elif desired_meas_result is not None:
-            self._current_state = None
-            n_attempts = 0
-            n_success = 0
-            n_shots = self.n_shots if self.n_shots is not None else -1
+            if not self._noise_model:
+                self.success_probability = 1
+                unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
 
-            # Permit 0.1% probability events
-            max_attempts = 1000*abs(n_shots)
-            samples = dict()
-            while self._current_state is None and n_attempts < max_attempts and n_success != n_shots:
+                for i, circ in enumerate(unitary_circuits[:-1]):
+                    translated_circuit = translate_c(circ, "qulacs", output_options={"noise_model": self._noise_model,
+                                                                                     "save_measurements": True})
+                    translated_circuit.update_quantum_state(state)
+                    sv, cprob = self.collapse_statevector_to_desired_measurement(state.get_vector(), qubits[i], int(desired_meas_result[i]), circ.width)
+                    self.success_probability *= cprob
+                    state.load(sv)
+
+                translated_circuit = translate_c(unitary_circuits[-1], "qulacs", output_options={"noise_model": self._noise_model,
+                                                                                                 "save_measurements": True})
                 translated_circuit.update_quantum_state(state)
-                measure = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
-
-                if measure == desired_meas_result:
-                    python_statevector = state.get_vector()
-                    if self._noise_model:
-                        n_success += 1
-                        sample = state.sampling(1)[0]
-                        samples[sample] = samples.get(sample, 0) + 1
-                    else:
-                        self._current_state = python_statevector
-                        if self.n_shots is not None:
-                            samples = Counter(state.sampling(self.n_shots))
-                        else:
-                            frequencies = self._statevector_to_frequencies(python_statevector)
-                            self.all_frequencies = dict()
-                            for meas, val in frequencies.items():
-                                self.all_frequencies[measure + meas] = val
-
-                if initial_statevector is not None:
-                    state.load(initial_statevector)
+                python_statevector = state.get_vector()
+                self._current_state = python_statevector
+                if self.n_shots is not None:
+                    samples = Counter(state.sampling(self.n_shots))
                 else:
-                    state.set_zero_state()
-                n_attempts += 1
+                    frequencies = self._statevector_to_frequencies(python_statevector)
+                    self.all_frequencies = dict()
+                    for meas, val in frequencies.items():
+                        self.all_frequencies[desired_meas_result + meas] = val
+            else:
+                translated_circuit = translate_c(source_circuit, "qulacs", output_options={"noise_model": self._noise_model,
+                                                                                           "save_measurements": save_mid_circuit_meas})
+                self._current_state = None
 
-            if n_attempts == max_attempts:
-                raise ValueError(f"desired_meas_result was not measured after {n_attempts} attempts")
+                n_success = 0
+
+                # Permit 0.1% probability events
+                n_attempts = 0
+                max_attempts = 1000*self.n_shots
+                samples = dict()
+
+                while self._current_state is None and n_attempts < max_attempts and n_success != self.n_shots:
+                    translated_circuit.update_quantum_state(state)
+                    measure = "".join([str(state.get_classical_value(i)) for i in range(n_meas)])
+
+                    if measure == desired_meas_result:
+                        python_statevector = state.get_vector()
+                        if self._noise_model:
+                            n_success += 1
+                            sample = state.sampling(1)[0]
+                            samples[sample] = samples.get(sample, 0) + 1
+
+                    if initial_statevector is not None:
+                        state.load(initial_statevector)
+                    else:
+                        state.set_zero_state()
+                    n_attempts += 1
+
+                if n_attempts == max_attempts:
+                    raise ValueError(f"desired_meas_result was not measured after {n_attempts} attempts")
 
             if self.n_shots is not None:
-                self.all_frequencies = {measure + self._int_to_binstr(k, source_circuit.width): v / self.n_shots
+                self.all_frequencies = {desired_meas_result + self._int_to_binstr(k, source_circuit.width): v / self.n_shots
                                         for k, v in samples.items()}
 
             return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)

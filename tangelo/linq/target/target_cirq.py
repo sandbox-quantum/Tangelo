@@ -16,7 +16,7 @@ from collections import Counter
 
 import numpy as np
 
-from tangelo.linq import Circuit
+from tangelo.linq import Circuit, get_unitary_circuit_pieces
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.translator import translate_operator
@@ -110,13 +110,36 @@ class CirqSimulator(Backend):
 
         # Run shot by shot and keep track of desired_meas_result only (generally slower)
         elif desired_meas_result or (save_mid_circuit_meas and return_statevector):
-            translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model,
-                                                                                     "save_measurements": True})
-            self._current_state = None
-            indices = list(range(source_circuit.width))
-            n_attempts = 0
+
+            if self.n_shots is None:
+                self.success_probability = 1
+                if initial_statevector is not None:
+                    sv = cirq_initial_statevector
+                else:
+                    sv = np.zeros(2**source_circuit.width)
+                    sv[0] = 1
+
+                unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
+
+                for i, circ in enumerate(unitary_circuits[:-1]):
+                    translated_circuit = translate_c(circ, "cirq", output_options={"noise_model": self._noise_model,
+                                                                                   "save_measurements": True})
+                    job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
+                    sv, cprob = self.collapse_statevector_to_desired_measurement(job_sim.final_state_vector, qubits[i], int(desired_meas_result[i]), circ.width)
+                    self.success_probability *= cprob
+
+                translated_circuit = translate_c(unitary_circuits[-1], "cirq", output_options={"noise_model": self._noise_model,
+                                                                                               "save_measurements": True})
+                job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
+                self._current_state = job_sim.final_state_vector
+            else:
+                translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model,
+                                                                                         "save_measurements": True})
+                self._current_state = None
+                indices = list(range(source_circuit.width))
 
             # Permit 0.1% probability events
+            n_attempts = 0
             max_attempts = 1000 if self.n_shots is None else 1000*self.n_shots
 
             while self._current_state is None and n_attempts < max_attempts:
