@@ -237,7 +237,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             raise TypeError(f"Invalid electron localization function. Expecting a function.")
 
         # Construct orbital object.
-        self.orbitals = helpers._orbitals(self.molecule, self.mean_field, range(self.molecule.nao_nr()), self.electron_localization, False)
+        self.orbitals = helpers._orbitals(self.molecule, self.mean_field, range(self.molecule.nao_nr()), self.electron_localization, self.uhf)
 
         # TODO: remove last argument, combining fragments not supported.
         self.orb_list, self.orb_list2, _ = helpers._fragment_constructor(self.molecule, self.fragment_atoms, 0)
@@ -349,6 +349,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
             norb_high, nelec_high, onerdm_high = helpers._fragment_rdm(t_list, bath_orb, e_occupied,
                                                                        self.orbitals.number_active_electrons)
 
+            # Obtain one particle rdm for a fragment.
+            one_ele, fock, two_ele = self.orbitals.dmet_fragment_hamiltonian(bath_orb, norb_high, onerdm_high)
+
             # Construct guess orbitals for fragment SCF calculations.
             # Carry out SCF calculation for a fragment.
             if self.uhf or self.molecule.spin != 0:
@@ -443,7 +446,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # It has the same important attributes and methods to be used with
             # functions of this package.
             dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
-                fock_frag_copy, t_list, one_ele, two_ele, False,
+                fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 self.fragment_frozen_orbitals[i])
 
             if self.verbose:
@@ -494,9 +497,13 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     self.rdm_measurements[i] = self.solver_fragment_dict[i].rdm_freq_dict
 
             # Compute the fragment energy and sum up the number of electrons
-            onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals(dummy_mol, onerdm, twordm)
-            fragment_energy, onerdm = self._compute_energy_restricted(dummy_mol, onerdm_padded, twordm_padded)
-            n_electron_frag = np.trace(onerdm[: t_list[0], : t_list[0]])
+            if self.uhf:
+                fragment_energy, onerdm_a, onerdm_b = self._compute_energy_unrestricted(dummy_mol, onerdm, twordm)
+                n_electron_frag = np.trace(onerdm_a[ : t_list[0], : t_list[0]]) + np.trace(onerdm_b[ : t_list[0], : t_list[0]])
+            else:
+                onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals(dummy_mol, onerdm, twordm)
+                fragment_energy, onerdm = self._compute_energy_restricted(dummy_mol, onerdm_padded, twordm_padded)
+                n_electron_frag = np.trace(onerdm[: t_list[0], : t_list[0]])
 
             number_of_electron += n_electron_frag
 
@@ -534,7 +541,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
             dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
-                fock_frag_copy, t_list, one_ele, two_ele, False,
+                fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 self.fragment_frozen_orbitals[i])
 
             # Buiding SCF fragments and quantum circuit. Resources are then
