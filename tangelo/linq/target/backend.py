@@ -133,7 +133,7 @@ def collapse_statevector_to_desired_measurement(statevector, qubit, result, orde
         raise ValueError(f"Statevector length of {statevector_length} is not a power of 2.")
 
     if qubit > n_qubits-1:
-        raise ValueError("qubit to measure is larger than number of qubits in statevector")
+        raise ValueError("qubit index to measure is larger than number of qubits in statevector")
 
     if result not in {0, 1}:
         raise ValueError(f"Result is not valid, must be an integer of 0 or 1 but received {result}")

@@ -150,6 +150,8 @@ class QiskitSimulator(Backend):
             frequencies = self.all_frequencies
 
         # desired_meas_result without a noise model
+        # Split circuit into chunks between mid-circuit measurements. Simulate a chunk, collapse the statevector according
+        # to the desired measurement and simulate the next chunk using this new statevector as input
         elif desired_meas_result is not None:
             backend, translated_circuit = aer_backend_with_statevector(translated_circuit)
 
