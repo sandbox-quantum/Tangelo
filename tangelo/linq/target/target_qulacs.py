@@ -93,25 +93,28 @@ class QulacsSimulator(Backend):
                 frequencies = self._statevector_to_frequencies(python_statevector)
                 return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
-        # If a desired_meas_result, repeat until success if no noise model or repeat until n_shots desired_meas_results.
+        # If a desired_meas_result,
+        # If no noise model, Split circuit into chunks between mid-circuit measurements. Simulate a chunk, collapse the statevector according
+        # to the desired measurement and simulate the next chunk using this new statevector as input
+        # If noise_model, repeat until n_shots desired_meas_results.
         elif desired_meas_result is not None:
             if not self._noise_model:
-                self.success_probability = 1
+                success_probability = 1
                 unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
 
                 for i, circ in enumerate(unitary_circuits[:-1]):
-                    translated_circuit = translate_c(circ, "qulacs", output_options={"noise_model": self._noise_model,
-                                                                                     "save_measurements": True})
+                    translated_circuit = translate_c(circ, "qulacs", output_options={"save_measurements": True})
                     translated_circuit.update_quantum_state(state)
-                    sv, cprob = self.collapse_statevector_to_desired_measurement(state.get_vector(), qubits[i], int(desired_meas_result[i]), circ.width)
-                    self.success_probability *= cprob
+                    sv, cprob = self.collapse_statevector_to_desired_measurement(state.get_vector(), qubits[i], int(desired_meas_result[i]))
+                    success_probability *= cprob
                     state.load(sv)
 
-                translated_circuit = translate_c(unitary_circuits[-1], "qulacs", output_options={"noise_model": self._noise_model,
-                                                                                                 "save_measurements": True})
+                translated_circuit = translate_c(unitary_circuits[-1], "qulacs", output_options={"save_measurements": True})
                 translated_circuit.update_quantum_state(state)
                 python_statevector = state.get_vector()
                 self._current_state = python_statevector
+                source_circuit._probabilities[desired_meas_result] = success_probability
+
                 if self.n_shots is not None:
                     samples = Counter(state.sampling(self.n_shots))
                 else:

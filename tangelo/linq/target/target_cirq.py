@@ -108,11 +108,14 @@ class CirqSimulator(Backend):
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
             frequencies = self.all_frequencies
 
-        # Run shot by shot and keep track of desired_meas_result only (generally slower)
+        # Run shot by shot and keep track of desired_meas_result only if n_shots is set
+        # Otherwised, Split circuit into chunks between mid-circuit measurements. Simulate a chunk, collapse the statevector according
+        # to the desired measurement and simulate the next chunk using this new statevector as input
         elif desired_meas_result or (save_mid_circuit_meas and return_statevector):
 
+            # desired_meas_result without a noise model
             if self.n_shots is None:
-                self.success_probability = 1
+                success_probability = 1
                 if initial_statevector is not None:
                     sv = cirq_initial_statevector
                 else:
@@ -122,16 +125,16 @@ class CirqSimulator(Backend):
                 unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
 
                 for i, circ in enumerate(unitary_circuits[:-1]):
-                    translated_circuit = translate_c(circ, "cirq", output_options={"noise_model": self._noise_model,
-                                                                                   "save_measurements": True})
+                    translated_circuit = translate_c(circ, "cirq", output_options={"save_measurements": True})
                     job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
-                    sv, cprob = self.collapse_statevector_to_desired_measurement(job_sim.final_state_vector, qubits[i], int(desired_meas_result[i]), circ.width)
-                    self.success_probability *= cprob
+                    sv, cprob = self.collapse_statevector_to_desired_measurement(job_sim.final_state_vector, qubits[i], int(desired_meas_result[i]))
+                    success_probability *= cprob
+                source_circuit._probabilities[desired_meas_result] = success_probability
 
-                translated_circuit = translate_c(unitary_circuits[-1], "cirq", output_options={"noise_model": self._noise_model,
-                                                                                               "save_measurements": True})
+                translated_circuit = translate_c(unitary_circuits[-1], "cirq", output_options={"save_measurements": True})
                 job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
                 self._current_state = job_sim.final_state_vector
+            # Either desired_meas_result with noise_model. Or 1 shot save_mid_circuit_meas
             else:
                 translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model,
                                                                                          "save_measurements": True})
@@ -142,6 +145,9 @@ class CirqSimulator(Backend):
             n_attempts = 0
             max_attempts = 1000 if self.n_shots is None else 1000*self.n_shots
 
+            # Use density matrix simulator until success if noise_model.
+            # TODO: implement collapse operations for density matrix simulation.
+            # Loop also used for 1 shot if no desired_meas_result and save_mid_circuit_meas.
             while self._current_state is None and n_attempts < max_attempts:
                 job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
                 measure = "".join([str(job_sim.measurements[str(i)][0]) for i in range(n_meas)])

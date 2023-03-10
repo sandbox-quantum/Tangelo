@@ -303,12 +303,18 @@ class TestCircuits(unittest.TestCase):
 
     def test_unitary_pieces(self):
         """ Test the splitting of circuit into unitary pieces between measurements."""
-        test_circuit = Circuit([Gate("X", 0), Gate("MEASURE", 1), Gate("CNOT", 0, 1), Gate("MEASURE", 0), Gate("MEASURE", 1)])
-        circuits = [Circuit([Gate("X", 0)], n_qubits=2),
-                    Circuit([Gate("CNOT", 0, 1)], n_qubits=2),
+        test_circuit = Circuit([Gate("H", 0), Gate("H", 1), Gate("MEASURE", 0),
+                                Gate("X", 1), Gate("MEASURE", 1),
+                                Gate("H", 0), Gate("H", 1), Gate("CNOT", control=0, target=1), Gate("MEASURE", 0),
+                                Gate("MEASURE", 1),
+                                Gate("H", 0), Gate("MEASURE", 1)])
+        circuits = [Circuit([Gate("H", 0), Gate("H", 1)], n_qubits=2),
+                    Circuit([Gate("X", 1)], n_qubits=2),
+                    Circuit([Gate("H", 0), Gate("H", 1), Gate("CNOT", control=0, target=1)], n_qubits=2),
                     Circuit(n_qubits=2),
+                    Circuit([Gate("H", 0)], n_qubits=2),
                     Circuit(n_qubits=2)]
-        measure_qs = [1, 0, 1]
+        measure_qs = [0, 1, 0, 1, 1]
         split_circuits, qubits_to_measure = get_unitary_circuit_pieces(test_circuit)
 
         for i, circ in enumerate(circuits[:-1]):
