@@ -77,7 +77,7 @@ class CirqSimulator(Backend):
             cirq_simulator = self.cirq.Simulator(dtype=np.complex128)
 
         # If requested, set initial state
-        cirq_initial_statevector = initial_statevector if initial_statevector is not None else 0
+        cirq_initial_statevector = np.asarray(initial_statevector, dtype=complex) if initial_statevector is not None else 0
 
         # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
         if (self._noise_model or source_circuit.is_mixed_state) and not save_mid_circuit_meas:
@@ -125,9 +125,12 @@ class CirqSimulator(Backend):
                 unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
 
                 for i, circ in enumerate(unitary_circuits[:-1]):
-                    translated_circuit = translate_c(circ, "cirq", output_options={"save_measurements": True})
-                    job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
-                    sv, cprob = self.collapse_statevector_to_desired_measurement(job_sim.final_state_vector, qubits[i], int(desired_meas_result[i]))
+                    if circ.size > 0:
+                        translated_circuit = translate_c(circ, "cirq", output_options={"save_measurements": True})
+                        job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
+                        sv, cprob = self.collapse_statevector_to_desired_measurement(job_sim.final_state_vector, qubits[i], int(desired_meas_result[i]))
+                    else:
+                        sv, cprob = self.collapse_statevector_to_desired_measurement(sv, qubits[i], int(desired_meas_result[i]))
                     success_probability *= cprob
                 source_circuit._probabilities[desired_meas_result] = success_probability
 

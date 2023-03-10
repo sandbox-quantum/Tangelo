@@ -155,7 +155,7 @@ def collapse_statevector_to_desired_measurement(statevector, qubit, result, orde
 
     if sqrt_probability < 1.e-14:
         raise ValueError("Probability of desired measurement result is zero.")
-    sv_selected /= sqrt_probability
+    sv_selected = sv_selected/sqrt_probability  # casting issue if inplace for probability 1
 
     return sv_selected, sqrt_probability**2
 

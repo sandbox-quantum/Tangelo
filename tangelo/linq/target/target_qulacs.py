@@ -103,8 +103,9 @@ class QulacsSimulator(Backend):
                 unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
 
                 for i, circ in enumerate(unitary_circuits[:-1]):
-                    translated_circuit = translate_c(circ, "qulacs", output_options={"save_measurements": True})
-                    translated_circuit.update_quantum_state(state)
+                    if circ.size > 0:
+                        translated_circuit = translate_c(circ, "qulacs", output_options={"save_measurements": True})
+                        translated_circuit.update_quantum_state(state)
                     sv, cprob = self.collapse_statevector_to_desired_measurement(state.get_vector(), qubits[i], int(desired_meas_result[i]))
                     success_probability *= cprob
                     state.load(sv)
