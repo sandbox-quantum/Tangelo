@@ -70,8 +70,12 @@ class SympySimulator(Backend):
         python_statevector = self.quantum.qubit.qubit_to_matrix(state)
 
         measurements = self.quantum.qubit.measure_all(state)
-        frequencies = {"".join(str(bit) for bit in reversed(vec.qubit_values)): self.sympy.simplify(prob)
-            for vec, prob in measurements}
+
+        frequencies = dict()
+        for vec, prob in measurements:
+            prob = self.sympy.simplify(prob, tolerance=1e-4)
+            bistring = "".join(str(bit) for bit in reversed(vec.qubit_values))
+            frequencies[bistring] = prob
 
         return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 

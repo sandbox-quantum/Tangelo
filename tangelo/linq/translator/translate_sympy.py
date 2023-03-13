@@ -28,7 +28,16 @@ from tangelo.linq.helpers import pauli_of_to_string
 
 
 def rx_gate(target, theta):
-    """test"""
+    """Implementation of the RX gate with a unitary matrix.
+
+    Args:
+        target (int): Target qubit.
+        theta (float): Rotation angle.
+
+    Returns:
+        sympy.physics.quantum.gate.UGate: Self-explanatory.
+    """
+
     from sympy import ImmutableMatrix, sin, cos, I
     from sympy.physics.quantum.gate import UGate
 
@@ -39,7 +48,16 @@ def rx_gate(target, theta):
     return UGate(target, rx_matrix)
 
 def ry_gate(target, theta):
-    """test"""
+    """Implementation of the RY gate with a unitary matrix.
+
+    Args:
+        target (int): Target qubit.
+        theta (float): Rotation angle.
+
+    Returns:
+        sympy.physics.quantum.gate.UGate: Self-explanatory.
+    """
+
     from sympy import ImmutableMatrix, sin, cos
     from sympy.physics.quantum.gate import UGate
 
@@ -51,13 +69,59 @@ def ry_gate(target, theta):
 
 
 def rz_gate(target, theta):
-    """test"""
+    """Implementation of the RZ gate with a unitary matrix.
+
+    Args:
+        target (int): Target qubit.
+        theta (float): Rotation angle.
+
+    Returns:
+        sympy.physics.quantum.gate.UGate: Self-explanatory.
+    """
+
     from sympy import ImmutableMatrix, I, exp
     from sympy.physics.quantum.gate import UGate
 
     rz_matrix = ImmutableMatrix([[exp(- I * theta / 2), 0], [0, exp(I * theta / 2)]])
 
     return UGate(target, rz_matrix)
+
+
+def p_gate(target, theta):
+    """Implementation of the PHASE gate with a unitary matrix.
+
+    Args:
+        target (int): Target qubit.
+        theta (float): Phase parameter.
+
+    Returns:
+        sympy.physics.quantum.gate.UGate: Self-explanatory.
+    """
+
+    from sympy import ImmutableMatrix, I, exp
+    from sympy.physics.quantum.gate import UGate
+
+    p_matrix = ImmutableMatrix([[1, 0], [0, exp(I * theta)]])
+
+    return UGate(target, p_matrix)
+
+
+def controlled_gate(gate_function):
+    """Change a one-qubit gate to a controlled gate.
+
+    Args:
+        gate_function (sympy.physics.quantum.gate): Class for a specific gate.
+
+    Returns:
+        function: Function wrapping a gate with CGate.
+    """
+
+    from sympy.physics.quantum.gate import CGate
+
+    def cgate(control, target, *args, **kwargs):
+        return CGate(control, gate_function(target, *args, **kwargs))
+
+    return cgate
 
 
 def get_sympy_gates():
@@ -71,14 +135,25 @@ def get_sympy_gates():
     GATE_SYMPY["X"] = SYMPYGate.XGate
     GATE_SYMPY["Y"] = SYMPYGate.YGate
     GATE_SYMPY["Z"] = SYMPYGate.ZGate
-    GATE_SYMPY["CX"] = SYMPYGate.CNotGate
-    GATE_SYMPY["CNOT"] = SYMPYGate.CNotGate
     GATE_SYMPY["S"] = SYMPYGate.PhaseGate
     GATE_SYMPY["T"] = SYMPYGate.TGate
+    GATE_SYMPY["PHASE"] = p_gate
     GATE_SYMPY["SWAP"] = SYMPYGate.SwapGate
     GATE_SYMPY["RX"] = rx_gate
     GATE_SYMPY["RY"] = ry_gate
     GATE_SYMPY["RZ"] = rz_gate
+    GATE_SYMPY["RX"] = rx_gate
+    GATE_SYMPY["CH"] = controlled_gate(SYMPYGate.HadamardGate)
+    GATE_SYMPY["CNOT"] = SYMPYGate.CNotGate
+    GATE_SYMPY["CX"] = SYMPYGate.CNotGate
+    GATE_SYMPY["CY"] = controlled_gate(SYMPYGate.YGate)
+    GATE_SYMPY["CZ"] = controlled_gate(SYMPYGate.ZGate)
+    GATE_SYMPY["CRX"] = controlled_gate(rx_gate)
+    GATE_SYMPY["CRY"] = controlled_gate(ry_gate)
+    GATE_SYMPY["CRZ"] = controlled_gate(rz_gate)
+    GATE_SYMPY["CS"] = controlled_gate(SYMPYGate.PhaseGate)
+    GATE_SYMPY["CT"] = controlled_gate(SYMPYGate.TGate)
+    GATE_SYMPY["CPHASE"] = controlled_gate(p_gate)
 
     return GATE_SYMPY
 
@@ -107,29 +182,23 @@ def translate_c_to_sympy(source_circuit):
         # If the parameter is a string, we use it as a variable.
         if gate.parameter and isinstance(gate.parameter, str):
             parameter = symbols(gate.parameter, real=True)
-        # If it is a float, we simplify it to a factor * pi.
-        elif isinstance(gate.parameter, float):
-            parameter = gate.parameter / pi
-            parameter = nsimplify(parameter, tolerance=0.01) * pi
+        elif isinstance(gate.parameter, (complex, float, int)):
+            parameter = gate.parameter
 
         if gate.name in {"H", "X", "Y", "Z"}:
             target_circuit *= GATE_SYMPY[gate.name](gate.target[0])
         elif gate.name in {"T", "S"} and gate.parameter == "":
            target_circuit *= GATE_SYMPY[gate.name](gate.target[0])
-        elif gate.name in {"PHASE"} and parameter == -pi/2:
-           target_circuit *= Dagger(GATE_SYMPY["S"](gate.target[0]))
-        elif gate.name in {"PHASE"} and parameter == -pi/4:
-           target_circuit *= Dagger(GATE_SYMPY["T"](gate.target[0]))
+        elif gate.name in {"PHASE"}:
+           target_circuit *= GATE_SYMPY[gate.name](gate.target[0], parameter)
         elif gate.name in {"RX", "RY", "RZ"}:
             target_circuit *= GATE_SYMPY[gate.name](gate.target[0], parameter)
-        elif gate.name in {"CNOT"}:
+        elif gate.name in {"CNOT", "CH", "CX", "CY", "CZ", "CS", "CT"}:
             target_circuit *= GATE_SYMPY[gate.name](gate.control[0], gate.target[0])
         elif gate.name in {"SWAP"}:
             target_circuit *= GATE_SYMPY[gate.name](gate.target[0], gate.target[1])
-        #elif gate.name in {"CRZ", "CRZ", "CRZ", "CPHASE"}:
-        #    (GATE_SYMPY[gate.name][0])(target_circuit, gate.control[0], gate.target[0], gate.parameter/2.)
-        #elif gate.name in {"CSWAP"}:
-        #    (GATE_SYMPY[gate.name])(target_circuit, gate.control[0], gate.target[0], gate.target[1])
+        elif gate.name in {"CRX", "CRY", "CRZ", "CPHASE"}:
+            target_circuit *= GATE_SYMPY[gate.name](gate.control[0], gate.target[0], parameter)
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend SYMPY")
 
