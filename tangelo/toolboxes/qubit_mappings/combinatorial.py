@@ -35,10 +35,8 @@ from copy import deepcopy
 
 import numpy as np
 from scipy.special import comb
-from openfermion.linalg import qubit_operator_sparse
 from openfermion.transforms import chemist_ordered
 
-from tangelo.linq.helpers.circuits.measurement_basis import pauli_string_to_of
 from tangelo.toolboxes.operators import QubitOperator
 
 
@@ -84,13 +82,12 @@ def combinatorial(ferm_op, n_modes, n_electrons):
             unique_int = (int_alpha * n_choose_alpha) + int_beta
             basis_set[sigma] = unique_int
 
-    # Compact Hamiltonian initialization to 2^n * 2^n matrices.
-    h_c = np.zeros((2**n, 2**n), dtype=complex)
-
+    qu_op = QubitOperator()
     # Check what is the effect of every term.
     for term, coeff in ferm_op_chemist.terms.items():
         # Core term.
         if not term:
+            qu_op += coeff
             continue
 
         # Get the effect of each operator to the basis set items.
@@ -106,9 +103,38 @@ def combinatorial(ferm_op, n_modes, n_electrons):
                 continue
 
             new_unique_int = basis_set[new_state]
-            h_c[unique_int][new_unique_int] += phase * coeff
+            qu_op += element_to_qubitop(n, unique_int, new_unique_int, phase*coeff)
 
-    return h_to_qubitop(h_c, n) + ferm_op_chemist.constant
+    return qu_op
+
+
+def element_to_qubitop(n_qubits, i, j, coeff=1.):
+    """Map a matrix element to a qubit operator.
+
+    Args:
+        n_qubits (int): Self-explanatory.
+        i (int): i row of the matrix element.
+        j (int): j column of the matrix element.
+        coeff (complex): Value at position i,j in the matrix.
+    """
+
+    # Must add 2 to the padding because of the "0b" prefix.
+    bin_i = format(i, f"#0{n_qubits+2}b")
+    bin_j = format(j, f"#0{n_qubits+2}b")
+
+    qu_op = QubitOperator("", coeff)
+    for qubit, (bi, bj) in enumerate(zip(bin_i[2:][::-1], bin_j[2:][::-1])):
+        if bi == "0" and bj == "0":
+            qu_op *= 0.5 + QubitOperator(f"Z{qubit}", 0.5)
+        elif bi == "0" and bj == "1":
+            qu_op *= QubitOperator(f"X{qubit}", 0.5) + QubitOperator(f"Y{qubit}", 0.5j)
+        elif bi == "1" and bj == "0":
+            qu_op *= QubitOperator(f"X{qubit}", 0.5) + QubitOperator(f"Y{qubit}", -0.5j)
+        # The remaining case is 11.
+        else:
+            qu_op *= 0.5 + QubitOperator(f"Z{qubit}", -0.5)
+
+    return qu_op
 
 
 def basis(M, N):
@@ -203,33 +229,3 @@ def one_body_op_on_state(op, state_in):
         d = 0
 
     return tuple(sorted(state)), (-1)**d
-
-
-def h_to_qubitop(h_c, n):
-    """Function to map a matrix of 2^n * 2^n into a sum of tensor
-    product of Pauli operators (max n elements per product, i.e. maximum number
-    of qubits is n).
-
-    Args:
-        h_c (array of im): Hamiltonian matrix.
-
-    Returns:
-        QubitOperator: Self-explanatory.
-    """
-
-    qu_op = QubitOperator()
-
-    # Go through every combinations and get the trace for the Pauli operator.
-    # The trace is then taken as the coefficient for this operator.
-    for pauli_tensor in itertools.product("IXYZ", repeat=n):
-        pauli_word = "".join(pauli_tensor)
-        term = pauli_string_to_of(pauli_word)
-
-        term_op = QubitOperator(term, 1.)
-
-        c_j = np.trace(h_c.conj().T @ qubit_operator_sparse(term_op, n_qubits=n).todense())
-        qu_op += QubitOperator(term, c_j)
-
-    # Normalization.
-    qu_op /= np.sqrt(4**n)
-    return qu_op
