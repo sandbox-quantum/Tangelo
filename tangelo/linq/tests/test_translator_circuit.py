@@ -501,6 +501,23 @@ class TranslateCircuitTest(unittest.TestCase):
         # Compare statevectors
         np.testing.assert_array_almost_equal(v1, reference_big_lsq, decimal=6)
 
+    @unittest.skipIf("sympy" not in installed_backends, "Test Skipped: Backend not available \n")
+    def test_to_sympy(self):
+        """Translate sympy format to abstract format."""
+
+        from sympy.physics.quantum.gate import HadamardGate, XGate, YGate, ZGate, CNotGate
+
+        # Equivalent native sympy circuit.
+        ref_circ = ZGate(3) * YGate(1) * XGate(0) * CNotGate(0, 1) * HadamardGate(2)
+
+        gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("X", 0), Gate("Y", 1), Gate("Z", 3)]
+        abs_circ = Circuit(gates)
+
+        # Generate the sympy circuit by translating from the abstract one.
+        translated_circuit = translate_c(abs_circ, "sympy")
+
+        self.assertEqual(translated_circuit, ref_circ)
+
 
 if __name__ == "__main__":
     unittest.main()

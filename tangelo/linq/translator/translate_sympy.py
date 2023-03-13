@@ -22,8 +22,6 @@ to account for:
     may also differ.
 """
 
-from math import pi
-
 from tangelo.linq.helpers import pauli_of_to_string
 
 
@@ -46,6 +44,7 @@ def rx_gate(target, theta):
     rx_matrix = ImmutableMatrix([[cos_term, sin_term], [sin_term, cos_term]])
 
     return UGate(target, rx_matrix)
+
 
 def ry_gate(target, theta):
     """Implementation of the RY gate with a unitary matrix.
@@ -181,24 +180,22 @@ def translate_c_to_sympy(source_circuit):
     for gate in reversed(source_circuit._gates):
         # If the parameter is a string, we use it as a variable.
         if gate.parameter and isinstance(gate.parameter, str):
-            parameter = symbols(gate.parameter, real=True)
-        elif isinstance(gate.parameter, (complex, float, int)):
-            parameter = gate.parameter
+            gate.parameter = symbols(gate.parameter, real=True)
 
         if gate.name in {"H", "X", "Y", "Z"}:
             target_circuit *= GATE_SYMPY[gate.name](gate.target[0])
         elif gate.name in {"T", "S"} and gate.parameter == "":
-           target_circuit *= GATE_SYMPY[gate.name](gate.target[0])
+            target_circuit *= GATE_SYMPY[gate.name](gate.target[0])
         elif gate.name in {"PHASE"}:
-           target_circuit *= GATE_SYMPY[gate.name](gate.target[0], parameter)
+            target_circuit *= GATE_SYMPY[gate.name](gate.target[0], gate.parameter)
         elif gate.name in {"RX", "RY", "RZ"}:
-            target_circuit *= GATE_SYMPY[gate.name](gate.target[0], parameter)
+            target_circuit *= GATE_SYMPY[gate.name](gate.target[0], gate.parameter)
         elif gate.name in {"CNOT", "CH", "CX", "CY", "CZ", "CS", "CT"}:
             target_circuit *= GATE_SYMPY[gate.name](gate.control[0], gate.target[0])
         elif gate.name in {"SWAP"}:
             target_circuit *= GATE_SYMPY[gate.name](gate.target[0], gate.target[1])
         elif gate.name in {"CRX", "CRY", "CRZ", "CPHASE"}:
-            target_circuit *= GATE_SYMPY[gate.name](gate.control[0], gate.target[0], parameter)
+            target_circuit *= GATE_SYMPY[gate.name](gate.control[0], gate.target[0], gate.parameter)
         else:
             raise ValueError(f"Gate '{gate.name}' not supported on backend SYMPY")
 

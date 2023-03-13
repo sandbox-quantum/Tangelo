@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import numpy as np
 
 from tangelo.linq import Circuit
@@ -24,10 +23,7 @@ from tangelo.linq.translator import translate_operator
 class SympySimulator(Backend):
 
     def __init__(self, n_shots=None, noise_model=None):
-        import sympy
-        super().__init__(n_shots=n_shots, noise_model=noise_model)
-        self.sympy = sympy
-        self.quantum = sympy.physics.quantum
+        super().__init__(n_shots, noise_model)
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
         """Perform state preparation corresponding to the input circuit on the
@@ -52,28 +48,33 @@ class SympySimulator(Backend):
                 by the user (if not, set to None).
         """
 
+        from sympy import simplify
+        from sympy.physics.quantum import qapply
+        from sympy.physics.quantum.qubit import Qubit, matrix_to_qubit, \
+            qubit_to_matrix, measure_all
+
         translated_circuit = translate_c(source_circuit, "sympy")
 
         # Transform the initial_statevector if it is provided.
         if initial_statevector is None:
-            python_statevector = self.quantum.qubit.Qubit("0"*(source_circuit.width))
-        elif isinstance(initial_statevector, self.quantum.qubit.Qubit):
+            python_statevector = Qubit("0"*(source_circuit.width))
+        elif isinstance(initial_statevector, Qubit):
             python_statevector = initial_statevector
         elif isinstance(initial_statevector, (np.ndarray, np.matrix)):
-            python_statevector = self.quantum.qubit.matrix_to_qubit(initial_statevector)
+            python_statevector = matrix_to_qubit(initial_statevector)
         else:
             raise ValueError(f"The {type(initial_statevector)} type for initial_statevector is not supported.")
 
         # Deterministic circuit, run once.
-        state = self.quantum.qapply(translated_circuit * python_statevector)
+        state = qapply(translated_circuit * python_statevector)
         self._current_state = state
-        python_statevector = self.quantum.qubit.qubit_to_matrix(state)
+        python_statevector = qubit_to_matrix(state)
 
-        measurements = self.quantum.qubit.measure_all(state)
+        measurements = measure_all(state)
 
         frequencies = dict()
         for vec, prob in measurements:
-            prob = self.sympy.simplify(prob, tolerance=1e-4)
+            prob = simplify(prob, tolerance=1e-4)
             bistring = "".join(str(bit) for bit in reversed(vec.qubit_values))
             frequencies[bistring] = prob
 
@@ -96,11 +97,14 @@ class SympySimulator(Backend):
             sympy.core.add.Add: Eigenvalue represented as a symnbolic sum.
         """
 
+        from sympy import simplify
+        from sympy.physics.quantum import qapply, Dagger
+
         prepared_state = self._current_state if prepared_state is None else prepared_state
         operator = translate_operator(qubit_operator, source="tangelo", target="sympy", n_qubits=n_qubits)
-        eigenvalue = self.quantum.qapply(self.quantum.Dagger(prepared_state) * operator * prepared_state)
+        eigenvalue = qapply(Dagger(prepared_state) * operator * prepared_state)
 
-        return eigenvalue
+        return simplify(eigenvalue)
 
     @staticmethod
     def backend_info():
