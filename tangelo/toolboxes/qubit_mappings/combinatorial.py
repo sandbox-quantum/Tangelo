@@ -116,6 +116,9 @@ def element_to_qubitop(n_qubits, i, j, coeff=1.):
         i (int): i row of the matrix element.
         j (int): j column of the matrix element.
         coeff (complex): Value at position i,j in the matrix.
+
+    Returns:
+        QubitOperator: Self-explanatory.
     """
 
     # Must add 2 to the padding because of the "0b" prefix.
