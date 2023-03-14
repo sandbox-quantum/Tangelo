@@ -148,9 +148,9 @@ def collapse_statevector_to_desired_measurement(statevector, qubit, result, orde
     sv_selected = sv_selected.flatten()
 
     sqrt_probability = np.linalg.norm(sv_selected)
-
     if sqrt_probability < 1.e-14:
         raise ValueError(f"Probability of desired measurement={0} for qubit={qubit} is zero.")
+
     sv_selected = sv_selected/sqrt_probability  # casting issue if inplace for probability 1
 
     return sv_selected, sqrt_probability**2
