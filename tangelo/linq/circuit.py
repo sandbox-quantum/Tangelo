@@ -148,7 +148,14 @@ class Circuit:
 
     @property
     def success_probabilities(self):
-        """Returns the dictionary of probabilities populated by simulating with a desired_meas_result."""
+        """Returns the dictionary of probabilities populated by simulating with different desired_meas_result.
+
+        The keys of the dictionary are bit strings, corresponding to the desired outcomes in the order
+        the measurement gates arise in the circuit.
+
+        Each bit string must be simulated using a backend with n_shots=None and desired_meas_result=bitstring
+        in order to populate the corresponding probability.
+        """
         if not self.is_mixed_state:
             return {"": 1}
         else:
@@ -471,9 +478,9 @@ def get_unitary_circuit_pieces(circuit: Circuit) -> Tuple[List[Circuit], List[in
         if g.name != "MEASURE":
             gates += [Gate(g.name, g.target, g.control, g.parameter, g.is_variational)]
         else:
-            circuits += [Circuit(gates.copy(), n_qubits=n_qubits)]
+            circuits += [Circuit(copy.deepcopy(gates), n_qubits=n_qubits)]
             measure_qubits += [g.target[0]]
             gates = list()
-    circuits += [Circuit(gates.copy(), n_qubits=n_qubits)]
+    circuits += [Circuit(copy.deepcopy(gates), n_qubits=n_qubits)]
 
     return circuits, measure_qubits

@@ -117,29 +117,25 @@ def collapse_statevector_to_desired_measurement(statevector, qubit, result, orde
 
     Args:
         statevector (array): The statevector for which the collapse to the desired qubit value is performed.
-        qubit (int): Index if target qubit to collapse in the desired classical state.
+        qubit (int): Index of target qubit to collapse in the desired classical state.
         result (int): 0 or 1.
         order (string): The qubit ordering of the statevector, lsq_first or msq_first.
 
     Returns:
-        array: the collapsed and renormalized statevector
-        float: the probability this occured
+        array: The collapsed and renormalized statevector.
+        float: The probability for the desired measurement to occur.
     """
 
-    statevector_length = len(statevector)
-    n_qubits = round(math.log2(statevector_length))
+    n_qubits = round(math.log2(len(statevector)))
 
-    if 2**n_qubits != statevector_length:
-        raise ValueError(f"Statevector length of {statevector_length} is not a power of 2.")
+    if 2**n_qubits != len(statevector):
+        raise ValueError(f"Statevector length of {len(statevector)} is not a power of 2.")
 
     if qubit > n_qubits-1:
         raise ValueError("qubit index to measure is larger than number of qubits in statevector")
 
     if result not in {0, 1}:
         raise ValueError(f"Result is not valid, must be an integer of 0 or 1 but received {result}")
-
-    if len(statevector) != 2**n_qubits:
-        raise ValueError("Statevector length is not 2**n_qubits")
 
     if order.lower() not in {"lsq_first", "msq_first"}:
         raise ValueError("Order must be lsq_first or msq_first")
@@ -154,7 +150,7 @@ def collapse_statevector_to_desired_measurement(statevector, qubit, result, orde
     sqrt_probability = np.linalg.norm(sv_selected)
 
     if sqrt_probability < 1.e-14:
-        raise ValueError("Probability of desired measurement result is zero.")
+        raise ValueError(f"Probability of desired measurement={0} for qubit={qubit} is zero.")
     sv_selected = sv_selected/sqrt_probability  # casting issue if inplace for probability 1
 
     return sv_selected, sqrt_probability**2
@@ -699,23 +695,20 @@ class Backend(abc.ABC):
 
         return state_binstr if use_ordering and (self.statevector_order == "lsq_first") else state_binstr[::-1]
 
-    def collapse_statevector_to_desired_measurement(self, statevector, qubit, result, order=None):
+    def collapse_statevector_to_desired_measurement(self, statevector, qubit, result):
         """Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.
 
         Args:
             statevector (array): The statevector for which the collapse to the desired qubit value is performed.
             qubit (int): The index of the qubit to collapse to the classical result.
             result (string): "0" or "1".
-            order (str): If not set, ordering of the backend is used.
 
         Returns:
             array: the collapsed and renormalized statevector
             float: the probability this occured
         """
-        if order is None:
-            order = self.backend_info()['statevector_order']
 
-        return collapse_statevector_to_desired_measurement(statevector, qubit, result, order)
+        return collapse_statevector_to_desired_measurement(statevector, qubit, result, self.backend_info()['statevector_order'])
 
     @staticmethod
     @abc.abstractmethod
