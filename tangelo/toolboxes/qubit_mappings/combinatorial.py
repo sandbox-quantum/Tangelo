@@ -70,8 +70,7 @@ def combinatorial(ferm_op, n_modes, n_electrons):
     n_choose_alpha = comb(n_modes, n_alpha, exact=True)
     n = ceil(np.log2(n_choose_alpha * comb(n_modes, n_beta, exact=True)))
 
-    # Construct the basis set where each configutation is mapped to a unique
-    # integer.
+    # Construct the basis set where each configutation is mapped to a unique integer.
     basis_set_alpha = basis(n_modes, n_alpha)
     basis_set_beta = basis(n_modes, n_beta)
     basis_set = OrderedDict()
@@ -112,7 +111,7 @@ def element_to_qubitop(n_qubits, i, j, coeff=1.):
     """Map a matrix element to a qubit operator.
 
     Args:
-        n_qubits (int): Self-explanatory.
+        n_qubits (int): The number of qubits that the whole matrix represents.
         i (int): i row of the matrix element.
         j (int): j column of the matrix element.
         coeff (complex): Value at position i,j in the matrix.
@@ -127,11 +126,11 @@ def element_to_qubitop(n_qubits, i, j, coeff=1.):
 
     qu_op = QubitOperator("", coeff)
     for qubit, (bi, bj) in enumerate(zip(bin_i[2:][::-1], bin_j[2:][::-1])):
-        if bi == "0" and bj == "0":
+        if (bi, bj) ==  ("0", "0"):
             qu_op *= 0.5 + QubitOperator(f"Z{qubit}", 0.5)
-        elif bi == "0" and bj == "1":
+        elif (bi, bj) ==  ("0", "1"):
             qu_op *= QubitOperator(f"X{qubit}", 0.5) + QubitOperator(f"Y{qubit}", 0.5j)
-        elif bi == "1" and bj == "0":
+        elif (bi, bj) ==  ("1", "0"):
             qu_op *= QubitOperator(f"X{qubit}", 0.5) + QubitOperator(f"Y{qubit}", -0.5j)
         # The remaining case is 11.
         else:
@@ -186,7 +185,7 @@ def one_body_op_on_state(op, state_in):
 
     Args:
         op (tuple): Operator, written as ((qubit_i, 1), (qubit_j, 0)), where 0/1
-            means anhilation/creation on the specified qubit.
+            means annihilation/creation on the specified qubit.
         state_in (tuple): Electronic configuration described as tuple of
             spinorbital indices where there is an electron.
 
@@ -196,24 +195,24 @@ def one_body_op_on_state(op, state_in):
         int: Phase shift. Can be -1 or 1.
     """
 
-    assert len(op) == 2, f"Operator {op} has length {len(op)}, a length of 2 is expected."
+    assert len(op) == 2, f"Operator {op} has length {len(op)}, but a length of 2 is expected."
 
     # Copy the state, then transform it into a list (it will be mutated).
     state = deepcopy(state_in)
     state = list(state)
 
-    # Unpack the creation and anhilation operators.
-    creation_op, anhilation_op = op
+    # Unpack the creation and annihilation operators.
+    creation_op, annihilation_op = op
     creation_qubit, creation_dagger = creation_op
-    anhilation_qubit, anhilation_dagger = anhilation_op
+    annihilation_qubit, annihilation_dagger = annihilation_op
 
     # Confirm dagger operator to the left.
-    assert creation_dagger == 1
-    assert anhilation_dagger == 0
+    assert creation_dagger == 1, f"The left operator in {op} is not a creation operator."
+    assert annihilation_dagger == 0, f"The right operator in {op} is not an annihilation operator."
 
-    # Anhilation logics on the state.
-    if anhilation_qubit in state:
-        state.remove(anhilation_qubit)
+    # annihilation logics on the state.
+    if annihilation_qubit in state:
+        state.remove(annihilation_qubit)
     else:
         return (), 0
 
@@ -224,10 +223,10 @@ def one_body_op_on_state(op, state_in):
         return (), 0
 
     # Compute the phase shift.
-    if anhilation_qubit > creation_qubit:
-        d = sum(creation_qubit < i < anhilation_qubit for i in state)
-    elif anhilation_qubit < creation_qubit:
-        d = sum(anhilation_qubit < i < creation_qubit for i in state)
+    if annihilation_qubit > creation_qubit:
+        d = sum(creation_qubit < i < annihilation_qubit for i in state)
+    elif annihilation_qubit < creation_qubit:
+        d = sum(annihilation_qubit < i < creation_qubit for i in state)
     else:
         d = 0
 
