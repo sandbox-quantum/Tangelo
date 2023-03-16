@@ -16,7 +16,7 @@ from collections import Counter
 
 import numpy as np
 
-from tangelo.linq import Circuit
+from tangelo.linq import Circuit, get_unitary_circuit_pieces
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.translator import translate_operator
@@ -77,7 +77,7 @@ class CirqSimulator(Backend):
             cirq_simulator = self.cirq.Simulator(dtype=np.complex128)
 
         # If requested, set initial state
-        cirq_initial_statevector = initial_statevector if initial_statevector is not None else 0
+        cirq_initial_statevector = np.asarray(initial_statevector, dtype=complex) if initial_statevector is not None else 0
 
         # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
         if (self._noise_model or source_circuit.is_mixed_state) and not save_mid_circuit_meas:
@@ -108,17 +108,49 @@ class CirqSimulator(Backend):
             self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
             frequencies = self.all_frequencies
 
-        # Run shot by shot and keep track of desired_meas_result only (generally slower)
+        # Run shot by shot and keep track of desired_meas_result only if n_shots is set
+        # Otherwised, Split circuit into chunks between mid-circuit measurements. Simulate a chunk, collapse the statevector according
+        # to the desired measurement and simulate the next chunk using this new statevector as input
         elif desired_meas_result or (save_mid_circuit_meas and return_statevector):
-            translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model,
-                                                                                     "save_measurements": True})
-            self._current_state = None
-            indices = list(range(source_circuit.width))
-            n_attempts = 0
+
+            # desired_meas_result without a noise model
+            if self.n_shots is None:
+                success_probability = 1
+                if initial_statevector is not None:
+                    sv = cirq_initial_statevector
+                else:
+                    sv = np.zeros(2**source_circuit.width)
+                    sv[0] = 1
+
+                unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
+
+                for i, circ in enumerate(unitary_circuits[:-1]):
+                    if circ.size > 0:
+                        translated_circuit = translate_c(circ, "cirq", output_options={"save_measurements": True})
+                        job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
+                        sv, cprob = self.collapse_statevector_to_desired_measurement(job_sim.final_state_vector, qubits[i], int(desired_meas_result[i]))
+                    else:
+                        sv, cprob = self.collapse_statevector_to_desired_measurement(sv, qubits[i], int(desired_meas_result[i]))
+                    success_probability *= cprob
+                source_circuit._probabilities[desired_meas_result] = success_probability
+
+                translated_circuit = translate_c(unitary_circuits[-1], "cirq", output_options={"save_measurements": True})
+                job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
+                self._current_state = job_sim.final_state_vector
+            # Either desired_meas_result with noise_model. Or 1 shot save_mid_circuit_meas
+            else:
+                translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model,
+                                                                                         "save_measurements": True})
+                self._current_state = None
+                indices = list(range(source_circuit.width))
 
             # Permit 0.1% probability events
+            n_attempts = 0
             max_attempts = 1000 if self.n_shots is None else 1000*self.n_shots
 
+            # Use density matrix simulator until success if noise_model.
+            # TODO: implement collapse operations for density matrix simulation.
+            # Loop also used for 1 shot if no desired_meas_result and save_mid_circuit_meas.
             while self._current_state is None and n_attempts < max_attempts:
                 job_sim = cirq_simulator.simulate(translated_circuit, initial_state=cirq_initial_statevector)
                 measure = "".join([str(job_sim.measurements[str(i)][0]) for i in range(n_meas)])
