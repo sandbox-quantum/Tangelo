@@ -126,11 +126,11 @@ def element_to_qubitop(n_qubits, i, j, coeff=1.):
 
     qu_op = QubitOperator("", coeff)
     for qubit, (bi, bj) in enumerate(zip(bin_i[2:][::-1], bin_j[2:][::-1])):
-        if (bi, bj) ==  ("0", "0"):
+        if (bi, bj) == ("0", "0"):
             qu_op *= 0.5 + QubitOperator(f"Z{qubit}", 0.5)
-        elif (bi, bj) ==  ("0", "1"):
+        elif (bi, bj) == ("0", "1"):
             qu_op *= QubitOperator(f"X{qubit}", 0.5) + QubitOperator(f"Y{qubit}", 0.5j)
-        elif (bi, bj) ==  ("1", "0"):
+        elif (bi, bj) == ("1", "0"):
             qu_op *= QubitOperator(f"X{qubit}", 0.5) + QubitOperator(f"Y{qubit}", -0.5j)
         # The remaining case is 11.
         else:
