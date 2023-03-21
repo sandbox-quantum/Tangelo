@@ -165,13 +165,15 @@ class Gate(dict):
         """
         if self.name not in INVERTIBLE_GATES:
             raise AttributeError(f"{self.name} is not an invertible gate")
+
+        if self.name in {"T", "S"}:
+            new_parameter = -pi / 2 if self.name == "S" else -pi / 4
+            return Gate("PHASE", self.target, self.control, new_parameter, self.is_variational)
+
         if self.parameter == "":
             new_parameter = ""
         elif isinstance(self.parameter, (float, floating, int, integer)):
             new_parameter = -self.parameter
-        elif self.name in {"T", "S"}:
-            new_parameter = -pi / 2 if self.name == "T" else -pi / 4
-            return Gate("PHASE", self.target, self.control, new_parameter, self.is_variational)
         else:
             raise AttributeError(f"{self.name} is not an invertible gate when parameter is {self.parameter}")
         return Gate(self.name, self.target, self.control, new_parameter, self.is_variational)

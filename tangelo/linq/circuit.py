@@ -19,7 +19,7 @@ characteristics (width, size ...).
 """
 
 import copy
-from typing import List
+from typing import List, Tuple, Iterator
 
 import numpy as np
 from cirq.contrib.svg import SVGCircuit
@@ -55,6 +55,7 @@ class Circuit:
         self._gate_counts = dict()
         self._n_qubit_gate_counts = dict()
         self._variational_gates = []
+        self._probabilities = dict()
 
         if gates:
             _ = [self.add_gate(g) for g in gates]
@@ -144,6 +145,21 @@ class Circuit:
         if any MEASURE gate was explicitly added by the user.
         """
         return "MEASURE" in self.counts
+
+    @property
+    def success_probabilities(self):
+        """Returns the dictionary of probabilities populated by simulating with different desired_meas_result.
+
+        The keys of the dictionary are bit strings, corresponding to the desired outcomes in the order
+        the measurement gates arise in the circuit.
+
+        Each bit string must be simulated using a backend with n_shots=None and desired_meas_result=bitstring
+        in order to populate the corresponding probability.
+        """
+        if not self.is_mixed_state:
+            return {"": 1}
+        else:
+            return self._probabilities
 
     def draw(self):
         """Method to output a prettier version of the circuit for use in jupyter notebooks that uses cirq SVGCircuit"""
@@ -442,3 +458,29 @@ def remove_redundant_gates(circuit):
     gates = [gate for gate_i, gate in enumerate(circuit._gates) if gate_i not in indices_to_remove]
 
     return Circuit(gates)
+
+
+def get_unitary_circuit_pieces(circuit: Circuit) -> Tuple[List[Circuit], List[int]]:
+    """Split circuit into the unitary circuits between mid-circuit non-unitary MEASURE gates.
+
+    Args:
+        circuit (Circuit): the circuit to split
+
+    Returns:
+        List[Circuit]: The list of unitary circuits with a terminal non-unitary operation.
+        List[int]: The qubits that the "MEASURE" operation is applied to.
+    """
+
+    n_qubits = circuit.width
+    circuits, gates, measure_qubits = list(), list(), list()
+
+    for g in circuit:
+        if g.name != "MEASURE":
+            gates += [Gate(g.name, g.target, g.control, g.parameter, g.is_variational)]
+        else:
+            circuits += [Circuit(copy.deepcopy(gates), n_qubits=n_qubits)]
+            measure_qubits += [g.target[0]]
+            gates = list()
+    circuits += [Circuit(copy.deepcopy(gates), n_qubits=n_qubits)]
+
+    return circuits, measure_qubits

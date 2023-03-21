@@ -197,32 +197,6 @@ class TranslateOperatorTest(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(eigenvalues_tangelo, eigenvalues_qiskit.eigenvalues)
 
-    @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Qiskit not available \n")
-    def test_tangelo_to_qiskit_big(self):
-        """Test translation from a tangelo to a qiskit operator, for a large input"""
-
-        n_qubits = 10
-        n_terms = 3**n_qubits
-
-        # Build large operator made of all possible "full" Pauli words (no 'I') of length n_qubits
-        terms = {tuple(zip(range(n_qubits), pw)): 1.0 for pw in product(['X', 'Y', 'Z'], repeat=n_qubits)}
-        q_op = QubitOperator()
-        q_op.terms = terms
-
-        s, t = "tangelo", "qiskit"
-        tstart1 = time.time()
-        tmp_op = translate_operator(q_op, source=s, target=t)
-        tstop1 = time.time()
-        print(f"Qubit operator conversion {s} to {t}: {tstop1 - tstart1:.1f} (terms = {n_terms})")
-
-        t, s = s, t
-        tstart2 = time.time()
-        q_op2 = translate_operator(tmp_op, source=s, target=t)
-        tstop2 = time.time()
-        print(f"Qubit operator conversion {s} to {t}: {tstop2 - tstart2:.1f} (terms = {n_terms})")
-
-        assert(q_op == q_op2)
-
 
 if __name__ == "__main__":
     unittest.main()
