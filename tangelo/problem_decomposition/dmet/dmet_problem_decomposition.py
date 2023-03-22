@@ -26,7 +26,8 @@ from tangelo.problem_decomposition.electron_localization import iao_localization
 from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
 from tangelo.algorithms import FCISolver, CCSDSolver, VQESolver
 from tangelo.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
-from tangelo.toolboxes.molecular_computation.rdms import pad_rdms_with_frozen_orbitals
+from tangelo.toolboxes.molecular_computation.rdms import pad_rdms_with_frozen_orbitals_restricted, \
+    pad_rdms_with_frozen_orbitals_unrestricted
 
 
 class Localization(Enum):
@@ -498,10 +499,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Compute the fragment energy and sum up the number of electrons
             if self.uhf:
-                fragment_energy, onerdm_a, onerdm_b = self._compute_energy_unrestricted(dummy_mol, onerdm, twordm)
+                onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals_unrestricted(dummy_mol, onerdm, twordm)
+                fragment_energy, onerdm_a, onerdm_b = self._compute_energy_unrestricted(dummy_mol, onerdm_padded, twordm_padded)
                 n_electron_frag = np.trace(onerdm_a[ : t_list[0], : t_list[0]]) + np.trace(onerdm_b[ : t_list[0], : t_list[0]])
             else:
-                onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals(dummy_mol, onerdm, twordm)
+                onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals_restricted(dummy_mol, onerdm, twordm)
                 fragment_energy, onerdm = self._compute_energy_restricted(dummy_mol, onerdm_padded, twordm_padded)
                 n_electron_frag = np.trace(onerdm[: t_list[0], : t_list[0]])
 
