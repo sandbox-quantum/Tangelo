@@ -303,16 +303,16 @@ def pad_rdms_with_frozen_orbitals_unrestricted(sec_mol, onerdm, twordm):
 
     Args:
         sec_mol (SecondQuantizedMolecule): Self-explanatory.
-        onerdm (tuple of numpy.array): Tuple of alpha and beta one-particle
+        onerdm (tuple of arrays): Tuple of alpha and beta one-particle
             reduced density matrix (shape of (N_active_mos,)*2).
-        twordm (numpy.array): Tuple of alpha-alpha, alpha-beta and beta-beta
+        twordm (tuple of arrays): Tuple of alpha-alpha, alpha-beta and beta-beta
             two-particle reduced density matrix (shape of (N_active_mos,)*4).
 
     Returns:
-        numpy.array: Tuple of alpha and beta one-particle reduced density matrix
-            (shape of (N_total_mos,)*2).
-        numpy.array: Tuple of alpha-alpha, alpha-beta and beta-beta two-particle
-            reduced density matrix (shape of (N_total_mos,)*4).
+        tuple of arrays: Tuple of alpha and beta one-particle reduced density
+            matrix (shape of (N_total_mos,)*2).
+        tuple of arrays: Tuple of alpha-alpha, alpha-beta and beta-beta
+            two-particle reduced density matrix (shape of (N_total_mos,)*4).
     """
 
     # Unpacking the tuples.
@@ -378,9 +378,8 @@ def pad_rdms_with_frozen_orbitals_unrestricted(sec_mol, onerdm, twordm):
         twordm_bb[i, i, j, j] -= 1
         twordm_bb[i, j, j, i] += 1
 
-    for i in range(n_occ0_a):
-        for j in range(n_occ0_b):
-            twordm_ab[i, i, j, j] -= 1
+    for i, j in it.product(range(n_occ0_a), range(n_occ0_b), repeat=1):
+        twordm_ab[i, i, j, j] -= 1
 
     # Creating a dummy two rdm.
     dm2_aa = np.zeros((n_mos_a,)*4, dtype=twordm_aa.dtype)
@@ -435,8 +434,7 @@ def pad_rdms_with_frozen_orbitals_unrestricted(sec_mol, onerdm, twordm):
         twordm_bb_padded[i, i, j, j] += 1
         twordm_bb_padded[i, j, j, i] -= 1
 
-    for i in range(n_occ_a):
-        for j in range(n_occ_b):
+    for i, j in it.product(range(n_occ_a), range(n_occ_b), repeat=1):
             twordm_ab_padded[i, i, j, j] += 1
 
     twordm_aa_padded = twordm_aa_padded.transpose(1, 0, 3, 2)
