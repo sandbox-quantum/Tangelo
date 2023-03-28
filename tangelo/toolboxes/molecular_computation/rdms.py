@@ -435,7 +435,7 @@ def pad_rdms_with_frozen_orbitals_unrestricted(sec_mol, onerdm, twordm):
         twordm_bb_padded[i, j, j, i] -= 1
 
     for i, j in it.product(range(n_occ_a), range(n_occ_b), repeat=1):
-            twordm_ab_padded[i, i, j, j] += 1
+        twordm_ab_padded[i, i, j, j] += 1
 
     twordm_aa_padded = twordm_aa_padded.transpose(1, 0, 3, 2)
     twordm_bb_padded = twordm_bb_padded.transpose(1, 0, 3, 2)
