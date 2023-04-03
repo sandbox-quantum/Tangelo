@@ -20,14 +20,12 @@ import unittest
 
 from tangelo.linq import Gate, Circuit
 from tangelo.helpers.utils import installed_backends
-
-from tangelo.helpers.utils import installed_backends
 from tangelo.linq.target.target_sympy import SympySimulator
 
 
 class TestSymbolicSimulate(unittest.TestCase):
 
-    @unittest.skipIf("sympy" not in installed_backends, "Test Skipped: Backend not available \n")
+    @unittest.skipIf("sympy" not in installed_backends, "Test Skipped: Sympy backend not available \n")
     def test_simple_simulate(self):
         """Test simulate of a simple rotation gate with a symbolic parameter."""
 
@@ -41,7 +39,7 @@ class TestSymbolicSimulate(unittest.TestCase):
 
         self.assertDictEqual(probs, {"0": (cos(alpha/2))**2, "1": (sin(alpha/2))**2})
 
-    @unittest.skipIf("sympy" not in installed_backends, "Test Skipped: Backend not available \n")
+    @unittest.skipIf("sympy" not in installed_backends, "Test Skipped: Sympy backend not available \n")
     def test_simulate_with_control(self):
         """Test simulate of a control rotation gate with a symbolic parameter."""
 

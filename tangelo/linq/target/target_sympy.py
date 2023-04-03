@@ -26,20 +26,20 @@ class SympySimulator(Backend):
         super().__init__(n_shots, noise_model)
 
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
-        """Perform state preparation corresponding to the input circuit on the
-        target backend, return the frequencies of the different observables, and
-        either the statevector or None depending on the availability of the
-        statevector and if return_statevector is set to True. For this
-        simulator, symbolic expression are supported. Gates can have unspecified
-        parameters.
+        """This simulator manipulates symbolic expressions, i.e. gates can have
+        unspecified parameters (strings interpreted as variables). As with the
+        other simulators, it performs state preparation corresponding to the
+        input circuit, returns the frequencies of the different observables, and
+        either the statevector or None depending on if return_statevector is set
+        to True.
 
         Args:
             source_circuit (Circuit): A circuit in the abstract format to be
                 translated for the target backend.
             return_statevector (bool): Option to return the statevector as well,
                 if available.
-            initial_statevector (array/matrix or sympy.physics.quantum.Qubit): A v
-                alid statevector in the format supported by the target backend.
+            initial_statevector (array/matrix or sympy.physics.quantum.Qubit): A
+                valid statevector in the format supported by the target backend.
 
         Returns:
             dict: A dictionary mapping multi-qubit states to their corresponding
@@ -88,13 +88,13 @@ class SympySimulator(Backend):
             qubit_operator (QubitOperator): a qubit operator in tangelo format
             n_qubits (int): Number of qubits.
             prepared_state (array/matrix or sympy.physics.quantum.Qubit): A
-                numpy or a sympy object encapsulating the state. Internally, a
+                numpy or a sympy object representing the state. Internally, a
                 numpy object is transformed into the sympy representation.
                 Default is None, in this case it is set to the current state in
                 the simulator object.
 
         Returns:
-            sympy.core.add.Add: Eigenvalue represented as a symnbolic sum.
+            sympy.core.add.Add: Eigenvalue represented as a symbolic sum.
         """
 
         from sympy import simplify

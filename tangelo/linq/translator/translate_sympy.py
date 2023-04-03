@@ -125,6 +125,7 @@ def controlled_gate(gate_function):
 
 def get_sympy_gates():
     """Map gate name of the abstract format to the equivalent methods of the
+    sympy backend (symbolic simulation).
     """
 
     import sympy.physics.quantum.gate as SYMPYGate
@@ -168,8 +169,7 @@ def translate_c_to_sympy(source_circuit):
         SYMPY.circuits.Circuit: quantum circuit in Python SYMPY SDK format.
     """
 
-    from sympy import symbols, nsimplify
-    from sympy.physics.quantum import Dagger
+    from sympy import symbols
 
     GATE_SYMPY = get_sympy_gates()
 

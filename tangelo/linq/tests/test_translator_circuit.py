@@ -501,9 +501,9 @@ class TranslateCircuitTest(unittest.TestCase):
         # Compare statevectors
         np.testing.assert_array_almost_equal(v1, reference_big_lsq, decimal=6)
 
-    @unittest.skipIf("sympy" not in installed_backends, "Test Skipped: Backend not available \n")
+    @unittest.skipIf("sympy" not in installed_backends, "Test Skipped: Sympy backend not available \n")
     def test_to_sympy(self):
-        """Translate sympy format to abstract format."""
+        """Translate abtract format to sympy format."""
 
         from sympy.physics.quantum.gate import HadamardGate, XGate, YGate, ZGate, CNotGate
 
