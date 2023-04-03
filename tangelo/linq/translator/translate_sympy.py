@@ -219,12 +219,7 @@ def translate_op_to_sympy(qubit_operator, n_qubits):
     from sympy.physics.quantum import TensorProduct
 
     # Pauli string to sympy Pauli algebra objects.
-    map_to_paulis = {
-        "I": Identity(1),
-        "X": Pauli(1),
-        "Y": Pauli(2),
-        "Z": Pauli(3)
-    }
+    map_to_paulis = {"I": Identity(1), "X": Pauli(1), "Y": Pauli(2), "Z": Pauli(3)}
 
     # Contruct the TensorProduct objects.
     sum_tensor_paulis = 0.
