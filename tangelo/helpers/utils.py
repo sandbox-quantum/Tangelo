@@ -74,8 +74,8 @@ def deprecated(custom_message=""):
 
 # List all built-in backends supported
 all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq", "qdk", "pennylane", "sympy"}
-all_backends_simulator = {"qulacs", "qiskit", "cirq", "qdk", "sympy"}
-sv_backends_simulator = {"qulacs", "qiskit", "cirq", "sympy"}
+all_backends_simulator = {"qulacs", "qiskit", "cirq", "qdk"}
+sv_backends_simulator = {"qulacs", "qiskit", "cirq"}
 
 # Dictionary mapping package names to their identifier in this module
 packages = {p: p for p in all_backends}

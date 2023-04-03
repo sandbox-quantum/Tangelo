@@ -208,7 +208,7 @@ def translate_op_to_sympy(qubit_operator, n_qubits):
 
     Args:
         qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
-        n_qubits (int): Self-explanatory.
+        n_qubits (int): The number of qubit the operator acts on.
 
     Returns:
         sympy.core.add.Add: Summation of sympy.physics.quantum.TensorProduct
