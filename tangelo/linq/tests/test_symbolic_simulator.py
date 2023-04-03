@@ -17,7 +17,9 @@ as expected for the symbolic backend.
 """
 
 import unittest
+from math import pi
 
+from tangelo.helpers.utils import assert_freq_dict_almost_equal
 from tangelo.linq import Gate, Circuit
 from tangelo.helpers.utils import installed_backends
 from tangelo.linq.target.target_sympy import SympySimulator
@@ -57,6 +59,23 @@ class TestSymbolicSimulate(unittest.TestCase):
         alpha = symbols("alpha", real=True)
 
         self.assertDictEqual(action_probs, {"10": (cos(alpha/2))**2, "11": (sin(alpha/2))**2})
+
+    @unittest.skipIf("sympy" not in installed_backends, "Test Skipped: Sympy backend not available \n")
+    def test_evaluate_bell_state(self):
+        """Test the numerical evaluation to a known state (Bell state)."""
+
+        backend = SympySimulator()
+
+        variable_bell_circuit = Circuit([Gate("RY", 0, parameter="alpha"), Gate("CNOT", 1, 0)])
+        variable_bell_probs, _ = backend.simulate(variable_bell_circuit, return_statevector=False)
+
+        # Replace alpha by pi/2.
+        numerical_bell_probs = {
+            bitstring: prob.subs(list(prob.free_symbols)[0], pi/2) for
+            bitstring, prob in variable_bell_probs.items()
+        }
+
+        assert_freq_dict_almost_equal(numerical_bell_probs, {"00": 0.5, "11": 0.5}, atol=1e-3)
 
 
 if __name__ == "__main__":
