@@ -22,7 +22,7 @@ import copy
 from math import pi
 from collections import Counter
 
-from tangelo.linq import Gate, Circuit, stack
+from tangelo.linq import Gate, Circuit, stack, get_unitary_circuit_pieces
 
 # Create several abstract circuits with different features
 mygates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1),
@@ -300,6 +300,27 @@ class TestCircuits(unittest.TestCase):
         self.assertEqual([g for g in circuit2], circuit2._gates)
         self.assertEqual([g for g in circuit3], circuit3._gates)
         self.assertEqual([g for g in circuit4], circuit4._gates)
+
+    def test_unitary_pieces(self):
+        """ Test the splitting of circuit into unitary pieces between measurements."""
+        test_circuit = Circuit([Gate("H", 0), Gate("H", 1), Gate("MEASURE", 0),
+                                Gate("X", 1), Gate("MEASURE", 1),
+                                Gate("H", 0), Gate("H", 1), Gate("CNOT", control=0, target=1), Gate("MEASURE", 0),
+                                Gate("MEASURE", 1),
+                                Gate("H", 0), Gate("MEASURE", 1)])
+        circuits = [Circuit([Gate("H", 0), Gate("H", 1)], n_qubits=2),
+                    Circuit([Gate("X", 1)], n_qubits=2),
+                    Circuit([Gate("H", 0), Gate("H", 1), Gate("CNOT", control=0, target=1)], n_qubits=2),
+                    Circuit(n_qubits=2),
+                    Circuit([Gate("H", 0)], n_qubits=2),
+                    Circuit(n_qubits=2)]
+        measure_qs = [0, 1, 0, 1, 1]
+        split_circuits, qubits_to_measure = get_unitary_circuit_pieces(test_circuit)
+
+        for i, circ in enumerate(circuits[:-1]):
+            self.assertEqual(circ, split_circuits[i])
+            self.assertEqual(measure_qs[i], qubits_to_measure[i])
+        self.assertEqual(circuits[-1], split_circuits[-1])
 
 
 if __name__ == "__main__":
