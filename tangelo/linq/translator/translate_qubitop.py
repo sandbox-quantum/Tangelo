@@ -20,6 +20,7 @@ from tangelo.linq.translator.translate_cirq import translate_op_from_cirq, trans
 from tangelo.linq.translator.translate_qulacs import translate_op_from_qulacs, translate_op_to_qulacs
 from tangelo.linq.translator.translate_pennylane import translate_op_from_pennylane, translate_op_to_pennylane
 from tangelo.linq.translator.translate_projectq import translate_op_from_projectq, translate_op_to_projectq
+from tangelo.linq.translator.translate_sympy import translate_op_to_sympy
 
 
 FROM_TANGELO = {
@@ -27,7 +28,8 @@ FROM_TANGELO = {
     "cirq": translate_op_to_cirq,
     "qulacs": translate_op_to_qulacs,
     "pennylane": translate_op_to_pennylane,
-    "projectq": translate_op_to_projectq
+    "projectq": translate_op_to_projectq,
+    "sympy": translate_op_to_sympy
 }
 
 TO_TANGELO = {
@@ -71,7 +73,7 @@ def translate_operator(qubit_operator, source, target, n_qubits=None):
             raise NotImplementedError(f"Qubit operator conversion from {source} to {target} is not supported.")
 
         # For translation functions that need an explicit number of qubits.
-        if target in {"qiskit"}:
+        if target in {"qiskit", "sympy"}:
             # The count_qubits function has no way to detect the number of
             # qubits when an operator is only a tensor product of I.
             if qubit_operator == QubitOperator((), qubit_operator.constant):
