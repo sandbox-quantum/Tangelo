@@ -44,9 +44,6 @@ gates = [Gate('X', i) for i in range(n_qubits)] + [Gate("CNOT", (i+1) % n_qubits
 tangelo_c = Circuit(gates * n_repeat)
 
 
-
-
-
 class PerfTranslatorTest(unittest.TestCase):
 
     def test_perf_operator(self):
