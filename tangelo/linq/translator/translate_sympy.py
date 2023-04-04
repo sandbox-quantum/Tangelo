@@ -186,9 +186,7 @@ def translate_c_to_sympy(source_circuit):
             target_circuit *= GATE_SYMPY[gate.name](gate.target[0])
         elif gate.name in {"T", "S"} and gate.parameter == "":
             target_circuit *= GATE_SYMPY[gate.name](gate.target[0])
-        elif gate.name in {"PHASE"}:
-            target_circuit *= GATE_SYMPY[gate.name](gate.target[0], gate.parameter)
-        elif gate.name in {"RX", "RY", "RZ"}:
+        elif gate.name in {"PHASE", "RX", "RY", "RZ"}:
             target_circuit *= GATE_SYMPY[gate.name](gate.target[0], gate.parameter)
         elif gate.name in {"CNOT", "CH", "CX", "CY", "CZ", "CS", "CT"}:
             target_circuit *= GATE_SYMPY[gate.name](gate.control[0], gate.target[0])

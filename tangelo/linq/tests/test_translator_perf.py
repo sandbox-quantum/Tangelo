@@ -54,7 +54,8 @@ class PerfTranslatorTest(unittest.TestCase):
         print(f'\n[Performance Test :: linq operator format conversion]')
         print(f'\tInput size: n_qubits={n_qubits_op}, n_terms={n_terms}\n')
 
-        for f in FROM_TANGELO_OP.keys() - symbolic_backends:
+        perf_backends = FROM_TANGELO_OP.keys() - symbolic_backends
+        for f in perf_backends:
             try:
                 tstart = time.time()
                 target_op = translate_operator(tangelo_op, source="tangelo", target=f)
@@ -62,7 +63,7 @@ class PerfTranslatorTest(unittest.TestCase):
             except Exception:
                 continue
 
-            if f in TO_TANGELO_OP.keys() - symbolic_backends:
+            if f in TO_TANGELO_OP:
                 try:
                     tstart = time.time()
                     translate_operator(target_op, source=f, target="tangelo")
@@ -78,7 +79,8 @@ class PerfTranslatorTest(unittest.TestCase):
         print(f'\n[Performance Test :: linq circuit format conversion]')
         print(f'\tInput size: n_qubits={tangelo_c.width}, n_gates={tangelo_c.size}\n')
 
-        for f in FROM_TANGELO_C.keys() - symbolic_backends:
+        perf_backends = FROM_TANGELO_C.keys() - symbolic_backends
+        for f in perf_backends:
             try:
                 tstart = time.time()
                 target_c = translate_circuit(tangelo_c, source="tangelo", target=f)
@@ -86,7 +88,7 @@ class PerfTranslatorTest(unittest.TestCase):
             except Exception:
                 continue
 
-            if f in TO_TANGELO_C.keys() - symbolic_backends:
+            if f in TO_TANGELO_C:
                 try:
                     tstart = time.time()
                     translate_circuit(target_c, source=f, target="tangelo")
