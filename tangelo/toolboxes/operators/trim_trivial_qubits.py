@@ -30,13 +30,10 @@ def trim_trivial_operator(qu_op, n_qubits, trim_index, trim_states, reindex=True
         c = np.ones(len(trim_index))
         new_term = copy.copy(term)
         for i, qubit in enumerate(trim_index):
-            if term[qubit] == 'X' or term[qubit] == 'Y':
+            if term[qubit] in ('X', 'Y'):
                 c[i] = 0
-            elif term[qubit] == 'Z':
-                if trim_states[i] == 0:
-                    c[i] = 1
-                elif trim_states[i] == 1:
-                    c[i] = -1
+            elif term[qubit] == 'Z' and trim_states[i] == 1:
+                c[i] = -1
             # Reindex Hamiltonian
             if reindex is True:
                 new_term = new_term[:qubit-i] + new_term[qubit-i + 1:]
@@ -70,9 +67,7 @@ def trim_trivial_circuit(circuit):
     e_indices = circuit.get_entangled_indices()
 
     # Get list of qubits with gates applied to them
-    gated_qubits = []
-    for element in e_indices:
-        gated_qubits += element
+    gated_qubits = [qubit for e_subset in e_indices for qubit in e_subset]
 
     # Find qubits with no gates applied to them, store qubit index and state |0>
     zeros = list(sorted(set(range(circuit.width)) - set(gated_qubits)))
@@ -83,14 +78,20 @@ def trim_trivial_circuit(circuit):
     circuit_new = Circuit()
     for i, circ in enumerate(circs):
         if circ.width == 1:
-            if len(circ._gates) == 1 and circ._gates[0].name == 'X':
-                trim_index.append(e_indices[i].pop())
-                trim_states.append(1)
+            # Calculate state of single qubit clifford circuits, ideally this would be done with a clifford simulator
+            # for now only look at first two gate combinations typical of the QMF state in QCC methods
+            num_gates = len(circ._gates)       
+            if num_gates in (1,2) and circ._gates[0].name in ["RZ", "RX", "X"] :
+                if circ._gates[num_gates-1].name == 'X' or (circ._gates[num_gates-1].name =="RX" and np.isclose(circ._gates[num_gates-1].parameter, np.pi)):
+                    trim_index.append(e_indices[i].pop())
+                    trim_states.append(1) 
+                elif num_gates == 1 and circ._gates[0].name == 'RZ':
+                    trim_index.append(e_indices[i].pop())
+                    trim_states.append(0)                 
             else:
                 circuit_new += circ
         else:
-            circuit_new += circ
-
+            circuit_new += circ     
     return circuit_new, trim_index, trim_states
 
 
@@ -110,4 +111,4 @@ def trim_trivial_qubits(operator, circuit):
     trimmed_circuit, trim_index, trim_states = trim_trivial_circuit(circuit)
     trimmed_operator = trim_trivial_operator(operator, circuit.width, trim_index, trim_states, reindex=True)
 
-    return trimmed_circuit, trimmed_operator
+    return  trimmed_operator, trimmed_circuit
