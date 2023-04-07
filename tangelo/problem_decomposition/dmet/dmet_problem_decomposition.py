@@ -26,7 +26,8 @@ from tangelo.problem_decomposition.electron_localization import iao_localization
 from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
 from tangelo.algorithms import FCISolver, CCSDSolver, VQESolver
 from tangelo.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
-from tangelo.toolboxes.molecular_computation.rdms import pad_rdms_with_frozen_orbitals
+from tangelo.toolboxes.molecular_computation.rdms import pad_rdms_with_frozen_orbitals_restricted, \
+    pad_rdms_with_frozen_orbitals_unrestricted
 
 
 class Localization(Enum):
@@ -104,8 +105,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         if not self.molecule:
             raise ValueError(f"A SecondQuantizedMolecule object must be provided when instantiating DMETProblemDecomposition.")
 
-        if self.molecule.uhf or self.molecule.spin != 0:
-            raise NotImplementedError("ROHF-DMET and UHF-DMET have been disabled temporarily for code validation purposes.")
+        self.uhf = self.molecule.uhf
 
         # Converting our interface to pyscf.mol.gto and pyscf.scf (used by this
         # code).
@@ -143,7 +143,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Force recomputing the mean field if the atom ordering has been changed.
             warnings.warn("The mean field will be recomputed even if one has been provided by the user.", RuntimeWarning)
-            self.mean_field = scf.RHF(self.molecule)
+            self.mean_field = scf.UHF(self.molecule) if self.uhf else scf.RHF(self.molecule)
             self.mean_field.verbose = 0
             self.mean_field.scf()
 
@@ -238,13 +238,19 @@ class DMETProblemDecomposition(ProblemDecomposition):
             raise TypeError(f"Invalid electron localization function. Expecting a function.")
 
         # Construct orbital object.
-        self.orbitals = helpers._orbitals(self.molecule, self.mean_field, range(self.molecule.nao_nr()), self.electron_localization, False)
+        self.orbitals = helpers._orbitals(self.molecule, self.mean_field, range(self.molecule.nao_nr()), self.electron_localization, self.uhf)
 
         # TODO: remove last argument, combining fragments not supported.
         self.orb_list, self.orb_list2, _ = helpers._fragment_constructor(self.molecule, self.fragment_atoms, 0)
 
         # Calculate the 1-RDM for the entire molecule.
-        self.onerdm_low = helpers._low_rdm_rhf(self.orbitals.active_fock, self.orbitals.number_active_electrons)
+        if self.molecule.spin == 0 and not self.uhf:
+            self.onerdm_low = helpers._low_rdm_rhf(self.orbitals.active_fock, self.orbitals.number_active_electrons)
+        else:
+            self.onerdm_low = helpers._low_rdm_rohf_uhf(self.orbitals.active_fock_alpha,
+                                                        self.orbitals.active_fock_beta,
+                                                        self.orbitals.number_active_electrons_alpha,
+                                                        self.orbitals.number_active_electrons_beta)
 
     def simulate(self):
         """Perform DMET loop to optimize the chemical potential. It converges
@@ -349,11 +355,22 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Construct guess orbitals for fragment SCF calculations.
             # Carry out SCF calculation for a fragment.
-            guess_orbitals = helpers._fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
-                                                            self.orbitals.active_fock)
-            mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf_rhf(
-                t_list, two_ele, fock, nelec_high, norb_high, guess_orbitals,
-                chemical_potential)
+            if self.uhf or self.molecule.spin != 0:
+                guess_orbitals, nelec_high_ab = helpers._fragment_guess_rohf_uhf(
+                    t_list, bath_orb, chemical_potential, norb_high, nelec_high,
+                    self.orbitals.active_fock_alpha, self.orbitals.active_fock_beta,
+                    self.orbitals.number_active_electrons_alpha,
+                    self.orbitals.number_active_electrons_beta)
+
+                mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf_rohf_uhf(
+                    nelec_high_ab, two_ele, fock, nelec_high, norb_high,
+                    guess_orbitals, chemical_potential, self.uhf)
+            else:
+                guess_orbitals = helpers._fragment_guess_rhf(t_list, bath_orb, chemical_potential, norb_high, nelec_high,
+                                                             self.orbitals.active_fock)
+                mf_fragment, fock_frag_copy, mol_frag = helpers._fragment_scf_rhf(
+                    t_list, two_ele, fock, nelec_high, norb_high, guess_orbitals,
+                    chemical_potential)
 
             scf_fragments.append([mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock])
 
@@ -430,7 +447,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # It has the same important attributes and methods to be used with
             # functions of this package.
             dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
-                fock_frag_copy, t_list, one_ele, two_ele, False,
+                fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 self.fragment_frozen_orbitals[i])
 
             if self.verbose:
@@ -469,9 +486,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     solver_fragment.build()
                     solver_fragment.simulate()
 
-                if purify and solver_fragment.molecule.n_active_electrons == 2:
+                if purify and solver_fragment.molecule.n_active_electrons == 2 and not self.uhf:
                     onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, resample=resample, sum_spin=False)
                     onerdm, twordm = mcweeny_purify_2rdm(twordm)
+                elif self.uhf:
+                    onerdm, twordm = solver_fragment.get_rdm_uhf(solver_fragment.optimal_var_params, resample=resample)
                 else:
                     onerdm, twordm = solver_fragment.get_rdm(solver_fragment.optimal_var_params, resample=resample)
                 if save_results:
@@ -479,9 +498,14 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     self.rdm_measurements[i] = self.solver_fragment_dict[i].rdm_freq_dict
 
             # Compute the fragment energy and sum up the number of electrons
-            onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals(dummy_mol, onerdm, twordm)
-            fragment_energy, onerdm = self._compute_energy_restricted(dummy_mol, onerdm_padded, twordm_padded)
-            n_electron_frag = np.trace(onerdm[: t_list[0], : t_list[0]])
+            if self.uhf:
+                onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals_unrestricted(dummy_mol, onerdm, twordm)
+                fragment_energy, onerdm_a, onerdm_b = self._compute_energy_unrestricted(dummy_mol, onerdm_padded, twordm_padded)
+                n_electron_frag = np.trace(onerdm_a[ : t_list[0], : t_list[0]]) + np.trace(onerdm_b[ : t_list[0], : t_list[0]])
+            else:
+                onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals_restricted(dummy_mol, onerdm, twordm)
+                fragment_energy, onerdm = self._compute_energy_restricted(dummy_mol, onerdm_padded, twordm_padded)
+                n_electron_frag = np.trace(onerdm[: t_list[0], : t_list[0]])
 
             number_of_electron += n_electron_frag
 
@@ -519,7 +543,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
             dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
-                fock_frag_copy, t_list, one_ele, two_ele, False,
+                fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 self.fragment_frozen_orbitals[i])
 
             # Buiding SCF fragments and quantum circuit. Resources are then

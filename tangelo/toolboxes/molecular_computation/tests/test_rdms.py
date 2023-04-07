@@ -20,10 +20,12 @@ import numpy as np
 from numpy.testing import assert_allclose
 from openfermion.utils import load_operator
 
+from tangelo import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H2O_sto3g
 from tangelo.toolboxes.measurements import RandomizedClassicalShadow
 from tangelo.toolboxes.operators import FermionOperator
-from tangelo.toolboxes.molecular_computation.rdms import energy_from_rdms, compute_rdms, pad_rdms_with_frozen_orbitals
+from tangelo.toolboxes.molecular_computation.rdms import energy_from_rdms, compute_rdms, \
+     pad_rdms_with_frozen_orbitals_restricted, pad_rdms_with_frozen_orbitals_unrestricted
 from tangelo.linq.helpers import pauli_string_to_of, pauli_of_to_string
 from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms
 
@@ -131,21 +133,49 @@ class RDMsUtilitiesTest(unittest.TestCase):
         assert_allclose(rdm1ssr, rdm1ss, atol=0.05)
         assert_allclose(rdm2ssr, rdm2ss, atol=0.05)
 
-    def test_pad_rdms_with_frozen_orbitals(self):
-        """Test padding of RDMs with frozen orbitals indices."""
+    def test_pad_restricted_rdms_with_frozen_orbitals(self):
+        """Test padding of RDMs with frozen orbitals indices (restricted)."""
 
         mol = mol_H2O_sto3g.freeze_mos([0, 3, 4, 5], inplace=False)
 
         onerdm_to_pad = np.loadtxt(pwd_this_test + "/data/H2O_sto3g_onerdm_frozen0345.data")
         twordm_to_pad = np.loadtxt(pwd_this_test + "/data/H2O_sto3g_twordm_frozen0345.data")
 
-        test_onerdm, test_twordm = pad_rdms_with_frozen_orbitals(mol, onerdm_to_pad, twordm_to_pad.reshape((3,)*4))
+        test_onerdm, test_twordm = pad_rdms_with_frozen_orbitals_restricted(mol, onerdm_to_pad, twordm_to_pad.reshape((3,)*4))
 
         padded_onerdm = np.loadtxt(pwd_this_test + "/data/H2O_sto3g_padded_onerdm_frozen0345.data")
         padded_twordm = np.loadtxt(pwd_this_test + "/data/H2O_sto3g_padded_twordm_frozen0345.data")
 
         np.testing.assert_array_almost_equal(padded_onerdm, test_onerdm, decimal=3)
         np.testing.assert_array_almost_equal(padded_twordm.reshape((7,)*4), test_twordm, decimal=3)
+
+    def test_pad_unrestricted_rdms_with_frozen_orbitals(self):
+        """Test padding of RDMs with frozen orbitals indices (unrestricted)."""
+
+        mol = SecondQuantizedMolecule(mol_H2O_sto3g.xyz, uhf=True, frozen_orbitals=[(0, 3, 4, 5), (0, 3, 4, 5)])
+
+        onerdm_a_to_pad = np.loadtxt(pwd_this_test + "/data/H2O_UHF_sto3g_onerdm_frozen0345_alpha.data")
+        onerdm_b_to_pad = np.loadtxt(pwd_this_test + "/data/H2O_UHF_sto3g_onerdm_frozen0345_beta.data")
+        onerdm_to_pad = (onerdm_a_to_pad, onerdm_b_to_pad)
+
+        twordm_aa_to_pad = np.loadtxt(pwd_this_test + "/data/H2O_UHF_sto3g_twordm_frozen0345_alphaalpha.data")
+        twordm_ab_to_pad = np.loadtxt(pwd_this_test + "/data/H2O_UHF_sto3g_twordm_frozen0345_alphabeta.data")
+        twordm_bb_to_pad = np.loadtxt(pwd_this_test + "/data/H2O_UHF_sto3g_twordm_frozen0345_betabeta.data")
+        twordm_to_pad = (twordm_aa_to_pad.reshape((3,)*4), twordm_ab_to_pad.reshape((3,)*4), twordm_bb_to_pad.reshape((3,)*4))
+
+        test_onerdm, test_twordm = pad_rdms_with_frozen_orbitals_unrestricted(mol, onerdm_to_pad, twordm_to_pad)
+
+        padded_onerdm_a = np.loadtxt(pwd_this_test + "/data/H2O_UHF_sto3g_padded_onerdm_frozen0345_alpha.data")
+        padded_onerdm_b = np.loadtxt(pwd_this_test + "/data/H2O_UHF_sto3g_padded_onerdm_frozen0345_beta.data")
+        padded_onerdm = (padded_onerdm_a, padded_onerdm_b)
+
+        padded_twordm_aa = np.loadtxt(pwd_this_test + "/data/H2O_UHF_sto3g_padded_twordm_frozen0345_alphaalpha.data")
+        padded_twordm_ab = np.loadtxt(pwd_this_test + "/data/H2O_UHF_sto3g_padded_twordm_frozen0345_alphabeta.data")
+        padded_twordm_bb = np.loadtxt(pwd_this_test + "/data/H2O_UHF_sto3g_padded_twordm_frozen0345_betabeta.data")
+        padded_twordm = (padded_twordm_aa.reshape((7,)*4), padded_twordm_ab.reshape((7,)*4), padded_twordm_bb.reshape((7,)*4))
+
+        np.testing.assert_array_almost_equal(padded_onerdm, test_onerdm, decimal=3)
+        np.testing.assert_array_almost_equal(padded_twordm, test_twordm, decimal=3)
 
 
 if __name__ == "__main__":

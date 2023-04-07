@@ -23,6 +23,7 @@ from tangelo.linq.translator.translate_qdk import translate_c_to_qsharp
 from tangelo.linq.translator.translate_qiskit import translate_c_to_qiskit, translate_c_from_qiskit
 from tangelo.linq.translator.translate_qulacs import translate_c_to_qulacs
 from tangelo.linq.translator.translate_pennylane import translate_c_to_pennylane
+from tangelo.linq.translator.translate_sympy import translate_c_to_sympy
 
 
 FROM_TANGELO = {
@@ -34,7 +35,8 @@ FROM_TANGELO = {
     "qdk": translate_c_to_qsharp,
     "qiskit": translate_c_to_qiskit,
     "qulacs": translate_c_to_qulacs,
-    "pennylane": translate_c_to_pennylane
+    "pennylane": translate_c_to_pennylane,
+    "sympy": translate_c_to_sympy
 }
 
 TO_TANGELO = {

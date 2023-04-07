@@ -22,7 +22,7 @@ from itertools import product
 
 from tangelo.linq import Gate, Circuit
 from tangelo.toolboxes.operators import QubitOperator
-from tangelo.helpers.utils import installed_backends
+from tangelo.helpers.utils import symbolic_backends
 from tangelo.linq import translate_operator, translate_circuit
 from tangelo.linq.translator.translate_qubitop import FROM_TANGELO as FROM_TANGELO_OP
 from tangelo.linq.translator.translate_qubitop import TO_TANGELO as TO_TANGELO_OP
@@ -47,12 +47,15 @@ tangelo_c = Circuit(gates * n_repeat)
 class PerfTranslatorTest(unittest.TestCase):
 
     def test_perf_operator(self):
-        """ Performance test with a reasonable large input for operator """
+        """ Performance test with a reasonable large input for operator.
+        Symbolic backends are not included in this test.
+        """
 
         print(f'\n[Performance Test :: linq operator format conversion]')
         print(f'\tInput size: n_qubits={n_qubits_op}, n_terms={n_terms}\n')
 
-        for f in FROM_TANGELO_OP:
+        perf_backends = FROM_TANGELO_OP.keys() - symbolic_backends
+        for f in perf_backends:
             try:
                 tstart = time.time()
                 target_op = translate_operator(tangelo_op, source="tangelo", target=f)
@@ -69,12 +72,15 @@ class PerfTranslatorTest(unittest.TestCase):
                     continue
 
     def test_perf_circuit(self):
-        """ Performance test with a reasonable large input for quantum circuit """
+        """ Performance test with a reasonable large input for quantum circuit.
+        Symbolic backends are not included in this test.
+        """
 
         print(f'\n[Performance Test :: linq circuit format conversion]')
         print(f'\tInput size: n_qubits={tangelo_c.width}, n_gates={tangelo_c.size}\n')
 
-        for f in FROM_TANGELO_C:
+        perf_backends = FROM_TANGELO_C.keys() - symbolic_backends
+        for f in perf_backends:
             try:
                 tstart = time.time()
                 target_c = translate_circuit(tangelo_c, source="tangelo", target=f)
