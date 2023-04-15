@@ -135,7 +135,7 @@ class ADAPTSolver:
         algorithm.
         """
 
-        # Building molecule data with a pyscf molecule.
+        # Building molecule data.
         if self.molecule:
 
             self.n_spinorbitals = self.molecule.n_active_sos

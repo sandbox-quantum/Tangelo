@@ -26,6 +26,7 @@ from tangelo.problem_decomposition.electron_localization import iao_localization
 from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
 from tangelo.algorithms import FCISolver, CCSDSolver, VQESolver
 from tangelo.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
+from tangelo.toolboxes.molecular_computation.rdms import pad_rdms_with_frozen_orbitals
 
 
 class Localization(Enum):
@@ -56,6 +57,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
             system.
         fragment_solvers (list or str): List of solvers for each fragment. If
             only a string is detected, this solver is used for all fragments.
+        fragment_frozen_orbitals (list): List of frozen orbitals. List of
+            integers freezes the n first orbitals in the fragment. Nested list
+            of integers freezes orbitals based on indices.
         optimizer (function handle): A function defining the classical optimizer
             and its behavior.
         initial_chemical_potential (float) : Initial value for the chemical
@@ -79,6 +83,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                            "electron_localization": Localization.meta_lowdin,
                            "fragment_atoms": list(),
                            "fragment_solvers": "ccsd",
+                           "fragment_frozen_orbitals": list(),
                            "optimizer": self._default_optimizer,
                            "initial_chemical_potential": 0.0,
                            "solvers_options": list(),
@@ -145,6 +150,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # Check if the number of fragment sites is equal to the number of atoms in the molecule
         if self.molecule.natm != sum(self.fragment_atoms):
             raise RuntimeError("The number of fragment sites is not equal to the number of atoms in the molecule")
+
+        if not len(self.fragment_frozen_orbitals):
+            self.fragment_frozen_orbitals = [None] * len(self.fragment_atoms)
+        elif len(self.fragment_frozen_orbitals) != len(self.fragment_atoms):
+            raise RuntimeError("The number of elements in the frozen orbitals list does not match the number of fragments.")
 
         # Check that the number of solvers matches the number of fragments.
         # If a single string is detected, it is converted to a list.
@@ -419,7 +429,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele, False)
+            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
+                fock_frag_copy, t_list, one_ele, two_ele, False,
+                self.fragment_frozen_orbitals[i])
 
             if self.verbose:
                 print("\t\tFragment Number : # ", i + 1)
@@ -467,9 +479,9 @@ class DMETProblemDecomposition(ProblemDecomposition):
                     self.rdm_measurements[i] = self.solver_fragment_dict[i].rdm_freq_dict
 
             # Compute the fragment energy and sum up the number of electrons
-            fragment_energy, _, one_rdm = self._compute_energy_restricted(mf_fragment, onerdm, twordm,
-                fock_frag_copy, t_list, one_ele, two_ele, fock)
-            n_electron_frag = np.trace(one_rdm[: t_list[0], : t_list[0]])
+            onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals(dummy_mol, onerdm, twordm)
+            fragment_energy, onerdm = self._compute_energy_restricted(dummy_mol, onerdm_padded, twordm_padded)
+            n_electron_frag = np.trace(onerdm[: t_list[0], : t_list[0]])
 
             number_of_electron += n_electron_frag
 
@@ -505,7 +517,10 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock, fock_frag_copy, t_list, one_ele, two_ele, False)
+
+            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
+                fock_frag_copy, t_list, one_ele, two_ele, False,
+                self.fragment_frozen_orbitals[i])
 
             # Buiding SCF fragments and quantum circuit. Resources are then
             # estimated. For classical sovlers, this functionality is not
@@ -526,109 +541,94 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         return resources_fragments
 
-    def _compute_energy_restricted(self, mf_frag, onerdm, twordm, fock_frag_copy, t_list, oneint, twoint, fock):
+    def _compute_energy_restricted(self, dmet_fragment, onerdm, twordm):
         """Calculate the fragment energy.
 
         Args:
-            mf_frag (pyscf.scf.RHF): The mean field of the fragment.
+            dmet_fragment (SecondQuantizedDMETFragment): Self-explanatory.
             onerdm (numpy.array): one-particle reduced density matrix (float).
             twordm (numpy.array): two-particle reduced density matrix (float).
-            fock_frag_copy (numpy.array): Fock matrix with the chemical
-                potential subtracted (float).
-            t_list (list): List of number of fragment and bath orbitals (int).
-            oneint (numpy.array): One-electron integrals of fragment (float).
-            twoint (numpy.array): Two-electron integrals of fragment (float).
-            fock (numpy.array): Fock matrix of fragment (float).
 
         Returns:
             float: Fragment energy (fragment_energy).
-            float: Total energy for fragment using RDMs (total_energy_rdm).
-            numpy.array: One-particle RDM for a fragment (one_rdm, float).
+            numpy.array: One-particle RDM for a fragment (onerdm, float).
         """
 
-        # Execute CCSD calculation
+        fock = dmet_fragment.fock
+        t_list = dmet_fragment.t_list
+        oneint = dmet_fragment.one_ele
+        twoint = dmet_fragment.two_ele
+        mo_coeff = dmet_fragment.mean_field.mo_coeff
+
         norb = t_list[0]
 
         # Calculate the one- and two- RDM for DMET energy calculation (Transform to AO basis)
-        one_rdm = mf_frag.mo_coeff @ onerdm @ mf_frag.mo_coeff.T
+        onerdm = mo_coeff @ onerdm @ mo_coeff.T
 
-        twordm = np.einsum("pi,ijkl->pjkl", mf_frag.mo_coeff, twordm)
-        twordm = np.einsum("qj,pjkl->pqkl", mf_frag.mo_coeff, twordm)
-        twordm = np.einsum("rk,pqkl->pqrl", mf_frag.mo_coeff, twordm)
-        twordm = np.einsum("sl,pqrl->pqrs", mf_frag.mo_coeff, twordm)
-
-        # Calculate the total energy based on RDMs
-        total_energy_rdm = np.einsum("ij,ij->", fock_frag_copy, one_rdm) \
-            + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm)
+        twordm = np.einsum("pi,ijkl->pjkl", mo_coeff, twordm)
+        twordm = np.einsum("qj,pjkl->pqkl", mo_coeff, twordm)
+        twordm = np.einsum("rk,pqkl->pqrl", mo_coeff, twordm)
+        twordm = np.einsum("sl,pqrl->pqrs", mo_coeff, twordm)
 
         # Calculate fragment expectation value
-        fragment_energy_one_rdm = np.einsum("ij,ij->", one_rdm[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
-            + np.einsum("ij,ij->", one_rdm[:, : norb], fock[:, : norb] + oneint[:, : norb])
-        fragment_energy_one_rdm *= 0.25
+        fragment_energy_onerdm = np.einsum("ij,ij->", onerdm[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
+            + np.einsum("ij,ij->", onerdm[:, : norb], fock[:, : norb] + oneint[:, : norb])
+        fragment_energy_onerdm *= 0.25
 
-        fragment_energy_two_rdm = np.einsum("ijkl,ijkl->", twordm[: norb, :, :, :], twoint[: norb, :, :, :]) \
+        fragment_energy_twordm = np.einsum("ijkl,ijkl->", twordm[: norb, :, :, :], twoint[: norb, :, :, :]) \
             + np.einsum("ijkl,ijkl->", twordm[:, : norb, :, :], twoint[:, : norb, :, :]) \
             + np.einsum("ijkl,ijkl->", twordm[:, :, : norb, :], twoint[:, :, : norb, :]) \
             + np.einsum("ijkl,ijkl->", twordm[:, :, :, : norb], twoint[:, :, :, : norb])
-        fragment_energy_two_rdm *= 0.125
+        fragment_energy_twordm *= 0.125
 
-        fragment_energy = fragment_energy_one_rdm + fragment_energy_two_rdm
+        fragment_energy = fragment_energy_onerdm + fragment_energy_twordm
 
-        return fragment_energy, total_energy_rdm, one_rdm
+        return fragment_energy, onerdm
 
-    def _compute_energy_unrestricted(self, mf_frag, onerdm, twordm, fock_frag_copy, t_list, oneint, twoint, fock):
-        """Calculate the fragment energy.
+    def _compute_energy_unrestricted(self, dmet_fragment, onerdm, twordm):
+        """Calculate the fragment energy (unrestricted mean-field).
 
         Args:
-            mf_frag (pyscf.scf.UHF): The mean field of the fragment.
-            onerdm (numpy.array): one-particle reduced density matrix (float64).
-            twordm (numpy.array): two-particle reduced density matrix (float64).
-            fock_frag_copy (numpy.array): Fock matrix with the chemical potential subtracted (float64).
-            t_list (list): List of number of fragment and bath orbitals (int).
-            oneint (numpy.array): One-electron integrals of fragment (float64).
-            twoint (numpy.array): Two-electron integrals of fragment (float64).
-            fock (numpy.array): Fock matrix of fragment (float64).
+            dmet_fragment (SecondQuantizedDMETFragment): Self-explanatory.
+            onerdm (numpy.array): one-particle reduced density matrix (float).
+            twordm (numpy.array): two-particle reduced density matrix (float).
 
         Returns:
             float64: Fragment energy (fragment_energy).
-            float64: Total energy for fragment using RDMs (total_energy_rdm).
             numpy.array: One-particle (alpha) RDM for a fragment (onerdm_a, float64).
             numpy.array: One-particle (beta) RDM for a fragment (onerdm_b, float64).
         """
 
-        # Execute CCSD calculation
+        fock = dmet_fragment.fock
+        t_list = dmet_fragment.t_list
+        oneint = dmet_fragment.one_ele
+        twoint = dmet_fragment.two_ele
+        mo_coeff = dmet_fragment.mean_field.mo_coeff
+
         norb = t_list[0]
 
         # Calculate the one- and two- RDM for DMET energy calculation (Transform to AO basis)
-        one_rdm_a, one_rdm_b = onerdm
+        onerdm_a, onerdm_b = onerdm
 
-        onerdm_a = mf_frag.mo_coeff[0] @ one_rdm_a @ mf_frag.mo_coeff[0].T
-        onerdm_b = mf_frag.mo_coeff[1] @ one_rdm_b @ mf_frag.mo_coeff[1].T
+        onerdm_a = mo_coeff[0] @ onerdm_a @ mo_coeff[0].T
+        onerdm_b = mo_coeff[1] @ onerdm_b @ mo_coeff[1].T
 
-        two_rdm_aa, two_rdm_ab, two_rdm_bb = twordm
+        twordm_aa, twordm_ab, twordm_bb = twordm
 
-        twordm_aa = np.einsum("pi,ijkl->pjkl", mf_frag.mo_coeff[0], two_rdm_aa)
-        twordm_aa = np.einsum("qj,pjkl->pqkl", mf_frag.mo_coeff[0], twordm_aa)
-        twordm_aa = np.einsum("rk,pqkl->pqrl", mf_frag.mo_coeff[0], twordm_aa)
-        twordm_aa = np.einsum("sl,pqrl->pqrs", mf_frag.mo_coeff[0], twordm_aa)
+        twordm_aa = np.einsum("pi,ijkl->pjkl", mo_coeff[0], twordm_aa)
+        twordm_aa = np.einsum("qj,pjkl->pqkl", mo_coeff[0], twordm_aa)
+        twordm_aa = np.einsum("rk,pqkl->pqrl", mo_coeff[0], twordm_aa)
+        twordm_aa = np.einsum("sl,pqrl->pqrs", mo_coeff[0], twordm_aa)
 
-        twordm_ab = np.einsum("pi,ijkl->pjkl", mf_frag.mo_coeff[0], two_rdm_ab)
-        twordm_ab = np.einsum("qj,pjkl->pqkl", mf_frag.mo_coeff[0], twordm_ab)
-        twordm_ab = np.einsum("rk,pqkl->pqrl", mf_frag.mo_coeff[1], twordm_ab)
-        twordm_ab = np.einsum("sl,pqrl->pqrs", mf_frag.mo_coeff[1], twordm_ab)
+        twordm_ab = np.einsum("pi,ijkl->pjkl", mo_coeff[0], twordm_ab)
+        twordm_ab = np.einsum("qj,pjkl->pqkl", mo_coeff[0], twordm_ab)
+        twordm_ab = np.einsum("rk,pqkl->pqrl", mo_coeff[1], twordm_ab)
+        twordm_ab = np.einsum("sl,pqrl->pqrs", mo_coeff[1], twordm_ab)
 
-        twordm_bb = np.einsum("pi,ijkl->pjkl", mf_frag.mo_coeff[1], two_rdm_bb)
-        twordm_bb = np.einsum("qj,pjkl->pqkl", mf_frag.mo_coeff[1], twordm_bb)
-        twordm_bb = np.einsum("rk,pqkl->pqrl", mf_frag.mo_coeff[1], twordm_bb)
-        twordm_bb = np.einsum("sl,pqrl->pqrs", mf_frag.mo_coeff[1], twordm_bb)
-
-        # Calculate the total energy based on RDMs
-        total_energy_rdm = np.einsum("ij,ij->", fock_frag_copy, onerdm_a) \
-            + np.einsum("ij,ij->", fock_frag_copy, onerdm_b) \
-            + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_aa) \
-            + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_ab) \
-            + 0.5 * np.einsum("ijkl,klij->", twoint, twordm_ab) \
-            + 0.5 * np.einsum("ijkl,ijkl->", twoint, twordm_bb)
+        twordm_bb = np.einsum("pi,ijkl->pjkl", mo_coeff[1], twordm_bb)
+        twordm_bb = np.einsum("qj,pjkl->pqkl", mo_coeff[1], twordm_bb)
+        twordm_bb = np.einsum("rk,pqkl->pqrl", mo_coeff[1], twordm_bb)
+        twordm_bb = np.einsum("sl,pqrl->pqrs", mo_coeff[1], twordm_bb)
 
         # Calculate fragment expectation value
         fragment_energy_one = np.einsum("ij,ij->", onerdm_a[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
@@ -657,7 +657,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         fragment_energy = fragment_energy_one + fragment_energy_two
 
-        return fragment_energy, total_energy_rdm, onerdm_a, onerdm_b
+        return fragment_energy, onerdm_a, onerdm_b
 
     def _default_optimizer(self, func, var_params):
         """Function used as a default optimizer for DMET when user does not
