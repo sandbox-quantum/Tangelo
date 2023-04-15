@@ -3,6 +3,36 @@
 This file documents the main changes between versions of the code.
 
 
+## [0.3.4] - 2023-02-15
+
+### Added
+
+- Richardson extrapolation: support for variance and std dev (+ bugfix)
+- Allow single flip index dis for QCC
+- Notebook: iQCC using only Clifford circuits
+- UHF reference mean-field
+- Multi-product, grid circuits and discrete clock
+- translate_circuit now supports Pennylane format and full bidirectional translation for all formats
+- translate_op now supports all formats, both ways
+- Saving mid-circuit measurements
+- Selecting a desired mid-circuit measurement for simulation
+- compute_rdms from a classical shadow, experimental data or using a backend on the fly
+- support for frozen orbitals for each fragment in DMET
+- Notebook for Tangelo + IBM Quantum demo (IBMQConnection)
+- draw method for circuits
+
+### Changed
+
+- Bumped Python version number to 3.8 as 3.7 is no longer supported
+- Bugfix: DMET + QCC
+- Auto-threshold cutoff for small coefficients in LCU
+- examples folder no longer in main repo, moved to Tangelo-Examples repo
+- Bugfix: IBMQConnection (API update)
+
+### Deprecated
+
+
+
 ## [0.3.3] - 2022-11-09
 
 ### Added
