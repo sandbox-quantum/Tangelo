@@ -99,13 +99,14 @@ class SympySimulator(Backend):
             sympy.core.add.Add: Eigenvalue represented as a symbolic sum.
         """
 
-        from sympy import simplify, nsimplify
-        from sympy.physics.quantum import qapply, Dagger
+        from sympy import simplify, nsimplify, cos
+        from sympy.physics.quantum import Dagger
 
         prepared_state = self._current_state if prepared_state is None else prepared_state
         operator = translate_operator(qubit_operator, source="tangelo", target="sympy", n_qubits=n_qubits)
 
         eigenvalue = Dagger(prepared_state) * operator * prepared_state
+        eigenvalue = eigenvalue[0, 0].rewrite(cos)
         eigenvalue = simplify(eigenvalue)
         eigenvalue = nsimplify(eigenvalue, tolerance=1e-4, rational=True)
 

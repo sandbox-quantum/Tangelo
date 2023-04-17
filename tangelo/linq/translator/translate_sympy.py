@@ -213,11 +213,9 @@ def translate_op_to_sympy(qubit_operator, n_qubits):
             objects.
     """
     from sympy import Identity, Matrix, I, zeros
-    from sympy.physics.paulialgebra import Pauli
     from sympy.physics.quantum import TensorProduct
 
     # Pauli string to sympy Pauli algebra objects.
-    #map_to_paulis = {"I": Identity(1), "X": Pauli(1), "Y": Pauli(2), "Z": Pauli(3)}
     map_to_paulis = {
         "I": Matrix([[1, 0], [0, 1]]),
         "X": Matrix([[0, 1], [1, 0]]),
