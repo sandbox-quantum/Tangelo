@@ -212,15 +212,21 @@ def translate_op_to_sympy(qubit_operator, n_qubits):
         sympy.core.add.Add: Summation of sympy.physics.quantum.TensorProduct
             objects.
     """
-    from sympy import Identity
+    from sympy import Identity, Matrix, I, zeros
     from sympy.physics.paulialgebra import Pauli
     from sympy.physics.quantum import TensorProduct
 
     # Pauli string to sympy Pauli algebra objects.
-    map_to_paulis = {"I": Identity(1), "X": Pauli(1), "Y": Pauli(2), "Z": Pauli(3)}
+    #map_to_paulis = {"I": Identity(1), "X": Pauli(1), "Y": Pauli(2), "Z": Pauli(3)}
+    map_to_paulis = {
+        "I": Matrix([[1, 0], [0, 1]]),
+        "X": Matrix([[0, 1], [1, 0]]),
+        "Y": Matrix([[0, -I], [I, 0]]),
+        "Z": Matrix([[1, 0], [0, -1]])
+    }
 
     # Contruct the TensorProduct objects.
-    sum_tensor_paulis = 0.
+    sum_tensor_paulis = zeros(2**n_qubits, 2**n_qubits)
     for term_tuple, coeff in qubit_operator.terms.items():
         term_string = pauli_of_to_string(term_tuple, n_qubits)
         paulis = [map_to_paulis[p] for p in term_string[::-1]]
