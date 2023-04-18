@@ -104,7 +104,7 @@ class ESSolver_pyscf(ESSolver):
         tmol.n_mos = molecule.nao_nr()
         tmol.n_sos = 2*tmol.n_mos
 
-        tmol.mo_coeff = tmol.mean_field.mo_coeff.copy()
+        self.mo_coeff = tmol.mean_field.mo_coeff
 
     def get_integrals(self, tmol, mo_coeff=None):
         """Computes core constant, one_body, and two-body coefficients for a given active space and mo_coeff
@@ -123,7 +123,7 @@ class ESSolver_pyscf(ESSolver):
         # Pyscf molecule to get integrals.
         pyscf_mol = self.to_pyscf(tmol, tmol.basis, tmol.symmetry, tmol.ecp)
         if mo_coeff is None:
-            mo_coeff = tmol.mean_field.mo_coeff
+            mo_coeff = self.mo_coeff
 
         if tmol.uhf:
             one_body, two_body = self.compute_uhf_integrals(tmol, mo_coeff)

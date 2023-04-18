@@ -90,7 +90,7 @@ class Molecule:
     xyz: list or str
     q: int = 0
     spin: int = 0
-    solver: ESSolver = ESSolver_pyscf()
+    solver: ESSolver = field(default_factory=ESSolver_pyscf)
 
     # Defined in __post_init__.
     n_atoms: int = field(init=False)
@@ -271,22 +271,22 @@ class SecondQuantizedMolecule(Molecule):
         Returns:
             np.array: MO coefficient as a numpy array.
         """
-        return self.mean_field.mo_coeff
+        return self.solver.mo_coeff
 
     @mo_coeff.setter
     def mo_coeff(self, new_mo_coeff):
         # Asserting the new molecular coefficient matrix have the same dimensions.
         if self.uhf:
             assert len(new_mo_coeff) == 2, "Must provide [alpha mo_coeff, beta_mo_coeff]"
-            assert ((self.mean_field.mo_coeff[0].shape == new_mo_coeff[0].shape) and
-                    (self.mean_field.mo_coeff[1].shape == new_mo_coeff[1].shape)), \
+            assert ((self.solver.mo_coeff[0].shape == new_mo_coeff[0].shape) and
+                    (self.solver.mo_coeff[1].shape == new_mo_coeff[1].shape)), \
                    f"The new molecular coefficients has shape {[new_mo_coeff[0].shape, new_mo_coeff[1].shape]}"\
-                   f" shape: expected shape is {[self.mean_field.mo_coeff[0].shape, self.mean_field.mo_coeff[1].shape]}."
+                   f" shape: expected shape is {[self.solver.mo_coeff[0].shape, self.solver.mo_coeff[1].shape]}."
         else:
-            assert self.mean_field.mo_coeff.shape == new_mo_coeff.shape, \
+            assert self.solver.mo_coeff.shape == new_mo_coeff.shape, \
                    f"The new molecular coefficients matrix has a {new_mo_coeff.shape}"\
-                   f" shape: expected shape is {self.mean_field.mo_coeff.shape}."
-        self.mean_field.mo_coeff = np.array(new_mo_coeff)
+                   f" shape: expected shape is {self.solver.mo_coeff.shape}."
+        self.solver.mo_coeff = np.array(new_mo_coeff)
 
     def _get_fermionic_hamiltonian(self, mo_coeff=None):
         """This method returns the fermionic hamiltonian. It written to take
@@ -380,6 +380,19 @@ class SecondQuantizedMolecule(Molecule):
         return e.real
 
     def get_integrals(self, mo_coeff=None, consider_frozen=True):
+        """Computes core constant, one_body, and two-body coefficients with frozen orbitals folded into one-body coefficients
+        and core constant for mo_coeff if consider_frozen is True
+
+        For UHF
+        one_body coefficients are [alpha one_body, beta one_body]
+        two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]
+
+        Args:
+            mo_coeff (array): The molecular orbital coefficients to use to generate the integrals
+
+        Returns:
+            (float, array or List[array], array or List[array]): (core_constant, one_body coefficients, two_body coefficients)
+        """
         if not self.uhf:
             core_constant, one_body_integrals, two_body_integrals = self.solver.get_integrals(self, mo_coeff)
             if consider_frozen:
@@ -506,25 +519,18 @@ class SecondQuantizedMolecule(Molecule):
 
         return core_constant, one_body_integrals_new, two_body_integrals_new
 
-    def _get_molecular_hamiltonian_uhf(self, occupied_indices=None,
-                                       active_indices=None):
+    def _get_molecular_hamiltonian_uhf(self):
         """Output arrays of the second quantized Hamiltonian coefficients.
         Note:
             The indexing convention used is that even indices correspond to
             spin-up (alpha) modes and odd indices correspond to spin-down
             (beta) modes.
 
-        Args:
-            occupied_indices(list): A list of spatial orbital indices
-                indicating which orbitals should be considered doubly occupied.
-            active_indices(list): A list of spatial orbital indices indicating
-                which orbitals should be considered active.
-
         Returns:
             InteractionOperator: The molecular hamiltonian
         """
 
-        constant, one_body_integrals, two_body_integrals = self._get_active_space_integrals_uhf(occupied_indices, active_indices)
+        constant, one_body_integrals, two_body_integrals = self.get_active_space_integrals()
 
         # Lets find the dimensions
         n_orb_a = one_body_integrals[0].shape[0]
