@@ -61,7 +61,7 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         MolecularData class.
         """
 
-        molecule = SecondQuantizedMolecule(H2_list, 0, 0, "sto-3g")
+        molecule = SecondQuantizedMolecule(H2_list, 0, 0, basis="sto-3g")
 
         assert(molecule.elements == ["H"]*2)
         assert(molecule.basis == "sto-3g")
@@ -69,7 +69,7 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         assert(molecule.q == 0)
         assert(molecule.n_electrons == 2)
 
-        molecule = SecondQuantizedMolecule(H2_file_xyz, 0, 0, "sto-3g")
+        molecule = SecondQuantizedMolecule(H2_file_xyz, 0, 0, basis="sto-3g")
         assert(molecule.elements == ["H"]*2)
         assert(molecule.basis == "sto-3g")
         assert(molecule.spin == 0)
@@ -141,7 +141,7 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
     def test_mo_coeff_setter(self):
         """Verify the dimension check in the mo_coeff setter."""
 
-        molecule = SecondQuantizedMolecule(H2_list, 0, 0, "sto-3g")
+        molecule = SecondQuantizedMolecule(H2_list, 0, 0, basis="sto-3g")
 
         # Should work.
         dummy_mo_coeff = np.ones((2, 2))
@@ -152,7 +152,7 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             molecule.mo_coeff = bad_dummy_mo_coeff
 
-        molecule = SecondQuantizedMolecule(H2_list, 0, 0, "sto-3g", uhf=True)
+        molecule = SecondQuantizedMolecule(H2_list, 0, 0, basis="sto-3g", uhf=True)
 
         # Should work.
         dummy_mo_coeff = [np.ones((2, 2))]*2

@@ -97,7 +97,7 @@ def convert_frozen_orbitals(sec_mol, frozen_orbitals):
     """
 
     if frozen_orbitals == "frozen_core":
-        frozen_orbitals = get_frozen_core(sec_mol.to_pyscf(sec_mol.basis)) if not sec_mol.ecp else 0
+        frozen_orbitals = get_frozen_core(sec_mol.solver.to_pyscf(sec_mol, sec_mol.basis)) if not sec_mol.ecp else 0
     elif frozen_orbitals is None:
         frozen_orbitals = 0
 
