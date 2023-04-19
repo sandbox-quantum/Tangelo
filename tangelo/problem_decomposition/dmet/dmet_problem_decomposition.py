@@ -115,7 +115,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # Converting our interface to pyscf.mol.gto and pyscf.scf (used by this
         # code).
         self.mean_field = self.molecule.mean_field
-        self.molecule = self.molecule.to_pyscf(self.molecule.basis)
+        self.molecule = self.molecule.solver.to_pyscf(self.molecule, self.molecule.basis)
 
         # If fragment_atoms is detected as a nested list of int, atoms are reordered to be
         # consistent with a list of numbers representing the number of atoms in each fragment.

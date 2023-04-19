@@ -146,7 +146,7 @@ class Fragment:
             SecondQuantizedMolecule: Molecule object.
         """
 
-        return SecondQuantizedMolecule(self.geometry, self.charge, self.spin, basis, frozen_orbitals=frozen)
+        return SecondQuantizedMolecule(self.geometry, self.charge, self.spin, basis=basis, frozen_orbitals=frozen)
 
     @staticmethod
     def get_energy(molecule, solver):

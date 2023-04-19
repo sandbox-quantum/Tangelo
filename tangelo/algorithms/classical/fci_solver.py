@@ -64,7 +64,7 @@ class FCISolver(ElectronicStructureSolver):
         else:
             self.cas = False
             if self.spin == 0:
-                self.cisolver = fci.direct_spin0.FCI(molecule.to_pyscf(molecule.basis))
+                self.cisolver = fci.direct_spin0.FCI(molecule.mean_field.mol)
             else:
                 self.cisolver = fci.direct_spin1.FCI()
 

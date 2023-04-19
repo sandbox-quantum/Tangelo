@@ -62,7 +62,7 @@ class MINDO3Solver(ElectronicStructureSolver):
         """
         from pyscf.semiempirical import mindo3
 
-        solver = mindo3.RMINDO3(self.molecule.to_pyscf()).run(verbose=0)
+        solver = mindo3.RMINDO3(self.molecule.solver.to_pyscf(self.molecule)).run(verbose=0)
         total_energy = solver.e_tot
 
         return total_energy
