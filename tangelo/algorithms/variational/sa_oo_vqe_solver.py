@@ -113,7 +113,7 @@ class SA_OO_Solver(SA_VQESolver):
                 break
             for _ in range(self.n_oo_per_iter):
                 u_mat = self.generate_oo_unitary()
-                self.molecule.mean_field.mo_coeff = self.molecule.mean_field.mo_coeff @ u_mat
+                self.molecule.mo_coeff = self.molecule.mo_coeff @ u_mat
             self.energies.append(self.energy_from_rdms())
             if self.verbose:
                 print(f"The State-Averaged Orbital Optimized energy for iteration {iter} is: {self.energies[-1]}")
