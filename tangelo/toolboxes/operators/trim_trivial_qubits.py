@@ -21,17 +21,17 @@ from tangelo.linq.helpers.circuits import pauli_string_to_of, pauli_of_to_string
 
 def trim_trivial_operator(qu_op, n_qubits, trim_index, trim_states, reindex=True):
     """
-    Calculates expectation values of a QubitOperator acting on qubits in a
-    trivial |0> or |1> state. Returns a trimmed QubitOperator with updated coefficients
+    Calculate expectation values of a QubitOperator acting on qubits in a
+    trivial |0> or |1> state. Return a trimmed QubitOperator with updated coefficients
 
     Args:
         qu_op (QubitOperator): Operator to trim
         n_qubits (int): number of qubits in full system
         trim_index (list):  index of qubits to trim
         trim_states (list): state of the qubits to trim, 0 or 1
-        reindex (bool): If True, remaining qubits will be reindexed
+        reindex (bool): Optional, if True, remaining qubits will be reindexed
     Returns:
-        qu_op  (QubitOperator): trimmed QubitOperator with updated coefficients
+        QubitOperator : trimmed QubitOperator with updated coefficients
     """
     trim_states = [x for (y, x) in sorted(zip(trim_index, trim_states), key=lambda pair: pair[0])]
     trim_index = sorted(trim_index)
@@ -43,9 +43,9 @@ def trim_trivial_operator(qu_op, n_qubits, trim_index, trim_states, reindex=True
         c = np.ones(len(trim_index))
         new_term = term
         for i, qubit in enumerate(trim_index):
-            if term[qubit] in ('X', 'Y'):
+            if term[qubit] in {'X', 'Y'}:
                 c[i] = 0
-            elif term[qubit] == 'Z' and trim_states[i] == 1:
+            elif (term[qubit], trim_states[i]) == ('Z', 1):
                 c[i] = -1
 
             new_term = new_term[:qubit - i] + new_term[qubit - i + 1:] if reindex else new_term[:qubit] + 'I' + new_term[qubit + 1:]
@@ -56,15 +56,15 @@ def trim_trivial_operator(qu_op, n_qubits, trim_index, trim_states, reindex=True
 
 def trim_trivial_circuit(circuit):
     """
-        Splits Circuit into entangled. and unentangled components.
+        Splits Circuit into entangled and unentangled components.
         Returns entangled Circuit, and the indices and states of unentangled qubits
 
         Args:
             circuit (Circuit): circuit to be trimmed
         Returns:
-            circuit_new (Circuit) : Trimmed, entangled circuit
-            trim_states (list): state of removed qubits, 0 or 1
-            trim_index (list):  index of removed qubits
+            Circuit : Trimmed, entangled circuit
+            list : state of removed qubits, 0 or 1
+            list :  indices of removed qubits
 
     """
     # Split circuit into components with entangling and nonentangling gates
@@ -75,9 +75,8 @@ def trim_trivial_circuit(circuit):
     gated_qubits = [qubit for e_subset in e_indices for qubit in e_subset]
 
     # Find qubits with no gates applied to them, store qubit index and state |0>
-    zeros = list(sorted(set(range(circuit.width)) - set(gated_qubits)))
-    trim_index = [i for i in zeros]
-    trim_states = [0 for i in range(len(zeros))]
+    trim_index = list(sorted(set(range(circuit.width)) - set(gated_qubits)))
+    trim_states = [0]*len(trim_index)
 
     circuit_new = Circuit()
     # Go through circuit components, trim if trivial, otherwise append to new circuit
@@ -93,8 +92,8 @@ def trim_trivial_circuit(circuit):
             continue
 
         gate0, gate1 = circ._gates[:2] + [None] * (2 - num_gates)
-        gate_0_is_clifford = True if gate0 is not None and (gate0.parameter == "" or np.isclose(gate0.parameter, np.pi)) else False
-        gate_1_is_clifford = True if gate1 is not None and (gate1.parameter == "" or np.isclose(gate1.parameter, np.pi)) else False
+        gate_0_is_clifford = (gate0 is not None and (gate0.parameter == "" or np.isclose(gate0.parameter, np.pi)))
+        gate_1_is_clifford = (gate1 is not None and (gate1.parameter == "" or np.isclose(gate1.parameter, np.pi)))
 
         if num_gates == 1:
             if gate0.name in {"RZ", "Z"}:
@@ -125,19 +124,20 @@ def trim_trivial_circuit(circuit):
                 circuit_new += circ
     return circuit_new, trim_index, trim_states
 
+
 def trim_trivial_qubits(operator, circuit):
     """
-        Trims circuit and operator based on expectation values calculated from
+        Trim circuit and operator based on expectation values calculated from
         trivial components of the circuit.
 
         Args:
-            circuit (Circuit): circuit to be trimmed
             operator (QubitOperator): Operator to trim
+            circuit (Circuit): circuit to be trimmed
         Returns:
-            trimmed_operator (QubitOperator)
-            trimmed_circuit (Circuit)
+            QubitOperator : Trimmed qubit operator
+            Circuit : Trimmed circuit
     """
     trimmed_circuit, trim_index, trim_states = trim_trivial_circuit(circuit)
     trimmed_operator = trim_trivial_operator(operator, circuit.width, trim_index, trim_states, reindex=True)
 
-    return  trimmed_operator, trimmed_circuit
+    return trimmed_operator, trimmed_circuit
