@@ -276,6 +276,27 @@ class VQESolverTest(unittest.TestCase):
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.963270, delta=1e-4)
 
+        from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+        from tangelo.linq import Circuit, Gate
+        from tangelo.toolboxes.ansatz_generator.fermionic_operators import spinz_operator
+        from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize, get_qft_circuit
+
+        def sz_check(n_state: int, molecule: SecondQuantizedMolecule, mapping: str, up_then_down):
+            n_qft = 3
+            sym_var_circuit = Circuit([Gate("H", q) for q in range(n_state, n_state+n_qft)])
+            spin_fe_op = spinz_operator(molecule.n_active_mos)
+            q_spin = fermion_to_qubit_mapping(spin_fe_op, mapping, molecule.n_active_sos, molecule.n_active_electrons, up_then_down, molecule.spin)
+            for j, i in enumerate(range(n_state, n_state+n_qft)):
+                sym_var_circuit += trotterize(2*q_spin+3, -2*np.pi/2**(j+1), control=i)
+            sym_var_circuit += get_qft_circuit(list(range(n_state+n_qft-1, n_state-1, -1)), inverse=True) + Circuit([Gate("MEASURE", i) for i in range(n_state, n_state+n_qft)])
+            return sym_var_circuit
+        var_circuit = vqe_solver.optimal_circuit+sz_check(8, mol_H4_sto3g, "JW", vqe_solver.up_then_down)
+
+        vqe_solver_p = VQESolver({"ansatz": var_circuit, "qubit_hamiltonian": vqe_solver.qubit_hamiltonian, "simulate_options": {"desired_meas_result": "011"}})
+        vqe_solver_p.build()
+        energyp = vqe_solver_p.simulate()
+        self.assertAlmostEqual(energyp, -1.97622, delta=1e-4)
+
     def test_simulate_ilc_h4(self):
         """Run VQE on H4 molecule, with ILC ansatz, JW qubit mapping, initial
         parameters, exact simulator.

@@ -72,6 +72,7 @@ class VQESolver:
         initial_var_params (str or array-like) : initial value for the classical
             optimizer.
         backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
+        simulate_options (dict): parameters applicable to get_expectation_value e.g. desired_meas_result
         penalty_terms (dict): parameters for penalty terms to append to target
             qubit Hamiltonian (see penalty_terms for more details).
         deflation_circuits (list[Circuit]): Deflation circuits to add an
@@ -97,6 +98,7 @@ class VQESolver:
                            "optimizer": self._default_optimizer,
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
+                           "simulate_options": dict(),
                            "penalty_terms": None,
                            "deflation_circuits": list(),
                            "deflation_coeff": 1,
@@ -294,7 +296,7 @@ class VQESolver:
         # Update variational parameters, compute energy using the hardware backend
         self.ansatz.update_var_params(var_params)
         circuit = self.ansatz.circuit if self.ref_state is None else self.reference_circuit + self.ansatz.circuit
-        energy = self.backend.get_expectation_value(self.qubit_hamiltonian, circuit)
+        energy = self.backend.get_expectation_value(self.qubit_hamiltonian, circuit, **self.simulate_options)
 
         # Additional computation for deflation (optional)
         for circ in self.deflation_circuits:
@@ -380,7 +382,7 @@ class VQESolver:
                                                               spin=spin)
 
         self.ansatz.update_var_params(var_params)
-        expectation = self.backend.get_expectation_value(self.qubit_hamiltonian, ref_state+self.ansatz.circuit)
+        expectation = self.backend.get_expectation_value(self.qubit_hamiltonian, ref_state+self.ansatz.circuit, **self.simulate_options)
 
         # Restore the current target hamiltonian
         self.qubit_hamiltonian = tmp_hamiltonian
