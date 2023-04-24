@@ -198,7 +198,8 @@ class SA_VQESolver(VQESolver):
         energy = 0
         self.state_energies = list()
         for i, reference_circuit in enumerate(self.reference_circuits):
-            full_circ = reference_circuit + self.ansatz.circuit + self.projective_circuit if self.projective_circuit else reference_circuit + self.ansatz.circuit
+            full_circ = (reference_circuit + self.ansatz.circuit + self.projective_circuit if self.projective_circuit
+                         else reference_circuit + self.ansatz.circuit)
             state_energy = self.backend.get_expectation_value(self.qubit_hamiltonian, full_circ, **self.simulate_options)
             for circ in self.deflation_circuits:
                 f_dict, _ = self.backend.simulate(circ + full_circ.inverse(), **self.simulate_options)
