@@ -15,7 +15,7 @@
 import unittest
 import numpy as np
 
-from tangelo.linq import get_backend
+from tangelo.linq import get_backend, Circuit, Gate
 from tangelo.helpers.utils import installed_backends
 from tangelo.linq.target import QiskitSimulator
 from tangelo.algorithms import BuiltInAnsatze, VQESolver
@@ -24,6 +24,9 @@ from tangelo.toolboxes.ansatz_generator.uccsd import UCCSD
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.molecular_computation.rdms import matricize_2rdm
 from tangelo.toolboxes.optimizers.rotosolve import rotosolve
+from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from tangelo.toolboxes.ansatz_generator.fermionic_operators import spinz_operator
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize, get_qft_circuit
 
 
 class VQESolverTest(unittest.TestCase):
@@ -276,11 +279,6 @@ class VQESolverTest(unittest.TestCase):
         energy = vqe_solver.simulate()
         self.assertAlmostEqual(energy, -1.963270, delta=1e-4)
 
-        from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
-        from tangelo.linq import Circuit, Gate
-        from tangelo.toolboxes.ansatz_generator.fermionic_operators import spinz_operator
-        from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize, get_qft_circuit
-
         def sz_check(n_state: int, molecule: SecondQuantizedMolecule, mapping: str, up_then_down):
             n_qft = 3
             sym_var_circuit = Circuit([Gate("H", q) for q in range(n_state, n_state+n_qft)])
@@ -288,11 +286,20 @@ class VQESolverTest(unittest.TestCase):
             q_spin = fermion_to_qubit_mapping(spin_fe_op, mapping, molecule.n_active_sos, molecule.n_active_electrons, up_then_down, molecule.spin)
             for j, i in enumerate(range(n_state, n_state+n_qft)):
                 sym_var_circuit += trotterize(2*q_spin+3, -2*np.pi/2**(j+1), control=i)
-            sym_var_circuit += get_qft_circuit(list(range(n_state+n_qft-1, n_state-1, -1)), inverse=True) + Circuit([Gate("MEASURE", i) for i in range(n_state, n_state+n_qft)])
+            sym_var_circuit += get_qft_circuit(list(range(n_state+n_qft-1, n_state-1, -1)), inverse=True)
+            sym_var_circuit += Circuit([Gate("MEASURE", i) for i in range(n_state, n_state+n_qft)])
             return sym_var_circuit
-        var_circuit = vqe_solver.optimal_circuit+sz_check(8, mol_H4_sto3g, "JW", vqe_solver.up_then_down)
+        proj_circuit = sz_check(8, mol_H4_sto3g, "JW", vqe_solver.up_then_down)
+        var_circuit = vqe_solver.optimal_circuit + proj_circuit
 
         vqe_solver_p = VQESolver({"ansatz": var_circuit, "qubit_hamiltonian": vqe_solver.qubit_hamiltonian, "simulate_options": {"desired_meas_result": "011"}})
+        vqe_solver_p.build()
+        energyp = vqe_solver_p.simulate()
+        self.assertAlmostEqual(energyp, -1.97622, delta=1e-4)
+
+        var_circuit = vqe_solver.optimal_circuit
+        vqe_solver_p = VQESolver({"ansatz": var_circuit, "qubit_hamiltonian": vqe_solver.qubit_hamiltonian,
+                                  "simulate_options": {"desired_meas_result": "011"}, "projective_circuit": proj_circuit})
         vqe_solver_p.build()
         energyp = vqe_solver_p.simulate()
         self.assertAlmostEqual(energyp, -1.97622, delta=1e-4)

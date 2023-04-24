@@ -63,10 +63,13 @@ class ADAPTSolver:
         n_electrons (int): Self-explanatory.
         optimizer (func): Optimization function for VQE minimization.
         backend_options (dict): Backend options for the underlying VQE object.
+        simulate_options (dict): parameters applicable to get_expectation_value e.g. desired_meas_result
         verbose (bool): Flag for verbosity of VQE.
         deflation_circuits (list[Circuit]): Deflation circuits to add an
             orthogonalization penalty with.
         deflation_coeff (float): The coefficient of the deflation.
+        projective_circuit: A terminal circuit that projects into the correct space, always added to
+            the end of the simulated circuit.
         ref_state (array or Circuit): The reference configuration to use. Replaces HF state
      """
 
@@ -85,9 +88,11 @@ class ADAPTSolver:
                            "spin": None,
                            "optimizer": self.LBFGSB_optimizer,
                            "backend_options": default_backend_options,
+                           "simulate_options": dict(),
                            "verbose": False,
                            "ref_state": None,
                            "deflation_circuits": list(),
+                           "projective_circuit": None,
                            "deflation_coeff": 1}
 
         # Initialize with default values
@@ -160,8 +165,10 @@ class ADAPTSolver:
                             "ansatz": self.ansatz,
                             "optimizer": self.optimizer,
                             "backend_options": self.backend_options,
+                            "simulate_options": self.simulate_options,
                             "deflation_circuits": self.deflation_circuits,
                             "deflation_coeff": self.deflation_coeff,
+                            "projective_circuit": self.projective_circuit,
                             "ref_state": self.ref_state
                             }
 
@@ -189,8 +196,8 @@ class ADAPTSolver:
         # Only a qubit operator is provided with a FermionOperator pool.
         if not (self.n_spinorbitals and self.n_electrons and self.spin is not None):
             raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals), "
-                "the number of electrons (n_electrons) and the spin (spin) with "
-                "a qubit_hamiltonian when working with a pool of fermion operators.")
+                             "the number of electrons (n_electrons) and the spin (spin) with "
+                             "a qubit_hamiltonian when working with a pool of fermion operators.")
 
         if isinstance(pool_list[0], QubitOperator):
             self.pool_type = 'qubit'
@@ -232,6 +239,8 @@ class ADAPTSolver:
 
             full_circuit = (self.vqe_solver.ansatz.circuit if self.ref_state is None else
                             self.vqe_solver.reference_circuit + self.vqe_solver.ansatz.circuit)
+            if self.projective_circuit:
+                full_circuit += self.projective_circuit
             gradients = self.compute_gradients(full_circuit, backend=self.vqe_solver.backend)
             pool_select = self.choose_operator(gradients, tolerance=self.tol)
 
@@ -280,15 +289,15 @@ class ADAPTSolver:
             list of float: Operator gradients.
         """
 
-        gradient = [abs(backend.get_expectation_value(element, circuit)) for element in self.pool_commutators]
+        gradient = [abs(backend.get_expectation_value(element, circuit, **self.simulate_options)) for element in self.pool_commutators]
         for deflate_circuit in self.deflation_circuits:
             for i, pool_op in enumerate(self.pool_operators):
                 op_circuit = Circuit([Gate(op[1], op[0]) for tuple in pool_op.terms for op in tuple])
                 pool_over = deflate_circuit.inverse() + op_circuit + circuit
-                f_dict, _ = backend.simulate(pool_over)
+                f_dict, _ = backend.simulate(pool_over, **self.simulate_options)
                 grad = f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
                 pool_over = deflate_circuit.inverse() + circuit
-                f_dict, _ = backend.simulate(pool_over)
+                f_dict, _ = backend.simulate(pool_over, **self.simulate_options)
                 gradient[i] += self.deflation_coeff * grad * f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
 
         return gradient

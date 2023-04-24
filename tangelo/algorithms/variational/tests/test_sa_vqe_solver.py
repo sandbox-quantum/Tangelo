@@ -16,6 +16,7 @@ import unittest
 
 import numpy as np
 
+from tangelo.linq import Circuit, Gate
 from tangelo.algorithms import BuiltInAnsatze, SA_VQESolver
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.ansatz_generator import UCCSD
@@ -136,6 +137,31 @@ class SA_VQESolverTest(unittest.TestCase):
 
         energy = vqe_solver_2.simulate()
         self.assertAlmostEqual(exact_energies[2], energy, delta=1.e-3)
+
+    def test_projected_simulate_h2(self):
+        """Run SA-VQE on H2 molecule, with UpCCGSD ansatz, JW qubit mapping, ref_states and exact simulator.
+        Followed by deflation of two states calculated to determine next excited state.
+        """
+
+        sym_check = Circuit([Gate("CNOT", target=q, control=4) for q in {0, 2}] + [Gate("CNOT", target=q, control=5) for q in [1, 3]])
+        sym_check += Circuit([Gate("MEASURE", 4), Gate("MEASURE", 5)])
+
+        vqe_options = {"molecule": mol_H2_sto3g, "ansatz": BuiltInAnsatze.UpCCGSD, "qubit_mapping": "jw",
+                       "verbose": True, "ref_states": [[1, 1, 0, 0], [1, 0, 0, 1]], "weights": [1.2, 0.9],
+                       "projective_circuit": sym_check, "simulate_options": {"desired_meas_result": "00"}}
+        sa_vqe_solver = SA_VQESolver(vqe_options)
+        sa_vqe_solver.build()
+
+        # code to generate exact results.
+        # from pyscf import mcscf
+        # mc = mcscf.CASCI(mol_H2_sto3g.mean_field, 2, 2)
+        # mc.fcisolver.nroots = 3
+        # exact_energies = mc.casci()[0]
+        exact_energies = [-1.1372702, -0.5324790, -0.1699013]
+
+        # Use state averaging to get ground and first excited state.
+        _ = sa_vqe_solver.simulate()
+        np.testing.assert_array_almost_equal(exact_energies[:2], sa_vqe_solver.state_energies, decimal=3)
 
     def test_get_rdm_h2(self):
         """Compute RDMs with UCCSD ansatz, JW qubit mapping, optimized
