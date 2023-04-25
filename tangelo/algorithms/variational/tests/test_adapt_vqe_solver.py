@@ -132,11 +132,13 @@ class ADAPTSolverTest(unittest.TestCase):
             ("H", [2, 0, 0.0])]
         mol = SecondQuantizedMolecule(xyz_H3, 0, 1, basis="sto-3g")
 
+        # QPE based Sz projection.
         def sz_check(n_state: int, molecule: SecondQuantizedMolecule, mapping: str, up_then_down):
             n_qft = 3
-            sym_var_circuit = Circuit([Gate("H", q) for q in range(n_state, n_state+n_qft)])
             spin_fe_op = spinz_operator(molecule.n_active_mos)
             q_spin = fermion_to_qubit_mapping(spin_fe_op, mapping, molecule.n_active_sos, molecule.n_active_electrons, up_then_down, molecule.spin)
+
+            sym_var_circuit = Circuit([Gate("H", q) for q in range(n_state, n_state+n_qft)])
             for j, i in enumerate(range(n_state, n_state+n_qft)):
                 sym_var_circuit += trotterize(2*q_spin+3, -2*np.pi/2**(j+1), control=i)
             sym_var_circuit += get_qft_circuit(list(range(n_state+n_qft-1, n_state-1, -1)), inverse=True)

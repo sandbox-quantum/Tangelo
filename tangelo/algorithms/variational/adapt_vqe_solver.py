@@ -63,7 +63,7 @@ class ADAPTSolver:
         n_electrons (int): Self-explanatory.
         optimizer (func): Optimization function for VQE minimization.
         backend_options (dict): Backend options for the underlying VQE object.
-        simulate_options (dict): parameters applicable to get_expectation_value e.g. desired_meas_result
+        simulate_options (dict): Options applicable to get_expectation_value e.g. desired_meas_result
         verbose (bool): Flag for verbosity of VQE.
         deflation_circuits (list[Circuit]): Deflation circuits to add an
             orthogonalization penalty with.
