@@ -373,7 +373,7 @@ class VQESolver:
             raise TypeError("operator must be a of string, FermionOperator or QubitOperator type.")
 
         if isinstance(operator, (str, FermionOperator)):
-            if (n_active_electrons is None or n_active_sos is None or spin is None) and self.qubit_mapping == "scbk":
+            if (n_active_electrons is None or n_active_sos is None or spin is None) and (self.qubit_mapping == "scbk" or self.up_then_down):
                 if self.molecule:
                     n_active_electrons = self.molecule.n_active_electrons
                     n_active_sos = self.molecule.n_active_sos
@@ -389,7 +389,10 @@ class VQESolver:
                                                               spin=spin)
 
         self.ansatz.update_var_params(var_params)
-        expectation = self.backend.get_expectation_value(self.qubit_hamiltonian, ref_state+self.ansatz.circuit, **self.simulate_options)
+        circuit = self.ansatz.circuit if self.ref_state is None else self.reference_circuit + self.ansatz.circuit
+        if self.projective_circuit:
+            circuit += self.projective_circuit
+        expectation = self.backend.get_expectation_value(self.qubit_hamiltonian, circuit, **self.simulate_options)
 
         # Restore the current target hamiltonian
         self.qubit_hamiltonian = tmp_hamiltonian

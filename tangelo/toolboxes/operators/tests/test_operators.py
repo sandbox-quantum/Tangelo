@@ -107,9 +107,14 @@ class FermionOperatorTest(unittest.TestCase):
         fop += FermionOperator("0^ 1", 3.)
         self.assertEqual(fop, fop_1)
 
+        # Test addition with coefficient
+        print(fop_1)
+        print(fop_1+0.)
+        self.assertEqual(0. + fop_1, fop_1)
+
         # Test addition with non-compatible type
         with self.assertRaises(RuntimeError):
-            fop + 1
+            fop + "a"
 
     def test_mul(self):
         # Test in-place multiplication
