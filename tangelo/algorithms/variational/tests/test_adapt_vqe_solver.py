@@ -16,12 +16,12 @@ import unittest
 
 import numpy as np
 
-from tangelo.algorithms.variational import ADAPTSolver
+from tangelo.molecule_library import mol_H2_sto3g, xyz_H4
 from tangelo.linq import Circuit, Gate
+from tangelo.algorithms.variational import ADAPTSolver
 from tangelo.toolboxes.ansatz_generator.fermionic_operators import spinz_operator
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize, get_qft_circuit
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from tangelo.molecule_library import mol_H2_sto3g, xyz_H4
 from tangelo.toolboxes.ansatz_generator._unitary_majorana_cc import get_majorana_uccgsd_pool, get_majorana_uccsd_pool
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 
@@ -138,7 +138,7 @@ class ADAPTSolverTest(unittest.TestCase):
             spin_fe_op = spinz_operator(molecule.n_active_mos)
             q_spin = fermion_to_qubit_mapping(spin_fe_op, mapping, molecule.n_active_sos, molecule.n_active_electrons, up_then_down, molecule.spin)
 
-            sym_var_circuit = Circuit([Gate("H", q) for q in range(n_state, n_state+n_qft)])
+            sym_var_circuit = Circuit([Gate("H", n_state + q) for q in range(n_qft)])
             for j, i in enumerate(range(n_state, n_state+n_qft)):
                 sym_var_circuit += trotterize(2*q_spin+3, -2*np.pi/2**(j+1), control=i)
             sym_var_circuit += get_qft_circuit(list(range(n_state+n_qft-1, n_state-1, -1)), inverse=True)

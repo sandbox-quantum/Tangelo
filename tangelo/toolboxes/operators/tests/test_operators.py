@@ -108,9 +108,7 @@ class FermionOperatorTest(unittest.TestCase):
         self.assertEqual(fop, fop_1)
 
         # Test addition with coefficient
-        print(fop_1)
-        print(fop_1+0.)
-        self.assertEqual(0. + fop_1, fop_1)
+        self.assertEqual(2. + fop_1, fop_2 + 2.)
 
         # Test addition with non-compatible type
         with self.assertRaises(RuntimeError):

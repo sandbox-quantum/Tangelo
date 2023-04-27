@@ -72,7 +72,7 @@ class VQESolver:
         initial_var_params (str or array-like) : initial value for the classical
             optimizer.
         backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
-        simulate_options (dict): parameters applicable to get_expectation_value e.g. desired_meas_result.
+        simulate_options (dict): Options for fine-control of the simulator backend, including desired measurement results, etc.
         penalty_terms (dict): parameters for penalty terms to append to target
             qubit Hamiltonian (see penalty_terms for more details).
         deflation_circuits (list[Circuit]): Deflation circuits to add an
@@ -85,8 +85,8 @@ class VQESolver:
                 spin up/down ordering.
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         verbose (bool): Flag for VQE verbosity.
-        projective_circuit: A terminal circuit that projects into the correct space, always added to
-            the end of the simulated circuit.
+        projective_circuit (Circuit): A terminal circuit that projects into the correct space, always added to
+            the end of the ansatz circuit.
         ref_state (array or Circuit): The reference configuration to use. Replaces HF state
             QMF, QCC, ILC require ref_state to be an array. UCC1, UCC3, VSQS can not use a
             different ref_state than HF by construction.

@@ -63,13 +63,13 @@ class ADAPTSolver:
         n_electrons (int): Self-explanatory.
         optimizer (func): Optimization function for VQE minimization.
         backend_options (dict): Backend options for the underlying VQE object.
-        simulate_options (dict): Options applicable to get_expectation_value e.g. desired_meas_result
+        simulate_options (dict): Options for fine-control of the simulator backend, including desired measurement results, etc.
         verbose (bool): Flag for verbosity of VQE.
         deflation_circuits (list[Circuit]): Deflation circuits to add an
             orthogonalization penalty with.
         deflation_coeff (float): The coefficient of the deflation.
-        projective_circuit: A terminal circuit that projects into the correct space, always added to
-            the end of the simulated circuit.
+        projective_circuit (Circuit): A terminal circuit that projects into the correct space, always added to
+            the end of the ansatz circuit.
         ref_state (array or Circuit): The reference configuration to use. Replaces HF state
      """
 
