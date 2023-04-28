@@ -20,6 +20,8 @@ from math import pi
 from typing import Union
 
 from numpy import integer, ndarray, floating
+from sympy import Symbol
+
 
 ONE_QUBIT_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"}
 TWO_QUBIT_GATES = {"CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP"}
@@ -172,7 +174,7 @@ class Gate(dict):
 
         if self.parameter == "":
             new_parameter = ""
-        elif isinstance(self.parameter, (float, floating, int, integer)):
+        elif isinstance(self.parameter, (float, floating, int, integer, Symbol)):
             new_parameter = -self.parameter
         else:
             raise AttributeError(f"{self.name} is not an invertible gate when parameter is {self.parameter}")

@@ -212,7 +212,7 @@ def translate_op_to_sympy(qubit_operator, n_qubits):
         sympy.core.add.Add: Summation of sympy.physics.quantum.TensorProduct
             objects.
     """
-    from sympy import Identity, Matrix, I, zeros
+    from sympy import Matrix, I, zeros
     from sympy.physics.quantum import TensorProduct
 
     # Pauli string to sympy Pauli algebra objects.
