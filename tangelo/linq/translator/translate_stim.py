@@ -66,7 +66,7 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
         raise ValueError(
             f"Error: Gate {gate} cannot be decomposed into Clifford gates")
     else:
-        clifford_parameter = [value for bool_, value in zip(value_isclose, clifford_values) if bool_]
+        clifford_parameter = [value for bool_, value in zip(value_isclose, clifford_values) if bool_][0]
 
     if clifford_parameter == 0:
         gate_list = [Gate("I", gate.target)]
@@ -85,7 +85,7 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
         elif clifford_parameter == pi / 2:
             gate_list = [Gate("SDAG", gate.target), Gate("H", gate.target), Gate("SDAG", gate.target)]
         elif clifford_parameter == pi:
-            gate_list = [Gate("X", gate.target)]
+            gate_list = [Gate("SDAG", gate.target), Gate("X", gate.target), Gate("SDAG", gate.target)]
 
     elif gate.name == "RZ":
         if clifford_parameter == -pi / 2:
