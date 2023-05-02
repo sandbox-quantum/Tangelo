@@ -1,4 +1,4 @@
-# Copyright 2021 1QB Information Technologies Inc.
+# Copyright 2023 1QB Information Technologies Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 import itertools as it
 
 import numpy as np
+from pyscf.lib import takebak_2d
 
 from tangelo.toolboxes.molecular_computation.coefficients import spatial_from_spinorb
-from tangelo.linq.helpers import pauli_string_to_of, get_compatible_bases
+from tangelo.linq.helpers import pauli_string_to_of, pauli_of_to_string, get_compatible_bases
 from tangelo.toolboxes.operators import FermionOperator
 from tangelo.toolboxes.measurements import ClassicalShadow
 from tangelo.toolboxes.post_processing import Histogram, aggregate_histograms
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping, get_qubit_number
-from tangelo.linq.helpers.circuits import pauli_of_to_string
 
 
 def matricize_2rdm(two_rdm, n_orbitals):
@@ -82,8 +82,14 @@ def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, 
         raise RuntimeError("Arguments exp_vals, exp_data and shadow are mutually exclusive. Provide exactly one of them.")
 
     # Initialize exp_vals
-    exp_vals = {pauli_string_to_of(term): exp_val for term, exp_val in exp_data.items()} \
-        if isinstance(exp_vals, dict) else {}
+    if isinstance(exp_vals, dict) and set(map(type, exp_vals)) == {str}:
+        exp_vals = {pauli_string_to_of(term): exp_val for term, exp_val in exp_vals.items()}
+
+    if isinstance(exp_data, dict) and set(map(type, exp_data)) == {str}:
+        exp_data = {pauli_string_to_of(term): data for term, data in exp_data.items()}
+
+    if exp_vals is None:
+        exp_vals = dict()
 
     n_qubits = get_qubit_number(mapping, ferm_ham.n_spinorbitals)
 
@@ -110,21 +116,30 @@ def compute_rdms(ferm_ham, mapping, up_then_down, exp_vals=None, exp_data=None, 
 
         if isinstance(shadow, ClassicalShadow):
             eigenvalue = shadow.get_observable(qubit_term, **eval_args)
-
         else:
             for qterm, coeff in qubit_term.terms.items():
                 if coeff.real != 0:
 
-                    if qterm in exp_vals:
-                        exp_val = exp_vals[qterm] if qterm else 1.
+                    # qterm = (), i.e. tensor product of I.
+                    if not qterm:
+                        exp_val = 1.
+                    # Already computed expectation value of qterm.
+                    elif qterm in exp_vals:
+                        exp_val = exp_vals[qterm]
+                    # Case where there is at least one missing entry in exp_vals
+                    # (in this case, exp_data is None and we cannot compute the
+                    # eigenvalue).
+                    elif exp_data is None:
+                        raise RuntimeError(f"Missing {qterm} entry in exp_vals.")
+                    # Expectation value that can be computed from exp_data.
                     else:
                         ps = pauli_of_to_string(qterm, n_qubits)
-                        bases = get_compatible_bases(ps, list(exp_data.keys()))
+                        bases = get_compatible_bases(ps, [pauli_of_to_string(term, n_qubits) for term in exp_data.keys()])
 
                         if not bases:
-                            raise RuntimeError(f"No experimental data for basis {ps}")
+                            raise RuntimeError(f"No experimental data for basis {qterm}.")
 
-                        hist = aggregate_histograms(*[Histogram(exp_data[basis]) for basis in bases])
+                        hist = aggregate_histograms(*[Histogram(exp_data[pauli_string_to_of(basis)]) for basis in bases])
                         exp_val = hist.get_expectation_value(qterm, 1.)
                         exp_vals[qterm] = exp_val
 
@@ -183,3 +198,97 @@ def energy_from_rdms(ferm_op, one_rdm, two_rdm):
     e = core_constant + np.sum(one_electron_integrals * one_rdm) + np.sum(two_electron_integrals * two_rdm)
 
     return e.real
+
+
+def pad_rdms_with_frozen_orbitals(sec_mol, onerdm, twordm):
+    """Function to pad the RDMs with the frozen orbitals data. It is based on
+    the pyscf.cccsd_rdm code, where we can set with_frozen=True.
+
+    Source:
+        https://github.com/pyscf/pyscf/blob/master/pyscf/cc/ccsd_rdm.py
+
+    Args:
+        sec_mol (SecondQuantizedMolecule): Self-explanatory.
+        onerdm (numpy.array): One-particle reduced density matrix (shape of
+            (N_active_mos,)*2).
+        twordm (numpy.array): Two-particle reduced density matrix (shape of
+            (N_active_mos,)*4).
+
+    Returns:
+        numpy.array: One-particle reduced density matrix (shape of
+            (N_total_mos,)*2).
+        numpy.array: Two-particle reduced density matrix (shape of
+            (N_total_mos,)*4).
+    """
+
+    if sec_mol.uhf:
+        raise NotImplementedError("The RDMs padding with an UHF mean-field is not implemented.")
+
+    # Defining the number of MOs and occupation numbers with and without the
+    # frozen orbitals.
+    n_mos = sec_mol.n_mos
+    n_mos0 = sec_mol.n_active_mos
+    n_occ = np.count_nonzero(sec_mol.mo_occ > 0)
+    n_occ0 = n_occ - len(sec_mol.frozen_occupied)
+    moidx = np.array(sec_mol.active_mos)
+
+    # Creating a dummy one rdm with all diagonal elements set to 2. After that,
+    # the true one rdm is embedded in this bigger matrix.
+    onerdm_padded = np.zeros((n_mos,)*2, dtype=onerdm.dtype)
+    onerdm_padded[np.diag_indices(n_occ)] = 2.
+    onerdm_padded[moidx[:, None], moidx] = onerdm
+
+    # Deleting the one rdm contribution in the two rdm. This must be done to
+    # redo the operation later with the one rdm with the frozen orbital.
+    twordm = twordm.transpose(1, 0, 3, 2)
+
+    onerdm_without_diag = np.copy(onerdm)
+    onerdm_without_diag[np.diag_indices(n_occ0)] -= 2
+
+    onerdm_without_diag_times_2 = onerdm_without_diag * 2
+    onerdm_without_diag_T = onerdm_without_diag.T
+
+    for i in range(n_occ0):
+        twordm[i, i, :, :] -= onerdm_without_diag_times_2
+        twordm[:, :, i, i] -= onerdm_without_diag_times_2
+        twordm[:, i, i, :] += onerdm_without_diag
+        twordm[i, :, :, i] += onerdm_without_diag_T
+
+    for i, j in it.product(range(n_occ0), repeat=2):
+        twordm[i, i, j, j] -= 4
+        twordm[i, j, j, i] += 2
+
+    # Creating a dummy two rdm.
+    dm2 = np.zeros((n_mos,)*4, dtype=twordm.dtype)
+
+    idx = (moidx.reshape(-1, 1) * n_mos + moidx).ravel()
+
+    # This part is meant to replicate
+    # https://github.com/pyscf/pyscf/blob/8b3fef8cf18f10d430261d4a8bea21fadf19bb1f/pyscf/cc/ccsd_rdm.py#L343-L351.
+    # The output is not catched, maybe for memory efficiency purposes (elements
+    # of dm2 changed inplace?).
+    takebak_2d(dm2.reshape(n_mos**2, n_mos**2),
+               twordm.reshape(n_mos0**2, n_mos0**2), idx, idx)
+    twordm_padded = dm2
+
+    # The next few lines will reembed the on rdm, but with the frozen orbital
+    # elements of the one rdm matrix.
+    onerdm_padded_without_diag = np.copy(onerdm_padded)
+    onerdm_padded_without_diag[np.diag_indices(n_occ)] -= 2
+
+    onerdm_padded_without_diag_times_2 = onerdm_padded_without_diag * 2
+    onerdm_padded_without_diag_T = onerdm_padded_without_diag.T
+
+    for i in range(n_occ):
+        twordm_padded[i, i, :, :] += onerdm_padded_without_diag_times_2
+        twordm_padded[:, :, i, i] += onerdm_padded_without_diag_times_2
+        twordm_padded[:, i, i, :] -= onerdm_padded_without_diag
+        twordm_padded[i, :, :, i] -= onerdm_padded_without_diag_T
+
+    for i, j in it.product(range(n_occ), repeat=2):
+        twordm_padded[i, i, j, j] += 4
+        twordm_padded[i, j, j, i] -= 2
+
+    twordm_padded = twordm_padded.transpose(1, 0, 3, 2)
+
+    return onerdm_padded, twordm_padded

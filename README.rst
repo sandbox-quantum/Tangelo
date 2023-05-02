@@ -47,8 +47,9 @@ published in scientific journals, co-authored by professionals from the chemical
 
 We hope to grow a healthy community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
 
-- Our `release document on arXiv <https://arxiv.org/pdf/2206.12424.pdf>`_.
+- Our `release document on arXiv <https://arxiv.org/abs/2206.12424>`_.
 - Our `Sphinx documentation <http://tangelo-docs.goodchemistry.com>`_.
+- Our `examples repository <https://github.com/goodchemistryco/Tangelo-Examples>`_.
 
 What will you do with Tangelo ?
 
@@ -70,9 +71,14 @@ The easiest way to install Tangelo in your local environment. We recommend upgra
 
 .. code-block::
 
-   python -m pip install -–upgrade pip.
+   python -m pip install --upgrade pip.
    pip install tangelo-gc
 
+If you'd like to install via pip the code in a specific branch of this Github repository (let's say ``develop``)
+
+.. code-block::
+
+   pip install git+https://github.com/goodchemistryco/Tangelo.git@develop
 
 From source, using setuptools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -147,13 +153,15 @@ the desired values in your environment, you can run this shell script in Linux w
 ``source env_var.sh`` (you may need to set execution permissions with ``chmod +x set_env_var.sh`` first), or you can set
 them in whatever way your OS supports it, or even inside your python script using the ``os`` package.
 
-Tutorials
----------
+Tutorials and examples
+----------------------
 
-The ``examples`` folder of this repository contains various Jupyter notebook tutorials, and other examples.
-We wrote a number of them, but nothing prevents users from contributing more notebook content, to show what they have been doing with Tangelo!
+We have a `dedicated repository <https://github.com/goodchemistryco/Tangelo-Examples>`_ for examples and tutorials !
+
+We wrote a number of them, and tried to provide material that doesn't just explain how to use the software, but provides insights into the complex topics of chemistry, quantum computing, and digs into the challenges we encountered in our previous hardware experiments.
+Nothing prevents users from contributing and showcasing what they have been doing with Tangelo.
+
 You can visualize notebooks directly on Github, most of them have been pre-run.
-
 If you'd like to be able to run them locally, we suggest you use `Jupyter notebooks inside a virtual environment <https://janakiev.com/blog/jupyter-virtual-envs/>`_.
 
 - Install Jupyter and ipykernel in your environment:
@@ -184,7 +192,7 @@ find and run all tests (assuming you are in the ``tangelo`` subfolder that conta
 Contributions
 -------------
 
-Thank you very much for considering contributing to this project; we’d love to have you on board !
+Thank you very much for considering contributing to this project; we'd love to have you on board !
 You do not need to be a seasoned software developer or expert in your field to make contributions to this project: it will take various kinds of people and backgrounds to tackle the challenges that await us.
 
 However we need some guidelines and processes to ensure that we build something of quality for the community. We describe them in the `contributions <./CONTRIBUTIONS.rst>`_ file.
@@ -202,4 +210,4 @@ If you use Tangelo in your research, please cite:
 
    Valentin Senicourt, James Brown, Alexandre Fleury, Ryan Day, Erika Lloyd, Marc P. Coons, Krzysztof Bieniasz, Lee Huntington, Alejandro J. Garza, Shunji Matsuura, Rudi Plesch, Takeshi Yamazaki, and Arman Zaribafiyan Tangelo: An Open-source Python Package for End-to-end Chemistry Workflows on Quantum Computers 2022 arXiv:2206.12424
 
-© Good Chemistry Company 2022. This software is released under the Apache Software License version 2.0.
+© Good Chemistry Company 2023. This software is released under the Apache Software License version 2.0.

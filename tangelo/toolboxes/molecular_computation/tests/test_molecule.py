@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,86 +76,6 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         assert(molecule.q == 0)
         assert(molecule.n_electrons == 2)
         atom_list_close(molecule.xyz, H2_list, 1.e-14)
-
-    def test_freezing_orbitals(self):
-        """Verify freezing orbitals functionalities."""
-
-        no_freezing = SecondQuantizedMolecule(H2O_list, 0, 0, "sto-3g", frozen_orbitals=None)
-        assert(no_freezing.active_occupied == [0, 1, 2, 3, 4])
-        assert(no_freezing.active_virtual == [5, 6])
-        assert(no_freezing.frozen_occupied == [])
-        assert(no_freezing.frozen_virtual == [])
-
-        freeze_with_int = SecondQuantizedMolecule(H2O_list, frozen_orbitals=3)
-        assert(freeze_with_int.active_occupied == [3, 4])
-        assert(freeze_with_int.active_virtual == [5, 6])
-        assert(freeze_with_int.frozen_occupied == [0, 1, 2])
-        assert(freeze_with_int.frozen_virtual == [])
-
-        freeze_with_list = SecondQuantizedMolecule(H2O_list, frozen_orbitals=[0, 1, 2, 6])
-        assert(freeze_with_list.active_occupied == [3, 4])
-        assert(freeze_with_list.active_virtual == [5])
-        assert(freeze_with_list.frozen_occupied == [0, 1, 2])
-        assert(freeze_with_list.frozen_virtual == [6])
-
-        freeze_with_list_uhf = SecondQuantizedMolecule(H2O_list, frozen_orbitals=[[0, 1, 2, 6], [0, 1, 2]], uhf=True)
-        assert(freeze_with_list_uhf.active_occupied == [[3, 4], [3, 4]])
-        assert(freeze_with_list_uhf.active_virtual == [[5], [5, 6]])
-        assert(freeze_with_list_uhf.frozen_occupied == [[0, 1, 2], [0, 1, 2]])
-        assert(freeze_with_list_uhf.frozen_virtual == [[6], []])
-
-    def test_freezing_empty(self):
-        """Verify freezing orbitals empty input."""
-
-        # None should result in the same as nothing.
-        none_as_frozen = SecondQuantizedMolecule(H2O_list, frozen_orbitals=None)
-        assert(none_as_frozen.active_occupied == [0, 1, 2, 3, 4])
-        assert(none_as_frozen.active_virtual == [5, 6])
-        assert(none_as_frozen.frozen_occupied == [])
-        assert(none_as_frozen.frozen_virtual == [])
-
-        # An empty list should result in the same as nothing.
-        empty_as_frozen = SecondQuantizedMolecule(H2O_list, frozen_orbitals=[])
-        assert(empty_as_frozen.active_occupied == [0, 1, 2, 3, 4])
-        assert(empty_as_frozen.active_virtual == [5, 6])
-        assert(empty_as_frozen.frozen_occupied == [])
-        assert(empty_as_frozen.frozen_virtual == [])
-
-        # An empty list should result in the same as nothing.
-        empty_as_frozen = SecondQuantizedMolecule(H2O_list, frozen_orbitals=None, uhf=True)
-        assert(empty_as_frozen.active_occupied == [[0, 1, 2, 3, 4]]*2)
-        assert(empty_as_frozen.active_virtual == [[5, 6]]*2)
-        assert(empty_as_frozen.frozen_occupied == [[]]*2)
-        assert(empty_as_frozen.frozen_virtual == [[]]*2)
-
-    def test_freezing_type_exception(self):
-        """Verify freezing orbitals exceptions."""
-
-        # Cases where the input is wrong type.
-        with self.assertRaises(TypeError):
-            SecondQuantizedMolecule(H2O_list, frozen_orbitals="3")
-        with self.assertRaises(TypeError):
-            SecondQuantizedMolecule(H2O_list, frozen_orbitals=3.141592)
-        with self.assertRaises(TypeError):
-            SecondQuantizedMolecule(H2O_list, frozen_orbitals=[0, 1, 2.2222, 3, 4, 5])
-        with self.assertRaises(TypeError):
-            SecondQuantizedMolecule(H2O_list, frozen_orbitals=[[0, 1, 2.2222, 3, 4, 5]]*2, uhf=True)
-
-    def test_no_active_electron(self):
-        """Verify if freezing all active orbitals fails."""
-
-        # Cases where no active electron are remaining.
-        with self.assertRaises(ValueError):
-            SecondQuantizedMolecule(H2O_list, frozen_orbitals=5)
-        with self.assertRaises(ValueError):
-            SecondQuantizedMolecule(H2O_list, frozen_orbitals=[0, 1, 2, 3, 4, 5])
-
-    def test_no_active_virtual(self):
-        """Verify if freezing all virtual orbitals fails."""
-
-        # Cases where no active virtual orbitals are remaining.
-        with self.assertRaises(ValueError):
-            SecondQuantizedMolecule(H2O_list, frozen_orbitals=[5, 6])
 
     def test_all_active_orbitals_occupied_but_some_not_fully(self):
         """Verify that having all active orbitals occupied but only partially occupied is permitted"""

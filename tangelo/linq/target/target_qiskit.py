@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@
 # limitations under the License.
 
 import math
+from collections import Counter
 
 import numpy as np
 
 from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
+from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
 
 
 class QiskitSimulator(Backend):
@@ -31,7 +33,8 @@ class QiskitSimulator(Backend):
         self.qiskit = qiskit
         self.AerSimulator = AerSimulator
 
-    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, save_mid_circuit_meas=False):
+    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None,
+                         desired_meas_result=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on the availability of the
@@ -47,6 +50,8 @@ class QiskitSimulator(Backend):
                 if available.
             initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
+            desired_meas_result (str): The binary string of the desired measurement.
+                Must have the same length as the number of MEASURE gates in source_circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
                 self.all_frequencies, with keys of length (n_meas + n_qubits).
@@ -61,6 +66,23 @@ class QiskitSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
+        def aer_backend_with_statevector(translated_circuit):
+            "Generate AerSimulator backend and append save statevector instruction to translated_circuit"
+            backend = self.AerSimulator(method='statevector')
+            translated_circuit = self.qiskit.transpile(translated_circuit, backend)
+            translated_circuit.save_statevector()
+            return backend, translated_circuit
+
+        n_meas = source_circuit.counts.get("MEASURE", 0)
+        qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
+
+        def run_and_measure_one_shot(backend, translated_circuit):
+            "Return statevector and mid-circuit measurement for one shot"
+            sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
+            current_state = sim_results.get_statevector(translated_circuit)
+            measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
+            return current_state, measure
+
         translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
 
         # If requested, set initial state
@@ -75,36 +97,102 @@ class QiskitSimulator(Backend):
                 initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
                 translated_circuit = initial_state_circuit.compose(translated_circuit)
 
-        # Drawing individual shots with the qasm simulator, for noisy simulation or simulating mixed states
-        if self._noise_model or source_circuit.is_mixed_state and not return_statevector:
-            from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
+        # Noiseless simulation using the statevector simulator
+        if not self._noise_model and not source_circuit.is_mixed_state:
+            backend, translated_circuit = aer_backend_with_statevector(translated_circuit)
 
-            n_meas = source_circuit.counts.get("MEASURE", 0)
+            sim_results = backend.run(translated_circuit).result()
+            current_state = sim_results.get_statevector(translated_circuit)
+            self._current_state = np.asarray(current_state)
+            if self.n_shots is None:
+                frequencies = self._statevector_to_frequencies(self._current_state)
+            else:
+                frequencies = {state[::-1]: count/self.n_shots for state, count in current_state.sample_counts(self.n_shots).items()}
+
+        # noisy simulation with desired_meas_result so need n_samples with success
+        # so loop shot by shot until n_shots successes
+        elif desired_meas_result is not None and self._noise_model:
+            backend, translated_circuit = aer_backend_with_statevector(translated_circuit)
+
+            samples = dict()
+            self._current_state = None
+            n_attempts = 0
+            n_success = 0
+
+            # Permit 0.1% probability events
+            max_attempts = 1000*self.n_shots
+
+            while self._current_state is None and n_attempts < max_attempts and n_success != self.n_shots:
+                current_state, measure = run_and_measure_one_shot(backend, translated_circuit)
+
+                if measure == desired_meas_result:
+                    (sample, _) = current_state.measure()
+                    bitstr = measure + sample[::-1]
+                    samples[bitstr] = samples.get(bitstr, 0) + 1
+                    n_success += 1
+                n_attempts += 1
+
+            if n_attempts == max_attempts:
+                raise ValueError(f"desired_meas_result was not measured after {n_attempts} attempts")
+
+            self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
+            frequencies = self.all_frequencies
+
+        # desired_meas_result without a noise model
+        elif desired_meas_result is not None:
+            backend, translated_circuit = aer_backend_with_statevector(translated_circuit)
+
+            samples = dict()
+            self._current_state = None
+            n_attempts = 0
+
+            # Permit 0.1% probability events
+            max_attempts = 1000
+
+            while self._current_state is None and n_attempts < max_attempts:
+                current_state, measure = run_and_measure_one_shot(backend, translated_circuit)
+
+                if measure == desired_meas_result:
+                    self._current_state = current_state
+                    if self.n_shots is not None:
+                        self.all_frequencies = {measure + state[::-1]: count for state, count in current_state.sample_counts(self.n_shots).items()}
+                    else:
+                        freqs = self._statevector_to_frequencies(np.array(current_state))
+                        self.all_frequencies = {measure + meas: val for meas, val in freqs.items()}
+
+                n_attempts += 1
+
+            if n_attempts == max_attempts:
+                raise ValueError(f"desired_meas_result was not measured after {n_attempts} attempts")
+
+            frequencies = self.all_frequencies.copy()
+
+        # mixed state with return statevector. Can be used to test the returned statevector given a measurement outcome.
+        elif save_mid_circuit_meas and self.n_shots in [1]:
+            backend, translated_circuit = aer_backend_with_statevector(translated_circuit)
+
+            self._current_state, measure = run_and_measure_one_shot(backend, translated_circuit)
+
+            self.all_frequencies = {measure + state[::-1]: count for state, count in self._current_state.sample_counts(self.n_shots).items()}
+            frequencies = self.all_frequencies.copy()
+
+        # No desired_meas_result so use qiskit execute to sample n_shots as it is faster than run.
+        elif self._noise_model or source_circuit.is_mixed_state:
             meas_start = n_meas if save_mid_circuit_meas else 0
             meas_range = range(meas_start, meas_start + source_circuit.width)
             translated_circuit.measure(range(source_circuit.width), meas_range)
             return_statevector = False
             backend = self.AerSimulator()
 
-            qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
             opt_level = 0 if self._noise_model else None
 
             job_sim = self.qiskit.execute(translated_circuit, backend, noise_model=qiskit_noise_model,
                                           shots=self.n_shots, basis_gates=None, optimization_level=opt_level)
             sim_results = job_sim.result()
-            frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
+            self.all_frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
 
-            self.all_frequencies = frequencies.copy()
+            frequencies = self.all_frequencies
             self._current_state = None
-
-        # Noiseless simulation using the statevector simulator otherwise
-        else:
-            backend = self.AerSimulator(method='statevector')
-            translated_circuit = self.qiskit.transpile(translated_circuit, backend)
-            translated_circuit.save_statevector()
-            sim_results = backend.run(translated_circuit).result()
-            self._current_state = np.asarray(sim_results.get_statevector(translated_circuit))
-            frequencies = self._statevector_to_frequencies(self._current_state)
 
         return (frequencies, np.array(self._current_state)) if (return_statevector and self._current_state is not None) else (frequencies, None)
 

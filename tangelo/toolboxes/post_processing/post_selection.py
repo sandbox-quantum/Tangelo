@@ -1,4 +1,4 @@
-# Copyright 2022 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -101,14 +101,17 @@ def strip_post_selection(freqs, *qubits):
     return hist.frequencies
 
 
-def split_frequency_dict(frequencies, indices):
+def split_frequency_dict(frequencies, indices, desired_measurement=None):
     """Marginalize the frequencies dictionary over the indices.
     This splits the frequency dictionary into two frequency dictionaries
     and aggregates the corresponding frequencies.
+    If desired_measurement is provided, the marginalized frequencies are
+    post-selected for that outcome on the mid-circuit measurements.
 
     Args:
         frequencies (dict): The input frequency dictionary
         indices (list): The list of indices in the frequency dictionary to marginalize over
+        desired_measurement (str): The bit string that is to be selected
 
     Returns:
         dict: The marginal frequencies for provided indices
@@ -116,9 +119,12 @@ def split_frequency_dict(frequencies, indices):
     key_length = len(next(iter(frequencies)))
     other_indices = [i for i in range(key_length) if i not in indices]
 
-    new_hist = Histogram(frequencies)
-    new_hist.remove_qubit_indices(*other_indices)
-    other_hist = Histogram(frequencies)
-    other_hist.remove_qubit_indices(*indices)
+    midcirc_dict = strip_post_selection(frequencies, *other_indices)
 
-    return new_hist.frequencies, other_hist.frequencies
+    if desired_measurement is None:
+        marginal_dict = strip_post_selection(frequencies, *indices)
+    else:
+        expected_outcomes = {i: m for i, m in zip(indices, desired_measurement)}
+        marginal_dict = post_select(frequencies, expected_outcomes)
+
+    return midcirc_dict, marginal_dict

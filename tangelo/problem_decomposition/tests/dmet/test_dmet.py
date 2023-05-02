@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -244,6 +244,37 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         rho = matricize_2rdm(twordm, n_orb)
         self.assertAlmostEqual(np.trace(rho), n_elec * (n_elec - 1), delta=1e-3,
                                msg="Trace of two_rdm does not match n_elec * (n_elec-1)")
+
+    def test_dmet_frozen_orbitals(self):
+        """Tests the DMET energy for an H10 ring in 3-21G with frozen orbitals."""
+
+        opt_dmet = {"molecule": mol_H10_321g,
+                    "fragment_atoms": [1]*10,
+                    "fragment_solvers": "fci",
+                    # Make every fragment a 2 level problem in this basis.
+                    "fragment_frozen_orbitals": [[0, 3, 4, 5]]*10,
+                    "verbose": False
+                    }
+
+        solver = DMETProblemDecomposition(opt_dmet)
+        solver.build()
+        energy = solver.simulate()
+        self.assertAlmostEqual(energy, -4.41503, places=4)
+
+    def test_dmet_wrong_number_frozen_orbitals(self):
+        """Tests if the program raises the error when the number of frozen
+        orbital elements is not equal to the number of fragment.
+        """
+
+        opt_dmet = {"molecule": mol_H10_321g,
+                    "fragment_atoms": [1]*10,
+                    "fragment_solvers": "fci",
+                    "fragment_frozen_orbitals": [[0, 3, 4, 5]]*9,
+                    "verbose": False
+                    }
+
+        with self.assertRaises(RuntimeError):
+            DMETProblemDecomposition(opt_dmet)
 
 
 if __name__ == "__main__":
