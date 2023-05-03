@@ -13,8 +13,8 @@ with open('README.rst', 'r') as f:
     long_description = f.read()
 
 install('wheel')
-install('pyscf')
-install('git+https://github.com/pyscf/semiempirical')
+# install('pyscf')
+# install('git+https://github.com/pyscf/semiempirical')
 
 description = "Maintained by Good Chemistry Company, focusing on the development of end-to-end materials simulation workflows on quantum computers."
 
@@ -29,5 +29,5 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     test_suite="tangelo",
     setup_requires=['h5py'],
-    install_requires=['h5py', 'bitarray', 'openfermion', 'openfermionpyscf']
+    install_requires=['h5py', 'bitarray', 'openfermion']
 )

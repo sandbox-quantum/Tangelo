@@ -58,6 +58,12 @@ jobs:
         pip install qsharp
       if: always()
 
+    - name: Install pyscf
+      run: |
+        python -m pip install pyscf
+        python -m pip install git+https://github.com/pyscf/semiempirical
+      if: always()
+
     - name: tangelo install
       run: |
         python -m pip install .

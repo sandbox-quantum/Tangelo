@@ -13,12 +13,11 @@
 # limitations under the License.
 
 import numpy as np
-from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 
-from tangelo.toolboxes.molecular_computation.essolver import ESSolver
+from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 
 
-class ESSolver_pyscf(ESSolver):
+class IntegralSolver_pyscf(IntegralSolver):
     """Instantiate Electronic Structure integration"""
     def __init__(self):
         from pyscf import gto, lib, scf, symm, ao2mo

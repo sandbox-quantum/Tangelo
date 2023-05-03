@@ -15,7 +15,7 @@
 import abc
 
 
-class ESSolver(abc.ABC):
+class IntegralSolver(abc.ABC):
     """Instantiate Electronic Structure integration"""
     def __init__(self):
         pass
@@ -72,13 +72,22 @@ class ESSolver(abc.ABC):
 
     @abc.abstractmethod
     def get_integrals(self, sqmol, mo_coeff=None):
-        """Computes core constant, one_body, and two-body integrals for all orbitals
+        r"""Computes core constant, one_body, and two-body integrals for all orbitals
+
+        one-body integrals should be in the form
+        h[p,q]= \int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
+
+        two-body integrals should be in the form
+        h[p,q,r,s] = \int \phi_p(x) * \phi_q(y) * V_{elec-elec} \phi_r(y) \phi_s(x) dxdy
+
+        With molecular orbitals \phi_j(x) = \sum_{ij} A_i(x) mo_coeff_{i,j} using atomic orbitals A_i(x)
+        mo_coeff = self.mo_coeff if mo_coeff is None else mo_coeff
 
         For UHF
         one_body coefficients are [alpha one_body, beta one_body]
         two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]
 
-        Given the variables defined above for SecondQuantizedMolecule
+        where one_body and two_body are appropriately sized arrays for each spin sector.
 
         Args:
             sqmol (SecondQuantizedMolecule) :: SecondQuantizedMolecule populated with all variables defined above

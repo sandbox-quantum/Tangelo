@@ -18,6 +18,8 @@ freezing orbitals. Depending on the function, a Molecule or a
 SecondQuantizedMolecule object can be used.
 """
 
+from collections import Counter
+
 import numpy as np
 
 
@@ -43,7 +45,7 @@ def get_frozen_core(molecule):
     }
 
     # Counting how many of each element is in the molecule.
-    elements = {i: molecule.elements.count(i) for i in molecule.elements}
+    elements = Counter([e[0] for e in molecule.xyz])
     frozen_core = sum([v * core_orbitals.get(k, 0) for k, v in elements.items()])
 
     return frozen_core
@@ -97,7 +99,7 @@ def convert_frozen_orbitals(sec_mol, frozen_orbitals):
     """
 
     if frozen_orbitals == "frozen_core":
-        frozen_orbitals = get_frozen_core(sec_mol.solver.to_pyscf(sec_mol, sec_mol.basis)) if not sec_mol.ecp else 0
+        frozen_orbitals = get_frozen_core(sec_mol) if not sec_mol.ecp else 0
     elif frozen_orbitals is None:
         frozen_orbitals = 0
 

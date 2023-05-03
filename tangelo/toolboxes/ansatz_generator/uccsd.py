@@ -30,7 +30,6 @@ Refs:
 
 import itertools
 import numpy as np
-from pyscf import mp
 from openfermion.circuits import uccsd_singlet_generator
 
 from tangelo.linq import Circuit
@@ -92,15 +91,23 @@ class UCCSD(Ansatz):
         # set total number of parameters
         self.n_var_params = self.n_singles + self.n_doubles
 
+        # Try to import pyscf
+        self.pyscf = True
+        try:
+            from pyscf import mp
+            self.mp = mp
+        except ModuleNotFoundError:
+            self.pyscf = False
+
         # Supported reference state initialization
         # TODO: support for others
         self.supported_reference_state = {"HF", "zero"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"ones", "random", "mp2"} if (self.spin == 0 and not self.molecule.uhf) else {"ones", "random"}
+        self.supported_initial_var_params = {"ones", "random", "mp2"} if (self.spin == 0 and not self.molecule.uhf and self.pyscf) else {"ones", "random"}
 
         # Default initial parameters for initialization
         # TODO: support for openshell MP2 initialization
-        self.var_params_default = "mp2" if (self.spin == 0 and not self.molecule.uhf) else "ones"
+        self.var_params_default = "mp2" if "mp2" in self.supported_initial_var_params else "ones"
         self.reference_state = reference_state
 
         self.var_params = None
@@ -265,7 +272,7 @@ class UCCSD(Ansatz):
         if self.molecule.uhf:
             raise NotImplementedError(f"MP2 initialization is not currently implemented for UHF reference in {self.__class__}")
 
-        mp2_fragment = mp.MP2(self.molecule.mean_field, frozen=self.molecule.frozen_mos)
+        mp2_fragment = self.mp.MP2(self.molecule.mean_field, frozen=self.molecule.frozen_mos)
         mp2_fragment.verbose = 0
         _, mp2_t2 = mp2_fragment.kernel()
 

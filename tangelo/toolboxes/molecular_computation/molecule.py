@@ -27,8 +27,8 @@ from openfermion.utils import down_index, up_index
 from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 
-from tangelo.toolboxes.molecular_computation.essolver_pyscf import ESSolver_pyscf
-from tangelo.toolboxes.molecular_computation.essolver import ESSolver
+from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import IntegralSolver_pyscf
+from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
@@ -90,7 +90,7 @@ class Molecule:
     xyz: list or str
     q: int = 0
     spin: int = 0
-    solver: ESSolver = field(default_factory=ESSolver_pyscf)
+    solver: IntegralSolver = field(default_factory=IntegralSolver_pyscf)
 
     # Defined in __post_init__.
     n_atoms: int = field(init=False)
