@@ -19,11 +19,11 @@
 import unittest
 
 import numpy as np
-from openfermion.ops import QubitOperator
 
 from tangelo.linq import Gate, Circuit, get_backend, backend_info
 from tangelo.linq.noisy_simulation import NoiseModel, get_qiskit_noise_dict
 from tangelo.helpers.utils import default_simulator, installed_backends, assert_freq_dict_almost_equal
+from tangelo.toolboxes.operators import QubitOperator
 
 # Noisy simulation: circuits, noise models, references
 cn1 = Circuit([Gate('X', target=0)])

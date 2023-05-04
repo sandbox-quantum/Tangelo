@@ -21,12 +21,11 @@ import itertools
 
 from enum import Enum
 import numpy as np
-from openfermion.ops.operators.qubit_operator import QubitOperator
 
 from tangelo.helpers.utils import HiddenPrints
 from tangelo.linq import get_backend, Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
-from tangelo.toolboxes.operators import count_qubits, FermionOperator
+from tangelo.toolboxes.operators import count_qubits, FermionOperator, QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_mapped_vector, vector_to_circuit
 from tangelo.toolboxes.post_processing.bootstrapping import get_resampled_frequencies
