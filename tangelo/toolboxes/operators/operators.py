@@ -234,9 +234,15 @@ class QubitOperator(of.QubitOperator):
 
         return qubit_indices
 
+    def to_openfermion(self):
+        """Converts Tangelo QubitOperator to openfermion"""
+        qu_op = of.QubitOperator()
+        qu_op.terms = self.terms.copy()
+        return qu_op
+
     def get_sparse_op(self):
         """ Return a sparse representation of the operator """
-        return of.get_sparse_operator(self)
+        return of.get_sparse_operator(self.to_openfermion())
 
 
 class QubitHamiltonian(QubitOperator):
@@ -251,8 +257,7 @@ class QubitHamiltonian(QubitOperator):
         coefficient (complex): Coefficient for this term.
         mapping (string): Mapping procedure for fermionic to qubit encoding
             (ex: "JW", "BK", etc.).
-        up_then_down (bool): Whether or not spin ordering is all up then
-            all down.
+        up_then_down (bool): Whether spin ordering is all up then all down.
 
     Properties:
         n_terms (int): Number of terms in this qubit Hamiltonian.
