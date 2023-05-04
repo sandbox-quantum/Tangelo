@@ -23,7 +23,7 @@ import time
 
 import numpy as np
 from openfermion.ops import QubitOperator
-from openfermion import load_operator, get_sparse_operator
+from openfermion import load_operator
 
 from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.linq.translator import translate_circuit as translate_c
@@ -425,7 +425,7 @@ class TestSimulateStatevector(unittest.TestCase):
         """ Get expectation value of mixed state by post-selecting on desired measurement."""
         qubit_operator = QubitOperator("X0 X1") + QubitOperator("Y0 Y1") + QubitOperator("Z0 Z1") + QubitOperator("X0 Y1", 1j)
 
-        ham = get_sparse_operator(qubit_operator).toarray()
+        ham = qubit_operator.get_sparse_op().toarray()
         exact_sv = np.array([0.+0.j, 0.+0.j, 0.87758256+0.j, -0.47942554+0.j])
         exact_exp = np.vdot(exact_sv, ham @ exact_sv)
 

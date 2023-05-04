@@ -15,7 +15,6 @@
 import unittest
 import math
 
-from openfermion import get_sparse_operator
 import numpy as np
 from scipy.linalg import expm
 
@@ -41,10 +40,11 @@ class MultiProductTest(unittest.TestCase):
     def test_time_evolution(self):
         """Test time-evolution of multi-product circuit for different orders"""
 
-        qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons,
+        qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk",
+                                         mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons,
                                          True, 0)
 
-        ham = get_sparse_operator(qu_op).toarray()
+        ham = qu_op.get_sparse_op().toarray()
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 1])/np.sqrt(2)
 
@@ -81,7 +81,7 @@ class MultiProductTest(unittest.TestCase):
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))
 
-        ham_mat = get_sparse_operator(qu_op).toarray()
+        ham_mat = qu_op.get_sparse_op().toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
 
         # Kronecker product 13 qubits in the zero state to eigenvector 9 to account for ancilla qubits
@@ -93,7 +93,8 @@ class MultiProductTest(unittest.TestCase):
 
         pe_circuit = get_qft_circuit(qubit_list)
         for i, qubit in enumerate(qubit_list):
-            pe_circuit += get_multi_product_circuit(operator=qu_op, n_state_qus=4, order=5, time=-(2*np.pi)*2**i, control=qubit)
+            pe_circuit += get_multi_product_circuit(operator=qu_op, n_state_qus=4, order=5,
+                                                    time=-(2*np.pi)*2**i, control=qubit)
         pe_circuit += get_qft_circuit(qubit_list, inverse=True)
 
         freqs, _ = sim_cirq.simulate(pe_circuit, initial_statevector=wave_9)

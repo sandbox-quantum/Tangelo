@@ -3,7 +3,6 @@ import unittest
 from scipy.linalg import expm
 import numpy as np
 from numpy.linalg import eigh
-from openfermion import get_sparse_operator
 
 from tangelo.linq import get_backend, Circuit, Gate
 from tangelo.toolboxes.operators import FermionOperator, QubitOperator
@@ -44,7 +43,7 @@ class AnsatzUtilsTest(unittest.TestCase):
                                                          n_electrons=mol_H4_sto3g.n_active_electrons,
                                                          up_then_down=True)
 
-            ham_mat = get_sparse_operator(qubit_hamiltonian).toarray()
+            ham_mat = qubit_hamiltonian.get_sparse_op().toarray()
             evolve_exact = expm(-1j * time * ham_mat) @ refwave
 
             options = {"up_then_down": True,
