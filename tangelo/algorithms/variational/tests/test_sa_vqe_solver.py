@@ -139,8 +139,8 @@ class SA_VQESolverTest(unittest.TestCase):
         self.assertAlmostEqual(exact_energies[2], energy, delta=1.e-3)
 
     def test_projected_simulate_h2(self):
-        """Run SA-VQE on H2 molecule, with UpCCGSD ansatz, JW qubit mapping, ref_states and exact simulator.
-        Followed by deflation of two states calculated to determine next excited state.
+        """Run SA-VQE on H2 molecule with a partity check projection, with UpCCGSD ansatz, JW qubit mapping,
+        ref_states and exact simulator.
         """
 
         sym_check = Circuit([Gate("CNOT", target=q, control=4) for q in {0, 2}] + [Gate("CNOT", target=q, control=5) for q in [1, 3]])

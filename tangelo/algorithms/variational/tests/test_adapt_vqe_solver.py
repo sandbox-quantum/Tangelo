@@ -126,10 +126,7 @@ class ADAPTSolverTest(unittest.TestCase):
         from a Majorana UCCGSD pool, with a sz symmetry projection.
         """
 
-        xyz_H3 = [
-            ("H", [0.0, 0.0, 0.0]),
-            ("H", [1, 0, 0.0]),
-            ("H", [2, 0, 0.0])]
+        xyz_H3 = [("H", [0., 0., 0.]), ("H", [1., 0., 0.]), ("H", [2., 0., 0.])]
         mol = SecondQuantizedMolecule(xyz_H3, 0, 1, basis="sto-3g")
 
         # QPE based Sz projection.

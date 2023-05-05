@@ -292,6 +292,7 @@ class VQESolverTest(unittest.TestCase):
             sym_var_circuit += Circuit([Gate("MEASURE", i) for i in range(n_state, n_state+n_qft)])
             return sym_var_circuit
 
+        # Use a circuit with variational gates and mid-circuit measurements as the ansatz.
         proj_circuit = sz_check(8, mol_H4_sto3g, "JW", vqe_solver.up_then_down)
         var_circuit = vqe_solver.optimal_circuit + proj_circuit
 
@@ -300,6 +301,7 @@ class VQESolverTest(unittest.TestCase):
         energyp = vqe_solver_p.simulate()
         self.assertAlmostEqual(energyp, -1.97622, delta=1e-4)
 
+        # Use a circuit with variational gates as the ansatz, add a projective circuit separately.
         var_circuit = vqe_solver.optimal_circuit
         vqe_solver_p = VQESolver({"ansatz": var_circuit, "qubit_hamiltonian": vqe_solver.qubit_hamiltonian,
                                   "simulate_options": {"desired_meas_result": "011"}, "projective_circuit": proj_circuit})
