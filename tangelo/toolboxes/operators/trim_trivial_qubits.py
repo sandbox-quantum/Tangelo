@@ -17,18 +17,19 @@ import numpy as np
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.linq import Circuit
 from tangelo.linq.helpers.circuits import pauli_string_to_of, pauli_of_to_string
+from tangelo.toolboxes.operators import count_qubits
 
 
-def trim_trivial_operator(qu_op, n_qubits, trim_index, trim_states, reindex=True):
+def trim_trivial_operator(qu_op, trim_index, trim_states, n_qubits=None, reindex=True):
     """
     Calculate expectation values of a QubitOperator acting on qubits in a
     trivial |0> or |1> state. Return a trimmed QubitOperator with updated coefficients
 
     Args:
         qu_op (QubitOperator): Operator to trim
-        n_qubits (int): number of qubits in full system
         trim_index (list):  index of qubits to trim
         trim_states (list): state of the qubits to trim, 0 or 1
+        n_qubits (int): Optional, number of qubits in full system
         reindex (bool): Optional, if True, remaining qubits will be reindexed
     Returns:
         QubitOperator : trimmed QubitOperator with updated coefficients
@@ -36,6 +37,7 @@ def trim_trivial_operator(qu_op, n_qubits, trim_index, trim_states, reindex=True
     trim_states = [x for (y, x) in sorted(zip(trim_index, trim_states), key=lambda pair: pair[0])]
     trim_index = sorted(trim_index)
     qu_op_trim = QubitOperator()
+    n_qubits = count_qubits(qu_op) if n_qubits is None else n_qubits
 
     # Calculate expectation values of trivial qubits, update coefficients
     for op, coeff in qu_op.terms.items():
@@ -138,6 +140,6 @@ def trim_trivial_qubits(operator, circuit):
             Circuit : Trimmed circuit
     """
     trimmed_circuit, trim_index, trim_states = trim_trivial_circuit(circuit)
-    trimmed_operator = trim_trivial_operator(operator, circuit.width, trim_index, trim_states, reindex=True)
+    trimmed_operator = trim_trivial_operator(operator, trim_index, trim_states, circuit.width, reindex=True)
 
     return trimmed_operator, trimmed_circuit

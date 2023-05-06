@@ -29,7 +29,11 @@ pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
 qb_ham = load_operator("H4_JW_spinupfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
+# Genereate reference and test circuits using single qcc generator
+ref_qcc_op = 0.2299941483397896 * 0.5 * QubitOperator("Y0 X1 X2 X3")
 qcc_op = 0.2299941483397896 * 0.5 * QubitOperator("Y1 X3 X5 X7")
+
+ref_mf_gates = [Gate("RX", 0, parameter=np.pi), Gate("X", 2)]
 
 mf_gates = [
             Gate("RZ", 0, parameter=np.pi), Gate("RX", 0, parameter=3.14159),
@@ -39,21 +43,42 @@ mf_gates = [
             Gate("X", 8), Gate("RZ", 9, parameter=np.pi), Gate("Z", 9)
            ]
 
+ref_pauli_words_gates = sum((exp_pauliword_to_gates(pword, coef) for pword, coef in ref_qcc_op.terms.items()), start=[])
 pauli_words_gates = sum((exp_pauliword_to_gates(pword, coef) for pword, coef in qcc_op.terms.items()), start=[])
 
+ref_circ = Circuit(ref_mf_gates + ref_pauli_words_gates)
 circ = Circuit(mf_gates + pauli_words_gates)
 
+# Reference energy for H4 molecule with single QCC generator
 ref_value = -1.8039875664891176
+
+# Reference indices and states to be removed from system
+ref_trim_index = [0, 2, 4, 6, 8, 9]
+ref_trim_states = [1, 0, 1, 0, 0, 0]
 
 sim = get_backend()
 
 
 class TrimTrivialQubits(unittest.TestCase):
+    def test_trim_trivial_operator(self):
+        """ Test if trimming operator returns the correct eigenvalue """
+
+        trimmed_operator = trim_trivial_operator(qb_ham, trim_index=ref_trim_index[:-2], trim_states=ref_trim_states[:-2])
+        self.assertAlmostEqual(np.min(np.linalg.eigvalsh(qubit_operator_sparse(trimmed_operator).todense())), ref_value, places=5)
+
+    def test_trim_trivial_circuit(self):
+        """ Test if circuit trimming returns the correct circuit, states, and indices  """
+
+        trimmed_circuit, trim_index, trim_states = trim_trivial_circuit(circ)
+        self.assertEqual([g for g in ref_circ], trimmed_circuit._gates)
+        self.assertEqual(ref_trim_index, trim_index)
+        self.assertEqual(ref_trim_states, trim_states)
     def test_trim_trivial_qubits(self):
-        """ Trims unnecessary qubits and terms from a quantum circuit & qubit operator pair """
+        """ Test if trim trivial qubit function produces correct and compatible circuits and operators """
 
         trimmed_operator, trimmed_circuit = trim_trivial_qubits(qb_ham, circ)
         self.assertAlmostEqual(np.min(np.linalg.eigvalsh(qubit_operator_sparse(trimmed_operator).todense())), ref_value, places=5)
+        self.assertEqual([g for g in ref_circ], trimmed_circuit._gates)
         self.assertAlmostEqual(sim.get_expectation_value(trimmed_operator, trimmed_circuit), ref_value, places=5)
 
 
