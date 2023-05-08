@@ -85,7 +85,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: tangelo-no-pyscf-test-results
-        path: tangelo/junit/nopyscf-test-results.xml
+        path: dev_tools/junit/nopyscf-test-results.xml
 
     - name: Upload pytest test results
       uses: actions/upload-artifact@v3
