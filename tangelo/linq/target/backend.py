@@ -341,7 +341,7 @@ class Backend(abc.ABC):
         # If the underlying operator is hermitian, expectation value is real and can be computed right away
         if are_coefficients_real:
             if self._noise_model or not self.statevector_available \
-                    or state_prep_circuit.is_mixed_state or state_prep_circuit.size == 0:
+                    or (state_prep_circuit.is_mixed_state and self.n_shots is not None) or state_prep_circuit.size == 0:
                 return self._get_expectation_value_from_frequencies(qubit_operator,
                                                                     state_prep_circuit,
                                                                     initial_statevector=initial_statevector,
@@ -349,7 +349,8 @@ class Backend(abc.ABC):
             elif self.statevector_available:
                 return self._get_expectation_value_from_statevector(qubit_operator,
                                                                     state_prep_circuit,
-                                                                    initial_statevector=initial_statevector)
+                                                                    initial_statevector=initial_statevector,
+                                                                    desired_meas_result=desired_meas_result)
 
         # Else, separate the operator into 2 hermitian operators, use linearity and call this function twice
         else:
@@ -445,7 +446,7 @@ class Backend(abc.ABC):
         variance = self.get_variance(qubit_operator, state_prep_circuit, initial_statevector, desired_meas_result=desired_meas_result)
         return np.sqrt(variance/self.n_shots) if self.n_shots else 0.
 
-    def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit, initial_statevector=None):
+    def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a state preparation returning a
         ket |\psi>. Return the expectation value <\psi | H | \psi>, computed
         without drawing samples (statevector only). Users should not be calling
@@ -463,7 +464,8 @@ class Backend(abc.ABC):
         n_qubits = state_prep_circuit.width
 
         expectation_value = 0.
-        prepared_frequencies, prepared_state = self.simulate(state_prep_circuit, return_statevector=True, initial_statevector=initial_statevector)
+        prepared_frequencies, prepared_state = self.simulate(state_prep_circuit, return_statevector=True,
+                                                             initial_statevector=initial_statevector, desired_meas_result=desired_meas_result)
 
         if hasattr(self, "expectation_value_from_prepared_state"):
             return self.expectation_value_from_prepared_state(qubit_operator, n_qubits, prepared_state)

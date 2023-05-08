@@ -25,6 +25,8 @@ import openfermion as of
 
 from tangelo.toolboxes.molecular_computation.coefficients import spatial_from_spinorb
 
+COEFFICIENT_TYPES = (int, float, complex, np.integer, np.floating)
+
 
 class FermionOperator(of.FermionOperator):
     """Custom FermionOperator class. Based on openfermion's, with additional functionalities.
@@ -74,6 +76,10 @@ class FermionOperator(of.FermionOperator):
                 f_op = FermionOperator()
                 f_op.terms = other.terms.copy()
                 return super(FermionOperator, self).__iadd__(f_op)
+
+        elif isinstance(other, COEFFICIENT_TYPES):
+            self.constant += other
+            return self
 
         else:
             raise RuntimeError(f"You cannot add FermionOperator and {other.__class__}.")
