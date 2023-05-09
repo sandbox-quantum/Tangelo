@@ -18,6 +18,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install psi4
+      shell: bash -el {0}
       run: |
         $CONDA/bin/conda create -n p4env psi4 -c psi4
         conda activate p4env
