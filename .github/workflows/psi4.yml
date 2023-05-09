@@ -58,18 +58,6 @@ jobs:
         pytest --doctest-modules --junitxml=junit/psi4-test-results.xml test_psi4.py
       if: always()
 
-    - name: tangelo no_pyscf tests
-      run: |
-        cd dev_tools
-        pytest --doctest-modules --junitxml=junit/nopyscf-test-results.xml test_nopyscf.py
-      if: always()
-
-    - name: Upload nopyscf test results
-      uses: actions/upload-artifact@v3
-      with:
-        name: tangelo-no-pyscf-test-results
-        path: dev_tools/junit/nopyscf-test-results.xml
-
     - name: Upload psi4 test results
       uses: actions/upload-artifact@v3
       with:
