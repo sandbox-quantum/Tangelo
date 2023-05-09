@@ -33,6 +33,7 @@ jobs:
 
     - name: Install pip, wheel, pytest, jupyter
       run: |
+        conda activate p4env
         python -m pip install --upgrade pip
         pip install wheel
         pip install pytest
@@ -40,17 +41,20 @@ jobs:
     
     - name: Install qulacs
       run: |
+        conda activate p4env
         pip install qulacs
       if: always()
 
     - name: tangelo install
       run: |
+        conda activate p4env
         python -m pip install .
       if: always()
 
     - name: tangelo psi4 tests
       run: |
         cd dev_tools
+        conda activate p4env
         pytest --doctest-modules --junitxml=junit/psi4-test-results.xml test_psi4.py
       if: always()
 
