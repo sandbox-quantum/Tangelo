@@ -31,6 +31,11 @@ jobs:
         pip install wheel
         pip install pytest
         pip install pytest-cov
+    
+    - name: Install qulacs
+      run: |
+        pip install qulacs
+      if: always()
 
     - name: tangelo install
       run: |
