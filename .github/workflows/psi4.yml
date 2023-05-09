@@ -9,20 +9,26 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
+    
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
+    - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: ${{ matrix.python-version }}
+        activate-environment: anaconda-client-env
+        environment-file: etc/example-environment-caching.yml
+    - run: conda info
+    - run: conda list
+    - run: conda config --show
 
     - name: Install psi4
       shell: bash -el {0}
       run: |
-        $CONDA/bin/conda create -n p4env psi4 -c psi4
-        $conda/bin/conda info
-        $CONDA/bin/activate p4env
+        conda create -n p4env psi4 -c psi4
+        conda activate p4env
       if: always()
 
     - name: Install pip, wheel, pytest, jupyter
