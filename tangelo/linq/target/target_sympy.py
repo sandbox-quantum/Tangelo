@@ -74,9 +74,10 @@ class SympySimulator(Backend):
 
         frequencies = dict()
         for vec, prob in measurements:
-            prob = simplify(prob, tolerance=1e-4)
-            bistring = "".join(str(bit) for bit in reversed(vec.qubit_values))
-            frequencies[bistring] = prob
+            prob = simplify(prob, tolerance=1e-4).evalf()
+            if not prob.is_zero:
+                bistring = "".join(str(bit) for bit in reversed(vec.qubit_values))
+                frequencies[bistring] = prob
 
         return (frequencies, python_statevector) if return_statevector else (frequencies, None)
 
@@ -97,14 +98,17 @@ class SympySimulator(Backend):
             sympy.core.add.Add: Eigenvalue represented as a symbolic sum.
         """
 
-        from sympy import simplify
-        from sympy.physics.quantum import qapply, Dagger
+        from sympy import simplify, cos
+        from sympy.physics.quantum import Dagger
 
         prepared_state = self._current_state if prepared_state is None else prepared_state
         operator = translate_operator(qubit_operator, source="tangelo", target="sympy", n_qubits=n_qubits)
-        eigenvalue = qapply(Dagger(prepared_state) * operator * prepared_state)
 
-        return simplify(eigenvalue)
+        eigenvalue = Dagger(prepared_state) * operator * prepared_state
+        eigenvalue = eigenvalue[0, 0].rewrite(cos)
+        eigenvalue = simplify(eigenvalue).evalf()
+
+        return eigenvalue
 
     @staticmethod
     def backend_info():
