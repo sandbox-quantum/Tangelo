@@ -20,9 +20,9 @@ jobs:
     - name: Install psi4
       shell: bash -el {0}
       run: |
-        $CONDA/bin/conda create -n p4env psi4 -c psi4
-        $CONDA/bin/conda init bash
-        $CONDA/bin/conda activate p4env
+        $CONDA/bin/conda create -n p4env python=3.8 psi4 -c psi4
+        conda info
+        conda activate p4env
       if: always()
 
     - name: Install pip, wheel, pytest, jupyter
