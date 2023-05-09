@@ -20,8 +20,8 @@ jobs:
     - name: Install psi4
       shell: bash -el {0}
       run: |
-        $CONDA/bin/conda create -n p4env python=3.8 psi4 -c psi4
-        conda info
+        $CONDA/bin/conda create -n p4env psi4 -c psi4
+        $conda/bin/conda info
         $CONDA/bin/activate p4env
       if: always()
 
@@ -42,16 +42,16 @@ jobs:
         python -m pip install .
       if: always()
 
-    - name: tangelo no_pyscf tests
-      run: |
-        cd dev_tools
-        pytest --doctest-modules --junitxml=junit/nopyscf-test-results.xml test_nopyscf.py
-      if: always()
-
     - name: tangelo psi4 tests
       run: |
         cd dev_tools
         pytest --doctest-modules --junitxml=junit/psi4-test-results.xml test_psi4.py
+      if: always()
+
+    - name: tangelo no_pyscf tests
+      run: |
+        cd dev_tools
+        pytest --doctest-modules --junitxml=junit/nopyscf-test-results.xml test_nopyscf.py
       if: always()
 
     - name: Upload nopyscf test results
