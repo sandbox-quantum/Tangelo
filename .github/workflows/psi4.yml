@@ -21,7 +21,8 @@ jobs:
       shell: bash -el {0}
       run: |
         $CONDA/bin/conda create -n p4env psi4 -c psi4
-        conda activate p4env
+        $CONDA/bin/conda init bash
+        $CONDA/bin/conda activate p4env
       if: always()
 
     - name: Install pip, wheel, pytest, jupyter
