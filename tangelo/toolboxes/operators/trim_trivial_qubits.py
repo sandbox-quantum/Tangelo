@@ -55,6 +55,34 @@ def trim_trivial_operator(qu_op, trim_index, trim_states, n_qubits=None, reindex
         qu_op_trim += np.prod(c) * coeff * QubitOperator(pauli_string_to_of(new_term))
     return qu_op_trim
 
+def is_bitflip_gate(gate):
+    """
+    Check if a gate is a bitflip gate.
+
+    A gate is a bitflip gate if it satisfies one of the following conditions:
+    1. The gate name is either X, Y.
+    2. The gate has a parameter that is an odd multiple of pi.
+
+    Args:
+        gate (Gate): The gate to check.
+
+    Returns:
+        bool: True if the gate is a single qubit bitflip gate, False otherwise.
+    """
+    if gate is None:
+        return False
+
+    if gate.name in {"X", "Y"}:
+        return True
+    elif gate.name in {"RX", "RY"}:
+        try:
+            parameter_float = float(gate.parameter)
+        except (TypeError, ValueError):
+            return False
+
+        return abs(parameter_float - round(parameter_float / np.pi) * np.pi) < 1e-5 and round(parameter_float / np.pi) % 2 == 1
+    else:
+        return False
 
 def trim_trivial_circuit(circuit):
     """
@@ -94,14 +122,14 @@ def trim_trivial_circuit(circuit):
             continue
 
         gate0, gate1 = circ._gates[:2] + [None] * (2 - num_gates)
-        gate_0_is_clifford = (gate0 is not None and (gate0.parameter == "" or np.isclose(gate0.parameter, np.pi)))
-        gate_1_is_clifford = (gate1 is not None and (gate1.parameter == "" or np.isclose(gate1.parameter, np.pi)))
+        gate_0_is_bitflip = is_bitflip_gate(gate0)
+        gate_1_is_bitflip = is_bitflip_gate(gate1)
 
         if num_gates == 1:
             if gate0.name in {"RZ", "Z"}:
                 trim_index.append(e_indices[i].pop())
                 trim_states.append(0)
-            elif gate0.name in {"X", "RX"} and gate_0_is_clifford:
+            elif gate0.name in {"X", "RX"} and gate_0_is_bitflip:
                 trim_index.append(e_indices[i].pop())
                 trim_states.append(1)
             else:
@@ -113,8 +141,8 @@ def trim_trivial_circuit(circuit):
                     trim_states.append(0)
                 else:
                     circuit_new += circ
-            elif gate1.name in {"X", "RX"} and gate_1_is_clifford:
-                if gate0.name in {"RX", "X"} and gate_0_is_clifford:
+            elif gate1.name in {"X", "RX"} and gate_1_is_bitflip:
+                if gate0.name in {"RX", "X"} and gate_0_is_bitflip:
                     trim_index.append(e_indices[i].pop())
                     trim_states.append(0)
                 elif gate0.name in {"Z", "RZ"}:
@@ -125,7 +153,6 @@ def trim_trivial_circuit(circuit):
             else:
                 circuit_new += circ
     return circuit_new, trim_index, trim_states
-
 
 def trim_trivial_qubits(operator, circuit):
     """

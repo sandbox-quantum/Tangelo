@@ -22,24 +22,24 @@ from openfermion.utils import load_operator
 from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import exp_pauliword_to_gates
-from tangelo.toolboxes.operators.trim_trivial_qubits import trim_trivial_qubits, trim_trivial_operator, trim_trivial_circuit
+from tangelo.toolboxes.operators.trim_trivial_qubits import trim_trivial_qubits, trim_trivial_operator, trim_trivial_circuit, is_bitflip_gate
 
 
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 
 qb_ham = load_operator("H4_JW_spinupfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
-# Genereate reference and test circuits using single qcc generator
+# Generate reference and test circuits using single qcc generator
 ref_qcc_op = 0.2299941483397896 * 0.5 * QubitOperator("Y0 X1 X2 X3")
 qcc_op = 0.2299941483397896 * 0.5 * QubitOperator("Y1 X3 X5 X7")
 
 ref_mf_gates = [Gate("RX", 0, parameter=np.pi), Gate("X", 2)]
 
 mf_gates = [
-            Gate("RZ", 0, parameter=np.pi), Gate("RX", 0, parameter=3.14159),
+            Gate("RZ", 0, parameter=np.pi/2), Gate("RX", 0, parameter=3.14159),
             Gate("RX", 1, parameter=np.pi), Gate("RZ", 2, parameter=np.pi),
             Gate("X", 4), Gate("X", 5), Gate("Z", 6),
-            Gate("RZ", 6, parameter=np.pi), Gate("RX", 8, parameter=np.pi),
+            Gate("RZ", 6, parameter=np.pi), Gate("RX", 8, parameter=3*np.pi),
             Gate("X", 8), Gate("RZ", 9, parameter=np.pi), Gate("Z", 9)
            ]
 
@@ -56,6 +56,9 @@ ref_value = -1.8039875664891176
 ref_trim_index = [0, 2, 4, 6, 8, 9]
 ref_trim_states = [1, 0, 1, 0, 0, 0]
 
+# Reference for which mf_gates are bit fkip gates
+ref_bool = [False, True, True, False, True, True, False, False, True, True, False, False]
+
 sim = get_backend()
 
 
@@ -65,6 +68,10 @@ class TrimTrivialQubits(unittest.TestCase):
 
         trimmed_operator = trim_trivial_operator(qb_ham, trim_index=ref_trim_index[:-2], trim_states=ref_trim_states[:-2])
         self.assertAlmostEqual(np.min(np.linalg.eigvalsh(qubit_operator_sparse(trimmed_operator).todense())), ref_value, places=5)
+
+    def test_is_bitflip_gate(self):
+        """ Test if bitflip gate function correctly identifies bitflip gates """
+        self.assertEqual(ref_bool, [is_bitflip_gate(g) for g in mf_gates])
 
     def test_trim_trivial_circuit(self):
         """ Test if circuit trimming returns the correct circuit, states, and indices  """
