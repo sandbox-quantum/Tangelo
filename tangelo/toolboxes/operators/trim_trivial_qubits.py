@@ -19,34 +19,32 @@ from tangelo.linq import Circuit
 from tangelo.linq.helpers.circuits import pauli_string_to_of, pauli_of_to_string
 
 
-def trim_trivial_operator(qu_op, trim_index, trim_states, n_qubits=None, reindex=True):
+def trim_trivial_operator(qu_op, trim_qubits, n_qubits=None, reindex=True):
     """
     Calculate expectation values of a QubitOperator acting on qubits in a
     trivial |0> or |1> state. Return a trimmed QubitOperator with updated coefficients
 
     Args:
         qu_op (QubitOperator): Operator to trim
-        trim_index (list):  index of qubits to trim
-        trim_states (list): state of the qubits to trim, 0 or 1
+        trim_qubits (dict): Dictionary mapping qubit indices to states to trim, e.g. {1: 0, 3: 1}
         n_qubits (int): Optional, number of qubits in full system
         reindex (bool): Optional, if True, remaining qubits will be reindexed
     Returns:
         QubitOperator : trimmed QubitOperator with updated coefficients
     """
-    trim_states = [x for (y, x) in sorted(zip(trim_index, trim_states), key=lambda pair: pair[0])]
-    trim_index = sorted(trim_index)
+
     qu_op_trim = QubitOperator()
     n_qubits = count_qubits(qu_op) if n_qubits is None else n_qubits
 
     # Calculate expectation values of trivial qubits, update coefficients
     for op, coeff in qu_op.terms.items():
         term = pauli_of_to_string(op, n_qubits)
-        c = np.ones(len(trim_index))
+        c = np.ones(len(trim_qubits))
         new_term = term
-        for i, qubit in enumerate(trim_index):
+        for i, qubit in enumerate(trim_qubits.keys()):
             if term[qubit] in {'X', 'Y'}:
                 c[i] = 0
-            elif (term[qubit], trim_states[i]) == ('Z', 1):
+            elif (term[qubit], trim_qubits[qubit]) == ('Z', 1):
                 c[i] = -1
 
             new_term = new_term[:qubit - i] + new_term[qubit - i + 1:] if reindex else new_term[:qubit] + 'I' + new_term[qubit + 1:]
@@ -61,7 +59,7 @@ def is_bitflip_gate(gate):
 
     A gate is a bitflip gate if it satisfies one of the following conditions:
     1. The gate name is either X, Y.
-    2. The gate has a parameter that is an odd multiple of pi.
+    2. The gate name is RX or RY, and has a parameter that is an odd multiple of pi.
 
     Args:
         gate (Gate): The gate to check.
@@ -94,8 +92,7 @@ def trim_trivial_circuit(circuit):
             circuit (Circuit): circuit to be trimmed
         Returns:
             Circuit : Trimmed, entangled circuit
-            list : state of removed qubits, 0 or 1
-            list :  indices of removed qubits
+            dict : dictionary mapping trimmed qubit indices to their states (0 or 1)
 
     """
     # Split circuit into components with entangling and nonentangling gates
@@ -106,8 +103,10 @@ def trim_trivial_circuit(circuit):
     gated_qubits = [qubit for e_subset in e_indices for qubit in e_subset]
 
     # Find qubits with no gates applied to them, store qubit index and state |0>
-    trim_index = list(sorted(set(range(circuit.width)) - set(gated_qubits)))
-    trim_states = [0]*len(trim_index)
+    trim_qubits = {}
+    for qubit_idx in range(circuit.width):
+        if qubit_idx not in gated_qubits:
+            trim_qubits[qubit_idx] = 0
 
     circuit_new = Circuit()
     # Go through circuit components, trim if trivial, otherwise append to new circuit
@@ -128,32 +127,32 @@ def trim_trivial_circuit(circuit):
 
         if num_gates == 1:
             if gate0.name in {"RZ", "Z"}:
-                trim_index.append(e_indices[i].pop())
-                trim_states.append(0)
+                qubit_idx = e_indices[i].pop()
+                trim_qubits[qubit_idx] = 0
             elif gate0.name in {"X", "RX"} and gate_0_is_bitflip:
-                trim_index.append(e_indices[i].pop())
-                trim_states.append(1)
+                qubit_idx = e_indices[i].pop()
+                trim_qubits[qubit_idx] = 1
             else:
                 circuit_new += circ
         elif num_gates == 2:
             if gate1.name in {"Z", "RZ"}:
                 if gate0.name in {"RZ", "Z"}:
-                    trim_index.append(e_indices[i].pop())
-                    trim_states.append(0)
+                    qubit_idx = e_indices[i].pop()
+                    trim_qubits[qubit_idx] = 0
                 else:
                     circuit_new += circ
             elif gate1.name in {"X", "RX"} and gate_1_is_bitflip:
                 if gate0.name in {"RX", "X"} and gate_0_is_bitflip:
-                    trim_index.append(e_indices[i].pop())
-                    trim_states.append(0)
+                    qubit_idx = e_indices[i].pop()
+                    trim_qubits[qubit_idx] = 0
                 elif gate0.name in {"Z", "RZ"}:
-                    trim_index.append(e_indices[i].pop())
-                    trim_states.append(1)
+                    qubit_idx = e_indices[i].pop()
+                    trim_qubits[qubit_idx] = 1
                 else:
                     circuit_new += circ
             else:
                 circuit_new += circ
-    return circuit_new, trim_index, trim_states
+    return circuit_new, trim_qubits
 
 
 def trim_trivial_circuit_dict(circuit):
@@ -176,10 +175,10 @@ def trim_trivial_circuit_dict(circuit):
     gated_qubits = [qubit for e_subset in e_indices for qubit in e_subset]
 
     # Find qubits with no gates applied to them, store qubit index and state |0>
-    trim_states = {}
+    trim_qubits = {}
     for qubit_idx in range(circuit.width):
         if qubit_idx not in gated_qubits:
-            trim_states[qubit_idx] = 0
+            trim_qubits[qubit_idx] = 0
 
     circuit_new = Circuit()
     # Go through circuit components, trim if trivial, otherwise append to new circuit
@@ -201,31 +200,31 @@ def trim_trivial_circuit_dict(circuit):
         if num_gates == 1:
             if gate0.name in {"RZ", "Z"}:
                 qubit_idx = e_indices[i].pop()
-                trim_states[qubit_idx] = 0
+                trim_qubits[qubit_idx] = 0
             elif gate0.name in {"X", "RX"} and gate_0_is_bitflip:
                 qubit_idx = e_indices[i].pop()
-                trim_states[qubit_idx] = 1
+                trim_qubits[qubit_idx] = 1
             else:
                 circuit_new += circ
         elif num_gates == 2:
             if gate1.name in {"Z", "RZ"}:
                 if gate0.name in {"RZ", "Z"}:
                     qubit_idx = e_indices[i].pop()
-                    trim_states[qubit_idx] = 0
+                    trim_qubits[qubit_idx] = 0
                 else:
                     circuit_new += circ
             elif gate1.name in {"X", "RX"} and gate_1_is_bitflip:
                 if gate0.name in {"RX", "X"} and gate_0_is_bitflip:
                     qubit_idx = e_indices[i].pop()
-                    trim_states[qubit_idx] = 0
+                    trim_qubits[qubit_idx] = 0
                 elif gate0.name in {"Z", "RZ"}:
                     qubit_idx = e_indices[i].pop()
-                    trim_states[qubit_idx] = 1
+                    trim_qubits[qubit_idx] = 1
                 else:
                     circuit_new += circ
             else:
                 circuit_new += circ
-    return circuit_new, trim_states
+    return circuit_new, trim_qubits
 
 
 def trim_trivial_qubits(operator, circuit):
@@ -240,7 +239,7 @@ def trim_trivial_qubits(operator, circuit):
             QubitOperator : Trimmed qubit operator
             Circuit : Trimmed circuit
     """
-    trimmed_circuit, trim_index, trim_states = trim_trivial_circuit(circuit)
-    trimmed_operator = trim_trivial_operator(operator, trim_index, trim_states, circuit.width, reindex=True)
+    trimmed_circuit, trim_qubits = trim_trivial_circuit(circuit)
+    trimmed_operator = trim_trivial_operator(operator, trim_qubits, circuit.width, reindex=True)
 
     return trimmed_operator, trimmed_circuit
