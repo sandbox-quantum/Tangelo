@@ -114,7 +114,7 @@ def trim_trivial_circuit(circuit):
         if circ.width != 1 or circ.size not in (1, 2):
             circuit_new += circ
             continue
-            
+
         # Calculate state of single qubit clifford circuits, ideally this would be done with a clifford simulator
         # for now only look at first two gate combinations typical of the QMF state in QCC methods
         gate0, gate1 = circ._gates[:2] + [None] * (2 - circ.size)
