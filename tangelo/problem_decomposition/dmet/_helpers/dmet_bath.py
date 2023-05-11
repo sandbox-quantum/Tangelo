@@ -21,7 +21,7 @@ environment effect from the surrounding part) is done here.
 import numpy as np
 
 
-def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low):
+def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low, virtual_orbital_truncation=True):
     """ Construct the bath orbitals for DMET fragment calculation.
 
     Args:
@@ -32,6 +32,8 @@ def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low):
             orbitals (int).
         onerdm_low (numpy.array): One-particle RDM from the low-level
             calculation (float64).
+        virtual_orbital_truncation (bool): Flag to turn off virtual space
+            truncation, useful if one is working in a minimal basis set.
 
     Returns:
         numpy.array: The bath orbitals (float64).
@@ -45,7 +47,7 @@ def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low):
     e, c = np.linalg.eigh(onerdm_embedded)
 
     # Sort the eigenvectors with the eigenvalues
-    e_sorted, c_sorted = dmet_bath_orb_sort(t_list, e, c)
+    e_sorted, c_sorted = dmet_bath_orb_sort(t_list, e, c, virtual_orbital_truncation)
 
     # Add the core contribution
     bath_orb, e_core = dmet_add_to_bath_orb(mol, t_list, temp_list, e_sorted, c_sorted)
@@ -90,7 +92,7 @@ def dmet_onerdm_embed(mol, temp_list, onerdm_before):
     return onerdm_temp3
 
 
-def dmet_bath_orb_sort(t_list, e_before, c_before):
+def dmet_bath_orb_sort(t_list, e_before, c_before, virtual_orbital_truncation=True):
     """ Sort the bath orbitals with the eigenvalues (orbital energies).
 
     Args:
@@ -98,6 +100,8 @@ def dmet_bath_orb_sort(t_list, e_before, c_before):
         e_before (numpy.array): Orbitals energies before sorting (float64).
         c_before (numpy.array): Coefficients of the orbitals before sorting
             (float64).
+        virtual_orbital_truncation (bool): Flag to turn off virtual space
+            truncation, useful if one is working in a minimal basis set.
 
     Returns:
         numpy.array: Sorted orbital energies (float64).
@@ -111,7 +115,9 @@ def dmet_bath_orb_sort(t_list, e_before, c_before):
     thresh_orb = np.sum(-np.maximum(-e_before, e_before - 2.0)[new_index] > 1e-13)
 
     # Determine the number of bath orbitals
-    norb = min(np.sum(thresh_orb), t_list[0])
+    sum_tresh_orb = np.sum(thresh_orb)
+    norb = min(sum_tresh_orb, t_list[0]) if virtual_orbital_truncation else sum_tresh_orb
+
     t_list.append(norb)
 
     # Sort the bath orbitals with its energies

@@ -88,6 +88,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                            "optimizer": self._default_optimizer,
                            "initial_chemical_potential": 0.0,
                            "solvers_options": list(),
+                           "virtual_orbital_truncation": True,
                            "verbose": False}
 
         self.builtin_localization = set(Localization)
@@ -344,7 +345,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             temp_list = self.orb_list2[i]
 
             # Construct bath orbitals.
-            bath_orb, e_occupied = helpers._fragment_bath(self.orbitals.mol_full, t_list, temp_list, self.onerdm_low)
+            bath_orb, e_occupied = helpers._fragment_bath(self.orbitals.mol_full, t_list, temp_list, self.onerdm_low, self.virtual_orbital_truncation)
 
             # Obtain one particle rdm for a fragment.
             norb_high, nelec_high, onerdm_high = helpers._fragment_rdm(t_list, bath_orb, e_occupied,
