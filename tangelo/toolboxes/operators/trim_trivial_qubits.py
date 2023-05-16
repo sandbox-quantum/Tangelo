@@ -57,7 +57,7 @@ def trim_trivial_operator(qu_op, trim_states, n_qubits=None, reindex=True):
     return qu_op_trim
 
 
-def is_bitflip_gate(gate):
+def is_bitflip_gate(gate, atol=1e-5):
     """
     Check if a gate is a bitflip gate.
 
@@ -67,6 +67,7 @@ def is_bitflip_gate(gate):
 
     Args:
         gate (Gate): The gate to check.
+        atol (float): The absolute tolerance for gate parameter
 
     Returns:
         bool: True if the gate is a single qubit bitflip gate, False otherwise.
@@ -81,8 +82,9 @@ def is_bitflip_gate(gate):
             parameter_float = float(gate.parameter)
         except (TypeError, ValueError):
             return False
+
         # Check if parameter is close to an odd multiple of pi
-        return abs(parameter_float % (3.14159 * 2) - 3.14159) <= 1e-5
+        return abs(parameter_float % (np.pi * 2) - np.pi) <= atol
     else:
         return False
 
