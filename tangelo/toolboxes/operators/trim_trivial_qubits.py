@@ -81,8 +81,8 @@ def is_bitflip_gate(gate):
             parameter_float = float(gate.parameter)
         except (TypeError, ValueError):
             return False
-
-        return abs(parameter_float - round(parameter_float / np.pi) * np.pi) < 1e-5 and round(parameter_float / np.pi) % 2 == 1
+        # Check if parameter is close to an odd multiple of pi
+        return abs(parameter_float % (3.14159 * 2) - 3.14159) <= 1e-5
     else:
         return False
 

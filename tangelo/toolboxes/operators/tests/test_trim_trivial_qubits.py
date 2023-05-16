@@ -14,8 +14,8 @@
 
 import os
 import unittest
-import numpy as np
 
+import numpy as np
 from openfermion.linalg import qubit_operator_sparse
 from openfermion.utils import load_operator
 
@@ -39,7 +39,7 @@ mf_gates = [
             Gate("RZ", 0, parameter=np.pi/2), Gate("RX", 0, parameter=3.14159),
             Gate("RX", 1, parameter=np.pi), Gate("RZ", 2, parameter=np.pi),
             Gate("X", 4), Gate("X", 5), Gate("Z", 6),
-            Gate("RZ", 6, parameter=np.pi), Gate("RX", 8, parameter=3*np.pi),
+            Gate("RZ", 6, parameter=np.pi), Gate("RX", 8, parameter=-3*np.pi),
             Gate("X", 8), Gate("RZ", 9, parameter=np.pi), Gate("Z", 9)
            ]
 
