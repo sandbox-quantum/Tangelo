@@ -67,7 +67,7 @@ def is_bitflip_gate(gate, atol=1e-5):
 
     Args:
         gate (Gate): The gate to check.
-        atol (float): The absolute tolerance for gate parameter
+        atol (float): Optional, the absolute tolerance for gate parameter
 
     Returns:
         bool: True if the gate is a single qubit bitflip gate, False otherwise.
