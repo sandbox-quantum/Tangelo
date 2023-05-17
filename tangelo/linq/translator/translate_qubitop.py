@@ -76,7 +76,7 @@ def translate_operator(qubit_operator, source, target, n_qubits=None):
         if target in {"qiskit", "sympy"}:
             # The count_qubits function has no way to detect the number of
             # qubits when an operator is only a tensor product of I.
-            if qubit_operator == QubitOperator((), qubit_operator.constant):
+            if qubit_operator == QubitOperator((), qubit_operator.constant) and n_qubits is None:
                 raise ValueError("The number of qubits (n_qubits) must be provided.")
             n_qubits = count_qubits(qubit_operator) if n_qubits is None else n_qubits
             qubit_operator = FROM_TANGELO[target](qubit_operator, n_qubits)

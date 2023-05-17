@@ -72,6 +72,7 @@ class VQESolver:
         initial_var_params (str or array-like) : initial value for the classical
             optimizer.
         backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
+        simulate_options (dict): Options for fine-control of the simulator backend, including desired measurement results, etc.
         penalty_terms (dict): parameters for penalty terms to append to target
             qubit Hamiltonian (see penalty_terms for more details).
         deflation_circuits (list[Circuit]): Deflation circuits to add an
@@ -84,6 +85,8 @@ class VQESolver:
                 spin up/down ordering.
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         verbose (bool): Flag for VQE verbosity.
+        projective_circuit (Circuit): A terminal circuit that projects into the correct space, always added to
+            the end of the ansatz circuit.
         ref_state (array or Circuit): The reference configuration to use. Replaces HF state
             QMF, QCC, ILC require ref_state to be an array. UCC1, UCC3, VSQS can not use a
             different ref_state than HF by construction.
@@ -97,6 +100,7 @@ class VQESolver:
                            "optimizer": self._default_optimizer,
                            "initial_var_params": None,
                            "backend_options": default_backend_options,
+                           "simulate_options": dict(),
                            "penalty_terms": None,
                            "deflation_circuits": list(),
                            "deflation_coeff": 1,
@@ -104,6 +108,7 @@ class VQESolver:
                            "up_then_down": False,
                            "qubit_hamiltonian": None,
                            "verbose": False,
+                           "projective_circuit": None,
                            "ref_state": None}
 
         # Initialize with default values
@@ -255,6 +260,8 @@ class VQESolver:
         self.optimal_energy = optimal_energy
         self.ansatz.build_circuit(self.optimal_var_params)
         self.optimal_circuit = self.reference_circuit+self.ansatz.circuit if self.ref_state is not None else self.ansatz.circuit
+        if self.projective_circuit:
+            self.optimal_circuit += self.projective_circuit
         return self.optimal_energy
 
     def get_resources(self):
@@ -294,7 +301,9 @@ class VQESolver:
         # Update variational parameters, compute energy using the hardware backend
         self.ansatz.update_var_params(var_params)
         circuit = self.ansatz.circuit if self.ref_state is None else self.reference_circuit + self.ansatz.circuit
-        energy = self.backend.get_expectation_value(self.qubit_hamiltonian, circuit)
+        if self.projective_circuit:
+            circuit += self.projective_circuit
+        energy = self.backend.get_expectation_value(self.qubit_hamiltonian, circuit, **self.simulate_options)
 
         # Additional computation for deflation (optional)
         for circ in self.deflation_circuits:
@@ -380,7 +389,10 @@ class VQESolver:
                                                               spin=spin)
 
         self.ansatz.update_var_params(var_params)
-        expectation = self.backend.get_expectation_value(self.qubit_hamiltonian, ref_state+self.ansatz.circuit)
+        circuit = ref_state + self.ansatz.circuit
+        if self.projective_circuit:
+            circuit += self.projective_circuit
+        expectation = self.backend.get_expectation_value(self.qubit_hamiltonian, circuit, **self.simulate_options)
 
         # Restore the current target hamiltonian
         self.qubit_hamiltonian = tmp_hamiltonian

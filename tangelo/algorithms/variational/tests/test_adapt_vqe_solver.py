@@ -14,8 +14,14 @@
 
 import unittest
 
-from tangelo.algorithms.variational import ADAPTSolver
+import numpy as np
+
 from tangelo.molecule_library import mol_H2_sto3g, xyz_H4
+from tangelo.linq import Circuit, Gate
+from tangelo.algorithms.variational import ADAPTSolver
+from tangelo.toolboxes.ansatz_generator.fermionic_operators import spinz_operator
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize, get_qft_circuit
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator._unitary_majorana_cc import get_majorana_uccgsd_pool, get_majorana_uccsd_pool
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 
@@ -114,6 +120,38 @@ class ADAPTSolverTest(unittest.TestCase):
         optimal_energy = adapt_solver.simulate()
 
         self.assertAlmostEqual(optimal_energy, -1.91062, places=3)
+
+    def test_sym_projected(self):
+        """Solve Linear H3 with one frozen orbtial with ADAPTSolver using 4 cycles and operators chosen
+        from a Majorana UCCGSD pool, with a sz symmetry projection.
+        """
+
+        xyz_H3 = [("H", [0., 0., 0.]), ("H", [1., 0., 0.]), ("H", [2., 0., 0.])]
+        mol = SecondQuantizedMolecule(xyz_H3, 0, 1, basis="sto-3g")
+
+        # QPE based Sz projection.
+        def sz_check(n_state: int, molecule: SecondQuantizedMolecule, mapping: str, up_then_down):
+            n_qft = 3
+            spin_fe_op = spinz_operator(molecule.n_active_mos)
+            q_spin = fermion_to_qubit_mapping(spin_fe_op, mapping, molecule.n_active_sos, molecule.n_active_electrons, up_then_down, molecule.spin)
+
+            sym_var_circuit = Circuit([Gate("H", n_state + q) for q in range(n_qft)])
+            for j, i in enumerate(range(n_state, n_state+n_qft)):
+                sym_var_circuit += trotterize(2*q_spin+3, -2*np.pi/2**(j+1), control=i)
+            sym_var_circuit += get_qft_circuit(list(range(n_state+n_qft-1, n_state-1, -1)), inverse=True)
+            sym_var_circuit += Circuit([Gate("MEASURE", i) for i in range(n_state, n_state+n_qft)])
+            return sym_var_circuit
+
+        proj_circuit = sz_check(6, mol, "JW", False)
+
+        opt_dict = {"molecule": mol, "max_cycles": 4, "verbose": False, "pool": get_majorana_uccgsd_pool,
+                    "pool_args": {"n_sos": mol.n_active_sos}, "simulate_options": {"desired_meas_result": "100"},
+                    "projective_circuit": proj_circuit}
+        adapt_solver = ADAPTSolver(opt_dict)
+        adapt_solver.build()
+        adapt_solver.simulate()
+
+        self.assertAlmostEqual(adapt_solver.optimal_energy, -1.56835, places=5)
 
 
 if __name__ == "__main__":

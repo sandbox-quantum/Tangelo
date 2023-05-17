@@ -49,6 +49,7 @@ class SA_OO_Solver(SA_VQESolver):
         optimizer (function handle): a function defining the classical optimizer and its behavior.
         initial_var_params (str or array-like) : initial value for the classical optimizer.
         backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
+        simulate_options (dict): Options for fine-control of the simulator backend, including desired measurement results, etc.
         penalty_terms (dict): parameters for penalty terms to append to target qubit Hamiltonian (see penalty_terms
             for more details).
         ansatz_options (dict): parameters for the given ansatz (see given ansatz file for details).
@@ -56,6 +57,8 @@ class SA_OO_Solver(SA_VQESolver):
             Default, False has alternating spin up/down ordering.
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         verbose (bool): Flag for VQE verbosity.
+        projective_circuit (Circuit): A terminal circuit that projects into the correct space, always added to
+            the end of the ansatz circuit.
         ref_states (list): The vector occupations of the reference configurations
         weights (array): The weights of the occupations
      """
