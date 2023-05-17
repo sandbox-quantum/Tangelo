@@ -107,6 +107,66 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
 
     return gate_list
 
+
+def direct_tableau(source_circuit, noise_model=None):
+    """Take in an abstract circuit, return an equivalent stim QuantumCircuit
+    instance. If provided with a noise model, will add noisy gates at
+    translation. Not very useful to look at, as stim does not provide much
+    information about the noisy gates added when printing the "noisy circuit".
+
+    Args:
+        source_circuit: quantum circuit in the abstract format.
+        noise_model: A NoiseModel object from this package, located in the
+            # noisy_simulation subpackage.
+
+    Returns:
+        stim.QuantumCircuit: the corresponding stim quantum circuit.
+    """
+
+    import stim
+    from time import time
+
+    GATE_STIM = get_stim_gates()
+    target_circuit = stim.TableauSimulator()
+    # for qubit in range(source_circuit.width):
+    #    target_circuit.
+
+    # Maps the gate information properly. Different for each backend (order, values)
+    for gate in source_circuit._gates:
+        if gate.name in {"H", "X", "Y", "Z", "S"}:
+            bar = getattr(target_circuit, gate.name.lower())
+            bar(gate.target[0])
+            # target_circuit["x"](gate.target[0])
+        elif gate.name in {"RY", "RX", "RZ", "PHASE"}:
+            # start = time()
+            clifford_decomposition = decompose_gate_to_cliffords(gate)
+
+            # print(clifford_decomposition)
+            for cliff_gate in clifford_decomposition:
+                bar = getattr(target_circuit, GATE_STIM[cliff_gate.name].lower())
+                bar(gate.target[0])
+                # target_circuit.append(GATE_STIM[cliff_gate.name], [cliff_gate.target[0]])
+            # finish = time()
+            # print('decomp', finish-start)
+        elif gate.name in {"CX", "CY", "CZ", "CNOT", "SWAP"}:
+            # target_circuit.append(GATE_STIM[gate.name], [gate.control[0], gate.target[0]])
+            bar = getattr(target_circuit, gate.name.lower())
+            bar(gate.control[0], gate.target[0])
+
+        if noise_model and (gate.name in noise_model.noisy_gates):
+            for nt, np in noise_model._quantum_errors[gate.name]:
+                if nt == 'pauli':
+                    target_circuit.append(stim.CircuitInstruction('PAULI_CHANNEL_1', [gate.target[0]], [np[0], np[1], np[2]]))
+                    if gate.control is not None:
+                        target_circuit.append(stim.CircuitInstruction('PAULI_CHANNEL_1', [gate.control[0]], [np[0], np[1], np[2]]))
+                if nt == 'depol':
+                    if gate.control is not None:
+                        target_circuit.depolarize2(zip(gate.target[0], gate.control[0]), np)
+                    else:
+                        target_circuit.depolarize1([gate.target[0]], [np])
+
+    return target_circuit
+
 @deprecated("Please use the translate_circuit function.")
 def translate_stim(source_circuit, noise_model=None):
     """Take in a Circuit, return an equivalent stim.CircuitInstruction

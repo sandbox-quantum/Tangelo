@@ -21,7 +21,7 @@ import stim
 from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
-
+from tangelo.linq.translator.translate_stim import direct_tableau
 
 class StimSimulator(Backend):
     """Interface to the stim simulator."""
@@ -55,21 +55,25 @@ class StimSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
+        # only make circuit if doing n>1 shots, otherwise use tableausim, noise model doesn't matter
 
-        translated_circuit = translate_c(source_circuit, "stim",
-            output_options={"noise_model": self._noise_model})
+        # translated_circuit = translate_c(source_circuit, "stim",
+        #     output_options={"noise_model": self._noise_model})
+        #translated_circuit = direct_tableau(source_circuit)
 
-        if initial_statevector is not None:
-            initial_state_circuit = self.stim.Tableau.from_state_vector(state_vector=initial_statevector,
-                                                                   endian= 'little').to_circuit(method="elimination")
-            translated_circuit = initial_state_circuit + translated_circuit
+        #if initial_statevector is not None:
+            #initial_state_circuit = self.stim.Tableau.from_state_vector(state_vector=initial_statevector,
+                                                                #   endian= 'little').to_circuit(method="elimination")
+            #translated_circuit = initial_state_circuit + translated_circuit
 
-        if return_statevector and self._noise_model is None:
-            self._current_state = self.stim.Tableau.from_circuit(translated_circuit)
+        if return_statevector and self.n_shots <= 1:
+            self._current_state = direct_tableau(source_circuit).state_vector
         else:
             return_statevector = False
 
-        if self.n_shots is not None or self._noise_model is not None:
+        if self.n_shots > 1:
+            translated_circuit = translate_c(source_circuit, "stim",
+                 output_options={"noise_model": self._noise_model})
             for qubit in range(source_circuit.width):
                 translated_circuit.append("M", [qubit])
             isamples = translated_circuit.compile_sampler().sample(self.n_shots)
@@ -84,10 +88,7 @@ class StimSimulator(Backend):
         from tangelo.linq.helpers.circuits.measurement_basis import pauli_of_to_string
         if not n_qubits:
             n_qubits = state_prep_circuit.width
-        translated_circuit = translate_c(state_prep_circuit, "stim",
-            output_options={"noise_model": self._noise_model})
-        s = self.stim.TableauSimulator()
-        s.do_circuit(translated_circuit)
+        s = direct_tableau(state_prep_circuit, self._noise_model)
         paulisum = 0
         for term, coef in qubit_operator.terms.items():
             paulisum += coef * s.peek_observable_expectation(self.stim.PauliString(pauli_of_to_string(term, n_qubits)))
