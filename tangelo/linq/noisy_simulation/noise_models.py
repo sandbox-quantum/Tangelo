@@ -27,7 +27,7 @@ SUPPORTED_NOISE_MODELS = {'depol', 'pauli'}
 __MAPPING_GATES_QISKIT = dict()
 for name in ONE_QUBIT_GATES:
     __MAPPING_GATES_QISKIT[name] = [name.lower()]
-for name in {'RX', 'RY', 'RZ'}:
+for name in {'RX', 'RY', 'RZ', "H", "Y", "X", "Z", "S", "T"}:
     __MAPPING_GATES_QISKIT[name] = ['u1', 'u2', 'u3']
 __MAPPING_GATES_QISKIT["CNOT"] = ["cx"]
 
