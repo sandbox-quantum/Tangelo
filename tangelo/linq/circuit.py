@@ -245,7 +245,7 @@ class Circuit:
         """Trim unnecessary qubits and update indices with the lowest values possible.
         """
         qubits_in_use = set().union(*self.get_entangled_indices())
-        mapping = {ind: i for i, ind in enumerate(qubits_in_use)}
+        mapping = {ind: i for i, ind in enumerate(sorted(list(qubits_in_use)))}
         for g in self._gates:
             g.target = [mapping[ind] for ind in g.target]
             if g.control:
