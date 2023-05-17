@@ -69,6 +69,10 @@ class DMETProblemDecomposition(ProblemDecomposition):
             options. If only a single dictionary is passed, the same options are
             applied for every solver. This will raise an error if different
             solvers are parsed.
+        virtual_orbital_threshold (float): Occupation threshold for the virtual
+            orbital space. Setting it to 0. is the equivalent of turning off
+            the virtual orbital space truncation.
+            Default=1e-13.
         verbose (bool) : Flag for DMET verbosity.
     """
 
@@ -88,7 +92,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                            "optimizer": self._default_optimizer,
                            "initial_chemical_potential": 0.0,
                            "solvers_options": list(),
-                           "virtual_orbital_truncation": True,
+                           "virtual_orbital_threshold": 1e-13,
                            "verbose": False}
 
         self.builtin_localization = set(Localization)
@@ -345,7 +349,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             temp_list = self.orb_list2[i]
 
             # Construct bath orbitals.
-            bath_orb, e_occupied = helpers._fragment_bath(self.orbitals.mol_full, t_list, temp_list, self.onerdm_low, self.virtual_orbital_truncation)
+            bath_orb, e_occupied = helpers._fragment_bath(self.orbitals.mol_full, t_list, temp_list, self.onerdm_low, self.virtual_orbital_threshold)
 
             # Obtain one particle rdm for a fragment.
             norb_high, nelec_high, onerdm_high = helpers._fragment_rdm(t_list, bath_orb, e_occupied,
