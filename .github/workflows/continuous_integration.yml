@@ -59,6 +59,8 @@ jobs:
       if: always()
 
     - name: tangelo install
+      env:
+        NO_PYSCF: 1
       run: |
         python -m pip install .
       if: always()
@@ -70,6 +72,8 @@ jobs:
       if: always()
 
     - name: Install pyscf
+      env:
+        NO_PYSCF: 0
       run: |
         python -m pip install pyscf
         python -m pip install git+https://github.com/pyscf/semiempirical
