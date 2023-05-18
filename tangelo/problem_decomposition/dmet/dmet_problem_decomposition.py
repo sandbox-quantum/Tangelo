@@ -77,9 +77,6 @@ class DMETProblemDecomposition(ProblemDecomposition):
     def __init__(self, opt_dict):
         from pyscf import gto, scf
         from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
-        self.pyscfgto = gto
-        self.pyscfscf = scf
-        self.SecondQuantizedDMETFragment = SecondQuantizedDMETFragment
         default_ccsd_options = dict()
         default_fci_options = dict()
         default_vqe_options = {"qubit_mapping": "jw",
@@ -107,6 +104,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 setattr(self, k, v)
             else:
                 raise KeyError(f"Keyword :: {k}, not available in DMETProblemDecomposition.")
+        self.SecondQuantizedDMETFragment = SecondQuantizedDMETFragment
 
         # Raise error/warnings if input is not as expected
         if not self.molecule:
@@ -136,7 +134,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             new_geometry = [self.molecule._atom[atom_id] for atom_id in fragment_atoms_flatten]
 
             # Building a new PySCF molecule with correct ordering.
-            new_molecule = self.pyscfgto.Mole()
+            new_molecule = gto.Mole()
             new_molecule.atom = new_geometry
             new_molecule.basis = self.molecule.basis
             new_molecule.charge = self.molecule.charge
@@ -150,7 +148,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Force recomputing the mean field if the atom ordering has been changed.
             warnings.warn("The mean field will be recomputed even if one has been provided by the user.", RuntimeWarning)
-            self.mean_field = self.pyscfscf.UHF(self.molecule) if self.uhf else self.pyscfscf.RHF(self.molecule)
+            self.mean_field = scf.UHF(self.molecule) if self.uhf else scf.RHF(self.molecule)
             self.mean_field.verbose = 0
             self.mean_field.scf()
 
