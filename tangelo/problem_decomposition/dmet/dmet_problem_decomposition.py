@@ -16,14 +16,12 @@
 
 from enum import Enum
 import numpy as np
-from pyscf import gto, scf
 import scipy
 import warnings
 
 from tangelo.problem_decomposition.dmet import _helpers as helpers
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization, nao_localization
-from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
 from tangelo.algorithms import FCISolver, CCSDSolver, VQESolver
 from tangelo.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
 from tangelo.toolboxes.molecular_computation.rdms import pad_rdms_with_frozen_orbitals_restricted, \
@@ -77,7 +75,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
     """
 
     def __init__(self, opt_dict):
-
+        from pyscf import gto, scf
+        from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
+        self.pyscfgto = gto
+        self.pyscfscf = scf
+        self.SecondQuantizedDMETFragment = SecondQuantizedDMETFragment
         default_ccsd_options = dict()
         default_fci_options = dict()
         default_vqe_options = {"qubit_mapping": "jw",
@@ -134,7 +136,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             new_geometry = [self.molecule._atom[atom_id] for atom_id in fragment_atoms_flatten]
 
             # Building a new PySCF molecule with correct ordering.
-            new_molecule = gto.Mole()
+            new_molecule = self.pyscfgto.Mole()
             new_molecule.atom = new_geometry
             new_molecule.basis = self.molecule.basis
             new_molecule.charge = self.molecule.charge
@@ -148,7 +150,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
             # Force recomputing the mean field if the atom ordering has been changed.
             warnings.warn("The mean field will be recomputed even if one has been provided by the user.", RuntimeWarning)
-            self.mean_field = scf.UHF(self.molecule) if self.uhf else scf.RHF(self.molecule)
+            self.mean_field = self.pyscfscf.UHF(self.molecule) if self.uhf else self.pyscfscf.RHF(self.molecule)
             self.mean_field.verbose = 0
             self.mean_field.scf()
 
@@ -455,7 +457,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
+            dummy_mol = self.SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 self.fragment_frozen_orbitals[i])
 
@@ -551,7 +553,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
+            dummy_mol = self.SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 self.fragment_frozen_orbitals[i])
 

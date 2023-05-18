@@ -28,6 +28,7 @@ from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 
 from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import IntegralSolver_pyscf
+from tangelo.toolboxes.molecular_computation.integral_solver_psi4 import IntegralSolver_psi4
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
@@ -90,7 +91,17 @@ class Molecule:
     xyz: list or str
     q: int = 0
     spin: int = 0
-    solver: IntegralSolver = field(default_factory=IntegralSolver_pyscf)
+    try:
+        import pyscf
+        default_solver = IntegralSolver_pyscf
+    except ModuleNotFoundError:
+        try:
+            import psi4
+            default_solver = IntegralSolver_psi4
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError("Need to have either psi4 or pyscf install or define custom IntegralSolver")
+
+    solver: IntegralSolver = field(default_factory=default_solver)
 
     # Defined in __post_init__.
     n_atoms: int = field(init=False)
