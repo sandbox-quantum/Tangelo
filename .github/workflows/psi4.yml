@@ -2,6 +2,9 @@ name: psi4 test
 
 on: [pull_request]
 
+env:
+  NO_PYSCF: 1
+
 jobs:
   build:
 
