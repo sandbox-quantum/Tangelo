@@ -16,11 +16,12 @@ import unittest
 
 import numpy as np
 from scipy.linalg import expm
+from openfermion import get_sparse_operator
 
 from tangelo.linq import get_backend, backend_info
 from tangelo.helpers.utils import installed_backends
 from tangelo.linq.helpers.circuits.statevector import StateVector
-from tangelo.toolboxes.operators.operators import QubitOperator
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import get_qft_circuit
 from tangelo.molecule_library import mol_H2_sto3g
@@ -44,7 +45,7 @@ class QSPTest(unittest.TestCase):
                                          mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons, True, 0)
         # need to ensure eigenvalues are between -1 and 1
         qu_op /= 1.2
-        ham = qu_op.get_sparse_op().toarray()
+        ham = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 2])/np.sqrt(2)
 
@@ -75,7 +76,7 @@ class QSPTest(unittest.TestCase):
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))
 
-        ham_mat = qu_op.get_sparse_op().toarray()
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
 
         # Kronecker product 13 qubits in the zero state to eigenvector 9 to account for ancilla qubits

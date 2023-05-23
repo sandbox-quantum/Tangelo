@@ -17,13 +17,14 @@ import math
 
 import numpy as np
 from scipy.linalg import expm
+from openfermion import get_sparse_operator
 
-from tangelo.linq import get_backend, Circuit
+from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.helpers.utils import installed_backends
+from tangelo.linq import get_backend, Circuit
 from tangelo.linq.helpers.circuits.statevector import StateVector
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
-from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.circuits.discrete_clock import get_discrete_clock_circuit
 from tangelo.toolboxes.circuits.grid_circuits import get_psquared_circuit, get_xsquared_circuit
 
@@ -43,7 +44,7 @@ class DiscreteClockTest(unittest.TestCase):
         qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons,
                                          True, 0)
 
-        ham = qu_op.get_sparse_op().toarray()
+        ham = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 1])/np.sqrt(2)
 
