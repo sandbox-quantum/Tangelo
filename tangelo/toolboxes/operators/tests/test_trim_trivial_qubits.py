@@ -91,10 +91,10 @@ class TrimTrivialQubits(unittest.TestCase):
         """ Test if trim trivial qubit function produces correct and compatible circuits and operators """
 
         circ = Circuit(mf_gates + pauli_words_gates, n_qubits=12)
-        trimmed_operator, trimmed_circuit = trim_trivial_qubits(qb_ham, circ)
-        self.assertAlmostEqual(np.min(np.linalg.eigvalsh(qubit_operator_sparse(trimmed_operator).todense())), ref_value, places=5)
+        trimmed_operator, trimmed_circuit = trim_trivial_qubits(qb_ham+QubitOperator("Z10"), circ)
+        self.assertAlmostEqual(np.min(np.linalg.eigvalsh(qubit_operator_sparse(trimmed_operator).todense())), ref_value+1, places=5)
         self.assertEqual(ref_circ._gates, trimmed_circuit._gates)
-        self.assertAlmostEqual(sim.get_expectation_value(trimmed_operator, trimmed_circuit), ref_value, places=5)
+        self.assertAlmostEqual(sim.get_expectation_value(trimmed_operator, trimmed_circuit), ref_value+1, places=5)
 
 
 if __name__ == "__main__":
