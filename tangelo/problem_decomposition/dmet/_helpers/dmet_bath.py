@@ -21,7 +21,7 @@ environment effect from the surrounding part) is done here.
 import numpy as np
 
 
-def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low):
+def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low, virtual_orbital_threshold=1e-13, verbose=False):
     """ Construct the bath orbitals for DMET fragment calculation.
 
     Args:
@@ -32,6 +32,10 @@ def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low):
             orbitals (int).
         onerdm_low (numpy.array): One-particle RDM from the low-level
             calculation (float64).
+        virtual_orbital_threshold (float): Occupation threshold for the density
+            matrix, used to discard virtual orbitals.
+        verbose (bool): Print the orbital occupancy eigenvalues for prototyping
+            purposes (setting virtual_orbital_threshold).
 
     Returns:
         numpy.array: The bath orbitals (float64).
@@ -44,8 +48,13 @@ def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low):
     # Diagonalize it
     e, c = np.linalg.eigh(onerdm_embedded)
 
-    # Sort the eigenvectors with the eigenvalues
-    e_sorted, c_sorted = dmet_bath_orb_sort(t_list, e, c)
+    # Sort the eigenvectors with the eigenvalues (should be positive unless
+    # there is numerical noise, therefore we take the absolute values).
+    e = np.abs(e)
+    if verbose:
+        print(f"\t{e}\n")
+
+    e_sorted, c_sorted = dmet_bath_orb_sort(t_list, e, c, virtual_orbital_threshold)
 
     # Add the core contribution
     bath_orb, e_core = dmet_add_to_bath_orb(mol, t_list, temp_list, e_sorted, c_sorted)
@@ -90,7 +99,7 @@ def dmet_onerdm_embed(mol, temp_list, onerdm_before):
     return onerdm_temp3
 
 
-def dmet_bath_orb_sort(t_list, e_before, c_before):
+def dmet_bath_orb_sort(t_list, e_before, c_before, virtual_orbital_threshold):
     """ Sort the bath orbitals with the eigenvalues (orbital energies).
 
     Args:
@@ -98,6 +107,8 @@ def dmet_bath_orb_sort(t_list, e_before, c_before):
         e_before (numpy.array): Orbitals energies before sorting (float64).
         c_before (numpy.array): Coefficients of the orbitals before sorting
             (float64).
+        virtual_orbital_threshold (float): Occupation threshold for the density
+            matrix, used to discard virtual orbitals.
 
     Returns:
         numpy.array: Sorted orbital energies (float64).
@@ -108,10 +119,11 @@ def dmet_bath_orb_sort(t_list, e_before, c_before):
     new_index = np.maximum(-e_before, e_before - 2.0).argsort()
 
     # Throw away some orbitals above threshold
-    thresh_orb = np.sum(-np.maximum(-e_before, e_before - 2.0)[new_index] > 1e-13)
+    thresh_orb = np.sum(-np.maximum(-e_before, e_before - 2.0)[new_index] > virtual_orbital_threshold)
 
     # Determine the number of bath orbitals
     norb = min(np.sum(thresh_orb), t_list[0])
+
     t_list.append(norb)
 
     # Sort the bath orbitals with its energies
