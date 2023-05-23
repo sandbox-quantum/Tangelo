@@ -111,12 +111,9 @@ def dmet_bath_orb_sort(t_list, e_before, c_before, virtual_orbital_threshold):
 
     # Sort the orbital energies (Occupation of 1.0 should come first...)
     new_index = np.maximum(-e_before, e_before - 2.0).argsort()
-    print(e_before[new_index])
 
     # Throw away some orbitals above threshold
     thresh_orb = np.sum(-np.maximum(-e_before, e_before - 2.0)[new_index] > virtual_orbital_threshold)
-    print(thresh_orb)
-    print(t_list[0])
 
     # Determine the number of bath orbitals
     sum_tresh_orb = np.sum(thresh_orb)
