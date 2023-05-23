@@ -21,7 +21,7 @@ environment effect from the surrounding part) is done here.
 import numpy as np
 
 
-def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low, virtual_orbital_threshold=1e-13):
+def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low, virtual_orbital_threshold=1e-13, verbose=False):
     """ Construct the bath orbitals for DMET fragment calculation.
 
     Args:
@@ -34,6 +34,8 @@ def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low, virtual_orbital_thres
             calculation (float64).
         virtual_orbital_threshold (float): Occupation threshold for the density
             matrix, used to discard virtual orbitals.
+        verbose (bool): Print the orbital occupancy eigenvalues for prototyping
+            purposes (setting virtual_orbital_threshold).
 
     Returns:
         numpy.array: The bath orbitals (float64).
@@ -46,8 +48,12 @@ def dmet_fragment_bath(mol, t_list, temp_list, onerdm_low, virtual_orbital_thres
     # Diagonalize it
     e, c = np.linalg.eigh(onerdm_embedded)
 
-    # Sort the eigenvectors with the eigenvalues
+    # Sort the eigenvectors with the eigenvalues (should be positive unless
+    # there is numerical noise, therefore we take the absolute values).
     e = np.abs(e)
+    if verbose:
+        print(f"\t{e}\n")
+
     e_sorted, c_sorted = dmet_bath_orb_sort(t_list, e, c, virtual_orbital_threshold)
 
     # Add the core contribution
