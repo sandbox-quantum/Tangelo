@@ -155,10 +155,6 @@ class FermionOperator(of.FermionOperator):
         ferm_op.terms = self.terms.copy()
         return ferm_op
 
-    def get_sparse_op(self):
-        """ Return a sparse representation of the operator """
-        return of.get_sparse_operator(self.to_openfermion())
-
 
 class BosonOperator(of.BosonOperator):
     """Currently, this class is coming from openfermion. Can be later on be
@@ -239,10 +235,6 @@ class QubitOperator(of.QubitOperator):
         qu_op = of.QubitOperator()
         qu_op.terms = self.terms.copy()
         return qu_op
-
-    def get_sparse_op(self):
-        """ Return a sparse representation of the operator """
-        return of.get_sparse_operator(self.to_openfermion())
 
 
 class QubitHamiltonian(QubitOperator):
