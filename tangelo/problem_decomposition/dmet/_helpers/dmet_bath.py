@@ -122,8 +122,7 @@ def dmet_bath_orb_sort(t_list, e_before, c_before, virtual_orbital_threshold):
     thresh_orb = np.sum(-np.maximum(-e_before, e_before - 2.0)[new_index] > virtual_orbital_threshold)
 
     # Determine the number of bath orbitals
-    sum_tresh_orb = np.sum(thresh_orb)
-    norb = min(sum_tresh_orb, t_list[0])
+    norb = min(np.sum(thresh_orb), t_list[0])
 
     t_list.append(norb)
 
