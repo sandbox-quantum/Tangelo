@@ -352,7 +352,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 print(f"\tSCF Occupancy Eigenvalues for Fragment Number : # {i}")
 
             # Construct bath orbitals.
-            bath_orb, e_occupied = helpers._fragment_bath(self.orbitals.mol_full, t_list, temp_list, self.onerdm_low, self.virtual_orbital_threshold, self.verbose)
+            bath_orb, e_occupied = helpers._fragment_bath(self.orbitals.mol_full, t_list, temp_list,
+                                                          self.onerdm_low, self.virtual_orbital_threshold, self.verbose)
 
             # Obtain one particle rdm for a fragment.
             norb_high, nelec_high, onerdm_high = helpers._fragment_rdm(t_list, bath_orb, e_occupied,
