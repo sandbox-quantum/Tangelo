@@ -29,8 +29,7 @@ from math import pi, isclose
 
 from tangelo.linq import Circuit, Gate
 from tangelo.helpers import deprecated
-
-
+from tangelo.linq.helpers.circuits.clifford_circuits import decompose_gate_to_cliffords
 
 
 def get_stim_gates():
@@ -53,60 +52,6 @@ def get_stim_gates():
     GATE_STIM["SWAP"] = "SWAP"
     GATE_STIM["MEASURE"] = "M"
     return GATE_STIM
-
-def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
-    """For specific parameters, this function will decompose a single qubit parameterized gate into clifford gates"""
-
-    gate_list = []
-
-    clifford_values = [0, pi, pi / 2, -pi / 2]
-    value_isclose = [isclose(gate.parameter, value, abs_tol=abs_tol) for value in clifford_values]
-
-    if not any(value_isclose):
-        raise ValueError(
-            f"Error: Gate {gate} cannot be decomposed into Clifford gates")
-    else:
-        clifford_parameter = [value for bool_, value in zip(value_isclose, clifford_values) if bool_][0]
-
-    if clifford_parameter == 0:
-        gate_list = [Gate("I", gate.target)]
-
-    elif gate.name == "RY":
-        if clifford_parameter == -pi / 2:
-            gate_list = [Gate("Z", gate.target), Gate("H", gate.target)]
-        elif clifford_parameter == pi / 2:
-            gate_list = [Gate("H", gate.target), Gate("Z", gate.target)]
-        elif clifford_parameter == pi:
-            gate_list = [Gate("Y", gate.target)]
-
-    elif gate.name == "RX":
-        if clifford_parameter == -pi / 2:
-            gate_list = [Gate("S", gate.target), Gate("H", gate.target), Gate("S", gate.target)]
-        elif clifford_parameter == pi / 2:
-            gate_list = [Gate("SDAG", gate.target), Gate("H", gate.target), Gate("SDAG", gate.target)]
-        elif clifford_parameter == pi:
-            gate_list = [Gate("SDAG", gate.target), Gate("X", gate.target), Gate("SDAG", gate.target)]
-
-    elif gate.name == "RZ":
-        if clifford_parameter == -pi / 2:
-            gate_list = [Gate("H", gate.target), Gate("S", gate.target), Gate("H", gate.target), Gate("S", gate.target),
-                         Gate("H", gate.target)]
-        elif clifford_parameter == pi / 2:
-            gate_list = [Gate("H", gate.target), Gate("SDAG", gate.target), Gate("H", gate.target),
-                         Gate("SDAG", gate.target), Gate("H", gate.target)]
-        elif clifford_parameter == pi:
-            gate_list = [Gate("Z", gate.target)]
-
-    elif gate.name == "PHASE":
-        if clifford_parameter == -pi / 2:
-            gate_list = [Gate("SDAG", gate.target)]
-        elif clifford_parameter == pi / 2:
-            gate_list = [Gate("S", gate.target)]
-        elif clifford_parameter == pi:
-            gate_list = [Gate("Z", gate.target)]
-
-    return gate_list
-
 
 def direct_tableau(source_circuit):
     """Take in an abstract circuit, return an equivalent stim TableauSimulator
