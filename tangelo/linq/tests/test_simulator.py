@@ -29,7 +29,7 @@ from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.linq.target.backend import Backend, get_expectation_value_from_frequencies_oneterm
-from tangelo.helpers.utils import  installed_simulator, installed_sv_simulator, installed_backends, assert_freq_dict_almost_equal
+from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends, assert_freq_dict_almost_equal
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 

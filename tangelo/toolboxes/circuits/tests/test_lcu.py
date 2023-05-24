@@ -111,7 +111,7 @@ class LCUTest(unittest.TestCase):
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))
 
-        ham = get_sparse_operator(qu_op.to_openfermion()).toarray()
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
 
         # Kronecker product 13 qubits in the zero state to eigenvector 9 to account for ancilla qubits
@@ -145,7 +145,7 @@ class LCUTest(unittest.TestCase):
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))
 
-        ham = get_sparse_operator(qu_op.to_openfermion()).toarray()
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
 
         # break time into 6 parts so 1-norm is less than 2. i.e. can use Oblivious Amplitude Amplification
