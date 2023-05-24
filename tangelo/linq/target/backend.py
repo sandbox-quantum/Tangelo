@@ -461,9 +461,8 @@ class Backend(abc.ABC):
             complex: The expectation value of this operator with regards to the
                 state preparation.
         """
-        n_qubits = state_prep_circuit.width
         if hasattr(self, "expectation_value_from_stabilizer_circuit") and initial_statevector is None:
-            return self.expectation_value_from_stabilizer_circuit(qubit_operator, state_prep_circuit, n_qubits)
+            return self.expectation_value_from_stabilizer_circuit(qubit_operator, state_prep_circuit)
 
         expectation_value = 0.
         prepared_frequencies, prepared_state = self.simulate(state_prep_circuit, return_statevector=True,
