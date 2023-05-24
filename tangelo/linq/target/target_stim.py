@@ -55,23 +55,13 @@ class StimSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        # only make circuit if doing n>1 shots, otherwise use tableausim, noise model doesn't matter
 
-        # translated_circuit = translate_c(source_circuit, "stim",
-        #     output_options={"noise_model": self._noise_model})
-        #translated_circuit = direct_tableau(source_circuit)
-
-        #if initial_statevector is not None:
-            #initial_state_circuit = self.stim.Tableau.from_state_vector(state_vector=initial_statevector,
-                                                                #   endian= 'little').to_circuit(method="elimination")
-            #translated_circuit = initial_state_circuit + translated_circuit
-
-        if return_statevector and self.n_shots <= 1:
-            self._current_state = direct_tableau(source_circuit).state_vector
+        if return_statevector and self._noise_model is None:
+            self._current_state = direct_tableau(source_circuit).state_vector()
         else:
             return_statevector = False
 
-        if self.n_shots > 1:
+        if self.n_shots > 1 or self._noise_model:
             translated_circuit = translate_c(source_circuit, "stim",
                  output_options={"noise_model": self._noise_model})
             for qubit in range(source_circuit.width):
@@ -82,13 +72,12 @@ class StimSimulator(Backend):
         else:
             frequencies = self._statevector_to_frequencies(self._current_state.to_state_vector())
 
-        return (frequencies, np.array(self._current_state.to_state_vector())) if return_statevector else (frequencies, None)
+        return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
-    def expectation_value_from_stabilizer_circuit(self, qubit_operator, state_prep_circuit, n_qubits=None):
+    def expectation_value_from_stabilizer_circuit(self, qubit_operator, state_prep_circuit):
         from tangelo.linq.helpers.circuits.measurement_basis import pauli_of_to_string
-        if not n_qubits:
-            n_qubits = state_prep_circuit.width
-        s = direct_tableau(state_prep_circuit, self._noise_model)
+        s = direct_tableau(state_prep_circuit)
+        n_qubits = state_prep_circuit.width
         paulisum = 0
         for term, coef in qubit_operator.terms.items():
             paulisum += coef * s.peek_observable_expectation(self.stim.PauliString(pauli_of_to_string(term, n_qubits)))
