@@ -22,27 +22,41 @@ class IntegralSolver(abc.ABC):
 
     @abc.abstractmethod
     def set_basic_data(self, mol):
-        """Set molecular data that is independant of basis set in tmol
+        """Set molecular data that is independant of basis set in mol
+
+        Modify mol variable:
+            mol.xyz to (array-like): Nested array-like structure with elements and coordinates
+                                            (ex:[ ["H", (0., 0., 0.)], ...]) in angstrom
+        Add to mol:
+            mol.n_electrons (int): Self-explanatory.
+            mol.n_atoms (int) = Self-explanatory.
 
         Args:
             mol (Molecule or SecondQuantizedMolecule): Class to add the other variables given populated.
                 mol.xyz (in appropriate format for solver)
                 mol.q (float): Total charge.
                 mol.spin (int): Absolute difference between alpha and beta electron number.
-
-                change mol.xyz to
-                mol.xyz (array-like): Nested array-like structure with elements and coordinates
-                        (ex:[ ["H", (0., 0., 0.)], ...]) in angstrom
-                Adds
-                    mol.n_electrons (int): Self-explanatory.
-                    mol.n_atoms = Self-explanatory.
-
         """
         pass
 
     @abc.abstractmethod
     def compute_mean_field(self, sqmol):
-        """Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and populate sqmol
+        """Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following
+        variables to sqmol
+
+        Modify sqmol variables.
+            sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending
+                on the spin).
+            sqmol.mo_energies (list of float): Molecular orbital energies.
+            sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0.
+                and 2.).
+            sqmol.mean_field (pyscf.scf): Mean-field object (used by CCSD and FCI).
+            sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
+            sqmol.n_sos (int): Number of spin-orbitals with a given basis set.
+
+        Add to sqmol:
+            self.mo_coeff (ndarray or List[ndarray]) :: C molecular orbital coefficients (MO coeffs) if RHF ROHF
+                                                        [Ca, Cb] [alpha MO coeffs, beta MO coeffs] if UHF
 
         Args:
             sqmol (SecondQuantizedMolecule) :: Populated variables of Molecule plus
@@ -54,19 +68,7 @@ class IntegralSolver(abc.ABC):
                     e.g. "Dooh", "D2h", "C2v", ...
                 sqmol.uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False
 
-        Modify sqmol by defining following variables.
-            sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending
-                on the spin).
-            sqmol.mo_energies (list of float): Molecular orbital energies.
-            sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0.
-                and 2.).
-            sqmol.mean_field (pyscf.scf): Mean-field object (used by CCSD and FCI).
-            sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
-            sqmol.n_sos (int): Number of spin-orbitals with a given basis set.
 
-        Also add
-            self.mo_coeff (ndarray or List[ndarray]) :: C molecular orbital coefficients (MO coeffs) if RHF ROHF
-                                                        [Ca, Cb] [alpha MO coeffs, beta MO coeffs] if UHF
         """
         pass
 
@@ -83,7 +85,7 @@ class IntegralSolver(abc.ABC):
         With molecular orbitals \phi_j(x) = \sum_{ij} A_i(x) mo_coeff_{i,j} using atomic orbitals A_i(x)
         mo_coeff = self.mo_coeff if mo_coeff is None else mo_coeff
 
-        For UHF
+        For UHF (if sqmol.uhf is True)
         one_body coefficients are [alpha one_body, beta one_body]
         two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]
 

@@ -15,7 +15,7 @@ h2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
 class Testpsi4(unittest.TestCase):
 
     def test_sa_oo_vqe(self):
-        "Test that sa_oo_vqe works properly when using a user defined IntegralSolver that only reads in integrals"
+        "Test that sa_oo_vqe works properly when using a IntegralSolver_psi4"
         molecule_dummy = SecondQuantizedMolecule(h2, 0, 0, IntegralSolver_psi4(), basis="6-31g", frozen_orbitals=[3])
         sa_oo_vqe = SA_OO_Solver({"molecule": molecule_dummy, "ref_states": [[1, 1, 0, 0, 0, 0]],
                                   "tol": 1.e-5, "ansatz": BuiltInAnsatze.UCCSD, "n_oo_per_iter": 25,
@@ -26,7 +26,7 @@ class Testpsi4(unittest.TestCase):
         self.assertAlmostEqual(sa_oo_vqe.state_energies[0], -1.15137, places=4)
 
     def test_adapt_vqe_solver(self):
-        "Test that ADAPTVQE works with a user defined IntegralSolver."
+        "Test that ADAPTVQE works with psi4."
         molecule_dummy = SecondQuantizedMolecule(h2, 0, 0, IntegralSolver_psi4(), basis="6-31g", frozen_orbitals=[])
 
         adapt_vqe = ADAPTSolver({"molecule": molecule_dummy})
@@ -35,7 +35,7 @@ class Testpsi4(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.15168, places=4)
 
     def test_energy_hf_vqe_uccsd_h4(self):
-        """Test to verifiy the implementation of VQE (with UCCSD) in ONIOM."""
+        """Test psi4 with HF and VQE (with UCCSD) in ONIOM."""
 
         options_hf = {"basis": "sto-3g"}
         options_vqe = {"basis": "sto-3g", "ansatz": BuiltInAnsatze.UCCSD}

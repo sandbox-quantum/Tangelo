@@ -33,7 +33,7 @@ import numpy as np
 from openfermion.circuits import uccsd_singlet_generator
 
 from tangelo.linq import Circuit
-
+from tangelo.helpers.utils import is_package_installed
 from .ansatz import Ansatz
 from .ansatz_utils import exp_pauliword_to_gates
 from ._unitary_cc_openshell import uccsd_openshell_paramsize, uccsd_openshell_generator, uccsd_openshell_get_packed_amplitudes
@@ -93,10 +93,10 @@ class UCCSD(Ansatz):
 
         # Try to import pyscf
         self.pyscf = True
-        try:
+        if is_package_installed("pyscf"):
             from pyscf import mp
             self.mp = mp
-        except ModuleNotFoundError:
+        else:
             self.pyscf = False
 
         # Supported reference state initialization

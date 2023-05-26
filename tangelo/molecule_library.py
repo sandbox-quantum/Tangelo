@@ -16,12 +16,9 @@
 
 
 from tangelo import Molecule, SecondQuantizedMolecule
+from tangelo.helpers.utils import is_package_installed
 
-has_pyscf = True
-try:
-    import pyscf
-except ModuleNotFoundError:
-    has_pyscf = False
+has_pyscf = True if is_package_installed("pyscf") else False
 
 # Dihydrogen.
 xyz_H2 = [

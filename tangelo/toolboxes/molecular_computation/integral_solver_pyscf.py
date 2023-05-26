@@ -18,7 +18,7 @@ from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolv
 
 
 class IntegralSolver_pyscf(IntegralSolver):
-    """Instantiate Electronic Structure integration"""
+    """Electronic Structure integration for pyscf"""
     def __init__(self):
         from pyscf import gto, lib, scf, symm, ao2mo
         self.gto = gto
