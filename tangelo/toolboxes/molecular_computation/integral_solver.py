@@ -48,7 +48,6 @@ class IntegralSolver(abc.ABC):
             sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending on the spin).
             sqmol.mo_energies (list of float): Molecular orbital energies.
             sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0. and 2.).
-            sqmol.mean_field (pyscf.scf): Mean-field object (used by CCSD and FCI).
             sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
             sqmol.n_sos (int): Number of spin-orbitals with a given basis set.
 
@@ -94,4 +93,18 @@ class IntegralSolver(abc.ABC):
         Returns:
             (float, array or List[array], array or List[array]): (core_constant, one_body coefficients, two_body coefficients)
         """
+        pass
+
+
+class IntegralSolverEmpty(IntegralSolver):
+    def __init__(self):
+        pass
+
+    def set_physical_data(self, mol):
+        pass
+
+    def compute_mean_field(self, sqmol):
+        pass
+
+    def get_integrals(self, sqmol, mo_coeff=None):
         pass

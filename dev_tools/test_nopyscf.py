@@ -52,6 +52,10 @@ class IntegralSolverDummy(IntegralSolver):
 
 
 class TestNopyscf(unittest.TestCase):
+    def test_no_solver(self):
+        "Test that a ValueError is raised when SecondQuantizedMolecule is called without PySCF, Psi4 or custom solver"
+        with self.assertRaises(ValueError):
+            SecondQuantizedMolecule(h2, 0, 0)
 
     def test_sa_oo_vqe(self):
         "Test that sa_oo_vqe works properly when using a user defined IntegralSolver that only reads in integrals"

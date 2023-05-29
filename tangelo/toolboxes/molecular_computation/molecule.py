@@ -17,7 +17,7 @@ functionalities.
 """
 
 import copy
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, MISSING
 from itertools import product
 
 import numpy as np
@@ -29,6 +29,7 @@ from openfermion.ops.representations.interaction_operator import get_active_spac
 
 from tangelo.helpers.utils import is_package_installed
 from tangelo.toolboxes.molecular_computation import IntegralSolver, IntegralSolverPySCF, IntegralSolverPsi4
+from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolverEmpty
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
@@ -101,7 +102,7 @@ class Molecule:
     elif is_package_installed("psi4"):
         default_solver = IntegralSolverPsi4
     else:
-        default_solver = None
+        default_solver = IntegralSolverEmpty
 
     solver: IntegralSolver = field(default_factory=default_solver)
     """(IntegralSolver): The class that performs the mean field and integral computation."""
@@ -113,6 +114,8 @@ class Molecule:
     """(int): Self-explanatory."""
 
     def __post_init__(self):
+        if isinstance(self.solver, IntegralSolverEmpty):
+            raise ValueError("PySCF or Psi4 must be installed or a custom solver (IntegralSolver) instance must be provided.")
         self.solver.set_physical_data(self)
 
     @property
