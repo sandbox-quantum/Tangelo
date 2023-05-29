@@ -21,25 +21,25 @@ class IntegralSolverPsi4(IntegralSolver):
     """psi4 IntegrationSolver class"""
     def __init__(self):
         import psi4
-        self.psi4 = psi4
+        self.backend = psi4
 
     def set_physical_data(self, mol):
-        self.psi4.core.set_output_file('output.dat', False)
+        self.backend.core.set_output_file('output.dat', False)
         if isinstance(mol.xyz, list):
             input_string = f"{mol.q} {mol.spin + 1} \n"
             for line in mol.xyz:
                 input_string += f"{line[0]} {line[1][0]} {line[1][1]} {line[1][2]} \n"
             input_string += "symmetry c1"
-            self.mol = self.psi4.geometry(input_string)
+            self.mol = self.backend.geometry(input_string)
         else:
-            self.mol = self.psi4.geometry(mol.xyz)
+            self.mol = self.backend.geometry(mol.xyz)
             mol.n_atoms = self.mol.natom()
             mol.xyz = list()
             for i in range(mol.n_atoms):
                 mol.xyz += [(self.mol.symbol(i), tuple(self.mol.xyz(i)[p]*0.52917721067 for p in range(3)))]
 
-        self.psi4.set_options({'basis': "def2-msvp"})
-        self.wfn = self.psi4.core.Wavefunction.build(self.mol, self.psi4.core.get_global_option('basis'))
+        self.backend.set_options({'basis': "def2-msvp"})
+        self.wfn = self.backend.core.Wavefunction.build(self.mol, self.backend.core.get_global_option('basis'))
 
         mol.n_electrons = self.wfn.nalpha() + self.wfn.nbeta()
         mol.n_atoms = self.mol.natom()
@@ -48,12 +48,12 @@ class IntegralSolverPsi4(IntegralSolver):
         if sqmol.uhf:
             raise NotImplementedError(f"{self.__class__.__name__} does not currently support uhf")
 
-        self.psi4.set_options({'basis': sqmol.basis})
+        self.backend.set_options({'basis': sqmol.basis})
         if sqmol.spin != 0:
-            self.psi4.set_options({'reference': 'rohf'})
+            self.backend.set_options({'reference': 'rohf'})
 
-        sqmol.mf_energy, self.wfn = self.psi4.energy('scf', molecule=self.mol, basis=sqmol.basis, return_wfn=True)
-        mints = self.psi4.core.MintsHelper(self.wfn.basisset())
+        sqmol.mf_energy, self.wfn = self.backend.energy('scf', molecule=self.mol, basis=sqmol.basis, return_wfn=True)
+        mints = self.backend.core.MintsHelper(self.wfn.basisset())
 
         sqmol.mo_energies = np.asarray(self.wfn.epsilon_a())
 

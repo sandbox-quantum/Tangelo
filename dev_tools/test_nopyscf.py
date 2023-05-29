@@ -9,8 +9,8 @@ from tangelo.algorithms.variational import SA_OO_Solver, BuiltInAnsatze, ADAPTSo
 h2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
 
 
-class IntegralSolver_dummy(IntegralSolver):
-    def set_basic_data(self, mol):
+class IntegralSolverDummy(IntegralSolver):
+    def set_physical_data(self, mol):
         mol.n_electrons = 2
         mol.n_atoms = 2
 
@@ -55,7 +55,7 @@ class TestNopyscf(unittest.TestCase):
 
     def test_sa_oo_vqe(self):
         "Test that sa_oo_vqe works properly when using a user defined IntegralSolver that only reads in integrals"
-        molecule_dummy = SecondQuantizedMolecule(h2, 0, 0, IntegralSolver_dummy(), basis="6-31g", frozen_orbitals=[3])
+        molecule_dummy = SecondQuantizedMolecule(h2, 0, 0, IntegralSolverDummy(), basis="6-31g", frozen_orbitals=[3])
         sa_oo_vqe = SA_OO_Solver({"molecule": molecule_dummy, "ref_states": [[1, 1, 0, 0, 0, 0]],
                                   "tol": 1.e-5, "ansatz": BuiltInAnsatze.UCCSD, "n_oo_per_iter": 25,
                                   "initial_var_params": [1.e-5]*5})
@@ -66,7 +66,7 @@ class TestNopyscf(unittest.TestCase):
 
     def test_adapt_vqe_solver(self):
         "Test that ADAPTVQE works with a user defined IntegralSolver."
-        molecule_dummy = SecondQuantizedMolecule(h2, 0, 0, IntegralSolver_dummy(), basis="6-31g", frozen_orbitals=[])
+        molecule_dummy = SecondQuantizedMolecule(h2, 0, 0, IntegralSolverDummy(), basis="6-31g", frozen_orbitals=[])
 
         adapt_vqe = ADAPTSolver({"molecule": molecule_dummy})
         adapt_vqe.build()

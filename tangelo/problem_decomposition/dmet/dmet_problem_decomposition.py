@@ -19,6 +19,7 @@ import numpy as np
 import scipy
 import warnings
 
+from tangelo.helpers.utils import is_package_installed
 from tangelo.problem_decomposition.dmet import _helpers as helpers
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization, nao_localization
@@ -26,6 +27,7 @@ from tangelo.algorithms import FCISolver, CCSDSolver, VQESolver
 from tangelo.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
 from tangelo.toolboxes.molecular_computation.rdms import pad_rdms_with_frozen_orbitals_restricted, \
     pad_rdms_with_frozen_orbitals_unrestricted
+from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import to_pyscf
 
 
 class Localization(Enum):
@@ -75,6 +77,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
     """
 
     def __init__(self, opt_dict):
+        if not is_package_installed("pyscf"):
+            raise ModuleNotFoundError(f"The pyscf package is not available and is required by {self.__class__.__name__}.")
         from pyscf import gto, scf
         from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
         default_ccsd_options = dict()
@@ -115,7 +119,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # Converting our interface to pyscf.mol.gto and pyscf.scf (used by this
         # code).
         self.mean_field = self.molecule.mean_field
-        self.molecule = self.molecule.solver.to_pyscf(self.molecule, self.molecule.basis)
+        self.molecule = to_pyscf(self.molecule, self.molecule.basis)
 
         # If fragment_atoms is detected as a nested list of int, atoms are reordered to be
         # consistent with a list of numbers representing the number of atoms in each fragment.

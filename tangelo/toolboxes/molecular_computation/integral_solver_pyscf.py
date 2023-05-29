@@ -17,6 +17,31 @@ import numpy as np
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 
 
+def to_pyscf(mol, basis="CRENBL", symmetry=False, ecp=None):
+    """Method to return a pyscf.gto.Mole object.
+
+    Args:
+        sqmol (SecondQuantizedMolecule or Molecule): The molecule to export to a pyscf molecule.
+        basis (string): Basis set.
+        symmetry (bool): Flag to turn symmetry on
+        ecp (dict): Dictionary with ecp definition for each atom e.g. {"Cu": "crenbl"}
+
+    Returns:
+        pyscf.gto.Mole: PySCF compatible object.
+    """
+    from pyscf import gto
+
+    pymol = gto.Mole(atom=mol.xyz)
+    pymol.basis = basis
+    pymol.charge = mol.q
+    pymol.spin = mol.spin
+    pymol.symmetry = symmetry
+    pymol.ecp = ecp if ecp else dict()
+    pymol.build()
+
+    return pymol
+
+
 class IntegralSolverPySCF(IntegralSolver):
     """Electronic Structure integration for pyscf"""
     def __init__(self):
@@ -28,37 +53,13 @@ class IntegralSolverPySCF(IntegralSolver):
         self.ao2mo = ao2mo
 
     def set_physical_data(self, mol):
-        _ = self.to_pyscf(mol)
+        pymol = to_pyscf(mol)
+        mol.xyz = list()
+        for sym, xyz in pymol._atom:
+            mol.xyz += [tuple([sym, tuple([x*self.lib.parameters.BOHR for x in xyz])])]
 
-    def to_pyscf(self, sqmol, basis="CRENBL", symmetry=False, ecp=None):
-        """Method to return a pyscf.gto.Mole object.
-
-        Args:
-            sqmol (SecondQuantizedMolecule): The molecule to export to a pyscf molecule.
-            basis (string): Basis set.
-            symmetry (bool): Flag to turn symmetry on
-            ecp (dict): Dictionary with ecp definition for each atom e.g. {"Cu": "crenbl"}
-
-        Returns:
-            pyscf.gto.Mole: PySCF compatible object.
-        """
-
-        mol = self.gto.Mole(atom=sqmol.xyz)
-        mol.basis = basis
-        mol.charge = sqmol.q
-        mol.spin = sqmol.spin
-        mol.symmetry = symmetry
-        mol.ecp = ecp if ecp else dict()
-        mol.build()
-
-        sqmol.xyz = list()
-        for sym, xyz in mol._atom:
-            sqmol.xyz += [tuple([sym, tuple([x*self.lib.parameters.BOHR for x in xyz])])]
-
-        sqmol.n_atoms = mol.natm
-        sqmol.n_electrons = mol.nelectron
-
-        return mol
+        mol.n_atoms = pymol.natm
+        mol.n_electrons = pymol.nelectron
 
     def compute_mean_field(self, sqmol):
 

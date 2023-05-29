@@ -17,6 +17,7 @@
 
 import numpy as np
 
+from tangelo.helpers.utils import is_package_installed
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
 
 
@@ -34,6 +35,8 @@ class CCSDSolver(ElectronicStructureSolver):
     """
 
     def __init__(self, molecule):
+        if not is_package_installed("pyscf"):
+            raise ModuleNotFoundError(f"The pyscf package is not available and is required by {self.__class__.__name__}.")
         from pyscf import cc
 
         self.cc = cc

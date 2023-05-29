@@ -39,6 +39,8 @@ from .ansatz_utils import exp_pauliword_to_gates
 from ._unitary_cc_openshell import uccsd_openshell_paramsize, uccsd_openshell_generator, uccsd_openshell_get_packed_amplitudes
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
+from tangelo import SecondQuantizedMolecule
+from tangelo.toolboxes.molecular_computation import IntegralSolverPySCF
 
 
 class UCCSD(Ansatz):
@@ -91,19 +93,11 @@ class UCCSD(Ansatz):
         # set total number of parameters
         self.n_var_params = self.n_singles + self.n_doubles
 
-        # Try to import pyscf
-        self.pyscf = True
-        if is_package_installed("pyscf"):
-            from pyscf import mp
-            self.mp = mp
-        else:
-            self.pyscf = False
-
         # Supported reference state initialization
         # TODO: support for others
         self.supported_reference_state = {"HF", "zero"}
         # Supported var param initialization
-        self.supported_initial_var_params = {"ones", "random", "mp2"} if (self.spin == 0 and not self.molecule.uhf and self.pyscf) else {"ones", "random"}
+        self.supported_initial_var_params = {"ones", "random", "mp2"} if (self.spin == 0 and not self.molecule.uhf) else {"ones", "random"}
 
         # Default initial parameters for initialization
         # TODO: support for openshell MP2 initialization
@@ -269,22 +263,33 @@ class UCCSD(Ansatz):
         Returns:
             list of float: The initial variational parameters.
         """
+        # Circular import so importing here
+        from tangelo.algorithms.classical import MP2Solver
+
         if self.molecule.uhf:
             raise NotImplementedError(f"MP2 initialization is not currently implemented for UHF reference in {self.__class__}")
+        if not is_package_installed("pyscf"):
+            raise ValueError(f"mp2 initialization in {self.__class__} is not supported in Tangelo if PySCF is not installed.")
 
-        mp2_fragment = self.mp.MP2(self.molecule.mean_field, frozen=self.molecule.frozen_mos)
-        mp2_fragment.verbose = 0
-        _, mp2_t2 = mp2_fragment.kernel()
+        if not isinstance(self.molecule.solver, IntegralSolverPySCF):
+            pymol = SecondQuantizedMolecule(self.molecule.xyz, self.molecule.q, self.molecule.spin, basis=self.molecule.basis,
+                                            ecp=self.molecule.ecp, symmetry=self.molecule.symmetry, uhf=self.molecule.uhf,
+                                            frozen_orbitals=self.molecule.frozen_orbitals)
+        else:
+            pymol = self.molecule
+
+        mp2 = MP2Solver(pymol)
+        mp2.simulate()
 
         # Get singles amplitude. Just get "up" amplitude, since "down" should be the same
         singles = [2.e-5] * (self.n_virtual * self.n_occupied)
 
         # Get singles and doubles amplitudes associated with one spatial occupied-virtual pair
-        doubles_1 = [-mp2_t2[q, q, p, p]/2. if (abs(-mp2_t2[q, q, p, p]/2.) > 1e-15) else 0.
+        doubles_1 = [-mp2.mp2_t2[q, q, p, p]/2. if (abs(-mp2.mp2_t2[q, q, p, p]/2.) > 1e-15) else 0.
                      for p, q in itertools.product(range(self.n_virtual), range(self.n_occupied))]
 
         # Get doubles amplitudes associated with two spatial occupied-virtual pairs
-        doubles_2 = [-mp2_t2[q, s, p, r] for (p, q), (r, s)
+        doubles_2 = [-mp2.mp2_t2[q, s, p, r] for (p, q), (r, s)
                      in itertools.combinations(itertools.product(range(self.n_virtual), range(self.n_occupied)), 2)]
 
         return singles + doubles_1 + doubles_2
