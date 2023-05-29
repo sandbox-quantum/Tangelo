@@ -28,9 +28,7 @@ from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 
 from tangelo.helpers.utils import is_package_installed
-from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import IntegralSolver_pyscf
-from tangelo.toolboxes.molecular_computation.integral_solver_psi4 import IntegralSolver_psi4
-from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
+from tangelo.toolboxes.molecular_computation import IntegralSolver, IntegralSolverPySCF, IntegralSolverPsi4
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
@@ -81,6 +79,7 @@ class Molecule:
             multi-line string.
         q (float): Total charge.
         spin (int): Absolute difference between alpha and beta electron number.
+        solver (IntegralSolver): The class that performs the mean field and integral computation.
         n_atom (int): Self-explanatory.
         n_electrons (int): Self-explanatory.
         n_min_orbitals (int): Number of orbitals with a minimal basis set.
@@ -90,30 +89,40 @@ class Molecule:
         coords (array of float): N x 3 coordinates matrix.
     """
     xyz: list or str
+    """(array-like or string): Nested array-like structure with elements
+        and coordinates (ex:[ ["H", (0., 0., 0.)], ...]). Can also be a
+        multi-line string."""
     q: int = 0
+    """(float): Total charge."""
     spin: int = 0
+    """(int): Absolute difference between alpha and beta electron number."""
     if is_package_installed("pyscf"):
-        default_solver = IntegralSolver_pyscf
+        default_solver = IntegralSolverPySCF
     elif is_package_installed("psi4"):
-        default_solver = IntegralSolver_psi4
+        default_solver = IntegralSolverPsi4
     else:
         default_solver = None
 
     solver: IntegralSolver = field(default_factory=default_solver)
+    """(IntegralSolver): The class that performs the mean field and integral computation."""
 
     # Defined in __post_init__.
     n_atoms: int = field(init=False)
+    """(int): Self-explanatory."""
     n_electrons: int = field(init=False)
+    """(int): Self-explanatory."""
 
     def __post_init__(self):
-        self.solver.set_basic_data(self)
+        self.solver.set_physical_data(self)
 
     @property
     def elements(self):
+        """(list): List of all elements in the molecule."""
         return [self.xyz[i][0] for i in range(self.n_atoms)]
 
     @property
     def coords(self):
+        """(array of float): N x 3 coordinates matrix."""
         return np.array([self.xyz[i][1] for i in range(self.n_atoms)])
 
     def to_file(self, filename, format=None):
@@ -122,9 +131,20 @@ class Molecule:
         Args:
             filename (str): The name of the file to output the geometry.
             format (str): The output type of "raw", "xyz", or "zmat". If None, will be inferred by the filename
+                Unless using IntegralSolverPySCF, only "xyz" is supported.
         """
-        mol = self.solver.to_pyscf()
-        mol.tofile(filename, format)
+        if isinstance(self.solver, IntegralSolverPySCF):
+            mol = self.solver.to_pyscf(self)
+            mol.tofile(filename, format)
+        elif filename[-3:] == 'xyz' or format == 'xyz':
+            f = open(filename, "w") if format is None else open(filename+".xyz", "w")
+            f.write(f"{self.n_atoms}\n")
+            f.write("XYZ from Tangelo\n")
+            for name, positions in self.xyz:
+                f.write(f"{name} {positions[0]} {positions[1]} {positions[2]}\n")
+            f.close
+        else:
+            raise ValueError("Tangelo only supports xyz format unless using IntegralSolverPySCF")
 
     def to_openfermion(self, basis="sto-3g"):
         """Method to return a openfermion.MolecularData object.
@@ -285,17 +305,10 @@ class SecondQuantizedMolecule(Molecule):
     @mo_coeff.setter
     def mo_coeff(self, new_mo_coeff):
         # Asserting the new molecular coefficient matrix have the same dimensions.
-        if self.uhf:
-            assert len(new_mo_coeff) == 2, "Must provide [alpha mo_coeff, beta_mo_coeff]"
-            assert ((self.solver.mo_coeff[0].shape == new_mo_coeff[0].shape) and
-                    (self.solver.mo_coeff[1].shape == new_mo_coeff[1].shape)), \
-                   f"The new molecular coefficients has shape {[new_mo_coeff[0].shape, new_mo_coeff[1].shape]}"\
-                   f" shape: expected shape is {[self.solver.mo_coeff[0].shape, self.solver.mo_coeff[1].shape]}."
-        else:
-            assert self.solver.mo_coeff.shape == new_mo_coeff.shape, \
-                   f"The new molecular coefficients matrix has a {new_mo_coeff.shape}"\
-                   f" shape: expected shape is {self.solver.mo_coeff.shape}."
-        self.solver.mo_coeff = np.array(new_mo_coeff)
+        assert self.solver.mo_coeff.shape == (new_mo_coeff := np.array(new_mo_coeff)).shape, \
+            f"The new molecular coefficients matrix has a {new_mo_coeff.shape}"\
+            f" shape: expected shape is {self.solver.mo_coeff.shape}."
+        self.solver.mo_coeff = new_mo_coeff
 
     def _get_fermionic_hamiltonian(self, mo_coeff=None):
         """This method returns the fermionic hamiltonian. It written to take
@@ -388,7 +401,7 @@ class SecondQuantizedMolecule(Molecule):
 
         return e.real
 
-    def get_integrals(self, mo_coeff=None, consider_frozen=True):
+    def get_integrals(self, mo_coeff=None, fold_frozen=True):
         """Computes core constant, one_body, and two-body coefficients with frozen orbitals folded into one-body coefficients
         and core constant for mo_coeff if consider_frozen is True
 
@@ -398,13 +411,16 @@ class SecondQuantizedMolecule(Molecule):
 
         Args:
             mo_coeff (array): The molecular orbital coefficients to use to generate the integrals
+            fold_frozen (bool): If False, the full integral matrices and core constant are returned.
+                If True, the core constant, one_body, and two-body coefficients are calculated with frozen orbitals
+                folded into one-body coefficients and core constant. Default True
 
         Returns:
             (float, array or List[array], array or List[array]): (core_constant, one_body coefficients, two_body coefficients)
         """
         if not self.uhf:
             core_constant, one_body_integrals, two_body_integrals = self.solver.get_integrals(self, mo_coeff)
-            if consider_frozen:
+            if fold_frozen:
                 core_offset, one_body_integrals, two_body_integrals = of_get_active_space_integrals(one_body_integrals,
                                                                                                     two_body_integrals,
                                                                                                     self.frozen_occupied,
@@ -414,7 +430,7 @@ class SecondQuantizedMolecule(Molecule):
                 core_constant += core_offset
         else:
             core_constant, one_body_integrals, two_body_integrals = self.solver.get_integrals(self, mo_coeff)
-            if consider_frozen:
+            if fold_frozen:
                 core_constant, one_body_integrals, two_body_integrals = self._get_active_space_integrals_uhf(core_constant,
                                                                                                              one_body_integrals,
                                                                                                              two_body_integrals)

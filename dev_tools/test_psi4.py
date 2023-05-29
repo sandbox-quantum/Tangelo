@@ -5,7 +5,7 @@ import numpy as np
 from tangelo import SecondQuantizedMolecule
 from tangelo.problem_decomposition.oniom.oniom_problem_decomposition import ONIOMProblemDecomposition
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment
-from tangelo.toolboxes.molecular_computation.integral_solver_psi4 import IntegralSolver_psi4
+from tangelo.toolboxes.molecular_computation.integral_solver_psi4 import IntegralSolverPsi4
 from tangelo.algorithms.variational import SA_OO_Solver, BuiltInAnsatze, ADAPTSolver
 from tangelo.molecule_library import xyz_H4, mol_H4_minao
 
@@ -15,8 +15,8 @@ h2 = [("H", (0., 0., 0.)), ("H", (0., 0., 0.7414))]
 class Testpsi4(unittest.TestCase):
 
     def test_sa_oo_vqe(self):
-        "Test that sa_oo_vqe works properly when using a IntegralSolver_psi4"
-        molecule_dummy = SecondQuantizedMolecule(h2, 0, 0, IntegralSolver_psi4(), basis="6-31g", frozen_orbitals=[3])
+        "Test that sa_oo_vqe works properly when using a IntegralSolverPsi4"
+        molecule_dummy = SecondQuantizedMolecule(h2, 0, 0, IntegralSolverPsi4(), basis="6-31g", frozen_orbitals=[3])
         sa_oo_vqe = SA_OO_Solver({"molecule": molecule_dummy, "ref_states": [[1, 1, 0, 0, 0, 0]],
                                   "tol": 1.e-5, "ansatz": BuiltInAnsatze.UCCSD, "n_oo_per_iter": 25,
                                   "initial_var_params": [1.e-5]*5})
@@ -26,8 +26,8 @@ class Testpsi4(unittest.TestCase):
         self.assertAlmostEqual(sa_oo_vqe.state_energies[0], -1.15137, places=4)
 
     def test_adapt_vqe_solver(self):
-        "Test that ADAPTVQE works with psi4."
-        molecule_dummy = SecondQuantizedMolecule(h2, 0, 0, IntegralSolver_psi4(), basis="6-31g", frozen_orbitals=[])
+        "Test that ADAPT-VQE works with IntegralSolverPsi4."
+        molecule_dummy = SecondQuantizedMolecule(h2, 0, 0, IntegralSolverPsi4(), basis="6-31g", frozen_orbitals=[])
 
         adapt_vqe = ADAPTSolver({"molecule": molecule_dummy})
         adapt_vqe.build()

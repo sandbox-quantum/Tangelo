@@ -174,7 +174,7 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         core_constant, one_body_integrals, two_body_integrals = molecule.get_full_space_integrals()
 
         class IntegralSolver_dummy(IntegralSolver):
-            def set_basic_data(self, mol):
+            def set_physical_data(self, mol):
                 mol.xyz = H2_list
                 mol.n_electrons = 2
                 mol.n_atoms = 2

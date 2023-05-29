@@ -17,13 +17,13 @@ import numpy as np
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 
 
-class IntegralSolver_psi4(IntegralSolver):
+class IntegralSolverPsi4(IntegralSolver):
     """psi4 IntegrationSolver class"""
     def __init__(self):
         import psi4
         self.psi4 = psi4
 
-    def set_basic_data(self, mol):
+    def set_physical_data(self, mol):
         self.psi4.core.set_output_file('output.dat', False)
         if isinstance(mol.xyz, list):
             input_string = f"{mol.q} {mol.spin + 1} \n"

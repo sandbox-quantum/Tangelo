@@ -16,24 +16,24 @@ import abc
 
 
 class IntegralSolver(abc.ABC):
-    """Instantiate Electronic Structure integration"""
+    """Instantiate electronic integral solver"""
     def __init__(self):
         pass
 
     @abc.abstractmethod
-    def set_basic_data(self, mol):
+    def set_physical_data(self, mol):
         """Set molecular data that is independant of basis set in mol
 
         Modify mol variable:
-            mol.xyz to (array-like): Nested array-like structure with elements and coordinates
+            mol.xyz to (list): Nested array-like structure with elements and coordinates
                                             (ex:[ ["H", (0., 0., 0.)], ...]) in angstrom
         Add to mol:
             mol.n_electrons (int): Self-explanatory.
-            mol.n_atoms (int) = Self-explanatory.
+            mol.n_atoms (int): Self-explanatory.
 
         Args:
             mol (Molecule or SecondQuantizedMolecule): Class to add the other variables given populated.
-                mol.xyz (in appropriate format for solver)
+                mol.xyz (in appropriate format for solver): Definition of molecular geometry.
                 mol.q (float): Total charge.
                 mol.spin (int): Absolute difference between alpha and beta electron number.
         """
@@ -45,27 +45,24 @@ class IntegralSolver(abc.ABC):
         variables to sqmol
 
         Modify sqmol variables.
-            sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending
-                on the spin).
+            sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending on the spin).
             sqmol.mo_energies (list of float): Molecular orbital energies.
-            sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0.
-                and 2.).
+            sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0. and 2.).
             sqmol.mean_field (pyscf.scf): Mean-field object (used by CCSD and FCI).
             sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
             sqmol.n_sos (int): Number of spin-orbitals with a given basis set.
 
         Add to sqmol:
-            self.mo_coeff (ndarray or List[ndarray]) :: C molecular orbital coefficients (MO coeffs) if RHF ROHF
+            self.mo_coeff (ndarray or List[ndarray]): C molecular orbital coefficients (MO coeffs) if RHF ROHF
                                                         [Ca, Cb] [alpha MO coeffs, beta MO coeffs] if UHF
 
         Args:
-            sqmol (SecondQuantizedMolecule) :: Populated variables of Molecule plus
+            sqmol (SecondQuantizedMolecule): Populated variables of Molecule plus
                 sqmol.basis (string): Basis set.
                 sqmol.ecp (dict): The effective core potential (ecp) for any atoms in the molecule.
                     e.g. {"C": "crenbl"} use CRENBL ecp for Carbon atoms.
                 sqmol.symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.
-                    Can also specify point group using pyscf allowed string.
-                    e.g. "Dooh", "D2h", "C2v", ...
+                    Can also specify point group using string. e.g. "Dooh", "D2h", "C2v", ...
                 sqmol.uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False
 
 
@@ -82,8 +79,7 @@ class IntegralSolver(abc.ABC):
         two-body integrals should be in the form
         h[p,q,r,s] = \int \phi_p(x) * \phi_q(y) * V_{elec-elec} \phi_r(y) \phi_s(x) dxdy
 
-        With molecular orbitals \phi_j(x) = \sum_{ij} A_i(x) mo_coeff_{i,j} using atomic orbitals A_i(x)
-        mo_coeff = self.mo_coeff if mo_coeff is None else mo_coeff
+        Using molecular orbitals \phi_j(x) = \sum_{ij} A_i(x) mo_coeff_{i,j} where A_i(x) are the atomic orbitals.
 
         For UHF (if sqmol.uhf is True)
         one_body coefficients are [alpha one_body, beta one_body]
@@ -92,8 +88,8 @@ class IntegralSolver(abc.ABC):
         where one_body and two_body are appropriately sized arrays for each spin sector.
 
         Args:
-            sqmol (SecondQuantizedMolecule) :: SecondQuantizedMolecule populated with all variables defined above
-            mo_coeff :: The molecular orbital coefficients to use for calculating the integrals, if None, use self.mo_coeff
+            sqmol (SecondQuantizedMolecule) : SecondQuantizedMolecule populated with all variables defined above
+            mo_coeff : Molecular orbital coefficients to use for calculating the integrals, instead of self.mo_coeff
 
         Returns:
             (float, array or List[array], array or List[array]): (core_constant, one_body coefficients, two_body coefficients)
