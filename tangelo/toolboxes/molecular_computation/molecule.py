@@ -28,8 +28,8 @@ from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 
 from tangelo.helpers.utils import is_package_installed
-from tangelo.toolboxes.molecular_computation import IntegralSolver, IntegralSolverPySCF, IntegralSolverPsi4
-from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolverEmpty
+from tangelo.toolboxes.molecular_computation import IntegralSolver, IntegralSolverPsi4, IntegralSolverEmpty
+from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import to_pyscf, IntegralSolverPySCF
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
