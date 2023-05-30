@@ -104,10 +104,13 @@ def trim_trivial_circuit(circuit):
     # Split circuit and get relevant indices
     circs = circuit.split()
     e_indices = circuit.get_entangled_indices()
+    used_qubits = set()
+    for eq in e_indices:
+        used_qubits.update(eq)
 
     # Find qubits with no gates applied to them, store qubit index and state |0>
     trim_states = {}
-    for qubit_idx in set(range(circuit.width)) - set(circuit._qubit_indices):
+    for qubit_idx in set(range(circuit.width)) - used_qubits:
         trim_states[qubit_idx] = 0
 
     circuit_new = Circuit()
@@ -150,7 +153,8 @@ def trim_trivial_circuit(circuit):
                     circuit_new += circ
             else:
                 circuit_new += circ
-    return circuit_new, trim_states
+
+    return circuit_new, dict(sorted(trim_states.items()))
 
 
 def trim_trivial_qubits(operator, circuit):
