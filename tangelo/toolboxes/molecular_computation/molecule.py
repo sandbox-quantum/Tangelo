@@ -90,13 +90,8 @@ class Molecule:
         coords (array of float): N x 3 coordinates matrix.
     """
     xyz: list or str
-    """(array-like or string): Nested array-like structure with elements
-        and coordinates (ex:[ ["H", (0., 0., 0.)], ...]). Can also be a
-        multi-line string."""
     q: int = 0
-    """(float): Total charge."""
     spin: int = 0
-    """(int): Absolute difference between alpha and beta electron number."""
     if is_package_installed("pyscf"):
         default_solver = IntegralSolverPySCF
     elif is_package_installed("psi4"):
@@ -105,13 +100,10 @@ class Molecule:
         default_solver = IntegralSolverEmpty
 
     solver: IntegralSolver = field(default_factory=default_solver)
-    """(IntegralSolver): The class that performs the mean field and integral computation."""
 
     # Defined in __post_init__.
     n_atoms: int = field(init=False)
-    """(int): Self-explanatory."""
     n_electrons: int = field(init=False)
-    """(int): Self-explanatory."""
 
     def __post_init__(self):
         if isinstance(self.solver, IntegralSolverEmpty):
@@ -137,7 +129,7 @@ class Molecule:
                 Unless using IntegralSolverPySCF, only "xyz" is supported.
         """
         if isinstance(self.solver, IntegralSolverPySCF):
-            mol = self.solver.to_pyscf(self)
+            mol = to_pyscf(self)
             mol.tofile(filename, format)
         elif filename[-3:] == 'xyz' or format == 'xyz':
             f = open(filename, "w") if format is None else open(filename+".xyz", "w")
