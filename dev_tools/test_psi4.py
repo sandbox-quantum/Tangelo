@@ -6,8 +6,8 @@ from tangelo import SecondQuantizedMolecule
 from tangelo.problem_decomposition.oniom.oniom_problem_decomposition import ONIOMProblemDecomposition
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment
 from tangelo.toolboxes.molecular_computation.integral_solver_psi4 import IntegralSolverPsi4
-from tangelo.algorithms.variational import SA_OO_Solver, BuiltInAnsatze, ADAPTSolver
-from tangelo.molecule_library import xyz_H4, mol_H4_minao, xyz_H2
+from tangelo.algorithms.variational import SA_OO_Solver, BuiltInAnsatze, ADAPTSolver, iQCC_solver
+from tangelo.molecule_library import xyz_H4, mol_H4_minao, xyz_H2, mol_H4_sto3g_uhf_a1_frozen
 
 
 class Testpsi4(unittest.TestCase):
@@ -59,6 +59,24 @@ class Testpsi4(unittest.TestCase):
         # ONIOM + CCSD is tested in test_oniom.ONIOMTest.test_energy_hf_ccsd_h4.
         self.assertAlmostEqual(-1.901623, e_oniom_vqe, places=5)
         self.assertEqual(mol_H4_minao, None)
+
+    def test_iqcc_h4_uhf(self):
+        """Test the energy after 3 iterations for H4 uhf with 1 alpha orbital frozen and generators limited to 8"""
+
+        ansatz_options = {"max_qcc_gens": 8}
+
+        iqcc_options = {"molecule": mol_H4_sto3g_uhf_a1_frozen,
+                        "qubit_mapping": "scbk",
+                        "up_then_down": True,
+                        "ansatz_options": ansatz_options,
+                        "deqcc_thresh": 1e-5,
+                        "max_iqcc_iter": 3}
+
+        iqcc = iQCC_solver(iqcc_options)
+        iqcc.build()
+        iqcc_energy = iqcc.simulate()
+
+        self.assertAlmostEqual(iqcc_energy, -1.95831, places=3)
 
 
 if __name__ == "__main__":

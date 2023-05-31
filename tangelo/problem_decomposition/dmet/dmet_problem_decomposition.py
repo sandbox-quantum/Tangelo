@@ -27,7 +27,7 @@ from tangelo.algorithms import FCISolver, CCSDSolver, VQESolver
 from tangelo.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
 from tangelo.toolboxes.molecular_computation.rdms import pad_rdms_with_frozen_orbitals_restricted, \
     pad_rdms_with_frozen_orbitals_unrestricted
-from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import to_pyscf
+from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import mol_to_pyscf
 
 
 class Localization(Enum):
@@ -119,7 +119,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # Converting our interface to pyscf.mol.gto and pyscf.scf (used by this
         # code).
         self.mean_field = self.molecule.mean_field
-        self.molecule = to_pyscf(self.molecule, self.molecule.basis)
+        self.molecule = mol_to_pyscf(self.molecule, self.molecule.basis)
 
         # If fragment_atoms is detected as a nested list of int, atoms are reordered to be
         # consistent with a list of numbers representing the number of atoms in each fragment.

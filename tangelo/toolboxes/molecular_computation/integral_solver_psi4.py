@@ -45,32 +45,45 @@ class IntegralSolverPsi4(IntegralSolver):
         mol.n_atoms = self.mol.natom()
 
     def compute_mean_field(self, sqmol):
-        if sqmol.uhf:
-            raise NotImplementedError(f"{self.__class__.__name__} does not currently support uhf")
+        # if sqmol.uhf:
+        #    raise NotImplementedError(f"{self.__class__.__name__} does not currently support uhf")
 
         self.backend.set_options({'basis': sqmol.basis})
-        if sqmol.spin != 0:
-            self.backend.set_options({'reference': 'rohf'})
+        if sqmol.uhf:
+            self.backend.set_options({'reference': 'uhf', 'guess': 'gwh', 'guess_mix': True})
+        elif sqmol.spin != 0:
+            self.backend.set_options({'reference': 'rohf', 'guess': 'core'})
+        else:
+            self.backend.set_options({'reference': 'rhf'})
 
         sqmol.mf_energy, self.wfn = self.backend.energy('scf', molecule=self.mol, basis=sqmol.basis, return_wfn=True)
-        mints = self.backend.core.MintsHelper(self.wfn.basisset())
+        self.mints = self.backend.core.MintsHelper(self.wfn.basisset())
 
         sqmol.mo_energies = np.asarray(self.wfn.epsilon_a())
 
-        nbf = np.asarray(mints.ao_overlap()).shape[0]
-        docc = self.wfn.doccpi()[0]
-        socc = self.wfn.soccpi()[0]
-        sqmol.mo_occ = [2]*docc + [1]*socc + (nbf - docc - socc)*[0]
+        nbf = np.asarray(self.mints.ao_overlap()).shape[0]
+
+        if sqmol.uhf:
+            na = self.wfn.nalpha()
+            nb = self.wfn.nbeta()
+            sqmol.mo_occ = [[1]*na + (nbf-na)*[0]]+[[1]*nb + (nbf-nb)*[0]]
+        else:
+            docc = self.wfn.doccpi()[0]
+            socc = self.wfn.soccpi()[0]
+            sqmol.mo_occ = [2]*docc + [1]*socc + (nbf - docc - socc)*[0]
         sqmol.n_mos = nbf
         sqmol.n_sos = nbf*2
-        self.mo_coeff = np.asarray(self.wfn.Ca())
-        self.ob = np.asarray(mints.ao_potential()) + np.asarray(mints.ao_kinetic())
-        self.tb = np.asarray(mints.ao_eri())
+        self.mo_coeff = np.asarray(self.wfn.Ca()) if not sqmol.uhf else [np.asarray(self.wfn.Ca()), np.asarray(self.wfn.Cb())]
+        self.ob = np.asarray(self.mints.ao_potential()) + np.asarray(self.mints.ao_kinetic())
+        self.tb = np.asarray(self.mints.ao_eri())
         self.core_constant = self.mol.nuclear_repulsion_energy()
 
     def get_integrals(self, sqmol, mo_coeff=None):
         if mo_coeff is None:
             mo_coeff = self.mo_coeff
+
+        if sqmol.uhf:
+            return self.compute_uhf_integrals(mo_coeff)
 
         ob = mo_coeff.T@self.ob@mo_coeff
         eed = self.tb.copy()
@@ -81,3 +94,37 @@ class IntegralSolverPsi4(IntegralSolver):
         tb = eed.transpose(0, 2, 3, 1)
 
         return self.core_constant, ob, tb
+
+    def compute_uhf_integrals(self, mo_coeff):
+        """Compute 1-electron and 2-electron integrals
+        The return is formatted as
+        [numpy.ndarray]*2 numpy array h_{pq} for alpha and beta blocks
+        [numpy.ndarray]*3 numpy array storing h_{pqrs} for alpha-alpha, alpha-beta, beta-beta blocks
+
+        Args:
+            mo_coeff (List[array]): The molecular orbital coefficients for both spins [alpha, beta]
+
+        Returns:
+            List[array], List[array]: One and two body integrals
+        """
+
+        mo_a = self.backend.core.Matrix.from_array(mo_coeff[0])
+        mo_b = self.backend.core.Matrix.from_array(mo_coeff[1])
+
+        # calculate alpha and beta one-body integrals
+        hpq = [mo_coeff[0].T.dot(self.ob).dot(mo_coeff[0]), mo_coeff[1].T.dot(self.ob).dot(mo_coeff[1])]
+
+        # mo transform the two-electron integrals
+        eri_a = np.asarray(self.mints.mo_eri(mo_a, mo_a, mo_a, mo_a))
+        eri_b = np.asarray(self.mints.mo_eri(mo_b, mo_b, mo_b, mo_b))
+        eri_ba = np.asarray(self.mints.mo_eri(mo_a, mo_a, mo_b, mo_b))
+
+        # # convert this into the order OpenFemion like to receive
+        two_body_integrals_a = np.asarray(eri_a.transpose(0, 2, 3, 1), order='C')
+        two_body_integrals_b = np.asarray(eri_b.transpose(0, 2, 3, 1), order='C')
+        two_body_integrals_ab = np.asarray(eri_ba.transpose(0, 2, 3, 1), order='C')
+
+        # Gpqrs has alpha, alphaBeta, Beta blocks
+        Gpqrs = (two_body_integrals_a, two_body_integrals_ab, two_body_integrals_b)
+
+        return self.core_constant, hpq, Gpqrs

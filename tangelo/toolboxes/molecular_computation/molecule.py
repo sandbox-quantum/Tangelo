@@ -29,7 +29,7 @@ from openfermion.ops.representations.interaction_operator import get_active_spac
 
 from tangelo.helpers.utils import is_package_installed
 from tangelo.toolboxes.molecular_computation import IntegralSolver, IntegralSolverPsi4, IntegralSolverEmpty
-from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import to_pyscf, IntegralSolverPySCF
+from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import mol_to_pyscf, IntegralSolverPySCF
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
@@ -129,7 +129,7 @@ class Molecule:
                 Unless using IntegralSolverPySCF, only "xyz" is supported.
         """
         if isinstance(self.solver, IntegralSolverPySCF):
-            mol = to_pyscf(self)
+            mol = mol_to_pyscf(self)
             mol.tofile(filename, format)
         elif filename[-3:] == 'xyz' or format == 'xyz':
             f = open(filename, "w") if format is None else open(filename+".xyz", "w")

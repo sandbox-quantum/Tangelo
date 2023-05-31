@@ -17,7 +17,7 @@ import numpy as np
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 
 
-def to_pyscf(mol, basis="CRENBL", symmetry=False, ecp=None):
+def mol_to_pyscf(mol, basis="CRENBL", symmetry=False, ecp=None):
     """Method to return a pyscf.gto.Mole object.
 
     Args:
@@ -53,7 +53,7 @@ class IntegralSolverPySCF(IntegralSolver):
         self.ao2mo = ao2mo
 
     def set_physical_data(self, mol):
-        pymol = to_pyscf(mol)
+        pymol = mol_to_pyscf(mol)
         mol.xyz = list()
         for sym, xyz in pymol._atom:
             mol.xyz += [tuple([sym, tuple([x*self.lib.parameters.BOHR for x in xyz])])]
@@ -63,7 +63,7 @@ class IntegralSolverPySCF(IntegralSolver):
 
     def compute_mean_field(self, sqmol):
 
-        molecule = to_pyscf(sqmol, sqmol.basis, sqmol.symmetry, sqmol.ecp)
+        molecule = mol_to_pyscf(sqmol, sqmol.basis, sqmol.symmetry, sqmol.ecp)
 
         sqmol.mean_field = self.scf.RHF(molecule) if not sqmol.uhf else self.scf.UHF(molecule)
         sqmol.mean_field.verbose = 0
@@ -103,7 +103,7 @@ class IntegralSolverPySCF(IntegralSolver):
     def get_integrals(self, sqmol, mo_coeff=None):
 
         # Pyscf molecule to get integrals.
-        pyscf_mol = to_pyscf(sqmol, sqmol.basis, sqmol.symmetry, sqmol.ecp)
+        pyscf_mol = mol_to_pyscf(sqmol, sqmol.basis, sqmol.symmetry, sqmol.ecp)
         if mo_coeff is None:
             mo_coeff = self.mo_coeff
 

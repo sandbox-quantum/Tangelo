@@ -16,9 +16,6 @@
 
 
 from tangelo import Molecule, SecondQuantizedMolecule
-from tangelo.helpers.utils import is_package_installed
-
-has_pyscf = True if is_package_installed("pyscf") else False
 
 # Dihydrogen.
 xyz_H2 = [
@@ -33,7 +30,7 @@ xyz_H2_stretch = [
     ("H", (0., 0., 0.)),
     ("H", (0., 0., 1.6))
 ]
-mol_H2_sto3g_uhf = SecondQuantizedMolecule(xyz_H2_stretch, q=0, spin=0, basis="sto-3g", uhf=True) if has_pyscf else None
+mol_H2_sto3g_uhf = SecondQuantizedMolecule(xyz_H2_stretch, q=0, spin=0, basis="sto-3g", uhf=True)
 
 # Tetrahydrogen.
 xyz_H4 = [
@@ -44,11 +41,11 @@ xyz_H4 = [
 ]
 mol_H4_sto3g = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g")
 mol_H4_sto3g_symm = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g", symmetry=True)
-mol_H4_minao = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="minao") if has_pyscf else None
+mol_H4_minao = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="minao")
 mol_H4_cation_sto3g = SecondQuantizedMolecule(xyz_H4, q=1, spin=1, basis="sto-3g")
-mol_H4_doublecation_minao = SecondQuantizedMolecule(xyz_H4, q=2, spin=0, basis="minao") if has_pyscf else None
+mol_H4_doublecation_minao = SecondQuantizedMolecule(xyz_H4, q=2, spin=0, basis="minao")
 mol_H4_doublecation_321g = SecondQuantizedMolecule(xyz_H4, q=2, spin=0, basis="3-21g")
-mol_H4_sto3g_uhf_a1_frozen = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g", uhf=True, frozen_orbitals=[[1], []]) if has_pyscf else None
+mol_H4_sto3g_uhf_a1_frozen = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g", uhf=True, frozen_orbitals=[[1], []])
 
 # Decahydrogen.
 xyz_H10 = [
@@ -63,7 +60,7 @@ xyz_H10 = [
     ("H", ( 0.300000000000, -0.923305061153, 0.)),
     ("H", ( 0.785410196625, -0.570633909777, 0.))
 ]
-mol_H10_minao = SecondQuantizedMolecule(xyz_H10, q=0, spin=0, basis="minao") if has_pyscf else None
+mol_H10_minao = SecondQuantizedMolecule(xyz_H10, q=0, spin=0, basis="minao")
 mol_H10_321g = SecondQuantizedMolecule(xyz_H10, q=0, spin=0, basis="3-21g")
 
 
