@@ -82,8 +82,9 @@ class SA_OO_Solver(SA_VQESolver):
         super().__init__(opt_dict_sa_vqe)
 
         # Add oo_options to attributes
-        for k, v in oo_options.items():
-            setattr(self, k, v)
+        self.tol: float = oo_options["tol"]
+        self.max_cycles: int = oo_options["max_cycles"]
+        self.n_oo_per_iter: int = oo_options["n_oo_per_iter"]
 
         self.n_ref_states = len(self.ref_states)
 

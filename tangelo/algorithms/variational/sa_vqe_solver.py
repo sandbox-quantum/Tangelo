@@ -23,6 +23,8 @@ orbital-optimized hybrid quantum-classical algorithm for a democratic descriptio
 Phys. Rev. Research 1, 033062 (2019)
 """
 
+from typing import List, Union, Type
+
 import numpy as np
 
 from tangelo.linq import get_backend, Circuit
@@ -86,8 +88,9 @@ class SA_VQESolver(VQESolver):
         self.builtin_ansatze = set([BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.UCCGD, BuiltInAnsatze.HEA, BuiltInAnsatze.UCCSD])
 
         # Add sa_vqe_options to attributes
-        for k, v in sa_vqe_options.items():
-            setattr(self, k, v)
+        self.ref_states: Union[List[int], np.ndarray] = sa_vqe_options["ref_states"]
+        self.weights: Union[List[float], np.ndarray] = sa_vqe_options["weights"]
+        self.ansatz: Type[agen.Ansatz] = sa_vqe_options["ansatz"]
 
         if self.ref_states is None:
             raise ValueError(f"ref_states must be provided when instantiating {self.__class__.__name__}")
