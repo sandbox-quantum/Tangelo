@@ -97,11 +97,13 @@ def translate_c_to_qsharp(source_circuit, operation="MyQsharpOperation", save_me
     # Generate Q# strings with the right syntax, order and values for the gate inputs
     body_str = ""
     for gate in source_circuit._gates:
-        if gate.control is not None and gate.name != "CNOT":
+        if gate.control is not None:
             control_string = '['
             num_controls = len(gate.control)
             for i, c in enumerate(gate.control):
                 control_string += f'qreg[{c}]]' if i == num_controls - 1 else f'qreg[{c}], '
+            if num_controls > 1 and gate.name == 'CNOT':
+                gate.name = 'CX'
 
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
             body_str += f"\t\t{GATE_QDK[gate.name]}(qreg[{gate.target[0]}]);\n"

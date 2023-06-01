@@ -32,7 +32,9 @@ path_data = os.path.dirname(os.path.realpath(__file__)) + '/data'
 gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1), Gate("Y", 0), Gate("S", 0)]
 abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=2.)])
 multi_controlled_gates = [Gate("X", 0), Gate("X", 1), Gate("CX", target=2, control=[0, 1])]
+multi_controlled_gates2 = [Gate("X", 0), Gate("X", 1), Gate("CNOT", target=2, control=[0, 1])]
 abs_multi_circ = Circuit(multi_controlled_gates)
+abs_multi_circ2 = Circuit(multi_controlled_gates)
 init_gates = [Gate('H', 0), Gate('X', 1), Gate('H', 2)]
 one_qubit_gate_names = ["H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"]
 one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else Gate(name, target=0, parameter=0.5)
@@ -98,6 +100,13 @@ class TranslateCircuitTest(unittest.TestCase):
         state1 = qulacs.QuantumState(abs_multi_circ.width)
         translated_circuit.update_quantum_state(state1)
 
+        # Generates the qulacs circuit by translating from the abstract one
+        translated_circuit = translate_c(abs_multi_circ2, "qulacs")
+
+        # Run the simulation
+        state1b = qulacs.QuantumState(abs_multi_circ2.width)
+        translated_circuit.update_quantum_state(state1b)
+
         # Directly define the same circuit through qulacs
         # NB: this includes convention fixes for some parametrized rotation gates (-theta instead of theta)
         qulacs_circuit = qulacs.QuantumCircuit(3)
@@ -114,6 +123,7 @@ class TranslateCircuitTest(unittest.TestCase):
 
         # Assert that both simulations returned the same state vector
         np.testing.assert_array_equal(state1.get_vector(), state2.get_vector())
+        np.testing.assert_array_equal(state1b.get_vector(), state2.get_vector())
 
         # Test that the translated circuit reports the same result for all cross-supported gates
         translated_circuit = translate_c(big_circuit, "qulacs")
@@ -222,6 +232,7 @@ class TranslateCircuitTest(unittest.TestCase):
         np.testing.assert_array_equal(v1, v2)
 
         translated_circuit = translate_c(abs_multi_circ, "cirq")
+        translated_circuit2 = translate_c(abs_multi_circ2, "cirq")
         circ = cirq.Circuit()
         circ.append(cirq.X(qubit_labels[0]))
         circ.append(cirq.X(qubit_labels[1]))
@@ -232,6 +243,11 @@ class TranslateCircuitTest(unittest.TestCase):
         v1 = job_sim.final_state_vector
 
         job_sim = cirq_simulator.simulate(translated_circuit)
+        v2 = job_sim.final_state_vector
+
+        np.testing.assert_array_equal(v1, v2)
+
+        job_sim = cirq_simulator.simulate(translated_circuit2)
         v2 = job_sim.final_state_vector
 
         np.testing.assert_array_equal(v1, v2)
@@ -269,6 +285,10 @@ class TranslateCircuitTest(unittest.TestCase):
         # Generate the qdk circuit by translating from the abstract one and print it
         translated_circuit = translate_c(abs_multi_circ, "qdk")
         print(translated_circuit)
+
+        # Check that multi-controlled CNOT is changed correctly to "CX"
+        translated_circuit2 = translate_c(abs_multi_circ2, "qdk")
+        self.assertEqual(translated_circuit, translated_circuit2)
 
         # Write to file
         with open('tmp_circuit.qs', 'w+') as f_out:
