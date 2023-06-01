@@ -34,7 +34,7 @@ class MP2Solver(ElectronicStructureSolver):
 
     def __init__(self, molecule):
         if not is_package_installed("pyscf"):
-            raise ModuleNotFoundError(f"The pyscf package is not available and is required by {self.__class__.__name__}.")
+            raise ModuleNotFoundError(f"Using {self.__class__.__name__} requires the installation of the pyscf package")
         from pyscf import mp
 
         if molecule.uhf:

@@ -17,7 +17,7 @@ functionalities.
 """
 
 import copy
-from dataclasses import dataclass, field, MISSING
+from dataclasses import dataclass, field
 from itertools import product
 
 import numpy as np
@@ -398,7 +398,7 @@ class SecondQuantizedMolecule(Molecule):
 
     def get_integrals(self, mo_coeff=None, fold_frozen=True):
         """Computes core constant, one_body, and two-body coefficients with frozen orbitals folded into one-body coefficients
-        and core constant for mo_coeff if consider_frozen is True
+        and core constant for mo_coeff if fold_frozen is True
 
         For UHF
         one_body coefficients are [alpha one_body, beta one_body]

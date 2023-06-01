@@ -173,7 +173,7 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
 
         core_constant, one_body_integrals, two_body_integrals = molecule.get_full_space_integrals()
 
-        class IntegralSolver_dummy(IntegralSolver):
+        class IntegralSolverDummy(IntegralSolver):
             def set_physical_data(self, mol):
                 mol.xyz = H2_list
                 mol.n_electrons = 2
@@ -190,7 +190,7 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
             def get_integrals(self, sqmol, mo_coeff=None):
                 return core_constant, one_body_integrals, two_body_integrals
 
-        molecule_dummy = SecondQuantizedMolecule(H2_list, 0, 0, IntegralSolver_dummy(), basis="sto-3g", frozen_orbitals=[])
+        molecule_dummy = SecondQuantizedMolecule(H2_list, 0, 0, IntegralSolverDummy(), basis="sto-3g", frozen_orbitals=[])
 
         rdm1 = [[ 1.97453997e+00, -7.05987336e-17],
                 [-7.05987336e-17,  2.54600303e-02]]

@@ -56,7 +56,7 @@ jobs:
 
     - name: tangelo psi4 tests
       run: |
-        cd dev_tools
+        cd other_tests
         conda activate p4env
         pytest --doctest-modules --junitxml=junit/psi4-test-results.xml test_psi4.py
       if: always()
@@ -65,7 +65,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: tangelo-psi4-test-results
-        path: dev_tools/junit/psi4-test-results.xml
+        path: other_tests/junit/psi4-test-results.xml
 
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v3

@@ -59,18 +59,6 @@ class MP2SolverTest(unittest.TestCase):
 
         self.assertAlmostEqual(energy, -14.5092873, places=6)
 
-    def test_fci_be_frozen_core(self):
-        """ Test FCISolver against result from reference implementation, with no mean-field provided as input.
-            Frozen core is considered.
-        """
-
-        mol_Be_321g_freeze1 = mol_Be_321g.freeze_mos(1, inplace=False)
-
-        solver = MP2Solver(mol_Be_321g_freeze1)
-        energy = solver.simulate()
-
-        self.assertAlmostEqual(energy, -14.5092873, places=6)
-
 
 if __name__ == "__main__":
     unittest.main()

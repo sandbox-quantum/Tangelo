@@ -78,7 +78,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
     def __init__(self, opt_dict):
         if not is_package_installed("pyscf"):
-            raise ModuleNotFoundError(f"The pyscf package is not available and is required by {self.__class__.__name__}.")
+            raise ModuleNotFoundError(f"Using {self.__class__.__name__} requires the installation of the pyscf package.")
         from pyscf import gto, scf
         from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
         default_ccsd_options = dict()
@@ -108,7 +108,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 setattr(self, k, v)
             else:
                 raise KeyError(f"Keyword :: {k}, not available in DMETProblemDecomposition.")
-        self.SecondQuantizedDMETFragment = SecondQuantizedDMETFragment
+        self.fragment_builder = SecondQuantizedDMETFragment
 
         # Raise error/warnings if input is not as expected
         if not self.molecule:
@@ -459,7 +459,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
-            dummy_mol = self.SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
+            dummy_mol = self.fragment_builder(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 self.fragment_frozen_orbitals[i])
 
@@ -555,7 +555,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
-            dummy_mol = self.SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
+            dummy_mol = self.fragment_builder(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 self.fragment_frozen_orbitals[i])
 

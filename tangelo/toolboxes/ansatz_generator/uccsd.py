@@ -29,18 +29,19 @@ Refs:
 """
 
 import itertools
+
 import numpy as np
 from openfermion.circuits import uccsd_singlet_generator
 
+from tangelo import SecondQuantizedMolecule
 from tangelo.linq import Circuit
 from tangelo.helpers.utils import is_package_installed
-from .ansatz import Ansatz
-from .ansatz_utils import exp_pauliword_to_gates
-from ._unitary_cc_openshell import uccsd_openshell_paramsize, uccsd_openshell_generator, uccsd_openshell_get_packed_amplitudes
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
-from tangelo import SecondQuantizedMolecule
 from tangelo.toolboxes.molecular_computation import IntegralSolverPySCF
+from .ansatz import Ansatz
+from .ansatz_utils import exp_pauliword_to_gates
+from ._unitary_cc_openshell import uccsd_openshell_paramsize, uccsd_openshell_generator
 
 
 class UCCSD(Ansatz):
@@ -269,7 +270,7 @@ class UCCSD(Ansatz):
         if self.molecule.uhf:
             raise NotImplementedError(f"MP2 initialization is not currently implemented for UHF reference in {self.__class__}")
         if not is_package_installed("pyscf"):
-            raise ValueError(f"mp2 initialization in {self.__class__} is not supported in Tangelo if PySCF is not installed.")
+            raise ValueError(f"pyscf is required for MP2 initial parameters in {self.__class__.__name__}.")
 
         if not isinstance(self.molecule.solver, IntegralSolverPySCF):
             pymol = SecondQuantizedMolecule(self.molecule.xyz, self.molecule.q, self.molecule.spin, basis=self.molecule.basis,

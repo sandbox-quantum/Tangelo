@@ -37,7 +37,7 @@ class FCISolver(ElectronicStructureSolver):
 
     def __init__(self, molecule):
         if not is_package_installed("pyscf"):
-            raise ModuleNotFoundError(f"The pyscf package is not available and is required by {self.__class__.__name__}.")
+            raise ModuleNotFoundError(f"Using {self.__class__.__name__} requires the installation of the pyscf package")
 
         if molecule.uhf:
             raise NotImplementedError(f"SecondQuantizedMolecule that use UHF are not currently supported in {self.__class__.__name__}. Use CCSDSolver")

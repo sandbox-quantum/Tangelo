@@ -32,7 +32,7 @@ jobs:
 
     - name: pycodestyle tests
       run: |
-        cd dev_tools
+        cd other_tests
         pytest --doctest-modules --junitxml=junit/pycodestyle-test-results.xml test_conformance.py
       if: always()
 
@@ -67,7 +67,7 @@ jobs:
 
     - name: tangelo no_pyscf tests
       run: |
-        cd dev_tools
+        cd other_tests
         pytest --doctest-modules --junitxml=junit/nopyscf-test-results.xml test_nopyscf.py
       if: always()
 
@@ -89,7 +89,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: tangelo-no-pyscf-test-results
-        path: dev_tools/junit/nopyscf-test-results.xml
+        path: other_tests/junit/nopyscf-test-results.xml
 
     - name: Upload pytest test results
       uses: actions/upload-artifact@v3
