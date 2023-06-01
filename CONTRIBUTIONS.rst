@@ -110,7 +110,7 @@ When a pull request is created or updated, several automated processes are launc
 **Linting / code style**
 
   A way to check that your code complies with our style guidelines, based on PEP8.
-  We rely on a tool called pycodestyle. If you want to know exactly what this linting enforces and ignores, you can refer to this `file <./dev_tools/pycodestyle>`_ and `pycodestyle's documentation <https://pycodestyle.pycqa.org/en/latest/intro.html>`_.
+  We rely on a tool called pycodestyle. If you want to know exactly what this linting enforces and ignores, you can refer to this `file <./other_tests/pycodestyle>`_ and `pycodestyle's documentation <https://pycodestyle.pycqa.org/en/latest/intro.html>`_.
 
 
 Developing notebooks
