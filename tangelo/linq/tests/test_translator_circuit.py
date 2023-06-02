@@ -34,7 +34,7 @@ abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=2.)])
 multi_controlled_gates = [Gate("X", 0), Gate("X", 1), Gate("CX", target=2, control=[0, 1])]
 multi_controlled_gates2 = [Gate("X", 0), Gate("X", 1), Gate("CNOT", target=2, control=[0, 1])]
 abs_multi_circ = Circuit(multi_controlled_gates)
-abs_multi_circ2 = Circuit(multi_controlled_gates)
+abs_multi_circ2 = Circuit(multi_controlled_gates2)
 init_gates = [Gate('H', 0), Gate('X', 1), Gate('H', 2)]
 one_qubit_gate_names = ["H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "PHASE"]
 one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else Gate(name, target=0, parameter=0.5)
@@ -100,7 +100,7 @@ class TranslateCircuitTest(unittest.TestCase):
         state1 = qulacs.QuantumState(abs_multi_circ.width)
         translated_circuit.update_quantum_state(state1)
 
-        # Generates the qulacs circuit by translating from the abstract one
+        # The same test from above but when a user specifies a multi-controlled CNOT, switches to multi-controlled X
         translated_circuit = translate_c(abs_multi_circ2, "qulacs")
 
         # Run the simulation
@@ -232,7 +232,6 @@ class TranslateCircuitTest(unittest.TestCase):
         np.testing.assert_array_equal(v1, v2)
 
         translated_circuit = translate_c(abs_multi_circ, "cirq")
-        translated_circuit2 = translate_c(abs_multi_circ2, "cirq")
         circ = cirq.Circuit()
         circ.append(cirq.X(qubit_labels[0]))
         circ.append(cirq.X(qubit_labels[1]))
@@ -247,6 +246,9 @@ class TranslateCircuitTest(unittest.TestCase):
 
         np.testing.assert_array_equal(v1, v2)
 
+        # Translator changes abs_multi_circ2 from multi-controlled CNOT into multi-controlled X to be the same as abs_multi_circ
+        # The same statevector is expected.
+        translated_circuit2 = translate_c(abs_multi_circ2, "cirq")
         job_sim = cirq_simulator.simulate(translated_circuit2)
         v2 = job_sim.final_state_vector
 
@@ -286,7 +288,7 @@ class TranslateCircuitTest(unittest.TestCase):
         translated_circuit = translate_c(abs_multi_circ, "qdk")
         print(translated_circuit)
 
-        # Check that multi-controlled CNOT is changed correctly to "CX"
+        # Check that multi-controlled CNOT is changed correctly to multi-controlled "CX"
         translated_circuit2 = translate_c(abs_multi_circ2, "qdk")
         self.assertEqual(translated_circuit, translated_circuit2)
 
