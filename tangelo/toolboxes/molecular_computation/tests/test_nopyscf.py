@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 
 from tangelo import SecondQuantizedMolecule
+from tangelo.helpers.utils import installed_chem_backends
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 from tangelo.algorithms.variational import SA_OO_Solver, BuiltInAnsatze, ADAPTSolver
 
@@ -15,7 +16,7 @@ class IntegralSolverDummy(IntegralSolver):
         mol.n_atoms = 2
 
     def compute_mean_field(self, sqmol):
-        npzfile = np.load('h2_631g.npz')
+        npzfile = np.load('data/h2_631g.npz')
         sqmol.mf_energy = npzfile['mf_energy']
         sqmol.mo_energies = npzfile['mo_energies']
         sqmol.mo_occ = npzfile['mo_occ']
@@ -52,6 +53,7 @@ class IntegralSolverDummy(IntegralSolver):
 
 
 class TestNopyscf(unittest.TestCase):
+    @unittest.skipIf(len(installed_chem_backends) > 0, "Test Skipped: A chem backend is available \n")
     def test_no_solver(self):
         "Test that a ValueError is raised when SecondQuantizedMolecule is called without PySCF, Psi4 or custom solver"
         with self.assertRaises(ValueError):

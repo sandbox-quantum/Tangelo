@@ -32,7 +32,7 @@ jobs:
 
     - name: pycodestyle tests
       run: |
-        cd other_tests
+        cd dev_tools
         pytest --doctest-modules --junitxml=junit/pycodestyle-test-results.xml test_conformance.py
       if: always()
 
