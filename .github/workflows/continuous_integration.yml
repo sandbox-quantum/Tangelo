@@ -67,7 +67,7 @@ jobs:
 
     - name: tangelo no_pyscf tests
       run: |
-        cd other_tests
+        cd tangelo/toolboxes/molecular_computation/tests
         pytest --doctest-modules --junitxml=junit/nopyscf-test-results.xml test_nopyscf.py
       if: always()
 
@@ -89,7 +89,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: tangelo-no-pyscf-test-results
-        path: other_tests/junit/nopyscf-test-results.xml
+        path: tangelo/toolboxes/molecular_computation/tests/junit/nopyscf-test-results.xml
 
     - name: Upload pytest test results
       uses: actions/upload-artifact@v3
