@@ -59,6 +59,7 @@ jobs:
       if: always()
 
     - name: tangelo install
+      # Note: the NO_PYSCF install is temporary we will soon make it an optional dependency
       env:
         NO_PYSCF: 1
       run: |

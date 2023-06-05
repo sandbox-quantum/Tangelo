@@ -71,8 +71,8 @@ class IntegralSolverPsi4(IntegralSolver):
             sqmol.n_sos (int): Number of spin-orbitals with a given basis set.
 
         Add to sqmol:
-            self.mo_coeff (ndarray or List[ndarray]): C molecular orbital coefficients (MO coeffs) if RHF ROHF
-                                                        [Ca, Cb] [alpha MO coeffs, beta MO coeffs] if UHF
+            self.mo_coeff (ndarray or List[ndarray]): array of molecular orbital coefficients (MO coeffs) if RHF ROHF
+                                                        list of arrays [alpha MO coeffs, beta MO coeffs] if UHF
 
         Args:
             sqmol (SecondQuantizedMolecule): Populated variables of Molecule plus
