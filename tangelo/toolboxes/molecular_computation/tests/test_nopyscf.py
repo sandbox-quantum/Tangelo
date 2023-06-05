@@ -1,4 +1,5 @@
 import unittest
+import os
 
 import numpy as np
 
@@ -16,7 +17,7 @@ class IntegralSolverDummy(IntegralSolver):
         mol.n_atoms = 2
 
     def compute_mean_field(self, sqmol):
-        npzfile = np.load('data/h2_631g.npz')
+        npzfile = np.load(os.path.dirname(os.path.abspath(__file__))+'/data/h2_631g.npz')
         sqmol.mf_energy = npzfile['mf_energy']
         sqmol.mo_energies = npzfile['mo_energies']
         sqmol.mo_occ = npzfile['mo_occ']
