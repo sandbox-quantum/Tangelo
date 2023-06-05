@@ -18,6 +18,7 @@ which bonds are broken and how to fix them) as well as the solver(s) to use.
 """
 
 import warnings
+from typing import Union, List
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -27,9 +28,76 @@ from tangelo.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver, A
 from tangelo.problem_decomposition.oniom._helpers.capping_groups import elements, chemical_groups
 
 
+class Link:
+
+    def __init__(self, staying, leaving, factor=1.0, species="H"):
+        """Bonds broken during the layer-construction process in ONIOM must be
+        mended. This class represents a broken-bond link, and has associated
+        methods to generate a new bond, appending the intended species.
+
+        Args:
+            staying (int): Atom id retained.
+            leaving (int): Atom id lost.
+            factor (float) optional: Rescale length of bond, from that in the
+                original molecule.
+            species (str) optional: Atomic species or a chemical group
+                identifier for new link. Can be a list (first element = "X" to
+                detect the orientation) for a custom chemical group.
+        """
+
+        self.staying = staying
+        self.leaving = leaving
+        self.factor = factor
+
+        if isinstance(species, str) and species in elements:
+            self.species = [(species, (0., 0., 0.))]
+        elif isinstance(species, str) and species in chemical_groups:
+            self.species = chemical_groups[species]
+        elif isinstance(species, (list, tuple)) and species[0][0].upper() == "X":
+            self.species = species
+        else:
+            raise ValueError(f"{species} is not supported. It must be a string identifier or a list of atoms (with a ghost atom ('X') as the first element).")
+
+    def relink(self, geometry):
+        """Create atom at location of mended-bond link.
+
+        Args:
+            geometry (list of positions): Atomic positions in format
+                [[str,tuple(float,float,float)],...].
+
+        Returns:
+            list: List of atomic species and position (x, y, z) of replacement
+                atom / chemical group.
+        """
+
+        elements = [a[0] for a in self.species if a[0].upper() != "X"]
+        chem_group_xyz = np.array([[a[1][0], a[1][1], a[1][2]] for a in self.species if a[0].upper() != "X"])
+
+        staying = np.array(geometry[self.staying][1])
+        leaving = np.array(geometry[self.leaving][1])
+
+        # Rotation (if not a single atom).
+        if len(elements) > 1:
+            axis_old = leaving - staying
+            axis_new = chem_group_xyz[0] - np.array(self.species[0][1])
+
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                rot, _ = R.align_vectors([axis_old], [axis_new])
+            chem_group_xyz = rot.apply(chem_group_xyz)
+
+        # Move the atom / group to the right position in space.
+        replacement = self.factor*(leaving-staying) + staying
+        translation = replacement - chem_group_xyz[0]
+        chem_group_xyz += translation
+
+        return [(element, (xyz[0], xyz[1], xyz[2])) for element, xyz in zip(elements, chem_group_xyz)]
+
+
 class Fragment:
 
-    def __init__(self, solver_low, options_low=None, solver_high=None, options_high=None, selected_atoms=None, charge=0, spin=0, broken_links=None):
+    def __init__(self, solver_low: str, options_low: dict = None, solver_high: str = None, options_high: dict = None,
+                 selected_atoms: Union[int, List[int]] = None, charge: int = 0, spin: int = 0, broken_links: List[Link] = None):
         """Fragment class for the ONIOM solver. Each fragment can have broken
         links. In this case, they are capped with a chosen atom. Each fragment
         can also have up to two solvers (low and high accuracy).
@@ -212,69 +280,3 @@ class Fragment:
             resources = self.solver_high.get_resources()
 
         return resources
-
-
-class Link:
-
-    def __init__(self, staying, leaving, factor=1.0, species="H"):
-        """Bonds broken during the layer-construction process in ONIOM must be
-        mended. This class represents a broken-bond link, and has associated
-        methods to generate a new bond, appending the intended species.
-
-        Args:
-            staying (int): Atom id retained.
-            leaving (int): Atom id lost.
-            factor (float) optional: Rescale length of bond, from that in the
-                original molecule.
-            species (str) optional: Atomic species or a chemical group
-                identifier for new link. Can be a list (first element = "X" to
-                detect the orientation) for a custom chemical group.
-        """
-
-        self.staying = staying
-        self.leaving = leaving
-        self.factor = factor
-
-        if isinstance(species, str) and species in elements:
-            self.species = [(species, (0., 0., 0.))]
-        elif isinstance(species, str) and species in chemical_groups:
-            self.species = chemical_groups[species]
-        elif isinstance(species, (list, tuple)) and species[0][0].upper() == "X":
-            self.species = species
-        else:
-            raise ValueError(f"{species} is not supported. It must be a string identifier or a list of atoms (with a ghost atom ('X') as the first element).")
-
-    def relink(self, geometry):
-        """Create atom at location of mended-bond link.
-
-        Args:
-            geometry (list of positions): Atomic positions in format
-                [[str,tuple(float,float,float)],...].
-
-        Returns:
-            list: List of atomic species and position (x, y, z) of replacement
-                atom / chemical group.
-        """
-
-        elements = [a[0] for a in self.species if a[0].upper() != "X"]
-        chem_group_xyz = np.array([[a[1][0], a[1][1], a[1][2]] for a in self.species if a[0].upper() != "X"])
-
-        staying = np.array(geometry[self.staying][1])
-        leaving = np.array(geometry[self.leaving][1])
-
-        # Rotation (if not a single atom).
-        if len(elements) > 1:
-            axis_old = leaving - staying
-            axis_new = chem_group_xyz[0] - np.array(self.species[0][1])
-
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", UserWarning)
-                rot, _ = R.align_vectors([axis_old], [axis_new])
-            chem_group_xyz = rot.apply(chem_group_xyz)
-
-        # Move the atom / group to the right position in space.
-        replacement = self.factor*(leaving-staying) + staying
-        translation = replacement - chem_group_xyz[0]
-        chem_group_xyz += translation
-
-        return [(element, (xyz[0], xyz[1], xyz[2])) for element, xyz in zip(elements, chem_group_xyz)]

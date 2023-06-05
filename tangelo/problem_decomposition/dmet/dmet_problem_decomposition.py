@@ -15,11 +15,14 @@
 """Employ DMET as a problem decomposition technique."""
 
 from enum import Enum
+from typing import Union, List, Callable, Dict
+
 import numpy as np
 from pyscf import gto, scf
 import scipy
 import warnings
 
+from tangelo import SecondQuantizedMolecule
 from tangelo.problem_decomposition.dmet import _helpers as helpers
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization, nao_localization
@@ -84,27 +87,22 @@ class DMETProblemDecomposition(ProblemDecomposition):
                                "initial_var_params": "ones",
                                "verbose": False}
 
-        default_options = {"molecule": None,
-                           "electron_localization": Localization.meta_lowdin,
-                           "fragment_atoms": list(),
-                           "fragment_solvers": "ccsd",
-                           "fragment_frozen_orbitals": list(),
-                           "optimizer": self._default_optimizer,
-                           "initial_chemical_potential": 0.0,
-                           "solvers_options": list(),
-                           "virtual_orbital_threshold": 1e-13,
-                           "verbose": False}
+        copt_dict = opt_dict.copy()
+        self.molecule: SecondQuantizedMolecule = copt_dict.pop("molecule", None)
+        self.electron_localization: Localization = copt_dict.pop("electron_localization", Localization.meta_lowdin)
+        self.fragment_atoms: List[int] = copt_dict.pop("fragment_atoms", list())
+        self.fragment_solvers: Union[str, List[str]] = copt_dict.pop("fragment_solvers", "ccsd")
+        self.fragment_frozen_orbitals: List[List[Union[int, str]]] = copt_dict.pop("fragment_frozen_orbitals", list())
+        self.optimizer: Callable[..., float] = copt_dict.pop("optimizer", self._default_optimizer)
+        self.initial_chemical_potential: float = copt_dict.pop("initial_chemical_potential", 0.0)
+        self.solvers_options: List[dict] = copt_dict.pop("solvers_options", list())
+        self.virtual_orbital_threshold: float = copt_dict.pop("virtual_orbital_threshold", 1e-13)
+        self.verbose: bool = copt_dict.pop("verbose", False)
 
         self.builtin_localization = set(Localization)
 
-        # Initialize with default values
-        self.__dict__ = default_options
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in opt_dict.items():
-            if k in default_options:
-                setattr(self, k, v)
-            else:
-                raise KeyError(f"Keyword :: {k}, not available in DMETProblemDecomposition.")
+        if len(copt_dict) > 0:
+            raise KeyError(f"The following keywords are not supported in {self.__class__.__name__}: \n {copt_dict.keys()}")
 
         # Raise error/warnings if input is not as expected
         if not self.molecule:
@@ -199,7 +197,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         self.onerdm_low = None
 
         # If save_results in _oneshot_loop is True, the dict is populated.
-        self.solver_fragment_dict = dict()
+        self.solver_fragment_dict: Dict[int, VQESolver] = dict()
 
         # To keep track the number of iteration (was done with an energy list
         # before).

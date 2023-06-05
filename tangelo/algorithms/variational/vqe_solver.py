@@ -18,12 +18,14 @@ electronic structure calculations.
 
 import warnings
 import itertools
+from typing import Optional, Union, List
 
 from enum import Enum
 import numpy as np
 from openfermion.ops.operators.qubit_operator import QubitOperator
 
 from tangelo.helpers.utils import HiddenPrints
+from tangelo import SecondQuantizedMolecule
 from tangelo.linq import get_backend, Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
 from tangelo.toolboxes.operators import count_qubits, FermionOperator
@@ -95,30 +97,27 @@ class VQESolver:
     def __init__(self, opt_dict):
 
         default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None,
-                           "qubit_mapping": "jw", "ansatz": BuiltInAnsatze.UCCSD,
-                           "optimizer": self._default_optimizer,
-                           "initial_var_params": None,
-                           "backend_options": default_backend_options,
-                           "simulate_options": dict(),
-                           "penalty_terms": None,
-                           "deflation_circuits": list(),
-                           "deflation_coeff": 1,
-                           "ansatz_options": dict(),
-                           "up_then_down": False,
-                           "qubit_hamiltonian": None,
-                           "verbose": False,
-                           "projective_circuit": None,
-                           "ref_state": None}
+        copt_dict = opt_dict.copy()
 
-        # Initialize with default values
-        self.__dict__ = default_options
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in opt_dict.items():
-            if k in default_options:
-                setattr(self, k, v)
-            else:
-                raise KeyError(f"Keyword :: {k}, not available in VQESolver")
+        self.molecule: Optional[SecondQuantizedMolecule] = copt_dict.pop("molecule", None)
+        self.qubit_mapping: str = copt_dict.pop("qubit_mapping", "jw")
+        self.ansatz: agen.Ansatz = copt_dict.pop("ansatz", BuiltInAnsatze.UCCSD)
+        self.optimizer = copt_dict.pop("optimizer", self._default_optimizer)
+        self.initial_var_params: Optional[Union[str, list]] = copt_dict.pop("initial_var_params", None)
+        self.backend_options: dict = copt_dict.pop("backend_options", default_backend_options)
+        self.penalty_terms: Optional[dict] = copt_dict.pop("penalty_terms", None)
+        self.simulate_options: dict = copt_dict.pop("simulate_options", dict())
+        self.deflation_circuits: Optional[List[Circuit]] = copt_dict.pop("deflation_circuits", list())
+        self.deflation_coeff: float = copt_dict.pop("deflation_coeff", 1)
+        self.ansatz_options: dict = copt_dict.pop("ansatz_options", dict())
+        self.up_then_down: bool = copt_dict.pop("up_then_down", False)
+        self.qubit_hamiltonian: QubitOperator = copt_dict.pop("qubit_hamiltonian", None)
+        self.verbose: bool = copt_dict.pop("verbose", False)
+        self.projective_circuit: Circuit = copt_dict.pop("projective_circuit", None)
+        self.ref_state: Optional[Union[list, Circuit]] = copt_dict.pop("ref_state", None)
+
+        if len(copt_dict) > 0:
+            raise KeyError(f"The following keywords are not supported in {self.__class__.__name__}: \n {copt_dict.keys()}")
 
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
