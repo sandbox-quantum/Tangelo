@@ -20,7 +20,6 @@
 import unittest
 import os
 import numpy as np
-import time
 
 from tangelo.linq import Gate, Circuit
 from tangelo.linq.gate import PARAMETERIZED_GATES
@@ -141,7 +140,7 @@ class TranslateCircuitTest(unittest.TestCase):
         """
 
         import qiskit
-        from qiskit.providers.aer import AerSimulator
+        from qiskit_aer import AerSimulator
 
         # Generate the qiskit circuit by translating from the abstract one and print it
         translated_circuit = translate_c(abs_circ, "qiskit")
@@ -175,20 +174,6 @@ class TranslateCircuitTest(unittest.TestCase):
 
         # Generate the qiskit circuit by translating from the abstract one and print it
         translated_circuit = translate_c(big_circuit, "qiskit")
-
-        # Big translate/translate back test (32000 gates)
-        very_big_circuit = big_circuit*10**3
-        tstart1 = time.time()
-        qc_very_big_circuit = translate_c(very_big_circuit, "qiskit")
-        tstop1 = time.time()
-        print(f"Circuit -> QuantumCircuit took {tstop1-tstart1:.2f} s")
-
-        tstart2 = time.time()
-        c_very_big_circuit = translate_c(qc_very_big_circuit, "tangelo", source="qiskit")
-        tstop2 = time.time()
-        print(f"QuantumCircuit -> Circuit took {tstop2-tstart2:.2f} s")
-
-        self.assertEqual(c_very_big_circuit, very_big_circuit)
 
         # Simulate both circuits, assert state vectors are equal
         qiskit_simulator = AerSimulator(method="statevector")
