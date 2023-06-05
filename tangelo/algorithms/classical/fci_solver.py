@@ -301,9 +301,9 @@ class FCISolverPsi4(ElectronicStructureSolver):
         Returns:
             float: Total FCI energy.
         """
-        self.backend.set_options({'basis': self.basis, 'reference': self.reference, 'opdm': True, 'tpdm': True, 'frozen_docc': [1], 'frozen_uocc': [1], 'qc_module': 'detci', 'mcscf_rotate': [[0, 0, 1, 90]]})
-
-        energy, self.wfn = self.backend.energy('casscf', molecule=self.psi4molecule, basis=self.basis, return_wfn=True)
+        self.backend.set_options({'basis': self.basis, 'reference': self.reference, 'opdm': True, 'tpdm': True, 'frozen_docc': [0], 'frozen_uocc': [1]})
+        self.molecule.solver.wfn.Ca().rotate_columns(0, 5, 7, np.deg2rad(90))
+        energy, self.wfn = self.backend.energy('casscf', molecule=self.psi4molecule, basis=self.basis, return_wfn=True, ref_wfn=self.molecule.solver.wfn)
         self.mints = self.backend.core.MintsHelper(self.wfn.basisset())
 
         return energy
