@@ -32,11 +32,11 @@ Refs:
 from typing import List, Union, Optional
 
 from tangelo import SecondQuantizedMolecule
-from tangelo.toolboxes.operators import QubitOperator
+from tangelo.algorithms.variational.vqe_solver import VQESolver
 from tangelo.linq import get_backend
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.ansatz_generator.ilc import ILC
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
-from tangelo.algorithms.variational.vqe_solver import VQESolver
 from tangelo.toolboxes.ansatz_generator._qubit_ilc import ilc_op_dress
 
 
