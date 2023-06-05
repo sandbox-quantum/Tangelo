@@ -28,11 +28,13 @@ Ref:
 
 import math
 import warnings
+from typing import Optional, Union, List, Sequence, Callable
 
 from scipy.optimize import minimize
 from openfermion import commutator
 from openfermion import FermionOperator as ofFermionOperator
 
+from tangelo import SecondQuantizedMolecule
 from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -51,7 +53,7 @@ class ADAPTSolver:
         tol (float): Maximum gradient allowed for a particular operator  before
             convergence.
         max_cycles (int): Maximum number of iterations for ADAPT.
-        pool (func): Function that returns a list of FermionOperator. Each
+        pool (func): Function that returns a list of FermionOperator or QubitOperator. Each
             element represents excitation/operator that has an effect of the
             total energy.
         pool_args (dict) : The arguments for the pool function. Will be unpacked in
@@ -76,34 +78,30 @@ class ADAPTSolver:
     def __init__(self, opt_dict):
 
         default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None,
-                           "tol": 1e-3, "max_cycles": 15,
-                           "pool": uccgsd_pool,
-                           "pool_args": None,
-                           "qubit_mapping": "jw",
-                           "qubit_hamiltonian": None,
-                           "up_then_down": False,
-                           "n_spinorbitals": None,
-                           "n_electrons": None,
-                           "spin": None,
-                           "optimizer": self.LBFGSB_optimizer,
-                           "backend_options": default_backend_options,
-                           "simulate_options": dict(),
-                           "verbose": False,
-                           "ref_state": None,
-                           "deflation_circuits": list(),
-                           "projective_circuit": None,
-                           "deflation_coeff": 1}
 
-        # Initialize with default values
-        self.__dict__ = default_options
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in opt_dict.items():
-            if k in default_options:
-                setattr(self, k, v)
-            else:
-                # TODO Raise a warning instead, that variable will not be used unless user made mods to code
-                raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}")
+        copt_dict = opt_dict.copy()
+
+        self.molecule: Optional[SecondQuantizedMolecule] = copt_dict.pop("molecule", None)
+        self.tol: float = copt_dict.pop("tol", 1e-3)
+        self.max_cycles: int = copt_dict.pop("max_cycles", 15)
+        self.pool: Callable[..., Union[List[QubitOperator], List[FermionOperator]]] = copt_dict.pop("pool", uccgsd_pool)
+        self.pool_args: dict = copt_dict.pop("pool_args", None)
+        self.qubit_mapping: str = copt_dict.pop("qubit_mapping", "jw")
+        self.optimizer = copt_dict.pop("optimizer", self.LBFGSB_optimizer)
+        self.backend_options: dict = copt_dict.pop("backend_options", default_backend_options)
+        self.simulate_options: dict = copt_dict.pop("simulate_options", dict())
+        self.deflation_circuits: Optional[List[Circuit]] = copt_dict.pop("deflation_circuits", list())
+        self.deflation_coeff: float = copt_dict.pop("deflation_coeff", 1)
+        self.up_then_down: bool = copt_dict.pop("up_then_down", False)
+        self.qubit_hamiltonian: QubitOperator = copt_dict.pop("qubit_hamiltonian", None)
+        self.verbose: bool = copt_dict.pop("verbose", False)
+        self.projective_circuit: Circuit = copt_dict.pop("projective_circuit", None)
+        self.ref_state: Optional[Union[list, Circuit]] = copt_dict.pop("ref_state", None)
+        self.n_spinorbitals: Union[None, int] = copt_dict.pop("n_spinorbitals", None)
+        self.n_electrons: Union[None, int] = copt_dict.pop("n_electrons", None)
+
+        if len(copt_dict) > 0:
+            raise KeyError(f"The following keywords are not supported in {self.__class__.__name__}: \n {copt_dict.keys()}")
 
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.

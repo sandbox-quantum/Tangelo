@@ -14,12 +14,14 @@
 
 """Module that defines the Quantum Imaginary Time Algorithm (QITE)
 """
+from typing import Union, Callable, List
 from copy import copy
 import math
 
 from openfermion import FermionOperator as ofFermionOperator
 import numpy as np
 
+from tangelo import SecondQuantizedMolecule
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
 from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -55,28 +57,25 @@ class QITESolver:
     def __init__(self, opt_dict):
 
         default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None,
-                           "dt": 0.5, "max_cycles": 100,
-                           "min_de": 1.e-7,
-                           "pool": uccgsd_pool,
-                           "pool_args": None,
-                           "frozen_orbitals": "frozen_core",
-                           "qubit_mapping": "jw",
-                           "qubit_hamiltonian": None,
-                           "up_then_down": False,
-                           "n_spinorbitals": None,
-                           "n_electrons": None,
-                           "backend_options": default_backend_options,
-                           "verbose": True}
 
-        # Initialize with default values
-        self.__dict__ = default_options
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in opt_dict.items():
-            if k in default_options:
-                setattr(self, k, v)
-            else:
-                raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}")
+        copt_dict = opt_dict.copy()
+        self.molecule: SecondQuantizedMolecule = copt_dict.pop("molecule", None)
+        self.dt: float = copt_dict.pop("dt", 0.5)
+        self.max_cycles: int = copt_dict.pop("max_cycles", 100)
+        self.min_de: float = copt_dict.pop("min_de", 1.e-7)
+        self.pool: Callable[..., Union[List[QubitOperator], List[FermionOperator]]] = copt_dict.pop("pool", uccgsd_pool)
+        self.pool_args: dict = copt_dict.pop("pool_args", None)
+        self.frozen_orbitals: Union[str, List] = copt_dict.pop("frozen_orbitals", "frozen_core")
+        self.qubit_mapping: str = copt_dict.pop("qubit_mapping", "jw")
+        self.qubit_hamiltonian: QubitOperator = copt_dict.pop("qubit_hamiltonian", None)
+        self.up_then_down: bool = copt_dict.pop("up_then_down", False)
+        self.n_spinorbitals: int = copt_dict.pop("n_spinorbitals", None)
+        self.n_electrons: int = copt_dict.pop("n_electrons", None)
+        self.backend_options: dict = copt_dict.pop("backend_options", default_backend_options)
+        self.verbose: bool = copt_dict.pop("verbose", True)
+
+        if len(copt_dict) > 0:
+            raise KeyError(f"The following keywords are not supported in {self.__class__.__name__}: \n {copt_dict.keys()}")
 
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
