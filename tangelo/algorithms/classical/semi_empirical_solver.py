@@ -32,6 +32,7 @@ Here are the semi-empirical method(s) implemented:
 
 from tangelo.helpers.utils import is_package_installed
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
+from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import mol_to_pyscf
 
 
 class MINDO3Solver(ElectronicStructureSolver):
@@ -62,7 +63,7 @@ class MINDO3Solver(ElectronicStructureSolver):
         """
         from pyscf.semiempirical import mindo3
 
-        solver = mindo3.RMINDO3(self.molecule.to_pyscf()).run(verbose=0)
+        solver = mindo3.RMINDO3(mol_to_pyscf(self.molecule)).run(verbose=0)
         total_energy = solver.e_tot
 
         return total_energy

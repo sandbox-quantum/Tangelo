@@ -24,10 +24,7 @@ For details, refer to:
     - G. Knizia, JCTC 9, 4834-4843 (2013).
 """
 
-from pyscf import gto
-from pyscf.lo import iao
 from functools import reduce
-from pyscf.lo import orth
 import numpy as np
 import scipy
 
@@ -68,6 +65,9 @@ def _iao_occupied_orbitals(mol, mf):
     Returns:
         numpy.array: The localized orbitals for the occupied space (float64).
     """
+    from pyscf import gto
+    from pyscf.lo import iao
+    from pyscf.lo import orth
 
     #   Get MO coefficient of occupied MOs
     occupied_orbitals = mf.mo_coeff[:, mf.mo_occ > 0.5]
@@ -118,6 +118,8 @@ def _iao_complementary_orbitals(mol, iao_ref):
     Returns:
         numpy.array: IAO in complementary space (float64).
     """
+    from pyscf.lo import iao
+    from pyscf.lo import orth
 
     #   Get the total number of AOs
     norbital_total = mol.nao_nr()
@@ -224,6 +226,7 @@ def _iao_atoms(mol, iao1, iao2):
     Returns:
         numpy.array: The rearranged IAO (float64).
     """
+    from pyscf.lo import orth
 
     # Calclate the integrals for assignment
     number_orbitals = mol.nao_nr()

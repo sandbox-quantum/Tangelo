@@ -16,9 +16,8 @@
 interaction (CI) method.
 """
 
-from pyscf import ao2mo, fci, mcscf
-
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
+from tangelo.helpers.utils import is_package_installed
 
 
 class FCISolver(ElectronicStructureSolver):
@@ -37,9 +36,14 @@ class FCISolver(ElectronicStructureSolver):
     """
 
     def __init__(self, molecule):
+        if not is_package_installed("pyscf"):
+            raise ModuleNotFoundError(f"Using {self.__class__.__name__} requires the installation of the pyscf package")
 
         if molecule.uhf:
             raise NotImplementedError(f"SecondQuantizedMolecule that use UHF are not currently supported in {self.__class__.__name__}. Use CCSDSolver")
+
+        from pyscf import ao2mo, fci, mcscf
+        self.ao2mo = ao2mo
 
         self.ci = None
         self.norb = molecule.n_active_mos
@@ -64,7 +68,7 @@ class FCISolver(ElectronicStructureSolver):
         else:
             self.cas = False
             if self.spin == 0:
-                self.cisolver = fci.direct_spin0.FCI(molecule.to_pyscf(molecule.basis))
+                self.cisolver = fci.direct_spin0.FCI(molecule.mean_field.mol)
             else:
                 self.cisolver = fci.direct_spin1.FCI()
 
@@ -89,9 +93,9 @@ class FCISolver(ElectronicStructureSolver):
 
             twoint = self.mean_field._eri
 
-            eri = ao2mo.restore(8, twoint, self.norb)
-            eri = ao2mo.incore.full(eri, self.mean_field.mo_coeff)
-            eri = ao2mo.restore(1, eri, self.norb)
+            eri = self.ao2mo.restore(8, twoint, self.norb)
+            eri = self.ao2mo.incore.full(eri, self.mean_field.mo_coeff)
+            eri = self.ao2mo.restore(1, eri, self.norb)
 
             ecore = self.mean_field.energy_nuc()
 

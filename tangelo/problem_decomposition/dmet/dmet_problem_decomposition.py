@@ -18,19 +18,19 @@ from enum import Enum
 from typing import Union, List, Callable, Dict
 
 import numpy as np
-from pyscf import gto, scf
 import scipy
 import warnings
 
+from tangelo.helpers.utils import is_package_installed
 from tangelo import SecondQuantizedMolecule
 from tangelo.problem_decomposition.dmet import _helpers as helpers
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization, nao_localization
-from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
 from tangelo.algorithms import FCISolver, CCSDSolver, VQESolver
 from tangelo.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
 from tangelo.toolboxes.molecular_computation.rdms import pad_rdms_with_frozen_orbitals_restricted, \
     pad_rdms_with_frozen_orbitals_unrestricted
+from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import mol_to_pyscf
 
 
 class Localization(Enum):
@@ -80,7 +80,10 @@ class DMETProblemDecomposition(ProblemDecomposition):
     """
 
     def __init__(self, opt_dict):
-
+        if not is_package_installed("pyscf"):
+            raise ModuleNotFoundError(f"Using {self.__class__.__name__} requires the installation of the pyscf package.")
+        from pyscf import gto, scf
+        from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
         default_ccsd_options = dict()
         default_fci_options = dict()
         default_vqe_options = {"qubit_mapping": "jw",
@@ -101,6 +104,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         self.builtin_localization = set(Localization)
 
+        self.fragment_builder = SecondQuantizedDMETFragment
+
         if len(copt_dict) > 0:
             raise KeyError(f"The following keywords are not supported in {self.__class__.__name__}: \n {copt_dict.keys()}")
 
@@ -113,7 +118,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # Converting our interface to pyscf.mol.gto and pyscf.scf (used by this
         # code).
         self.mean_field = self.molecule.mean_field
-        self.molecule = self.molecule.to_pyscf(self.molecule.basis)
+        self.molecule = mol_to_pyscf(self.molecule, self.molecule.basis)
 
         # If fragment_atoms is detected as a nested list of int, atoms are reordered to be
         # consistent with a list of numbers representing the number of atoms in each fragment.
@@ -453,7 +458,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
+            dummy_mol = self.fragment_builder(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 self.fragment_frozen_orbitals[i])
 
@@ -549,7 +554,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
-            dummy_mol = SecondQuantizedDMETFragment(mol_frag, mf_fragment, fock,
+            dummy_mol = self.fragment_builder(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 self.fragment_frozen_orbitals[i])
 

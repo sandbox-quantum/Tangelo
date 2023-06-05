@@ -21,8 +21,6 @@ For details, refer to:
     - Q. Sun et al., JCTC 10, 3784-3790 (2014).
 """
 
-from pyscf.lo import orth
-
 
 def meta_lowdin_localization(mol, mf):
     """Localize the orbitals using Meta-Löwdin localization.
@@ -34,4 +32,5 @@ def meta_lowdin_localization(mol, mf):
     Returns:
         numpy.array: The localized orbitals (float64).
     """
+    from pyscf.lo import orth
     return orth.orth_ao(mol, "meta_lowdin")

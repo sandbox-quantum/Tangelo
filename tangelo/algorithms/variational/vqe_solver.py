@@ -132,7 +132,7 @@ class VQESolver:
                 self.up_then_down = True
             if self.ansatz == BuiltInAnsatze.pUCCD and self.qubit_mapping.lower() != "hcb":
                 warnings.warn("Forcing the hard-core boson mapping for the pUCCD ansatz.", RuntimeWarning)
-                self.mapping = "HCB"
+                self.qubit_mapping = "HCB"
             # QCC and QMF and ILC require a reference state that can be represented by a single layer of RZ-RX gates on each qubit.
             # This decomposition can not be determined from a general Circuit reference state.
             if isinstance(self.ref_state, Circuit):

@@ -17,7 +17,6 @@
 The fragment SCF calculation for DMET calculation is done here.
 """
 
-from pyscf import gto, scf, ao2mo
 import numpy as np
 
 
@@ -41,7 +40,7 @@ def dmet_fragment_scf_rhf(t_list, two_ele, fock, n_electrons, n_orbitals, guess_
             (float64).
         pyscf.gto.Mole: The molecule to simulate (Fragment calculation).
     """
-
+    from pyscf import gto, scf, ao2mo
     # Deep copy the fock matrix
     fock_frag_copy = fock.copy()
 
@@ -93,6 +92,7 @@ def dmet_fragment_scf_rohf_uhf(nele_ab, two_ele, fock, n_electrons, n_orbitals, 
             (float64).
         pyscf.gto.Mole: The molecule to simulate (Fragment calculation).
     """
+    from pyscf import gto, scf, ao2mo
 
     # Deep copy the fock matrix
     fock_frag_copy = fock.copy()

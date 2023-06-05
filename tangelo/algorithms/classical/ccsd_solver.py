@@ -16,11 +16,8 @@
 """
 
 import numpy as np
-from pyscf import cc, lib
-from pyscf.cc.ccsd_rdm import _make_rdm1, _make_rdm2, _gamma1_intermediates, _gamma2_outcore
-from pyscf.cc.uccsd_rdm import (_make_rdm1 as _umake_rdm1, _make_rdm2 as _umake_rdm2,
-                                _gamma1_intermediates as _ugamma1_intermediates, _gamma2_outcore as _ugamma2_outcore)
 
+from tangelo.helpers.utils import is_package_installed
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
 
 
@@ -38,6 +35,11 @@ class CCSDSolver(ElectronicStructureSolver):
     """
 
     def __init__(self, molecule):
+        if not is_package_installed("pyscf"):
+            raise ModuleNotFoundError(f"Using {self.__class__.__name__} requires the installation of the pyscf package")
+        from pyscf import cc
+
+        self.cc = cc
         self.cc_fragment = None
 
         self.spin = molecule.spin
@@ -53,7 +55,7 @@ class CCSDSolver(ElectronicStructureSolver):
             float: CCSD energy.
         """
         # Execute CCSD calculation
-        self.cc_fragment = cc.CCSD(self.mean_field, frozen=self.frozen)
+        self.cc_fragment = self.cc.CCSD(self.mean_field, frozen=self.frozen)
         self.cc_fragment.verbose = 0
         self.cc_fragment.conv_tol = 1e-9
         self.cc_fragment.conv_tol_normt = 1e-7
@@ -74,6 +76,10 @@ class CCSDSolver(ElectronicStructureSolver):
         Raises:
             RuntimeError: If no simulation has been run.
         """
+        from pyscf import lib
+        from pyscf.cc.ccsd_rdm import _make_rdm1, _make_rdm2, _gamma1_intermediates, _gamma2_outcore
+        from pyscf.cc.uccsd_rdm import (_make_rdm1 as _umake_rdm1, _make_rdm2 as _umake_rdm2,
+                                        _gamma1_intermediates as _ugamma1_intermediates, _gamma2_outcore as _ugamma2_outcore)
 
         # Check if CCSD calculation is performed
         if self.cc_fragment is None:
