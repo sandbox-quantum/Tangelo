@@ -301,10 +301,12 @@ class FCISolverPsi4(ElectronicStructureSolver):
         Returns:
             float: Total FCI energy.
         """
-        self.backend.set_options({'basis': self.basis, 'reference': self.reference, 'opdm': True, 'tpdm': True, 'frozen_docc': [0], 'frozen_uocc': [1]})
-        self.molecule.solver.wfn.Ca().rotate_columns(0, 6, 7, np.deg2rad(90))
-        #self.molecule.solver.wfn.Cb().rotate_columns(0, 6, 7, np.deg2rad(90))
-        energy, self.wfn = self.backend.energy('casscf', molecule=self.psi4molecule, basis=self.basis, return_wfn=True, ref_wfn=self.molecule.solver.wfn)
+        self.backend.set_options({'basis': self.basis, 'mcscf_maxiter': 300, 'mcscf_diis_start': 10, 'opdm': True, 'tpdm': True, 'frozen_docc': [1], 'frozen_uocc': [4], 'fci': True, 'mcscf_rotate': [[0, 0, 1, 90]]})
+        #self.molecule.solver.wfn.Ca().rotate_columns(0, 0, 1, np.deg2rad(90))
+        #self.molecule.solver.wfn.Cb().rotate_columns(0, 0, 1, np.deg2rad(90))
+        energy, self.wfn = self.backend.energy('fci', molecule=self.psi4molecule, basis=self.basis, return_wfn=True, ref_wfn=self.molecule.solver.wfn)
+        #self.molecule.solver.wfn.Ca().rotate_columns(0, 3, 4, np.deg2rad(90))
+        #self.molecule.solver.wfn.Cb().rotate_columns(0, 3, 4, np.deg2rad(90))
         self.mints = self.backend.core.MintsHelper(self.wfn.basisset())
 
         return energy
