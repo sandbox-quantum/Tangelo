@@ -73,6 +73,7 @@ jobs:
       if: always()
 
     - name: Install pyscf
+      # Note: the NO_PYSCF install is temporary we will soon make it an optional dependency
       env:
         NO_PYSCF: 0
       run: |
