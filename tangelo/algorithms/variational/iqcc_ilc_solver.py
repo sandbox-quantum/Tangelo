@@ -86,31 +86,8 @@ class iQCC_ILC_solver:
     def __init__(self, opt_dict):
 
         default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None,
-                           "qubit_mapping": "jw",
-                           "up_then_down": False,
-                           "initial_var_params": None,
-                           "backend_options": default_backend_options,
-                           "penalty_terms": None,
-                           "ilc_ansatz_options": dict(),
-                           "qcc_ansatz_options": dict(),
-                           "qubit_hamiltonian": None,
-                           "max_ilc_iter": 3,
-                           "compress_qubit_ham": False,
-                           "compress_eps": 1.59e-3,
-                           "verbose": False}
-
-        # Initialize with default values
-        self.__dict__ = default_options
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for param, val in opt_dict.items():
-            if param in default_options:
-                setattr(self, param, val)
-            else:
-                raise KeyError(f"The keyword {param} is not available in self.__class__.__name__.")
 
         copt_dict = opt_dict.copy()
-
         self.molecule: SecondQuantizedMolecule = copt_dict.pop("molecule", None)
         self.qubit_mapping: str = copt_dict.pop("qubit_mapping", "jw")
         self.up_then_down: str = copt_dict.pop("up_then_down", False)
@@ -119,7 +96,7 @@ class iQCC_ILC_solver:
         self.penalty_terms: Optional[dict] = copt_dict.pop("penalty_terms", None)
         self.ilc_ansatz_options: dict = copt_dict.pop("ilc_ansatz_options", dict())
         self.qcc_ansatz_options: dict = copt_dict.pop("qcc_ansatz_options", dict())
-        self.qubit_hamiltonain: QubitOperator = copt_dict.pop("qubit_hamiltonian", None)
+        self.qubit_hamiltonian: QubitOperator = copt_dict.pop("qubit_hamiltonian", None)
         self.max_ilc_iter: int = copt_dict.pop("max_ilc_iter", 3)
         self.compress_qubit_ham: bool = copt_dict.pop("compress_qubit_ham", False)
         self.compress_eps: float = copt_dict.pop("compress_eps", 1.59e-3)
