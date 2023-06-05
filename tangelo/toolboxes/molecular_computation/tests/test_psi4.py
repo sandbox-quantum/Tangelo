@@ -24,10 +24,10 @@ from tangelo.toolboxes.molecular_computation.integral_solver_psi4 import Integra
 from tangelo.algorithms.variational import SA_OO_Solver, BuiltInAnsatze, ADAPTSolver, iQCC_solver
 from tangelo.molecule_library import xyz_H4, mol_H4_minao, xyz_H2, mol_H4_sto3g_uhf_a1_frozen
 
+
 @unittest.skipIf("psi4" not in installed_chem_backends, "Test Skipped: Backend not available \n")
 class Testpsi4(unittest.TestCase):
 
-    
     def test_sa_oo_vqe(self):
         "Test that sa_oo_vqe works properly when using a IntegralSolverPsi4"
         molecule_dummy = SecondQuantizedMolecule(xyz_H2, 0, 0, IntegralSolverPsi4(), basis="6-31g", frozen_orbitals=[3])
