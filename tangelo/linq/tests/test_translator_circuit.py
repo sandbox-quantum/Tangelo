@@ -68,7 +68,7 @@ class TranslateCircuitTest(unittest.TestCase):
             VS one obtained through translation from an abstract format
         """
         import qulacs
-        
+
         # Test 1: Simulation of trasnlated circuit VS native circuit
         # Generates the qulacs circuit by translating from the abstract one, run the simulation afterwards
         translated_circuit = translate_c(abs_circ, "qulacs")
@@ -88,9 +88,9 @@ class TranslateCircuitTest(unittest.TestCase):
         # Run the simulation of the native qulacs circuit, assert state vectors are identical
         state2 = qulacs.QuantumState(abs_circ.width)
         qulacs_circuit.update_quantum_state(state2)
-        
+
         np.testing.assert_array_equal(state1.get_vector(), state2.get_vector())
-        
+
         # Test 2: Multi-controlled CNOT and multi-controlled X test
         translated_circuit = translate_c(abs_multi_circ, "qulacs")
         state1 = qulacs.QuantumState(abs_multi_circ.width)
@@ -107,7 +107,7 @@ class TranslateCircuitTest(unittest.TestCase):
         mat_gate.add_control_qubit(0, 1)
         mat_gate.add_control_qubit(1, 1)
         qulacs_circuit.add_gate(mat_gate)
-        
+
         # Run, assert state vectors are equal.
         state2 = qulacs.QuantumState(abs_multi_circ.width)
         qulacs_circuit.update_quantum_state(state2)
