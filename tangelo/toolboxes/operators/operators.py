@@ -240,10 +240,6 @@ class QubitOperator(of.QubitOperator):
         qu_op.terms = self.terms.copy()
         return qu_op
 
-    def get_sparse_op(self):
-        """ Return a sparse representation of the operator """
-        return of.get_sparse_operator(self.to_openfermion())
-
 
 class QubitHamiltonian(QubitOperator):
     """QubitHamiltonian objects are essentially openfermion.QubitOperator
