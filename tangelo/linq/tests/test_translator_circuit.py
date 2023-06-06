@@ -19,6 +19,7 @@
 
 import unittest
 import os
+
 import numpy as np
 
 from tangelo.linq import Gate, Circuit
@@ -67,11 +68,10 @@ class TranslateCircuitTest(unittest.TestCase):
             VS one obtained through translation from an abstract format
         """
         import qulacs
-
-        # Generates the qulacs circuit by translating from the abstract one
+        
+        # Test 1: Simulation of trasnlated circuit VS native circuit
+        # Generates the qulacs circuit by translating from the abstract one, run the simulation afterwards
         translated_circuit = translate_c(abs_circ, "qulacs")
-
-        # Run the simulation
         state1 = qulacs.QuantumState(abs_circ.width)
         translated_circuit.update_quantum_state(state1)
 
@@ -85,29 +85,21 @@ class TranslateCircuitTest(unittest.TestCase):
         qulacs_circuit.add_S_gate(0)
         qulacs_circuit.add_RX_gate(1, -2.)  # Convention: sign of theta
 
-        # Run the simulation
+        # Run the simulation of the native qulacs circuit, assert state vectors are identical
         state2 = qulacs.QuantumState(abs_circ.width)
         qulacs_circuit.update_quantum_state(state2)
-
-        # Assert that both simulations returned the same state vector
+        
         np.testing.assert_array_equal(state1.get_vector(), state2.get_vector())
-
-        # Generates the qulacs circuit by translating from the abstract one
+        
+        # Test 2: Multi-controlled CNOT and multi-controlled X test
         translated_circuit = translate_c(abs_multi_circ, "qulacs")
-
-        # Run the simulation
         state1 = qulacs.QuantumState(abs_multi_circ.width)
         translated_circuit.update_quantum_state(state1)
-
-        # The same test from above but when a user specifies a multi-controlled CNOT, switches to multi-controlled X
         translated_circuit = translate_c(abs_multi_circ2, "qulacs")
-
-        # Run the simulation
         state1b = qulacs.QuantumState(abs_multi_circ2.width)
         translated_circuit.update_quantum_state(state1b)
 
-        # Directly define the same circuit through qulacs
-        # NB: this includes convention fixes for some parametrized rotation gates (-theta instead of theta)
+        # Test against native circuit
         qulacs_circuit = qulacs.QuantumCircuit(3)
         qulacs_circuit.add_X_gate(0)
         qulacs_circuit.add_X_gate(1)
@@ -115,19 +107,15 @@ class TranslateCircuitTest(unittest.TestCase):
         mat_gate.add_control_qubit(0, 1)
         mat_gate.add_control_qubit(1, 1)
         qulacs_circuit.add_gate(mat_gate)
-
-        # Run the simulation
+        
+        # Run, assert state vectors are equal.
         state2 = qulacs.QuantumState(abs_multi_circ.width)
         qulacs_circuit.update_quantum_state(state2)
-
-        # Assert that both simulations returned the same state vector
         np.testing.assert_array_equal(state1.get_vector(), state2.get_vector())
         np.testing.assert_array_equal(state1b.get_vector(), state2.get_vector())
 
-        # Test that the translated circuit reports the same result for all cross-supported gates
+        # Test 3: translated circuit reports the same result for all cross-supported gates
         translated_circuit = translate_c(big_circuit, "qulacs")
-
-        # Run the simulation
         state1 = qulacs.QuantumState(big_circuit.width)
         translated_circuit.update_quantum_state(state1)
         np.testing.assert_array_almost_equal(state1.get_vector(), reference_big_msq, decimal=6)
@@ -191,10 +179,10 @@ class TranslateCircuitTest(unittest.TestCase):
 
         import cirq
 
-        # Generate the qiskit circuit by translating from the abstract one and print it
+        # Translated circuit
         translated_circuit = translate_c(abs_circ, "cirq")
 
-        # Generate the cirq circuit directly and print it
+        # Native circuit
         qubit_labels = cirq.LineQubit.range(3)
         circ = cirq.Circuit()
         circ.append(cirq.H(qubit_labels[2]))
@@ -207,15 +195,13 @@ class TranslateCircuitTest(unittest.TestCase):
 
         # Simulate both circuits, assert state vectors are equal
         cirq_simulator = cirq.Simulator()
-
         job_sim = cirq_simulator.simulate(circ)
         v1 = job_sim.final_state_vector
-
         job_sim = cirq_simulator.simulate(translated_circuit)
         v2 = job_sim.final_state_vector
-
         np.testing.assert_array_equal(v1, v2)
 
+        # Test 2: multi-controlled gates
         translated_circuit = translate_c(abs_multi_circ, "cirq")
         circ = cirq.Circuit()
         circ.append(cirq.X(qubit_labels[0]))
@@ -225,21 +211,18 @@ class TranslateCircuitTest(unittest.TestCase):
 
         job_sim = cirq_simulator.simulate(circ)
         v1 = job_sim.final_state_vector
-
         job_sim = cirq_simulator.simulate(translated_circuit)
         v2 = job_sim.final_state_vector
-
         np.testing.assert_array_equal(v1, v2)
 
-        # Translator changes abs_multi_circ2 from multi-controlled CNOT into multi-controlled X to be the same as abs_multi_circ
+        # Test 3: multi-controlled CNOT turn into multi-controlled X
         # The same statevector is expected.
         translated_circuit2 = translate_c(abs_multi_circ2, "cirq")
         job_sim = cirq_simulator.simulate(translated_circuit2)
         v2 = job_sim.final_state_vector
-
         np.testing.assert_array_equal(v1, v2)
 
-        # Test that translated circuit is correct for all cross-supported gates
+        # Test 4: translated circuit must be correct for all cross-supported gates
         translated_circuit = translate_c(big_circuit, "cirq")
         job_sim = cirq_simulator.simulate(translated_circuit)
         np.testing.assert_array_almost_equal(job_sim.final_state_vector, reference_big_lsq, decimal=6)
