@@ -29,8 +29,10 @@ Reference:
     and Keiji Morokuma
     Chemical Reviews 2015 115 (12), 5678-5796. DOI: 10.1021/cr5004419.
 """
+from typing import List, Union, Tuple
 
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
+from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment
 from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list
 
 
@@ -41,25 +43,20 @@ class ONIOMProblemDecomposition(ProblemDecomposition):
         different electronic solvers.
 
         Attributes:
-            geometry (strin or list): XYZ atomic coords (in "str float float..."
+            geometry (string or list): XYZ atomic coords (in "str float float..."
                 or [[str, (float, float, float)], ...] format).
             fragments (list of Fragment): Specification of different
                 system-subgroups and their solvers.
             verbose (bolean): Verbose flag.
         """
 
-        default_options = {"geometry": None,
-                           "fragments": list(),
-                           "verbose": False}
+        copt_dict = opt_dict.copy()
+        self.geometry: Union[str, List[Tuple[str, Tuple[float]]]] = copt_dict.pop("geometry", None)
+        self.fragments: List[Fragment] = copt_dict.pop("fragments", list())
+        self.verbose: bool = copt_dict.pop("verbose", False)
 
-        # Initialize with default values
-        self.__dict__ = default_options
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in opt_dict.items():
-            if k in default_options:
-                setattr(self, k, v)
-            else:
-                raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}.")
+        if len(copt_dict.keys()) > 0:
+            raise KeyError(f"Keywords :: {copt_dict.keys()}, not available in {self.__class__.__name__}.")
 
         # Raise error/warnings if input is not as expected
         if not self.geometry or not self.fragments:

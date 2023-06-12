@@ -1,3 +1,17 @@
+# Copyright 2023 Good Chemistry Company.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import unittest
 
 import numpy as np
@@ -11,9 +25,9 @@ from tangelo.algorithms.variational import SA_OO_Solver, BuiltInAnsatze, ADAPTSo
 from tangelo.molecule_library import xyz_H4, mol_H4_minao, xyz_H2, mol_H4_sto3g_uhf_a1_frozen
 
 
+@unittest.skipIf("psi4" not in installed_chem_backends, "Test Skipped: Backend not available \n")
 class Testpsi4(unittest.TestCase):
 
-    @unittest.skipIf("psi4" not in installed_chem_backends, "Test Skipped: Backend not available \n")
     def test_sa_oo_vqe(self):
         "Test that sa_oo_vqe works properly when using a IntegralSolverPsi4"
         molecule_dummy = SecondQuantizedMolecule(xyz_H2, 0, 0, IntegralSolverPsi4(), basis="6-31g", frozen_orbitals=[3])
@@ -25,7 +39,6 @@ class Testpsi4(unittest.TestCase):
 
         self.assertAlmostEqual(sa_oo_vqe.state_energies[0], -1.15137, places=4)
 
-    @unittest.skipIf("psi4" not in installed_chem_backends, "Test Skipped: Backend not available \n")
     def test_adapt_vqe_solver(self):
         "Test that ADAPT-VQE works with IntegralSolverPsi4."
         molecule_dummy = SecondQuantizedMolecule(xyz_H2, 0, 0, IntegralSolverPsi4(), basis="6-31g", frozen_orbitals=[])
@@ -35,7 +48,6 @@ class Testpsi4(unittest.TestCase):
         energy = adapt_vqe.simulate()
         self.assertAlmostEqual(energy, -1.15168, places=4)
 
-    @unittest.skipIf("psi4" not in installed_chem_backends, "Test Skipped: Backend not available \n")
     def test_energy_hf_vqe_uccsd_h4(self):
         """Test psi4 with HF and VQE (with UCCSD) in ONIOM."""
 
@@ -64,7 +76,6 @@ class Testpsi4(unittest.TestCase):
         self.assertAlmostEqual(-1.901623, e_oniom_vqe, places=5)
         self.assertEqual(mol_H4_minao, None)
 
-    @unittest.skipIf("psi4" not in installed_chem_backends, "Test Skipped: Backend not available \n")
     def test_iqcc_h4_uhf(self):
         """Test the energy after 3 iterations for H4 uhf with 1 alpha orbital frozen and generators limited to 8"""
 

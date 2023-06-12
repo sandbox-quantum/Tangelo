@@ -34,6 +34,7 @@ import numpy as np
 from openfermion.circuits import uccsd_singlet_generator
 
 from tangelo import SecondQuantizedMolecule
+from tangelo.algorithms.classical.mp2_solver import MP2Solver
 from tangelo.linq import Circuit
 from tangelo.helpers.utils import is_package_installed
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -264,8 +265,6 @@ class UCCSD(Ansatz):
         Returns:
             list of float: The initial variational parameters.
         """
-        # Circular import so importing here
-        from tangelo.algorithms.classical import MP2Solver
 
         if self.molecule.uhf:
             raise NotImplementedError(f"MP2 initialization is not currently implemented for UHF reference in {self.__class__}")
