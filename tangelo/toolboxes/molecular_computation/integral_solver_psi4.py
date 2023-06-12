@@ -85,6 +85,13 @@ class IntegralSolverPsi4(IntegralSolver):
 
 
         """
+        if sqmol.symmetry:
+            input_string = f"{sqmol.q} {sqmol.spin + 1} \n"
+            for line in sqmol.xyz:
+                input_string += f"{line[0]} {line[1][0]} {line[1][1]} {line[1][2]} \n"
+            if isinstance(sqmol.symmetry, str):
+                input_string += "symmetry"+sqmol.symmetry
+            self.mol = self.backend.geometry(input_string)
 
         self.backend.set_options({'basis': sqmol.basis})
         if sqmol.uhf:
@@ -94,10 +101,23 @@ class IntegralSolverPsi4(IntegralSolver):
         else:
             self.backend.set_options({'reference': 'rhf'})
 
-        sqmol.mf_energy, self.wfn = self.backend.energy('scf', molecule=self.mol, basis=sqmol.basis, return_wfn=True)
+        sqmol.mf_energy, wfn = self.backend.energy('scf', molecule=self.mol, basis=sqmol.basis, return_wfn=True)
+        self.wfn = wfn.c1_deep_copy(wfn.basisset())
         self.mints = self.backend.core.MintsHelper(self.wfn.basisset())
 
         sqmol.mo_energies = np.asarray(self.wfn.epsilon_a())
+        if sqmol.symmetry:
+            self.irreps = [self.mol.point_group().char_table().gamma(i).symbol().upper() for i in range(wfn.nirrep())]
+            sym_mo_energies = []
+            tmp = self.backend.driver.p4util.numpy_helper._to_array(wfn.epsilon_a(), dense=False)
+            for i in self.irreps:
+                sym_mo_energies += [(i, j, x) for j, x in enumerate(tmp[self.irreps.index(i)])]
+            ordered_energies = sorted(sym_mo_energies, key=lambda x: x[1])
+            sqmol.mo_symm_labels = [o[0] for o in ordered_energies]
+            sqmol.mo_symm_ids = [o[1] for o in ordered_energies]
+        else:
+            sqmol.mo_symm_labels = None
+            sqmol.mo_symm_ids = None
 
         nbf = np.asarray(self.mints.ao_overlap()).shape[0]
 
