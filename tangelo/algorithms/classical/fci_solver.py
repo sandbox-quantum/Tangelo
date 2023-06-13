@@ -16,7 +16,7 @@
 interaction (CI) method.
 """
 from typing import Union, Type
-import itertools
+import warnings
 
 import numpy as np
 
@@ -170,16 +170,25 @@ class FCISolverPsi4(ElectronicStructureSolver):
 
         import psi4
         self.backend = psi4
-        self.backend.core.clean()
         self.backend.core.clean_options()
-        self.backend.core.clean_variables()
-        self.molecule = molecule if isinstance(molecule.solver, IntegralSolverPsi4) else SecondQuantizedMolecule(molecule.xyz, molecule.q, molecule.spin,
-                                                                                                                 solver=IntegralSolverPsi4,
-                                                                                                                 basis=molecule.basis,
-                                                                                                                 ecp=molecule.ecp,
-                                                                                                                 symmetry=molecule.symmetry,
-                                                                                                                 uhf=molecule.uhf,
-                                                                                                                 frozen_orbitals=molecule.frozen_orbitals)
+        self.ciwfn = None
+        self.any_close = False
+        if isinstance(molecule.solver, IntegralSolverPsi4) and not molecule.symmetry:
+            self.molecule = molecule
+        else:
+            print(molecule.mo_energies)
+
+            for i, val in enumerate(molecule.mo_energies[:-1]):
+                if np.isclose(val, molecule.mo_energies[i+1]):
+                    self.any_close = True
+                    break
+            self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
+                                                    solver=IntegralSolverPsi4(),
+                                                    basis=molecule.basis,
+                                                    ecp=molecule.ecp,
+                                                    symmetry=False,
+                                                    uhf=molecule.uhf,
+                                                    frozen_orbitals=molecule.frozen_orbitals)
         self.basis = molecule.basis
 
     def simulate(self):
@@ -190,22 +199,23 @@ class FCISolverPsi4(ElectronicStructureSolver):
         """
         n_frozen_vir = len(self.molecule.frozen_virtual)
         n_frozen_occ = len(self.molecule.frozen_occupied)
+        ref = 'rhf' if self.molecule.spin == 0 else 'rohf'
         self.backend.set_options({'basis': self.basis, 'mcscf_maxiter': 300, 'mcscf_diis_start': 20,
                                   'opdm': True, 'tpdm': True, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
-                                  'qc_module': 'detci', 'fci': True})
+                                  'qc_module': 'detci', 'fci': True, 'reference': ref})
 
-        wfn = self.backend.core.Wavefunction(self.molecule.solver.mol, self.molecule.solver.wfn.basisset())
+        # Copy reference wavefunction and swap orbitals to obtain correct active space if necessary
+        wfn = self.backend.core.Wavefunction(self.molecule.solver.mol_nosym, self.molecule.solver.wfn.basisset())
+        wfn.deep_copy(self.molecule.solver.wfn)
         if n_frozen_occ or n_frozen_vir:
             mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
             swap_ops = getswaps(mo_order)
-            wfn.deep_copy(self.molecule.solver.wfn)
             for swap_op in swap_ops:
                 wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
         energy, self.ciwfn = self.backend.energy('fci', molecule=self.molecule.solver.mol,
                                                  basis=self.basis, return_wfn=True,
                                                  ref_wfn=wfn)
-
         return energy
 
     def get_rdm(self):
@@ -222,7 +232,10 @@ class FCISolverPsi4(ElectronicStructureSolver):
         # Check if Full CI is performed
         if self.ciwfn is None:
             raise RuntimeError("FCISolver: Cannot retrieve RDM. Please run the 'simulate' method first")
-
+        if self.any_close:
+            warnings.warn("Degenerate orbitals are present in the molecule. The fci calculation is performed "
+                          "without symmetry so the rdms may not correspond to the integrals in molecule. A c1 "
+                          "version of the molecule with the correct integrals is present as FCISolverPsi4.molecule.")
         one_rdm = np.asarray(self.ciwfn.get_opdm(0, 0, "SUM", False))
         two_rdm = np.asarray(self.ciwfn.get_tpdm("SUM", True))
 
@@ -264,7 +277,7 @@ def get_fci_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, T
     return solver(molecule, **kwargs)
 
 
-@deprecated("Please use get_fci_solver.")
+# @deprecated("Please use get_fci_solver.")
 def FCISolver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_fci_solver, **kwargs):
     return get_fci_solver(molecule, solver, **kwargs)
 

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from copy import copy
+
 import numpy as np
 
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
@@ -22,6 +24,9 @@ class IntegralSolverPsi4(IntegralSolver):
     def __init__(self):
         import psi4
         self.backend = psi4
+        self.backend.core.clean()
+        self.backend.core.clean_options()
+        self.backend.core.clean_variables()
 
     def set_physical_data(self, mol):
         """Set molecular data that is independant of basis set in mol
@@ -46,6 +51,7 @@ class IntegralSolverPsi4(IntegralSolver):
                 input_string += f"{line[0]} {line[1][0]} {line[1][1]} {line[1][2]} \n"
             input_string += "symmetry c1"
             self.mol = self.backend.geometry(input_string)
+            self.mol_nosym = self.backend.geometry(input_string)
         else:
             self.mol = self.backend.geometry(mol.xyz)
             mol.n_atoms = self.mol.natom()
@@ -54,9 +60,9 @@ class IntegralSolverPsi4(IntegralSolver):
                 mol.xyz += [(self.mol.symbol(i), tuple(self.mol.xyz(i)[p]*0.52917721067 for p in range(3)))]
 
         self.backend.set_options({'basis': "def2-msvp"})
-        self.wfn = self.backend.core.Wavefunction.build(self.mol, self.backend.core.get_global_option('basis'))
+        wfn = self.backend.core.Wavefunction.build(self.mol, self.backend.core.get_global_option('basis'))
 
-        mol.n_electrons = self.wfn.nalpha() + self.wfn.nbeta()
+        mol.n_electrons = wfn.nalpha() + wfn.nbeta()
         mol.n_atoms = self.mol.natom()
 
     def compute_mean_field(self, sqmol):
@@ -101,15 +107,15 @@ class IntegralSolverPsi4(IntegralSolver):
         else:
             self.backend.set_options({'reference': 'rhf'})
 
-        sqmol.mf_energy, wfn = self.backend.energy('scf', molecule=self.mol, basis=sqmol.basis, return_wfn=True)
-        self.wfn = wfn.c1_deep_copy(wfn.basisset())
-        self.mints = self.backend.core.MintsHelper(self.wfn.basisset())
+        sqmol.mf_energy, self.sym_wfn = self.backend.energy('scf', molecule=self.mol, basis=self.backend.core.get_global_option('basis'), return_wfn=True)
+        self.wfn = self.sym_wfn.c1_deep_copy(self.sym_wfn.basisset())
+        self.backend.core.clean_options()
 
         sqmol.mo_energies = np.asarray(self.wfn.epsilon_a())
         if sqmol.symmetry:
-            self.irreps = [self.mol.point_group().char_table().gamma(i).symbol().upper() for i in range(wfn.nirrep())]
+            self.irreps = [self.mol.point_group().char_table().gamma(i).symbol().upper() for i in range(self.sym_wfn.nirrep())]
             sym_mo_energies = []
-            tmp = self.backend.driver.p4util.numpy_helper._to_array(wfn.epsilon_a(), dense=False)
+            tmp = self.backend.driver.p4util.numpy_helper._to_array(self.sym_wfn.epsilon_a(), dense=False)
             for i in self.irreps:
                 sym_mo_energies += [(i, j, x) for j, x in enumerate(tmp[self.irreps.index(i)])]
             ordered_energies = sorted(sym_mo_energies, key=lambda x: x[1])
@@ -119,6 +125,7 @@ class IntegralSolverPsi4(IntegralSolver):
             sqmol.mo_symm_labels = None
             sqmol.mo_symm_ids = None
 
+        self.mints = self.backend.core.MintsHelper(self.wfn.basisset())
         nbf = np.asarray(self.mints.ao_overlap()).shape[0]
 
         if sqmol.uhf:

@@ -18,7 +18,6 @@ from tangelo.algorithms import FCISolver
 from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_cation_sto3g
 
 
-# TODO: Can we test the get_rdm method on H2 ? How do we get our reference? Whole matrix or its properties?
 class FCISolverTest(unittest.TestCase):
 
     def test_fci_h2(self):
@@ -28,6 +27,9 @@ class FCISolverTest(unittest.TestCase):
         energy = solver.simulate()
 
         self.assertAlmostEqual(energy, -1.1478300596229851, places=6)
+
+        one_rdm, two_rdm = solver.get_rdm()
+        self.assertAlmostEqual(energy, mol_H2_321g.energy_from_rdms(one_rdm, two_rdm), places=6)
 
     def test_fci_be(self):
         """Test FCISolver against result from reference implementation (Be)."""
