@@ -148,17 +148,15 @@ class FCISolverPySCF(ElectronicStructureSolver):
 
 class FCISolverPsi4(ElectronicStructureSolver):
     """ Uses the Full CI method to solve the electronic structure problem,
-    through psi4.
+    through Psi4.
 
     Args:
         molecule (SecondQuantizedMolecule): The molecule to simulate.
 
     Attributes:
-        ci (numpy.array): The CI wavefunction (float64).
-        norb (int): The number of molecular orbitals.
-        nelec (int): The number of electrons.
-        cisolver (pyscf.fci.direct_spin0.FCI): The Full CI object.
-        mean_field (pyscf.scf): Mean field object.
+        ciwfn (psi4.core.CIWavefunction): The CI wavefunction (float64).
+        backend (psi4): The psi4 module
+        molecule (SecondQuantizedMolecule): The molecule with symmetry=False
     """
 
     def __init__(self, molecule: SecondQuantizedMolecule):
