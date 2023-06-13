@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 import numpy as np
 
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
@@ -44,13 +46,14 @@ def mol_to_pyscf(mol, basis="CRENBL", symmetry=False, ecp=None):
 
 class IntegralSolverPySCF(IntegralSolver):
     """Electronic Structure integration for pyscf"""
-    def __init__(self):
+    def __init__(self, chkfile=None):
         from pyscf import gto, lib, scf, symm, ao2mo
         self.gto = gto
         self.lib = lib
         self.scf = scf
         self.symm = symm
         self.ao2mo = ao2mo
+        self.chkfile = chkfile
 
     def set_physical_data(self, mol):
         """Set molecular data that is independant of basis set in mol
@@ -108,14 +111,21 @@ class IntegralSolverPySCF(IntegralSolver):
         sqmol.mean_field = self.scf.RHF(molecule) if not sqmol.uhf else self.scf.UHF(molecule)
         sqmol.mean_field.verbose = 0
 
+        if self.chkfile is not None:
+            is_chkfile_exist = os.path.exists(self.chkfile)
+            sqmol.mean_field.chkfile = self.chkfile
+        else:
+            is_chkfile_exist = False
+
         # Force broken symmetry for uhf calculation when spin is 0 as shown in
         # https://github.com/sunqm/pyscf/blob/master/examples/scf/32-break_spin_symm.py
-        if sqmol.uhf and sqmol.spin == 0:
+        if sqmol.uhf and sqmol.spin == 0 and not is_chkfile_exist:
             dm_alpha, dm_beta = sqmol.mean_field.get_init_guess()
             dm_beta[:1, :] = 0
             dm = (dm_alpha, dm_beta)
             sqmol.mean_field.kernel(dm)
         else:
+            sqmol.mean_field.init_guess = "chkfile" if is_chkfile_exist else "minao"
             sqmol.mean_field.kernel()
 
         sqmol.mean_field.analyze()
