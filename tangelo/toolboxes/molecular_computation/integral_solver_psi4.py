@@ -96,7 +96,7 @@ class IntegralSolverPsi4(IntegralSolver):
             for line in sqmol.xyz:
                 input_string += f"{line[0]} {line[1][0]} {line[1][1]} {line[1][2]} \n"
             if isinstance(sqmol.symmetry, str):
-                input_string += "symmetry"+sqmol.symmetry
+                input_string += "symmetry" + sqmol.symmetry
             self.mol = self.backend.geometry(input_string)
 
         self.backend.set_options({'basis': sqmol.basis})

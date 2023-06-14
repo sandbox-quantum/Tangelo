@@ -23,7 +23,7 @@ import numpy as np
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
-from tangelo.helpers.utils import installed_chem_backends, deprecated, is_package_installed
+from tangelo.helpers.utils import installed_chem_backends, is_package_installed
 
 if 'pyscf' in installed_chem_backends:
     default_fci_solver = 'pyscf'
@@ -169,17 +169,18 @@ class FCISolverPsi4(ElectronicStructureSolver):
         import psi4
         self.backend = psi4
         self.backend.core.clean_options()
+        self.backend.core.clean()
+        self.backend.core.clean_variables()
         self.ciwfn = None
-        self.any_close = False
+        self.degenerate_mo_energies = False
         if isinstance(molecule.solver, IntegralSolverPsi4) and not molecule.symmetry:
             self.molecule = molecule
         else:
-            print(molecule.mo_energies)
-
             for i, val in enumerate(molecule.mo_energies[:-1]):
                 if np.isclose(val, molecule.mo_energies[i+1]):
-                    self.any_close = True
+                    self.degenerate_mo_energies = True
                     break
+            self.degenerate_mo_energies = np.any(np.isclose(molecule.mo_energies[1:], molecule.mo_energies[:-1]))
             self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
                                                     solver=IntegralSolverPsi4(),
                                                     basis=molecule.basis,
@@ -208,7 +209,7 @@ class FCISolverPsi4(ElectronicStructureSolver):
         if n_frozen_occ or n_frozen_vir:
             mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
             swap_ops = getswaps(mo_order)
-            for swap_op in swap_ops:
+            for swap_op in swap_ops[::-1]:
                 wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
         energy, self.ciwfn = self.backend.energy('fci', molecule=self.molecule.solver.mol,
@@ -227,10 +228,10 @@ class FCISolverPsi4(ElectronicStructureSolver):
             RuntimeError: If method "simulate" hasn't been run.
         """
 
-        # Check if Full CI is performed
+        # Check if Full CI has been performed
         if self.ciwfn is None:
             raise RuntimeError("FCISolver: Cannot retrieve RDM. Please run the 'simulate' method first")
-        if self.any_close:
+        if self.degenerate_mo_energies:
             warnings.warn("Degenerate orbitals are present in the molecule. The fci calculation is performed "
                           "without symmetry so the rdms may not correspond to the integrals in molecule. A c1 "
                           "version of the molecule with the correct integrals is present as FCISolverPsi4.molecule.")
@@ -244,13 +245,13 @@ fci_solver_dict = {"pyscf": FCISolverPySCF, 'psi4': FCISolverPsi4}
 
 
 def get_fci_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_fci_solver, **kwargs):
-    """Return requested target backend object.
+    """Return requested target FCISolver object.
 
     Args:
+        molecule (SecondQuantizedMolecule) : Molecule
         solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
             fci_solver_dict (from tangelo.algorithms.classical.fci_solver). Can also provide a user-defined backend (child to ElectronicStructureSolver class)
-        kwargs: Other arguments that could be passed to a target. Examples are qubits_to_use for a QPU, transpiler
-            optimization level, error mitigation flags etc.
+        kwargs: Other arguments that could be passed to a target. Examples are solver type etc.
      """
 
     if solver is None:
@@ -261,8 +262,9 @@ def get_fci_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, T
         elif default_fci_solver is not None:
             solver = default_fci_solver
         else:
-            raise ModuleNotFoundError(f"One of the backends for {list(fci_solver_dict.keys())} needs to be installed to use FCISolver in Tangelo"
-                                      "without providing own implementation.")
+            raise ModuleNotFoundError(f"One of the backends for {list(fci_solver_dict.keys())} needs to be installed to use FCISolver"
+                                      "without providing a user-defined implementation.")
+
     # If target is a string use target_dict to return built-in backend
     elif isinstance(solver, str):
         try:
@@ -270,44 +272,69 @@ def get_fci_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, T
         except KeyError:
             raise ValueError(f"Error: backend {solver} not supported. Available built-in options: {list(fci_solver_dict.keys())}")
     elif not issubclass(solver, ElectronicStructureSolver):
-        raise TypeError(f"Target must be a str or a subclass of Backend but received class {type(solver).__name__}")
+        raise TypeError(f"Target must be a str or a subclass of ElectronicStructureSolver but received class {type(solver).__name__}")
 
     return solver(molecule, **kwargs)
 
 
-# @deprecated("Please use get_fci_solver.")
 def FCISolver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_fci_solver, **kwargs):
+    """Return object that obtains the FCI solution for a molecule.
+
+    Args:
+        molecule (SecondQuantizedMolecule) : Molecule
+        solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
+            fci_solver_dict (from tangelo.algorithms.classical.fci_solver). Can also provide a user-defined backend (child to ElectronicStructureSolver class)
+        kwargs: Other arguments that could be passed to a target. Examples are solver type etc.
+     """
     return get_fci_solver(molecule, solver, **kwargs)
 
 
-def getswaps(a):
+def getswaps(arr):
     """Takes a list and returns the swaps necessary to obtain the ordered version.
 
-    Example: getswaps([4, 3, 2, 1]) -> [[0, 3], [1, 2]]
-    swap [0, 3] results in [1, 3, 2, 4]
-    swap [1, 2] results in [1, 2, 3, 4]
+    Taken from https://www.geeksforgeeks.org/minimum-number-swaps-required-sort-array/. Modified to return swap operations.
+
+    Example: getswaps([1, 0, 2, 5, 6, 7, 3, 4]) -> [(0, 1), (3, 6), (6, 4), (4, 7), (7, 5)]
+    swap (0, 1) results in [0, 1, 2, 5, 6, 7, 3, 4]
+    swap (3, 6) results in [0, 1, 2, 3, 6, 7, 5, 4]
+    swap (6, 4) results in [0, 1, 2, 3, 5, 7, 6, 4]
+    swap (4, 7) results in [0, 1, 2, 3, 4, 7, 6, 5]
+    swap (7, 5) results in [0, 1, 2, 3, 4, 5, 6, 7]
 
     Args:
-        a (list): Unordered list
+        a (List[int]): Unordered list
 
     Returns:
-        List[list]: The swap operations required to order the list.
+        List[tuples]: The swap operations required to order the list.
     """
+    n = len(arr)
 
-    n = len(a)
-    sorteda = a.copy()
-    sorteda.sort()
-    m = {}
+    # Create two arrays and use as pairs where first array is element and second array is position of first element
+    arrpos = [*enumerate(arr)]
+
+    # Sort the array by array element values to get right position of every element as the elements of second array.
+    arrpos.sort(key=lambda it: it[1])
+
+    # To keep track of visited elements. Initialize all elements as not visited or false.
+    vis = {k: False for k in range(n)}
+
+    swaps = []
     for i in range(n):
-        m[sorteda[i]] = i + 1
 
-    sort_ops = list()
-    for i in range(n):
-        if (i + 1) != m[a[i]]:
-            sort_ops.append([i, m[a[i] - 1]])
-            temp = a[i]
-            pos = m[a[i] - 1]
-            a[i] = a[pos]
-            a[pos] = temp
+        # already swapped or already present at correct position
+        if vis[i] or arrpos[i][0] == i:
+            continue
 
-    return sort_ops
+        # find number of nodes in this cycle and add swaps to ans
+        j = i
+        while not vis[j]:
+            # mark node as visited
+            vis[j] = True
+            # if next node has not been visited, add swap to list
+            if not vis[arrpos[j][0]]:
+                swaps.append((j, arrpos[j][0]))
+            # move to next node
+            j = arrpos[j][0]
+
+    # return answer
+    return swaps
