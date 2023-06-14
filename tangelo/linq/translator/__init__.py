@@ -25,6 +25,7 @@ from .translate_openqasm import translate_openqasm, _translate_openqasm2abs, get
 from .translate_qubitop import translate_operator
 from .translate_circuit import translate_circuit
 from .translate_pennylane import get_pennylane_gates
+from .translate_sympy import get_sympy_gates
 
 
 def get_supported_gates():
@@ -40,5 +41,6 @@ def get_supported_gates():
     supported_gates["cirq"] = sorted(get_cirq_gates().keys())
     supported_gates["braket"] = sorted(get_braket_gates().keys())
     supported_gates["pennylane"] = sorted(get_pennylane_gates().keys())
+    supported_gates["sympy"] = sorted(get_sympy_gates().keys())
 
     return supported_gates

@@ -200,7 +200,7 @@ def energy_from_rdms(ferm_op, one_rdm, two_rdm):
     return e.real
 
 
-def pad_rdms_with_frozen_orbitals(sec_mol, onerdm, twordm):
+def pad_rdms_with_frozen_orbitals_restricted(sec_mol, onerdm, twordm):
     """Function to pad the RDMs with the frozen orbitals data. It is based on
     the pyscf.cccsd_rdm code, where we can set with_frozen=True.
 
@@ -292,3 +292,153 @@ def pad_rdms_with_frozen_orbitals(sec_mol, onerdm, twordm):
     twordm_padded = twordm_padded.transpose(1, 0, 3, 2)
 
     return onerdm_padded, twordm_padded
+
+
+def pad_rdms_with_frozen_orbitals_unrestricted(sec_mol, onerdm, twordm):
+    """Function to pad the RDMs with the frozen orbitals data. It is based on
+    the pyscf.ucccsd_rdm code, where we can set with_frozen=True.
+
+    Source:
+        https://github.com/pyscf/pyscf/blob/master/pyscf/cc/uccsd_rdm.py
+
+    Args:
+        sec_mol (SecondQuantizedMolecule): Self-explanatory.
+        onerdm (tuple of arrays): Tuple of alpha and beta one-particle
+            reduced density matrix (shape of (N_active_mos,)*2).
+        twordm (tuple of arrays): Tuple of alpha-alpha, alpha-beta and beta-beta
+            two-particle reduced density matrix (shape of (N_active_mos,)*4).
+
+    Returns:
+        tuple of arrays: Tuple of alpha and beta one-particle reduced density
+            matrix (shape of (N_total_mos,)*2).
+        tuple of arrays: Tuple of alpha-alpha, alpha-beta and beta-beta
+            two-particle reduced density matrix (shape of (N_total_mos,)*4).
+    """
+
+    # Unpacking the tuples.
+    onerdm_a, onerdm_b = onerdm
+    twordm_aa, twordm_ab, twordm_bb = twordm
+
+    # Defining the number of MOs and occupation numbers with and without the
+    # frozen orbitals.
+    n_mos_a, n_mos_b = sec_mol.mo_occ[0].size, sec_mol.mo_occ[1].size
+    n_mos0_a, n_mos0_b = sec_mol.n_active_mos
+    n_occ_a = np.count_nonzero(sec_mol.mo_occ[0] > 0)
+    n_occ_b = np.count_nonzero(sec_mol.mo_occ[1] > 0)
+    n_occ0_a = n_occ_a - len(sec_mol.frozen_occupied[0])
+    n_occ0_b = n_occ_b - len(sec_mol.frozen_occupied[1])
+
+    moidx_a = np.array(sec_mol.active_mos[0])
+    moidx_b = np.array(sec_mol.active_mos[1])
+
+    # Creating a dummy one rdm with all diagonal elements set to 1. After that,
+    # the true one rdm is embedded in this bigger matrix.
+    onerdm_a_padded = np.zeros((n_mos_a,)*2, dtype=onerdm_a.dtype)
+    onerdm_b_padded = np.zeros((n_mos_b,)*2, dtype=onerdm_b.dtype)
+
+    onerdm_a_padded[np.diag_indices(n_occ_a)] = 1.
+    onerdm_b_padded[np.diag_indices(n_occ_b)] = 1.
+
+    onerdm_a_padded[moidx_a[:, None], moidx_a] = onerdm_a
+    onerdm_b_padded[moidx_b[:, None], moidx_b] = onerdm_b
+
+    # Deleting the one rdm contribution in the two rdm. This must be done to
+    # redo the operation later with the one rdm with the frozen orbital.
+    twordm_aa = twordm_aa.transpose(1, 0, 3, 2)
+    twordm_bb = twordm_bb.transpose(1, 0, 3, 2)
+    twordm_ab = twordm_ab.transpose(1, 0, 3, 2)
+
+    onerdm_without_diag_a = np.copy(onerdm_a)
+    onerdm_without_diag_a[np.diag_indices(n_occ0_a)] -= 1
+    onerdm_without_diag_b = np.copy(onerdm_b)
+    onerdm_without_diag_b[np.diag_indices(n_occ0_b)] -= 1
+
+    onerdm_without_diag_a_T = onerdm_without_diag_a.T
+    onerdm_without_diag_b_T = onerdm_without_diag_b.T
+
+    for i in range(n_occ0_a):
+        twordm_aa[i, i, :, :] -= onerdm_without_diag_a
+        twordm_aa[:, :, i, i] -= onerdm_without_diag_a
+        twordm_aa[:, i, i, :] += onerdm_without_diag_a
+        twordm_aa[i, :, :, i] += onerdm_without_diag_a_T
+        twordm_ab[i, i, :, :] -= onerdm_without_diag_b
+
+    for i in range(n_occ0_b):
+        twordm_bb[i, i, :, :] -= onerdm_without_diag_b
+        twordm_bb[:, :, i, i] -= onerdm_without_diag_b
+        twordm_bb[:, i, i, :] += onerdm_without_diag_b
+        twordm_bb[i, :, :, i] += onerdm_without_diag_b_T
+        twordm_ab[:, :, i, i] -= onerdm_without_diag_a
+
+    for i, j in it.product(range(n_occ0_a), repeat=2):
+        twordm_aa[i, i, j, j] -= 1
+        twordm_aa[i, j, j, i] += 1
+
+    for i, j in it.product(range(n_occ0_b), repeat=2):
+        twordm_bb[i, i, j, j] -= 1
+        twordm_bb[i, j, j, i] += 1
+
+    for i, j in it.product(range(n_occ0_a), range(n_occ0_b), repeat=1):
+        twordm_ab[i, i, j, j] -= 1
+
+    # Creating a dummy two rdm.
+    dm2_aa = np.zeros((n_mos_a,)*4, dtype=twordm_aa.dtype)
+    dm2_bb = np.zeros((n_mos_b,)*4, dtype=twordm_bb.dtype)
+    dm2_ab = np.zeros((n_mos_a, n_mos_a, n_mos_b, n_mos_b), dtype=twordm_ab.dtype)
+
+    idx_a = (moidx_a.reshape(-1, 1) * n_mos_a + moidx_a).ravel()
+    idx_b = (moidx_b.reshape(-1, 1) * n_mos_b + moidx_b).ravel()
+
+    # This part is meant to replicate
+    # https://github.com/pyscf/pyscf/blob/8b3fef8cf18f10d430261d4a8bea21fadf19bb1f/pyscf/cc/uccsd_rdm.py#L561-L583.
+    # The output is not catched, maybe for memory efficiency purposes (elements
+    # of dm2 changed inplace?).
+    takebak_2d(dm2_aa.reshape(n_mos_a**2, n_mos_a**2),
+               twordm_aa.reshape(n_mos0_a**2, n_mos0_a**2), idx_a, idx_a)
+    takebak_2d(dm2_bb.reshape(n_mos_b**2, n_mos_b**2),
+               twordm_bb.reshape(n_mos0_b**2, n_mos0_b**2), idx_b, idx_b)
+    takebak_2d(dm2_ab.reshape(n_mos_a**2, n_mos_b**2),
+               twordm_ab.reshape(n_mos0_a**2, n_mos0_b**2), idx_a, idx_b)
+    twordm_aa_padded, twordm_ab_padded, twordm_bb_padded = dm2_aa, dm2_ab, dm2_bb
+
+    # The next few lines will reembed the on rdm, but with the frozen orbital
+    # elements of the one rdm matrix.
+    onerdm_a_padded_without_diag = np.copy(onerdm_a_padded)
+    onerdm_a_padded_without_diag[np.diag_indices(n_occ_a)] -= 1
+
+    onerdm_b_padded_without_diag = np.copy(onerdm_b_padded)
+    onerdm_b_padded_without_diag[np.diag_indices(n_occ_b)] -= 1
+
+    onerdm_a_padded_without_diag_T = onerdm_a_padded_without_diag.T
+    onerdm_b_padded_without_diag_T = onerdm_b_padded_without_diag.T
+
+    for i in range(n_occ_a):
+        twordm_aa_padded[i, i, :, :] += onerdm_a_padded_without_diag
+        twordm_aa_padded[:, :, i, i] += onerdm_a_padded_without_diag
+        twordm_aa_padded[:, i, i, :] -= onerdm_a_padded_without_diag
+        twordm_aa_padded[i, :, :, i] -= onerdm_a_padded_without_diag_T
+        twordm_ab_padded[i, i, :, :] += onerdm_b_padded_without_diag
+
+    for i in range(n_occ_b):
+        twordm_bb_padded[i, i, :, :] += onerdm_b_padded_without_diag
+        twordm_bb_padded[:, :, i, i] += onerdm_b_padded_without_diag
+        twordm_bb_padded[:, i, i, :] -= onerdm_b_padded_without_diag
+        twordm_bb_padded[i, :, :, i] -= onerdm_b_padded_without_diag_T
+        twordm_ab_padded[:, :, i, i] += onerdm_a_padded_without_diag
+
+    for i, j in it.product(range(n_occ_a), repeat=2):
+        twordm_aa_padded[i, i, j, j] += 1
+        twordm_aa_padded[i, j, j, i] -= 1
+
+    for i, j in it.product(range(n_occ_b), repeat=2):
+        twordm_bb_padded[i, i, j, j] += 1
+        twordm_bb_padded[i, j, j, i] -= 1
+
+    for i, j in it.product(range(n_occ_a), range(n_occ_b), repeat=1):
+        twordm_ab_padded[i, i, j, j] += 1
+
+    twordm_aa_padded = twordm_aa_padded.transpose(1, 0, 3, 2)
+    twordm_bb_padded = twordm_bb_padded.transpose(1, 0, 3, 2)
+    twordm_ab_padded = twordm_ab_padded.transpose(1, 0, 3, 2)
+
+    return (onerdm_a_padded, onerdm_b_padded), (twordm_aa_padded, twordm_ab_padded, twordm_bb_padded)
