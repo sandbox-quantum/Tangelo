@@ -63,14 +63,11 @@ class RandomizedClassicalShadow(ClassicalShadow):
         super().__init__(circuit, bitstrings, unitaries)
 
         if bitstrings and shuffle:
-            # Valentin: removed shuffle for perf tests
-            self.bitstrings, self.unitaries = bitstrings, unitaries
-
             # Shuffling the order while keeping the bistring to its unitary.
-            # random_bitstrings = list(zip(bitstrings, unitaries))
-            # random.shuffle(random_bitstrings)
-            # new_bistrings, new_unitaries = zip(*random_bitstrings)
-            # self.bitstrings, self.unitaries = list(new_bistrings), list(new_unitaries)
+            random_bitstrings = list(zip(bitstrings, unitaries))
+            random.shuffle(random_bitstrings)
+            new_bistrings, new_unitaries = zip(*random_bitstrings)
+            self.bitstrings, self.unitaries = list(new_bistrings), list(new_unitaries)
 
     def build(self, n_shots):
         """Random sampling of single pauli words.
