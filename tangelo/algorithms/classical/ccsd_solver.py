@@ -15,13 +15,26 @@
 """Class performing electronic structure calculation employing the CCSD method.
 """
 
+from typing import Union, Type
+import warnings
+
 import numpy as np
 
-from tangelo.helpers.utils import is_package_installed
+from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
+from tangelo.helpers.utils import installed_chem_backends, is_package_installed
+from tangelo.algorithms.classical.fci_solver import getswaps
+
+if 'pyscf' in installed_chem_backends:
+    default_ccsd_solver = 'pyscf'
+elif 'psi4' in installed_chem_backends:
+    default_ccsd_solver = 'psi4'
+else:
+    default_ccsd_solver = None
 
 
-class CCSDSolver(ElectronicStructureSolver):
+class CCSDSolverPySCF(ElectronicStructureSolver):
     """Uses the CCSD method to solve the electronic structure problem, through
     pyscf.
 
@@ -110,3 +123,148 @@ class CCSDSolver(ElectronicStructureSolver):
                 two_rdm = np.sum((two_rdm[0], 2*two_rdm[1], two_rdm[2]), axis=0)
 
         return one_rdm, two_rdm
+
+
+class CCSDSolverPsi4(ElectronicStructureSolver):
+    """ Uses the CCSD method to solve the electronic structure problem,
+    through Psi4.
+
+    Args:
+        molecule (SecondQuantizedMolecule): The molecule to simulate.
+
+    Attributes:
+        ciwfn (psi4.core.CIWavefunction): The CCSD wavefunction (float64).
+        backend (psi4): The psi4 module
+        molecule (SecondQuantizedMolecule): The molecule with symmetry=False
+    """
+
+    def __init__(self, molecule: SecondQuantizedMolecule):
+        if not is_package_installed("psi4"):
+            raise ModuleNotFoundError(f"Using {self.__class__.__name__} requires the installation of the Psi4 package")
+
+        import psi4
+        self.backend = psi4
+        self.backend.core.clean_options()
+        self.backend.core.clean()
+        self.backend.core.clean_variables()
+        self.ciwfn = None
+        self.degenerate_mo_energies = False
+        if isinstance(molecule.solver, IntegralSolverPsi4) and not molecule.symmetry and 1==0:
+            self.molecule = molecule
+        else:
+            n_frozen_vir = len(molecule.frozen_virtual)
+            n_frozen_occ = len(molecule.frozen_occupied)
+            if not molecule.uhf:
+                ref = 'rhf' if molecule.spin == 0 else 'rohf'
+            else:
+                ref = 'uhf'
+            self.backend.set_options({'basis': molecule.basis, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
+                                  'reference': ref})
+            for i, val in enumerate(molecule.mo_energies[:-1]):
+                if np.isclose(val, molecule.mo_energies[i+1]):
+                    self.degenerate_mo_energies = True
+                    break
+            self.degenerate_mo_energies = np.any(np.isclose(molecule.mo_energies[1:], molecule.mo_energies[:-1]))
+            self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
+                                                    solver=IntegralSolverPsi4(),
+                                                    basis=molecule.basis,
+                                                    ecp=molecule.ecp,
+                                                    symmetry=False,
+                                                    uhf=molecule.uhf,
+                                                    frozen_orbitals=molecule.frozen_orbitals)
+        self.basis = molecule.basis
+
+    def simulate(self):
+        """Perform the simulation (energy calculation) for the molecule.
+
+        Returns:
+            float: Total FCI energy.
+        """
+        n_frozen_vir = len(self.molecule.frozen_virtual)
+        n_frozen_occ = len(self.molecule.frozen_occupied)
+        if not self.molecule.uhf:
+            ref = 'rhf' if self.molecule.spin == 0 else 'rohf'
+        else:
+            ref = 'uhf'
+        self.backend.set_options({'basis': self.basis, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
+                                  'reference': ref})
+
+        # Copy reference wavefunction and swap orbitals to obtain correct active space if necessary
+        wfn = self.backend.core.Wavefunction(self.molecule.solver.mol_nosym, self.molecule.solver.wfn.basisset())
+        wfn.deep_copy(self.molecule.solver.wfn)
+        
+        print(ener)
+
+        if n_frozen_occ or n_frozen_vir:
+            if not self.molecule.uhf:
+                mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
+                swap_ops = getswaps(mo_order)
+                for swap_op in swap_ops[::-1]:
+                    wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
+            else:
+                mo_order = self.molecule.frozen_occupied[0] + self.molecule.active_occupied[0] + self.molecule.active_virtual[0] + self.molecule.frozen_virtual[0]
+                swap_ops = getswaps(mo_order)
+                for swap_op in swap_ops[::-1]:
+                    wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
+                mo_order = self.molecule.frozen_occupied[1] + self.molecule.active_occupied[1] + self.molecule.active_virtual[1] + self.molecule.frozen_virtual[1]
+                swap_ops = getswaps(mo_order)
+                for swap_op in swap_ops[::-1]:
+                    wfn.Cb().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
+
+        energy, self.ciwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
+                                                 basis=self.basis, return_wfn=True,
+                                                 ref_wfn=wfn)
+        print(self.ciwfn.nfrzc())
+        return energy
+
+    def get_rdm(self):
+        """Psi4 does not support retrieving rdms for CCSD"""
+        raise RuntimeError("CCSDSolverPsi4: Psi4 does not support rdms for CCSD")
+
+
+ccsd_solver_dict = {"pyscf": CCSDSolverPySCF, 'psi4': CCSDSolverPsi4}
+
+
+def get_ccsd_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_ccsd_solver, **kwargs):
+    """Return requested target CCSDSolverName object.
+
+    Args:
+        molecule (SecondQuantizedMolecule) : Molecule
+        solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
+            fci_solver_dict (from tangelo.algorithms.classical.fci_solver). Can also provide a user-defined backend (child to ElectronicStructureSolver class)
+        kwargs: Other arguments that could be passed to a target. Examples are solver type etc.
+     """
+
+    if solver is None:
+        if isinstance(molecule.solver, IntegralSolverPySCF):
+            solver = CCSDSolverPySCF
+        elif isinstance(molecule.solver, IntegralSolverPsi4):
+            solver = CCSDSolverPsi4
+        elif default_ccsd_solver is not None:
+            solver = default_ccsd_solver
+        else:
+            raise ModuleNotFoundError(f"One of the backends for {list(ccsd_solver_dict.keys())} needs to be installed to use FCISolver"
+                                      "without providing a user-defined implementation.")
+
+    # If target is a string use target_dict to return built-in backend
+    elif isinstance(solver, str):
+        try:
+            solver = ccsd_solver_dict[solver.lower()]
+        except KeyError:
+            raise ValueError(f"Error: backend {solver} not supported. Available built-in options: {list(ccsd_solver_dict.keys())}")
+    elif not issubclass(solver, ElectronicStructureSolver):
+        raise TypeError(f"Target must be a str or a subclass of ElectronicStructureSolver but received class {type(solver).__name__}")
+
+    return solver(molecule, **kwargs)
+
+
+def CCSDSolver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_ccsd_solver, **kwargs):
+    """Return object that obtains the CCSD solution for a molecule.
+
+    Args:
+        molecule (SecondQuantizedMolecule) : Molecule
+        solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
+            fci_solver_dict (from tangelo.algorithms.classical.fci_solver). Can also provide a user-defined backend (child to ElectronicStructureSolver class)
+        kwargs: Other arguments that could be passed to a target. Examples are solver type etc.
+     """
+    return get_ccsd_solver(molecule, solver, **kwargs)
