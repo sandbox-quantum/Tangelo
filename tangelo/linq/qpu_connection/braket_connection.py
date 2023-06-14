@@ -181,4 +181,3 @@ class BraketConnection(QpuConnection):
             "price": device.properties.service.deviceCost.price,
             "unit": device.properties.service.deviceCost.unit}
             for device in refresh_available_braket_devices()}
-
