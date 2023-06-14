@@ -8,7 +8,7 @@ import os
 import pprint
 
 from tangelo.linq import Gate, Circuit
-from tangelo.linq.qpu_connection import IonQConnection
+from tangelo.linq.qpu_connection.ionq_connection import IonQConnection
 from tangelo.helpers.utils import assert_freq_dict_almost_equal
 
 circ1 = Circuit([Gate("H", 0), Gate("X", 1)])
