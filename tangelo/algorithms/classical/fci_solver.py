@@ -19,6 +19,7 @@ from typing import Union, Type
 import warnings
 
 import numpy as np
+from sympy.combinatorics.permutations import Permutation
 
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF
@@ -208,7 +209,8 @@ class FCISolverPsi4(ElectronicStructureSolver):
         wfn.deep_copy(self.molecule.solver.wfn)
         if n_frozen_occ or n_frozen_vir:
             mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
-            swap_ops = getswaps(mo_order)
+            # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
+            swap_ops = Permutation(mo_order).transpositions()
             for swap_op in swap_ops[::-1]:
                 wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
@@ -287,54 +289,3 @@ def FCISolver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[E
         kwargs: Other arguments that could be passed to a target. Examples are solver type etc.
      """
     return get_fci_solver(molecule, solver, **kwargs)
-
-
-def getswaps(arr):
-    """Takes a list and returns the swaps necessary to obtain the ordered version.
-
-    Taken from https://www.geeksforgeeks.org/minimum-number-swaps-required-sort-array/. Modified to return swap operations.
-
-    Example: getswaps([1, 0, 2, 5, 6, 7, 3, 4]) -> [(0, 1), (3, 6), (6, 4), (4, 7), (7, 5)]
-    swap (0, 1) results in [0, 1, 2, 5, 6, 7, 3, 4]
-    swap (3, 6) results in [0, 1, 2, 3, 6, 7, 5, 4]
-    swap (6, 4) results in [0, 1, 2, 3, 5, 7, 6, 4]
-    swap (4, 7) results in [0, 1, 2, 3, 4, 7, 6, 5]
-    swap (7, 5) results in [0, 1, 2, 3, 4, 5, 6, 7]
-
-    Args:
-        a (List[int]): Unordered list
-
-    Returns:
-        List[tuples]: The swap operations required to order the list.
-    """
-    n = len(arr)
-
-    # Create two arrays and use as pairs where first array is element and second array is position of first element
-    arrpos = [*enumerate(arr)]
-
-    # Sort the array by array element values to get right position of every element as the elements of second array.
-    arrpos.sort(key=lambda it: it[1])
-
-    # To keep track of visited elements. Initialize all elements as not visited or false.
-    vis = {k: False for k in range(n)}
-
-    swaps = []
-    for i in range(n):
-
-        # already swapped or already present at correct position
-        if vis[i] or arrpos[i][0] == i:
-            continue
-
-        # find number of nodes in this cycle and add swaps to ans
-        j = i
-        while not vis[j]:
-            # mark node as visited
-            vis[j] = True
-            # if next node has not been visited, add swap to list
-            if not vis[arrpos[j][0]]:
-                swaps.append((j, arrpos[j][0]))
-            # move to next node
-            j = arrpos[j][0]
-
-    # return answer
-    return swaps
