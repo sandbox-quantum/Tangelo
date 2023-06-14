@@ -171,7 +171,6 @@ class MIFNOHelper():
         """
 
         data_fragments = self.to_dataframe
-        data_fragments.drop(["problem_handle"], axis=1, inplace=True)
         data_fragments.drop(["frozen_orbitals_truncated"], axis=1, inplace=True)
         data_fragments.drop(["complete_orbital_space"], axis=1, inplace=True)
         str_rep = f"(All the energy values are in hartree)\n" \
