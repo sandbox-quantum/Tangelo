@@ -163,7 +163,7 @@ class BraketConnection(QpuConnection):
         return is_cancelled
 
     @staticmethod
-    def get_backend_info() -> dict[str, dict]:
+    def get_backend_info():
         """ Wrapper method to cut down the information returned by AWS SDK and provide a consistent interface for our code.
         Returns:
             Dictionary containing device information in the format:
