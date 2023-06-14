@@ -62,8 +62,8 @@ class MP2SolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -14.5092873, places=6)
 
     def test_get_mp2_params_restricted(self):
-        """Test the packing of RMP2 amplitudes as intial parameter for UCC
-        methods.
+        """Test the packing of RMP2 amplitudes as initial parameters for coupled
+        cluster based methods.
         """
 
         solver = MP2Solver(mol_H2_sto3g)
@@ -74,8 +74,8 @@ class MP2SolverTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_params())
 
     def test_get_mp2_params_unrestricted(self):
-        """Test the packing of UMP2 amplitudes as intial parameter for UCC-like
-        methods.
+        """Test the packing of UMP2 amplitudes as initial parameters for coupled
+        cluster based methods.
         """
 
         solver = MP2Solver(mol_H2_sto3g_uhf)

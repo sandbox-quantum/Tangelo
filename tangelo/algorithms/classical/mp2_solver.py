@@ -52,7 +52,7 @@ class MP2Solver(ElectronicStructureSolver):
 
         if self.spin != 0 or self.uhf:
             self.n_alpha, self.n_beta = molecule.n_active_ab_electrons
-            self.n_active_moa, self.n_active_mob = molecule.n_active_mos if self.uhf else (molecule.n_active_mos, molecule.n_active_mos)
+            self.n_active_moa, self.n_active_mob = molecule.n_active_mos if self.uhf else (molecule.n_active_mos,)*2
         else:
             self.n_occupied = ceil(molecule.n_active_electrons / 2)
             self.n_virtual = molecule.n_active_mos - self.n_occupied
