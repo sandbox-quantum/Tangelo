@@ -1,95 +1,85 @@
 """
-    A test class to check that features related to IBM API for quantum experiments are behaving as expected.
+    A test class to check that features related to Braket SDK for quantum experiments are behaving as expected.
     Tests requiring actual interactions with the services are not run automatically.
 """
 
+import os
+import time
 import unittest
 
+from tangelo.linq import Gate, Circuit
+from tangelo.linq.qpu_connection.braket_connection import BraketConnection
 from tangelo.helpers.utils import assert_freq_dict_almost_equal
-from tangelo.linq import Gate, Circuit, get_backend
-from tangelo.linq.qpu_connection import BraketConnection
-from tangelo.toolboxes.operators import QubitOperator
 
-
-# Circuit and qubit operator for test
+# Circuit and qubit operator for test, with reference values
 circ = Circuit([Gate("H", 0), Gate("X", 1)])
-circ2 = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.)])
-op = 1.0 * QubitOperator('Y0') - 2.0 * QubitOperator('Z0 X1')
+ref = {'01': 0.5, '11': 0.5}
 
-# Reference values
-ref_sampler = {'01': 0.5, '11': 0.5}
-sim = get_backend()
-ref_estimator = sim.get_expectation_value(op, circ2)
-
-# sv1 arn
+# Set sv1 device arn for tests
 sv1_arn = "arn:aws:braket:::device/quantum-simulator/amazon/sv1"
 
-# s3 location
-s3_bucket = "tangelo-test-braketconnection"
-folder = "folder"
+# Set up S3 bucket for tests
+s3_bucket = "amazon-braket-gc-quantum-dev"  # bucket name
+folder = "tangelo_test"  # destination folder
 
-#@unittest.skip("We do not want to store login information for automated testing. Manual testing only.")
+# Set up credentials [clear before pushing to public repo]
+os.environ["AWS_REGION"] = ""
+os.environ["AWS_ACCESS_KEY_ID"] = ""
+os.environ["AWS_SECRET_ACCESS_KEY"] = ""
+os.environ["AWS_SESSION_TOKEN"] = ""
+
+
+@unittest.skip("Manual testing only to avoid uploading login info.")
 class TestBraketConnection(unittest.TestCase):
 
     def test_init(self):
         """ Attempt to instantiate connection """
-        conn = BraketConnection()
+        BraketConnection()
 
     def test_submit_job(self):
         """ Submit a simple job to a simulator backend, query status and retrieve results """
 
-        connection = BraketConnection(s3_bucket=s3_bucket, folder=folder)
+        conn = BraketConnection(s3_bucket=s3_bucket, folder=folder)
 
-        job_id = connection.job_submit(sv1_arn, 100, circ)
-        print(connection.job_status(job_id))
+        job_id = conn.job_submit(sv1_arn, 100000, circ)
+        print(conn.job_status(job_id))
 
-        job_results = connection.job_results(job_id)
-        print(connection.job_status(job_id))
+        freqs = conn.job_results(job_id)
+        print(conn.job_status(job_id))
 
-        assert_freq_dict_almost_equal(job_results, ref_sampler, 1e-2)
+        assert_freq_dict_almost_equal(freqs, ref, 1e-2)
 
-    # def test_submit_job_estimator(self):
-    #     """ Submit an estimator job to a valid backend, query status and retrieve results """
-    #
-    #     conn = IBMConnection()
-    #
-    #     options = {'resilience_level': 1}
-    #     job_id = conn.job_submit('estimator', 'ibmq_qasm_simulator', 10**5, circ2, operators=op, runtime_options=options)
-    #     print(conn.job_status(job_id))
-    #
-    #     job_results = conn.job_results(job_id)
-    #     self.assertAlmostEqual(job_results[0], ref_estimator, delta=1e-2)
-    #
-    # def test_submit_job_estimator_list(self):
-    #     """ Submit an estimator job to a valid backend, query status and retrieve results """
-    #
-    #     conn = IBMConnection()
-    #
-    #     job_id = conn.job_submit('estimator', 'ibmq_qasm_simulator', 10**5, [circ2]*2, operators=[op]*2)
-    #     print(conn.job_status(job_id))
-    #
-    #     job_results = conn.job_results(job_id)
-    #     np.testing.assert_almost_equal(np.array(job_results), np.array([ref_estimator]*2), decimal=2)
-    #
-    # def test_cancel_job(self):
-    #     """ Submit a job to a valid backend, attempt to cancel """
-    #
-    #     connection = IBMConnection()
-    #
-    #     for sleep_time in [0., 20.]:
-    #         job_id = connection.job_submit('sampler', 'ibmq_qasm_simulator', 10**2, circ)
-    #         time.sleep(sleep_time)
-    #         print(connection.job_cancel(job_id))
-    #         print(connection.job_status(job_id))
-    #
-    #         job_results = connection.job_results(job_id)
-    #
-    # def test_get_backend_info(self):
-    #     """ Return a list of "configuration" objects for all devices found on the service """
-    #
-    #     connection = IBMConnection()
-    #     res = connection.get_backend_info()
-    #     print(res)
+    def test_submit_batch_job(self):
+        """ Submit a batch job (several circuits) to a simulator backend. """
+
+        conn = BraketConnection(s3_bucket=s3_bucket, folder=folder)
+
+        # Retrieve list of job_ids, check they are logged in "jobs" attribute
+        job_ids = conn.job_submit(sv1_arn, 100, [circ]*2)
+        print(conn.jobs)
+
+        # Ensure individual jobs can be accessed as usual
+        for job_id in job_ids:
+            conn.job_results(job_id)
+            conn.job_status(job_id)
+
+    def test_cancel_job(self):
+        """ Submit a job to a valid backend, attempt to cancel """
+
+        conn = BraketConnection(s3_bucket=s3_bucket, folder=folder)
+
+        for sleep_time in [0., 20.]:
+            job_id = conn.job_submit(sv1_arn, 100000, circ)
+            time.sleep(sleep_time)
+            conn.job_cancel(job_id)
+            print(conn.job_status(job_id))
+            print(conn.job_results(job_id))
+
+    def test_get_backend_info(self):
+        """ Return backend info of supported providers """
+
+        conn = BraketConnection()
+        print(conn.get_backend_info())
 
 
 if __name__ == "__main__":

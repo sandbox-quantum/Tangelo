@@ -2,23 +2,58 @@
     Wrappers around Braket API, to manage quantum experiments run with Braket from Tangelo.
 """
 
-from tangelo.linq.translator import translate_operator, translate_circuit
+from enum import Enum
+
+from tangelo.linq.translator import translate_circuit
 from tangelo.linq.qpu_connection.qpu_connection import QpuConnection
 
-try:
-    import braket
-    from braket.aws import AwsDevice, AwsQuantumTask
-    is_braket_installed = True
-except ModuleNotFoundError:
-    is_braket_installed = False
+
+class SupportedBraketProviders(str, Enum):
+    """ List of the providers currently supported. Needs to be occasionally
+    updated in the future as new providers arise. """
+
+    # SV1, TN1 and DM1 devices (simulators)
+    AMAZON = "Amazon Braket"
+
+    # Hardware providers
+    IONQ = "IonQ"
+    RIGETTI = "Rigetti"
+    OXFORD = "Oxford"
+
+
+def refresh_available_braket_devices():
+    """Function to get the available gate-based devices on Braket.
+    Note: OFFLINE and RETIRED devices are filtered out.
+    Returns:
+        list of braket.aws.AwsDevice: Available gate-based Braket devices.
+    """
+    from braket.aws import AwsDevice
+
+    return AwsDevice.get_devices(
+        provider_names=[provider.value for provider in SupportedBraketProviders],
+        statuses=["ONLINE"])
 
 
 class BraketConnection(QpuConnection):
     """ Wrapper around Amazon Braket API to facilitate quantum job management from Tangelo """
 
     def __init__(self, s3_bucket=None, folder=None):
+        """
+        Initialize connection object. Requires Braket to be installed.
+        The destination s3_bucket and folder can be specified later, before submitting jobs.
 
-        if not is_braket_installed:
+        Args:
+            s3_bucket (str): Optional, name of target s3_bucket for saving results
+            folder (str): Optional, name of target folder in bucket for results
+
+        Returns:
+            str | List[str]: Job id(s)
+        """
+
+        try:
+            import braket
+            self.braket = braket
+        except ModuleNotFoundError:
             raise ModuleNotFoundError("Braket needs to be installed.")
 
         self.jobs = dict()
@@ -26,46 +61,54 @@ class BraketConnection(QpuConnection):
         self.s3_bucket = s3_bucket
         self.folder = folder
 
-    def get_backend_info(self):
-        """ Return configuration information for each device found on the service """
-        return AwsDevice.get_devices()
-
-    def job_submit(self, backend_arn, n_shots, circuit):
-        """ Submit job, return job ID.
+    def job_submit(self, backend_arn, n_shots, circuits):
+        """ Submit job as batch, return job id(s).
 
         Args:
-            backend_name (str): name of a qiskit backend
+            backend_arn (str): name of a qiskit backend
             n_shots (int): Number of shots to use on the target backend
             circuits (Circuit | List[Circuit]): Tangelo circuit(s)
-            str: string representing the job id
+
+        Returns:
+            str | List[str]: Job id(s)
         """
 
-        # Set up options and intermediary Qiskit runtime objects
+        # Set up device object
+        from braket.aws import AwsDevice
         device = AwsDevice(backend_arn)
-
-        # Translate circuits in braket format
-        braket_c = translate_circuit(circuit, "braket")
 
         # Ensure s3 location for results is set to a valid value
         if not (self.s3_bucket and self.folder):
             raise ValueError(f"{self.__class__.__name__} :: Please set the following attributes: s3_bucket, folder")
         s3_location = (self.s3_bucket, self.folder)
 
-        # Submit task
-        my_task = device.run(braket_c, s3_location, shots=1000, poll_timeout_seconds=100, poll_interval_seconds=10)
+        # Ensure input is a list of circuits
+        if not isinstance(circuits, list):
+            circuits = [circuits]
 
-        # Store job object, return job ID.
-        self.jobs[my_task.id] = my_task
-        return my_task.id
+        # Translate circuits in braket format, submit as batch
+        braket_circuits = [translate_circuit(c, "braket") for c in circuits]
+        my_task = device.run_batch(braket_circuits, s3_location, shots=n_shots,
+                                   poll_timeout_seconds=300, poll_interval_seconds=60)
+
+        # Store job object(s)
+        for t in my_task.tasks:
+            self.jobs[t.id] = t
+
+        # If batch has more than one circuit, return a list of ids
+        if len(my_task.tasks) > 1:
+            return [t.id for t in my_task.tasks]
+        else:
+            return my_task.tasks[0].id
 
     def job_status(self, job_id):
-        """ Return information about the job corresponding to the input job ID
+        """ Return job information corresponding to the input job id
 
         Args:
             job_id (str): string representing the job id
 
         Returns:
-            enum value: status response from the native API
+            enum | str : status response from the native API
         """
         return self.jobs[job_id].state()
 
@@ -79,6 +122,8 @@ class BraketConnection(QpuConnection):
             dict: histogram of measurements
         """
 
+        from braket.aws import AwsQuantumTask
+
         # Retrieve job object
         if job_id in self.jobs:
             job = self.jobs[job_id]
@@ -90,10 +135,10 @@ class BraketConnection(QpuConnection):
             print(f"Job {job_id} was cancelled or failed, and no results can be retrieved.")
             return None
 
-        # Retrieve results, update job dictionary
+        # Retrieve results, update job dictionary.
         result = job.result()
         self.jobs_results[job_id] = result
-        return result
+        return result.measurement_probabilities if result else None
 
     def job_cancel(self, job_id):
         """ Attempt to cancel an existing job. May fail depending on job status (e.g too late)
@@ -117,29 +162,23 @@ class BraketConnection(QpuConnection):
 
         return is_cancelled
 
-    # def _submit_sampler(self, qiskit_c, n_shots, session, options):
-    #     """ Submit job using Sampler primitive, return job ID.
-    #
-    #     Args:
-    #         qiskit_c (Qiskit.QuantumCircuit): Circuit in Qiskit format
-    #         n_shots (int): Number of shots
-    #         session (qiskit_ibm_runtime.Session): Qiskit runtime Session object
-    #         options (qiskit_ibm_runtime.Options): Qiskit runtime Options object
-    #
-    #     Returns:
-    #         str: string representing the job id
-    #     """
-    #
-    #     # Set up program inputs
-    #     run_options = {"shots": n_shots}
-    #     resilience_settings = {"level": options.resilience_level}
-    #
-    #     program_inputs = {"circuits": qiskit_c, "circuit_indices": [0],
-    #                       "run_options": run_options,
-    #                       "resilience_settings": resilience_settings}
-    #
-    #     # Set backend
-    #     more_options = {"backend_name": session.backend()}
-    #
-    #     job = self.service.run(program_id="sampler", options=more_options, inputs=program_inputs)
-    #     return job
+    @staticmethod
+    def get_backend_info() -> dict[str, dict]:
+        """ Wrapper method to cut down the information returned by AWS SDK and provide a consistent interface for our code.
+        Returns:
+            Dictionary containing device information in the format:
+                {
+                    arn: {
+                        provider: <provider>,
+                        price: <price>,
+                        unit: <unit>,
+                    }
+                }
+        """
+
+        return {device.arn: {
+            "provider_name": device.provider_name,
+            "price": device.properties.service.deviceCost.price,
+            "unit": device.properties.service.deviceCost.unit}
+            for device in refresh_available_braket_devices()}
+
