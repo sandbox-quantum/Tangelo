@@ -99,7 +99,6 @@ class UCCSD(Ansatz):
         self.supported_initial_var_params = {"ones", "random", "mp2"}
 
         # Default initial parameters for initialization
-        # TODO: support for openshell MP2 initialization
         self.var_params_default = "mp2"
         self.reference_state = reference_state
 
