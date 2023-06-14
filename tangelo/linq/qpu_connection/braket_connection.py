@@ -1,5 +1,6 @@
 """
-    Wrappers around Braket API, to manage quantum experiments run with Braket from Tangelo.
+    Wrappers around Braket python's API, to manage quantum experiments run with Braket from Tangelo.
+    Braket is available at https://github.com/aws/amazon-braket-sdk-python
 """
 
 from enum import Enum
@@ -39,7 +40,7 @@ class BraketConnection(QpuConnection):
 
     def __init__(self, s3_bucket=None, folder=None):
         """
-        Initialize connection object. Requires Braket to be installed.
+        Initialize connection object. Requires Braket to be installed (see above).
         The destination s3_bucket and folder can be specified later, before submitting jobs.
 
         Args:
@@ -65,7 +66,7 @@ class BraketConnection(QpuConnection):
         """ Submit job as batch, return job id(s).
 
         Args:
-            backend_arn (str): name of a qiskit backend
+            backend_arn (str): arn for braket backend
             n_shots (int): Number of shots to use on the target backend
             circuits (Circuit | List[Circuit]): Tangelo circuit(s)
 
@@ -165,6 +166,7 @@ class BraketConnection(QpuConnection):
     @staticmethod
     def get_backend_info():
         """ Wrapper method to cut down the information returned by AWS SDK and provide a consistent interface for our code.
+
         Returns:
             Dictionary containing device information in the format:
                 {

@@ -4,7 +4,7 @@
 # 1. Performance
 # ---------------------------------------------------------------
 
-# Multihtreading: OpenMP threads used in libraries such as quantum simulation backends
+# Multithreading: OpenMP threads used in libraries such as quantum simulation backends
 export OMP_NUM_THREADS=
 
 # TODO: replace with a flag that just says USE_GPU. Everything GPU-enabled and supported will be accelerated.
