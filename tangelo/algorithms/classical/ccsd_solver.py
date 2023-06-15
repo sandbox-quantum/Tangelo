@@ -203,14 +203,14 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
 ccsd_solver_dict = {"pyscf": CCSDSolverPySCF, 'psi4': CCSDSolverPsi4}
 
 
-def get_ccsd_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_ccsd_solver, **kwargs):
+def get_ccsd_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_ccsd_solver, **solver_kwargs):
     """Return requested target CCSDSolverName object.
 
     Args:
         molecule (SecondQuantizedMolecule) : Molecule
         solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
             fci_solver_dict (from tangelo.algorithms.classical.fci_solver). Can also provide a user-defined backend (child to ElectronicStructureSolver class)
-        kwargs: Other arguments that could be passed to a target. Examples are solver type etc.
+        solver_kwargs: Other arguments that could be passed to a target. Examples are solver type (e.g. lambdacc, fnocc), Convergence options etc.
      """
 
     if solver is None:
@@ -233,16 +233,17 @@ def get_ccsd_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, 
     elif not issubclass(solver, ElectronicStructureSolver):
         raise TypeError(f"Target must be a str or a subclass of ElectronicStructureSolver but received class {type(solver).__name__}")
 
-    return solver(molecule, **kwargs)
+    return solver(molecule, **solver_kwargs)
 
 
-def CCSDSolver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_ccsd_solver, **kwargs):
-    """Return object that obtains the CCSD solution for a molecule.
+def CCSDSolver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_ccsd_solver, **solver_kwargs):
+    """Return requested target CCSDSolverName object.
 
     Args:
         molecule (SecondQuantizedMolecule) : Molecule
         solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
-            fci_solver_dict (from tangelo.algorithms.classical.fci_solver). Can also provide a user-defined backend (child to ElectronicStructureSolver class)
-        kwargs: Other arguments that could be passed to a target. Examples are solver type etc.
+            available_fci_solvers (from tangelo.algorithms.classical.fci_solver). Can also provide a user-defined FCI implementation
+            (child to ElectronicStructureSolver class)
+        solver_kwargs: Other arguments that could be passed to a target. Examples are solver type (e.g. lambdacc, fnocc), Convergence options etc.
      """
-    return get_ccsd_solver(molecule, solver, **kwargs)
+    return get_ccsd_solver(molecule, solver, **solver_kwargs)
