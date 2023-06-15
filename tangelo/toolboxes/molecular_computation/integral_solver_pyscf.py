@@ -46,7 +46,24 @@ def mol_to_pyscf(mol, basis="CRENBL", symmetry=False, ecp=None):
 
 class IntegralSolverPySCF(IntegralSolver):
     """Electronic Structure integration for pyscf"""
+
     def __init__(self, chkfile=None):
+        """Initialize the integral solver class for pyscf. A chkfile path can be
+        provided.
+
+        Regarding the chkfile, three scenarios are possible:
+        - A chkfile path is provided, but the file doesn't exist: it creates
+            a chkfile at the end of the SCF calculation.
+        - A chkfile path is provided and a file already exists: the initial
+            guess is taken from the chkfile and this file is updated at the end
+            of the calculation.
+        - No chkfile path is provided: The SCF initial guess stays the default
+            one (minao). No chkfile is created.
+
+        Args:
+            chkfile (string): Path of the chkfile.
+        """
+
         from pyscf import gto, lib, scf, symm, ao2mo
         self.gto = gto
         self.lib = lib
