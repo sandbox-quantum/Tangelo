@@ -133,7 +133,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         molecule (SecondQuantizedMolecule): The molecule to simulate.
 
     Attributes:
-        ciwfn (psi4.core.CIWavefunction): The CCSD wavefunction (float64).
+        ccwfn (psi4.core.CCWavefunction): The CCSD wavefunction (float64).
         backend (psi4): The psi4 module
         molecule (SecondQuantizedMolecule): The molecule with symmetry=False
     """
@@ -147,7 +147,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         self.backend.core.clean_options()
         self.backend.core.clean()
         self.backend.core.clean_variables()
-        self.ciwfn = None
+        self.ccwfn = None
 
         n_frozen_vir = len(molecule.frozen_virtual)
         n_frozen_occ = len(molecule.frozen_occupied)
@@ -191,7 +191,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
             if np.any(focc > n_frozen_occ-1) or np.any(fvir < self.molecule.n_mos-n_frozen_vir):
                 raise ValueError("CCSDSolverPsi4 does not support freezing interior orbitals")
 
-        energy, self.ciwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
+        energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
                                                  basis=self.basis, return_wfn=True)
         return energy
 
