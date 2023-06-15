@@ -168,16 +168,12 @@ class QubitOperator(of.QubitOperator):
     replaced by our own implementation.
     """
 
-    def __init__(self, of_qubitop=None):
-        """
-        Args:
-            of_qubitop (openfermion QubitOperator): Optional, allows users to build the qubit operator equivalent to the
-                input openfermion QubitOperator.
-        """
+    @classmethod
+    def from_of(cls, of_qop):
+        qop = cls()
+        qop. terms = of_qop.terms.copy()
+        return qop
 
-        super().__init__()
-        if of_qubitop:
-            self.terms = of_qubitop.terms.copy()
 
     def frobenius_norm_compression(self, epsilon, n_qubits):
         """Reduces the number of operator terms based on its Frobenius norm
