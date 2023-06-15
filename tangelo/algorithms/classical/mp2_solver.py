@@ -92,9 +92,9 @@ class MP2Solver(ElectronicStructureSolver):
 
         # Check if MP2 has been performed
         if self.mp2_fragment is None:
-            raise RuntimeError(f"{self.__class__.name}: Cannot retrieve RDM. Please run the 'simulate' method first")
+            raise RuntimeError(f"{self.__class__.__name__}: Cannot retrieve RDM. Please run the 'simulate' method first")
         if self.frozen is not None:
-            raise RuntimeError(f"{self.__class__.name}: RDM calculation is not implemented with frozen orbitals.")
+            raise RuntimeError(f"{self.__class__.__name__}: RDM calculation is not implemented with frozen orbitals.")
 
         one_rdm = self.mp2_fragment.make_rdm1()
         two_rdm = self.mp2_fragment.make_rdm2()
@@ -113,7 +113,7 @@ class MP2Solver(ElectronicStructureSolver):
 
         # Check if MP2 has been performed.
         if self.mp2_fragment is None:
-            raise RuntimeError(f"{self.__class__.name}: Cannot retrieve MP2 parameters. Please run the 'simulate' method first")
+            raise RuntimeError(f"{self.__class__.__name__}: Cannot retrieve MP2 parameters. Please run the 'simulate' method first")
 
         if self.spin != 0 or self.uhf:
             # Reorder the T2 amplitudes in a dense list.
