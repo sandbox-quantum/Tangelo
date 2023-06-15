@@ -102,10 +102,10 @@ class MP2Solver(ElectronicStructureSolver):
         return one_rdm, two_rdm
 
     def get_mp2_amplitudes(self):
-        """Compute the double amplitudes from the perturbative method, and then
-        reorders the elements into the appropriate convention. The single (T1)
-        amplitudes are set to a small non-zero value. The ordering is single,
-        double (diagonal), double (non-diagonal).
+        """Compute the double amplitudes from the MP2 perturbative method, and
+        then reorder the elements into a dense list. The single (T1) amplitudes
+        are set to a small non-zero value. The ordering is single, double
+        (diagonal), double (non-diagonal).
 
         Returns:
             list of float: The electronic excitation amplitudes.
