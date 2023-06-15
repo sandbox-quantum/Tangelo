@@ -20,11 +20,11 @@ translate into a Circuit.
 import warnings
 
 import numpy as np
-from openfermion import QubitOperator
 from openfermion.transforms import bravyi_kitaev_code
 from openfermion.transforms.opconversions.bravyi_kitaev_tree import _transform_ladder_operator, FenwickTree
 
 from tangelo.linq import Gate, Circuit
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.jkmn import jkmn_prep_vector
 
 available_mappings = {"JW", "BK", "SCBK", "JKMN"}

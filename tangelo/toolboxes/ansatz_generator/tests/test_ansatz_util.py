@@ -3,6 +3,7 @@ import unittest
 from scipy.linalg import expm
 import numpy as np
 from numpy.linalg import eigh
+from openfermion import get_sparse_operator
 
 from tangelo.linq import get_backend, Circuit, Gate
 from tangelo.toolboxes.operators import FermionOperator, QubitOperator
@@ -43,7 +44,7 @@ class AnsatzUtilsTest(unittest.TestCase):
                                                          n_electrons=mol_H4_sto3g.n_active_electrons,
                                                          up_then_down=True)
 
-            ham_mat = qubit_hamiltonian.get_sparse_op().toarray()
+            ham_mat = get_sparse_operator(qubit_hamiltonian.to_openfermion()).toarray()
             evolve_exact = expm(-1j * time * ham_mat) @ refwave
 
             options = {"up_then_down": True,
@@ -74,7 +75,7 @@ class AnsatzUtilsTest(unittest.TestCase):
                                                          n_electrons=mol_H4_sto3g.n_active_electrons,
                                                          up_then_down=True)
 
-            ham_mat = get_sparse_operator(qubit_hamiltonian).toarray()
+            ham_mat = get_sparse_operator(qubit_hamiltonian.to_openfermion()).toarray()
             evolve_exact = expm(-1j * time * ham_mat) @ refwave
 
             tcircuit, phase = trotterize(qubit_hamiltonian, trotter_order=1, n_trotter_steps=1, time=time,
@@ -102,7 +103,7 @@ class AnsatzUtilsTest(unittest.TestCase):
                                                      n_electrons=mol_H4_sto3g.n_active_electrons,
                                                      up_then_down=True)
 
-        ham_mat = get_sparse_operator(qubit_hamiltonian).toarray()
+        ham_mat = get_sparse_operator(qubit_hamiltonian.to_openfermion()).toarray()
         evolve_exact = expm(-1j * time * ham_mat) @ refwave
 
         for trotter_order, n_trotter_steps in [(1, 1), (2, 1), (1, 2), (4, 1), (6, 1)]:
@@ -143,7 +144,7 @@ class AnsatzUtilsTest(unittest.TestCase):
             total_fermion_operator += fermion_operators[i]
             qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=fermion_operators[i],
                                                          mapping=mapping)
-            ham_mat = get_sparse_operator(qubit_hamiltonian, n_qubits=4).toarray()
+            ham_mat = get_sparse_operator(qubit_hamiltonian.to_openfermion(), n_qubits=4).toarray()
             evolve_exact = expm(-1j * time[next(iter(fermion_operators[i].terms))] * ham_mat) @ evolve_exact
 
         # Apply trotter-suzuki steps using different times for each term
@@ -170,7 +171,7 @@ class AnsatzUtilsTest(unittest.TestCase):
         # Exactly evolve for each time step
         evolve_exact = refwave
         for i in range(3):
-            ham_mat = get_sparse_operator(qubit_operator_list[i], n_qubits=4).toarray()
+            ham_mat = get_sparse_operator(qubit_operator_list[i].to_openfermion(), n_qubits=4).toarray()
             evolve_exact = expm(-1j * time[next(iter(qubit_operator_list[i].terms))] * ham_mat) @ evolve_exact
 
         # Apply trotter-suzuki with different times for each qubit operator term
@@ -218,7 +219,7 @@ class AnsatzUtilsTest(unittest.TestCase):
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))
 
-        ham_mat = get_sparse_operator(qu_op).toarray()
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, wavefunction = eigh(ham_mat)
 
         # Append four qubits in the zero state to eigenvector 9
@@ -274,9 +275,9 @@ class AnsatzUtilsTest(unittest.TestCase):
         qu_op = QubitOperator("X0 Y1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
         pa = QubitOperator("X0 X1 X2 X3", 1)
 
-        ham_mat = get_sparse_operator(qu_op).toarray()
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, wavefunction = eigh(ham_mat)
-        pamat = get_sparse_operator(pa).toarray()
+        pamat = get_sparse_operator(pa.to_openfermion()).toarray()
 
         mixed_wave = np.sqrt(3)/2*wavefunction[:, -1] + 1/2*wavefunction[:, 0]
         mixed_wave_3 = np.kron(np.kron(mixed_wave, mixed_wave), mixed_wave)

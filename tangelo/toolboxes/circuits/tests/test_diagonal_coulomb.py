@@ -14,7 +14,7 @@
 
 import unittest
 
-from openfermion import linalg
+from openfermion import linalg, get_sparse_operator
 
 from tangelo.linq import get_backend, Circuit
 from tangelo.molecule_library import mol_H4_sto3g

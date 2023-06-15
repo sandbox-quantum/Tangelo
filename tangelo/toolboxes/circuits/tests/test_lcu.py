@@ -17,6 +17,7 @@ import math
 
 import numpy as np
 from scipy.linalg import expm
+from openfermion import get_sparse_operator
 
 from tangelo.linq import get_backend
 from tangelo.helpers.utils import installed_backends
@@ -43,7 +44,7 @@ class LCUTest(unittest.TestCase):
         qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons,
                                          True, 0)
         n_qubits_qu_op = math.ceil(math.log2(len(qu_op.terms)))
-        ham = qu_op.get_sparse_op().toarray()
+        ham = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 1])/np.sqrt(2)
 
@@ -80,7 +81,7 @@ class LCUTest(unittest.TestCase):
         exp_qu_op = 1 + -1j*qu_op*time + (-1j*qu_op*time)**2/2 + (-1j*qu_op*time)**3/6
         exp_qu_op.compress()
         n_qubits_qu_op = math.ceil(math.log2(len(exp_qu_op.terms)))
-        ham = qu_op.get_sparse_op().toarray()
+        ham = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 1])/np.sqrt(2)
 
@@ -110,7 +111,7 @@ class LCUTest(unittest.TestCase):
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))
 
-        ham_mat = qu_op.get_sparse_op().toarray()
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
 
         # Kronecker product 13 qubits in the zero state to eigenvector 9 to account for ancilla qubits
@@ -144,7 +145,7 @@ class LCUTest(unittest.TestCase):
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))
 
-        ham_mat = qu_op.get_sparse_op().toarray()
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
 
         # break time into 6 parts so 1-norm is less than 2. i.e. can use Oblivious Amplitude Amplification

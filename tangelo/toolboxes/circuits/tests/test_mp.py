@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import unittest
-import math
 
 import numpy as np
 from scipy.linalg import expm
+from openfermion import get_sparse_operator
 
 from tangelo.linq import get_backend
 from tangelo.helpers.utils import installed_backends
@@ -44,7 +44,7 @@ class MultiProductTest(unittest.TestCase):
                                          mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons,
                                          True, 0)
 
-        ham = qu_op.get_sparse_op().toarray()
+        ham = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 1])/np.sqrt(2)
 
@@ -81,7 +81,7 @@ class MultiProductTest(unittest.TestCase):
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))
 
-        ham_mat = qu_op.get_sparse_op().toarray()
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
 
         # Kronecker product 13 qubits in the zero state to eigenvector 9 to account for ancilla qubits
