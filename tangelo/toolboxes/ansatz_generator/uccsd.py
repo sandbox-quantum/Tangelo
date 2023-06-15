@@ -277,4 +277,4 @@ class UCCSD(Ansatz):
         mp2 = MP2Solver(pymol)
         mp2.simulate()
 
-        return mp2.get_mp2_params()
+        return mp2.get_mp2_amplitudes()
