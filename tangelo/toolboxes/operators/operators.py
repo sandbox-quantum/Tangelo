@@ -170,10 +170,17 @@ class QubitOperator(of.QubitOperator):
 
     @classmethod
     def from_of(cls, of_qop):
+        """ Enable instantiation of a QubitOperator from an openfermion QubitOperator object.
+
+        Args:
+            of_qop (openfermion QubitOperator): an existing qubit operator defined with Openfermion
+
+        Returns:
+            corresponding QubitOperator object.
+        """
         qop = cls()
         qop. terms = of_qop.terms.copy()
         return qop
-
 
     def frobenius_norm_compression(self, epsilon, n_qubits):
         """Reduces the number of operator terms based on its Frobenius norm
