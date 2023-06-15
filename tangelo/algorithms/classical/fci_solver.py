@@ -276,8 +276,8 @@ def get_fci_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, T
     return solver(molecule, **solver_kwargs)
 
 
-def FCISolver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_fci_solver, **solver_kwargs):
-    """Return requested target FCISolverName object.
+class FCISolver(ElectronicStructureSolver):
+    """Uses the Full CI method to solve the electronic structure problem.
 
     Args:
         molecule (SecondQuantizedMolecule) : Molecule
@@ -285,5 +285,29 @@ def FCISolver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[E
             available_fci_solvers (from tangelo.algorithms.classical.fci_solver). Can also provide a user-defined FCI implementation
             (child to ElectronicStructureSolver class)
         solver_kwargs: Other arguments that could be passed to a target. Examples are solver type (e.g. mcscf, fci), Convergence options etc.
+
+    Attributes:
+        solver (Type[ElectronicStructureSolver]): The solver that is used for obtaining the FCI solution.
      """
-    return get_fci_solver(molecule, solver, **solver_kwargs)
+    def __init__(self, molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_fci_solver, **solver_kwargs):
+        self.solver = get_fci_solver(molecule, solver, **solver_kwargs)
+
+    def simulate(self):
+        """Perform the simulation (energy calculation) for the molecule.
+
+        Returns:
+            float: Total FCI energy.
+        """
+        return self.solver.simulate()
+
+    def get_rdm(self):
+        """Compute the Full CI 1- and 2-particle reduced density matrices.
+
+        Returns:
+            numpy.array: One-particle RDM.
+            numpy.array: Two-particle RDM.
+
+        Raises:
+            RuntimeError: If method "simulate" hasn't been run.
+        """
+        return self.solver.get_rdm()
