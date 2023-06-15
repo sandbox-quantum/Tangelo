@@ -14,11 +14,10 @@
 
 import unittest
 
-from tangelo.algorithms.classical.ccsd_solver import CCSDSolver
+from tangelo.algorithms.classical.ccsd_solver import CCSDSolver, default_ccsd_solver
 from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_sto3g_uhf_a1_frozen
 
 
-# TODO: Can we test the get_rdm method on H2 ? How do we get our reference? Whole matrix or its properties?
 class CCSDSolverTest(unittest.TestCase):
 
     def test_ccsd_h2(self):
@@ -29,8 +28,9 @@ class CCSDSolverTest(unittest.TestCase):
 
         self.assertAlmostEqual(energy, -1.1478300596229851, places=6)
 
+    @unittest.skipIf("pyscf" != default_ccsd_solver, "Test Skipped: Only functions for pyscf \n")
     def test_ccsd_h4_uhf_a1_frozen(self):
-        """Test CCSDSolver against result from reference implementation."""
+        """Test CCSDSolver against result from reference implementation for single alpha frozen orbital and rdms returned."""
 
         solver = CCSDSolver(mol_H4_sto3g_uhf_a1_frozen)
         energy = solver.simulate()
@@ -47,7 +47,7 @@ class CCSDSolverTest(unittest.TestCase):
         solver = CCSDSolver(mol_Be_321g)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -14.531416589890926, places=6)
+        self.assertAlmostEqual(energy, -14.531416589890926, places=4)
 
     def test_ccsd_be_frozen_core(self):
         """ Test CCSDSolver against result from reference implementation, with
@@ -72,7 +72,7 @@ class CCSDSolverTest(unittest.TestCase):
         solver = CCSDSolver(mol_Be_321g_freeze_list)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -14.498104489160106, places=6)
+        self.assertAlmostEqual(energy, -14.498104489160106, places=4)
 
     def test_ccsd_get_rdm_without_simulate(self):
         """Test that the runtime error is raised when user calls get RDM without

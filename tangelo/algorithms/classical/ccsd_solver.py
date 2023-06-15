@@ -19,12 +19,12 @@ from typing import Union, Type
 import warnings
 
 import numpy as np
+from sympy.combinatorics.permutations import Permutation
 
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
 from tangelo.helpers.utils import installed_chem_backends, is_package_installed
-from tangelo.algorithms.classical.fci_solver import getswaps
 
 if 'pyscf' in installed_chem_backends:
     default_ccsd_solver = 'pyscf'
@@ -148,30 +148,22 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         self.backend.core.clean()
         self.backend.core.clean_variables()
         self.ciwfn = None
-        self.degenerate_mo_energies = False
-        if isinstance(molecule.solver, IntegralSolverPsi4) and not molecule.symmetry and 1==0:
-            self.molecule = molecule
+
+        n_frozen_vir = len(molecule.frozen_virtual)
+        n_frozen_occ = len(molecule.frozen_occupied)
+        if not molecule.uhf:
+            ref = 'rhf' if molecule.spin == 0 else 'rohf'
         else:
-            n_frozen_vir = len(molecule.frozen_virtual)
-            n_frozen_occ = len(molecule.frozen_occupied)
-            if not molecule.uhf:
-                ref = 'rhf' if molecule.spin == 0 else 'rohf'
-            else:
-                ref = 'uhf'
-            self.backend.set_options({'basis': molecule.basis, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
+            ref = 'uhf'
+        self.backend.set_options({'basis': molecule.basis, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
                                   'reference': ref})
-            for i, val in enumerate(molecule.mo_energies[:-1]):
-                if np.isclose(val, molecule.mo_energies[i+1]):
-                    self.degenerate_mo_energies = True
-                    break
-            self.degenerate_mo_energies = np.any(np.isclose(molecule.mo_energies[1:], molecule.mo_energies[:-1]))
-            self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
-                                                    solver=IntegralSolverPsi4(),
-                                                    basis=molecule.basis,
-                                                    ecp=molecule.ecp,
-                                                    symmetry=False,
-                                                    uhf=molecule.uhf,
-                                                    frozen_orbitals=molecule.frozen_orbitals)
+        self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
+                                                solver=IntegralSolverPsi4(),
+                                                basis=molecule.basis,
+                                                ecp=molecule.ecp,
+                                                symmetry=False,
+                                                uhf=molecule.uhf,
+                                                frozen_orbitals=molecule.frozen_orbitals)
         self.basis = molecule.basis
 
     def simulate(self):
@@ -187,39 +179,25 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         else:
             ref = 'uhf'
         self.backend.set_options({'basis': self.basis, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
-                                  'reference': ref})
-
-        # Copy reference wavefunction and swap orbitals to obtain correct active space if necessary
-        wfn = self.backend.core.Wavefunction(self.molecule.solver.mol_nosym, self.molecule.solver.wfn.basisset())
-        wfn.deep_copy(self.molecule.solver.wfn)
-        
-        print(ener)
+                                  'qc_module': 'ccenergy', 'reference': ref})
 
         if n_frozen_occ or n_frozen_vir:
-            if not self.molecule.uhf:
-                mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
-                swap_ops = getswaps(mo_order)
-                for swap_op in swap_ops[::-1]:
-                    wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
-            else:
-                mo_order = self.molecule.frozen_occupied[0] + self.molecule.active_occupied[0] + self.molecule.active_virtual[0] + self.molecule.frozen_virtual[0]
-                swap_ops = getswaps(mo_order)
-                for swap_op in swap_ops[::-1]:
-                    wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
-                mo_order = self.molecule.frozen_occupied[1] + self.molecule.active_occupied[1] + self.molecule.active_virtual[1] + self.molecule.frozen_virtual[1]
-                swap_ops = getswaps(mo_order)
-                for swap_op in swap_ops[::-1]:
-                    wfn.Cb().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
+            if self.molecule.uhf:
+                if (set(self.molecule.frozen_occupied[0]) != set(self.molecule.frozen_occupied[1]) or
+                   set(self.molecule.frozen_virtual[0]) != set(self.molecule.frozen_virtual)):
+                    raise ValueError("Only identical frozen orbitals for alpha and beta are supported in CCSDSolverPsi4")
+            focc = np.array(self.molecule.frozen_occupied)
+            fvir = np.array(self.molecule.frozen_virtual)
+            if np.any(focc > n_frozen_occ-1) or np.any(fvir < self.molecule.n_mos-n_frozen_vir):
+                raise ValueError("CCSDSolverPsi4 does not support freezing interior orbitals")
 
         energy, self.ciwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
-                                                 basis=self.basis, return_wfn=True,
-                                                 ref_wfn=wfn)
-        print(self.ciwfn.nfrzc())
+                                                 basis=self.basis, return_wfn=True)
         return energy
 
     def get_rdm(self):
         """Psi4 does not support retrieving rdms for CCSD"""
-        raise RuntimeError("CCSDSolverPsi4: Psi4 does not support rdms for CCSD")
+        raise RuntimeError("CCSDSolverPsi4 does not support calculated RDMs")
 
 
 ccsd_solver_dict = {"pyscf": CCSDSolverPySCF, 'psi4': CCSDSolverPsi4}
