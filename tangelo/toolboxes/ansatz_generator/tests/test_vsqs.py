@@ -81,11 +81,11 @@ class VSQSTest(unittest.TestCase):
         initial_ofhamiltonian = load_operator("mol_H4_doublecation_minao_init_qubitham_jw_b.data", data_directory=pwd_this_test+"/data", plain_text=True)
 
         # Load into Tangelo operators
-        qubit_hamiltonian, initial_hamiltonian = QubitOperator(qubit_ofhamiltonian), QubitOperator(initial_ofhamiltonian)
-
-        reference_state = get_reference_circuit(8, 2, "jw", up_then_down=True, spin=0)
+        qubit_hamiltonian = QubitOperator.from_of(qubit_ofhamiltonian)
+        initial_hamiltonian = QubitOperator.from_of(initial_ofhamiltonian)
 
         # Build circuit
+        reference_state = get_reference_circuit(8, 2, "jw", up_then_down=True, spin=0)
         vsqs_ansatz = VSQS(qubit_hamiltonian=qubit_hamiltonian, h_init=initial_hamiltonian, reference_state=reference_state,
                            intervals=5, time=5, trotter_order=2)
         vsqs_ansatz.build_circuit()
