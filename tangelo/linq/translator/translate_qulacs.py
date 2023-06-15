@@ -108,6 +108,8 @@ def translate_c_to_qulacs(source_circuit, noise_model=None, save_measurements=Fa
 
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
+        if gate.name == 'CNOT' and len(gate.control) > 1:
+            gate.name = 'CX'
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
             (GATE_QULACS[gate.name])(target_circuit, gate.target[0])
         elif gate.name in {"CH", "CX", "CY", "CZ"}:

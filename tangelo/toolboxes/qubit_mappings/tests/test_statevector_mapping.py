@@ -81,7 +81,7 @@ class TestVector(unittest.TestCase):
         """Check that all mappings return statevectors that have the same energy expectation
         for an even number of electrons and various spins. Molecules tested are H4, and H2O
         with frozen_orbitals=[0, 7] which failed previously for scbk"""
-        mols = [mol_H4_sto3g, SecondQuantizedMolecule(xyz_H2O, 0, 0, "sto-3g", frozen_orbitals=[0, 7])]
+        mols = [mol_H4_sto3g, SecondQuantizedMolecule(xyz_H2O, 0, 0, basis="sto-3g", frozen_orbitals=[0, 7])]
         circuits = dict()
         qu_ops = dict()
         for mol in mols:

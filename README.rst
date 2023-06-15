@@ -124,6 +124,18 @@ Depending on your OS and environment, some of these packages may be more challen
 or any issue regarding the above packages, please check their respective documentation.
 
 
+Having trouble with PySCF?
+
+Although PySCF is installed by default, this behaviour can be turned off by defining the environment variable `NO_PYSCF=1` and then
+installing using pip by `pip install git+https://github.com/goodchemistryco/Tangelo.git@main` or using the "From source, using setuptools"
+method. 
+
+The classical solvers `CCSDSolver`, `MP2Solver`, `FCISolver` and `MINDO3Solver` as well as `DMETProblemDecomposition` require 
+PySCF at this time.
+
+Psi4 is supported everywhere except `CCSDSolver`, `MP2Solver`, `FCISolver` and `MINDO3Solver` and `DMETProblemDecomposition`.
+
+
 Quick note for Windows users
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

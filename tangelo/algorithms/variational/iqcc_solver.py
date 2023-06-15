@@ -28,7 +28,11 @@ Refs:
         J. Chem. Theory Comput. 2020, 16, 2, 1055–1063.
 """
 
+from typing import Union
+
+from tangelo import SecondQuantizedMolecule
 from tangelo.linq import get_backend
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
 from tangelo.algorithms.variational.vqe_solver import VQESolver, BuiltInAnsatze
 from tangelo.toolboxes.ansatz_generator._qubit_cc import qcc_op_dress
@@ -91,29 +95,25 @@ class iQCC_solver:
     def __init__(self, opt_dict):
 
         default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None,
-                           "qubit_mapping": "jw",
-                           "up_then_down": False,
-                           "initial_var_params": None,
-                           "backend_options": default_backend_options,
-                           "penalty_terms": None,
-                           "ansatz_options": dict(),
-                           "qubit_hamiltonian": None,
-                           "deqcc_thresh": 1e-5,
-                           "max_iqcc_iter": 100,
-                           "max_iqcc_retries": 10,
-                           "compress_qubit_ham": False,
-                           "compress_eps": 1.59e-3,
-                           "verbose": False}
 
-        # Initialize with default values
-        self.__dict__ = default_options
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for param, val in opt_dict.items():
-            if param in default_options:
-                setattr(self, param, val)
-            else:
-                raise KeyError(f"Keyword {param} not available in self.__class__.__name__.")
+        copt_dict = opt_dict.copy()
+        self.molecule: SecondQuantizedMolecule = copt_dict.pop("molecule", None)
+        self.qubit_mapping: str = copt_dict.pop("qubit_mapping", "jw")
+        self.up_then_down: bool = copt_dict.pop("up_then_down", False)
+        self.initial_var_params: Union[str, list] = copt_dict.pop("initial_var_params", None)
+        self.backend_options: dict = copt_dict.pop("backend_options", default_backend_options)
+        self.penalty_terms: dict = copt_dict.pop("penalty_terms", None)
+        self.ansatz_options: dict = copt_dict.pop("ansatz_options", dict())
+        self.qubit_hamiltonian: QubitOperator = copt_dict.pop("qubit_hamiltonian", None)
+        self.deqcc_thresh: float = copt_dict.pop("deqcc_thresh", 1e-5)
+        self.max_iqcc_iter: int = copt_dict.pop("max_iqcc_iter", 100)
+        self.max_iqcc_retries: int = copt_dict.pop("max_iqcc_retries", 10)
+        self.compress_qubit_ham: bool = copt_dict.pop("compress_qubit_ham", False)
+        self.compress_eps: float = copt_dict.pop("compress_eps", 1.59e-3)
+        self.verbose: bool = copt_dict.pop("verbose", False)
+
+        if len(copt_dict) > 0:
+            raise KeyError(f"The following keywords are not supported in {self.__class__.__name__}: \n {copt_dict.keys()}")
 
         if not self.molecule:
             raise ValueError(f"An instance of SecondQuantizedMolecule is required for initializing {self.__class__.__name__}.")

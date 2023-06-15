@@ -17,7 +17,6 @@
 import itertools as it
 
 import numpy as np
-from pyscf.lib import takebak_2d
 
 from tangelo.toolboxes.molecular_computation.coefficients import spatial_from_spinorb
 from tangelo.linq.helpers import pauli_string_to_of, pauli_of_to_string, get_compatible_bases
@@ -220,6 +219,7 @@ def pad_rdms_with_frozen_orbitals_restricted(sec_mol, onerdm, twordm):
         numpy.array: Two-particle reduced density matrix (shape of
             (N_total_mos,)*4).
     """
+    from pyscf.lib import takebak_2d
 
     if sec_mol.uhf:
         raise NotImplementedError("The RDMs padding with an UHF mean-field is not implemented.")
@@ -314,6 +314,7 @@ def pad_rdms_with_frozen_orbitals_unrestricted(sec_mol, onerdm, twordm):
         tuple of arrays: Tuple of alpha-alpha, alpha-beta and beta-beta
             two-particle reduced density matrix (shape of (N_total_mos,)*4).
     """
+    from pyscf.lib import takebak_2d
 
     # Unpacking the tuples.
     onerdm_a, onerdm_b = onerdm

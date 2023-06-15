@@ -67,7 +67,7 @@ class ADAPTSolverTest(unittest.TestCase):
         from a Majorana UCCGSD pool and a Majorana UCCSD pool
         """
 
-        mol = SecondQuantizedMolecule(xyz_H4, 0, 0, "sto-3g", frozen_orbitals=[0])
+        mol = SecondQuantizedMolecule(xyz_H4, 0, 0, basis="sto-3g", frozen_orbitals=[0])
         opt_dict = {"molecule": mol, "max_cycles": 4, "verbose": False, "pool": get_majorana_uccgsd_pool,
                     "pool_args": {"n_sos": mol.n_active_sos}}
         adapt_solver = ADAPTSolver(opt_dict)
@@ -76,7 +76,7 @@ class ADAPTSolverTest(unittest.TestCase):
 
         self.assertAlmostEqual(adapt_solver.optimal_energy, -1.8945, places=3)
 
-        mol = SecondQuantizedMolecule(xyz_H4, 0, 0, "sto-3g", frozen_orbitals=[0])
+        mol = SecondQuantizedMolecule(xyz_H4, 0, 0, basis="sto-3g", frozen_orbitals=[0])
         opt_dict = {"molecule": mol, "max_cycles": 4, "verbose": False, "pool": get_majorana_uccsd_pool,
                     "pool_args": {"n_electrons": mol.n_active_electrons, "n_sos": mol.n_active_sos}}
         adapt_solver = ADAPTSolver(opt_dict)
@@ -101,7 +101,7 @@ class ADAPTSolverTest(unittest.TestCase):
         from a Majorana UCCGSD pool followed by deflation for an orthogonal state triplet state.
         """
 
-        mol = SecondQuantizedMolecule(xyz_H4, 0, 0, "sto-3g", frozen_orbitals=[0])
+        mol = SecondQuantizedMolecule(xyz_H4, 0, 0, basis="sto-3g", frozen_orbitals=[0])
         opt_dict = {"molecule": mol, "max_cycles": 4, "verbose": False, "pool": get_majorana_uccgsd_pool,
                     "pool_args": {"n_sos": mol.n_active_sos}}
         adapt_solver = ADAPTSolver(opt_dict)
