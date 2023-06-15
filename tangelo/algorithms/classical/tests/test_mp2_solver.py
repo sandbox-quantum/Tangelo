@@ -71,7 +71,7 @@ class MP2SolverTest(unittest.TestCase):
 
         ref_params = [2.e-05, 3.632537e-02]
 
-        np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_params())
+        np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_amplitudes())
 
     def test_get_mp2_params_unrestricted(self):
         """Test the packing of UMP2 amplitudes as initial parameters for coupled
@@ -82,7 +82,7 @@ class MP2SolverTest(unittest.TestCase):
         solver.simulate()
         ref_params = [0., 0., 0.030736]
 
-        np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_params())
+        np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_amplitudes())
 
 
 if __name__ == "__main__":

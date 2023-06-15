@@ -50,6 +50,8 @@ class MP2Solver(ElectronicStructureSolver):
         self.frozen = molecule.frozen_mos
         self.uhf = molecule.uhf
 
+        # Define variables used to transform the MP2 parameters into an ordered
+        # list of parameters with single and double excitations.
         if self.spin != 0 or self.uhf:
             self.n_alpha, self.n_beta = molecule.n_active_ab_electrons
             self.n_active_moa, self.n_active_mob = molecule.n_active_mos if self.uhf else (molecule.n_active_mos,)*2
@@ -63,6 +65,7 @@ class MP2Solver(ElectronicStructureSolver):
         Returns:
             float: MP2 energy.
         """
+
         # Execute MP2 calculation
         if self.uhf:
             self.mp2_fragment = self.mp.UMP2(self.mean_field, frozen=self.frozen)
@@ -87,32 +90,30 @@ class MP2Solver(ElectronicStructureSolver):
             RuntimeError: If no simulation has been run.
         """
 
-        # Check if MP2 is performed
+        # Check if MP2 has been performed
         if self.mp2_fragment is None:
-            raise RuntimeError("MP2Solver: Cannot retrieve RDM. Please run the 'simulate' method first")
+            raise RuntimeError(f"{self.__class__.name}: Cannot retrieve RDM. Please run the 'simulate' method first")
         if self.frozen is not None:
-            raise RuntimeError("MP2Solver: RDM calculation is not implemented with frozen orbitals.")
+            raise RuntimeError(f"{self.__class__.name}: RDM calculation is not implemented with frozen orbitals.")
 
         one_rdm = self.mp2_fragment.make_rdm1()
         two_rdm = self.mp2_fragment.make_rdm2()
 
         return one_rdm, two_rdm
 
-    def get_mp2_params(self):
-        """Computes the MP2 initial variational parameters. Compute the initial
-        variational parameters with PySCF MP2 calculation, and then reorders the
-        elements into the appropriate convention. MP2 only has doubles (T2)
-        amplitudes, thus the single (T1) amplitudes are set to a small non-zero
-        value and added. The ordering is single, double (diagonal), double
-        (non-diagonal).
+    def get_mp2_amplitudes(self):
+        """Compute the double amplitudes from the perturbative method, and then
+        reorders the elements into the appropriate convention. The single (T1)
+        amplitudes are set to a small non-zero value. The ordering is single,
+        double (diagonal), double (non-diagonal).
 
         Returns:
-            list of float: The initial variational parameters.
+            list of float: The electronic excitation amplitudes.
         """
 
-        # Check if MP2 is performed
+        # Check if MP2 has been performed.
         if self.mp2_fragment is None:
-            raise RuntimeError("MP2Solver: Cannot retrieve MP2 parameters. Please run the 'simulate' method first")
+            raise RuntimeError(f"{self.__class__.name}: Cannot retrieve MP2 parameters. Please run the 'simulate' method first")
 
         if self.spin != 0 or self.uhf:
             # Reorder the T2 amplitudes in a dense list.
