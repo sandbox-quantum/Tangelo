@@ -251,12 +251,9 @@ class UCCSD(Ansatz):
         return qubit_op
 
     def _compute_mp2_params(self):
-        """Computes the MP2 initial variational parameters. Compute the initial
-        variational parameters with PySCF MP2 calculation, and then reorders the
-        elements into the appropriate convention. MP2 only has doubles (T2)
-        amplitudes, thus the single (T1) amplitudes are set to a small non-zero
-        value and added. The ordering is single, double (diagonal), double
-        (non-diagonal).
+        """Compute the MP2 initial variational parameters. Only double
+        excitation amplitudes are retrieved from an MP2 calculation (singles
+        set to a small number close to 0).
 
         Returns:
             list of float: The initial variational parameters.
