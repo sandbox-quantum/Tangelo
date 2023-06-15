@@ -18,11 +18,11 @@ import os
 import numpy as np
 from openfermion import load_operator
 
+from tangelo.linq import get_backend
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings import jordan_wigner, symmetry_conserving_bravyi_kitaev
 from tangelo.toolboxes.ansatz_generator import VSQS
-from tangelo.linq import get_backend
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 
 # For openfermion.load_operator function.
@@ -71,14 +71,18 @@ class VSQSTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -1.1372701255155757, delta=1e-6)
 
     def test_vsqs_H4_doublecation(self):
-        """Verify closed-shell VSQS functionalities for H4 2+ by using saved qubit hamiltonian and initial hamiltonian"""
+        """ Verify closed-shell VSQS functionalities for H4 2+ by using saved qubit and initial hamiltonians """
 
         var_params = [-2.53957674, 0.72683888, 1.08799500, 0.49836183,
                       -0.23020698, 0.93278630, 0.50591026, 0.50486903]
 
-        # Build qubit hamiltonian for energy evaluation
-        qubit_hamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_jw_b.data", data_directory=pwd_this_test+"/data", plain_text=True)
-        initial_hamiltonian = load_operator("mol_H4_doublecation_minao_init_qubitham_jw_b.data", data_directory=pwd_this_test+"/data", plain_text=True)
+        # Build qubit hamiltonian for energy evaluation, loading them with Openfermion.
+        qubit_ofhamiltonian = load_operator("mol_H4_doublecation_minao_qubitham_jw_b.data", data_directory=pwd_this_test+"/data", plain_text=True)
+        initial_ofhamiltonian = load_operator("mol_H4_doublecation_minao_init_qubitham_jw_b.data", data_directory=pwd_this_test+"/data", plain_text=True)
+
+        # Load into Tangelo operators
+        qubit_hamiltonian, initial_hamiltonian = QubitOperator(qubit_ofhamiltonian), QubitOperator(initial_ofhamiltonian)
+
         reference_state = get_reference_circuit(8, 2, "jw", up_then_down=True, spin=0)
 
         # Build circuit
