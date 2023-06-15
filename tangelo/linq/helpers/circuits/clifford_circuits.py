@@ -40,7 +40,7 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
         elif clifford_parameter == pi / 2:
             gate_list = [Gate("H", gate.target), Gate("Z", gate.target)]
         elif clifford_parameter == pi:
-            gate_list = [Gate("Y", gate.target)]
+            gate_list = [Gate("SDAG", gate.target), Gate("Y", gate.target), Gate("SDAG", gate.target)]
 
     elif gate.name == "RX":
         if clifford_parameter == -pi / 2:
@@ -48,7 +48,7 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
         elif clifford_parameter == pi / 2:
             gate_list = [Gate("SDAG", gate.target), Gate("H", gate.target), Gate("SDAG", gate.target)]
         elif clifford_parameter == pi:
-            gate_list = [Gate("SDAG", gate.target), Gate("X", gate.target), Gate("SDAG", gate.target)]
+            gate_list =[Gate("SDAG", gate.target), Gate("X", gate.target), Gate("SDAG", gate.target)]
 
     elif gate.name == "RZ":
         if clifford_parameter == -pi / 2:
@@ -58,7 +58,8 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
             gate_list = [Gate("H", gate.target), Gate("SDAG", gate.target), Gate("H", gate.target),
                          Gate("SDAG", gate.target), Gate("H", gate.target)]
         elif clifford_parameter == pi:
-            gate_list = [Gate("Z", gate.target)]
+            gate_list = [Gate("H", gate.target), Gate("SDAG", gate.target),Gate("X", gate.target) ,Gate("SDAG", gate.target), Gate("H", gate.target)]
+
 
     elif gate.name == "PHASE":
         if clifford_parameter == -pi / 2:

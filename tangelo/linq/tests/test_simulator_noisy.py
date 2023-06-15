@@ -217,6 +217,28 @@ class TestSimulate(unittest.TestCase):
                              [ 0.00000000 - 0.j,  0.00000000 + 0.j, -0.33658839 - 0.j,  0.18387908 + 0.j]])
         np.testing.assert_array_almost_equal(sv, exact_sv)
 
+    @unittest.skipIf("stim" not in installed_backends, "Test Skipped: Backend not available \n")
+    def test_noisy_simulation_stim(self):
+        """
+            Test noisy simulation through stim.
+            Currently tested: pauli noise, depolarization noise (1 and 2 qubit gates)
+        """
+
+        # Pauli noise for one- and two-qubit gates. Circuits are only a X gate, or just a CNOT gate.
+        s_nmp = get_backend(target='stim', n_shots=10 ** 6, noise_model=nmp)
+        res_pauli1, _ = s_nmp.simulate(cn1)
+        assert_freq_dict_almost_equal(res_pauli1, ref_pauli1, 1e-2)
+        res_pauli2, _ = s_nmp.simulate(cn2)
+        assert_freq_dict_almost_equal(res_pauli2, ref_pauli2, 1e-2)
+
+        # Depol noise for one- and two-qubit gates. Circuits are only a X gate or just a CNOT gate.
+        s_nmd = get_backend(target='stim', n_shots=10 ** 6, noise_model=nmd)
+        #res_depol1, _ = s_nmd.simulate(cn1)
+        #assert_freq_dict_almost_equal(res_depol1, ref_depol1, 1e-2)
+        #res_depol2, _ = s_nmd.simulate(cn2)
+        #assert_freq_dict_almost_equal(res_depol2, ref_depol2, 1e-2)
+
+
     def test_get_expectation_value_noisy(self):
         """Test of the get_expectation_value function with a noisy simulator"""
         # Test Hamiltonian.

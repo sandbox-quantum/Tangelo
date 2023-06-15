@@ -31,6 +31,7 @@ path_data = os.path.dirname(os.path.realpath(__file__)) + '/data'
 
 gates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1), Gate("Y", 0), Gate("S", 0)]
 abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=2.)])
+clifford_abs_circ = Circuit(gates) + Circuit([Gate("RX", 1, parameter=np.pi/2)])
 multi_controlled_gates = [Gate("X", 0), Gate("X", 1), Gate("CX", target=2, control=[0, 1])]
 multi_controlled_gates2 = [Gate("X", 0), Gate("X", 1), Gate("CNOT", target=2, control=[0, 1])]
 abs_multi_circ = Circuit(multi_controlled_gates)
@@ -41,12 +42,18 @@ one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else 
                    for name in one_qubit_gate_names]
 one_qubit_gates += [Gate(name, target=1) if name not in PARAMETERIZED_GATES else Gate(name, target=1, parameter=0.2)
                     for name in one_qubit_gate_names]
+clifford_one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else Gate(name, target=0, parameter=np.pi)
+                   for name in one_qubit_gate_names.pop(5)[:-1]]
+clifford_one_qubit_gates += [Gate(name, target=1) if name not in PARAMETERIZED_GATES else Gate(name, target=1, parameter=-np.pi/2)
+                    for name in one_qubit_gate_names.pop(5)[:-1]]
 two_qubit_gate_names = ["CNOT", "CX", "CY", "CZ", "CPHASE", "CRZ"]
+clifford_two_qubit_gate_names = ["CNOT", "CX", "CY", "CZ"]
 two_qubit_gates = [Gate(name, target=1, control=0) if name not in PARAMETERIZED_GATES
                    else Gate(name, target=1, control=0, parameter=0.5) for name in two_qubit_gate_names]
+clifford_two_qubit_gates = [Gate(name, target=1, control=0) for name in clifford_two_qubit_gate_names]
 swap_gates = [Gate('SWAP', target=[1, 0]), Gate('CSWAP', target=[1, 2], control=0)]
 big_circuit = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates + [Gate('XX', [0, 1], parameter=0.5)])
-
+clifford_big_circuit = Circuit(init_gates + clifford_one_qubit_gates + clifford_two_qubit_gates + [Gate('SWAP', target =[1,0])])
 references = [0., 0.38205142 ** 2, 0., 0.59500984 ** 2, 0., 0.38205142 ** 2, 0., 0.59500984 ** 2]
 references_multi = [0., 0., 0., 0., 0., 0., 0., 1.]
 reference_big_lsq = [-0.29022980 + 0.20684454j, -0.34400320 + 0.12534970j,  0.21316957 + 0.23442923j,
@@ -55,6 +62,8 @@ reference_big_lsq = [-0.29022980 + 0.20684454j, -0.34400320 + 0.12534970j,  0.21
 reference_big_msq = [-0.29022979 + 0.20684454j, -0.36723376 + 0.29031221j,  0.21316958 + 0.23442923j,
                      -0.37427729 + 0.41885117j, -0.34400321 + 0.12534970j, -0.04807414 + 0.07971841j,
                       0.15939615 + 0.15293440j, -0.05511766 + 0.20825737j]
+
+clifford_ref = [0. + 0.j,  0.5+0.j,  0. - 0.5j, 0. + 0.j,  0. + 0.j,  0.5 + 0.j,  0. - 0.5j, 0. + 0.j]
 
 abs_circ_mixed = Circuit(gates) + Circuit([Gate("RX", 1, parameter=1.5), Gate("MEASURE", 0)])
 
@@ -507,6 +516,37 @@ class TranslateCircuitTest(unittest.TestCase):
         translated_circuit = translate_c(abs_circ, "sympy")
 
         self.assertEqual(translated_circuit, ref_circ)
+
+    @unittest.skipIf("stim" not in installed_backends, "Test Skipped: Backend not available \n")
+    def test_stim_translate(self):
+        """ Compares stim translated ciruit with one made directly with stim"""
+
+        import stim
+        #translate circuit
+        translated_circuit = translate_c(clifford_abs_circ, "stim")
+        #make circuit
+        circ = stim.Circuit()
+        for qubit in range(clifford_abs_circ.width):
+            circ.append("I", [qubit])
+        circ.append("H", [2])
+        circ.append("CNOT", [0, 1])
+        circ.append("CNOT", [1, 2])
+        circ.append("Y", [0])
+        circ.append("S", [0])
+        circ.append("S_DAG", [1])
+        circ.append("H", [1])
+        circ.append("S_DAG", [1])
+        assert(circ == translated_circuit)
+
+    @unittest.skipIf("stim" not in installed_backends, "Test Skipped: Backend not available \n")
+    def test_stim_tableau(self):
+        """ Compares stim statevector produced by tableau with reference state"""
+
+        import stim
+        from tangelo.linq.translator.translate_stim import direct_tableau
+        # get statevector from tableau
+        v1 = direct_tableau(clifford_big_circuit).state_vector()
+        np.testing.assert_array_almost_equal(v1, clifford_ref, decimal=6)
 
 
 if __name__ == "__main__":

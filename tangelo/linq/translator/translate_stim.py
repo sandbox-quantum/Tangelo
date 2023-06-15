@@ -48,9 +48,21 @@ def get_stim_gates():
     GATE_STIM["CX"] = "CX"
     GATE_STIM["CY"] = "CY"
     GATE_STIM["CZ"] = "CZ"
-    GATE_STIM["CNOT"] = "CNOT"
+    GATE_STIM["CNOT"] = "CX"
+    GATE_STIM["XCX"] = "XCX"
+    GATE_STIM["XCY"] = "XCY"
+    GATE_STIM["XCZ"] = "XCZ"
+    GATE_STIM["YCX"] = "YCX"
+    GATE_STIM["YCY"] = "YCY"
+    GATE_STIM["YCZ"] = "YCZ"
+    GATE_STIM["ZCX"] = "ZCX"
+    GATE_STIM["ZCY"] = "ZCY"
+    GATE_STIM["ZCZ"] = "ZCZ"
     GATE_STIM["SWAP"] = "SWAP"
+    GATE_STIM["ISWAP"] = "ISWAP"
+    GATE_STIM["ISWAP_DAG"] = "ISWAP_DAG"
     GATE_STIM["MEASURE"] = "M"
+    GATE_STIM["R"] = "R"
     return GATE_STIM
 
 def direct_tableau(source_circuit):
@@ -73,7 +85,7 @@ def direct_tableau(source_circuit):
     target_circuit = stim.TableauSimulator()
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
-        if gate.name in {"H", "X", "Y", "Z", "S"}:
+        if gate.name in {"H", "X", "Y", "Z", "S", "SDAG"}:
             bar = getattr(target_circuit, gate.name.lower())
             bar(gate.target[0])
         elif gate.name in {"RY", "RX", "RZ", "PHASE"}:
@@ -83,10 +95,13 @@ def direct_tableau(source_circuit):
                 bar = getattr(target_circuit, GATE_STIM[cliff_gate.name].lower())
                 bar(gate.target[0])
 
-        elif gate.name in {"CX", "CY", "CZ", "CNOT", "SWAP"}:
+        elif gate.name in {"CX", "CY", "CZ", "CNOT"}:
             bar = getattr(target_circuit, gate.name.lower())
             bar(gate.control[0], gate.target[0])
-
+        elif gate.name in {"SWAP"}:
+            bar = getattr(target_circuit, gate.name.lower())
+            bar(gate.target[0], gate.target[1])
+    print(target_circuit)
     return target_circuit
 
 @deprecated("Please use the translate_circuit function.")
@@ -124,14 +139,16 @@ def translate_c_to_stim(source_circuit, noise_model=None):
 
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
-        if gate.name in {"H", "X", "Y", "Z", "S"}:
+        if gate.name in {"H", "X", "Y", "Z", "S", "SDAG"}:
             target_circuit.append(GATE_STIM[gate.name], [gate.target[0]])
         elif gate.name in {"RY", "RX", "RZ", "PHASE"}:
             clifford_decomposition = decompose_gate_to_cliffords(gate)
             for cliff_gate in clifford_decomposition:
                 target_circuit.append(GATE_STIM[cliff_gate.name], [cliff_gate.target[0]])
-        elif gate.name in {"CX", "CY", "CZ", "CNOT", "SWAP"}:
+        elif gate.name in {"CX", "CY", "CZ", "CNOT"}:
             target_circuit.append(GATE_STIM[gate.name], [gate.control[0], gate.target[0]])
+        elif gate.name in {"SWAP"}:
+            target_circuit.append(GATE_STIM[gate.name], [gate.target[0], gate.target[1]])
 
         if noise_model and (gate.name in noise_model.noisy_gates):
             for nt, np in noise_model._quantum_errors[gate.name]:
