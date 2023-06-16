@@ -87,6 +87,29 @@ class MP2SolverTest(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_amplitudes())
 
+    def test_get_mp2_params_restricted(self):
+        """Test the packing of RMP2 amplitudes as initial parameters for coupled
+        cluster based methods.
+        """
+
+        solver = MP2Solver(mol_H2_sto3g)
+        solver.simulate()
+
+        ref_params = [2.e-05, 3.632537e-02]
+
+        np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_amplitudes())
+
+    def test_get_mp2_params_unrestricted(self):
+        """Test the packing of UMP2 amplitudes as initial parameters for coupled
+        cluster based methods.
+        """
+
+        solver = MP2Solver(mol_H2_sto3g_uhf)
+        solver.simulate()
+        ref_params = [0., 0., 0.030736]
+
+        np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_amplitudes())
+
 
 if __name__ == "__main__":
     unittest.main()
