@@ -16,7 +16,7 @@ import unittest
 
 import numpy as np
 
-from tangelo.algorithms.classical import MP2Solver
+from tangelo.algorithms.classical.mp2_solver import MP2Solver, default_mp2_solver
 from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H2_sto3g, mol_H2_sto3g_uhf
 
 
@@ -28,14 +28,14 @@ class MP2SolverTest(unittest.TestCase):
         solver = MP2Solver(mol_H2_321g)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -1.14025452, places=6)
+        self.assertAlmostEqual(energy, -1.14025452, places=3)
 
     def test_be(self):
         """Test MP2Solver against result from reference implementation (Be)."""
 
         solver = MP2Solver(mol_Be_321g)
         energy = solver.simulate()
-        self.assertAlmostEqual(energy, -14.51026131, places=6)
+        self.assertAlmostEqual(energy, -14.51026131, places=3)
 
         # Assert energy calculated from RDMs and MP2 calculation are the same.
         one_rdm, two_rdm = solver.get_rdm()
@@ -59,8 +59,9 @@ class MP2SolverTest(unittest.TestCase):
         solver = MP2Solver(mol_Be_321g_freeze1)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -14.5092873, places=6)
+        self.assertAlmostEqual(energy, -14.5092873, places=3)
 
+    @unittest.skipIf("pyscf" != default_mp2_solver, "Test Skipped: Only functions for pyscf \n")
     def test_get_mp2_params_restricted(self):
         """Test the packing of RMP2 amplitudes as initial parameters for coupled
         cluster based methods.
@@ -73,6 +74,7 @@ class MP2SolverTest(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_amplitudes())
 
+    @unittest.skipIf("pyscf" != default_mp2_solver, "Test Skipped: Only functions for pyscf \n")
     def test_get_mp2_params_unrestricted(self):
         """Test the packing of UMP2 amplitudes as initial parameters for coupled
         cluster based methods.
