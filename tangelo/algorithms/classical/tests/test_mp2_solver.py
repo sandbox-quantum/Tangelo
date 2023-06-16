@@ -87,6 +87,7 @@ class MP2SolverTest(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_amplitudes())
 
+    @unittest.skipIf("pyscf" != default_mp2_solver, "Test Skipped: Only functions for pyscf \n")
     def test_get_mp2_params_restricted(self):
         """Test the packing of RMP2 amplitudes as initial parameters for coupled
         cluster based methods.
@@ -99,6 +100,7 @@ class MP2SolverTest(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_amplitudes())
 
+    @unittest.skipIf("pyscf" != default_mp2_solver, "Test Skipped: Only functions for pyscf \n")
     def test_get_mp2_params_unrestricted(self):
         """Test the packing of UMP2 amplitudes as initial parameters for coupled
         cluster based methods.
