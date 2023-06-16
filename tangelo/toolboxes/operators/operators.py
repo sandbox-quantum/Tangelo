@@ -169,7 +169,7 @@ class QubitOperator(of.QubitOperator):
     """
 
     @classmethod
-    def from_of(cls, of_qop):
+    def from_openfermion(cls, of_qop):
         """ Enable instantiation of a QubitOperator from an openfermion QubitOperator object.
 
         Args:
