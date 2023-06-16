@@ -64,13 +64,13 @@ circuit5 = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates)
 
 # Circuit that tests all gates are supported on clifford simulator
 one_qubit_gate_names = ["H", "X", "Y", "Z", "S", "RX", "RY", "RZ"]
-one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else Gate(name, target=0, parameter=np.pi)
+one_qubit_gates = [Gate(name, target=0) if name not in PARAMETERIZED_GATES else Gate(name, target=0, parameter=-np.pi/2)
                    for name in one_qubit_gate_names]
 one_qubit_gates += [Gate(name, target=1) if name not in PARAMETERIZED_GATES else Gate(name, target=1, parameter=np.pi/2)
                     for name in one_qubit_gate_names]
 clifford_two_qubit_gate_names = ["CNOT", "CX", "CY", "CZ"]
 clifford_two_qubit_gates = [Gate(name, target=1, control=0) for name in clifford_two_qubit_gate_names]
-circuit_clifford = Circuit(init_gates + one_qubit_gates + clifford_two_qubit_gates)
+circuit_clifford = Circuit(init_gates + one_qubit_gates + clifford_two_qubit_gates + [Gate('SWAP', target =[1,0])])
 
 # Circuit preparing a mixed-state (i.e. containing a MEASURE instruction in the middle of the circuit)
 circuit_mixed = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.), Gate("MEASURE", 0), Gate("X", 0)])
@@ -94,10 +94,10 @@ ref_freqs.append({'00': 1.0})
 ref_freqs.append({'000': 0.15972060437359714, '100': 0.2828171838599203, '010': 0.03984122195648572,
                   '110': 0.28281718385992016, '001': 0.15972060437359714, '101': 0.017620989809996816,
                   '011': 0.039841221956485706, '111': 0.01762098980999681})
-ref_freqs_clifford = {'000': 0.25, '001': 0.25, '010': 0.25, '011': 0.25}
+ref_freqs_clifford = {'000': 0.125, '100': 0.125, '010': 0.125, '110': 0.125, '001': 0.125, '101': 0.125, '011': 0.125, '111': 0.125}
 reference_exp_values = np.array([[0., 0., 0.], [0., -1., 0.], [-0.41614684, 0.7651474, -1.6096484], [1., 0., 0.],
                                  [-0.20175269, -0.0600213, 1.2972912]])
-clifford_reference_exp_values = np.array([1, 0, 0])
+clifford_reference_exp_values = np.array([0, 0, -2])
 reference_mixed = {'01': 0.163, '11': 0.066, '10': 0.225, '00': 0.545}  # With Qiskit noiseless, 1M shots
 reference_all = {'101': 0.163, '011': 0.066, '010': 0.225, '100': 0.545}
 reference_mid = {'1': 0.7, '0': 0.3}

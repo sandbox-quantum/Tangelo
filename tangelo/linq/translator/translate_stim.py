@@ -49,18 +49,7 @@ def get_stim_gates():
     GATE_STIM["CY"] = "CY"
     GATE_STIM["CZ"] = "CZ"
     GATE_STIM["CNOT"] = "CX"
-    GATE_STIM["XCX"] = "XCX"
-    GATE_STIM["XCY"] = "XCY"
-    GATE_STIM["XCZ"] = "XCZ"
-    GATE_STIM["YCX"] = "YCX"
-    GATE_STIM["YCY"] = "YCY"
-    GATE_STIM["YCZ"] = "YCZ"
-    GATE_STIM["ZCX"] = "ZCX"
-    GATE_STIM["ZCY"] = "ZCY"
-    GATE_STIM["ZCZ"] = "ZCZ"
     GATE_STIM["SWAP"] = "SWAP"
-    GATE_STIM["ISWAP"] = "ISWAP"
-    GATE_STIM["ISWAP_DAG"] = "ISWAP_DAG"
     GATE_STIM["MEASURE"] = "M"
     GATE_STIM["R"] = "R"
     return GATE_STIM
@@ -90,7 +79,6 @@ def direct_tableau(source_circuit):
             bar(gate.target[0])
         elif gate.name in {"RY", "RX", "RZ", "PHASE"}:
             clifford_decomposition = decompose_gate_to_cliffords(gate)
-
             for cliff_gate in clifford_decomposition:
                 bar = getattr(target_circuit, GATE_STIM[cliff_gate.name].lower())
                 bar(gate.target[0])
@@ -157,9 +145,16 @@ def translate_c_to_stim(source_circuit, noise_model=None):
                     if gate.control is not None:
                         target_circuit.append(stim.CircuitInstruction('PAULI_CHANNEL_1', [gate.control[0]], [np[0], np[1], np[2]]))
                 if nt == 'depol':
-                    target_circuit.append(
-                        stim.CircuitInstruction('DEPOLARIZE1', [gate.target[0]], [np]))
+                    depol_list = [t for t in gate.target]
                     if gate.control is not None:
-                        target_circuit.append(stim.CircuitInstruction('DEPOLARIZE1', [gate.control[0]], [np]))
+                        depol_list += [c for c in gate.control]
+                    n_depol = len(depol_list)
+                    if n_depol == 1:
+                        target_circuit.append(stim.CircuitInstruction('DEPOLARIZE1', [gate.target[0]], [np]))
+                    elif n_depol == 2:
+                        target_circuit.append(stim.CircuitInstruction('DEPOLARIZE2', [gate.target[0], gate.control[0]], [np]))
+                    else:
+                        raise ValueError(
+                            f'{gate.name} has more than 2 qubits, Qulacs DepolarizingNoise only supports 1- and 2-qubits')
 
     return target_circuit

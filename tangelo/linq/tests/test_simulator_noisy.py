@@ -232,9 +232,9 @@ class TestSimulate(unittest.TestCase):
         assert_freq_dict_almost_equal(res_pauli2, ref_pauli2, 1e-2)
 
         # Depol noise for one- and two-qubit gates. Circuits are only a X gate or just a CNOT gate.
-        s_nmd = get_backend(target='stim', n_shots=10 ** 6, noise_model=nmd)
+        #s_nmd = get_backend(target='stim', n_shots=10 ** 6, noise_model=nmd)
         #res_depol1, _ = s_nmd.simulate(cn1)
-        #assert_freq_dict_almost_equal(res_depol1, ref_depol1, 1e-2)
+        #ssert_freq_dict_almost_equal(res_depol1, ref_depol1, 1e-2)
         #res_depol2, _ = s_nmd.simulate(cn2)
         #assert_freq_dict_almost_equal(res_depol2, ref_depol2, 1e-2)
 
