@@ -182,23 +182,14 @@ class MP2SolverPsi4(ElectronicStructureSolver):
         self.backend.core.clean()
         self.backend.core.clean_variables()
         self.mp2wfn = None
-        self.degenerate_mo_energies = False
-        n_frozen_vir = len(molecule.frozen_virtual)
-        n_frozen_occ = len(molecule.frozen_occupied)
-        intsolve = IntegralSolverPsi4()
-        self.backend.set_options({'basis': molecule.basis, 'tpdm': True, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir]})
 
-        if isinstance(molecule.solver, IntegralSolverPsi4) and not molecule.symmetry and 1==0:
-            self.molecule = molecule
-        else:
-            self.degenerate_mo_energies = np.any(np.isclose(molecule.mo_energies[1:], molecule.mo_energies[:-1]))
-            self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
-                                                    solver=intsolve,
-                                                    basis=molecule.basis,
-                                                    ecp=molecule.ecp,
-                                                    symmetry=False,
-                                                    uhf=molecule.uhf,
-                                                    frozen_orbitals=molecule.frozen_orbitals)
+        self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
+                                                solver=IntegralSolverPsi4(),
+                                                basis=molecule.basis,
+                                                ecp=molecule.ecp,
+                                                symmetry=False,
+                                                uhf=molecule.uhf,
+                                                frozen_orbitals=molecule.frozen_orbitals)
         self.basis = molecule.basis
 
     def simulate(self):
