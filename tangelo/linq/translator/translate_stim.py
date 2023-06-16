@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -85,21 +85,6 @@ def direct_tableau(source_circuit):
             bar(gate.target[0], gate.target[1])
     return target_circuit
 
-
-@deprecated("Please use the translate_circuit function.")
-def translate_stim(source_circuit, noise_model=None):
-    """Take in a Circuit, return an equivalent stim.CircuitInstruction
-
-    Args:
-        source_circuit (Circuit): quantum circuit in the Tangelo format.
-        noise_model (NoiseModel): The noise model to use
-
-    Returns:
-        stim.CircuitInstruction: the corresponding quantum circuit in Qiskit format.
-    """
-    return translate_c_to_stim(source_circuit, noise_model)
-
-
 def translate_c_to_stim(source_circuit, noise_model=None):
     """Take in an abstract circuit, return an equivalent stim QuantumCircuit
     instance. If provided with a noise model, will add noisy gates at
@@ -111,7 +96,7 @@ def translate_c_to_stim(source_circuit, noise_model=None):
             # noisy_simulation subpackage.
 
     Returns:
-        stim.QuantumCircuit: the corresponding stim quantum circuit.
+        stim.TableauSimulator: the corresponding Tableau Simulator.
     """
 
     import stim

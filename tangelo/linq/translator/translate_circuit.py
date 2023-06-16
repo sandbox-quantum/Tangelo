@@ -37,7 +37,6 @@ FROM_TANGELO = {
     "qulacs": translate_c_to_qulacs,
     "pennylane": translate_c_to_pennylane,
     "stim": translate_c_to_stim,
-    "pennylane": translate_c_to_pennylane,
     "sympy": translate_c_to_sympy
 }
 

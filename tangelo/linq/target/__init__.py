@@ -22,7 +22,7 @@ from .target_stim import StimSimulator
 from tangelo.helpers.utils import all_backends_simulator
 
 
-target_dict = {"qiskit": QiskitSimulator, "cirq": CirqSimulator, "qdk": QDKSimulator, "qulacs": QulacsSimulator, "sympy": SympySimulator,"stim": StimSimulator}
+target_dict = {"qiskit": QiskitSimulator, "cirq": CirqSimulator, "qdk": QDKSimulator, "qulacs": QulacsSimulator, "sympy": SympySimulator, "stim": StimSimulator}
 
 # Generate backend info dictionary
 backend_info = {sim_id: target_dict[sim_id].backend_info() for sim_id in all_backends_simulator}

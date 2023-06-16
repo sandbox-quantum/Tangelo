@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import math
-
-import numpy as np
 from collections import Counter
 
+import numpy as np
 import stim
+
 from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
