@@ -25,6 +25,7 @@ from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMole
 from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
 from tangelo.helpers.utils import installed_chem_backends, is_package_installed
+from tangelo.algorithms.classical.fci_solver import getswaps
 
 if 'pyscf' in installed_chem_backends:
     default_ccsd_solver = 'pyscf'
@@ -155,10 +156,11 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
             ref = 'rhf' if molecule.spin == 0 else 'rohf'
         else:
             ref = 'uhf'
+        intsolve = IntegralSolverPsi4()
         self.backend.set_options({'basis': molecule.basis, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
                                   'reference': ref})
         self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
-                                                solver=IntegralSolverPsi4(),
+                                                solver=intsolve,
                                                 basis=molecule.basis,
                                                 ecp=molecule.ecp,
                                                 symmetry=False,
@@ -181,18 +183,18 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         self.backend.set_options({'basis': self.basis, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
                                   'qc_module': 'ccenergy', 'reference': ref})
 
+        # Copy reference wavefunction and swap orbitals to obtain correct active space if necessary
+        wfn = self.backend.core.Wavefunction(self.molecule.solver.mol_nosym, self.molecule.solver.wfn.basisset())
+        wfn.deep_copy(self.molecule.solver.wfn)
         if n_frozen_occ or n_frozen_vir:
-            if self.molecule.uhf:
-                if (set(self.molecule.frozen_occupied[0]) != set(self.molecule.frozen_occupied[1]) or
-                   set(self.molecule.frozen_virtual[0]) != set(self.molecule.frozen_virtual)):
-                    raise ValueError("Only identical frozen orbitals for alpha and beta are supported in CCSDSolverPsi4")
-            focc = np.array(self.molecule.frozen_occupied)
-            fvir = np.array(self.molecule.frozen_virtual)
-            if np.any(focc > n_frozen_occ-1) or np.any(fvir < self.molecule.n_mos-n_frozen_vir):
-                raise ValueError("CCSDSolverPsi4 does not support freezing interior orbitals")
+            mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
+            # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
+            swap_ops = getswaps(mo_order)
+            for swap_op in swap_ops[::-1]:
+                wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
         energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
-                                                 basis=self.basis, return_wfn=True)
+                                                 basis=self.basis, return_wfn=True, ref_wfn=wfn)
         return energy
 
     def get_rdm(self):
