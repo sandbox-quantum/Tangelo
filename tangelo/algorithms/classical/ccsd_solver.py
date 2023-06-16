@@ -25,7 +25,6 @@ from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMole
 from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
 from tangelo.helpers.utils import installed_chem_backends, is_package_installed
-from tangelo.algorithms.classical.fci_solver import getswaps
 
 if 'pyscf' in installed_chem_backends:
     default_ccsd_solver = 'pyscf'
