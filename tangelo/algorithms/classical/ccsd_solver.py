@@ -16,7 +16,6 @@
 """
 
 from typing import Union, Type
-import warnings
 
 import numpy as np
 from sympy.combinatorics.permutations import Permutation
