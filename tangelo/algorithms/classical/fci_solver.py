@@ -207,7 +207,7 @@ class FCISolverPsi4(ElectronicStructureSolver):
             mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
             # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
             swap_ops = Permutation(mo_order).transpositions()
-            for swap_op in swap_ops[::-1]:
+            for swap_op in swap_ops:
                 wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
         energy, self.ciwfn = self.backend.energy('fci', molecule=self.molecule.solver.mol,
