@@ -20,14 +20,9 @@ necessary to account for:
 - how the gate names differ between the source backend to the target backend.
 - how the order and conventions for some of the inputs to the gate operations
     may also differ.
-
-The module also enables bidirectional conversion between qiskit and Tangelo
-qubit operators (linear combination of Pauli operators)
 """
 
-from math import pi, isclose
-
-from tangelo.linq import Circuit, Gate
+from tangelo.linq import Circuit
 from tangelo.helpers import deprecated
 from tangelo.linq.helpers.circuits.clifford_circuits import decompose_gate_to_cliffords
 
@@ -54,6 +49,7 @@ def get_stim_gates():
     GATE_STIM["R"] = "R"
     return GATE_STIM
 
+
 def direct_tableau(source_circuit):
     """Take in an abstract circuit, return an equivalent stim TableauSimulator
     instance. This method is faster than translating into a circuit object when
@@ -61,8 +57,6 @@ def direct_tableau(source_circuit):
 
     Args:
         source_circuit: quantum circuit in the abstract format.
-        noise_model: A NoiseModel object from this package, located in the
-            # noisy_simulation subpackage.
 
     Returns:
         stim.QuantumCircuit: the corresponding stim quantum circuit.
@@ -89,8 +83,8 @@ def direct_tableau(source_circuit):
         elif gate.name in {"SWAP"}:
             bar = getattr(target_circuit, gate.name.lower())
             bar(gate.target[0], gate.target[1])
-    print(target_circuit)
     return target_circuit
+
 
 @deprecated("Please use the translate_circuit function.")
 def translate_stim(source_circuit, noise_model=None):
@@ -98,11 +92,13 @@ def translate_stim(source_circuit, noise_model=None):
 
     Args:
         source_circuit (Circuit): quantum circuit in the Tangelo format.
+        noise_model (NoiseModel): The noise model to use
 
     Returns:
         stim.CircuitInstruction: the corresponding quantum circuit in Qiskit format.
     """
     return translate_c_to_stim(source_circuit, noise_model)
+
 
 def translate_c_to_stim(source_circuit, noise_model=None):
     """Take in an abstract circuit, return an equivalent stim QuantumCircuit

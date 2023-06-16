@@ -23,6 +23,7 @@ from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.translator.translate_stim import direct_tableau
 
+
 class StimSimulator(Backend):
     """Interface to the stim simulator."""
 

@@ -2,6 +2,7 @@ from math import pi, isclose
 
 from tangelo.linq import Gate
 
+
 def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
     """
     Decomposes a single qubit parameterized gate into Clifford gates.
@@ -20,7 +21,6 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
 
     if gate.name not in {"RX", "RY", "RZ", "PHASE"}:
         return gate
-
     gate_list = []
     clifford_values = [0, pi, pi / 2, -pi / 2]
     value_isclose = [isclose(gate.parameter, value, abs_tol=abs_tol) for value in clifford_values]
@@ -48,7 +48,7 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
         elif clifford_parameter == pi / 2:
             gate_list = [Gate("SDAG", gate.target), Gate("H", gate.target), Gate("SDAG", gate.target)]
         elif clifford_parameter == pi:
-            gate_list =[Gate("SDAG", gate.target), Gate("X", gate.target), Gate("SDAG", gate.target)]
+            gate_list = [Gate("SDAG", gate.target), Gate("X", gate.target), Gate("SDAG", gate.target)]
 
     elif gate.name == "RZ":
         if clifford_parameter == -pi / 2:
@@ -58,8 +58,7 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
             gate_list = [Gate("H", gate.target), Gate("SDAG", gate.target), Gate("H", gate.target),
                          Gate("SDAG", gate.target), Gate("H", gate.target)]
         elif clifford_parameter == pi:
-            gate_list = [Gate("H", gate.target), Gate("SDAG", gate.target),Gate("X", gate.target) ,Gate("SDAG", gate.target), Gate("H", gate.target)]
-
+            gate_list = [Gate("H", gate.target), Gate("SDAG", gate.target), Gate("X", gate.target), Gate("SDAG", gate.target), Gate("H", gate.target)]
 
     elif gate.name == "PHASE":
         if clifford_parameter == -pi / 2:

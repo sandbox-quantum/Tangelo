@@ -53,7 +53,7 @@ two_qubit_gates = [Gate(name, target=1, control=0) if name not in PARAMETERIZED_
 clifford_two_qubit_gates = [Gate(name, target=1, control=0) for name in clifford_two_qubit_gate_names]
 swap_gates = [Gate('SWAP', target=[1, 0]), Gate('CSWAP', target=[1, 2], control=0)]
 big_circuit = Circuit(init_gates + one_qubit_gates + two_qubit_gates + swap_gates + [Gate('XX', [0, 1], parameter=0.5)])
-clifford_big_circuit = Circuit(init_gates + clifford_one_qubit_gates + clifford_two_qubit_gates + [Gate('SWAP', target =[1,0])])
+clifford_big_circuit = Circuit(init_gates + clifford_one_qubit_gates + clifford_two_qubit_gates + [Gate('SWAP', target =[1, 0])])
 references = [0., 0.38205142 ** 2, 0., 0.59500984 ** 2, 0., 0.38205142 ** 2, 0., 0.59500984 ** 2]
 references_multi = [0., 0., 0., 0., 0., 0., 0., 1.]
 reference_big_lsq = [-0.29022980 + 0.20684454j, -0.34400320 + 0.12534970j,  0.21316957 + 0.23442923j,
@@ -522,9 +522,9 @@ class TranslateCircuitTest(unittest.TestCase):
         """ Compares stim translated ciruit with one made directly with stim"""
 
         import stim
-        #translate circuit
+        # Translate circuit
         translated_circuit = translate_c(clifford_abs_circ, "stim")
-        #make circuit
+        # Make circuit
         circ = stim.Circuit()
         for qubit in range(clifford_abs_circ.width):
             circ.append("I", [qubit])
