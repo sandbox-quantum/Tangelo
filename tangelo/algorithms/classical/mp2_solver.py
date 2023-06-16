@@ -18,7 +18,6 @@ interaction (CI) method.
 from typing import Union, Type
 from itertools import combinations, product
 from math import ceil
-import warnings
 
 import numpy as np
 from sympy.combinatorics.permutations import Permutation
@@ -211,11 +210,11 @@ class MP2SolverPsi4(ElectronicStructureSolver):
             if self.molecule.uhf:
                 if (set(self.molecule.frozen_occupied[0]) != set(self.molecule.frozen_occupied[1]) or
                    set(self.molecule.frozen_virtual[0]) != set(self.molecule.frozen_virtual)):
-                    raise ValueError("Only identical frozen orbitals for alpha and beta are supported in CCSDSolverPsi4")
+                    raise ValueError("Only identical frozen orbitals for alpha and beta are supported in MP2SolverPsi4")
             focc = np.array(self.molecule.frozen_occupied)
             fvir = np.array(self.molecule.frozen_virtual)
             if np.any(focc > n_frozen_occ-1) or np.any(fvir < self.molecule.n_mos-n_frozen_vir):
-                raise ValueError("CCSDSolverPsi4 does not support freezing interior orbitals")
+                raise ValueError("MP2SolverPsi4 does not support freezing interior orbitals")
 
         if not self.molecule.uhf:
             ref = 'rhf' if self.molecule.spin == 0 else 'rohf'
