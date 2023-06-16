@@ -14,7 +14,7 @@
 
 import unittest
 
-from openfermion import get_sparse_operator, linalg
+from openfermion import linalg, get_sparse_operator
 
 from tangelo.linq import get_backend, Circuit
 from tangelo.molecule_library import mol_H4_sto3g
@@ -24,7 +24,7 @@ from tangelo.toolboxes.circuits import get_orbital_rotations
 sim = get_backend(target="cirq")
 
 
-class diagonal_coulomb_Test(unittest.TestCase):
+class DiagonalCoulombTest(unittest.TestCase):
 
     def test_orbital_rotations(self):
         """Test calculating energy expectation value of H4 hamiltonian by decomposing into diagional terms"""

@@ -13,11 +13,8 @@
 # limitations under the License.
 
 import unittest
-import math
 
-from openfermion import get_sparse_operator
 import numpy as np
-from scipy.linalg import expm
 
 from tangelo.linq import get_backend
 from tangelo.linq.helpers.circuits.statevector import StateVector

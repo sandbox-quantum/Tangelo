@@ -16,10 +16,10 @@ import unittest
 import os
 
 from openfermion import load_operator
-from openfermion.ops import QubitOperator
 
 from tangelo.linq import translator, get_backend, Circuit
 from tangelo.helpers import measurement_basis_gates
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.measurements import group_qwc, exp_value_from_measurement_bases, \
     check_bases_commute_qwc, map_measurements_qwc
 
