@@ -30,6 +30,7 @@ class MP2SolverTest(unittest.TestCase):
 
         self.assertAlmostEqual(energy, -1.14025452, places=3)
 
+    @unittest.skipIf("pyscf" != default_mp2_solver, "Test Skipped: Only functions for pyscf \n")
     def test_be(self):
         """Test MP2Solver against result from reference implementation (Be)."""
 

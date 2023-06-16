@@ -223,33 +223,15 @@ class MP2SolverPsi4(ElectronicStructureSolver):
             ref = 'uhf'
         self.backend.set_options({'basis': self.basis, 'mcscf_maxiter': 300, 'mcscf_diis_start': 20,
                                   'opdm': True, 'tpdm': True, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
-                                  'reference': ref, "ref_wfn": self.molecule.solver.wfn})
+                                  'reference': ref})
 
         energy, self.mp2wfn = self.backend.energy('mp2', molecule=self.molecule.solver.mol,
                                                  basis=self.basis, return_wfn=True)
         return energy
 
     def get_rdm(self):
-        """Compute the Full CI 1- and 2-particle reduced density matrices.
-
-        Returns:
-            numpy.array: One-particle RDM.
-            numpy.array: Two-particle RDM.
-
-        Raises:
-            RuntimeError: If method "simulate" hasn't been run.
-        """
-
-        # Check if Full CI has been performed
-        if self.mp2wfn is None:
-            raise RuntimeError("MP2Solver: Cannot retrieve RDM. Please run the 'simulate' method first")
-        warnings.warn("Psi4 only supports returning the 1RDM for mp2 calculations")
-        one_rdm = np.asarray(self.mp2wfn.Da())
-        if self.molecule.uhf:
-            one_rdm += np.asarray(self.mp2wfn.Db())
-        two_rdm = None
-
-        return one_rdm, two_rdm
+        """Obtaining MP2 rdms from Psi4 is not supported in Tangelo """
+        raise RuntimeError("Returning MP2 rdms from Psi4 is not supported in Tangelo")
 
     def get_mp2_amplitudes(self):
         """Returning MP2 amplitudes from Psi4 is not supported in Tangelo"""
