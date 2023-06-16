@@ -179,7 +179,7 @@ class QubitOperator(of.QubitOperator):
             corresponding QubitOperator object.
         """
         qop = cls()
-        qop. terms = of_qop.terms.copy()
+        qop.terms = of_qop.terms.copy()
         return qop
 
     def frobenius_norm_compression(self, epsilon, n_qubits):
