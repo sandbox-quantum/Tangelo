@@ -11,7 +11,7 @@ import numpy as np
 
 from tangelo.helpers.utils import assert_freq_dict_almost_equal
 from tangelo.linq import Gate, Circuit, get_backend
-from tangelo.linq.qpu_connection import IBMConnection
+from tangelo.linq.qpu_connection.ibm_connection import IBMConnection
 from tangelo.toolboxes.operators import QubitOperator
 
 # Circuit and qubit operator for test
