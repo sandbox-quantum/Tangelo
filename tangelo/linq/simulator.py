@@ -51,9 +51,3 @@ def get_backend(target: Union[None, str, Type[Backend]] = default_simulator, n_s
         raise TypeError(f"Target must be a str or a subclass of Backend but received class {type(target).__name__}")
 
     return target(n_shots=n_shots, noise_model=noise_model, **kwargs)
-
-
-@deprecated("Please use get_backend.")
-def Simulator(target: Union[None, str, Type[Backend]] = default_simulator, n_shots: Union[None, int] = None,
-              noise_model=None, **kwargs):
-    return get_backend(target, n_shots, noise_model, **kwargs)

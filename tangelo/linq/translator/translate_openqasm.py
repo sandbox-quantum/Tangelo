@@ -27,7 +27,6 @@ import re
 from math import pi
 
 from tangelo.linq import Gate, Circuit
-from tangelo.helpers import deprecated
 
 
 def get_openqasm_gates():
@@ -47,20 +46,6 @@ def get_openqasm_gates():
     GATE_OPENQASM["CPHASE"] = "cp"
 
     return GATE_OPENQASM
-
-
-@deprecated("Please use the translate_circuit function.")
-def translate_openqasm(source_circuit):
-    """Take in an abstract circuit, return a OpenQASM 2.0 string using IBM
-    Qiskit (they are the reference for OpenQASM).
-
-    Args:
-        source_circuit: quantum circuit in the abstract format.
-
-    Returns:
-        str: the corresponding OpenQASM program, as per IBM Qiskit.
-    """
-    return translate_c_to_openqasm(source_circuit)
 
 
 @deprecated("Please use the translate_circuit function.")
