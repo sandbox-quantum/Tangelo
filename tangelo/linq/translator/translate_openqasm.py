@@ -24,6 +24,7 @@ necessary to account for:
 """
 
 import re
+from math import pi
 
 from tangelo.linq import Gate, Circuit
 
