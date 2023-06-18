@@ -239,7 +239,7 @@ class FCISolverPsi4(ElectronicStructureSolver):
         return one_rdm, two_rdm
 
 
-available_fci_solvers = {"pyscf": FCISolverPySCF, 'psi4': FCISolverPsi4}
+available_fci_solvers = {'pyscf': FCISolverPySCF, 'psi4': FCISolverPsi4}
 
 
 def get_fci_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_fci_solver, **solver_kwargs):
