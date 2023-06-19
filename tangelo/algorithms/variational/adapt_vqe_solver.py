@@ -63,6 +63,7 @@ class ADAPTSolver:
         up_then_down (bool): Spin orbitals ordering.
         n_spinorbitals (int): Self-explanatory.
         n_electrons (int): Self-explanatory.
+        spin (int): The spin of the system (# alpha - # beta electrons)
         optimizer (func): Optimization function for VQE minimization.
         backend_options (dict): Backend options for the underlying VQE object.
         simulate_options (dict): Options for fine-control of the simulator backend, including desired measurement results, etc.
@@ -93,6 +94,7 @@ class ADAPTSolver:
         self.deflation_circuits: Optional[List[Circuit]] = copt_dict.pop("deflation_circuits", list())
         self.deflation_coeff: float = copt_dict.pop("deflation_coeff", 1)
         self.up_then_down: bool = copt_dict.pop("up_then_down", False)
+        self.spin: Union[int, None] = copt_dict.pop("spin", None)
         self.qubit_hamiltonian: QubitOperator = copt_dict.pop("qubit_hamiltonian", None)
         self.verbose: bool = copt_dict.pop("verbose", False)
         self.projective_circuit: Circuit = copt_dict.pop("projective_circuit", None)
