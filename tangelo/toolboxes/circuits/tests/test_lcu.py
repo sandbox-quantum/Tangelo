@@ -15,9 +15,9 @@
 import unittest
 import math
 
-from openfermion import get_sparse_operator
 import numpy as np
 from scipy.linalg import expm
+from openfermion import get_sparse_operator
 
 from tangelo.linq import get_backend
 from tangelo.helpers.utils import installed_backends
@@ -36,7 +36,7 @@ backends = ["cirq", "qulacs"] if "qulacs" in installed_backends else ["cirq"]
 sim_cirq = get_backend("cirq")
 
 
-class lcu_Test(unittest.TestCase):
+class LCUTest(unittest.TestCase):
 
     def test_get_truncated_taylor_series(self):
         """Test time-evolution of truncated Taylor series for different orders and times"""
@@ -44,7 +44,7 @@ class lcu_Test(unittest.TestCase):
         qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons,
                                          True, 0)
         n_qubits_qu_op = math.ceil(math.log2(len(qu_op.terms)))
-        ham = get_sparse_operator(qu_op).toarray()
+        ham = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 1])/np.sqrt(2)
 
@@ -65,21 +65,23 @@ class lcu_Test(unittest.TestCase):
                 v = v.reshape([4, len_ancilla])[:, 0] if statevector_order == "lsq_first" else v.reshape([len_ancilla, 4])[0, :]
                 self.assertAlmostEqual(1, np.abs(v.conj().dot(exact)), delta=3.e-1**k)
 
-        # Raise ValueError if Taylor series order is less than 1 or greater than 4 or imaginary coefficients in qubit operator
+        # Raise ValueError if Taylor series order is less than 1 or greater than 4
+        # or imaginary coefficients in qubit operator
         self.assertRaises(ValueError, get_truncated_taylor_series, qu_op, 0, time)
         self.assertRaises(ValueError, get_truncated_taylor_series, qu_op * 1j, 2, time)
 
     def test_get_oaa_lcu_circuit(self):
-        """Test time-evolution of truncated Taylor series for order k = 3 passing explicitly calculated qubit operator exponential"""
+        """Test time-evolution of truncated Taylor series for order k = 3 passing explicitly calculated
+        qubit operator exponential"""
 
-        qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons,
-                                         True, 0)
+        qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk",
+                                         mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons, True, 0)
         time = 0.5
         # Generate explicit qubit operator exponential
         exp_qu_op = 1 + -1j*qu_op*time + (-1j*qu_op*time)**2/2 + (-1j*qu_op*time)**3/6
         exp_qu_op.compress()
         n_qubits_qu_op = math.ceil(math.log2(len(exp_qu_op.terms)))
-        ham = get_sparse_operator(qu_op).toarray()
+        ham = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 1])/np.sqrt(2)
 
@@ -109,7 +111,7 @@ class lcu_Test(unittest.TestCase):
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))
 
-        ham_mat = get_sparse_operator(qu_op).toarray()
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
 
         # Kronecker product 13 qubits in the zero state to eigenvector 9 to account for ancilla qubits
@@ -143,7 +145,7 @@ class lcu_Test(unittest.TestCase):
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))
 
-        ham_mat = get_sparse_operator(qu_op).toarray()
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, wavefunction = np.linalg.eigh(ham_mat)
 
         # break time into 6 parts so 1-norm is less than 2. i.e. can use Oblivious Amplitude Amplification

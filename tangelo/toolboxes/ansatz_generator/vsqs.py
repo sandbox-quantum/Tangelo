@@ -16,12 +16,11 @@
 Adiabatic State Preparation (ASP) inspired ansatz as described in https://arxiv.org/abs/2003.09913."""
 
 import numpy as np
-from openfermion import QubitOperator as ofQubitOperator
 
 from .ansatz import Ansatz
 from .ansatz_utils import get_exponentiated_qubit_operator_circuit
-from tangelo.toolboxes.operators import FermionOperator
 from tangelo.linq import Circuit
+from tangelo.toolboxes.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number, fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 
@@ -68,7 +67,7 @@ class VSQS(Ansatz):
 
         if molecule is None:
             self.qubit_hamiltonian = qubit_hamiltonian
-            if not isinstance(h_init, ofQubitOperator):
+            if not isinstance(h_init, QubitOperator):
                 raise ValueError("When providing a qubit hamiltonian, an initial qubit Hamiltonian must also be provided")
             self.h_init = h_init
             if not isinstance(reference_state, Circuit):
@@ -102,7 +101,7 @@ class VSQS(Ansatz):
             self.stride = 2
             self.n_h_nav = 0
         else:
-            if isinstance(self.h_nav, ofQubitOperator):
+            if isinstance(self.h_nav, QubitOperator):
                 self.stride = 3
                 self.h_nav_list = qu_op_to_list(self.h_nav)
                 self.n_h_nav = len(self.h_nav_list)
