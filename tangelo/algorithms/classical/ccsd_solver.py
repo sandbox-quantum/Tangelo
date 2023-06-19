@@ -148,15 +148,22 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         self.backend.core.clean_variables()
         self.ccwfn = None
 
-        n_frozen_vir = len(molecule.frozen_virtual)
-        n_frozen_occ = len(molecule.frozen_occupied)
+        self.n_frozen_vir = len(molecule.frozen_virtual) if not molecule.uhf else len(molecule.frozen_virtual[0])
+        self.n_frozen_occ = len(molecule.frozen_occupied) if not molecule.uhf else len(molecule.frozen_occupied[0])
         if not molecule.uhf:
-            ref = 'rhf' if molecule.spin == 0 else 'rohf'
+            self.ref = 'rhf' if molecule.spin == 0 else 'rohf'
         else:
-            ref = 'uhf'
+            self.ref = 'uhf'
+            self.n_frozen_vir_b = len(molecule.frozen_virtual[1])
+            self.n_frozen_occ_b = len(molecule.frozen_occupied[1])
+            if (self.n_frozen_vir != self.n_frozen_vir_b) or (self.n_frozen_occ != self.n_frozen_occ_b):
+                raise ValueError(f"Tangelo does not support unequal number of alpha v. beta frozen or virtual orbitals"
+                                 f"with a UHF reference in {self.__class__.__name__}")
+
+        # Frozen orbitals must be declared before calling compute_mean_field to be saved in ref_wfn for Psi4 ccsd.
         intsolve = IntegralSolverPsi4()
-        self.backend.set_options({'basis': molecule.basis, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
-                                  'reference': ref})
+        self.backend.set_options({'basis': molecule.basis, 'frozen_docc': [self.n_frozen_occ], 'frozen_uocc': [self.n_frozen_vir],
+                                  'reference': self.ref})
         self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
                                                 solver=intsolve,
                                                 basis=molecule.basis,
@@ -170,37 +177,44 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         """Perform the simulation (energy calculation) for the molecule.
 
         Returns:
-            float: Total FCI energy.
+            float: Total CCSD energy.
         """
-        n_frozen_vir = len(self.molecule.frozen_virtual)
-        n_frozen_occ = len(self.molecule.frozen_occupied)
-        if not self.molecule.uhf:
-            ref = 'rhf' if self.molecule.spin == 0 else 'rohf'
-        else:
-            ref = 'uhf'
-        self.backend.set_options({'basis': self.basis, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
-                                  'qc_module': 'ccenergy', 'reference': ref})
-
         # Copy reference wavefunction and swap orbitals to obtain correct active space if necessary
         wfn = self.backend.core.Wavefunction(self.molecule.solver.mol_nosym, self.molecule.solver.wfn.basisset())
         wfn.deep_copy(self.molecule.solver.wfn)
-        if n_frozen_occ or n_frozen_vir:
-            mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
-            # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
-            swap_ops = Permutation(mo_order).transpositions()
-            for swap_op in swap_ops:
-                wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
+        if self.n_frozen_occ or self.n_frozen_vir:
+            if not self.molecule.uhf:
+                mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
+                # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
+                swap_ops = Permutation(mo_order).transpositions()
+                for swap_op in swap_ops:
+                    wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
+            else:
+                # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
+                mo_order = (self.molecule.frozen_occupied[0] + self.molecule.active_occupied[0]
+                            + self.molecule.active_virtual[0] + self.molecule.frozen_virtual[0])
+                swap_ops = Permutation(mo_order).transpositions()
+                for swap_op in swap_ops:
+                    wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
+                # Repeat for Beta orbitals
+                mo_order_b = (self.molecule.frozen_occupied[1] + self.molecule.active_occupied[1]
+                              + self.molecule.active_virtual[1] + self.molecule.frozen_virtual[1])
+                swap_ops = Permutation(mo_order_b).transpositions()
+                for swap_op in swap_ops:
+                    wfn.Cb().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
+        self.backend.set_options({'basis': self.basis, 'frozen_docc': [self.n_frozen_occ], 'frozen_uocc': [self.n_frozen_vir],
+                                  'qc_module': 'ccenergy', 'reference': self.ref})
         energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
                                                  basis=self.basis, return_wfn=True, ref_wfn=wfn)
         return energy
 
     def get_rdm(self):
         """Psi4 does not support retrieving rdms for CCSD"""
-        raise RuntimeError("CCSDSolverPsi4 does not support calculated RDMs")
+        raise RuntimeError("CCSDSolverPsi4 does not support returning RDMs")
 
 
-ccsd_solver_dict = {"pyscf": CCSDSolverPySCF, 'psi4': CCSDSolverPsi4}
+ccsd_solver_dict = {'pyscf': CCSDSolverPySCF, 'psi4': CCSDSolverPsi4}
 
 
 def get_ccsd_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_ccsd_solver, **solver_kwargs):
@@ -209,7 +223,7 @@ def get_ccsd_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, 
     Args:
         molecule (SecondQuantizedMolecule) : Molecule
         solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
-            fci_solver_dict (from tangelo.algorithms.classical.fci_solver). Can also provide a user-defined backend (child to ElectronicStructureSolver class)
+            ccsd_solver_dict (from tangelo.algorithms.classical.ccsd_solver). Can also provide a user-defined backend (child to ElectronicStructureSolver class)
         solver_kwargs: Other arguments that could be passed to a target. Examples are solver type (e.g. lambdacc, fnocc), Convergence options etc.
      """
 
@@ -221,7 +235,7 @@ def get_ccsd_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, 
         elif default_ccsd_solver is not None:
             solver = default_ccsd_solver
         else:
-            raise ModuleNotFoundError(f"One of the backends for {list(ccsd_solver_dict.keys())} needs to be installed to use FCISolver"
+            raise ModuleNotFoundError(f"One of the backends for {list(ccsd_solver_dict.keys())} needs to be installed to use a CCSDSolver"
                                       "without providing a user-defined implementation.")
 
     # If target is a string use target_dict to return built-in backend
@@ -242,7 +256,7 @@ class CCSDSolver(ElectronicStructureSolver):
     Args:
         molecule (SecondQuantizedMolecule) : Molecule
         solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
-            available_fci_solvers (from tangelo.algorithms.classical.fci_solver). Can also provide a user-defined FCI implementation
+            available_ccsd_solvers (from tangelo.algorithms.classical.ccsd_solver). Can also provide a user-defined CCSD implementation
             (child to ElectronicStructureSolver class)
         solver_kwargs: Other arguments that could be passed to a target. Examples are solver type (e.g. lambdacc, fnocc), Convergence options etc.
 
@@ -257,7 +271,7 @@ class CCSDSolver(ElectronicStructureSolver):
         """Perform the simulation (energy calculation) for the molecule.
 
         Returns:
-            float: Total FCI energy.
+            float: Total CCSD energy.
         """
         return self.solver.simulate()
 
