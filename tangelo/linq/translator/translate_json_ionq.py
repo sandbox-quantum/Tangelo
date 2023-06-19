@@ -23,7 +23,6 @@ necessary to account for:
 """
 
 from tangelo.linq import Circuit, Gate
-from tangelo.helpers import deprecated
 
 
 def get_ionq_gates():
@@ -44,22 +43,6 @@ def get_ionq_gates():
     GATE_JSON_IONQ["PHASE"] = "z"
     GATE_JSON_IONQ["CPHASE"] = "z"
     return GATE_JSON_IONQ
-
-
-@deprecated("Please use the translate_circuit function.")
-def translate_json_ionq(source_circuit):
-    """Take in an abstract circuit, return a dictionary following the IonQ JSON
-    format as described below.
-    https://dewdrop.ionq.co/#json-specification
-
-    Args:
-        source_circuit: quantum circuit in the abstract format.
-
-    Returns:
-        dict: representation of the quantum circuit following the IonQ JSON
-            format.
-    """
-    return translate_c_to_json_ionq(source_circuit)
 
 
 def translate_c_to_json_ionq(source_circuit):

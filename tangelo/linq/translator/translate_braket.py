@@ -23,7 +23,6 @@ to account for:
 """
 
 from tangelo.linq import Circuit, Gate
-from tangelo.helpers import deprecated
 
 
 def get_braket_gates():
@@ -57,20 +56,6 @@ def get_braket_gates():
     # GATE_BRAKET["MEASURE"] = ? (mid-circuit measurement currently unsupported?)
 
     return GATE_BRAKET
-
-
-@deprecated("Please use the translate_circuit function.")
-def translate_braket(source_circuit):
-    """Take in an abstract circuit, return a quantum circuit object as defined
-    in the Python Braket SDK.
-
-    Args:
-        source_circuit: quantum circuit in the abstract format.
-
-    Returns:
-        braket.circuits.Circuit: quantum circuit in Python Braket SDK format.
-    """
-    return translate_c_to_braket(source_circuit)
 
 
 def translate_c_to_braket(source_circuit):
