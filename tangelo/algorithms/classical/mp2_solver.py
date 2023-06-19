@@ -148,11 +148,11 @@ class MP2SolverPySCF(ElectronicStructureSolver):
 
             # Get singles and doubles amplitudes associated with one spatial occupied-virtual pair
             doubles_1 = [-self.mp2_t2[q, q, p, p]/2. if (abs(-self.mp2_t2[q, q, p, p]/2.) > 1e-15) else 0.
-                        for p, q in product(range(self.n_virtual), range(self.n_occupied))]
+                         for p, q in product(range(self.n_virtual), range(self.n_occupied))]
 
             # Get doubles amplitudes associated with two spatial occupied-virtual pairs
             doubles_2 = [-self.mp2_t2[q, s, p, r] for (p, q), (r, s)
-                        in combinations(product(range(self.n_virtual), range(self.n_occupied)), 2)]
+                         in combinations(product(range(self.n_virtual), range(self.n_occupied)), 2)]
 
             mp2_params = singles + doubles_1 + doubles_2
 
@@ -219,7 +219,7 @@ class MP2SolverPsi4(ElectronicStructureSolver):
                                   'reference': ref})
 
         energy, self.mp2wfn = self.backend.energy('mp2', molecule=self.molecule.solver.mol,
-                                                 basis=self.basis, return_wfn=True)
+                                                  basis=self.basis, return_wfn=True)
         return energy
 
     def get_rdm(self):
@@ -231,7 +231,7 @@ class MP2SolverPsi4(ElectronicStructureSolver):
         raise RuntimeError("Returning MP2 amplitudes from Psi4 is not supported in Tangelo")
 
 
-available_mp2_solvers = {"pyscf": MP2SolverPySCF, 'psi4': MP2SolverPsi4}
+available_mp2_solvers = {'pyscf': MP2SolverPySCF, 'psi4': MP2SolverPsi4}
 
 
 def get_mp2_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_mp2_solver, **solver_kwargs):
@@ -269,7 +269,7 @@ def get_mp2_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, T
 
 
 class MP2Solver(ElectronicStructureSolver):
-    """Uses the Full CI method to solve the electronic structure problem.
+    """Uses the MP2 method to solve the electronic structure problem.
 
     Args:
         molecule (SecondQuantizedMolecule) : Molecule
@@ -303,3 +303,14 @@ class MP2Solver(ElectronicStructureSolver):
             RuntimeError: If method "simulate" hasn't been run.
         """
         return self.solver.get_rdm()
+
+    def get_mp2_amplitudes(self):
+        """Compute the double amplitudes from the MP2 perturbative method, and
+        then reorder the elements into a dense list. The single (T1) amplitudes
+        are set to a small non-zero value. The ordering is single, double
+        (diagonal), double (non-diagonal).
+
+        Returns:
+            list of float: The electronic excitation amplitudes.
+        """
+        return self.solver.get_mp2_amplitudes()
