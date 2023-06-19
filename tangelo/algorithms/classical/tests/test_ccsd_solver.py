@@ -14,8 +14,9 @@
 
 import unittest
 
+from tangelo import SecondQuantizedMolecule
 from tangelo.algorithms.classical.ccsd_solver import CCSDSolver, default_ccsd_solver
-from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_sto3g_uhf_a1_frozen
+from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_sto3g_uhf_a1_frozen, xyz_H4
 
 
 class CCSDSolverTest(unittest.TestCase):
@@ -40,6 +41,15 @@ class CCSDSolverTest(unittest.TestCase):
         one_rdms, two_rdms = solver.get_rdm()
 
         self.assertAlmostEqual(mol_H4_sto3g_uhf_a1_frozen.energy_from_rdms(one_rdms, two_rdms), -1.95831052, places=6)
+
+    def test_ccsd_h4_uhf_different_alpha_beta_frozen(self):
+        """Test energy for case when different but equal number of alpha/beta orbitals are frozen."""
+
+        mol = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="3-21g", frozen_orbitals=[[2, 3, 4, 5], [2, 3, 6, 5]], symmetry=False, uhf=True)
+        solver = CCSDSolver(mol)
+        energy = solver.simulate()
+
+        self.assertAlmostEqual(energy, -2.0409800, places=5)
 
     def test_ccsd_be(self):
         """Test CCSDSolver against result from reference implementation."""
