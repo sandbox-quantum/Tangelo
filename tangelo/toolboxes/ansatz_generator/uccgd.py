@@ -24,10 +24,10 @@ Refs:
 
 import numpy as np
 from openfermion import hermitian_conjugated
-from openfermion import FermionOperator as ofFermionOperator
 from itertools import combinations_with_replacement, product
 
 from tangelo.linq import Circuit
+from tangelo.toolboxes.operators import FermionOperator
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import get_exponentiated_qubit_operator_circuit
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -180,7 +180,7 @@ class UCCGD(Ansatz):
         Returns:
             QubitOperator: qubit-encoded elements of the UCCGD
         """
-        fermion_op = ofFermionOperator()
+        fermion_op = FermionOperator()
         n_mos = self.n_spinorbitals // 2
         p = -1
         for indices in combinations_with_replacement(range(n_mos), 4):
@@ -188,8 +188,8 @@ class UCCGD(Ansatz):
                 u, w, v, t = indices
                 p = p + 1
                 for sig, tau in product(range(2), repeat=2):
-                    c_op = ofFermionOperator(((2*t+sig, 1), (2*v+tau, 1), (2*w+tau, 0), (2*u+sig, 0)), self.var_params[p])
-                    c_op += ofFermionOperator(((2*v+sig, 1), (2*t+tau, 1), (2*u+tau, 0), (2*w+sig, 0)), self.var_params[p])
+                    c_op = FermionOperator(((2*t+sig, 1), (2*v+tau, 1), (2*w+tau, 0), (2*u+sig, 0)), self.var_params[p])
+                    c_op += FermionOperator(((2*v+sig, 1), (2*t+tau, 1), (2*u+tau, 0), (2*w+sig, 0)), self.var_params[p])
                     fermion_op += c_op - hermitian_conjugated(c_op)
 
         qubit_op = fermion_to_qubit_mapping(fermion_operator=fermion_op,
@@ -197,6 +197,9 @@ class UCCGD(Ansatz):
                                             n_spinorbitals=self.n_spinorbitals,
                                             n_electrons=self.n_electrons,
                                             up_then_down=self.up_then_down)
+
+        print(type(fermion_op))
+        print(type(qubit_op))
 
         # Cast all coefs to floats (rotations angles are real)
         for key in qubit_op.terms:

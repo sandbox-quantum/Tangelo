@@ -14,8 +14,10 @@
 
 import unittest
 
+import numpy as np
+
 from tangelo.algorithms.classical import MP2Solver
-from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_cation_sto3g
+from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H2_sto3g, mol_H2_sto3g_uhf
 
 
 class MP2SolverTest(unittest.TestCase):
@@ -58,6 +60,29 @@ class MP2SolverTest(unittest.TestCase):
         energy = solver.simulate()
 
         self.assertAlmostEqual(energy, -14.5092873, places=6)
+
+    def test_get_mp2_params_restricted(self):
+        """Test the packing of RMP2 amplitudes as initial parameters for coupled
+        cluster based methods.
+        """
+
+        solver = MP2Solver(mol_H2_sto3g)
+        solver.simulate()
+
+        ref_params = [2.e-05, 3.632537e-02]
+
+        np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_amplitudes())
+
+    def test_get_mp2_params_unrestricted(self):
+        """Test the packing of UMP2 amplitudes as initial parameters for coupled
+        cluster based methods.
+        """
+
+        solver = MP2Solver(mol_H2_sto3g_uhf)
+        solver.simulate()
+        ref_params = [0., 0., 0.030736]
+
+        np.testing.assert_array_almost_equal(ref_params, solver.get_mp2_amplitudes())
 
 
 if __name__ == "__main__":

@@ -108,9 +108,11 @@ def translate_c_to_cirq(source_circuit, noise_model=None, save_measurements=Fals
 
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
-        if (gate.control is not None) and gate.name != 'CNOT':
+        if gate.control is not None:
             num_controls = len(gate.control)
             control_list = [qubit_list[c] for c in gate.control]
+            if gate.name == 'CNOT' and num_controls > 1:
+                gate.name = 'CX'
         if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
             target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]]))
         elif gate.name in {"CH", "CX", "CY", "CZ"}:

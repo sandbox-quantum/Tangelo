@@ -22,12 +22,11 @@ from itertools import combinations
 
 import numpy as np
 from openfermion.ops import FermionOperator as ofFermionOperator
-from openfermion.ops import InteractionOperator as ofInteractionOperator
 from openfermion.ops import QubitOperator as ofQubitOperator
 
 from tangelo.linq import Circuit, Gate
 from tangelo.toolboxes.operators import FermionOperator, QubitOperator
-from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping, get_fermion_operator
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 
 
 def pauli_op_to_gate(index, op, inverse=False):
