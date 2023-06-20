@@ -27,7 +27,7 @@ class CCSDSolverTest(unittest.TestCase):
         solver = CCSDSolver(mol_H2_321g)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -1.1478300596229851, places=5)
+        self.assertAlmostEqual(energy, -1.1478300, places=5)
 
     @unittest.skipIf("pyscf" != default_ccsd_solver, "Test Skipped: Only functions for pyscf \n")
     def test_ccsd_h4_uhf_a1_frozen(self):
@@ -57,7 +57,7 @@ class CCSDSolverTest(unittest.TestCase):
         solver = CCSDSolver(mol_Be_321g)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -14.531416589890926, places=4)
+        self.assertAlmostEqual(energy, -14.531416, places=5)
 
     def test_ccsd_be_frozen_core(self):
         """ Test CCSDSolver against result from reference implementation, with
@@ -69,7 +69,7 @@ class CCSDSolverTest(unittest.TestCase):
         solver = CCSDSolver(mol_Be_321g_freeze1)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -14.530687987160581, places=5)
+        self.assertAlmostEqual(energy, -14.5306879, places=5)
 
     def test_ccsd_be_as_two_levels(self):
         """ Test CCSDSolver against result from reference implementation, with
@@ -82,7 +82,7 @@ class CCSDSolverTest(unittest.TestCase):
         solver = CCSDSolver(mol_Be_321g_freeze_list)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -14.498104489160106, places=4)
+        self.assertAlmostEqual(energy, -14.498104, places=5)
 
     def test_ccsd_get_rdm_without_simulate(self):
         """Test that the runtime error is raised when user calls get RDM without
