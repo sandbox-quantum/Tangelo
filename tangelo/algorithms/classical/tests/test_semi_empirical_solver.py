@@ -20,7 +20,7 @@ from tangelo.molecule_library import mol_pyridine
 
 class SemiEmpiricalSolverTest(unittest.TestCase):
 
-    @unittest.skipIf(not is_package_installed("pyscf.semiempirical"), "Test Skipped: pyscf.semiempirical module not available \n")
+    @unittest.skipIf(not is_package_installed("pyscf") or not is_package_installed("pyscf.semiempirical"), "Test Skipped: pyscf.semiempirical module not available \n")
     def test_mindo3_energy(self):
         """Test MINDO3Solver with pyridine. Validated with:
             - MINDO/3-derived geometries and energies of alkylpyridines and the

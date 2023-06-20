@@ -20,7 +20,6 @@ from itertools import combinations, product
 from math import ceil
 
 import numpy as np
-from sympy.combinatorics.permutations import Permutation
 
 from itertools import combinations, product
 from math import ceil
@@ -163,11 +162,13 @@ class MP2SolverPsi4(ElectronicStructureSolver):
     """ Uses the MP2 method to solve the electronic structure problem,
     through Psi4.
 
+    Only supports frozen core (active) orbitals sequentially from bottom (top) of energy ordering.
+
     Args:
         molecule (SecondQuantizedMolecule): The molecule to simulate.
 
     Attributes:
-        mp2wfn (psi4.core.CIWavefunction): The CI wavefunction (float64).
+        mp2wfn (psi4.core.Wavefunction): The Psi4 Wavefunction returned from an mp2 calculation.
         backend (psi4): The psi4 module
         molecule (SecondQuantizedMolecule): The molecule with symmetry=False
     """
@@ -204,11 +205,11 @@ class MP2SolverPsi4(ElectronicStructureSolver):
             if self.molecule.uhf:
                 if (set(self.molecule.frozen_occupied[0]) != set(self.molecule.frozen_occupied[1]) or
                    set(self.molecule.frozen_virtual[0]) != set(self.molecule.frozen_virtual)):
-                    raise ValueError("Only identical frozen orbitals for alpha and beta are supported in MP2SolverPsi4")
+                    raise ValueError(f"Only identical frozen orbitals for alpha and beta are supported in {self.__class__.__name__}")
             focc = np.array(self.molecule.frozen_occupied)
             fvir = np.array(self.molecule.frozen_virtual)
             if np.any(focc > n_frozen_occ-1) or np.any(fvir < self.molecule.n_mos-n_frozen_vir):
-                raise ValueError("MP2SolverPsi4 does not support freezing interior orbitals")
+                raise ValueError(f"{self.__class__.__name__} does not support freezing interior orbitals")
 
         if not self.molecule.uhf:
             ref = 'rhf' if self.molecule.spin == 0 else 'rohf'
@@ -223,12 +224,25 @@ class MP2SolverPsi4(ElectronicStructureSolver):
         return energy
 
     def get_rdm(self):
-        """Obtaining MP2 rdms from Psi4 is not supported in Tangelo """
-        raise RuntimeError("Returning MP2 rdms from Psi4 is not supported in Tangelo")
+        """Calculate the 1- and 2-particle reduced density matrices.
+
+        Obtaining MP2 rdms from Psi4 is not supported in Tangelo.
+        
+        Raises:
+            RuntimeError: Not implemented at this time"""
+        raise RuntimeError("Returning MP2 rdms from Psi4 is not currently supported in Tangelo")
 
     def get_mp2_amplitudes(self):
-        """Returning MP2 amplitudes from Psi4 is not supported in Tangelo"""
-        raise RuntimeError("Returning MP2 amplitudes from Psi4 is not supported in Tangelo")
+        """Compute the double amplitudes from the MP2 perturbative method, and
+        then reorder the elements into a dense list. The single (T1) amplitudes
+        are set to a small non-zero value. The ordering is single, double
+        (diagonal), double (non-diagonal).
+
+        Returning MP2 amplitudes from Psi4 is not supported in Tangelo
+        
+        Raises:
+            NotImplementedError: Not implemented at this time"""
+        raise RuntimeError("Returning MP2 amplitudes from Psi4 is not currently supported in Tangelo")
 
 
 available_mp2_solvers = {'pyscf': MP2SolverPySCF, 'psi4': MP2SolverPsi4}

@@ -65,9 +65,7 @@ jobs:
       run: |
         cd tangelo/algorithms/classical/tests
         conda activate p4env
-        pytest --doctest-modules --junitxml=junit/psi4-classical-test-results.xml test_fci_solver.py
-        pytest --doctest-modules --junitxml=junit/psi4-classical-cc-test-results.xml test_ccsd_solver.py
-        pytest --doctest-modules --junitxml=junit/psi4-classical-mp2-test-results.xml test_mp2_solver.py
+        pytest --doctest-modules --junitxml=junit/psi4-classical-test-results.xml
       if: always()
 
     - name: Upload psi4 test results
