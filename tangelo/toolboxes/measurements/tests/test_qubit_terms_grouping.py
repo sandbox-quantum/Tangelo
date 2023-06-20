@@ -17,7 +17,7 @@ import os
 
 from openfermion import load_operator
 
-from tangelo.linq import translator, get_backend, Circuit
+from tangelo.linq import translate_circuit, get_backend, Circuit
 from tangelo.helpers import measurement_basis_gates
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.measurements import group_qwc, exp_value_from_measurement_bases, \
@@ -97,7 +97,7 @@ class TermsGroupingTest(unittest.TestCase):
         # Load an optimized quantum circuit (UCCSD) to compute something meaningful in this test
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as f:
             openqasm_circ = f.read()
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_circuit(openqasm_circ, source="openqasm", target="tangelo")
 
         # Only simulate and measure the wavefunction in the required bases (simulator or QPU), store in dict.
         histograms = dict()
@@ -125,7 +125,7 @@ class TermsGroupingTest(unittest.TestCase):
         # Load an optimized quantum circuit (UCCSD) to compute something meaningful in this test
         with open(f"{path_data}/H4_UCCSD.qasm", "r") as f:
             openqasm_circ = f.read()
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_circuit(openqasm_circ, source="openqasm", target="tangelo")
 
         # Only simulate and measure the wavefunction in the required bases (simulator or QPU), store in dict.
         histograms = dict()

@@ -156,7 +156,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
             self.ref = 'uhf'
             self.n_frozen_vir_b = len(molecule.frozen_virtual[1])
             self.n_frozen_occ_b = len(molecule.frozen_occupied[1])
-            if (self.n_frozen_vir != self.n_frozen_vir_b) or (self.n_frozen_occ != self.n_frozen_occ_b):
+            if (self.n_frozen_vir, self.n_frozen_occ) != (self.n_frozen_vir_b, self.n_frozen_occ_b):
                 raise ValueError(f"Tangelo does not support unequal number of alpha v. beta frozen or virtual orbitals"
                                  f"with a UHF reference in {self.__class__.__name__}")
 
@@ -189,13 +189,16 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                 swap_ops = Permutation(mo_order).transpositions()
                 for swap_op in swap_ops:
                     wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
+
             else:
+
                 # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
                 mo_order = (self.molecule.frozen_occupied[0] + self.molecule.active_occupied[0]
                             + self.molecule.active_virtual[0] + self.molecule.frozen_virtual[0])
                 swap_ops = Permutation(mo_order).transpositions()
                 for swap_op in swap_ops:
                     wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
+
                 # Repeat for Beta orbitals
                 mo_order_b = (self.molecule.frozen_occupied[1] + self.molecule.active_occupied[1]
                               + self.molecule.active_virtual[1] + self.molecule.frozen_virtual[1])
@@ -210,8 +213,18 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         return energy
 
     def get_rdm(self):
-        """Psi4 does not support retrieving rdms for CCSD"""
-        raise RuntimeError("CCSDSolverPsi4 does not support returning RDMs")
+        """Compute the Full CI 1- and 2-particle reduced density matrices.
+
+        Returning RDMS from a CCSD calculation in Psi4 is not implemented at this time.
+
+        It may be possible to obtain the one-rdm by running a psi4 CCSD gradient calculation
+        (https://forum.psicode.org/t/saving-ccsd-density-for-read-in/2416/2)
+        Another option to obtain the one-rdm is to use pycc (https://github.com/CrawfordGroup/pycc)
+
+        Raises:
+            NotImplementedError: Returning RDMs from Psi4 in Tangelo is not supported at this time.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__} does not currently support returning RDMs")
 
 
 ccsd_solver_dict = {'pyscf': CCSDSolverPySCF, 'psi4': CCSDSolverPsi4}
