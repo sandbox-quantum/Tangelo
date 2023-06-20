@@ -28,7 +28,7 @@ Ref:
 
 import math
 import warnings
-from typing import Optional, Union, List, Sequence, Callable
+from typing import Optional, Union, List, Callable
 
 from scipy.optimize import minimize
 from openfermion import commutator
