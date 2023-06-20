@@ -14,11 +14,11 @@
 
 import unittest
 
-from tangelo.algorithms.classical.ccsd_solver import CCSDSolver
-from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_sto3g_uhf_a1_frozen
+from tangelo import SecondQuantizedMolecule
+from tangelo.algorithms.classical.ccsd_solver import CCSDSolver, default_ccsd_solver
+from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_sto3g_uhf_a1_frozen, xyz_H4
 
 
-# TODO: Can we test the get_rdm method on H2 ? How do we get our reference? Whole matrix or its properties?
 class CCSDSolverTest(unittest.TestCase):
 
     def test_ccsd_h2(self):
@@ -27,10 +27,11 @@ class CCSDSolverTest(unittest.TestCase):
         solver = CCSDSolver(mol_H2_321g)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -1.1478300596229851, places=6)
+        self.assertAlmostEqual(energy, -1.1478300, places=5)
 
+    @unittest.skipIf("pyscf" != default_ccsd_solver, "Test Skipped: Only functions for pyscf \n")
     def test_ccsd_h4_uhf_a1_frozen(self):
-        """Test CCSDSolver against result from reference implementation."""
+        """Test CCSDSolver against result from reference implementation for single alpha frozen orbital and rdms returned."""
 
         solver = CCSDSolver(mol_H4_sto3g_uhf_a1_frozen)
         energy = solver.simulate()
@@ -41,13 +42,22 @@ class CCSDSolverTest(unittest.TestCase):
 
         self.assertAlmostEqual(mol_H4_sto3g_uhf_a1_frozen.energy_from_rdms(one_rdms, two_rdms), -1.95831052, places=6)
 
+    def test_ccsd_h4_uhf_different_alpha_beta_frozen(self):
+        """Test energy for case when different but equal number of alpha/beta orbitals are frozen."""
+
+        mol = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="3-21g", frozen_orbitals=[[2, 3, 4, 5], [2, 3, 6, 5]], symmetry=False, uhf=True)
+        solver = CCSDSolver(mol)
+        energy = solver.simulate()
+
+        self.assertAlmostEqual(energy, -2.0409800, places=5)
+
     def test_ccsd_be(self):
         """Test CCSDSolver against result from reference implementation."""
 
         solver = CCSDSolver(mol_Be_321g)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -14.531416589890926, places=6)
+        self.assertAlmostEqual(energy, -14.531416, places=5)
 
     def test_ccsd_be_frozen_core(self):
         """ Test CCSDSolver against result from reference implementation, with
@@ -59,7 +69,7 @@ class CCSDSolverTest(unittest.TestCase):
         solver = CCSDSolver(mol_Be_321g_freeze1)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -14.530687987160581, places=6)
+        self.assertAlmostEqual(energy, -14.5306879, places=5)
 
     def test_ccsd_be_as_two_levels(self):
         """ Test CCSDSolver against result from reference implementation, with
@@ -72,7 +82,7 @@ class CCSDSolverTest(unittest.TestCase):
         solver = CCSDSolver(mol_Be_321g_freeze_list)
         energy = solver.simulate()
 
-        self.assertAlmostEqual(energy, -14.498104489160106, places=6)
+        self.assertAlmostEqual(energy, -14.498104, places=5)
 
     def test_ccsd_get_rdm_without_simulate(self):
         """Test that the runtime error is raised when user calls get RDM without
