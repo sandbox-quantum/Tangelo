@@ -227,7 +227,7 @@ class MP2SolverPsi4(ElectronicStructureSolver):
         """Calculate the 1- and 2-particle reduced density matrices.
 
         Obtaining MP2 rdms from Psi4 is not supported in Tangelo.
-        
+
         Raises:
             RuntimeError: Not implemented at this time"""
         raise RuntimeError("Returning MP2 rdms from Psi4 is not currently supported in Tangelo")
@@ -239,7 +239,7 @@ class MP2SolverPsi4(ElectronicStructureSolver):
         (diagonal), double (non-diagonal).
 
         Returning MP2 amplitudes from Psi4 is not supported in Tangelo
-        
+
         Raises:
             NotImplementedError: Not implemented at this time"""
         raise RuntimeError("Returning MP2 amplitudes from Psi4 is not currently supported in Tangelo")
