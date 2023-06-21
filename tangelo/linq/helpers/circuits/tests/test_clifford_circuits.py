@@ -14,22 +14,24 @@
 
 import unittest
 
-from math import pi
-from tangelo.linq import Gate
+import numpy as np
 
+from tangelo.linq import Gate, Circuit
 from tangelo.linq.helpers.circuits.clifford_circuits import decompose_gate_to_cliffords
+from tangelo.linq.translator.translate_cirq import translate_c_to_cirq
 
-clifford_gate = Gate("RX", target=0, parameter=pi / 2)
-non_clifford_gate = Gate("RZ", target=0, parameter=0.2)
-clifford_decomposed = [Gate("SDAG", 0), Gate("H", 0), Gate("SDAG", 0)]
-
+non_clifford_gate = Gate("RY", 0, parameter=np.pi/3)
 
 class CliffordCircuitTest(unittest.TestCase):
 
     def test_decompose_gate_to_cliffords(self):
         """Test if gate decomposition returns correct sequence"""
-
-        self.assertEqual(clifford_decomposed, decompose_gate_to_cliffords(clifford_gate))
+        for gate in ["RY", "RX", "RZ", "PHASE"]:
+            for param in [np.pi / 2, np.pi, np.pi / 2]:
+                ref_gate = Gate(gate, 0, parameter=param)
+                u_ref = translate_c_to_cirq(Circuit([ref_gate]))
+                u_decompose = translate_c_to_cirq(Circuit(decompose_gate_to_cliffords(ref_gate)))
+                np.testing.assert_array_almost_equal(u_ref.unitary(), u_decompose.unitary())
 
     def test_non_clifford_gates(self):
         """Test if non-clifford gate raises value error"""

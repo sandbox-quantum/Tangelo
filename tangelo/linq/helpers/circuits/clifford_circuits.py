@@ -46,13 +46,14 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
         clifford_parameter = [value for bool_, value in zip(value_isclose, clifford_values) if bool_][0]
 
     if clifford_parameter == 0:
-        gate_list = [Gate("I", gate.target)]
+        gate_list = []
 
     elif gate.name == "RY":
         if clifford_parameter == -pi / 2:
-            gate_list = [Gate("Z", gate.target), Gate("H", gate.target)]
-        elif clifford_parameter == pi / 2:
             gate_list = [Gate("H", gate.target), Gate("Z", gate.target)]
+        elif clifford_parameter == pi / 2:
+            gate_list = [Gate("Z", gate.target), Gate("H", gate.target)]
+
         elif clifford_parameter == pi:
             gate_list = [Gate("SDAG", gate.target), Gate("Y", gate.target), Gate("SDAG", gate.target)]
 
