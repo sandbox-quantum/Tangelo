@@ -12,18 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Class performing electronic structure calculation employing the Moller-Plesset perturbation theory (MP2) method.
+"""Define electronic structure solver employing the Moller Plesset perturbation theory
+to second order (MP2) method.
 """
-
+from typing import Union, Type
 from itertools import combinations, product
 from math import ceil
 
+import numpy as np
+
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
-from tangelo.helpers.utils import is_package_installed
+from tangelo.helpers.utils import installed_chem_backends, is_package_installed
+from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF
 from tangelo.toolboxes.ansatz_generator._unitary_cc_openshell import uccsd_openshell_get_packed_amplitudes
 
+if 'pyscf' in installed_chem_backends:
+    default_mp2_solver = 'pyscf'
+elif 'psi4' in installed_chem_backends:
+    default_mp2_solver = 'psi4'
+else:
+    default_mp2_solver = None
 
-class MP2Solver(ElectronicStructureSolver):
+
+class MP2SolverPySCF(ElectronicStructureSolver):
     """Uses the Second-order Moller-Plesset perturbation theory (MP2) method to solve the electronic structure problem,
     through pyscf.
 
@@ -132,12 +144,192 @@ class MP2Solver(ElectronicStructureSolver):
 
             # Get singles and doubles amplitudes associated with one spatial occupied-virtual pair
             doubles_1 = [-self.mp2_t2[q, q, p, p]/2. if (abs(-self.mp2_t2[q, q, p, p]/2.) > 1e-15) else 0.
-                        for p, q in product(range(self.n_virtual), range(self.n_occupied))]
+                         for p, q in product(range(self.n_virtual), range(self.n_occupied))]
 
             # Get doubles amplitudes associated with two spatial occupied-virtual pairs
             doubles_2 = [-self.mp2_t2[q, s, p, r] for (p, q), (r, s)
-                        in combinations(product(range(self.n_virtual), range(self.n_occupied)), 2)]
+                         in combinations(product(range(self.n_virtual), range(self.n_occupied)), 2)]
 
             mp2_params = singles + doubles_1 + doubles_2
 
         return mp2_params
+
+
+class MP2SolverPsi4(ElectronicStructureSolver):
+    """ Uses the MP2 method to solve the electronic structure problem, through Psi4.
+
+    Only supports frozen core (active) orbitals sequentially from bottom (top) of energy ordering.
+
+    Args:
+        molecule (SecondQuantizedMolecule): The molecule to simulate.
+
+    Attributes:
+        mp2wfn (psi4.core.Wavefunction): The Psi4 Wavefunction returned from an mp2 calculation.
+        backend (psi4): The psi4 module
+        molecule (SecondQuantizedMolecule): The molecule with symmetry=False
+    """
+
+    def __init__(self, molecule: SecondQuantizedMolecule):
+        if not is_package_installed("psi4"):
+            raise ModuleNotFoundError(f"Using {self.__class__.__name__} requires the installation of the Psi4 package")
+
+        import psi4
+        self.backend = psi4
+        self.backend.core.clean_options()
+        self.backend.core.clean()
+        self.backend.core.clean_variables()
+        self.mp2wfn = None
+
+        self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
+                                                solver=IntegralSolverPsi4(),
+                                                basis=molecule.basis,
+                                                ecp=molecule.ecp,
+                                                symmetry=False,
+                                                uhf=molecule.uhf,
+                                                frozen_orbitals=molecule.frozen_orbitals)
+        self.basis = molecule.basis
+
+    def simulate(self):
+        """Perform the simulation (energy calculation) for the molecule.
+
+        Returns:
+            float: Total MP2 energy.
+        """
+        n_frozen_vir = len(self.molecule.frozen_virtual)
+        n_frozen_occ = len(self.molecule.frozen_occupied)
+
+        if n_frozen_occ or n_frozen_vir:
+            if self.molecule.uhf:
+                if (set(self.molecule.frozen_occupied[0]) != set(self.molecule.frozen_occupied[1]) or
+                   set(self.molecule.frozen_virtual[0]) != set(self.molecule.frozen_virtual)):
+                    raise ValueError(f"Only identical frozen orbitals for alpha and beta are supported in {self.__class__.__name__}")
+            focc = np.array(self.molecule.frozen_occupied)
+            fvir = np.array(self.molecule.frozen_virtual)
+            if np.any(focc > n_frozen_occ-1) or np.any(fvir < self.molecule.n_mos-n_frozen_vir):
+                raise ValueError(f"{self.__class__.__name__} does not support freezing interior orbitals")
+
+        if not self.molecule.uhf:
+            ref = 'rhf' if self.molecule.spin == 0 else 'rohf'
+        else:
+            ref = 'uhf'
+        self.backend.set_options({'basis': self.basis, 'mcscf_maxiter': 300, 'mcscf_diis_start': 20,
+                                  'opdm': True, 'tpdm': True, 'frozen_docc': [n_frozen_occ], 'frozen_uocc': [n_frozen_vir],
+                                  'reference': ref})
+
+        energy, self.mp2wfn = self.backend.energy('mp2', molecule=self.molecule.solver.mol,
+                                                  basis=self.basis, return_wfn=True)
+        return energy
+
+    def get_rdm(self):
+        """Calculate the 1- and 2-particle reduced density matrices.
+
+        Obtaining MP2 rdms from Psi4 is not currently supported in Tangelo.
+
+        Using https://github.com/psi4/psi4numpy/blob/master/Tutorials/10_Orbital_Optimized_Methods/10a_orbital-optimized-mp2.ipynb
+        should return appropriate RDMs for a closed shell RHF reference.
+
+        Raises:
+            NotImplementedError: Not implemented at this time"""
+        raise NotImplementedError("Returning MP2 rdms from Psi4 is not currently supported in Tangelo")
+
+    def get_mp2_amplitudes(self):
+        """Compute the double amplitudes from the MP2 perturbative method, and
+        then reorder the elements into a dense list. The single (T1) amplitudes
+        are set to a small non-zero value. The ordering is single, double
+        (diagonal), double (non-diagonal).
+
+        Returning MP2 amplitudes from Psi4 is not currently supported in Tangelo
+
+        Using https://github.com/psi4/psi4numpy/blob/master/Tutorials/10_Orbital_Optimized_Methods/10a_orbital-optimized-mp2.ipynb
+        should return appropriate amplitudes for a closed shell RHF reference.
+
+        Raises:
+            NotImplementedError: Not implemented at this time"""
+        raise NotImplementedError("Returning MP2 amplitudes from Psi4 is not currently supported in Tangelo")
+
+
+available_mp2_solvers = {'pyscf': MP2SolverPySCF, 'psi4': MP2SolverPsi4}
+
+
+def get_mp2_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_mp2_solver, **solver_kwargs):
+    """Return requested target MP2SolverName object.
+
+    Args:
+        molecule (SecondQuantizedMolecule) : Molecule
+        solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
+            available_mp2_solvers (see mp2_solver.py). Can also provide a user-defined MP2 implementation
+            (child to ElectronicStructureSolver class)
+        solver_kwargs: Other arguments that could be passed to a target. Examples are solver type (e.g. mcscf, mp2), Convergence options etc.
+
+    Raises:
+        ModuleNoyFoundError: No solver is specified and a user defined IntegralSolver was used in molecule.
+        ValueError: The specified solver str is not one of the available_mp2_solvers (see mp2_solver.py)
+        TypeError: The specified solver was not a string or sub class of ElectronicStructureSolver.
+     """
+
+    if solver is None:
+        if isinstance(molecule.solver, IntegralSolverPySCF):
+            solver = MP2SolverPySCF
+        elif isinstance(molecule.solver, IntegralSolverPsi4):
+            solver = MP2SolverPsi4
+        elif default_mp2_solver is not None:
+            solver = default_mp2_solver
+        else:
+            raise ModuleNotFoundError(f"One of the backends for {list(available_mp2_solvers.keys())} needs to be installed to use MP2Solver"
+                                      "without providing a user-defined implementation.")
+
+    # If target is a string use target_dict to return built-in backend
+    elif isinstance(solver, str):
+        try:
+            solver = available_mp2_solvers[solver.lower()]
+        except KeyError:
+            raise ValueError(f"Error: backend {solver} not supported. Available built-in options: {list(available_mp2_solvers.keys())}")
+    elif not issubclass(solver, ElectronicStructureSolver):
+        raise TypeError(f"Target must be a str or a subclass of ElectronicStructureSolver but received class {type(solver).__name__}")
+
+    return solver(molecule, **solver_kwargs)
+
+
+class MP2Solver(ElectronicStructureSolver):
+    """Uses the MP2 method to solve the electronic structure problem.
+
+    Args:
+        molecule (SecondQuantizedMolecule) : Molecule
+        solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
+            available_mp2_solvers (see mp2_solver.py). Can also provide a user-defined MP2 implementation
+            (child to ElectronicStructureSolver class)
+        solver_kwargs: Other arguments that could be passed to a target. Examples are solver type (e.g. dfmp2, mp2), Convergence options etc.
+
+    Attributes:
+        solver (Type[ElectronicStructureSolver]): The solver that is used for obtaining the MP2 solution.
+     """
+    def __init__(self, molecule: SecondQuantizedMolecule, solver: Union[None, str, Type[ElectronicStructureSolver]] = default_mp2_solver, **solver_kwargs):
+        self.solver = get_mp2_solver(molecule, solver, **solver_kwargs)
+
+    def simulate(self):
+        """Perform the simulation (energy calculation) for the molecule.
+
+        Returns:
+            float: Total MP2 energy.
+        """
+        return self.solver.simulate()
+
+    def get_rdm(self):
+        """Compute the Full CI 1- and 2-particle reduced density matrices.
+
+        Returns:
+            numpy.array: One-particle RDM.
+            numpy.array: Two-particle RDM.
+        """
+        return self.solver.get_rdm()
+
+    def get_mp2_amplitudes(self):
+        """Compute the double amplitudes from the MP2 perturbative method, and
+        then reorder the elements into a dense list. The single (T1) amplitudes
+        are set to a small non-zero value. The ordering is single, double
+        (diagonal), double (non-diagonal).
+
+        Returns:
+            list of float: The electronic excitation amplitudes.
+        """
+        return self.solver.get_mp2_amplitudes()
