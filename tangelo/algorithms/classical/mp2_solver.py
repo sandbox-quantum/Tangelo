@@ -21,13 +21,10 @@ from math import ceil
 
 import numpy as np
 
-from itertools import combinations, product
-from math import ceil
-
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
+from tangelo.helpers.utils import installed_chem_backends, is_package_installed
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF
-from tangelo.helpers.utils import installed_chem_backends, is_package_installed
 from tangelo.toolboxes.ansatz_generator._unitary_cc_openshell import uccsd_openshell_get_packed_amplitudes
 
 if 'pyscf' in installed_chem_backends:
@@ -159,8 +156,7 @@ class MP2SolverPySCF(ElectronicStructureSolver):
 
 
 class MP2SolverPsi4(ElectronicStructureSolver):
-    """ Uses the MP2 method to solve the electronic structure problem,
-    through Psi4.
+    """ Uses the MP2 method to solve the electronic structure problem, through Psi4.
 
     Only supports frozen core (active) orbitals sequentially from bottom (top) of energy ordering.
 
@@ -201,6 +197,7 @@ class MP2SolverPsi4(ElectronicStructureSolver):
         """
         n_frozen_vir = len(self.molecule.frozen_virtual)
         n_frozen_occ = len(self.molecule.frozen_occupied)
+
         if n_frozen_occ or n_frozen_vir:
             if self.molecule.uhf:
                 if (set(self.molecule.frozen_occupied[0]) != set(self.molecule.frozen_occupied[1]) or
@@ -226,11 +223,14 @@ class MP2SolverPsi4(ElectronicStructureSolver):
     def get_rdm(self):
         """Calculate the 1- and 2-particle reduced density matrices.
 
-        Obtaining MP2 rdms from Psi4 is not supported in Tangelo.
+        Obtaining MP2 rdms from Psi4 is not currently supported in Tangelo.
+
+        Using https://github.com/psi4/psi4numpy/blob/master/Tutorials/10_Orbital_Optimized_Methods/10a_orbital-optimized-mp2.ipynb
+        should return appropriate RDMs for a closed shell RHF reference.
 
         Raises:
-            RuntimeError: Not implemented at this time"""
-        raise RuntimeError("Returning MP2 rdms from Psi4 is not currently supported in Tangelo")
+            NotImplementedError: Not implemented at this time"""
+        raise NotImplementedError("Returning MP2 rdms from Psi4 is not currently supported in Tangelo")
 
     def get_mp2_amplitudes(self):
         """Compute the double amplitudes from the MP2 perturbative method, and
@@ -238,11 +238,14 @@ class MP2SolverPsi4(ElectronicStructureSolver):
         are set to a small non-zero value. The ordering is single, double
         (diagonal), double (non-diagonal).
 
-        Returning MP2 amplitudes from Psi4 is not supported in Tangelo
+        Returning MP2 amplitudes from Psi4 is not currently supported in Tangelo
+
+        Using https://github.com/psi4/psi4numpy/blob/master/Tutorials/10_Orbital_Optimized_Methods/10a_orbital-optimized-mp2.ipynb
+        should return appropriate amplitudes for a closed shell RHF reference.
 
         Raises:
             NotImplementedError: Not implemented at this time"""
-        raise RuntimeError("Returning MP2 amplitudes from Psi4 is not currently supported in Tangelo")
+        raise NotImplementedError("Returning MP2 amplitudes from Psi4 is not currently supported in Tangelo")
 
 
 available_mp2_solvers = {'pyscf': MP2SolverPySCF, 'psi4': MP2SolverPsi4}
@@ -254,9 +257,14 @@ def get_mp2_solver(molecule: SecondQuantizedMolecule, solver: Union[None, str, T
     Args:
         molecule (SecondQuantizedMolecule) : Molecule
         solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
-            available_mp2_solvers (from tangelo.algorithms.classical.mp2_solver). Can also provide a user-defined MP2 implementation
+            available_mp2_solvers (see mp2_solver.py). Can also provide a user-defined MP2 implementation
             (child to ElectronicStructureSolver class)
         solver_kwargs: Other arguments that could be passed to a target. Examples are solver type (e.g. mcscf, mp2), Convergence options etc.
+
+    Raises:
+        ModuleNoyFoundError: No solver is specified and a user defined IntegralSolver was used in molecule.
+        ValueError: The specified solver str is not one of the available_mp2_solvers (see mp2_solver.py)
+        TypeError: The specified solver was not a string or sub class of ElectronicStructureSolver.
      """
 
     if solver is None:
@@ -288,7 +296,7 @@ class MP2Solver(ElectronicStructureSolver):
     Args:
         molecule (SecondQuantizedMolecule) : Molecule
         solver (string or Type[ElectronicStructureSolver] or None): Supported string identifiers can be found in
-            available_mp2_solvers (from tangelo.algorithms.classical.mp2_solver). Can also provide a user-defined MP2 implementation
+            available_mp2_solvers (see mp2_solver.py). Can also provide a user-defined MP2 implementation
             (child to ElectronicStructureSolver class)
         solver_kwargs: Other arguments that could be passed to a target. Examples are solver type (e.g. dfmp2, mp2), Convergence options etc.
 
@@ -312,9 +320,6 @@ class MP2Solver(ElectronicStructureSolver):
         Returns:
             numpy.array: One-particle RDM.
             numpy.array: Two-particle RDM.
-
-        Raises:
-            RuntimeError: If method "simulate" hasn't been run.
         """
         return self.solver.get_rdm()
 
