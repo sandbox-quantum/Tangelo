@@ -28,7 +28,7 @@ Ref:
 
 import math
 import warnings
-from typing import Optional, Union, List, Sequence, Callable
+from typing import Optional, Union, List, Callable
 
 from scipy.optimize import minimize
 from openfermion import commutator
@@ -63,6 +63,7 @@ class ADAPTSolver:
         up_then_down (bool): Spin orbitals ordering.
         n_spinorbitals (int): Self-explanatory.
         n_electrons (int): Self-explanatory.
+        spin (int): The spin of the system (# alpha - # beta electrons)
         optimizer (func): Optimization function for VQE minimization.
         backend_options (dict): Backend options for the underlying VQE object.
         simulate_options (dict): Options for fine-control of the simulator backend, including desired measurement results, etc.
@@ -91,8 +92,9 @@ class ADAPTSolver:
         self.backend_options: dict = copt_dict.pop("backend_options", default_backend_options)
         self.simulate_options: dict = copt_dict.pop("simulate_options", dict())
         self.deflation_circuits: Optional[List[Circuit]] = copt_dict.pop("deflation_circuits", list())
-        self.deflation_coeff: float = copt_dict.pop("deflation_coeff", 1)
+        self.deflation_coeff: float = copt_dict.pop("deflation_coeff", 1.)
         self.up_then_down: bool = copt_dict.pop("up_then_down", False)
+        self.spin: int = copt_dict.pop("spin", 0)
         self.qubit_hamiltonian: QubitOperator = copt_dict.pop("qubit_hamiltonian", None)
         self.verbose: bool = copt_dict.pop("verbose", False)
         self.projective_circuit: Circuit = copt_dict.pop("projective_circuit", None)
@@ -192,7 +194,7 @@ class ADAPTSolver:
         pool_list = self.pool(**self.pool_args)
 
         # Only a qubit operator is provided with a FermionOperator pool.
-        if not (self.n_spinorbitals and self.n_electrons and self.spin is not None):
+        if not (self.n_spinorbitals and self.n_electrons and isinstance(self.spin, int)):
             raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals), "
                              "the number of electrons (n_electrons) and the spin (spin) with "
                              "a qubit_hamiltonian when working with a pool of fermion operators.")
