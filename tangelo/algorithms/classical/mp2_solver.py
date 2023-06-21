@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Define electronic structure solver employing the full configuration
-interaction (CI) method.
+"""Define electronic structure solver employing the Moller Plesset perturbation theory
+to second order (MP2) method.
 """
 from typing import Union, Type
 from itertools import combinations, product
