@@ -14,9 +14,6 @@ with open('README.rst', 'r') as f:
     long_description = f.read()
 
 install('wheel')
-if os.environ.get("NO_PYSCF", "0") == "0":
-    install('pyscf')
-    install('git+https://github.com/pyscf/semiempirical')
 
 description = "Maintained by Good Chemistry Company, focusing on the development of end-to-end materials simulation workflows on quantum computers."
 

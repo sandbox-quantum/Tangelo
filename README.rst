@@ -124,16 +124,20 @@ Depending on your OS and environment, some of these packages may be more challen
 or any issue regarding the above packages, please check their respective documentation.
 
 
-Having trouble with PySCF?
+Quantum Chemistry Packages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Although PySCF is installed by default, this behaviour can be turned off by defining the environment variable `NO_PYSCF=1` and then
-installing using pip by `pip install git+https://github.com/goodchemistryco/Tangelo.git@main` or using the "From source, using setuptools"
-method. 
+Tangelo can be used without having a quantum chemistry package installed but many algorithms, by default, depend on one being installed.
 
-The classical solvers `CCSDSolver`, `MP2Solver`, `FCISolver` and `MINDO3Solver` as well as `DMETProblemDecomposition` require 
-PySCF at this time.
+The two quantum chemistry packages that are natively supported are `PySCF <https://pyscf.org/>`_ and `Psi4 <https://psicode.org/>`_.
 
-Psi4 is supported everywhere except `CCSDSolver`, `MP2Solver`, `FCISolver` and `MINDO3Solver` and `DMETProblemDecomposition`.
+`DMETProblemDecomposition` is only supported with `PySCF`.
+`SemiEmpircalSolver` requires PySCF  along with 'python3 -m pip install git+https://github.com/pyscf/semiempirical'.
+
+You are also welcome to provide your own interface to a quantum chemistry package of your choice by defining a subclass of
+`IntegralSolver <https://github.com/goodchemistryco/Tangelo/blob/develop/tangelo/toolboxes/molecular_computation/integral_solver.py>`_ which
+provides data about the system (e.g. # electrons, # nuclei, etc) and the one- and two-body integrals when given a molecular geometry, charge, sping
+basis set etc.
 
 
 Quick note for Windows users
