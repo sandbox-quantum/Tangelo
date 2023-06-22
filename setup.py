@@ -7,6 +7,7 @@ import os
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
+
 with open("tangelo/_version.py") as f:
     version = f.readlines()[-1].split()[-1].strip("\"'")
 
@@ -23,7 +24,7 @@ setuptools.setup(
     version=version,
     description=description,
     long_description=description,
-    #long_description_content_type=description,
+    # long_description_content_type=description,
     url="https://github.com/goodchemistryco/Tangelo",
     packages=setuptools.find_packages(),
     test_suite="tangelo",
