@@ -255,16 +255,16 @@ class Backend(abc.ABC):
 
         if desired_meas_result is not None:
             if not isinstance(desired_meas_result, str) or len(desired_meas_result) != n_meas:
-                raise ValueError("desired_meas result is not a string with the same length as the number of measurements"
+                raise ValueError("desired_meas result is not a string with the same length as the number of measurements "
                                  "in the circuit.")
             save_mid_circuit_meas = True
         elif save_mid_circuit_meas and return_statevector:
             if self.n_shots != 1:
-                raise ValueError("The combination of save_mid_circuit_meas and return_statevector without specifying desired_meas_result"
-                                 "is only valid for self.n_shots=1 as the result is a mixed state otherwise, "
+                raise ValueError("The combination of save_mid_circuit_meas and return_statevector without specifying desired_meas_result "
+                                 "is only valid for self.n_shots=1. The result is a mixed state otherwise, "
                                  f"but you requested n_shots={self.n_shots}.")
         elif source_circuit.is_mixed_state and not self.n_shots:
-            raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state."
+            raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state. "
                              "Please set the n_shots attribute to an appropriate value.")
 
         if source_circuit.width == 0:

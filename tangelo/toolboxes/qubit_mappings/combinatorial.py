@@ -55,7 +55,7 @@ def combinatorial(ferm_op, n_modes, n_electrons):
         QubitOperator: Self-explanatory.
     """
 
-    # The chemist ordering seperates some 1-body and 2-body terms.
+    # The chemist ordering splits some 1-body and 2-body terms.
     ferm_op_chemist = chemist_ordered(ferm_op)
 
     # Specify the number of alpha and beta electrons.
@@ -70,7 +70,7 @@ def combinatorial(ferm_op, n_modes, n_electrons):
     n_choose_alpha = comb(n_modes, n_alpha, exact=True)
     n = ceil(np.log2(n_choose_alpha * comb(n_modes, n_beta, exact=True)))
 
-    # Construct the basis set where each configutation is mapped to a unique integer.
+    # Construct the basis set where each configuration is mapped to a unique integer.
     basis_set_alpha = basis(n_modes, n_alpha)
     basis_set_beta = basis(n_modes, n_beta)
     basis_set = OrderedDict()
