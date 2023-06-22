@@ -100,6 +100,8 @@ class dmet_orbitals:
             low_scf_dm = self.mf_full.mo_coeff @ np.diag(self.mf_full.mo_occ) @ self.mf_full.mo_coeff.T
             low_scf_twoint = self.pyscfscf.hf.get_veff(self.mf_full.mol, low_scf_dm, 0, 0, 1)
             self.low_scf_fock = self.mf_full.mol.intor("cint1e_kin_sph") + self.mf_full.mol.intor("cint1e_nuc_sph") + low_scf_twoint
+            if len(self.mol_full._ecpbas) > 0:
+                self.low_scf_fock += self.mf_full.mol.intor_symmetric('ECPscalar')
 
             # Define the core space if possible (Initial calculations treat the entire molecule ...).
             core_mo_dm = np.array(self.mf_full.mo_occ, copy=True)
