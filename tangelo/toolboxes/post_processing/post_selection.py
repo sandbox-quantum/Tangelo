@@ -35,7 +35,9 @@ def ancilla_symmetry_circuit(circuit, sym_op):
     Returns:
         Circuit: The input circuit appended with the proper basis rotation
             and entanglement with an ancilla qubit, which is added as the last qubit.
-            This appends an additional qubit to the circuit."""
+            This appends an additional qubit to the circuit.
+    """
+
     if isinstance(sym_op, QubitOperator):
         op_len = count_qubits(sym_op)
     else:
@@ -81,6 +83,7 @@ def post_select(freqs, expected_outcomes):
         dict: A dictionary of post-selected, renormalized frequencies
             and bitstrings with removed ancilla qubits
     """
+
     hist = Histogram(freqs, n_shots=0)
     hist.post_select(expected_outcomes)
     return hist.frequencies
@@ -95,7 +98,9 @@ def strip_post_selection(freqs, *qubits):
         qubits (variable number of int): The ancilla qubit indices to be removed from the bitstrings
 
     Returns:
-        dict: A frequency dictionary with the qubits stripped and data aggregated"""
+        dict: A frequency dictionary with the qubits stripped and data aggregated
+    """
+
     hist = Histogram(freqs, n_shots=0)
     hist.remove_qubit_indices(*qubits)
     return hist.frequencies
@@ -115,7 +120,9 @@ def split_frequency_dict(frequencies, indices, desired_measurement=None):
 
     Returns:
         dict: The marginal frequencies for provided indices
-        dict: The marginal frequencies for remaining indices"""
+        dict: The marginal frequencies for remaining indices
+    """
+
     key_length = len(next(iter(frequencies)))
     other_indices = [i for i in range(key_length) if i not in indices]
 
