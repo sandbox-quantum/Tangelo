@@ -36,6 +36,7 @@ INVERTIBLE_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "CH", "PHASE
                     "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP",
                     "CSWAP"}
 
+CLIFFORD_GATES = {"H", "S", "X", "Z", "Y", "SDAG", "CNOT", "CX", "CY", "CZ", "SWAP", "CXSWAP"}
 
 class Gate(dict):
     """An abstract gate class that exposes all the gate information such as gate
@@ -180,6 +181,20 @@ class Gate(dict):
             raise AttributeError(f"{self.name} is not an invertible gate when parameter is {self.parameter}")
         return Gate(self.name, self.target, self.control, new_parameter, self.is_variational)
 
+    def is_clifford(self):
+        """
+        Check if a quantum gate is a Clifford gate.
+
+        Returns:
+            bool: True if the gate is in Clifford gate list or has a parameter corresponding to Clifford points,
+                  False otherwise.
+        """
+        if self.name in CLIFFORD_GATES:
+            return True
+        elif self.name in {"RX", "RY", "RZ", "PHASE"}:
+            return not self.parameter % (pi / 2) or not self.parameter % pi
+        else:
+            return False
     def serialize(self):
         return {"type": "Gate",
                 "params": {"name": self.name, "target": self.target,
