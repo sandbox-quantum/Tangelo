@@ -5,7 +5,7 @@ on: [pull_request]
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.8]
@@ -26,7 +26,7 @@ jobs:
     - name: Install psi4
       shell: bash -el {0}
       run: |
-        conda install psi4 python=3.8 -c conda-forge/label/libint_dev -c conda-forge
+        conda install psi4 python=3.8 -c psi4
         conda init
       if: always()
 

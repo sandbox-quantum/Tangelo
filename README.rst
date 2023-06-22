@@ -106,8 +106,8 @@ A good alternative for users that simply want to quickly get a working environme
 Check out the tutorial section below to see how services such as Google Colab may help you circumvent local installation challenges or go beyond the limitations of your personal computer if you feel short of compute power or memory.
 
 
-Optional dependencies
-^^^^^^^^^^^^^^^^^^^^^
+Quantum Simulators
+^^^^^^^^^^^^^^^^^^
 
 Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as
 ``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice, and refer to their own documentation.
@@ -124,27 +124,23 @@ Depending on your OS and environment, some of these packages may be more challen
 or any issue regarding the above packages, please check their respective documentation.
 
 
-Quantum Chemistry Packages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Classical Quantum Chemistry Packages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Tangelo can be used without having a quantum chemistry package installed but many algorithms, by default, depend on one being installed.
 
 The two quantum chemistry packages that are natively supported are `PySCF <https://pyscf.org/>`_ and `Psi4 <https://psicode.org/>`_.
 
-`DMETProblemDecomposition` is only supported with `PySCF`.
-`SemiEmpircalSolver` requires PySCF  along with 'python3 -m pip install git+https://github.com/pyscf/semiempirical'.
-
 You are also welcome to provide your own interface to a quantum chemistry package of your choice by defining a subclass of
-`IntegralSolver <https://github.com/goodchemistryco/Tangelo/blob/develop/tangelo/toolboxes/molecular_computation/integral_solver.py>`_ which
-provides data about the system (e.g. # electrons, # nuclei, etc) and the one- and two-body integrals when given a molecular geometry, charge, sping
-basis set etc.
+`IntegralSolver <https://github.com/goodchemistryco/Tangelo/blob/develop/tangelo/toolboxes/molecular_computation/integral_solver.py>`_.
+An example of this can be found in `this test <https://github.com/goodchemistryco/Tangelo/blob/develop/tangelo/toolboxes/molecular_computation/tests/test_molecule.py#L167>`_.
 
 
 Quick note for Windows users
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Our installation instructions will work on Linux and MacOS systems. If you are using Windows, we recommend
-you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/install>`_, which allows you
+The installation instructions work for Windows but this is not the case for all optional dependencies.
+If you are using Windows, we recommend you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/install>`_, which allows you
 to run Ubuntu as an application. Once it has been installed, you can type ``explorer.exe`` in your Ubuntu terminal to
 drag and drop files between your Windows and Linux environment.
 
