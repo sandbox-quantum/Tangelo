@@ -19,6 +19,7 @@ import os
 import time
 
 from itertools import product
+import pytest
 
 from tangelo.linq import Gate, Circuit
 from tangelo.toolboxes.operators import QubitOperator
@@ -46,6 +47,7 @@ tangelo_c = Circuit(gates * n_repeat)
 
 class PerfTranslatorTest(unittest.TestCase):
 
+    @pytest.mark.skip(reason="Takes a long time and doesn't print the desired information.")
     def test_perf_operator(self):
         """ Performance test with a reasonable large input for operator.
         Symbolic backends are not included in this test.
@@ -71,6 +73,7 @@ class PerfTranslatorTest(unittest.TestCase):
                 except Exception:
                     continue
 
+    @pytest.mark.skip(reason="Takes a long time and doesn't print the desired information.")
     def test_perf_circuit(self):
         """ Performance test with a reasonable large input for quantum circuit.
         Symbolic backends are not included in this test.
@@ -95,3 +98,7 @@ class PerfTranslatorTest(unittest.TestCase):
                     print(f"\tFormat conversion from {f:12} to {'tangelo':12} :: {time.time()-tstart} s")
                 except Exception:
                     continue
+
+
+if __name__ == "__main__":
+    unittest.main()
