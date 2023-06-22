@@ -261,7 +261,7 @@ class Backend(abc.ABC):
         elif save_mid_circuit_meas and return_statevector:
             if self.n_shots != 1:
                 raise ValueError("The combination of save_mid_circuit_meas and return_statevector without specifying desired_meas_result "
-                                 "is only valid for self.n_shots=1 as the result is a mixed state otherwise, "
+                                 "is only valid for self.n_shots=1. The result is a mixed state otherwise, "
                                  f"but you requested n_shots={self.n_shots}.")
         elif source_circuit.is_mixed_state and not self.n_shots:
             raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state. "
