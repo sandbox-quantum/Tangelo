@@ -96,46 +96,31 @@ separately with ``pip``\ , before trying again.
 With Docker
 ^^^^^^^^^^^
 
-Use our Docker file to deploy Tangelo in a Linux environment, either retrieved from pip or mounted locally.
-Comment / uncomment the relevant sections of the Dockerfile to control installation and dependencies.
+Use our Docker file to deploy Tangelo in a Linux environment, either retrieved from pip or mounted locally. Comment / uncomment the relevant sections of the Dockerfile to control installation and dependencies.
 
 "No install" notebook method
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A good alternative for users that simply want to quickly get a working environment ready, especially for quick tests, demos, tutorials.
-Check out the tutorial section below to see how services such as Google Colab may help you circumvent local installation challenges or go beyond the limitations of your personal computer if you feel short of compute power or memory.
+Check out the tutorial section below to see how services such as Google Colab, Binder or JupyterLab may help you circumvent local installation challenges or go beyond the compute capabilities of your laptop.
+
+Optional dependencies: Quantum Simulators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as ``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice, and refer to their own documentation. Most packages can be installed through pip or conda in a straightforward way:
 
 
-Quantum Simulators
-^^^^^^^^^^^^^^^^^^
+Optional dependencies: Classical Quantum Chemistry Packages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as
-``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice,
-and refer to their own documentation. Most packages can be installed through pip or conda in a straightforward way:
+Tangelo can be used without having a classical quantum chemistry package installed but many algorithms, by default, depend on one being installed. The two quantum chemistry packages that are natively supported are `PySCF <https://pyscf.org/>`_ and `Psi4 <https://psicode.org/>`_.
 
-
-Classical Quantum Chemistry Packages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Tangelo can be used without having a classical quantum chemistry package installed but many algorithms, by default, depend on one being installed.
-
-The two quantum chemistry packages that are natively supported are `PySCF <https://pyscf.org/>`_ and `Psi4 <https://psicode.org/>`_.
-
-You are also welcome to provide your own interface to a quantum chemistry package of your choice by defining a subclass of
-`IntegralSolver <https://github.com/goodchemistryco/Tangelo/blob/develop/tangelo/toolboxes/molecular_computation/integral_solver.py>`_.
-An example of this can be found in `this test <https://github.com/goodchemistryco/Tangelo/blob/develop/tangelo/toolboxes/molecular_computation/tests/test_molecule.py#L167>`_.
+You are also welcome to provide your own interface to a quantum chemistry package of your choice by defining a subclass of `IntegralSolver <https://github.com/goodchemistryco/Tangelo/blob/develop/tangelo/toolboxes/molecular_computation/integral_solver.py>`_. An example of this can be found in `this test <https://github.com/goodchemistryco/Tangelo/blob/develop/tangelo/toolboxes/molecular_computation/tests/test_molecule.py#L167>`_.
 
 
 Quick note for Windows users
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Depending on your OS and environment, some of the optional packages may be more challenging to install. 
-
-If you are using Windows, we recommend you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/install>`_, which allows you
-to run Ubuntu as an application. Once it has been installed, you can type ``explorer.exe`` in your Ubuntu terminal to
-drag and drop files between your Windows and Linux environment.
-
-Here are a few essentials to install inside a brand new Ubuntu environment, before trying to install Tangelo:
+Depending on your OS and environment, some of the optional packages may be more challenging to install. If you are using Windows, we recommend you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/install>`_, which allows you to run Ubuntu as an application. Once it has been installed, you can type ``explorer.exe`` in your Ubuntu terminal to drag and drop files between your Windows and Linux environment. Here are a few essentials to install inside a brand new Ubuntu environment, before trying to install Tangelo:
 
 .. code-block::
 
@@ -148,21 +133,17 @@ Here are a few essentials to install inside a brand new Ubuntu environment, befo
 Optional: environment variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Some environment variables can impact performance (ex: using GPU for quantum circuit simulation, or changing
-the number of CPU threads used) or are used to connect to web services providing access to some compute backends.
+Some environment variables can impact performance (ex: using GPU for quantum circuit simulation, or changing the number of CPU threads used) or are used to connect to web services providing access to some compute backends.
 
-See the list of relevant environment variables and their use in ``env_var.sh``. In order for these variables to be set to
-the desired values in your environment, you can run this shell script in Linux with the following command line:
-``source env_var.sh`` (you may need to set execution permissions with ``chmod +x set_env_var.sh`` first), or you can set
-them in whatever way your OS supports it, or even inside your python script using the ``os`` package.
+See the list of relevant environment variables and their use in ``env_var.sh``. In order for these variables to be set to the desired values in your environment, you can run this shell script in Linux with the following command line:
+``source env_var.sh`` (you may need to set execution permissions with ``chmod +x set_env_var.sh`` first), or you can set them in whatever way your OS supports it, or even inside your python script using the ``os`` package.
 
 Tutorials and examples
 ----------------------
 
 We have a `dedicated repository <https://github.com/goodchemistryco/Tangelo-Examples>`_ for examples and tutorials !
 
-We wrote a number of them, and tried to provide material that doesn't just explain how to use the software, but provides insights into the complex topics of chemistry, quantum computing, and digs into the challenges we encountered in our previous hardware experiments.
-Nothing prevents users from contributing and showcasing what they have been doing with Tangelo.
+We wrote a number of them, and tried to provide material that doesn't just explain how to use the software, but provides insights into the complex topics of chemistry, quantum computing, and digs into the challenges we encountered in our previous hardware experiments. Nothing prevents users from contributing and showcasing what they have been doing with Tangelo.
 
 You can visualize notebooks directly on Github, most of them have been pre-run.
 If you'd like to be able to run them locally, we suggest you use `Jupyter notebooks inside a virtual environment <https://janakiev.com/blog/jupyter-virtual-envs/>`_.
@@ -184,8 +165,7 @@ Check out our `tutorials <./TUTORIALS.rst>`_ file for more details.
 Tests
 -----
 
-Unit tests can be found in the ``tests`` folders, located in the various toolboxes they are related to. To automatically
-find and run all tests (assuming you are in the ``tangelo`` subfolder that contains the code of the package):
+Unit tests can be found in the ``tests`` folders, located in the various toolboxes they are related to. To automatically find and run all tests (assuming you are in the ``tangelo`` subfolder that contains the code of the package):
 
 .. code-block::
 
@@ -201,8 +181,7 @@ You do not need to be a seasoned software developer or expert in your field to m
 However we need some guidelines and processes to ensure that we build something of quality for the community. We describe them in the `contributions <./CONTRIBUTIONS.rst>`_ file.
 There are many ways you can contribute, but in case you're considering contributing to the codebase: don't be scared of the infamous pull request process ! It can feel intimidating, but we've had a few researchers or high-schoolers go through their first one and... they came back for more ! Mostly.
 
-You can use the `Issue tab <https://github.com/goodchemistryco/Tangelo/issues>`_ to open a bug report or feature request.
-If you're not sure, starting a discussion in the `Discussion tab <https://github.com/goodchemistryco/Tangelo/discussions>`_ is a good start: we'll figure it out from there.
+You can use the `Issue tab <https://github.com/goodchemistryco/Tangelo/issues>`_ to open a bug report or feature request. If you're not sure, starting a discussion in the `Discussion tab <https://github.com/goodchemistryco/Tangelo/discussions>`_ is a good start: we'll figure it out from there.
 
 By joining the Tangelo community and sharing your ideas and developments, you are creating an opportunity for us to learn and grow together, and take ideas to the finish line and beyond.
 
