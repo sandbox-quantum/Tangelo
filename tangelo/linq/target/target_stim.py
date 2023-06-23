@@ -12,24 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import math
+"""The stim simulation package is made for fast simulation of Clifford circuits.
+See https://arxiv.org/abs/2103.02202v3 for more details.
+"""
+
 from collections import Counter
 
 import numpy as np
-import stim
 
 from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
-from tangelo.linq.translator.translate_stim import direct_tableau
+from tangelo.linq.translator.translate_stim import translate_tableau
 
 
 class StimSimulator(Backend):
-    """Interface to the stim simulator."""
-
+    """Interface to the stim simulator"""
     def __init__(self, n_shots=None, noise_model=None):
         import stim
-        from stim import TableauSimulator
         super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.stim = stim
 
@@ -56,6 +56,7 @@ class StimSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
+
         if self.n_shots or self._noise_model:
             translated_circuit = translate_c(source_circuit, "stim",
                  output_options={"noise_model": self._noise_model})
@@ -64,14 +65,13 @@ class StimSimulator(Backend):
             isamples = translated_circuit.compile_sampler().sample(self.n_shots)
             samples = [''.join([str(int(q))for q in isamples[i]]) for i in range(self.n_shots)]
             frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
-
         else:
-            self._current_state = direct_tableau(source_circuit).state_vector()
+            self._current_state = translate_tableau(source_circuit).state_vector()
             frequencies = self._statevector_to_frequencies(self._current_state)
 
         return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
-    def expectation_value_from_stabilizer_circuit(self, qubit_operator, state_prep_circuit):
+    def expectation_value_from_tableau(self, qubit_operator, state_prep_circuit):
         """
         Calculates the expectation value of a qubit operator using a stabilizer circuit.
 
@@ -84,7 +84,7 @@ class StimSimulator(Backend):
 
         """
         from tangelo.linq.helpers.circuits.measurement_basis import pauli_of_to_string
-        s = direct_tableau(state_prep_circuit)
+        s = translate_tableau(state_prep_circuit)
         n_qubits = state_prep_circuit.width
         paulisum = 0
         for term, coef in qubit_operator.terms.items():

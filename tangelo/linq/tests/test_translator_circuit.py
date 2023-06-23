@@ -543,10 +543,9 @@ class TranslateCircuitTest(unittest.TestCase):
     def test_stim_tableau(self):
         """ Compares stim statevector produced by tableau with reference state"""
 
-        import stim
-        from tangelo.linq.translator.translate_stim import direct_tableau
-        # get statevector from tableau
-        v1 = direct_tableau(clifford_big_circuit).state_vector()
+        from tangelo.linq.translator.translate_stim import translate_tableau
+        # Get statevector from tableau
+        v1 = translate_tableau(clifford_big_circuit).state_vector()
         np.testing.assert_array_almost_equal(v1, clifford_ref, decimal=6)
 
 

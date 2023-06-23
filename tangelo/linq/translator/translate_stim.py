@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """Functions helping with quantum circuit and operator format conversion between
-Tangelo format and qiskit format.
+Tangelo format and stim format.
 
 In order to produce an equivalent circuit for the target backend, it is
 necessary to account for:
@@ -46,11 +46,10 @@ def get_stim_gates():
     GATE_STIM["CNOT"] = "CX"
     GATE_STIM["SWAP"] = "SWAP"
     GATE_STIM["MEASURE"] = "M"
-    GATE_STIM["R"] = "R"
     return GATE_STIM
 
 
-def direct_tableau(source_circuit):
+def translate_tableau(source_circuit):
     """Take in an abstract circuit, return an equivalent stim TableauSimulator
     instance. This method is faster than translating into a circuit object when
     calculating noiseless expectation values.
@@ -100,7 +99,6 @@ def translate_c_to_stim(source_circuit, noise_model=None):
     """
 
     import stim
-
     GATE_STIM = get_stim_gates()
     target_circuit = stim.Circuit()
     for qubit in range(source_circuit.width):
@@ -125,7 +123,7 @@ def translate_c_to_stim(source_circuit, noise_model=None):
                     target_circuit.append(stim.CircuitInstruction('PAULI_CHANNEL_1', [gate.target[0]], [np[0], np[1], np[2]]))
                     if gate.control is not None:
                         target_circuit.append(stim.CircuitInstruction('PAULI_CHANNEL_1', [gate.control[0]], [np[0], np[1], np[2]]))
-                if nt == 'depol':
+                elif nt == 'depol':
                     depol_list = [t for t in gate.target]
                     if gate.control is not None:
                         depol_list += [c for c in gate.control]

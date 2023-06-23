@@ -45,11 +45,10 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
 
     clifford_values = [0, pi, pi / 2, -pi / 2]
     clifford_parameter = next((value for value in clifford_values if
-                               isclose(gate.parameter % (2 * pi), value % (2 * pi), abs_tol=abs_tol)),
-                              None)
+                               isclose(gate.parameter % (2 * pi), value % (2 * pi), abs_tol=abs_tol)), None)
 
     if clifford_parameter is None:
-         raise ValueError(f"Error: Parameterized gate {gate} cannot be decomposed into Clifford gates")
+        raise ValueError(f"Error: Parameterized gate {gate} cannot be decomposed into Clifford gates")
 
     gate_list = []
     if gate.name == "RY":

@@ -88,6 +88,7 @@ packages["qdk"] = "qsharp"
 installed_backends = {p_id for p_id, p_name in packages.items() if is_package_installed(p_name)}
 installed_simulator = installed_backends & all_backends_simulator
 installed_sv_simulator = installed_backends & sv_backends_simulator
+installed_chem_backends = {p_id for p_id in chem_backends if is_package_installed(p_id)}
 
 # Check if qulacs installed (better performance for tests). If not, defaults to cirq (always installed with openfermion)
 default_simulator = "qulacs" if "qulacs" in installed_sv_simulator else "cirq"

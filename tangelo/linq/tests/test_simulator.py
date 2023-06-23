@@ -296,9 +296,9 @@ class TestSimulateStatevector(unittest.TestCase):
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-2)
 
         for b in clifford_backends_simulator:
-                simulator = get_backend(target=b, n_shots=10 ** 6)
-                frequencies, _ = simulator.simulate(circuit_clifford)
-                assert_freq_dict_almost_equal(ref_freqs_clifford, frequencies, atol=1e-2)
+            simulator = get_backend(target=b, n_shots=10 ** 6)
+            frequencies, _ = simulator.simulate(circuit_clifford)
+            assert_freq_dict_almost_equal(ref_freqs_clifford, frequencies, atol=1e-2)
 
     def test_simulate_empty_circuit_from_statevector(self):
         """ Test the generation of frequencies using an initial_statevector and an empty_circuit """

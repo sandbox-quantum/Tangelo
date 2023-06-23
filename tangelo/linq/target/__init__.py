@@ -19,7 +19,7 @@ from .target_qulacs import QulacsSimulator
 from .target_qdk import QDKSimulator
 from .target_sympy import SympySimulator
 from .target_stim import StimSimulator
-from tangelo.helpers.utils import all_backends_simulator
+from tangelo.helpers.utils import all_backends_simulator, clifford_backends_simulator
 
 
 target_dict = {"qiskit": QiskitSimulator, "cirq": CirqSimulator, "qdk": QDKSimulator, "qulacs": QulacsSimulator, "sympy": SympySimulator, "stim": StimSimulator}

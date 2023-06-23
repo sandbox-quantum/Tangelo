@@ -456,8 +456,9 @@ class Backend(abc.ABC):
             complex: The expectation value of this operator with regards to the
                 state preparation.
         """
-        if hasattr(self, "expectation_value_from_stabilizer_circuit") and initial_statevector is None:
-            return self.expectation_value_from_stabilizer_circuit(qubit_operator, state_prep_circuit)
+        # If using Clifford simulator, get expectation value from tableau
+        if hasattr(self, "expectation_value_from_tableau") and initial_statevector is None:
+            return self.expectation_value_from_tableau(qubit_operator, state_prep_circuit)
 
         n_qubits = state_prep_circuit.width
 
