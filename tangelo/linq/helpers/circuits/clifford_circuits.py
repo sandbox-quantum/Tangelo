@@ -33,22 +33,26 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
 
     """
 
-    if gate.name not in {"RX", "RY", "RZ", "PHASE"}:
-        return gate
-    gate_list = []
-    clifford_values = [0, pi, pi / 2, -pi / 2]
-    value_isclose = [isclose(gate.parameter, value, abs_tol=abs_tol) for value in clifford_values]
-
-    if not any(value_isclose):
+    if not gate.is_clifford():
         raise ValueError(
-            f"Error: Parameterized gate {gate} cannot be decomposed into Clifford gates")
-    else:
-        clifford_parameter = [value for bool_, value in zip(value_isclose, clifford_values) if bool_][0]
+            f"Error: Gate {gate} cannot be decomposed into Clifford gates")
 
-    if clifford_parameter == 0:
-        gate_list = []
+    elif gate.name not in {"RX", "RY", "RZ", "PHASE"}:
+        return gate
 
-    elif gate.name == "RY":
+    elif gate.parameter == 0:
+        return []
+
+    clifford_values = [0, pi, pi / 2, -pi / 2]
+    clifford_parameter = next((value for value in clifford_values if
+                               isclose(gate.parameter % (2 * pi), value % (2 * pi), abs_tol=abs_tol)),
+                              None)
+
+    if clifford_parameter is None:
+         raise ValueError(f"Error: Parameterized gate {gate} cannot be decomposed into Clifford gates")
+
+    gate_list = []
+    if gate.name == "RY":
         if clifford_parameter == -pi / 2:
             gate_list = [Gate("H", gate.target), Gate("Z", gate.target)]
         elif clifford_parameter == pi / 2:

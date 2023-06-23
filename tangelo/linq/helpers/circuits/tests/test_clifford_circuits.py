@@ -19,7 +19,9 @@ import numpy as np
 from tangelo.linq import Gate, Circuit
 from tangelo.linq.helpers.circuits.clifford_circuits import decompose_gate_to_cliffords
 from tangelo.linq.translator.translate_cirq import translate_c_to_cirq
+from tangelo.helpers.math import arrays_almost_equal_up_to_global_phase
 
+clifford_angles = [0, np.pi/2, np.pi, -np.pi/2, 3*np.pi/2, 7*np.pi, -5*np.pi]
 non_clifford_gate = Gate("RY", 0, parameter=np.pi/3)
 
 class CliffordCircuitTest(unittest.TestCase):
@@ -27,11 +29,11 @@ class CliffordCircuitTest(unittest.TestCase):
     def test_decompose_gate_to_cliffords(self):
         """Test if gate decomposition returns correct sequence"""
         for gate in ["RY", "RX", "RZ", "PHASE"]:
-            for param in [np.pi / 2, np.pi, np.pi / 2]:
-                ref_gate = Gate(gate, 0, parameter=param)
+            for angle in clifford_angles:
+                ref_gate = Gate(gate, 0, parameter=angle)
                 u_ref = translate_c_to_cirq(Circuit([ref_gate]))
                 u_decompose = translate_c_to_cirq(Circuit(decompose_gate_to_cliffords(ref_gate)))
-                np.testing.assert_array_almost_equal(u_ref.unitary(), u_decompose.unitary())
+                arrays_almost_equal_up_to_global_phase(u_ref.unitary(), u_decompose.unitary())
 
     def test_non_clifford_gates(self):
         """Test if non-clifford gate raises value error"""
