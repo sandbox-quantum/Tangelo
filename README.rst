@@ -110,24 +110,14 @@ Quantum Simulators
 ^^^^^^^^^^^^^^^^^^
 
 Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as
-``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice, and refer to their own documentation.
-Most packages can be installed through pip in a straightforward way:
-
-.. code-block::
-
-   pip install qulacs
-   pip install qiskit
-   pip install cirq
-   ...
-
-Depending on your OS and environment, some of these packages may be more challenging to install. For installing Microsoft's QDK
-or any issue regarding the above packages, please check their respective documentation.
+``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice,
+and refer to their own documentation. Most packages can be installed through pip or conda in a straightforward way:
 
 
 Classical Quantum Chemistry Packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Tangelo can be used without having a quantum chemistry package installed but many algorithms, by default, depend on one being installed.
+Tangelo can be used without having a classical quantum chemistry package installed but many algorithms, by default, depend on one being installed.
 
 The two quantum chemistry packages that are natively supported are `PySCF <https://pyscf.org/>`_ and `Psi4 <https://psicode.org/>`_.
 
@@ -139,7 +129,8 @@ An example of this can be found in `this test <https://github.com/goodchemistryc
 Quick note for Windows users
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The installation instructions work for Windows but this is not the case for all optional dependencies.
+Depending on your OS and environment, some of the optional packages may be more challenging to install. 
+
 If you are using Windows, we recommend you install the `Windows Linux Subsystem <https://docs.microsoft.com/en-us/windows/wsl/install>`_, which allows you
 to run Ubuntu as an application. Once it has been installed, you can type ``explorer.exe`` in your Ubuntu terminal to
 drag and drop files between your Windows and Linux environment.
