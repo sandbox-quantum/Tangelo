@@ -503,7 +503,7 @@ class SecondQuantizedMolecule(Molecule):
             for j in occupied_indices[1]:
                 core_constant += 0.5*(two_body_integrals[2][i, j, j, i]-two_body_integrals[2][i, j, i, j])
 
-        # Modified one electon integrals
+        # Modified one electron integrals
         one_body_integrals_new_aa = np.copy(one_body_integrals[0])
         one_body_integrals_new_bb = np.copy(one_body_integrals[1])
 

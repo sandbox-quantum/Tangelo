@@ -29,6 +29,7 @@ def trim_trivial_operator(qu_op, trim_states, n_qubits=None, reindex=True):
         trim_states (dict): Dictionary mapping qubit indices to states to trim, e.g. {1: 0, 3: 1}
         n_qubits (int): Optional, number of qubits in full system
         reindex (bool): Optional, if True, remaining qubits will be reindexed
+
     Returns:
         QubitOperator : trimmed QubitOperator with updated coefficients
     """
@@ -91,15 +92,15 @@ def is_bitflip_gate(gate, atol=1e-5):
 
 def trim_trivial_circuit(circuit):
     """
-        Splits Circuit into entangled and unentangled components.
-        Returns entangled Circuit, and the indices and states of unentangled qubits
+    Split Circuit into entangled and unentangled components.
+    Returns entangled Circuit, and the indices and states of unentangled qubits
 
-        Args:
-            circuit (Circuit): circuit to be trimmed
-        Returns:
-            Circuit : Trimmed, entangled circuit
-            dict : dictionary mapping trimmed qubit indices to their states (0 or 1)
+    Args:
+        circuit (Circuit): circuit to be trimmed
 
+    Returns:
+        Circuit : Trimmed, entangled circuit
+        dict : dictionary mapping trimmed qubit indices to their states (0 or 1)
     """
     # Split circuit and get relevant indices
     circs = circuit.split()
@@ -159,15 +160,16 @@ def trim_trivial_circuit(circuit):
 
 def trim_trivial_qubits(operator, circuit):
     """
-        Trim circuit and operator based on expectation values calculated from
-        trivial components of the circuit.
+    Trim circuit and operator based on expectation values calculated from
+    trivial components of the circuit.
 
-        Args:
-            operator (QubitOperator): Operator to trim
-            circuit (Circuit): circuit to be trimmed
-        Returns:
-            QubitOperator : Trimmed qubit operator
-            Circuit : Trimmed circuit
+    Args:
+        operator (QubitOperator): Operator to trim
+        circuit (Circuit): circuit to be trimmed
+
+    Returns:
+        QubitOperator : Trimmed qubit operator
+        Circuit : Trimmed circuit
     """
     trimmed_circuit, trim_states = trim_trivial_circuit(circuit)
     trimmed_operator = trim_trivial_operator(operator, trim_states, circuit.width, reindex=True)

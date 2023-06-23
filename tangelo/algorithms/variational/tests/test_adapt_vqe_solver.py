@@ -31,7 +31,7 @@ class ADAPTSolverTest(unittest.TestCase):
     def test_build_adapt(self):
         """Try instantiating ADAPTSolver with basic input."""
 
-        opt_dict = {"molecule": mol_H2_sto3g, "max_cycles": 15}
+        opt_dict = {"molecule": mol_H2_sto3g, "max_cycles": 15, "spin": 0}
         adapt_solver = ADAPTSolver(opt_dict)
         adapt_solver.build()
 

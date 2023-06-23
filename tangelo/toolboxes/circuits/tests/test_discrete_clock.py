@@ -15,17 +15,16 @@
 import unittest
 import math
 
-from openfermion import get_sparse_operator
 import numpy as np
 from scipy.linalg import expm
+from openfermion import get_sparse_operator
 
-from tangelo.linq import get_backend, Circuit
-from tangelo.helpers.utils import installed_backends
-from tangelo.linq.helpers.circuits.statevector import StateVector
-from tangelo.toolboxes.operators.operators import QubitOperator
-from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from tangelo.toolboxes.ansatz_generator.ansatz_utils import get_qft_circuit, trotterize
 from tangelo.molecule_library import mol_H2_sto3g
+from tangelo.helpers.utils import installed_backends
+from tangelo.linq import get_backend, Circuit
+from tangelo.linq.helpers.circuits.statevector import StateVector
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
 from tangelo.toolboxes.circuits.discrete_clock import get_discrete_clock_circuit
 from tangelo.toolboxes.circuits.grid_circuits import get_psquared_circuit, get_xsquared_circuit
 
@@ -45,7 +44,7 @@ class DiscreteClockTest(unittest.TestCase):
         qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons,
                                          True, 0)
 
-        ham = get_sparse_operator(qu_op).toarray()
+        ham = get_sparse_operator(qu_op.to_openfermion()).toarray()
         _, vecs = np.linalg.eigh(ham)
         vec = (vecs[:, 0] + vecs[:, 1])/np.sqrt(2)
 
@@ -62,8 +61,8 @@ class DiscreteClockTest(unittest.TestCase):
             sv_circuit = sv.initializing_circuit()
 
             for k in [2, 3]:
-                taylor_circuit = get_discrete_clock_circuit(trotter_func=trotter_func, trotter_kwargs={}, time=time, mp_order=k, n_state_qus=2,
-                                                            n_time_steps=4)
+                taylor_circuit = get_discrete_clock_circuit(trotter_func=trotter_func, trotter_kwargs={},
+                                                            time=time, mp_order=k, n_state_qus=2, n_time_steps=4)
                 _, v = sim.simulate(sv_circuit + taylor_circuit, return_statevector=True)
                 n_ancilla = 2 + math.ceil(np.log2(k+2))
                 len_ancilla = 2**n_ancilla
@@ -108,9 +107,9 @@ class DiscreteClockTest(unittest.TestCase):
 
             for k in [2, 3]:
                 qubit_list = list(reversed(range(n_qubits))) if statevector_order == "lsq_first" else list((range(n_qubits)))
-                taylor_circuit = get_discrete_clock_circuit(trotter_func=trotter_func, trotter_kwargs={"dx": dx, "qubit_list": qubit_list}, time=time,
-                                                            mp_order=k, n_state_qus=6,
-                                                            n_time_steps=2)
+                taylor_circuit = get_discrete_clock_circuit(trotter_func=trotter_func,
+                                                            trotter_kwargs={"dx": dx, "qubit_list": qubit_list}, time=time,
+                                                            mp_order=k, n_state_qus=6, n_time_steps=2)
                 _, v = sim.simulate(sv_circuit + taylor_circuit, return_statevector=True)
                 n_ancilla = 1 + math.ceil(np.log2(k+2))
                 len_ancilla = 2**n_ancilla

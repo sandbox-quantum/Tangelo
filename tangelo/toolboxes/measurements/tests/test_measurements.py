@@ -17,7 +17,7 @@ import os
 from openfermion import load_operator
 
 from tangelo.helpers.utils import default_simulator
-from tangelo.linq import translator, get_backend, Circuit
+from tangelo.linq import translate_circuit, get_backend, Circuit
 from tangelo.linq.helpers import measurement_basis_gates
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.measurements import get_measurement_estimate
@@ -77,7 +77,7 @@ class MeasurementsTest(unittest.TestCase):
         # Load state preparation circuit
         with open(f"{path_data}/H2_UCCSD.qasm", "r") as f:
             openqasm_circ = f.read()
-        abs_circ = translator._translate_openqasm2abs(openqasm_circ)
+        abs_circ = translate_circuit(openqasm_circ, source="openqasm", target="tangelo")
 
         # Load qubit Hamiltonian
         qb_ham = load_operator("mol_H2_qubitham.data", data_directory=path_data, plain_text=True)

@@ -15,10 +15,9 @@
 import unittest
 
 from tangelo.algorithms import FCISolver
-from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_cation_sto3g
+from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_cation_sto3g, mol_H4_sto3g
 
 
-# TODO: Can we test the get_rdm method on H2 ? How do we get our reference? Whole matrix or its properties?
 class FCISolverTest(unittest.TestCase):
 
     def test_fci_h2(self):
@@ -28,6 +27,9 @@ class FCISolverTest(unittest.TestCase):
         energy = solver.simulate()
 
         self.assertAlmostEqual(energy, -1.1478300596229851, places=6)
+
+        one_rdm, two_rdm = solver.get_rdm()
+        self.assertAlmostEqual(energy, mol_H2_321g.energy_from_rdms(one_rdm, two_rdm), places=6)
 
     def test_fci_be(self):
         """Test FCISolver against result from reference implementation (Be)."""
@@ -64,6 +66,20 @@ class FCISolverTest(unittest.TestCase):
         energy = solver.simulate()
 
         self.assertAlmostEqual(energy, -14.530687987160581, places=6)
+
+    def test_fci_H4_interior_frozen_orbitals(self):
+        """ Test FCISolver against result from reference implementation with interior frozen orbitals
+        """
+
+        mol_H4_sto3g_freeze3 = mol_H4_sto3g.freeze_mos([1, 3, 4], inplace=False)
+
+        solver = FCISolver(mol_H4_sto3g_freeze3)
+        energy = solver.simulate()
+
+        self.assertAlmostEqual(energy, -1.803792808, places=5)
+
+        one_rdm, two_rdm = solver.get_rdm()
+        self.assertAlmostEqual(energy, mol_H4_sto3g_freeze3.energy_from_rdms(one_rdm, two_rdm), places=5)
 
 
 if __name__ == "__main__":

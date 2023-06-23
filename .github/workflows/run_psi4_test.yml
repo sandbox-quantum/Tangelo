@@ -54,11 +54,18 @@ jobs:
         python -m pip install .
       if: always()
 
-    - name: tangelo psi4 tests
+    - name: tangelo psi4 integral tests
       run: |
         cd tangelo/toolboxes/molecular_computation/tests
         conda activate p4env
         pytest --doctest-modules --junitxml=junit/psi4-test-results.xml test_psi4.py
+      if: always()
+
+    - name: tangelo psi4 classical tests
+      run: |
+        cd tangelo/algorithms/classical/tests
+        conda activate p4env
+        pytest --doctest-modules --junitxml=junit/psi4-classical-test-results.xml
       if: always()
 
     - name: Upload psi4 test results
@@ -66,6 +73,12 @@ jobs:
       with:
         name: tangelo-psi4-test-results
         path: tangelo/toolboxes/molecular_computation/tests/junit/psi4-test-results.xml
+
+    - name: Upload classical psi4 test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: tangelo-classical-psi4-test-results
+        path: tangelo/algorithms/classical/tests/junit/psi4-classical-test-results.xml
 
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v3

@@ -22,16 +22,16 @@ import os
 import time
 
 import numpy as np
-from openfermion.ops import QubitOperator
 from openfermion import load_operator, get_sparse_operator
 
+from tangelo.toolboxes.operators import QubitOperator
 from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
-from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends, clifford_backends_simulator
 from tangelo.linq.target.backend import Backend, get_expectation_value_from_frequencies_oneterm
-from tangelo.helpers.utils import assert_freq_dict_almost_equal
+from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends, clifford_backends_simulator, assert_freq_dict_almost_equal
 from tangelo.helpers.math import arrays_almost_equal_up_to_global_phase
+
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
@@ -456,7 +456,7 @@ class TestSimulateStatevector(unittest.TestCase):
         """ Get expectation value of mixed state by post-selecting on desired measurement."""
         qubit_operator = QubitOperator("X0 X1") + QubitOperator("Y0 Y1") + QubitOperator("Z0 Z1") + QubitOperator("X0 Y1", 1j)
 
-        ham = get_sparse_operator(qubit_operator).toarray()
+        ham = get_sparse_operator(qubit_operator.to_openfermion()).toarray()
         exact_sv = np.array([0.+0.j, 0.+0.j, 0.87758256+0.j, -0.47942554+0.j])
         exact_exp = np.vdot(exact_sv, ham @ exact_sv)
 
