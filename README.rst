@@ -106,7 +106,7 @@ Check out the tutorial section below to see how services such as Google Colab, B
 Optional dependencies: Quantum Simulators
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as ``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice, and refer to their own documentation. Most packages can be installed through pip or conda in a straightforward way:
+Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as ``qulacs``\ , ``qiskit``\ , ``cirq`` or ``qdk``. We leave it to you to install the packages of your choice, and refer to their own documentation. Most packages can be installed through pip or conda in a straightforward way.
 
 
 Optional dependencies: Classical Quantum Chemistry Packages
