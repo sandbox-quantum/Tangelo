@@ -229,10 +229,9 @@ class TestSimulateStatevector(unittest.TestCase):
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
         for b in clifford_backends_simulator:
-                simulator = get_backend(target=b)
-                frequencies, _ = simulator.simulate(circuit_clifford)
-                assert_freq_dict_almost_equal(ref_freqs_clifford, frequencies, atol=1e-5)
-
+            simulator = get_backend(target=b)
+            frequencies, _ = simulator.simulate(circuit_clifford)
+            assert_freq_dict_almost_equal(ref_freqs_clifford, frequencies, atol=1e-5)
 
     def test_simulate_mixed_state_desired_statevector(self):
         """ Test mid-circuit measurement (mixed-state simulation) for compatible/testable formats and backends when returning
@@ -320,11 +319,11 @@ class TestSimulateStatevector(unittest.TestCase):
             np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
 
         for b in clifford_backends_simulator:
-                simulator = get_backend(target=b)
-                clifford_exp_values = np.zeros(len(ops))
-                for j, op in enumerate(ops):
-                    clifford_exp_values[j] = simulator._get_expectation_value_from_statevector(op, circuit_clifford)
-                np.testing.assert_almost_equal(clifford_exp_values, clifford_reference_exp_values, decimal=5)
+            simulator = get_backend(target=b)
+            clifford_exp_values = np.zeros(len(ops))
+            for j, op in enumerate(ops):
+                clifford_exp_values[j] = simulator._get_expectation_value_from_statevector(op, circuit_clifford)
+            np.testing.assert_almost_equal(clifford_exp_values, clifford_reference_exp_values, decimal=5)
 
     def test_get_exp_value_from_frequencies_using_initial_statevector(self):
         """ Test the method computing the expectation value from frequencies, with a given simulator
@@ -507,6 +506,7 @@ class TestSimulateStatevector(unittest.TestCase):
                 for j, op in enumerate(ops):
                     exp_values[i][j] = simulator._get_expectation_value_from_frequencies(op, circuit)
             np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
+
 
 class TestSimulateMisc(unittest.TestCase):
     @unittest.skipIf("qdk" not in installed_backends, "Test Skipped: Backend not available \n")

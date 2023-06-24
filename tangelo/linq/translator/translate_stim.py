@@ -84,6 +84,7 @@ def translate_tableau(source_circuit):
             bar(gate.target[0], gate.target[1])
     return target_circuit
 
+
 def translate_c_to_stim(source_circuit, noise_model=None):
     """Take in an abstract circuit, return an equivalent stim QuantumCircuit
     instance. If provided with a noise model, will add noisy gates at

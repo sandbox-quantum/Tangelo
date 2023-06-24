@@ -54,6 +54,7 @@ def bool_col_echelon(bool_array):
 
     return bool_array
 
+
 def arrays_almost_equal_up_to_global_phase(array1, array2, atol=1e-6):
     """
     Checks if two arrays are almost equal up to a global phase.

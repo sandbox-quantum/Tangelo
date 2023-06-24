@@ -24,6 +24,7 @@ from tangelo.helpers.math import arrays_almost_equal_up_to_global_phase
 clifford_angles = [0, np.pi/2, np.pi, -np.pi/2, 3*np.pi/2, 7*np.pi, -5*np.pi]
 non_clifford_gate = Gate("RY", 0, parameter=np.pi/3)
 
+
 class CliffordCircuitTest(unittest.TestCase):
 
     def test_decompose_gate_to_cliffords(self):
@@ -39,4 +40,3 @@ class CliffordCircuitTest(unittest.TestCase):
         """Test if non-clifford gate raises value error"""
 
         self.assertRaises(ValueError, decompose_gate_to_cliffords, non_clifford_gate)
-

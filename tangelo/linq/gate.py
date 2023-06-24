@@ -38,6 +38,7 @@ INVERTIBLE_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "CH", "PHASE
 
 CLIFFORD_GATES = {"H", "S", "X", "Z", "Y", "SDAG", "CNOT", "CX", "CY", "CZ", "SWAP", "CXSWAP"}
 
+
 class Gate(dict):
     """An abstract gate class that exposes all the gate information such as gate
     name, control and target qubit indices, parameter values. Assumes qubit
@@ -195,6 +196,7 @@ class Gate(dict):
             return not self.parameter % (pi / 2) or not self.parameter % pi
         else:
             return False
+
     def serialize(self):
         return {"type": "Gate",
                 "params": {"name": self.name, "target": self.target,
