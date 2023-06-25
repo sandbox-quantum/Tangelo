@@ -29,8 +29,7 @@ from tangelo.linq import Gate, Circuit, get_backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.linq.target.backend import Backend, get_expectation_value_from_frequencies_oneterm
-from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends, clifford_backends_simulator, assert_freq_dict_almost_equal
-from tangelo.helpers.math import arrays_almost_equal_up_to_global_phase
+from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends, installed_clifford_simulators, assert_freq_dict_almost_equal
 
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
@@ -108,20 +107,20 @@ class TestSimulateAllBackends(unittest.TestCase):
 
     def test_get_exp_value_operator_too_long(self):
         """ Ensure an error is returned if the qubit operator acts on more qubits than are present in the circuit """
-        for b in installed_simulator and clifford_backends_simulator:
+        for b in installed_simulator and installed_clifford_simulators:
             simulator = get_backend(target=b, n_shots=1)
             self.assertRaises(ValueError, simulator.get_expectation_value, op4, circuit1)
 
     def test_get_exp_value_empty_operator(self):
         """ If qubit operator is empty, the expectation value is 0 and no computation occurs """
-        for b in installed_simulator and clifford_backends_simulator:
+        for b in installed_simulator and installed_clifford_simulators:
             simulator = get_backend(target=b, n_shots=1)
             exp_value = simulator.get_expectation_value(QubitOperator(), circuit1)
             self.assertTrue(exp_value == 0.)
 
     def test_get_exp_value_constant_operator(self):
         """ The expectation of the identity term must be 1. """
-        for b in installed_simulator and clifford_backends_simulator:
+        for b in installed_simulator and installed_clifford_simulators:
             simulator = get_backend(target=b, n_shots=1)
             const_op = QubitOperator()
             const_op.terms = {(): 777.}
@@ -228,7 +227,7 @@ class TestSimulateStatevector(unittest.TestCase):
                 frequencies, _ = simulator.simulate(circuit)
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-5)
 
-        for b in clifford_backends_simulator:
+        for b in installed_clifford_simulators:
             simulator = get_backend(target=b)
             frequencies, _ = simulator.simulate(circuit_clifford)
             assert_freq_dict_almost_equal(ref_freqs_clifford, frequencies, atol=1e-5)
@@ -294,7 +293,7 @@ class TestSimulateStatevector(unittest.TestCase):
                 frequencies, _ = simulator.simulate(circuit)
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-2)
 
-        for b in clifford_backends_simulator:
+        for b in installed_clifford_simulators:
             simulator = get_backend(target=b, n_shots=10 ** 6)
             frequencies, _ = simulator.simulate(circuit_clifford)
             assert_freq_dict_almost_equal(ref_freqs_clifford, frequencies, atol=1e-2)
@@ -318,7 +317,7 @@ class TestSimulateStatevector(unittest.TestCase):
                     exp_values[i][j] = simulator._get_expectation_value_from_statevector(op, circuit)
             np.testing.assert_almost_equal(exp_values, reference_exp_values, decimal=5)
 
-        for b in clifford_backends_simulator:
+        for b in installed_clifford_simulators:
             simulator = get_backend(target=b)
             clifford_exp_values = np.zeros(len(ops))
             for j, op in enumerate(ops):
@@ -470,7 +469,7 @@ class TestSimulateStatevector(unittest.TestCase):
         empty_circuit = Circuit([], n_qubits=2)
         identity_circuit = Circuit([Gate('X', 0), Gate('X', 1)] * 2)
 
-        for b in installed_sv_simulator and clifford_backends_simulator:
+        for b in installed_sv_simulator and installed_clifford_simulators:
             simulator = get_backend(target=b)
             for op in [op1, op2]:
                 exp_value_empty = simulator.get_expectation_value(op, empty_circuit)
