@@ -94,7 +94,7 @@ ref_freqs.append({'00': 1.0})
 ref_freqs.append({'000': 0.15972060437359714, '100': 0.2828171838599203, '010': 0.03984122195648572,
                   '110': 0.28281718385992016, '001': 0.15972060437359714, '101': 0.017620989809996816,
                   '011': 0.039841221956485706, '111': 0.01762098980999681})
-ref_freqs_clifford = {'000': 0.125, '100': 0.125, '010': 0.125, '110': 0.125, '001': 0.125, '101': 0.125, '011': 0.125, '111': 0.125}
+ref_freqs_clifford = {bs: 0.125 for bs in ['000', '100', '010', '110', '001', '101',  '011', '111']}
 reference_exp_values = np.array([[0., 0., 0.], [0., -1., 0.], [-0.41614684, 0.7651474, -1.6096484], [1., 0., 0.],
                                  [-0.20175269, -0.0600213, 1.2972912]])
 clifford_reference_exp_values = np.array([0, 0, 2])
@@ -132,7 +132,7 @@ class TestSimulateAllBackends(unittest.TestCase):
 
         results = dict()
         for b in installed_simulator:
-            sim = get_backend(target=b, n_shots=10 ** 5)
+            sim = get_backend(target=b, n_shots=10**5)
             results[b], _ = sim.simulate(circuit_mixed)
             assert_freq_dict_almost_equal(results[b], reference_mixed, 1e-2)
 
@@ -140,7 +140,7 @@ class TestSimulateAllBackends(unittest.TestCase):
         """ Test mid-circuit measurement (mixed-state simulation) for all installed backends."""
         results = dict()
         for b in installed_simulator:
-            sim = get_backend(target=b, n_shots=10 ** 3)
+            sim = get_backend(target=b, n_shots=10**3)
             results[b], _ = sim.simulate(circuit_mixed, save_mid_circuit_meas=True)
             assert_freq_dict_almost_equal(results[b], reference_mixed, 8e-2)
             assert_freq_dict_almost_equal(sim.all_frequencies, reference_all, 8e-2)
@@ -152,13 +152,13 @@ class TestSimulateAllBackends(unittest.TestCase):
         results = dict()
         exact = {'11': 0.23046888414227926, '10': 0.7695311158577207}
         for b in installed_simulator:
-            sim = get_backend(target=b, n_shots=10 ** 3)
+            sim = get_backend(target=b, n_shots=10**3)
             results[b], _ = sim.simulate(circuit_mixed, desired_meas_result="0")
             assert_freq_dict_almost_equal(results[b], exact, 8.e-2)
 
     def test_desired_meas_len(self):
         """ Test if the desired_meas_result parameter is a string and of the right length."""
-        sim = get_backend(target="cirq", n_shots=10 ** 3)
+        sim = get_backend(target="cirq", n_shots=10**3)
         self.assertRaises(ValueError, sim.simulate, circuit_mixed, desired_meas_result=0)
         self.assertRaises(ValueError, sim.simulate, circuit_mixed, desired_meas_result="01")
 
@@ -168,7 +168,7 @@ class TestSimulateAllBackends(unittest.TestCase):
         reference = 0.41614683  # Exact value
         results = dict()
         for b in installed_simulator:
-            sim = get_backend(target=b, n_shots=10 ** 5)
+            sim = get_backend(target=b, n_shots=10**5)
             results[b] = sim.get_expectation_value(op1, circuit_mixed)
             np.testing.assert_almost_equal(results[b], reference, decimal=2)
 
@@ -288,13 +288,13 @@ class TestSimulateStatevector(unittest.TestCase):
             the exact one.
         """
         for b in installed_sv_simulator:
-            simulator = get_backend(target=b, n_shots=10 ** 6)
+            simulator = get_backend(target=b, n_shots=10**6)
             for i, circuit in enumerate(circuits):
                 frequencies, _ = simulator.simulate(circuit)
                 assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-2)
 
         for b in installed_clifford_simulators:
-            simulator = get_backend(target=b, n_shots=10 ** 6)
+            simulator = get_backend(target=b, n_shots=10**6)
             frequencies, _ = simulator.simulate(circuit_clifford)
             assert_freq_dict_almost_equal(ref_freqs_clifford, frequencies, atol=1e-2)
 
@@ -444,7 +444,7 @@ class TestSimulateStatevector(unittest.TestCase):
             openqasm_circ = circ_handle.read()
         abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
 
-        simulator = get_backend(target="qulacs", n_shots=10 ** 6)
+        simulator = get_backend(target="qulacs", n_shots=10**6)
         expected = -1.1372704
 
         energy = simulator.get_expectation_value(qubit_operator, abs_circ)
@@ -523,7 +523,7 @@ class TestSimulateMisc(unittest.TestCase):
             The accuracy is correlated to the number of shots taken in the simulation.
             Backend: qdk.
         """
-        simulator = get_backend(target="qdk", n_shots=10 ** 4)
+        simulator = get_backend(target="qdk", n_shots=10**4)
         for i, circuit in enumerate(circuits):
             frequencies, _ = simulator.simulate(circuit)
             assert_freq_dict_almost_equal(ref_freqs[i], frequencies, atol=1e-1)
@@ -533,7 +533,7 @@ class TestSimulateMisc(unittest.TestCase):
         """ Test specific to QDK to ensure results are not impacted by code specific to frequency computation
             as well as the recompilation of the Q# file used in successive simulations """
 
-        simulator = get_backend(target="qdk", n_shots=10 ** 4)
+        simulator = get_backend(target="qdk", n_shots=10**4)
         exp_values = np.zeros((len(ops)), dtype=float)
         for j, op in enumerate(ops):
             exp_values[j] = simulator.get_expectation_value(op, circuit3)

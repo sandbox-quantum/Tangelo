@@ -520,12 +520,12 @@ class TranslateCircuitTest(unittest.TestCase):
 
     @unittest.skipIf("stim" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_stim_translate(self):
-        """ Compares stim translated ciruit with one made directly with stim"""
+        """ Compares stim translated circuit with one made directly with stim"""
 
         import stim
-        # Translate circuit
+        # Create stim circuit from Tangelo circuit
         translated_circuit = translate_c(clifford_abs_circ, "stim")
-        # Make circuit
+        # Assert against native equivalent stim circuit
         circ = stim.Circuit()
         for qubit in range(clifford_abs_circ.width):
             circ.append("I", [qubit])

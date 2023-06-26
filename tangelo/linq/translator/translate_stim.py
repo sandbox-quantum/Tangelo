@@ -33,26 +33,18 @@ def get_stim_gates():
     https://github.com/quantumlib/Stim/blob/main/doc/gates.md
     """
     GATE_STIM = dict()
-    GATE_STIM["I"] = "I"
-    GATE_STIM["H"] = "H"
-    GATE_STIM["X"] = "X"
-    GATE_STIM["Y"] = "Y"
-    GATE_STIM["Z"] = "Z"
-    GATE_STIM["S"] = "S"
-    GATE_STIM["SDAG"] = "S_DAG"
-    GATE_STIM["CX"] = "CX"
-    GATE_STIM["CY"] = "CY"
-    GATE_STIM["CZ"] = "CZ"
-    GATE_STIM["CNOT"] = "CX"
-    GATE_STIM["SWAP"] = "SWAP"
-    GATE_STIM["MEASURE"] = "M"
+    for g in {'I', 'H', 'X', 'Y', 'Z', 'S', 'CX', 'CY', 'CZ', 'SWAP'}:
+        GATE_STIM[g] = g.lower()
+    GATE_STIM["CNOT"] = "cx"
+    GATE_STIM["SDAG"] = "s_dag"
+    GATE_STIM["MEASURE"] = "m"
     return GATE_STIM
 
 
 def translate_tableau(source_circuit):
-    """Take in an abstract circuit and build directly into a stim TableauSimulator
+    """Take in an abstract circuit and build it directly into a stim TableauSimulator
     instance. For noiseless expectations values, this method is faster than translating
-    into a stim circuit object first and then building the stim TableauSimulator.
+    into a stim circuit object first and then building it into the stim TableauSimulator.
 
     Args:
         source_circuit (Circuit): quantum circuit in the abstract format.
@@ -69,18 +61,18 @@ def translate_tableau(source_circuit):
     # Maps the gate information properly.
     for gate in source_circuit._gates:
         if gate.name in {"H", "X", "Y", "Z", "S", "SDAG"}:
-            bar = getattr(target_circuit, gate.name.lower())
+            bar = getattr(target_circuit, GATE_STIM[gate.name])
             bar(gate.target[0])
         elif gate.name in {"RY", "RX", "RZ", "PHASE"}:
             clifford_decomposition = decompose_gate_to_cliffords(gate)
             for cliff_gate in clifford_decomposition:
-                bar = getattr(target_circuit, GATE_STIM[cliff_gate.name].lower())
+                bar = getattr(target_circuit, GATE_STIM[cliff_gate.name])
                 bar(gate.target[0])
         elif gate.name in {"CX", "CY", "CZ", "CNOT"}:
-            bar = getattr(target_circuit, gate.name.lower())
+            bar = getattr(target_circuit, GATE_STIM[gate.name])
             bar(gate.control[0], gate.target[0])
         elif gate.name in {"SWAP"}:
-            bar = getattr(target_circuit, gate.name.lower())
+            bar = getattr(target_circuit, GATE_STIM[gate.name])
             bar(gate.target[0], gate.target[1])
     return target_circuit
 
@@ -133,7 +125,6 @@ def translate_c_to_stim(source_circuit, noise_model=None):
                     elif n_depol == 2:
                         target_circuit.append(stim.CircuitInstruction('DEPOLARIZE2', [gate.target[0], gate.control[0]], [np]))
                     else:
-                        raise ValueError(
-                            f'{gate.name} has more than 2 qubits, stim DepolarizingNoise only supports 1- and 2-qubits')
+                        raise ValueError(f'{gate.name} has more than 2 qubits, stim DepolarizingNoise only supports 1- and 2-qubits')
 
     return target_circuit

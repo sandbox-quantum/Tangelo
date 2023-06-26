@@ -1,4 +1,4 @@
-# Copyright 2021 Good Chemistry Company.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.translator.translate_stim import translate_tableau
+from tangelo.linq.helpers.circuits.measurement_basis import pauli_of_to_string
 
 
 class StimSimulator(Backend):
@@ -82,7 +83,6 @@ class StimSimulator(Backend):
             float: The real-valued expectation value of the qubit operator.
 
         """
-        from tangelo.linq.helpers.circuits.measurement_basis import pauli_of_to_string
         s = translate_tableau(state_prep_circuit)
         n_qubits = state_prep_circuit.width
         paulisum = 0

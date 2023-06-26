@@ -32,14 +32,14 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
         ValueError: If parameterized gate cannot be decomposed into Clifford gates.
 
     """
-
-    if not gate.is_clifford():
+    # Return an error if the gate is not in the Clifford gate set
+    if not gate.is_clifford(abs_tol):
         raise ValueError(f"Error. The following gate cannot be decomposed into Clifford gates:\n {gate}")
-
+    # If gate is not in the parameterized gate set, it decomposes to itself
     elif gate.name not in {"RX", "RY", "RZ", "PHASE"}:
         return gate
-
-    elif gate.parameter == 0:
+    # If gate parameter is close to 0, the gate operation is the identity
+    elif isclose(gate.parameter, 0, abs_tol=abs_tol):
         return []
 
     # Find which Clifford parameter gate parameter corresponds to.
