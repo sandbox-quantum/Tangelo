@@ -2,9 +2,6 @@ name: psi4 test
 
 on: [pull_request]
 
-env:
-  NO_PYSCF: 1
-
 jobs:
   build:
 
@@ -29,14 +26,12 @@ jobs:
     - name: Install psi4
       shell: bash -el {0}
       run: |
-        conda create -n p4env psi4 -c psi4
+        conda install psi4 python=3.8 -c psi4
         conda init
-        conda activate p4env
       if: always()
 
     - name: Install pip, wheel, pytest, jupyter
       run: |
-        conda activate p4env
         python -m pip install --upgrade pip
         pip install wheel
         pip install pytest
@@ -44,27 +39,23 @@ jobs:
     
     - name: Install qulacs
       run: |
-        conda activate p4env
         pip install qulacs
       if: always()
 
     - name: tangelo install
       run: |
-        conda activate p4env
         python -m pip install .
       if: always()
 
     - name: tangelo psi4 integral tests
       run: |
         cd tangelo/toolboxes/molecular_computation/tests
-        conda activate p4env
         pytest --doctest-modules --junitxml=junit/psi4-test-results.xml test_psi4.py
       if: always()
 
     - name: tangelo psi4 classical tests
       run: |
         cd tangelo/algorithms/classical/tests
-        conda activate p4env
         pytest --doctest-modules --junitxml=junit/psi4-classical-test-results.xml
       if: always()
 
