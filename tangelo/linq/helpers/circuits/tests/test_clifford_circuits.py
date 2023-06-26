@@ -28,7 +28,8 @@ non_clifford_gate = Gate("RY", 0, parameter=np.pi/3)
 class CliffordCircuitTest(unittest.TestCase):
 
     def test_decompose_gate_to_cliffords(self):
-        """Test if gate decomposition returns correct sequence"""
+        """Test if gate decomposition returns correct sequence. Uses Cirq to validate that the unitaries returned
+        are equal up to a global phase"""
         for gate in ["RY", "RX", "RZ", "PHASE"]:
             for angle in clifford_angles:
                 ref_gate = Gate(gate, 0, parameter=angle)

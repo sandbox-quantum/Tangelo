@@ -85,8 +85,8 @@ class TestGates(unittest.TestCase):
         with self.assertRaises(AttributeError):
             RZ_gate.inverse()
 
-    def test_is_clifford_some_gates(self):
-        """ Test that some basic gates will be correctly identified as Clifford or non Clifford"""
+    def test_is_clifford(self):
+        """ Test that some basic gates are correctly identified as Clifford or non Clifford"""
 
         # test single qubit Clifford gates
         for name in {"H", "S", "X", "Z", "Y", "SDAG"}:

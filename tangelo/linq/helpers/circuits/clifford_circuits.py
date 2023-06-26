@@ -22,20 +22,19 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
     Decomposes a single qubit parameterized gate into Clifford gates.
 
     Parameters:
-    gate (Gate): The gate to be decomposed.
-    abs_tol (float): Optional, absolute tolerance for value comparison (default: 1e-4).
+        gate (Gate): The gate to be decomposed.
+        abs_tol (float): Optional, absolute tolerance for value comparison (default: 1e-4).
 
     Returns:
-    list: A list of Clifford gates representing the decomposition.
+        list: A list of Clifford gates representing the decomposition.
 
     Raises:
-    ValueError: If parameterized gate cannot be decomposed into Clifford gates.
+        ValueError: If parameterized gate cannot be decomposed into Clifford gates.
 
     """
 
     if not gate.is_clifford():
-        raise ValueError(
-            f"Error: Gate {gate} cannot be decomposed into Clifford gates")
+        raise ValueError(f"Error. The following gate cannot be decomposed into Clifford gates:\n {gate}")
 
     elif gate.name not in {"RX", "RY", "RZ", "PHASE"}:
         return gate

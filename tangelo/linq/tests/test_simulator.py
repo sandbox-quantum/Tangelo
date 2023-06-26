@@ -107,20 +107,20 @@ class TestSimulateAllBackends(unittest.TestCase):
 
     def test_get_exp_value_operator_too_long(self):
         """ Ensure an error is returned if the qubit operator acts on more qubits than are present in the circuit """
-        for b in installed_simulator and installed_clifford_simulators:
+        for b in (installed_simulator | installed_clifford_simulators):
             simulator = get_backend(target=b, n_shots=1)
             self.assertRaises(ValueError, simulator.get_expectation_value, op4, circuit1)
 
     def test_get_exp_value_empty_operator(self):
         """ If qubit operator is empty, the expectation value is 0 and no computation occurs """
-        for b in installed_simulator and installed_clifford_simulators:
+        for b in (installed_simulator | installed_clifford_simulators):
             simulator = get_backend(target=b, n_shots=1)
             exp_value = simulator.get_expectation_value(QubitOperator(), circuit1)
             self.assertTrue(exp_value == 0.)
 
     def test_get_exp_value_constant_operator(self):
         """ The expectation of the identity term must be 1. """
-        for b in installed_simulator and installed_clifford_simulators:
+        for b in (installed_simulator | installed_clifford_simulators):
             simulator = get_backend(target=b, n_shots=1)
             const_op = QubitOperator()
             const_op.terms = {(): 777.}
@@ -469,7 +469,7 @@ class TestSimulateStatevector(unittest.TestCase):
         empty_circuit = Circuit([], n_qubits=2)
         identity_circuit = Circuit([Gate('X', 0), Gate('X', 1)] * 2)
 
-        for b in installed_sv_simulator and installed_clifford_simulators:
+        for b in (installed_simulator | installed_clifford_simulators):
             simulator = get_backend(target=b)
             for op in [op1, op2]:
                 exp_value_empty = simulator.get_expectation_value(op, empty_circuit)

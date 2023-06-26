@@ -43,11 +43,10 @@ class StimSimulator(Backend):
         equivalent gates.
 
         Args:
-            source_circuit: a circuit in the abstract format to be translated
+            source_circuit (Circuit): a circuit in the abstract format to be translated
                 for the target backend.
-            return_statevector(bool): option to return the statevector as well,
-                if available.
-            initial_statevector(list/array) : A valid statevector in the format
+            return_statevector (bool): option to return the statevector
+            initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
 
         Returns:
@@ -71,9 +70,9 @@ class StimSimulator(Backend):
 
         return (frequencies, np.array(self._current_state)) if return_statevector else (frequencies, None)
 
-    def expectation_value_from_tableau(self, qubit_operator, state_prep_circuit):
+    def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         """
-        Calculates the expectation value of a qubit operator using a stabilizer circuit.
+        Calculates the expectation value of a qubit operator using a TableauSimulator.
 
         Args:
             qubit_operator (QubitOperator): The qubit operator for which the expectation value is calculated.

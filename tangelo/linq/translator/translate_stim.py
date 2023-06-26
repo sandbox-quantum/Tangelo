@@ -50,22 +50,23 @@ def get_stim_gates():
 
 
 def translate_tableau(source_circuit):
-    """Take in an abstract circuit, return an equivalent stim TableauSimulator
-    instance. This method is faster than translating into a circuit object when
-    calculating noiseless expectation values.
+    """Take in an abstract circuit and build directly into a stim TableauSimulator
+    instance. For noiseless expectations values, this method is faster than translating
+    into a stim circuit object first and then building the stim TableauSimulator.
 
     Args:
-        source_circuit: quantum circuit in the abstract format.
+        source_circuit (Circuit): quantum circuit in the abstract format.
 
     Returns:
-        stim.QuantumCircuit: the corresponding stim quantum circuit.
+        stim.TableauSimulator: the corresponding Tableau Simulator
     """
 
     import stim
 
     GATE_STIM = get_stim_gates()
     target_circuit = stim.TableauSimulator()
-    # Maps the gate information properly. Different for each backend (order, values)
+
+    # Maps the gate information properly.
     for gate in source_circuit._gates:
         if gate.name in {"H", "X", "Y", "Z", "S", "SDAG"}:
             bar = getattr(target_circuit, gate.name.lower())
@@ -75,7 +76,6 @@ def translate_tableau(source_circuit):
             for cliff_gate in clifford_decomposition:
                 bar = getattr(target_circuit, GATE_STIM[cliff_gate.name].lower())
                 bar(gate.target[0])
-
         elif gate.name in {"CX", "CY", "CZ", "CNOT"}:
             bar = getattr(target_circuit, gate.name.lower())
             bar(gate.control[0], gate.target[0])
@@ -91,12 +91,11 @@ def translate_c_to_stim(source_circuit, noise_model=None):
     translation.
 
     Args:
-        source_circuit: quantum circuit in the abstract format.
-        noise_model: A NoiseModel object from this package, located in the
-            # noisy_simulation subpackage.
+        source_circuit  (Circuit): quantum circuit in the abstract format.
+        noise_model (NoiseModel): The noise model to use.
 
     Returns:
-        stim.TableauSimulator: the corresponding Tableau Simulator.
+         stim.Circuit: the corresponding stim quantum circuit.
     """
 
     import stim
@@ -135,6 +134,6 @@ def translate_c_to_stim(source_circuit, noise_model=None):
                         target_circuit.append(stim.CircuitInstruction('DEPOLARIZE2', [gate.target[0], gate.control[0]], [np]))
                     else:
                         raise ValueError(
-                            f'{gate.name} has more than 2 qubits, Qulacs DepolarizingNoise only supports 1- and 2-qubits')
+                            f'{gate.name} has more than 2 qubits, stim DepolarizingNoise only supports 1- and 2-qubits')
 
     return target_circuit
