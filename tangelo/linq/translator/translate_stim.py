@@ -23,7 +23,6 @@ necessary to account for:
 """
 
 from tangelo.linq import Circuit
-from tangelo.helpers import deprecated
 from tangelo.linq.helpers.circuits.clifford_circuits import decompose_gate_to_cliffords
 
 
