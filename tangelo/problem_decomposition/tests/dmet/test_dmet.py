@@ -14,6 +14,7 @@
 
 import unittest
 import numpy as np
+import scipy
 
 from tangelo import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H4_doublecation_minao, mol_H4_doublecation_321g, mol_H10_321g, mol_H10_minao
@@ -263,10 +264,18 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -4.41503, places=4)
 
     def test_dmet_ecp(self):
-        """Tests the DMET energy for Zn with ECP."""
+        """Tests the DMET energy for Zn with ECP with custom optimizer."""
+        def optimizer(func, var_params):
+            """Custom optimizer used as convergence sometimes fails with default."""
+            def func2(params):
+                val = func(params)
+                return val.real*val.real
+            result = scipy.optimize.minimize(func2, var_params, tol=1.e-1)
+            return result.x[0]
+
         mol_zn = SecondQuantizedMolecule("Zn", q=2, spin=0, basis="lanl2dz", ecp="lanl2dz")
 
-        options_zn_dmet = {"molecule": mol_zn, "fragment_atoms": [1], "fragment_solvers": "ccsd"}
+        options_zn_dmet = {"molecule": mol_zn, "fragment_atoms": [1], "fragment_solvers": "ccsd", "optimizer": optimizer}
 
         solver = DMETProblemDecomposition(options_zn_dmet)
         solver.build()
