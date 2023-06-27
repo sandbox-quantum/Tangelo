@@ -260,7 +260,11 @@ class UCCSD(Ansatz):
         """
 
         if not is_package_installed("pyscf"):
-            raise ValueError(f"pyscf is required for MP2 initial parameters in {self.__class__.__name__}.")
+            supported_initial_var_params = self.supported_initial_var_params.copy()
+            supported_initial_var_params.remove("mp2")
+            raise ValueError(f"PySCF is required for MP2 initial parameters in {self.__class__.__name__}.\n"
+                             f"Other available initializations are 'initial_var_params': {supported_initial_var_params} "
+                             f"or an array of length {self.n_var_params}.")
 
         # Import here to solve an AttributeError: partially initialized module
         # tangelo.toolboxes.ansatz_generator' has no attribute 'UCCSD'
