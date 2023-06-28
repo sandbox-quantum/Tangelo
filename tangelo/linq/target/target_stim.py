@@ -24,7 +24,7 @@ from tangelo.linq import Circuit
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.translator.translate_stim import translate_tableau
-from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
+from tangelo.linq.helpers.circuits.measurement_basis import pauli_of_to_string, measurement_basis_gates
 
 
 class StimSimulator(Backend):
@@ -56,11 +56,10 @@ class StimSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
-        if initial_statevector:
+        if initial_statevector is not None:
             raise NotImplementedError("initial_statevector not yet implemented with stim ")
-        if desired_meas_result:
+        if desired_meas_result is not None:
             raise NotImplementedError("desired_meas_result not yet implemented with stim ")
-
 
         if self.n_shots or self._noise_model:
             translated_circuit = translate_c(source_circuit, "stim",
@@ -90,63 +89,75 @@ class StimSimulator(Backend):
             float: The real-valued expectation value of the qubit operator.
 
         """
-        if initial_statevector:
+        n_qubits = state_prep_circuit.width
+
+        if initial_statevector is not None:
             raise NotImplementedError("initial_statevector not yet implemented with stim ")
-        if desired_meas_result:
+        if desired_meas_result is not None:
             raise NotImplementedError("desired_meas_result not yet implemented with stim ")
 
-        from tangelo.linq.helpers.circuits.measurement_basis import pauli_of_to_string
-        s = translate_tableau(state_prep_circuit)
-        n_qubits = state_prep_circuit.width
-        paulisum = 0
-        for term, coef in qubit_operator.terms.items():
-            paulisum += coef * s.peek_observable_expectation(self.stim.PauliString(pauli_of_to_string(term, n_qubits)))
+        if self.n_shots:
+            return self._get_expectation_value_from_frequencies(qubit_operator, state_prep_circuit)
+
+        else:
+            s = translate_tableau(state_prep_circuit)
+            paulisum = 0
+            for term, coef in qubit_operator.terms.items():
+                if len(term) > n_qubits:  # Cannot have a qubit index beyond circuit size
+                    raise ValueError(f"Size of operator {qubit_operator} beyond circuit width ({n_qubits} qubits)")
+                elif not term:  # Empty term: no simulation needed
+                    paulisum += coef
+                    continue
+                paulisum += coef * s.peek_observable_expectation(self.stim.PauliString(pauli_of_to_string(term, n_qubits)))
         return np.real(paulisum)
 
     def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
-        r"""Take as input a qubit operator H and a state preparation returning a
-        ket |\psi>. Return the expectation value <\psi | H | \psi> computed
-        using the frequencies of observable states.
+        """Take as input a qubit operator H and a state preparation returning a
+                ket |\psi>. Return the expectation value <\psi | H | \psi> computed
+                using the frequencies of observable states.
 
-        Args:
-            qubit_operator (QubitOperator): the qubit operator.
-            state_prep_circuit (Circuit): an abstract circuit used for state preparation.
-            initial_statevector (list/array) : Not currently implemented, will raise an error
-            desired_meas_result (str) : Not currently implemented, will raise an error
+                Args:
+                    qubit_operator (QubitOperator): the qubit operator.
+                    state_prep_circuit (Circuit): an abstract circuit used for state preparation.
 
-        Returns:
-            complex: The expectation value of this operator with regard to the
-                state preparation.
+                Returns:
+                    complex: The expectation value of this operator with regard to the
+                        state preparation.
         """
-        if initial_statevector:
+
+        if initial_statevector is not None:
             raise NotImplementedError("initial_statevector not yet implemented with stim ")
-        if desired_meas_result:
+        if desired_meas_result is not None:
             raise NotImplementedError("desired_meas_result not yet implemented with stim ")
 
         n_qubits = state_prep_circuit.width
-        if self._noise_model or self.n_shots is not None:
-            initial_circuit = state_prep_circuit
-        else:
-            initial_circuit = Circuit(n_qubits=n_qubits)
-            _, updated_statevector = self.simulate(state_prep_circuit, return_statevector=True)
-
         expectation_value = 0.
         for term, coef in qubit_operator.terms.items():
-
             if len(term) > n_qubits:
                 raise ValueError(f"Size of operator {qubit_operator} beyond circuit width ({n_qubits} qubits)")
             elif not term:  # Empty term: no simulation needed
                 expectation_value += coef
                 continue
-
             basis_circuit = Circuit(measurement_basis_gates(term))
-            full_circuit = initial_circuit + basis_circuit if (basis_circuit.size > 0) else initial_circuit
+            full_circuit = state_prep_circuit + basis_circuit if (basis_circuit.size > 0) else state_prep_circuit
             frequencies, _ = self.simulate(full_circuit)
             expectation_term = self.get_expectation_value_from_frequencies_oneterm(term, frequencies)
             expectation_value += coef * expectation_term
-
         return expectation_value
 
+    def get_variance(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
+        if initial_statevector is not None:
+            raise NotImplementedError("initial_statevector not yet implemented with stim ")
+        if desired_meas_result is not None:
+            raise NotImplementedError("desired_meas_result not yet implemented with stim ")
+        super().get_variance(qubit_operator, state_prep_circuit, initial_statevector, desired_meas_result)
+
+    def get_standard_error(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
+        if initial_statevector is not None:
+            raise NotImplementedError("initial_statevector not yet implemented with stim ")
+        if desired_meas_result is not None:
+            raise NotImplementedError("desired_meas_result not yet implemented with stim ")
+        super().get_standard_error(qubit_operator, state_prep_circuit, initial_statevector, desired_meas_result)
     @staticmethod
     def backend_info():
-        return {"statevector_available": True, "statevector_order": "lsq_first", "noisy_simulation": True}
+        return {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
