@@ -85,7 +85,6 @@ class StimSimulator(Backend):
 
         Returns:
             float: The real-valued expectation value of the qubit operator.
-
         """
         n_qubits = state_prep_circuit.width
 
@@ -113,17 +112,16 @@ class StimSimulator(Backend):
         """Take as input a qubit operator H and a state preparation returning a ket |\psi>.
         Return the expectation value <\psi | H | \psi> computed using the frequencies of observable states.
 
-                Args:
-                    qubit_operator (QubitOperator): the qubit operator.
-                    state_prep_circuit (Circuit): an abstract circuit used for state preparation.
-                    initial_statevector (list/array) : Not currently implemented, will raise an error
-                    desired_meas_result (str) : Not currently implemented, will raise an error
+        Args:
+            qubit_operator (QubitOperator): the qubit operator.
+            state_prep_circuit (Circuit): an abstract circuit used for state preparation.
+            initial_statevector (list/array) : Not currently implemented, will raise an error
+            desired_meas_result (str) : Not currently implemented, will raise an error
 
-                Returns:
-                    complex: The expectation value of this operator with regard to the
-                        state preparation.
+        Returns:
+            complex: The expectation value of this operator with regard to the
+                state preparation.
         """
-
         if initial_statevector is not None:
             raise NotImplementedError("initial_statevector not yet implemented with stim ")
         if desired_meas_result is not None:
