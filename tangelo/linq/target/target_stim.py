@@ -145,19 +145,6 @@ class StimSimulator(Backend):
             expectation_value += coef * expectation_term
         return expectation_value
 
-    def get_variance(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
-        if initial_statevector is not None:
-            raise NotImplementedError("initial_statevector not yet implemented with stim ")
-        if desired_meas_result is not None:
-            raise NotImplementedError("desired_meas_result not yet implemented with stim ")
-        super().get_variance(qubit_operator, state_prep_circuit, initial_statevector, desired_meas_result)
-
-    def get_standard_error(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
-        if initial_statevector is not None:
-            raise NotImplementedError("initial_statevector not yet implemented with stim ")
-        if desired_meas_result is not None:
-            raise NotImplementedError("desired_meas_result not yet implemented with stim ")
-        super().get_standard_error(qubit_operator, state_prep_circuit, initial_statevector, desired_meas_result)
     @staticmethod
     def backend_info():
         return {"statevector_available": True, "statevector_order": "msq_first", "noisy_simulation": True}
