@@ -513,6 +513,7 @@ class TestSimulateStatevector(unittest.TestCase):
                 clifford_exp_values[j] = simulator._get_expectation_value_from_frequencies(op, circuit_clifford)
             np.testing.assert_almost_equal(clifford_exp_values, clifford_reference_exp_values, decimal=5)
 
+
 class TestSimulateMisc(unittest.TestCase):
     @unittest.skipIf("qdk" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_n_shots_needed(self):
