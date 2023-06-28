@@ -469,7 +469,7 @@ class TestSimulateStatevector(unittest.TestCase):
         empty_circuit = Circuit([], n_qubits=2)
         identity_circuit = Circuit([Gate('X', 0), Gate('X', 1)] * 2)
 
-        for b in (installed_simulator | installed_clifford_simulators):
+        for b in (installed_sv_simulator | installed_clifford_simulators):
             simulator = get_backend(target=b)
             for op in [op1, op2]:
                 exp_value_empty = simulator.get_expectation_value(op, empty_circuit)
