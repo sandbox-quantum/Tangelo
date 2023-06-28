@@ -37,11 +37,9 @@ class StimSimulator(Backend):
     def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, desired_meas_result=None):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
-        either the statevector or None depending on the availability of the
-        statevector and if return_statevector is set to True. For the
-        statevector backends supporting it, an initial statevector can be
-        provided to initialize the quantum state without simulating all the
-        equivalent gates.
+        either the statevector or None depending on if return_statevector is set to True.
+        The initial_statevector, and desired_meas_result features are currently not implemented
+        and will return and error if not None.
 
         Args:
             source_circuit (Circuit): a circuit in the abstract format to be translated
@@ -104,7 +102,7 @@ class StimSimulator(Backend):
             paulisum = 0
             for term, coef in qubit_operator.terms.items():
                 if len(term) > n_qubits:  # Cannot have a qubit index beyond circuit size
-                    raise ValueError(f"Size of operator {qubit_operator} beyond circuit width ({n_qubits} qubits)")
+                    raise ValueError(f"Size of term in qubit operator beyond number of qubits in circuit ({n_qubits}).\n Term = {term}")
                 elif not term:  # Empty term: no simulation needed
                     paulisum += coef
                     continue
@@ -112,13 +110,14 @@ class StimSimulator(Backend):
         return np.real(paulisum)
 
     def _get_expectation_value_from_frequencies(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
-        """Take as input a qubit operator H and a state preparation returning a
-                ket |\psi>. Return the expectation value <\psi | H | \psi> computed
-                using the frequencies of observable states.
+        """Take as input a qubit operator H and a state preparation returning a ket |\psi>.
+        Return the expectation value <\psi | H | \psi> computed using the frequencies of observable states.
 
                 Args:
                     qubit_operator (QubitOperator): the qubit operator.
                     state_prep_circuit (Circuit): an abstract circuit used for state preparation.
+                    initial_statevector (list/array) : Not currently implemented, will raise an error
+                    desired_meas_result (str) : Not currently implemented, will raise an error
 
                 Returns:
                     complex: The expectation value of this operator with regard to the
@@ -134,7 +133,7 @@ class StimSimulator(Backend):
         expectation_value = 0.
         for term, coef in qubit_operator.terms.items():
             if len(term) > n_qubits:
-                raise ValueError(f"Size of operator {qubit_operator} beyond circuit width ({n_qubits} qubits)")
+                raise ValueError(f"Size of term in qubit operator beyond number of qubits in circuit ({n_qubits}).\n Term = {term}")
             elif not term:  # Empty term: no simulation needed
                 expectation_value += coef
                 continue

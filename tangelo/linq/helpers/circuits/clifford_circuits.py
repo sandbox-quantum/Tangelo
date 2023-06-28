@@ -21,7 +21,7 @@ def decompose_gate_to_cliffords(gate, abs_tol=1e-4):
     """
     Decomposes a single qubit parameterized gate into Clifford gates.
 
-    Parameters:
+    Args:
         gate (Gate): The gate to be decomposed.
         abs_tol (float): Optional, absolute tolerance for value comparison (default: 1e-4).
 
