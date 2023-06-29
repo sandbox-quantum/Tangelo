@@ -90,7 +90,7 @@ class QiskitSimulator(Backend):
             "Return statevector and mid-circuit measurement for one shot"
             sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
             current_state = sim_results.get_statevector(translated_circuit)
-            measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
+            measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas)), inplace=True).get_counts()))[::-1]
             return current_state, measure
 
         if desired_meas_result is not None and not self._noise_model:

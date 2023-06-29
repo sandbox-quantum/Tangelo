@@ -49,8 +49,8 @@ class TranslateOperatorTest(unittest.TestCase):
     def test_qiskit_to_tangelo(self):
         """Test translation from a qiskit to a tangelo operator."""
 
-        from qiskit.opflow.primitive_ops import PauliSumOp
-        qiskit_op = PauliSumOp.from_list([("ZYX", 2.), ("III", 3.)])
+        from qiskit.quantum_info.operators import SparsePauliOp
+        qiskit_op = SparsePauliOp.from_list([("ZYX", 2.), ("III", 3.)])
 
         test_op = translate_operator(qiskit_op, source="qiskit", target="tangelo")
         self.assertEqual(test_op, tangelo_op)
@@ -59,8 +59,8 @@ class TranslateOperatorTest(unittest.TestCase):
     def test_tangelo_to_qiskit(self):
         """Test translation from a tangelo to a qiskit operator."""
 
-        from qiskit.opflow.primitive_ops import PauliSumOp
-        qiskit_op = PauliSumOp.from_list([("ZYX", 2.), ("III", 3.)])
+        from qiskit.quantum_info.operators import SparsePauliOp
+        qiskit_op = SparsePauliOp.from_list([("ZYX", 2.), ("III", 3.)])
 
         test_op = translate_operator(tangelo_op, source="tangelo", target="qiskit")
         self.assertEqual(qiskit_op, test_op)
@@ -185,17 +185,14 @@ class TranslateOperatorTest(unittest.TestCase):
     def test_tangelo_to_qiskit_H2_eigenvalues(self):
         """Test eigenvalues resulting from a tangelo to qiskit translation."""
 
-        from qiskit.algorithms import NumPyEigensolver
-
         qu_op = load_operator("H2_JW_occfirst.data", data_directory=pwd_this_test+"/data", plain_text=True)
         test_op = translate_operator(qu_op, source="tangelo", target="qiskit")
 
         eigenvalues_tangelo = eigenspectrum(qu_op)
 
-        qiskit_solver = NumPyEigensolver(2**4)
-        eigenvalues_qiskit = qiskit_solver.compute_eigenvalues(test_op)
+        eigenvalues_qiskit = np.linalg.eigh(test_op.to_matrix(sparse=False))[0]
 
-        np.testing.assert_array_almost_equal(eigenvalues_tangelo, eigenvalues_qiskit.eigenvalues)
+        np.testing.assert_array_almost_equal(eigenvalues_tangelo, eigenvalues_qiskit)
 
 
 if __name__ == "__main__":
