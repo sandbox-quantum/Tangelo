@@ -16,7 +16,7 @@
 gate operation, without tying it to a particular backend or an underlying
 mathematical operation.
 """
-from math import pi
+from math import pi, isclose
 from typing import Union
 
 from numpy import integer, ndarray, floating
@@ -35,6 +35,8 @@ PARAMETERIZED_GATES = {"RX", "RY", "RZ", "PHASE", "CRX", "CRY", "CRZ", "CPHASE",
 INVERTIBLE_GATES = {"H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "CH", "PHASE",
                     "CNOT", "CX", "CY", "CZ", "CRX", "CRY", "CRZ", "CPHASE", "XX", "SWAP",
                     "CSWAP"}
+
+CLIFFORD_GATES = {"H", "S", "X", "Z", "Y", "SDAG", "CNOT", "CX", "CY", "CZ", "SWAP", "CXSWAP"}
 
 
 class Gate(dict):
@@ -179,6 +181,24 @@ class Gate(dict):
         else:
             raise AttributeError(f"{self.name} is not an invertible gate when parameter is {self.parameter}")
         return Gate(self.name, self.target, self.control, new_parameter, self.is_variational)
+
+    def is_clifford(self, abs_tol=1e-4):
+        """
+        Check if a quantum gate is a Clifford gate.
+
+        Args:
+            abs_tol (float) : Optional, Absolute tolerance for the difference between gate parameter clifford parameter values
+
+        Returns:
+            bool: True if the gate is in Clifford gate list or has a parameter corresponding to Clifford points,
+                  False otherwise.
+        """
+        if self.name in CLIFFORD_GATES:
+            return True
+        elif self.name in {"RX", "RY", "RZ", "PHASE"}:
+            return isclose(self.parameter % (pi / 2), 0, abs_tol=abs_tol)
+        else:
+            return False
 
     def serialize(self):
         return {"type": "Gate",

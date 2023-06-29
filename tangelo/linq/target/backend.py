@@ -456,6 +456,7 @@ class Backend(abc.ABC):
             complex: The expectation value of this operator with regards to the
                 state preparation.
         """
+
         n_qubits = state_prep_circuit.width
 
         expectation_value = 0.

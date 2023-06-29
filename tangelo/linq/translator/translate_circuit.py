@@ -24,7 +24,7 @@ from tangelo.linq.translator.translate_qiskit import translate_c_to_qiskit, tran
 from tangelo.linq.translator.translate_qulacs import translate_c_to_qulacs
 from tangelo.linq.translator.translate_pennylane import translate_c_to_pennylane
 from tangelo.linq.translator.translate_sympy import translate_c_to_sympy
-
+from tangelo.linq.translator.translate_stim import translate_c_to_stim
 
 FROM_TANGELO = {
     "braket": translate_c_to_braket,
@@ -36,6 +36,7 @@ FROM_TANGELO = {
     "qiskit": translate_c_to_qiskit,
     "qulacs": translate_c_to_qulacs,
     "pennylane": translate_c_to_pennylane,
+    "stim": translate_c_to_stim,
     "sympy": translate_c_to_sympy
 }
 

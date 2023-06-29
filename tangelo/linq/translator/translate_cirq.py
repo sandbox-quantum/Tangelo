@@ -42,6 +42,7 @@ def get_cirq_gates():
     GATE_CIRQ["CY"] = cirq.Y
     GATE_CIRQ["CZ"] = cirq.Z
     GATE_CIRQ["S"] = cirq.S
+    GATE_CIRQ["SDAG"] = cirq.ZPowGate(exponent=-0.5)
     GATE_CIRQ["T"] = cirq.T
     GATE_CIRQ["CH"] = cirq.H
     GATE_CIRQ["RX"] = cirq.rx
@@ -96,7 +97,7 @@ def translate_c_to_cirq(source_circuit, noise_model=None, save_measurements=Fals
             control_list = [qubit_list[c] for c in gate.control]
             if gate.name == 'CNOT' and num_controls > 1:
                 gate.name = 'CX'
-        if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
+        if gate.name in {"H", "X", "Y", "Z", "S", "SDAG", "T"}:
             target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]]))
         elif gate.name in {"CH", "CX", "CY", "CZ"}:
             next_gate = GATE_CIRQ[gate.name].controlled(num_controls)
