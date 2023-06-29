@@ -3,6 +3,29 @@
 This file documents the main changes between versions of the code.
 
 
+## [0.4.0] - 2023-06-29
+
+### Added
+
+- Psi4 and pyscf optional dependencies, can be used as chemistry backends for classical calculations
+- symbolic simulator
+- stim clifford simulator
+- Support for UHF reference mean-field in DMET
+- trimming trivial qubits from Hamiltonians and circuits
+- BraketConnection class
+- combinatorial qubit mapping
+- MP2Solver
+
+### Changed
+
+- Bugfix: DMET with virtual space truncation threshold, as well as ecp
+- ADAPT now supports spin as parameter
+
+### Deprecatedv / Removed
+
+- in linq: Old translation functions, and Simulator class (use get_backend or translate_circuit instead)
+
+
 ## [0.3.4] - 2023-02-15
 
 ### Added
