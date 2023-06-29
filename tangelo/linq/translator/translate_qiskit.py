@@ -158,18 +158,18 @@ def translate_c_from_qiskit(source_circuit):
 
 def translate_op_to_qiskit(qubit_operator, n_qubits):
     """Helper function to translate a Tangelo QubitOperator to a qiskit
-    PauliSumOp. Qiskit must be installed for the function to work.
+    SparsePauliOp. Qiskit must be installed for the function to work.
 
     Args:
         qubit_operator (tangelo.toolboxes.operators.QubitOperator): Self-explanatory.
         n_qubits (int): Number of qubits relevant to the operator.
 
     Returns:
-        (qiskit.opflow.primitive_ops.PauliSumOp): Qiskit qubit operator.
+        (qiskit.quantum_info.operators.SparsePauliOp): Qiskit qubit operator.
     """
 
     # Import qiskit qubit operator.
-    from qiskit.opflow.primitive_ops import PauliSumOp
+    from qiskit.quantum_info.operators import SparsePauliOp
 
     # Convert each term sequencially.
     term_list = list()
@@ -179,15 +179,15 @@ def translate_op_to_qiskit(qubit_operator, n_qubits):
         # Reverse the string because of qiskit convention.
         term_list += [(term_string[::-1], coeff)]
 
-    return PauliSumOp.from_list(term_list)
+    return SparsePauliOp.from_list(term_list)
 
 
 def translate_op_from_qiskit(qubit_operator):
-    """Helper function to translate a qiskit PauliSumOp to a Tangelo
+    """Helper function to translate a qiskit SparsePauliOp to a Tangelo
     QubitOperator.
 
     Args:
-        qubit_operator (qiskit.opflow.primitive_ops.PauliSumOp): Self-explanatory.
+        qubit_operator (qiskit.quantum_info.operators.SparsePauliOp): Self-explanatory.
 
     Returns:
         (tangelo.toolboxes.operators.QubitOperator): Tangelo qubit operator.
@@ -195,11 +195,11 @@ def translate_op_from_qiskit(qubit_operator):
 
     # Create a dictionary to append all terms at once.
     terms_dict = dict()
-    for pauli_word in qubit_operator:
+    terms = qubit_operator.to_list()
+    for term_string, coeff in terms:
         # Inversion of the string because of qiskit ordering.
-        term_string = pauli_word.to_pauli_op().primitive.to_label()[::-1]
-        term_tuple = pauli_string_to_of(term_string)
-        terms_dict[tuple(term_tuple)] = complex(pauli_word.coeffs)
+        term_tuple = pauli_string_to_of(term_string[::-1])
+        terms_dict[tuple(term_tuple)] = coeff
 
     # Create and copy the information into a new QubitOperator.
     tangelo_op = QubitOperator()
