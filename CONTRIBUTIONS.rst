@@ -43,24 +43,25 @@ In your terminal, clone the repo on your local machine, and move into the newly 
   cd Tangelo
 
 From the perspective of your local clone, your fork is called the ``origin`` remote.
-Let's synchronize your fork with the main Tangelo repo by adding the latter as the upstream remote, and then update your local ``main`` branch:
+Let's synchronize your fork with the main Tangelo repo by adding the latter as the upstream remote, and then update your local ``develop`` branch:
 
 .. code-block:: shell
 
   git remote add upstream https://github.com/goodchemistryco/Tangelo.git
 
   git fetch upstream
-  git checkout main
-  git merge upstream/main
+  git checkout develop
+  git merge upstream/develop
 
+Note: we here suggest the ``develop`` branch, as this is where contributions will be merged. No one should be merging directly to ``main``, unless it is to sync it with ``develop`` once in a while, and just before a new version release.
 
 **2. Work on your own developments**
 
-Create your development branch, based on the ``main`` branch (or the current development branch listed on the `DevBranch badge <./README.rst>`_)
+Create your development branch, based on the ``develop`` branch (or the current development branch listed on the `DevBranch badge <./README.rst>`_, if different)
 
 .. code-block:: shell
 
-  git checkout main -b your_branch_name
+  git checkout develop -b your_branch_name
 
 where ``your_branch_name`` is the name of your own development branch, preferably related to what you will be working on.
 Let's assume you've made some changes and committed them with ``git commit``, and that you'd like to push them to your fork (which is referred to as "origin"):
@@ -72,7 +73,7 @@ Let's assume you've made some changes and committed them with ``git commit``, an
 
 **3. The Pull Request (PR)**
 
-Now when you go to https://github.com/goodchemistryco/Tangelo, you should be able to create a pull request from the branch on your fork to a branch on the main Tangelo repo. Give your pull request a name and briefly describe what the purpose is and include a reference to the associated issue if there's one.
+Now when you go to https://github.com/goodchemistryco/Tangelo, you should be able to create a pull request from the branch on your fork to a branch on the main Tangelo repo. Give your pull request a name, verify that the destination branch is ``develop`` (not ``main``), and briefly describe what the purpose is / include a reference to the associated issue if there's one.
 Several Tangelo users will receive a notification, and will review your code and leave comments in the PR. You can reply to these comments, or simply apply the recommended changes locally, and then commit and push them like above: it automatically updates your PR.
 If there are conflicts, you can solve them locally and push, or directly through Github.
 

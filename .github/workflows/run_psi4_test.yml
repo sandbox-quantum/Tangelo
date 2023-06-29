@@ -1,0 +1,76 @@
+name: psi4 test
+
+on: [pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+    
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        activate-environment: anaconda-client-env
+    - run: conda info
+    - run: conda list
+    - run: conda config --show
+
+    - name: Install psi4
+      shell: bash -el {0}
+      run: |
+        conda install psi4 python=3.8 -c psi4
+        conda init
+      if: always()
+
+    - name: Install pip, wheel, pytest, jupyter
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel
+        pip install pytest
+        pip install pytest-cov
+    
+    - name: Install qulacs
+      run: |
+        pip install qulacs
+      if: always()
+
+    - name: tangelo install
+      run: |
+        python -m pip install .
+      if: always()
+
+    - name: tangelo psi4 integral tests
+      run: |
+        cd tangelo/toolboxes/molecular_computation/tests
+        pytest --doctest-modules --junitxml=junit/psi4-test-results.xml test_psi4.py
+      if: always()
+
+    - name: tangelo psi4 classical tests
+      run: |
+        cd tangelo/algorithms/classical/tests
+        pytest --doctest-modules --junitxml=junit/psi4-classical-test-results.xml
+      if: always()
+
+    - name: Upload psi4 test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: tangelo-psi4-test-results
+        path: tangelo/toolboxes/molecular_computation/tests/junit/psi4-test-results.xml
+
+    - name: Upload classical psi4 test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: tangelo-classical-psi4-test-results
+        path: tangelo/algorithms/classical/tests/junit/psi4-classical-test-results.xml
+
+    - name: Download all workflow run artifacts
+      uses: actions/download-artifact@v3
+      if: always()

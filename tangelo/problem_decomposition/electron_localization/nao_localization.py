@@ -22,8 +22,6 @@ For details, refer to:
       Natural population analysis. J. Chem. Phys., 83(2):735-746, 1985.
 """
 
-from pyscf.lo import orth
-
 
 def nao_localization(mol, mf):
     """Localize the orbitals using NAO localization.
@@ -35,4 +33,5 @@ def nao_localization(mol, mf):
     Returns:
         numpy.array: The localized orbitals (float64).
     """
+    from pyscf.lo import orth
     return orth.orth_ao(mf, "NAO")

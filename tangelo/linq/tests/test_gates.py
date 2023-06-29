@@ -85,6 +85,28 @@ class TestGates(unittest.TestCase):
         with self.assertRaises(AttributeError):
             RZ_gate.inverse()
 
+    def test_is_clifford(self):
+        """ Test that some basic gates are correctly identified as Clifford or non Clifford"""
+
+        # test single qubit Clifford gates
+        for name in {"H", "S", "X", "Z", "Y", "SDAG"}:
+            self.assertEqual(True, Gate(name, 0).is_clifford())
+
+        # test two qubit Clifford gates
+        for name in {"CNOT", "CX", "CY", "CZ"}:
+            self.assertEqual(True, Gate(name, target=0, control=1).is_clifford())
+
+        # test parameterized single qubit gates at Clifford and non Clifford parameters
+        for name in {"RX", "RY", "RZ", "PHASE"}:
+            for clifford_point in [0, np.pi/2, np.pi, -np.pi/2, 4*np.pi]:
+                self.assertEqual(True, Gate(name, 0, parameter=clifford_point).is_clifford())
+            for non_clifford_point in [0.1, -np.pi/3, 5*np.pi/4, 1.5]:
+                self.assertEqual(False, Gate(name, 0, parameter=non_clifford_point).is_clifford())
+
+        # test two qubit non Clifford gates
+        for name in {"CRX", "CRY", "CRZ", "CPHASE"}:
+            self.assertEqual(False, Gate(name, target=0, control=1).is_clifford())
+
     def test_incorrect_gate(self):
         """ Test to catch a gate with inputs that do not make sense """
 
@@ -125,6 +147,17 @@ class TestGates(unittest.TestCase):
 
         # Try to create a XX gate acting on qubits 0, 1 and 2.
         self.assertRaises(ValueError, Gate, "XX", target=[0, 1, 2])
+
+    def test_non_hermitian_gates_inverse(self):
+        """ Test that non-hermitian gates (S, T) can be inversed."""
+
+        S_gate = Gate("S", 0)
+        S_gate_inverse = Gate("PHASE", 0, parameter=-np.pi/2)
+        self.assertEqual(S_gate.inverse(), S_gate_inverse)
+
+        T_gate = Gate("T", 0)
+        T_gate_inverse = Gate("PHASE", 0, parameter=-np.pi/4)
+        self.assertEqual(T_gate.inverse(), T_gate_inverse)
 
 
 if __name__ == "__main__":

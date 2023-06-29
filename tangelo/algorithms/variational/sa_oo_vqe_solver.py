@@ -49,6 +49,7 @@ class SA_OO_Solver(SA_VQESolver):
         optimizer (function handle): a function defining the classical optimizer and its behavior.
         initial_var_params (str or array-like) : initial value for the classical optimizer.
         backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
+        simulate_options (dict): Options for fine-control of the simulator backend, including desired measurement results, etc.
         penalty_terms (dict): parameters for penalty terms to append to target qubit Hamiltonian (see penalty_terms
             for more details).
         ansatz_options (dict): parameters for the given ansatz (see given ansatz file for details).
@@ -56,6 +57,8 @@ class SA_OO_Solver(SA_VQESolver):
             Default, False has alternating spin up/down ordering.
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         verbose (bool): Flag for VQE verbosity.
+        projective_circuit (Circuit): A terminal circuit that projects into the correct space, always added to
+            the end of the ansatz circuit.
         ref_states (list): The vector occupations of the reference configurations
         weights (array): The weights of the occupations
      """
@@ -79,8 +82,9 @@ class SA_OO_Solver(SA_VQESolver):
         super().__init__(opt_dict_sa_vqe)
 
         # Add oo_options to attributes
-        for k, v in oo_options.items():
-            setattr(self, k, v)
+        self.tol: float = oo_options["tol"]
+        self.max_cycles: int = oo_options["max_cycles"]
+        self.n_oo_per_iter: int = oo_options["n_oo_per_iter"]
 
         self.n_ref_states = len(self.ref_states)
 
@@ -110,7 +114,7 @@ class SA_OO_Solver(SA_VQESolver):
                 break
             for _ in range(self.n_oo_per_iter):
                 u_mat = self.generate_oo_unitary()
-                self.molecule.mean_field.mo_coeff = self.molecule.mean_field.mo_coeff @ u_mat
+                self.molecule.mo_coeff = self.molecule.mo_coeff @ u_mat
             self.energies.append(self.energy_from_rdms())
             if self.verbose:
                 print(f"The State-Averaged Orbital Optimized energy for iteration {iter} is: {self.energies[-1]}")

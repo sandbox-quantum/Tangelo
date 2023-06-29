@@ -17,7 +17,7 @@ from collections import Counter
 
 import numpy as np
 
-from tangelo.linq import Circuit
+from tangelo.linq import Circuit, get_unitary_circuit_pieces
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.noisy_simulation.noise_models import get_qiskit_noise_model
@@ -76,26 +76,36 @@ class QiskitSimulator(Backend):
         n_meas = source_circuit.counts.get("MEASURE", 0)
         qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
 
+        def load_statevector(translated_circuit, initial_statevector):
+            "Load statevector into translated_circuit"
+            n_qubits = int(math.log2(len(initial_statevector)))
+            n_meas = source_circuit.counts.get("MEASURE", 0)
+            n_registers = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
+            initial_state_circuit = self.qiskit.QuantumCircuit(n_qubits, n_registers)
+            initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
+            translated_circuit = initial_state_circuit.compose(translated_circuit)
+            return translated_circuit
+
         def run_and_measure_one_shot(backend, translated_circuit):
             "Return statevector and mid-circuit measurement for one shot"
             sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
             current_state = sim_results.get_statevector(translated_circuit)
-            measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas))).get_counts()))[::-1]
+            measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas)), inplace=True).get_counts()))[::-1]
             return current_state, measure
 
-        translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
+        if desired_meas_result is not None and not self._noise_model:
+            # Split circuit into chunks between mid-circuit measurements. Simulate a chunk, collapse the statevector according
+            # to the desired measurement and simulate the next chunk using this new statevector as input
+            unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
+        else:
+            translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
 
-        # If requested, set initial state
-        if initial_statevector is not None:
-            if self._noise_model:
-                raise ValueError("Cannot load an initial state if using a noise model, with Qiskit")
-            else:
-                n_qubits = int(math.log2(len(initial_statevector)))
-                n_meas = source_circuit.counts.get("MEASURE", 0)
-                n_registers = n_meas + source_circuit.width if save_mid_circuit_meas else source_circuit.width
-                initial_state_circuit = self.qiskit.QuantumCircuit(n_qubits, n_registers)
-                initial_state_circuit.initialize(initial_statevector, list(range(n_qubits)))
-                translated_circuit = initial_state_circuit.compose(translated_circuit)
+            # If requested, set initial state
+            if initial_statevector is not None:
+                if self._noise_model:
+                    raise ValueError("Cannot load an initial state if using a noise model, with Qiskit")
+                else:
+                    translated_circuit = load_statevector(translated_circuit, initial_statevector)
 
         # Noiseless simulation using the statevector simulator
         if not self._noise_model and not source_circuit.is_mixed_state:
@@ -139,31 +149,47 @@ class QiskitSimulator(Backend):
             frequencies = self.all_frequencies
 
         # desired_meas_result without a noise model
+        # Split circuit into chunks between mid-circuit measurements. Simulate a chunk, collapse the statevector according
+        # to the desired measurement and simulate the next chunk using this new statevector as input
         elif desired_meas_result is not None:
+
+            success_probability = 1
+
+            if initial_statevector is not None:
+                sv = np.asarray(initial_statevector, dtype=complex)
+            else:
+                sv = np.zeros(2**source_circuit.width)
+                sv[0] = 1.
+
+            for i, circ in enumerate(unitary_circuits[:-1]):
+                if circ.size != 0:
+                    translated_circuit = translate_c(circ, "qiskit", output_options={"save_measurements": False})
+                    translated_circuit = load_statevector(translated_circuit, sv)
+                    backend, translated_circuit = aer_backend_with_statevector(translated_circuit)
+                    sim_results = backend.run(translated_circuit).result()
+                    current_state = sim_results.get_statevector(translated_circuit)
+                    sv, cprob = self.collapse_statevector_to_desired_measurement(np.asarray(current_state), qubits[i],
+                                                                                 int(desired_meas_result[i]))
+                else:
+                    sv, cprob = self.collapse_statevector_to_desired_measurement(sv, qubits[i],
+                                                                                 int(desired_meas_result[i]))
+
+                success_probability *= cprob
+
+            translated_circuit = translate_c(unitary_circuits[-1], "qiskit", output_options={"save_measurements": False})
+            translated_circuit = load_statevector(translated_circuit, sv)
             backend, translated_circuit = aer_backend_with_statevector(translated_circuit)
+            sim_results = backend.run(translated_circuit).result()
+            current_state = sim_results.get_statevector(translated_circuit)
+            self._current_state = np.asarray(current_state)
 
-            samples = dict()
-            self._current_state = None
-            n_attempts = 0
+            source_circuit._probabilities[desired_meas_result] = success_probability
 
-            # Permit 0.1% probability events
-            max_attempts = 1000
-
-            while self._current_state is None and n_attempts < max_attempts:
-                current_state, measure = run_and_measure_one_shot(backend, translated_circuit)
-
-                if measure == desired_meas_result:
-                    self._current_state = current_state
-                    if self.n_shots is not None:
-                        self.all_frequencies = {measure + state[::-1]: count for state, count in current_state.sample_counts(self.n_shots).items()}
-                    else:
-                        freqs = self._statevector_to_frequencies(np.array(current_state))
-                        self.all_frequencies = {measure + meas: val for meas, val in freqs.items()}
-
-                n_attempts += 1
-
-            if n_attempts == max_attempts:
-                raise ValueError(f"desired_meas_result was not measured after {n_attempts} attempts")
+            if self.n_shots is not None:
+                self.all_frequencies = {desired_meas_result + state[::-1]: count for state, count in current_state.sample_counts(self.n_shots).items()}
+            else:
+                freqs = self._statevector_to_frequencies(np.array(current_state))
+                self.all_frequencies = {desired_meas_result + meas: val for meas, val in freqs.items()}
 
             frequencies = self.all_frequencies.copy()
 

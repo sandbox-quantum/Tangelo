@@ -23,6 +23,8 @@ orbital-optimized hybrid quantum-classical algorithm for a democratic descriptio
 Phys. Rev. Research 1, 033062 (2019)
 """
 
+from typing import List, Union, Type
+
 import numpy as np
 
 from tangelo.linq import get_backend, Circuit
@@ -54,6 +56,7 @@ class SA_VQESolver(VQESolver):
         optimizer (function handle): a function defining the classical optimizer and its behavior.
         initial_var_params (str or array-like) : initial value for the classical optimizer.
         backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
+        simulate_options (dict): Options for fine-control of the simulator backend, including desired measurement results, etc.
         penalty_terms (dict): parameters for penalty terms to append to target qubit Hamiltonian (see penalty_terms
             for more details).
         deflation_circuits (list[Circuit]): Deflation circuits to add an orthogonalization penalty with.
@@ -63,6 +66,8 @@ class SA_VQESolver(VQESolver):
             Default, False has alternating spin up/down ordering.
         qubit_hamiltonian (QubitOperator-like): Self-explanatory.
         verbose (bool): Flag for VQE verbosity.
+        projective_circuit (Circuit): A terminal circuit that projects into the correct space, always added to
+            the end of the ansatz circuit.
         ref_states (list): The vector occupations of the reference configurations or the reference circuits.
         weights (array): The weights of the occupations
     """
@@ -83,8 +88,9 @@ class SA_VQESolver(VQESolver):
         self.builtin_ansatze = set([BuiltInAnsatze.UpCCGSD, BuiltInAnsatze.UCCGD, BuiltInAnsatze.HEA, BuiltInAnsatze.UCCSD])
 
         # Add sa_vqe_options to attributes
-        for k, v in sa_vqe_options.items():
-            setattr(self, k, v)
+        self.ref_states: Union[List[int], np.ndarray] = sa_vqe_options["ref_states"]
+        self.weights: Union[List[float], np.ndarray] = sa_vqe_options["weights"]
+        self.ansatz: Type[agen.Ansatz] = sa_vqe_options["ansatz"]
 
         if self.ref_states is None:
             raise ValueError(f"ref_states must be provided when instantiating {self.__class__.__name__}")
@@ -195,9 +201,11 @@ class SA_VQESolver(VQESolver):
         energy = 0
         self.state_energies = list()
         for i, reference_circuit in enumerate(self.reference_circuits):
-            state_energy = self.backend.get_expectation_value(self.qubit_hamiltonian, reference_circuit + self.ansatz.circuit)
+            full_circ = (reference_circuit + self.ansatz.circuit + self.projective_circuit if self.projective_circuit
+                         else reference_circuit + self.ansatz.circuit)
+            state_energy = self.backend.get_expectation_value(self.qubit_hamiltonian, full_circ, **self.simulate_options)
             for circ in self.deflation_circuits:
-                f_dict, _ = self.backend.simulate(circ + self.ansatz.circuit.inverse() + reference_circuit.inverse())
+                f_dict, _ = self.backend.simulate(circ + full_circ.inverse(), **self.simulate_options)
                 state_energy += self.deflation_coeff * f_dict.get("0"*self.ansatz.circuit.width, 0)
             energy += state_energy*self.weights[i]
             self.state_energies.append(state_energy)

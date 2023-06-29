@@ -27,12 +27,11 @@ import re
 from math import pi
 
 from tangelo.linq import Gate, Circuit
-from tangelo.helpers import deprecated
 
 
 def get_openqasm_gates():
     """Map gate name of the abstract format to the equivalent gate name used in
-    openqasm OpenQASM is a general format that allows users to express a quantum
+    OpenQASM. OpenQASM is a general format that allows users to express a quantum
     program, define conditional operations manipulating quantum and qubit
     registers, as well as defining new quantum unitaries. We however make the
     choice here to support well-known gate operations.
@@ -47,42 +46,6 @@ def get_openqasm_gates():
     GATE_OPENQASM["CPHASE"] = "cp"
 
     return GATE_OPENQASM
-
-
-@deprecated("Please use the translate_circuit function.")
-def translate_openqasm(source_circuit):
-    """Take in an abstract circuit, return a OpenQASM 2.0 string using IBM
-    Qiskit (they are the reference for OpenQASM).
-
-    Args:
-        source_circuit: quantum circuit in the abstract format.
-
-    Returns:
-        str: the corresponding OpenQASM program, as per IBM Qiskit.
-    """
-    return translate_c_to_openqasm(source_circuit)
-
-
-@deprecated("Please use the translate_circuit function.")
-def _translate_openqasm2abs(source_circuit):
-    """Take an OpenQASM 2.0 string as input (as defined by IBM Qiskit), return
-    the equivalent abstract circuit. Only a subset of OpenQASM supported, mostly
-    to be able to go back and forth QASM and abstract representations to
-    leverage tools and innovation implemented to work in the QASM format. Not
-    designed to support elaborate QASM programs defining their own operations.
-    Compatible with qiskit.QuantumCircuit.from_qasm method.
-
-    Assumes single-qubit measurement instructions only. Final qubit register
-    measurement is implicit.
-
-    Args:
-        openqasm_string(str): an OpenQASM program, as a string, as defined by
-            IBM Qiskit.
-
-    Returns:
-        Circuit: corresponding quantum circuit in the abstract format.
-    """
-    return translate_c_from_openqasm(source_circuit)
 
 
 def translate_c_to_openqasm(source_circuit):

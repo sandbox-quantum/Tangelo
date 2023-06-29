@@ -11,3 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver, IntegralSolverEmpty
+from tangelo.toolboxes.molecular_computation.integral_solver_psi4 import IntegralSolverPsi4
+from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import IntegralSolverPySCF

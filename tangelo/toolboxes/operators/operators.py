@@ -25,6 +25,8 @@ import openfermion as of
 
 from tangelo.toolboxes.molecular_computation.coefficients import spatial_from_spinorb
 
+COEFFICIENT_TYPES = (int, float, complex, np.integer, np.floating)
+
 
 class FermionOperator(of.FermionOperator):
     """Custom FermionOperator class. Based on openfermion's, with additional functionalities.
@@ -74,6 +76,10 @@ class FermionOperator(of.FermionOperator):
                 f_op = FermionOperator()
                 f_op.terms = other.terms.copy()
                 return super(FermionOperator, self).__iadd__(f_op)
+
+        elif isinstance(other, COEFFICIENT_TYPES):
+            self.constant += other
+            return self
 
         else:
             raise RuntimeError(f"You cannot add FermionOperator and {other.__class__}.")
@@ -168,6 +174,20 @@ class QubitOperator(of.QubitOperator):
     replaced by our own implementation.
     """
 
+    @classmethod
+    def from_openfermion(cls, of_qop):
+        """ Enable instantiation of a QubitOperator from an openfermion QubitOperator object.
+
+        Args:
+            of_qop (openfermion QubitOperator): an existing qubit operator defined with Openfermion
+
+        Returns:
+            corresponding QubitOperator object.
+        """
+        qop = cls()
+        qop.terms = of_qop.terms.copy()
+        return qop
+
     def frobenius_norm_compression(self, epsilon, n_qubits):
         """Reduces the number of operator terms based on its Frobenius norm
         and a user-defined threshold, epsilon. The eigenspectrum of the
@@ -230,6 +250,12 @@ class QubitOperator(of.QubitOperator):
 
         return qubit_indices
 
+    def to_openfermion(self):
+        """Converts Tangelo QubitOperator to openfermion"""
+        qu_op = of.QubitOperator()
+        qu_op.terms = self.terms.copy()
+        return qu_op
+
 
 class QubitHamiltonian(QubitOperator):
     """QubitHamiltonian objects are essentially openfermion.QubitOperator
@@ -243,8 +269,7 @@ class QubitHamiltonian(QubitOperator):
         coefficient (complex): Coefficient for this term.
         mapping (string): Mapping procedure for fermionic to qubit encoding
             (ex: "JW", "BK", etc.).
-        up_then_down (bool): Whether or not spin ordering is all up then
-            all down.
+        up_then_down (bool): Whether spin ordering is all up then all down.
 
     Properties:
         n_terms (int): Number of terms in this qubit Hamiltonian.

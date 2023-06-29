@@ -25,7 +25,6 @@ necessary to account for:
 from math import pi
 
 from tangelo.toolboxes.operators import QubitOperator
-from tangelo.helpers import deprecated
 
 
 def get_cirq_gates():
@@ -43,6 +42,7 @@ def get_cirq_gates():
     GATE_CIRQ["CY"] = cirq.Y
     GATE_CIRQ["CZ"] = cirq.Z
     GATE_CIRQ["S"] = cirq.S
+    GATE_CIRQ["SDAG"] = cirq.ZPowGate(exponent=-0.5)
     GATE_CIRQ["T"] = cirq.T
     GATE_CIRQ["CH"] = cirq.H
     GATE_CIRQ["RX"] = cirq.rx
@@ -59,22 +59,6 @@ def get_cirq_gates():
     GATE_CIRQ["CSWAP"] = cirq.SWAP
     GATE_CIRQ["MEASURE"] = cirq.measure
     return GATE_CIRQ
-
-
-@deprecated("Please use the translate_circuit function.")
-def translate_cirq(source_circuit):
-    """Take in an abstract circuit, return an equivalent cirq QuantumCircuit
-    instance.
-
-    Args:
-        source_circuit: quantum circuit in the abstract format.
-
-    Returns:
-        cirq.Circuit: a corresponding cirq Circuit. Right now, the structure is
-            of LineQubit. It is possible in the future that we may support
-            NamedQubit or GridQubit.
-    """
-    return translate_c_to_cirq(source_circuit)
 
 
 def translate_c_to_cirq(source_circuit, noise_model=None, save_measurements=False):
@@ -108,10 +92,12 @@ def translate_c_to_cirq(source_circuit, noise_model=None, save_measurements=Fals
 
     # Maps the gate information properly. Different for each backend (order, values)
     for gate in source_circuit._gates:
-        if (gate.control is not None) and gate.name != 'CNOT':
+        if gate.control is not None:
             num_controls = len(gate.control)
             control_list = [qubit_list[c] for c in gate.control]
-        if gate.name in {"H", "X", "Y", "Z", "S", "T"}:
+            if gate.name == 'CNOT' and num_controls > 1:
+                gate.name = 'CX'
+        if gate.name in {"H", "X", "Y", "Z", "S", "SDAG", "T"}:
             target_circuit.append(GATE_CIRQ[gate.name](qubit_list[gate.target[0]]))
         elif gate.name in {"CH", "CX", "CY", "CZ"}:
             next_gate = GATE_CIRQ[gate.name].controlled(num_controls)

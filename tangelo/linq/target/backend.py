@@ -37,10 +37,10 @@ from collections import Counter
 import numpy as np
 from scipy import stats
 from bitarray import bitarray
-from openfermion.ops import QubitOperator
 
 from tangelo.linq import Gate, Circuit
 from tangelo.linq.helpers.circuits.measurement_basis import measurement_basis_gates
+from tangelo.toolboxes.operators import QubitOperator
 
 
 def get_expectation_value_from_frequencies_oneterm(term, frequencies):
@@ -48,8 +48,7 @@ def get_expectation_value_from_frequencies_oneterm(term, frequencies):
     the result of a state-preparation.
 
     Args:
-        term (openfermion-style QubitOperator object): a qubit operator, with
-            only a single term.
+        term (QubitOperator): a single-term qubit operator.
         frequencies (dict): histogram of frequencies of measurements (assumed
             to be in lsq-first format).
 
@@ -82,8 +81,7 @@ def get_variance_from_frequencies_oneterm(term, frequencies):
     """Return the variance of the expectation value of a single-term qubit-operator, given
     the result of a state-preparation.
     Args:
-        term (openfermion-style QubitOperator object): a qubit operator, with
-            only a single term.
+        term (QubitOperator): a single-term qubit operator.
         frequencies (dict): histogram of frequencies of measurements (assumed
             to be in lsq-first format).
     Returns:
@@ -110,6 +108,50 @@ def get_variance_from_frequencies_oneterm(term, frequencies):
         variance_term += freq*(expectation_term - sample)**2
 
     return variance_term
+
+
+def collapse_statevector_to_desired_measurement(statevector, qubit, result, order="lsq_first"):
+    """Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.
+
+    Args:
+        statevector (array): The statevector for which the collapse to the desired qubit value is performed.
+        qubit (int): Index of target qubit to collapse in the desired classical state.
+        result (int): 0 or 1.
+        order (string): The qubit ordering of the statevector, lsq_first or msq_first.
+
+    Returns:
+        array: The collapsed and renormalized statevector.
+        float: The probability for the desired measurement to occur.
+    """
+
+    n_qubits = round(math.log2(len(statevector)))
+
+    if 2**n_qubits != len(statevector):
+        raise ValueError(f"Statevector length of {len(statevector)} is not a power of 2.")
+
+    if qubit > n_qubits-1:
+        raise ValueError("qubit index to measure is larger than number of qubits in statevector")
+
+    if result not in {0, 1}:
+        raise ValueError(f"Result is not valid, must be an integer of 0 or 1 but received {result}")
+
+    if order.lower() not in {"lsq_first", "msq_first"}:
+        raise ValueError("Order must be lsq_first or msq_first")
+
+    before_index_length = 2**qubit if order == "lsq_first" else 2**(n_qubits-1-qubit)
+    after_index_length = 2**(n_qubits-1-qubit) if order == "lsq_first" else 2**qubit
+
+    sv_selected = np.reshape(statevector, (before_index_length, 2, after_index_length))
+    sv_selected[:, (result + 1) % 2, :] = 0
+    sv_selected = sv_selected.flatten()
+
+    sqrt_probability = np.linalg.norm(sv_selected)
+    if sqrt_probability < 1.e-14:
+        raise ValueError(f"Probability of desired measurement={0} for qubit={qubit} is zero.")
+
+    sv_selected = sv_selected/sqrt_probability  # casting issue if inplace for probability 1
+
+    return sv_selected, sqrt_probability**2
 
 
 class Backend(abc.ABC):
@@ -213,16 +255,16 @@ class Backend(abc.ABC):
 
         if desired_meas_result is not None:
             if not isinstance(desired_meas_result, str) or len(desired_meas_result) != n_meas:
-                raise ValueError("desired_meas result is not a string with the same length as the number of measurements"
+                raise ValueError("desired_meas result is not a string with the same length as the number of measurements "
                                  "in the circuit.")
             save_mid_circuit_meas = True
         elif save_mid_circuit_meas and return_statevector:
             if self.n_shots != 1:
-                raise ValueError("The combination of save_mid_circuit_meas and return_statevector without specifying desired_meas_result"
-                                 "is only valid for self.n_shots=1 as the result is a mixed state otherwise, "
+                raise ValueError("The combination of save_mid_circuit_meas and return_statevector without specifying desired_meas_result "
+                                 "is only valid for self.n_shots=1. The result is a mixed state otherwise, "
                                  f"but you requested n_shots={self.n_shots}.")
         elif source_circuit.is_mixed_state and not self.n_shots:
-            raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state."
+            raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state. "
                              "Please set the n_shots attribute to an appropriate value.")
 
         if source_circuit.width == 0:
@@ -271,8 +313,7 @@ class Backend(abc.ABC):
         actual QPU.
 
         Args:
-            qubit_operator (openfermion-style QubitOperator class): a qubit
-                operator.
+            qubit_operator (QubitOperator): the qubit operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (array): The initial statevector for the simulation
             desired_meas_result (str): The mid-circuit measurement results to select for.
@@ -297,7 +338,7 @@ class Backend(abc.ABC):
         # If the underlying operator is hermitian, expectation value is real and can be computed right away
         if are_coefficients_real:
             if self._noise_model or not self.statevector_available \
-                    or state_prep_circuit.is_mixed_state or state_prep_circuit.size == 0:
+                    or (state_prep_circuit.is_mixed_state and self.n_shots is not None) or state_prep_circuit.size == 0:
                 return self._get_expectation_value_from_frequencies(qubit_operator,
                                                                     state_prep_circuit,
                                                                     initial_statevector=initial_statevector,
@@ -305,7 +346,8 @@ class Backend(abc.ABC):
             elif self.statevector_available:
                 return self._get_expectation_value_from_statevector(qubit_operator,
                                                                     state_prep_circuit,
-                                                                    initial_statevector=initial_statevector)
+                                                                    initial_statevector=initial_statevector,
+                                                                    desired_meas_result=desired_meas_result)
 
         # Else, separate the operator into 2 hermitian operators, use linearity and call this function twice
         else:
@@ -332,8 +374,7 @@ class Backend(abc.ABC):
         actual QPU.
 
         Args:
-            qubit_operator (openfermion-style QubitOperator class): a qubit
-                operator.
+            qubit_operator (QubitOperator): the qubit operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
@@ -387,8 +428,7 @@ class Backend(abc.ABC):
         actual QPU.
 
         Args:
-            qubit_operator (openfermion-style QubitOperator class): a qubit
-                operator.
+            qubit_operator (QubitOperator): the qubit operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (list/array): A valid statevector in the format
                 supported by the target backend.
@@ -401,14 +441,14 @@ class Backend(abc.ABC):
         variance = self.get_variance(qubit_operator, state_prep_circuit, initial_statevector, desired_meas_result=desired_meas_result)
         return np.sqrt(variance/self.n_shots) if self.n_shots else 0.
 
-    def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit, initial_statevector=None):
+    def _get_expectation_value_from_statevector(self, qubit_operator, state_prep_circuit, initial_statevector=None, desired_meas_result=None):
         r"""Take as input a qubit operator H and a state preparation returning a
         ket |\psi>. Return the expectation value <\psi | H | \psi>, computed
         without drawing samples (statevector only). Users should not be calling
         this function directly, please call "get_expectation_value" instead.
 
         Args:
-            qubit_operator (openfermion-style QubitOperator class): a qubit operator.
+            qubit_operator (QubitOperator): the qubit operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation (only pure states).
             initial_statevector (array): The initial state of the system
 
@@ -416,10 +456,12 @@ class Backend(abc.ABC):
             complex: The expectation value of this operator with regards to the
                 state preparation.
         """
+
         n_qubits = state_prep_circuit.width
 
         expectation_value = 0.
-        prepared_frequencies, prepared_state = self.simulate(state_prep_circuit, return_statevector=True, initial_statevector=initial_statevector)
+        prepared_frequencies, prepared_state = self.simulate(state_prep_circuit, return_statevector=True,
+                                                             initial_statevector=initial_statevector, desired_meas_result=desired_meas_result)
 
         if hasattr(self, "expectation_value_from_prepared_state"):
             return self.expectation_value_from_prepared_state(qubit_operator, n_qubits, prepared_state)
@@ -459,7 +501,7 @@ class Backend(abc.ABC):
         using the frequencies of observable states.
 
         Args:
-            qubit_operator (openfermion-style QubitOperator class): a qubitoperator.
+            qubit_operator (QubitOperator): the qubit operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (array): The initial state of the system
             desired_meas_result (str): The mid-circuit measurement results to select for.
@@ -507,7 +549,7 @@ class Backend(abc.ABC):
         using the frequencies of observable states.
 
         Args:
-            qubit_operator (openfermion-style QubitOperator class): a qubit operator.
+            qubit_operator (QubitOperator): the qubit operator.
             state_prep_circuit (Circuit): an abstract circuit used for state preparation.
             initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
@@ -555,8 +597,7 @@ class Backend(abc.ABC):
         the result of a state-preparation.
 
         Args:
-            term (openfermion-style QubitOperator object): a qubit operator, with
-                only a single term.
+            term (QubitOperator): a single-term qubit operator
             frequencies (dict): histogram of frequencies of measurements (assumed
                 to be in lsq-first format).
 
@@ -573,8 +614,7 @@ class Backend(abc.ABC):
         the result of a state-preparation.
 
         Args:
-            term (openfermion-style QubitOperator object): a qubit operator, with
-                only a single term.
+            term (QubitOperator): a single-term qubit operator.
             frequencies (dict): histogram of frequencies of measurements (assumed
                 to be in lsq-first format).
 
@@ -650,6 +690,21 @@ class Backend(abc.ABC):
         state_binstr = "0" * (n_qubits - len(bs)) + bs
 
         return state_binstr if use_ordering and (self.statevector_order == "lsq_first") else state_binstr[::-1]
+
+    def collapse_statevector_to_desired_measurement(self, statevector, qubit, result):
+        """Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.
+
+        Args:
+            statevector (array): The statevector for which the collapse to the desired qubit value is performed.
+            qubit (int): The index of the qubit to collapse to the classical result.
+            result (string): "0" or "1".
+
+        Returns:
+            array: the collapsed and renormalized statevector
+            float: the probability this occured
+        """
+
+        return collapse_statevector_to_desired_measurement(statevector, qubit, result, self.backend_info()['statevector_order'])
 
     @staticmethod
     @abc.abstractmethod

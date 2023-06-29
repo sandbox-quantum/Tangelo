@@ -28,11 +28,13 @@ Ref:
 
 import math
 import warnings
+from typing import Optional, Union, List, Callable
 
 from scipy.optimize import minimize
 from openfermion import commutator
 from openfermion import FermionOperator as ofFermionOperator
 
+from tangelo import SecondQuantizedMolecule
 from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -51,7 +53,7 @@ class ADAPTSolver:
         tol (float): Maximum gradient allowed for a particular operator  before
             convergence.
         max_cycles (int): Maximum number of iterations for ADAPT.
-        pool (func): Function that returns a list of FermionOperator. Each
+        pool (func): Function that returns a list of FermionOperator or QubitOperator. Each
             element represents excitation/operator that has an effect of the
             total energy.
         pool_args (dict) : The arguments for the pool function. Will be unpacked in
@@ -61,44 +63,47 @@ class ADAPTSolver:
         up_then_down (bool): Spin orbitals ordering.
         n_spinorbitals (int): Self-explanatory.
         n_electrons (int): Self-explanatory.
+        spin (int): The spin of the system (# alpha - # beta electrons)
         optimizer (func): Optimization function for VQE minimization.
         backend_options (dict): Backend options for the underlying VQE object.
+        simulate_options (dict): Options for fine-control of the simulator backend, including desired measurement results, etc.
         verbose (bool): Flag for verbosity of VQE.
         deflation_circuits (list[Circuit]): Deflation circuits to add an
             orthogonalization penalty with.
         deflation_coeff (float): The coefficient of the deflation.
+        projective_circuit (Circuit): A terminal circuit that projects into the correct space, always added to
+            the end of the ansatz circuit.
         ref_state (array or Circuit): The reference configuration to use. Replaces HF state
      """
 
     def __init__(self, opt_dict):
 
         default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
-        default_options = {"molecule": None,
-                           "tol": 1e-3, "max_cycles": 15,
-                           "pool": uccgsd_pool,
-                           "pool_args": None,
-                           "qubit_mapping": "jw",
-                           "qubit_hamiltonian": None,
-                           "up_then_down": False,
-                           "n_spinorbitals": None,
-                           "n_electrons": None,
-                           "spin": None,
-                           "optimizer": self.LBFGSB_optimizer,
-                           "backend_options": default_backend_options,
-                           "verbose": False,
-                           "ref_state": None,
-                           "deflation_circuits": list(),
-                           "deflation_coeff": 1}
 
-        # Initialize with default values
-        self.__dict__ = default_options
-        # Overwrite default values with user-provided ones, if they correspond to a valid keyword
-        for k, v in opt_dict.items():
-            if k in default_options:
-                setattr(self, k, v)
-            else:
-                # TODO Raise a warning instead, that variable will not be used unless user made mods to code
-                raise KeyError(f"Keyword :: {k}, not available in {self.__class__.__name__}")
+        copt_dict = opt_dict.copy()
+
+        self.molecule: Optional[SecondQuantizedMolecule] = copt_dict.pop("molecule", None)
+        self.tol: float = copt_dict.pop("tol", 1e-3)
+        self.max_cycles: int = copt_dict.pop("max_cycles", 15)
+        self.pool: Callable[..., Union[List[QubitOperator], List[FermionOperator]]] = copt_dict.pop("pool", uccgsd_pool)
+        self.pool_args: dict = copt_dict.pop("pool_args", None)
+        self.qubit_mapping: str = copt_dict.pop("qubit_mapping", "jw")
+        self.optimizer = copt_dict.pop("optimizer", self.LBFGSB_optimizer)
+        self.backend_options: dict = copt_dict.pop("backend_options", default_backend_options)
+        self.simulate_options: dict = copt_dict.pop("simulate_options", dict())
+        self.deflation_circuits: Optional[List[Circuit]] = copt_dict.pop("deflation_circuits", list())
+        self.deflation_coeff: float = copt_dict.pop("deflation_coeff", 1.)
+        self.up_then_down: bool = copt_dict.pop("up_then_down", False)
+        self.spin: int = copt_dict.pop("spin", 0)
+        self.qubit_hamiltonian: QubitOperator = copt_dict.pop("qubit_hamiltonian", None)
+        self.verbose: bool = copt_dict.pop("verbose", False)
+        self.projective_circuit: Circuit = copt_dict.pop("projective_circuit", None)
+        self.ref_state: Optional[Union[list, Circuit]] = copt_dict.pop("ref_state", None)
+        self.n_spinorbitals: Union[None, int] = copt_dict.pop("n_spinorbitals", None)
+        self.n_electrons: Union[None, int] = copt_dict.pop("n_electrons", None)
+
+        if len(copt_dict) > 0:
+            raise KeyError(f"The following keywords are not supported in {self.__class__.__name__}: \n {copt_dict.keys()}")
 
         # Raise error/warnings if input is not as expected. Only a single input
         # must be provided to avoid conflicts.
@@ -160,8 +165,10 @@ class ADAPTSolver:
                             "ansatz": self.ansatz,
                             "optimizer": self.optimizer,
                             "backend_options": self.backend_options,
+                            "simulate_options": self.simulate_options,
                             "deflation_circuits": self.deflation_circuits,
                             "deflation_coeff": self.deflation_coeff,
+                            "projective_circuit": self.projective_circuit,
                             "ref_state": self.ref_state
                             }
 
@@ -187,10 +194,10 @@ class ADAPTSolver:
         pool_list = self.pool(**self.pool_args)
 
         # Only a qubit operator is provided with a FermionOperator pool.
-        if not (self.n_spinorbitals and self.n_electrons and self.spin is not None):
+        if not (self.n_spinorbitals and self.n_electrons and isinstance(self.spin, int)):
             raise ValueError("Expecting the number of spin-orbitals (n_spinorbitals), "
-                "the number of electrons (n_electrons) and the spin (spin) with "
-                "a qubit_hamiltonian when working with a pool of fermion operators.")
+                             "the number of electrons (n_electrons) and the spin (spin) with "
+                             "a qubit_hamiltonian when working with a pool of fermion operators.")
 
         if isinstance(pool_list[0], QubitOperator):
             self.pool_type = 'qubit'
@@ -232,6 +239,8 @@ class ADAPTSolver:
 
             full_circuit = (self.vqe_solver.ansatz.circuit if self.ref_state is None else
                             self.vqe_solver.reference_circuit + self.vqe_solver.ansatz.circuit)
+            if self.projective_circuit:
+                full_circuit += self.projective_circuit
             gradients = self.compute_gradients(full_circuit, backend=self.vqe_solver.backend)
             pool_select = self.choose_operator(gradients, tolerance=self.tol)
 
@@ -280,15 +289,15 @@ class ADAPTSolver:
             list of float: Operator gradients.
         """
 
-        gradient = [abs(backend.get_expectation_value(element, circuit)) for element in self.pool_commutators]
+        gradient = [abs(backend.get_expectation_value(element, circuit, **self.simulate_options)) for element in self.pool_commutators]
         for deflate_circuit in self.deflation_circuits:
             for i, pool_op in enumerate(self.pool_operators):
                 op_circuit = Circuit([Gate(op[1], op[0]) for tuple in pool_op.terms for op in tuple])
                 pool_over = deflate_circuit.inverse() + op_circuit + circuit
-                f_dict, _ = backend.simulate(pool_over)
+                f_dict, _ = backend.simulate(pool_over, **self.simulate_options)
                 grad = f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
                 pool_over = deflate_circuit.inverse() + circuit
-                f_dict, _ = backend.simulate(pool_over)
+                f_dict, _ = backend.simulate(pool_over, **self.simulate_options)
                 gradient[i] += self.deflation_coeff * grad * f_dict.get("0"*self.vqe_solver.ansatz.circuit.width, 0)
 
         return gradient

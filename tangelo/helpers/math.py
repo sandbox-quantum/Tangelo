@@ -53,3 +53,29 @@ def bool_col_echelon(bool_array):
                 pivot -= 1
 
     return bool_array
+
+
+def arrays_almost_equal_up_to_global_phase(array1, array2, atol=1e-6):
+    """
+    Checks if two arrays are almost equal up to a global phase.
+
+    Args:
+        array1 (array): Self-explanatory.
+        array2 (array): Self-explanatory.
+        atol (float) : Optional, absolute tolerance
+
+    Returns:
+        bool : True if arrays are almost equal up to a global phase, False otherwise.
+    """
+    if len(array1) != len(array2):
+        return False
+
+    array1 = np.asarray(array1)
+    array2 = np.asarray(array2)
+
+    if np.allclose(array1, array2, atol=atol):
+        return True
+
+    # Check for global phase difference
+    phase_diff = np.angle(array1[0] / array2[0])
+    return np.allclose(array1, array2 * np.exp(1j * phase_diff), atol=atol)
