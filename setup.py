@@ -20,5 +20,5 @@ setuptools.setup(
     url="https://github.com/goodchemistryco/Tangelo",
     packages=setuptools.find_packages(),
     test_suite="tangelo",
-    install_requires=['h5py', 'bitarray', 'openfermion', 'openfermionpyscf', 'pyscf', 'pyscf-semiempirical']
+    install_requires=['h5py', 'bitarray', 'openfermion', 'pyscf', 'pyscf-semiempirical']
 )
