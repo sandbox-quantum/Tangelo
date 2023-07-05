@@ -14,4 +14,4 @@
 
 """ Define version number here. It is read in setup.py, and bumped automatically
 when using the new release Github action. """
-__version__ = "0.4.0.RC"
+__version__ = "0.4.0"
