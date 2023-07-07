@@ -13,7 +13,7 @@ setuptools.setup(
     author="The Tangelo developers",
     version=version,
     description=description,
-    long_description=description,
+    long_description=long_description,
     url="https://github.com/goodchemistryco/Tangelo",
     packages=setuptools.find_packages(),
     test_suite="tangelo",
