@@ -1,7 +1,4 @@
 import setuptools
-import sys
-import subprocess
-import os
 
 with open("tangelo/_version.py") as f:
     version = f.readlines()[-1].split()[-1].strip("\"'")
