@@ -20,5 +20,8 @@ setuptools.setup(
     url="https://github.com/goodchemistryco/Tangelo",
     packages=setuptools.find_packages(),
     test_suite="tangelo",
-    install_requires=['h5py', 'bitarray', 'openfermion', 'pyscf', 'pyscf-semiempirical']
+    install_requires=['h5py', 'bitarray', 'openfermion'],
+    extras_require={
+        'pyscf': ['pyscf', 'pyscf-semiempirical @ git+https://github.com/pyscf/semiempirical@v0.1.0'], # pyscf-semiempirical PyPI sdist is missing C extension files
+    }
 )
