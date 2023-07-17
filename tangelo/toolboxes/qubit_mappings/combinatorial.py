@@ -68,7 +68,8 @@ def combinatorial(ferm_op, n_modes, n_electrons):
 
     # Get the number of qubits n.
     n_choose_alpha = comb(n_modes, n_alpha, exact=True)
-    n = ceil(np.log2(n_choose_alpha * comb(n_modes, n_beta, exact=True)))
+    n_choose_beta = comb(n_modes, n_beta, exact=True)
+    n = ceil(np.log2(n_choose_alpha * n_choose_beta))
 
     # Construct the basis set where each configuration is mapped to a unique integer.
     basis_set_alpha = basis(n_modes, n_alpha)
@@ -78,7 +79,7 @@ def combinatorial(ferm_op, n_modes, n_electrons):
         for sigma_beta, int_beta in basis_set_beta.items():
             # Alternate ordering (like FermionOperator in openfermion).
             sigma = tuple(sorted([2*sa for sa in sigma_alpha] + [2*sb+1 for sb in sigma_beta]))
-            unique_int = (int_alpha * n_choose_alpha) + int_beta
+            unique_int = (int_alpha * n_choose_beta) + int_beta
             basis_set[sigma] = unique_int
 
     qu_op = QubitOperator()
