@@ -44,7 +44,7 @@ class MIFNOHelperTest(unittest.TestCase):
     def test_init_from_dict(self):
         """Verify initialization with a dict object."""
 
-        beh2_mifno = MIFNOHelper(mi_dict=mi_object)
+        beh2_mifno = MIFNOHelper(mifno_full_result=mi_object)
 
         self.assertAlmostEqual(beh2_mifno.e_tot, -15.595177739)
         self.assertAlmostEqual(beh2_mifno.e_corr, -0.034865396)
@@ -56,7 +56,7 @@ class MIFNOHelperTest(unittest.TestCase):
     def test_fragment_ids(self):
         """Verify if the fragment_ids property returns all the fragment ids.."""
 
-        beh2_mifno = MIFNOHelper(mi_dict=mi_object)
+        beh2_mifno = MIFNOHelper(mifno_full_result=mi_object)
         frag_ids = beh2_mifno.fragment_ids
 
         self.assertEqual(frag_ids, ["(0,)", "(1,)", "(2,)", "(0, 1)", "(0, 2)", "(1, 2)"])
@@ -64,7 +64,7 @@ class MIFNOHelperTest(unittest.TestCase):
     def test_mi_summation(self):
         """Verify that the energy can be recomputed with the incremental method."""
 
-        beh2_mifno = MIFNOHelper(mi_dict=mi_object)
+        beh2_mifno = MIFNOHelper(mifno_full_result=mi_object)
 
         e_mi = beh2_mifno.mi_summation()
 
