@@ -38,7 +38,7 @@ jobs:
 
     - name: Install backends except qsharp/qdk
       run: |
-        pip install qiskit
+        pip install qiskit qiskit-aer
         pip install qulacs
         pip install amazon-braket-sdk
         pip install cirq
