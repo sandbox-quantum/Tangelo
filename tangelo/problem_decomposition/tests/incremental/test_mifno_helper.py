@@ -29,14 +29,19 @@ mi_object["subproblem_data"] = {int(k): v for k, v in mi_object["subproblem_data
 
 class MIFNOHelperTest(unittest.TestCase):
 
+    def setUp(self):
+        self.e_tot = -15.5951183
+        self.e_corr = -0.0350199
+        self.e_mf = self.e_tot - self.e_corr
+
     def test_init_from_file(self):
         """Verify initialization with a json file."""
 
-        beh2_mifno = MIFNOHelper(mi_json_file=mi_results)
+        beh2_mifno = MIFNOHelper(mifno_log_file=mi_results)
 
-        self.assertAlmostEqual(beh2_mifno.e_tot, -15.595177739)
-        self.assertAlmostEqual(beh2_mifno.e_corr, -0.034865396)
-        self.assertAlmostEqual(beh2_mifno.e_mf, -15.560312343)
+        self.assertAlmostEqual(beh2_mifno.e_tot, self.e_tot)
+        self.assertAlmostEqual(beh2_mifno.e_corr, self.e_corr)
+        self.assertAlmostEqual(beh2_mifno.e_mf, self.e_mf)
 
         # Testing the number of detected increments.
         self.assertEqual(len(beh2_mifno.frag_info), 2)
@@ -46,9 +51,9 @@ class MIFNOHelperTest(unittest.TestCase):
 
         beh2_mifno = MIFNOHelper(mifno_full_result=mi_object)
 
-        self.assertAlmostEqual(beh2_mifno.e_tot, -15.595177739)
-        self.assertAlmostEqual(beh2_mifno.e_corr, -0.034865396)
-        self.assertAlmostEqual(beh2_mifno.e_mf, -15.560312343)
+        self.assertAlmostEqual(beh2_mifno.e_tot, self.e_tot)
+        self.assertAlmostEqual(beh2_mifno.e_corr, self.e_corr)
+        self.assertAlmostEqual(beh2_mifno.e_mf, self.e_mf)
 
         # Testing the number of detected increments.
         self.assertEqual(len(beh2_mifno.frag_info), 2)
