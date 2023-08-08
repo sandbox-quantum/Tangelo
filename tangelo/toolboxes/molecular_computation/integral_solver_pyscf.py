@@ -125,7 +125,8 @@ class IntegralSolverPySCF(IntegralSolver):
 
         molecule = mol_to_pyscf(sqmol, sqmol.basis, sqmol.symmetry, sqmol.ecp)
 
-        sqmol.mean_field = self.scf.RHF(molecule) if not sqmol.uhf else self.scf.UHF(molecule)
+        sqmol.mean_field = self.scf.RHF(molecule).newton() if not sqmol.uhf else self.scf.UHF(molecule)
+        sqmol.mean_field.diis_start_cycle = 20
         sqmol.mean_field.verbose = 0
 
         chkfile_found = False

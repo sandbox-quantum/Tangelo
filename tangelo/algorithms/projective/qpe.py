@@ -125,7 +125,7 @@ class QPESolver:
         """
 
         if isinstance(self.unitary, Circuit):
-            self.unitary = unitary.CircuitUnitary(self.unitary)
+            self.unitary = unitary.CircuitUnitary(self.unitary, **self.unitary_options)
 
         # Building VQE with a molecule as input.
         if self.molecule:

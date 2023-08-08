@@ -18,7 +18,10 @@ import numpy as np
 from openfermion import get_sparse_operator
 
 from tangelo.algorithms.projective.qpe import QPESolver
+from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
 from tangelo.toolboxes.operators import QubitOperator
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.linq.helpers.circuits.statevector import StateVector
 
@@ -55,6 +58,37 @@ class QITESolverTest(unittest.TestCase):
 
         energy = qpe_solver.simulate()
         self.assertAlmostEqual(energy, 0.13671875, delta=1e-4)
+
+    def test_simulate_h2_circuit(self):
+        """Run QPE on H2 molecule, with JW qubit mapping and exact simulator providing only the Trotter circuit
+        """
+
+        ref_circ = get_reference_circuit(mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons, "scbk", True, 0)
+        qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos,
+                                         mol_H2_sto3g.n_active_electrons, True, 0)
+        unit_circ = trotterize(mol_H2_sto3g.fermionic_hamiltonian, 2*np.pi, 1, 4, True,
+                               {"qubit_mapping": "scbk", "up_then_down": True, "n_spinorbitals": mol_H2_sto3g.n_active_sos,
+                                "n_electrons": mol_H2_sto3g.n_active_electrons})
+
+        # Test supplying circuit and applying QPE controls to only gates marked as variational
+        qpe_options = {"qubit_hamiltonian": qu_op, "unitary": unit_circ, "size_qpe_register": 8, "ref_state": ref_circ,
+                       "backend_options": {"target": "qulacs"}, "unitary_options": {"control_method": "variational"}}
+        qpe_solver = QPESolver(qpe_options)
+        qpe_solver.build()
+
+        energy = qpe_solver.simulate()
+
+        self.assertAlmostEqual(energy, -(-1.13727-qu_op.constant), delta=1e-3)
+
+        # Test supplying circuit with QPE controls added to every gate.
+        qpe_options = {"qubit_hamiltonian": qu_op, "unitary": unit_circ, "size_qpe_register": 8, "ref_state": ref_circ,
+                       "backend_options": {"target": "qulacs"}, "unitary_options": {"control_method": "all"}}
+        qpe_solver = QPESolver(qpe_options)
+        qpe_solver.build()
+
+        energy = qpe_solver.simulate()
+
+        self.assertAlmostEqual(energy, -(-1.13727-qu_op.constant), delta=1e-3)
 
     def test_qubit_hamiltonian_input(self):
         "test with qubit hamiltonian input."

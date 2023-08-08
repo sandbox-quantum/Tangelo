@@ -37,7 +37,7 @@ class CircuitUnitary(Unitary):
             self.n_steps_method = control_method
         else:
             raise ValueError(f"{self.__class__.__name__} only supports {self.valid_control_methods} to apply the control to the circuit.")
-        self.state_qubits = self.circuit.width
+        self.state_qubits = list(range(self.circuit.width))
         self.ancilla_qubits = []
 
     def qubit_indices(self):
@@ -72,7 +72,7 @@ class CircuitUnitary(Unitary):
             return new_circuit
         if type(control) is list and len(control) > 0:
             clist = control
-        elif type(control, (int, np.integer)):
+        elif isinstance(control, (int, np.integer)):
             clist = [control]
         if method == "all":
             for gate in new_circuit:
@@ -90,3 +90,4 @@ class CircuitUnitary(Unitary):
                     gate.control = clist
         else:
             raise ValueError(f"{self.__class__.__name__} only supports {self.valid_control_methods} to apply the control to the circuit.")
+        return new_circuit
