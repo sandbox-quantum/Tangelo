@@ -21,7 +21,6 @@ from typing import Optional, Union
 from enum import Enum
 
 from tangelo import SecondQuantizedMolecule
-from tangelo.helpers.utils import HiddenPrints
 from tangelo.linq import get_backend, Circuit
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping

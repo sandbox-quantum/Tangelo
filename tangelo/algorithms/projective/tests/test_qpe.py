@@ -98,7 +98,7 @@ class QPESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -(-1.13727-qu_op.constant), delta=1e-3)
 
     def test_qubit_hamiltonian_input(self):
-        "Test with qubit hamiltonian input."
+        """Test with qubit hamiltonian input."""
 
         # Generate qubit operator with state 9 having eigenvalue 0.25
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
