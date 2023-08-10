@@ -62,7 +62,7 @@ class IntegralSolverPySCF(IntegralSolver):
 
         Args:
             chkfile (string): Path of the chkfile.
-            chkfile (string): Use RHF.newton() for scf iterations
+            use_newton (bool): Use RHF.newton() for scf iterations
         """
 
         from pyscf import gto, lib, scf, symm, ao2mo

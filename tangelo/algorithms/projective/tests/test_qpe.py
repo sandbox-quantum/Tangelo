@@ -26,7 +26,7 @@ from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.linq.helpers.circuits.statevector import StateVector
 
 
-class QITESolverTest(unittest.TestCase):
+class QPESolverTest(unittest.TestCase):
 
     def test_instantiation(self):
         """Try instantiating QPESolver with basic input."""
@@ -58,6 +58,13 @@ class QITESolverTest(unittest.TestCase):
 
         energy = qpe_solver.simulate()
         self.assertAlmostEqual(energy, 0.13671875, delta=1e-4)
+
+        # Test that get_resources returns expected results
+        resources = qpe_solver.get_resources()
+        self.assertEqual(resources["qubit_hamiltonian_terms"], 5)
+        self.assertEqual(resources["circuit_width"], 10)
+        self.assertEqual(resources["circuit_2qubit_gates"], 20464)
+        self.assertEqual(resources["circuit_depth"], 28110)
 
     def test_simulate_h2_circuit(self):
         """Run QPE on H2 molecule, with JW qubit mapping and exact simulator providing only the Trotter circuit
@@ -91,7 +98,8 @@ class QITESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -(-1.13727-qu_op.constant), delta=1e-3)
 
     def test_qubit_hamiltonian_input(self):
-        "test with qubit hamiltonian input."
+        "Test with qubit hamiltonian input."
+
         # Generate qubit operator with state 9 having eigenvalue 0.25
         qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125)
                  + QubitOperator("", 0.125))

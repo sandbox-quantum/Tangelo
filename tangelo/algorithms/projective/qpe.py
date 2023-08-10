@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Implements the variational quantum eigensolver (VQE) algorithm to solve
+"""Implements the Quantum Phase Estimation (QPE) algorithm to solve
 electronic structure calculations.
 """
 
@@ -20,8 +20,8 @@ from typing import Optional, Union
 
 from enum import Enum
 
-from tangelo.helpers.utils import HiddenPrints
 from tangelo import SecondQuantizedMolecule
+from tangelo.helpers.utils import HiddenPrints
 from tangelo.linq import get_backend, Circuit
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -47,13 +47,13 @@ class QPESolver:
 
     Users must first set the desired options of the QPESolver object through the
     __init__ method, and call the "build" method to build the underlying objects
-    (mean-field, hardware backend, ansatz...). They are then able to call any of
-    the simulate, or get_rdm methods. In particular, simulate
-    runs the VQE algorithm, returning the optimal energy found by the classical
-    optimizer.
+    (mean-field, hardware backend, unitary...). They are then able to call the
+    the simulate method. In particular, simulate
+    runs the QPE algorithm, returning the optimal energy found by the most probable
+    measurement as a binary fraction.
 
     Attributes:
-        molecule (SecondQuantizedMolecule) : the molecular system.
+        molecule (SecondQuantizedMolecule) : The molecular system.
         qubit_mapping (str) : one of the supported qubit mapping identifiers.
         unitary (Unitary) : one of the supported unitary evolutions.
         backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
@@ -120,14 +120,14 @@ class QPESolver:
         self.builtin_unitary = set(BuiltInUnitary)
 
     def build(self):
-        """Build the underlying objects required to run the VQE algorithm
+        """Build the underlying objects required to run the QPE algorithm
         afterwards.
         """
 
         if isinstance(self.unitary, Circuit):
             self.unitary = unitary.CircuitUnitary(self.unitary, **self.unitary_options)
 
-        # Building VQE with a molecule as input.
+        # Building QPE with a molecule as input.
         if self.molecule:
 
             # Compute qubit hamiltonian for the input molecular system
@@ -148,9 +148,6 @@ class QPESolver:
                                                      spin=self.molecule.active_spin)
                 self.qubit_hamiltonian += pen_qubit
 
-            # Build / set ansatz circuit. Use user-provided circuit or built-in ansatz depending on user input.
-            if self.unitary in {BuiltInUnitary.TrotterSuzuki}:
-                self.unitary = self.unitary.value(self.qubit_hamiltonian, **self.unitary_options)
         if isinstance(self.unitary, BuiltInUnitary):
             self.unitary = self.unitary.value(self.qubit_hamiltonian, **self.unitary_options)
         elif not isinstance(self.unitary, unitary.Unitary):
@@ -159,32 +156,37 @@ class QPESolver:
         # Quantum circuit simulation backend options
         self.backend = get_backend(**self.backend_options)
 
-        self.circuit = Circuit()
-
+        # Determine where QPE ancilla qubit indices
         self.n_state, self.n_ancilla = self.unitary.qubit_indices()
         qft_start = max(list(self.n_state)+list(self.n_ancilla)) + 1
         self.qpe_qubit_list = list(reversed(range(qft_start, qft_start+self.n_qpe_qubits)))
-        qft = get_qft_circuit(self.qpe_qubit_list)
 
-        self.circuit = qft
+        # Build the circuit that implements QPE given the Unitary that implements the controlled unitary circuits.
+        self.circuit = get_qft_circuit(self.qpe_qubit_list)
         for i, qubit in enumerate(self.qpe_qubit_list):
             self.circuit += self.unitary.build_circuit(2**i, control=qubit)
-        iqft = get_qft_circuit(self.qpe_qubit_list, inverse=True)
-        self.circuit += iqft
+        self.circuit += get_qft_circuit(self.qpe_qubit_list, inverse=True)
 
     def simulate(self):
-        """Run the QPE circuit. Return the energy of the most probable bitstring.
+        """Run the QPE circuit. Return the energy of the most probable bitstring
+
+        Attributes:
+            bitstring (str): The most probable bitstring.
+            histogram (Histogram): The full Histogram of measurements on the QPE ancilla qubits representing energies.
+            qpe_freqs (dict): The dictionary of measurements on the QPE ancilla qubits.
+            freqs (dict): The full dictionary of measurements on all qubits.
         """
+
         if not (self.unitary and self.backend):
-            raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")
+            raise RuntimeError(f"No unitary or hardware backend built. Have you called {self.__class__.__name__}.build ?")
 
         self.freqs, _ = self.backend.simulate(self.reference_circuit+self.circuit)
         self.histogram = Histogram(self.freqs)
         self.histogram.remove_qubit_indices(*(self.n_state+self.n_ancilla))
         self.qpe_freqs = self.histogram.frequencies
-        self.key_max = max(zip(self.qpe_freqs.values(), self.qpe_freqs.keys()))
+        self.bitstring = max(self.qpe_freqs.items(), key=lambda x: x[1])[0]
 
-        return self.energy_estimation(self.key_max[1])
+        return self.energy_estimation(self.bitstring)
 
     def get_resources(self):
         """Estimate the resources required by QPE, with the current unitary. This
@@ -212,44 +214,4 @@ class QPESolver:
              float: Energy of the given bitstring
         """
 
-        energy = 0.
-        for i, b in enumerate(bitstring):
-            if b == "1":
-                energy += 1/2**(i+1)
-
-        return energy
-
-        """Function used as a default optimizer for VQE when user does not
-        provide one. Can be used as an example for users who wish to provide
-        their custom optimizer.
-
-        Should set the attributes "optimal_var_params" and "optimal_energy" to
-        ensure the outcome of VQE is captured at the end of classical
-        optimization, and can be accessed in a standard way.
-
-        Args:
-            func (function handle): The function that performs energy
-                estimation. This function takes var_params as input and returns
-                a float.
-            var_params (list): The variational parameters (float64).
-
-        Returns:
-            float: The optimal energy found by the optimizer.
-            list of floats: Optimal parameters
-        """
-
-        from scipy.optimize import minimize
-
-        with HiddenPrints():
-            result = minimize(func, var_params, method="SLSQP",
-                              options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
-
-        if self.verbose:
-            print(f"VQESolver optimization results:")
-            print(f"\tOptimal VQE energy: {result.fun}")
-            print(f"\tOptimal VQE variational parameters: {result.x}")
-            print(f"\tNumber of Iterations : {result.nit}")
-            print(f"\tNumber of Function Evaluations : {result.nfev}")
-            print(f"\tNumber of Gradient Evaluations : {result.njev}")
-
-        return result.fun, result.x
+        return sum([0.5**(i+1) for i, b in enumerate(bitstring) if b == "1"])

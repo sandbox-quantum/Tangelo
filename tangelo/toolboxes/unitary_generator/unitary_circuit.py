@@ -32,8 +32,8 @@ class CircuitUnitary(Unitary):
                 "variational" only adds the control qubits to the gates marked as is_variationl
         """
         self.circuit = circuit
-        self.valid_step_methods = ["all", "variational"]
-        if control_method in self.valid_step_methods:
+        self.valid_control_methods = ["all", "variational"]
+        if control_method in self.valid_control_methods:
             self.n_steps_method = control_method
         else:
             raise ValueError(f"{self.__class__.__name__} only supports {self.valid_control_methods} to apply the control to the circuit.")
@@ -49,15 +49,16 @@ class CircuitUnitary(Unitary):
         """
         return self.state_qubits, self.ancilla_qubits
 
-    def build_circuit(self, n_steps: int, control: int = None, method: str = ""):
+    def build_circuit(self, n_steps: int, control: Union[int, List[int]] = None, method: str = ""):
         """Build and return the quantum circuit implementing the unitary evolution for n_steps.
 
         Args:
             n_steps(int): The number of unitary evolution steps
-            control
+            control (Union[int, List[int]]): The control qubit(s) for the unitary evolution.
+            method (str): "all" add controls to all gates. "variational" add controls to only gates marked is_variational
 
         Returns:
-            Circuit: The circuit that implements the unitary evolution for n_steps.
+            Circuit: The circuit that implements the unitary evolution for n_steps with control.
         """
         if not method:
             method = self.n_steps_method
@@ -65,29 +66,32 @@ class CircuitUnitary(Unitary):
         return self.add_controls(method, control)*n_steps
 
     def add_controls(self, method: str = "all", control: Union[int, List[int], None] = None):
-        """Adds control gates to the circuit"""
+        """Adds control gates to the circuit
+        Args:
+            method (str):  Default "all" add controls to all gates. "variational" add controls to only gates marked is_variational
+            control (Union[int, List[int]]): The qubit(s) to control the unitary circuit with."""
         new_circuit = self.circuit.copy()
 
         if control is None:
             return new_circuit
+
         if type(control) is list and len(control) > 0:
             clist = control
         elif isinstance(control, (int, np.integer)):
             clist = [control]
+
         if method == "all":
-            for gate in new_circuit:
-                if gate.name[0] == "C":
-                    gate.control += clist
-                else:
-                    gate.name = "C" + gate.name
-                    gate.control = clist
+            gates = new_circuit._gates
         elif method == "variational":
-            for gate in new_circuit._variational_gates:
-                if gate.name[0] == "C":
-                    gate.control += clist
-                else:
-                    gate.name = "C" + gate.name
-                    gate.control = clist
+            gates = new_circuit._variational_gates
         else:
             raise ValueError(f"{self.__class__.__name__} only supports {self.valid_control_methods} to apply the control to the circuit.")
+
+        for gate in gates:
+            if gate.name[0] == "C":
+                gate.control += clist
+            else:
+                gate.name = "C" + gate.name
+                gate.control = clist
+
         return new_circuit

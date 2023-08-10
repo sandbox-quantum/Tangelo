@@ -46,6 +46,6 @@ class Unitary(abc.ABC):
             n_steps(int): The number of unitary evolution steps with control
 
         Returns:
-            Circuit: The circuit that implements the unitary evolution for n_steps.
+            Circuit: The circuit that implements the unitary evolution for n_steps with control.
         """
         pass

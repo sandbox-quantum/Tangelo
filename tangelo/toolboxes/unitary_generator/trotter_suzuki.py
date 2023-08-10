@@ -18,15 +18,15 @@ from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
 
 
 class TrotterSuzukiUnitary(Unitary):
-    """Class that implements the trotter suzuki time evolution."""
+    """Class that implements the Trotter-Suzuki time evolution."""
 
     def __init__(self, qubit_hamiltonian: QubitOperator, time: float = 1., trotter_order: int = 1,
                  n_trotter_steps: int = 1, n_steps_method: str = "time"):
         """
         Args:
             qubit_hamiltonian (QubitOperator): The operator to time-evolve.
-            trotter_order (int): The order of the Trotter-Suzuki time-evolution.
             time (float): The total time evolution
+            trotter_order (int): The order of the Trotter-Suzuki time-evolution.
             n_trotter_steps (int): The number of Trotter steps to make for each time-evolution
             n_steps_method (str): Method to apply unitary multiple steps.
                 "time" to not change the circuit size, less accurate
@@ -58,10 +58,13 @@ class TrotterSuzukiUnitary(Unitary):
 
         Args:
             n_steps(int): The number of unitary evolution steps
-            control
+            control (Union[int, List[int]]): The qubit or qubits to control with.
+            method (str): The method used to apply the controlled operation for n_steps.
+                "time" to not change the circuit size, less accurate
+                "repeat" to repate the circuit n_steps
 
         Returns:
-            Circuit: The circuit that implements the unitary evolution for n_steps.
+            Circuit: The circuit that implements the unitary evolution for n_steps with control.
         """
         if not method:
             method = self.n_steps_method

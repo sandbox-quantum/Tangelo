@@ -54,8 +54,8 @@ class StateVector():
             set_n_qubits (bool): Set n_qubits in Circuit to qubits needed for the length of the coefficients array.
 
         Returns:
-            Circuit: The circuit that generates the statevector defined in coeffs
-            float: If return_phase=True, the global phase angle not captured by the Circuit
+            Circuit: The circuit that generates the statevector defined in coeffs, (optional)
+            float: If return_phase=True, the global phase angle not captured by the Circuit, (optional)
         """
         # call to generate the circuit that takes the desired vector to zero
         disentangling_circuit, global_phase = self.uncomputing_circuit(return_phase=True)
