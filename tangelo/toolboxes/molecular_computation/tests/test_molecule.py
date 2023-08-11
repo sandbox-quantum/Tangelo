@@ -22,6 +22,7 @@ from tangelo import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H2_sto3g, xyz_H2O
 from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
+from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import IntegralSolverPySCF
 
 # For openfermion.load_operator function.
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))
@@ -128,12 +129,12 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
     def test_ecp(self):
         """Verify that the number of electrons is reduced when ecp is called."""
 
-        molecule = SecondQuantizedMolecule(xyz="Yb", q=0, spin=0, basis="crenbl", ecp="crenbl")
+        molecule = SecondQuantizedMolecule(xyz="Yb", q=0, spin=0, solver=IntegralSolverPySCF(use_newton=True), basis="crenbl", ecp="crenbl")
         # "Yb" has 70 electrons but the ecp reduces this to 16
         assert(molecule.n_active_electrons == 16)
         assert(molecule.n_active_mos == 96)
 
-        molecule = SecondQuantizedMolecule(xyz="Cu", q=0, spin=1, basis="cc-pvdz", ecp="crenbl",
+        molecule = SecondQuantizedMolecule(xyz="Cu", q=0, spin=1, solver=IntegralSolverPySCF(use_newton=True), basis="cc-pvdz", ecp="crenbl",
                                            frozen_orbitals=list(range(8)))
         # "Cu" has 29 electrons but the ecp reduces this to 19. The active electrons are 19 - 8 * 2 = 3
         assert(molecule.n_active_electrons == 3)

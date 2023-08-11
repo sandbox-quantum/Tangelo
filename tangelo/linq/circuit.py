@@ -74,14 +74,15 @@ class Circuit:
         """Concatenate the list of instructions of two circuit objects into a
         single one.
         """
-        return Circuit(self._gates + other._gates, n_qubits=max(self.width, other.width))
+        n_qubits = max(self.width, other.width) if self._qubits_simulated or other._qubits_simulated else None
+        return Circuit(self._gates + other._gates, n_qubits=n_qubits)
 
     def __mul__(self, n_repeat):
         """Return a circuit consisting of n_repeat repetitions of the input circuit.
         """
         if not isinstance(n_repeat, (int, np.integer)) or n_repeat <= 0:
             raise ValueError("Multiplication (repetition) operator with Circuit class only works for integers > 0")
-        return Circuit(self._gates * n_repeat, n_qubits=self.width)
+        return Circuit(self._gates * n_repeat, n_qubits=self._qubits_simulated)
 
     def __rmul__(self, n_repeat):
         """Return a circuit consisting of n_repeat repetitions of the input circuit (circuit as right-hand side)
@@ -333,7 +334,7 @@ class Circuit:
             Circuit: the inverted circuit
         """
         gates = [gate.inverse() for gate in reversed(self._gates)]
-        return Circuit(gates, n_qubits=self.width)
+        return Circuit(gates, n_qubits=self._qubits_simulated)
 
     def serialize(self):
         if not isinstance(self.name, str):
