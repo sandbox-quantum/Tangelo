@@ -44,6 +44,7 @@ class Unitary(abc.ABC):
 
         Args:
             n_steps(int): The number of unitary evolution steps with control
+            control(Union[int, List[int]]: The control qubit(s)
 
         Returns:
             Circuit: The circuit that implements the unitary evolution for n_steps with control.

@@ -155,7 +155,7 @@ class QPESolver:
         # Quantum circuit simulation backend options
         self.backend = get_backend(**self.backend_options)
 
-        # Determine where QPE ancilla qubit indices
+        # Determine where to place QPE ancilla qubit indices
         self.n_state, self.n_ancilla = self.unitary.qubit_indices()
         qft_start = max(list(self.n_state)+list(self.n_ancilla)) + 1
         self.qpe_qubit_list = list(reversed(range(qft_start, qft_start+self.n_qpe_qubits)))

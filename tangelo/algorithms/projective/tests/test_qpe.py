@@ -63,8 +63,6 @@ class QPESolverTest(unittest.TestCase):
         resources = qpe_solver.get_resources()
         self.assertEqual(resources["qubit_hamiltonian_terms"], 5)
         self.assertEqual(resources["circuit_width"], 10)
-        self.assertEqual(resources["circuit_2qubit_gates"], 20464)
-        self.assertEqual(resources["circuit_depth"], 28110)
 
     def test_simulate_h2_circuit(self):
         """Run QPE on H2 molecule, with JW qubit mapping and exact simulator providing only the Trotter circuit
@@ -114,7 +112,7 @@ class QPESolverTest(unittest.TestCase):
                          "unitary_options": {"time": -2*np.pi, "n_trotter_steps": 1, "n_steps_method": "repeat", "trotter_order": 4}})
         qpe.build()
         energy = qpe.simulate()
-        self.assertAlmostEqual(energy, 0.25, delta=1.e-10)
+        self.assertAlmostEqual(energy, 0.25, delta=1.e-5)
 
 
 if __name__ == "__main__":

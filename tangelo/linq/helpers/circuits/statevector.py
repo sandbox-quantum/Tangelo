@@ -50,12 +50,12 @@ class StateVector():
         double cnots.
 
         Args:
-            return_phase (bool): Return the global phase that is not captured by the circuit
+            return_phase (bool): Return the global phase that is not captured by the circuit Default False
             set_n_qubits (bool): Set n_qubits in Circuit to qubits needed for the length of the coefficients array.
 
         Returns:
-            Circuit: The circuit that generates the statevector defined in coeffs, (optional)
-            float: If return_phase=True, the global phase angle not captured by the Circuit, (optional)
+            Circuit: The circuit that generates the statevector defined in coeffs
+            float: Optional, If return_phase=True, the global phase angle not captured by the Circuit
         """
         # call to generate the circuit that takes the desired vector to zero
         disentangling_circuit, global_phase = self.uncomputing_circuit(return_phase=True)
