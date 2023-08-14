@@ -47,7 +47,7 @@ def mol_to_pyscf(mol, basis="CRENBL", symmetry=False, ecp=None):
 class IntegralSolverPySCF(IntegralSolver):
     """Electronic Structure integration for pyscf"""
 
-    def __init__(self, chkfile=None):
+    def __init__(self, chkfile=None, use_newton=False):
         """Initialize the integral solver class for pyscf. A chkfile path can be
         provided.
 
@@ -62,6 +62,7 @@ class IntegralSolverPySCF(IntegralSolver):
 
         Args:
             chkfile (string): Path of the chkfile.
+            use_newton (bool): Use RHF.newton() for scf iterations
         """
 
         from pyscf import gto, lib, scf, symm, ao2mo
@@ -71,6 +72,7 @@ class IntegralSolverPySCF(IntegralSolver):
         self.symm = symm
         self.ao2mo = ao2mo
         self.chkfile = chkfile
+        self.newton = use_newton
 
     def set_physical_data(self, mol):
         """Set molecular data that is independant of basis set in mol
@@ -125,7 +127,10 @@ class IntegralSolverPySCF(IntegralSolver):
 
         molecule = mol_to_pyscf(sqmol, sqmol.basis, sqmol.symmetry, sqmol.ecp)
 
-        sqmol.mean_field = self.scf.RHF(molecule) if not sqmol.uhf else self.scf.UHF(molecule)
+        if self.newton:
+            sqmol.mean_field = self.scf.RHF(molecule).newton() if not sqmol.uhf else self.scf.UHF(molecule)
+        else:
+            sqmol.mean_field = self.scf.RHF(molecule) if not sqmol.uhf else self.scf.UHF(molecule)
         sqmol.mean_field.verbose = 0
 
         chkfile_found = False
