@@ -70,10 +70,10 @@ class MIFNOHelper():
         Args:
             mifno_log_file (string): Path to a json file containing the MIFNO
                 results from QEMIST Cloud.
-            mifno_full_result (dict): MI results (QEMIST Cloud output).
+            mifno_full_result (dict): MIFNO results (QEMIST Cloud output).
         """
 
-        # Raise errorif input is not as expected. Only a single input must be
+        # Raise error if input is not as expected. Only a single input must be
         # provided to avoid conflicts.
         if not (bool(mifno_log_file) ^ bool(mifno_full_result)):
             raise ValueError(f"A file path to the log file OR the full result \
