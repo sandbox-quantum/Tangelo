@@ -27,9 +27,8 @@ jobs:
     - name: Install psi4 ${{ matrix.python-version }}
       shell: bash -el {0}
       run: |
-        conda install psi4 python=${{ matrix.python-version }} -c psi4
+        conda install psi4 python=${{ matrix.python-version }} -c conda-forge/label/libint_dev -c conda-forge
         conda init
-        python -c "import sys; print(sys.version)"
       if: always()
 
     - name: Install pip, wheel, pytest, jupyter
