@@ -24,16 +24,13 @@ jobs:
     - run: conda list
     - run: conda config --show
 
-    - name: Display Python version
-      run: python -c "import sys; print(sys.version)"
-
     - name: Install psi4 ${{ matrix.python-version }}
       shell: bash -el {0}
       run: |
         conda install psi4 -c psi4
         conda init
+        python -c "import sys; print(sys.version)"
       if: always()
-      
 
     - name: Install pip, wheel, pytest, jupyter
       run: |
