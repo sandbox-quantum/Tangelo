@@ -7,13 +7,14 @@ jobs:
 
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -67,7 +68,7 @@ jobs:
     - name: tangelo no_pyscf tests
       run: |
         cd tangelo/toolboxes/molecular_computation/tests
-        pytest --doctest-modules --junitxml=junit/nopyscf-test-results.xml test_nopyscf.py
+        pytest --doctest-modules --junitxml=junit/nopyscf-test-results_${{ matrix.python-version }}.xml test_nopyscf.py
       if: always()
 
     - name: Install pyscf
@@ -79,25 +80,25 @@ jobs:
     - name: tangelo tests
       run: |
         cd tangelo
-        pytest --doctest-modules --junitxml=junit/tangelo-test-results.xml --cov=. --cov-report=xml --cov-report=html
+        pytest --doctest-modules --junitxml=junit/tangelo-test-results_${{ matrix.python-version }}.xml --cov=. --cov-report=xml --cov-report=html
       if: always()
 
     - name: Upload nopyscf test results
       uses: actions/upload-artifact@v3
       with:
         name: tangelo-no-pyscf-test-results
-        path: tangelo/toolboxes/molecular_computation/tests/junit/nopyscf-test-results.xml
+        path: tangelo/toolboxes/molecular_computation/tests/junit/nopyscf-test-results_${{ matrix.python-version }}.xml
 
     - name: Upload pytest test results
       uses: actions/upload-artifact@v3
       with:
         name: tangelo-test-results
-        path: tangelo/junit/tangelo-test-results.xml
+        path: tangelo/junit/tangelo-test-results_${{ matrix.python-version }}.xml
 
     - name: Upload pytest html results
       uses: actions/upload-artifact@v3
       with:
-        name: tangelo-tests-coverage
+        name: tangelo-tests-coverage_${{ matrix.python-version }}
         path: tangelo/htmlcov
       if: always()
 

@@ -7,8 +7,9 @@ jobs:
 
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     
     defaults:
       run:
@@ -23,10 +24,10 @@ jobs:
     - run: conda list
     - run: conda config --show
 
-    - name: Install psi4
+    - name: Install psi4 ${{ matrix.python-version }}
       shell: bash -el {0}
       run: |
-        conda install psi4 python=3.8 -c psi4
+        conda install psi4 python=${{ matrix.python-version }} -c conda-forge/label/libint_dev -c conda-forge
         conda init
       if: always()
 
@@ -50,26 +51,26 @@ jobs:
     - name: tangelo psi4 integral tests
       run: |
         cd tangelo/toolboxes/molecular_computation/tests
-        pytest --doctest-modules --junitxml=junit/psi4-test-results.xml test_psi4.py
+        pytest --doctest-modules --junitxml=junit/psi4-test-results_${{ matrix.python-version }}.xml test_psi4.py
       if: always()
 
     - name: tangelo psi4 classical tests
       run: |
         cd tangelo/algorithms/classical/tests
-        pytest --doctest-modules --junitxml=junit/psi4-classical-test-results.xml
+        pytest --doctest-modules --junitxml=junit/psi4-classical-test-results_${{ matrix.python-version }}.xml
       if: always()
 
     - name: Upload psi4 test results
       uses: actions/upload-artifact@v3
       with:
         name: tangelo-psi4-test-results
-        path: tangelo/toolboxes/molecular_computation/tests/junit/psi4-test-results.xml
+        path: tangelo/toolboxes/molecular_computation/tests/junit/psi4-test-results_${{ matrix.python-version }}.xml
 
     - name: Upload classical psi4 test results
       uses: actions/upload-artifact@v3
       with:
         name: tangelo-classical-psi4-test-results
-        path: tangelo/algorithms/classical/tests/junit/psi4-classical-test-results.xml
+        path: tangelo/algorithms/classical/tests/junit/psi4-classical-test-results_${{ matrix.python-version }}.xml
 
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v3
