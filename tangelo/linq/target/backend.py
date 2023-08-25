@@ -110,7 +110,7 @@ def get_variance_from_frequencies_oneterm(term, frequencies):
     return variance_term
 
 
-def collapse_statevector_to_desired_measurement(statevector, qubit, result, order="lsq_first"):
+def collapse_statevector_to_desired_measurement(statevector, qubit, result, order="lsq_first", ignore_zero_prob=False):
     """Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.
 
     Args:
@@ -118,6 +118,7 @@ def collapse_statevector_to_desired_measurement(statevector, qubit, result, orde
         qubit (int): Index of target qubit to collapse in the desired classical state.
         result (int): 0 or 1.
         order (string): The qubit ordering of the statevector, lsq_first or msq_first.
+        ignore_zero_prob (bool): Default False, If True, return zero vector if probability is below 1.e-14
 
     Returns:
         array: The collapsed and renormalized statevector.
@@ -141,12 +142,14 @@ def collapse_statevector_to_desired_measurement(statevector, qubit, result, orde
     before_index_length = 2**qubit if order == "lsq_first" else 2**(n_qubits-1-qubit)
     after_index_length = 2**(n_qubits-1-qubit) if order == "lsq_first" else 2**qubit
 
-    sv_selected = np.reshape(statevector, (before_index_length, 2, after_index_length))
+    sv_selected = np.reshape(statevector.copy(), (before_index_length, 2, after_index_length))
     sv_selected[:, (result + 1) % 2, :] = 0
     sv_selected = sv_selected.flatten()
 
     sqrt_probability = np.linalg.norm(sv_selected)
     if sqrt_probability < 1.e-14:
+        if ignore_zero_prob:
+            return sv_selected, sqrt_probability**2
         raise ValueError(f"Probability of desired measurement={0} for qubit={qubit} is zero.")
 
     sv_selected = sv_selected/sqrt_probability  # casting issue if inplace for probability 1
@@ -252,9 +255,10 @@ class Backend(abc.ABC):
                 and requested by the user (if not, set to None).
         """
         n_meas = source_circuit.counts.get("MEASURE", 0)
+        n_cmeas = source_circuit.counts.get("CMEASURE", 0)
 
         if desired_meas_result is not None:
-            if not isinstance(desired_meas_result, str) or len(desired_meas_result) != n_meas:
+            if not isinstance(desired_meas_result, str) or (len(desired_meas_result) != n_meas and n_cmeas == 0):
                 raise ValueError("desired_meas result is not a string with the same length as the number of measurements "
                                  "in the circuit.")
             save_mid_circuit_meas = True
@@ -264,7 +268,7 @@ class Backend(abc.ABC):
                                  "is only valid for self.n_shots=1. The result is a mixed state otherwise, "
                                  f"but you requested n_shots={self.n_shots}.")
         elif source_circuit.is_mixed_state and not self.n_shots:
-            raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state. "
+            raise ValueError("Circuit contains MEASURE or CMEASURE instruction, and is assumed to prepare a mixed state. "
                              "Please set the n_shots attribute to an appropriate value.")
 
         if source_circuit.width == 0:
@@ -691,20 +695,21 @@ class Backend(abc.ABC):
 
         return state_binstr if use_ordering and (self.statevector_order == "lsq_first") else state_binstr[::-1]
 
-    def collapse_statevector_to_desired_measurement(self, statevector, qubit, result):
+    def collapse_statevector_to_desired_measurement(self, statevector, qubit, result, ignore_zero_prob=False):
         """Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.
 
         Args:
             statevector (array): The statevector for which the collapse to the desired qubit value is performed.
             qubit (int): The index of the qubit to collapse to the classical result.
             result (string): "0" or "1".
+            ignore_zero_prob (bool): Default False, If True, a vector of zeros could be returned if probability is zero
 
         Returns:
             array: the collapsed and renormalized statevector
             float: the probability this occured
         """
 
-        return collapse_statevector_to_desired_measurement(statevector, qubit, result, self.backend_info()['statevector_order'])
+        return collapse_statevector_to_desired_measurement(statevector, qubit, result, self.backend_info()['statevector_order'], ignore_zero_prob)
 
     @staticmethod
     @abc.abstractmethod

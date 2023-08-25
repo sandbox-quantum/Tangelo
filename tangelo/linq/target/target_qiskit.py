@@ -96,7 +96,7 @@ class QiskitSimulator(Backend):
         if desired_meas_result is not None and not self._noise_model:
             # Split circuit into chunks between mid-circuit measurements. Simulate a chunk, collapse the statevector according
             # to the desired measurement and simulate the next chunk using this new statevector as input
-            unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
+            unitary_circuits, qubits, _ = get_unitary_circuit_pieces(source_circuit)
         else:
             translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
 

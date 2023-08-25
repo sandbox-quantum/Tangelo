@@ -19,6 +19,8 @@ characteristics (width, size ...).
 """
 
 import copy
+import inspect
+import abc
 from typing import List, Tuple, Iterator
 
 import numpy as np
@@ -45,7 +47,7 @@ class Circuit:
     the example folder.
     """
 
-    def __init__(self, gates: List[Gate] = None, n_qubits=None, name="no_name"):
+    def __init__(self, gates: List[Gate] = None, n_qubits=None, name="no_name", cmeasure_control=None):
         """Initialize gate list and internal variables depending on user input."""
 
         self.name = name
@@ -56,6 +58,7 @@ class Circuit:
         self._n_qubit_gate_counts = dict()
         self._variational_gates = []
         self._probabilities = dict()
+        self._cmeasure_control = cmeasure_control
 
         if gates:
             _ = [self.add_gate(g) for g in gates]
@@ -143,9 +146,9 @@ class Circuit:
     @property
     def is_mixed_state(self):
         """Assume circuit leads to a mixed state due to mid-circuit measurement
-        if any MEASURE gate was explicitly added by the user.
+        if any MEASURE or CMEASURE gate was explicitly added by the user.
         """
-        return "MEASURE" in self.counts
+        return "MEASURE" in self.counts or "CMEASURE" in self.counts
 
     @property
     def success_probabilities(self):
@@ -396,6 +399,13 @@ class Circuit:
                                remove_qubits=remove_qubits)
         self.__dict__ = opt_circuit.__dict__
 
+    def controlled_measurement_op(self, measure):
+        """Call the object self._cmeasure_control and return the next circuit to apply."""
+        if inspect.isfunction(self._cmeasure_control):
+            return Circuit(self._cmeasure_control(measure), n_qubits=self.width)
+        elif isinstance(self._cmeasure_control, ClassicalControl):
+            return Circuit(self._cmeasure_control.return_circuit(measure), n_qubits=self.width)
+
 
 def stack(*circuits):
     """ Take list of circuits as input, and stack them (e.g concatenate them along the
@@ -602,15 +612,44 @@ def get_unitary_circuit_pieces(circuit: Circuit) -> Tuple[List[Circuit], List[in
     """
 
     n_qubits = circuit.width
-    circuits, gates, measure_qubits = list(), list(), list()
+    circuits, gates, measure_qubits, cmeasure_flags = list(), list(), list(), list()
 
     for g in circuit:
-        if g.name != "MEASURE":
+        if g.name not in ("MEASURE", "CMEASURE"):
             gates += [Gate(g.name, g.target, g.control, g.parameter, g.is_variational)]
         else:
             circuits += [Circuit(copy.deepcopy(gates), n_qubits=n_qubits)]
             measure_qubits += [g.target[0]]
+            cmeasure_flags += [None] if g.name == "MEASURE" else [g.parameter]
             gates = list()
     circuits += [Circuit(copy.deepcopy(gates), n_qubits=n_qubits)]
 
-    return circuits, measure_qubits
+    return circuits, measure_qubits, cmeasure_flags
+
+
+class ClassicalControl(abc.ABC):
+    def __init__(self):
+        """instantiate classical control operations"""
+
+    @abc.abstractmethod
+    def return_circuit(self, measurement) -> List[Gate]:
+        """Return a circuit based on the measurement outcome.
+
+        Args:
+            measurement (str): "1" or "0"
+            qubit (int): The qubit index
+
+        Returns:
+            Circuit: The next circuit to apply
+        """
+
+    @abc.abstractmethod
+    def finalize(self, frequencies):
+        """Called from simulator after all gates have been called.
+
+        Can be used to reinitialize variables for the next run
+        and store results
+
+        Args:
+            frequencies (dict): The measured frequencies for the final state measurement.
+        """

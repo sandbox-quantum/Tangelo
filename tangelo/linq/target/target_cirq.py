@@ -13,10 +13,11 @@
 # limitations under the License.
 
 from collections import Counter
+from copy import copy
 
 import numpy as np
 
-from tangelo.linq import Circuit, get_unitary_circuit_pieces
+from tangelo.linq import Circuit, Gate, get_unitary_circuit_pieces
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.translator import translate_operator
@@ -70,6 +71,7 @@ class CirqSimulator(Backend):
                 and requested by the user (if not, set to None).
         """
         n_meas = source_circuit.counts.get("MEASURE", 0)
+        n_cmeas = source_circuit.counts.get("CMEASURE", 0)
         # Only DensityMatrixSimulator handles noise well, can use Simulator, but it is slower
         if self._noise_model or (source_circuit.is_mixed_state and not save_mid_circuit_meas):
             cirq_simulator = self.cirq.DensityMatrixSimulator(dtype=np.complex128)
@@ -79,8 +81,76 @@ class CirqSimulator(Backend):
         # If requested, set initial state
         cirq_initial_statevector = np.asarray(initial_statevector, dtype=complex) if initial_statevector is not None else 0
 
+        if n_cmeas > 0:
+            dmeas = None if not desired_meas_result else list(desired_meas_result)
+            applied_gates = []
+            if initial_statevector is not None:
+                sv = cirq_initial_statevector
+            else:
+                sv = np.zeros(2**source_circuit.width)
+                sv[0] = 1
+            success_probability = 1.
+            measurements = ""
+            unitary_circuits, qubits, cmeasure_flags = get_unitary_circuit_pieces(source_circuit)
+            precirc = [Circuit()]*len(unitary_circuits)
+            while len(unitary_circuits) > 1:
+                circ = precirc[0]+unitary_circuits[0]
+                applied_gates += circ._gates + [Gate("MEASURE", qubits[0])]
+                if circ.size > 0:
+                    translated_circuit = translate_c(circ, "cirq", output_options={"save_measurements": True})
+                    job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
+                    if desired_meas_result:
+                        measure = dmeas[0]
+                        measurements += measure
+                        sv, cprob = self.collapse_statevector_to_desired_measurement(job_sim.final_state_vector, qubits[0], int(dmeas[0]))
+                        del dmeas[0]
+                    else:
+                        sv, cprob = self.collapse_statevector_to_desired_measurement(job_sim.final_state_vector, qubits[0], 0, ignore_zero_prob=True)
+                        if np.random.random(1) > cprob:
+                            sv, cprob = self.collapse_statevector_to_desired_measurement(job_sim.final_state_vector, qubits[0], 1)
+                            measure = "1"
+                        else:
+                            measure = "0"
+                        measurements += measure
+                    # If a CMEASURE has occured
+                    if cmeasure_flags[0] is not None:
+                        if isinstance(cmeasure_flags[0], str):
+                            newcirc = source_circuit.controlled_measurement_op(measure)
+                        elif isinstance(cmeasure_flags[0], dict):
+                            newcirc = Circuit(cmeasure_flags[0][measure], n_qubits=source_circuit.width)
+                        new_unitary_circuits, new_qubits, new_cmeasure_flags = get_unitary_circuit_pieces(newcirc)
+                    # No classical control
+                    else:
+                        new_unitary_circuits = [Circuit(n_qubits=source_circuit.width)]
+                        new_qubits = []
+                        new_cmeasure_flags = []
+                    del unitary_circuits[0]
+                    del qubits[0]
+                    del cmeasure_flags[0]
+                    del precirc[0]
+                    precirc[0] = new_unitary_circuits[-1] + precirc[0]
+
+                    if len(new_unitary_circuits) > 1:
+                        unitary_circuits = new_unitary_circuits[:-1] + unitary_circuits
+                        qubits = new_qubits + qubits
+                        cmeasure_flags = new_cmeasure_flags + cmeasure_flags
+                        precirc = [Circuit()]*len(qubits) + precirc
+                else:
+                    sv, cprob = self.collapse_statevector_to_desired_measurement(sv, qubits[0], int(desired_meas_result[0]))
+                success_probability *= cprob
+            source_circuit._probabilities[measurements] = success_probability
+            applied_gates += precirc[0]._gates + unitary_circuits[-1]._gates
+            source_circuit._applied_gates = applied_gates
+            translated_circuit = translate_c(precirc[0]+unitary_circuits[-1], "cirq", output_options={"save_measurements": True})
+            job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
+            self._current_state = job_sim.final_state_vector
+            frequencies = self._statevector_to_frequencies(self._current_state)
+            self.all_frequencies = dict()
+            for meas, val in frequencies.items():
+                self.all_frequencies[measurements + meas] = val
+
         # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
-        if (self._noise_model or source_circuit.is_mixed_state) and not save_mid_circuit_meas:
+        elif (self._noise_model or source_circuit.is_mixed_state) and not save_mid_circuit_meas:
             translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model,
                                                                                      "save_measurements": save_mid_circuit_meas})
             # cirq.dephase_measurements changes measurement gates to Krauss operators so simulators
@@ -94,7 +164,7 @@ class CirqSimulator(Backend):
             frequencies = {k: v / self.n_shots for k, v in Counter(samples).items()}
 
         # Run all shots at once and post-process to return measured frequencies on qubits only
-        elif save_mid_circuit_meas and not return_statevector and self.n_shots is not None:
+        elif save_mid_circuit_meas and not return_statevector and self.n_shots is not None and n_cmeas == 0:
             translated_circuit = translate_c(source_circuit, "cirq", output_options={"noise_model": self._noise_model,
                                                                                      "save_measurements": True})
             qubit_list = self.cirq.LineQubit.range(source_circuit.width)
@@ -122,7 +192,7 @@ class CirqSimulator(Backend):
                     sv = np.zeros(2**source_circuit.width)
                     sv[0] = 1
 
-                unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
+                unitary_circuits, qubits, _ = get_unitary_circuit_pieces(source_circuit)
 
                 for i, circ in enumerate(unitary_circuits[:-1]):
                     if circ.size > 0:

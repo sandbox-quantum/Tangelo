@@ -58,6 +58,7 @@ def get_cirq_gates():
     GATE_CIRQ["SWAP"] = cirq.SWAP
     GATE_CIRQ["CSWAP"] = cirq.SWAP
     GATE_CIRQ["MEASURE"] = cirq.measure
+    GATE_CIRQ["CMEASURE"] = cirq.measure
     return GATE_CIRQ
 
 

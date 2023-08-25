@@ -100,7 +100,7 @@ class QulacsSimulator(Backend):
         elif desired_meas_result is not None:
             if not self._noise_model:
                 success_probability = 1
-                unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
+                unitary_circuits, qubits, _ = get_unitary_circuit_pieces(source_circuit)
 
                 for i, circ in enumerate(unitary_circuits[:-1]):
                     if circ.size > 0:
