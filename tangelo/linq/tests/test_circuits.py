@@ -367,11 +367,12 @@ class TestCircuits(unittest.TestCase):
                     Circuit([Gate("H", 0)], n_qubits=2),
                     Circuit(n_qubits=2)]
         measure_qs = [0, 1, 0, 1, 1]
-        split_circuits, qubits_to_measure = get_unitary_circuit_pieces(test_circuit)
+        split_circuits, qubits_to_measure, meas_flags = get_unitary_circuit_pieces(test_circuit)
 
         for i, circ in enumerate(circuits[:-1]):
             self.assertEqual(circ, split_circuits[i])
             self.assertEqual(measure_qs[i], qubits_to_measure[i])
+            self.assertEqual(meas_flags[i], None)
         self.assertEqual(circuits[-1], split_circuits[-1])
 
 
