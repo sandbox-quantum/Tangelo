@@ -95,7 +95,6 @@ class IntegralSolverPySCF(IntegralSolver):
         for sym, xyz in pymol._atom:
             mol.xyz += [tuple([sym, tuple([x*self.lib.parameters.BOHR for x in xyz])])]
 
-        mol.n_atoms = pymol.natm
         mol.n_electrons = pymol.nelectron
 
     def compute_mean_field(self, sqmol):

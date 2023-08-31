@@ -19,6 +19,7 @@ functionalities.
 import copy
 from dataclasses import dataclass, field
 from itertools import product
+import os
 
 import numpy as np
 import openfermion
@@ -30,6 +31,7 @@ from openfermion.ops.representations.interaction_operator import get_active_spac
 from tangelo.helpers.utils import is_package_installed
 from tangelo.toolboxes.molecular_computation import IntegralSolver, IntegralSolverPsi4, IntegralSolverEmpty
 from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import mol_to_pyscf, IntegralSolverPySCF
+from tangelo.toolboxes.molecular_computation.integral_solver_autocas import IntegralSolverAutoCAS
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
@@ -96,6 +98,8 @@ class Molecule:
         default_solver = IntegralSolverPySCF
     elif is_package_installed("psi4"):
         default_solver = IntegralSolverPsi4
+    elif is_package_installed("autocas"):
+        default_solver = IntegralSolverAutoCAS
     else:
         default_solver = IntegralSolverEmpty
 
@@ -106,8 +110,18 @@ class Molecule:
     n_electrons: int = field(init=False)
 
     def __post_init__(self):
-        if isinstance(self.solver, IntegralSolverEmpty):
+        # Change the xyz coordinates here.
+        if isinstance(self.xyz, str):
+            if os.path.splitext(self.xyz)[1] == ".xyz":
+                # Read the file (multiline string).
+                raise RuntimeError
+            self.xyz = atom_string_to_list(self.xyz)
+
+        self.n_atoms = len(self.xyz)
+
+        if isinstance(self.solver, IntegralSolverEmpty): # TODO: change this error message.
             raise ValueError("PySCF or Psi4 must be installed or a custom solver (IntegralSolver) instance must be provided.")
+
         self.solver.set_physical_data(self)
 
     @property

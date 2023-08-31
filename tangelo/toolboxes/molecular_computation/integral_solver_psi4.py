@@ -54,7 +54,7 @@ class IntegralSolverPsi4(IntegralSolver):
             self.mol_nosym = self.backend.geometry(input_string)
         else:
             self.mol = self.backend.geometry(mol.xyz)
-            mol.n_atoms = self.mol.natom()
+
             mol.xyz = list()
             for i in range(mol.n_atoms):
                 mol.xyz += [(self.mol.symbol(i), tuple(self.mol.xyz(i)[p]*0.52917721067 for p in range(3)))]
