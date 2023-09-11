@@ -215,8 +215,13 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
 
         self.backend.set_options({'basis': self.basis, 'frozen_docc': [self.n_frozen_occ], 'frozen_uocc': [self.n_frozen_vir],
                                   'qc_module': 'ccenergy', 'reference': self.ref})
-        energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
-                                                 basis=self.basis, return_wfn=True, ref_wfn=wfn, external_potentials=self.molecule.solver.external_potentials)
+        if hasattr(self.molecule, "charges") and self.backend.__version__ >= "1.6":
+            energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
+                                                     basis=self.basis, return_wfn=True, ref_wfn=wfn,
+                                                     external_potentials=self.molecule.solver.external_potentials)
+        else:
+            energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
+                                                     basis=self.basis, return_wfn=True, ref_wfn=wfn)
         return energy + self.extra_energy
 
     def get_rdm(self):
