@@ -391,7 +391,7 @@ class TestSimulateStatevector(unittest.TestCase):
                 print(f"H2 get exp value with {b:10s} with n_shots={n_shots} returned {energy:.7f} \t Elapsed: {tstop - tstart:.3f} s.")
 
                 try:
-                    self.assertNotAlmostEqual(energy, expected, delta=1.e-7)
+                    self.assertNotAlmostEqual(energy, expected, delta=1.e-6)
                     self.assertAlmostEqual(energy, expected, delta=10/np.sqrt(n_shots))
                 except AssertionError:
                     test_fail = True
