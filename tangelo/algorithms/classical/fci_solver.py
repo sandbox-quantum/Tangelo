@@ -215,7 +215,13 @@ class FCISolverPsi4(ElectronicStructureSolver):
                 wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
         if hasattr(self, "chrgfield"):
-            self.backend.core.set_global_option_python('EXTERN', self.chrgfield.extern)
+            if self.backend.__version__ < "1.6":
+                self.backend.core.set_global_option_python('EXTERN', self.chrgfield.extern)
+            else:
+                energy, self.ciwfn = self.backend.energy('fci', molecule=self.molecule.solver.mol,
+                                                         basis=self.basis, return_wfn=True,
+                                                         ref_wfn=wfn, external_potentials=self.molecule.solver.external_potentials)
+                return energy + self.extra_energy
 
         energy, self.ciwfn = self.backend.energy('fci', molecule=self.molecule.solver.mol,
                                                  basis=self.basis, return_wfn=True,

@@ -340,22 +340,23 @@ class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
             self.chrgfield = self.backend.QMMM()
             self.bohr = False
         else:
-            self.chrgfield = self.backend.QMMMbohr()
+            self.chrgfield = True
+            self.external_potentials = []
             self.bohr = True
         self.ext_pot = self.backend.core.ExternalPotential()
         for i, chrg in enumerate(self.charges):
             if self.bohr:
-                self.chrgfield.addChargeAngstrom(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
+                self.external_potentials.append([chrg, np.array([self.coords[i][0], self.coords[i][1], self.coords[i][2]])/0.52917720859])
             else:
                 self.chrgfield.extern.addCharge(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
 
-            self.ext_pot.addCharge(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
-        if self.bohr:
-            self.chrgfield.populateExtern()
-        self.backend.core.set_global_option_python('EXTERN', self.chrgfield.extern)
+            self.ext_pot.addCharge(chrg, self.coords[i][0]/0.52917720859, self.coords[i][1]/0.52917720859, self.coords[i][2]/0.52917720859)
+
+        if not self.bohr:
+            self.backend.core.set_global_option_python('EXTERN', self.chrgfield.extern)
 
         sqmol.mf_energy, self.sym_wfn = self.backend.energy('scf', molecule=self.mol, basis=self.backend.core.get_global_option('basis'),
-                                                            return_wfn=True)
+                                                            return_wfn=True, external_potentials=self.external_potentials)
         self.wfn = self.sym_wfn.c1_deep_copy(self.sym_wfn.basisset())
         self.backend.core.clean_options()
 
@@ -387,7 +388,6 @@ class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
         sqmol.n_mos = nbf
         sqmol.n_sos = nbf*2
 
-        self.ext = self.backend.core.ExternalPotential
         self.mo_coeff = np.asarray(self.wfn.Ca()) if not sqmol.uhf else [np.asarray(self.wfn.Ca()), np.asarray(self.wfn.Cb())]
 
         self.ob = np.asarray(self.mints.ao_potential()) + np.asarray(self.mints.ao_kinetic())
