@@ -336,7 +336,7 @@ class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
         else:
             self.backend.set_options({'reference': 'rhf'})
 
-        if hasattr(self.backend, "QMMM"):
+        if self.backend.__version__ < '1.6':
             self.chrgfield = self.backend.QMMM()
             self.bohr = False
         else:

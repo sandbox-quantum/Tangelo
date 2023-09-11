@@ -161,13 +161,10 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                                  f"with a UHF reference in {self.__class__.__name__}")
 
         # Frozen orbitals must be declared before calling compute_mean_field to be saved in ref_wfn for Psi4 ccsd.
+        intsolve = IntegralSolverPsi4() if not hasattr(molecule.solver, "charges") else IntegralSolverPsi4QMMM(molecule.solver.coords, molecule.solver.charges)
         self.backend.set_options({'basis': molecule.basis, 'frozen_docc': [self.n_frozen_occ], 'frozen_uocc': [self.n_frozen_vir],
                                   'reference': self.ref})
-        if hasattr(molecule.solver, "charges"):
-            self.chrgfield = molecule.solver.chrgfield
-            intsolve = IntegralSolverPsi4QMMM(molecule.solver.coords, molecule.solver.charges)
-        else:
-            intsolve = IntegralSolverPsi4()
+
         self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
                                                 solver=intsolve,
                                                 basis=molecule.basis,
@@ -175,11 +172,9 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                                                 symmetry=False,
                                                 uhf=molecule.uhf,
                                                 frozen_orbitals=molecule.frozen_orbitals)
+
         self.init_mo_coeff = molecule.mo_coeff
-        if hasattr(molecule.solver, "charges"):
-            self.extra_energy = self.molecule.solver.ext_pot.computeNuclearEnergy(self.molecule.solver.mol)
-        else:
-            self.extra_energy = 0.
+        self.extra_energy = 0. if not hasattr(molecule.solver, "charges") else self.molecule.solver.ext_pot.computeNuclearEnergy(self.molecule.solver.mol)
         self.basis = molecule.basis
 
     def simulate(self):
