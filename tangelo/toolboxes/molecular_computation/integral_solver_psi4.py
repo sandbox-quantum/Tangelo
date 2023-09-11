@@ -345,11 +345,13 @@ class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
         self.ext_pot = self.backend.core.ExternalPotential()
         for i, chrg in enumerate(self.charges):
             if self.bohr:
-                self.chrgfield.extern.addChargeAngstrom(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
+                self.chrgfield.addChargeAngstrom(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
             else:
                 self.chrgfield.extern.addCharge(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
 
             self.ext_pot.addCharge(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
+        if self.bohr:
+            self.chrgfield.populateExtern()
         self.backend.core.set_global_option_python('EXTERN', self.chrgfield.extern)
 
         sqmol.mf_energy, self.sym_wfn = self.backend.energy('scf', molecule=self.mol, basis=self.backend.core.get_global_option('basis'),
