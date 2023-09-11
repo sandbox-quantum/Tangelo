@@ -348,7 +348,7 @@ class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
                 self.chrgfield.extern.addChargeAngstrom(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
             else:
                 self.chrgfield.extern.addCharge(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
-            
+
             self.ext_pot.addCharge(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
         self.backend.core.set_global_option_python('EXTERN', self.chrgfield.extern)
 
