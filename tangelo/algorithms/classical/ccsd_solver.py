@@ -21,7 +21,7 @@ import numpy as np
 from sympy.combinatorics.permutations import Permutation
 
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
-from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF
+from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF, IntegralSolverPsi4QMMM
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
 from tangelo.helpers.utils import installed_chem_backends, is_package_installed
 
@@ -161,9 +161,13 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                                  f"with a UHF reference in {self.__class__.__name__}")
 
         # Frozen orbitals must be declared before calling compute_mean_field to be saved in ref_wfn for Psi4 ccsd.
-        intsolve = IntegralSolverPsi4()
         self.backend.set_options({'basis': molecule.basis, 'frozen_docc': [self.n_frozen_occ], 'frozen_uocc': [self.n_frozen_vir],
                                   'reference': self.ref})
+        if hasattr(molecule.solver, "charges"):
+            self.chrgfield = molecule.solver.chrgfield
+            intsolve = IntegralSolverPsi4QMMM(molecule.solver.coords, molecule.solver.charges)
+        else:
+            intsolve = IntegralSolverPsi4()
         self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
                                                 solver=intsolve,
                                                 basis=molecule.basis,
@@ -172,6 +176,10 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                                                 uhf=molecule.uhf,
                                                 frozen_orbitals=molecule.frozen_orbitals)
         self.init_mo_coeff = molecule.mo_coeff
+        if hasattr(molecule.solver, "charges"):
+            self.extra_energy = self.molecule.solver.ext_pot.computeNuclearEnergy(self.molecule.solver.mol)
+        else:
+            self.extra_energy = 0.
         self.basis = molecule.basis
 
     def simulate(self):
@@ -214,7 +222,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                                   'qc_module': 'ccenergy', 'reference': self.ref})
         energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
                                                  basis=self.basis, return_wfn=True, ref_wfn=wfn)
-        return energy
+        return energy + self.extra_energy
 
     def get_rdm(self):
         """Compute the Full CI 1- and 2-particle reduced density matrices.

@@ -28,8 +28,8 @@ from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.ops.representations.interaction_operator import get_active_space_integrals as of_get_active_space_integrals
 
 from tangelo.helpers.utils import is_package_installed
-from tangelo.toolboxes.molecular_computation import IntegralSolver, IntegralSolverPsi4, IntegralSolverEmpty
-from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import mol_to_pyscf, IntegralSolverPySCF
+from tangelo.toolboxes.molecular_computation import IntegralSolver, IntegralSolverPsi4, IntegralSolverPsi4QMMM, IntegralSolverEmpty
+from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import mol_to_pyscf, IntegralSolverPySCF, IntegralSolverPySCFQMMM
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
@@ -69,6 +69,15 @@ def molecule_to_secondquantizedmolecule(mol, basis_set="sto-3g", frozen_orbitals
     return converted_mol
 
 
+def get_default_integral_solver(qmmm=False):
+    if is_package_installed("pyscf"):
+        return IntegralSolverPySCFQMMM if qmmm else IntegralSolverPySCF
+    elif is_package_installed("psi4"):
+        return IntegralSolverPsi4QMMM if qmmm else IntegralSolverPsi4
+    else:
+        return IntegralSolverEmpty
+
+
 @dataclass
 class Molecule:
     """Custom datastructure to store information about a Molecule. This contains
@@ -92,14 +101,7 @@ class Molecule:
     xyz: list or str
     q: int = 0
     spin: int = 0
-    if is_package_installed("pyscf"):
-        default_solver = IntegralSolverPySCF
-    elif is_package_installed("psi4"):
-        default_solver = IntegralSolverPsi4
-    else:
-        default_solver = IntegralSolverEmpty
-
-    solver: IntegralSolver = field(default_factory=default_solver)
+    solver: IntegralSolver = field(default_factory=get_default_integral_solver())
 
     # Defined in __post_init__.
     n_atoms: int = field(init=False)

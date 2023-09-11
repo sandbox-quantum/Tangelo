@@ -19,6 +19,7 @@ import numpy as np
 from tangelo import SecondQuantizedMolecule
 from tangelo.helpers.utils import installed_chem_backends
 from tangelo.problem_decomposition.oniom.oniom_problem_decomposition import ONIOMProblemDecomposition
+from tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition import QMMMProblemDecomposition
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment
 from tangelo.toolboxes.molecular_computation.integral_solver_psi4 import IntegralSolverPsi4
 from tangelo.algorithms.variational import SA_OO_Solver, BuiltInAnsatze, ADAPTSolver, iQCC_solver
@@ -93,6 +94,21 @@ class Testpsi4(unittest.TestCase):
         iqcc_energy = iqcc.simulate()
 
         self.assertAlmostEqual(iqcc_energy, -1.95831, places=3)
+
+    def test_oniom_energy_ccsd_hf(self):
+        """Testing the oniom energy with a HF molecule and an partial charge of -0.3 at (0.5, 0.6, 0.8)
+        """
+
+        options_both = {"basis": "sto-3g"}
+        geometry = [("H", (0, 0, 0)), ("F", (0, 0, 1))]
+        charges = [-0.3]
+        coords = [(0.5, 0.6, 0.8)]
+
+        system = Fragment(solver_high="ccsd", options_low=options_both)
+        qmmm_model_cc = QMMMProblemDecomposition({"geometry": geometry, "qmfragment": system, "charges": charges, "coords": coords})
+
+        e_qmmm_cc = qmmm_model_cc.simulate()
+        self.assertAlmostEqual(-98.62087, e_qmmm_cc, places=4)
 
 
 if __name__ == "__main__":
