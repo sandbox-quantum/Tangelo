@@ -31,9 +31,19 @@ Reference:
 """
 from typing import List, Union, Tuple
 
+from tangelo.helpers.utils import is_package_installed
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment
 from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list, get_default_integral_solver
+
+
+def get_default_mm_package():
+    if is_package_installed("openmm"):
+        return "openmm"
+    elif is_package_installed("rdkit"):
+        return "rdkit"
+    else:
+        return None
 
 
 class QMMMProblemDecomposition(ProblemDecomposition):
@@ -67,23 +77,38 @@ class QMMMProblemDecomposition(ProblemDecomposition):
                              f"while charges has length {len(self.charges)}")
         self.qmfragment: Fragment = copt_dict.pop("qmfragment", None)
         self.verbose: bool = copt_dict.pop("verbose", False)
+        self.mmpackage: str = copt_dict.pop("mmpackage", get_default_mm_package())
+        self.supported_mm_packages = ["openmm", "rdkit"]
+        if self.mmpackage.lower() not in self.supported_mm_packages:
+            raise ValueError(f"{self.__class__.__name__} only supports the following MM packages {self.supported_mm_packages}")
 
         if self.charges is None and self.geometry[-3:] == "pdb":
-            import openbabel
             try:
+                import openbabel
+            except ModuleNotFoundError:
+                raise ModuleNotFoundError(f"openbabel is required to use {self.__class__.__name__} when supplying only a pdb file."
+                                          "install with 'pip install openbabel-wheel'")
+            if self.mmpackage is None:
+                raise ModuleNotFoundError(f"openmm or rdkit is required to use {self.__class__.__name__} when supplying only a pdb file")
+
+            # Obtain partial charges
+            if self.mmpackage.lower() == "openmm":
                 from openmm.app.pdbfile import PDBFile
                 from openmm.app.forcefield import ForceField
                 from openmm import NonbondedForce
-            except ModuleNotFoundError:
-                raise ModuleNotFoundError(f"openmm is required to use {self.__class__.__name__} when supplying only a pdb file")
-
-            # Obtain partial charges
-            self.pdbfile = self.geometry
-            pdb = PDBFile(self.pdbfile)
-            forcefield = ForceField('amber14-all.xml', 'amber14/tip3pfb.xml')
-            system = forcefield.createSystem(pdb.topology)
-            nonbonded = [f for f in system.getForces() if isinstance(f, NonbondedForce)][0]
-            self.charges = [nonbonded.getParticleParameters(i)[0]._value for i in range(system.getNumParticles())]
+                self.pdbfile = self.geometry
+                pdb = PDBFile(self.pdbfile)
+                forcefield = ForceField('amber14-all.xml', 'amber14/tip3pfb.xml')
+                system = forcefield.createSystem(pdb.topology)
+                nonbonded = [f for f in system.getForces() if isinstance(f, NonbondedForce)][0]
+                self.charges = [nonbonded.getParticleParameters(i)[0]._value for i in range(system.getNumParticles())]
+            elif self.mmpackage.lower() == "rdkit":
+                import rdkit
+                from rdkit.Chem import AllChem
+                self.pdbfile = self.geometry
+                rdmol = rdkit.Chem.rdmolfiles.MolFromPDBFile(self.pdbfile, removeHs=False)
+                mmff_props = AllChem.MMFFGetMoleculeProperties(rdmol, mmffVariant="MMFF94")
+                self.charges = [mmff_props.GetMMFFPartialCharge(i) for i in range(rdmol.GetNumAtoms())]
 
             # Obtain xyz string
             mol = openbabel.openbabel.OBMol()

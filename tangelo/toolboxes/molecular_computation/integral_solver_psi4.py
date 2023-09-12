@@ -339,24 +339,28 @@ class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
         if self.backend.__version__ < '1.6':
             self.chrgfield = self.backend.QMMM()
             self.bohr = False
+            fac = 1.
         else:
             self.chrgfield = True
             self.external_potentials = []
             self.bohr = True
+            fac = 0.52917720859
         self.ext_pot = self.backend.core.ExternalPotential()
+
         for i, chrg in enumerate(self.charges):
             if self.bohr:
-                self.external_potentials.append([chrg, np.array([self.coords[i][0], self.coords[i][1], self.coords[i][2]])/0.52917720859])
+                self.external_potentials.append([chrg, np.array([self.coords[i][0], self.coords[i][1], self.coords[i][2]])/fac])
             else:
                 self.chrgfield.extern.addCharge(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
-
-            self.ext_pot.addCharge(chrg, self.coords[i][0]/0.52917720859, self.coords[i][1]/0.52917720859, self.coords[i][2]/0.52917720859)
+            self.ext_pot.addCharge(chrg, self.coords[i][0]/fac, self.coords[i][1]/fac, self.coords[i][2]/fac)
 
         if not self.bohr:
             self.backend.core.set_global_option_python('EXTERN', self.chrgfield.extern)
-
-        sqmol.mf_energy, self.sym_wfn = self.backend.energy('scf', molecule=self.mol, basis=self.backend.core.get_global_option('basis'),
-                                                            return_wfn=True, external_potentials=self.external_potentials)
+            sqmol.mf_energy, self.sym_wfn = self.backend.energy('scf', molecule=self.mol, basis=self.backend.core.get_global_option('basis'),
+                                                                return_wfn=True)
+        else:
+            sqmol.mf_energy, self.sym_wfn = self.backend.energy('scf', molecule=self.mol, basis=self.backend.core.get_global_option('basis'),
+                                                                return_wfn=True, external_potentials=self.external_potentials)
         self.wfn = self.sym_wfn.c1_deep_copy(self.sym_wfn.basisset())
         self.backend.core.clean_options()
 
