@@ -304,6 +304,8 @@ class SecondQuantizedMolecule(Molecule):
             f"The new molecular coefficients matrix has a {new_mo_coeff.shape}"\
             f" shape: expected shape is {self.solver.mo_coeff.shape}."
         self.solver.mo_coeff = new_mo_coeff
+        if hasattr(self, "mean_field"):
+            self.mean_field.mo_coeff = new_mo_coeff
 
     def _get_fermionic_hamiltonian(self, mo_coeff=None):
         """This method returns the fermionic hamiltonian. It written to take
