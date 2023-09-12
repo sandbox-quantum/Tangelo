@@ -371,7 +371,7 @@ class TestSimulateStatevector(unittest.TestCase):
     def test_get_exp_value_h2_with_n_shots(self):
         """ Get expectation value of large circuits and qubit Hamiltonians corresponding to molecules.
             Molecule: H2 sto-3g = [("H", (0., 0., 0.)), ("H", (0., 0., 0.741377))] with increasing shots
-            obtains better accuracy but never the exact result.
+            reduces standard error as expected.
         """
         qubit_operator = load_operator("mol_H2_qubitham.data", data_directory=path_data, plain_text=True)
 
@@ -381,23 +381,32 @@ class TestSimulateStatevector(unittest.TestCase):
         abs_circ = translate_c(openqasm_circ, "tangelo", source="openqasm")
         expected = -1.1372704
         test_fail = False
+        sim = get_backend()
+        var_exact = 0.0157403
 
-        for n_shots in [10**2, 10**4, 10**6]:
+        shot_counts = [10**2, 10**4]
+
+        for n_shots in shot_counts:
+            exact_std = np.sqrt(var_exact/n_shots)
             for b in installed_sv_simulator:
                 sim = get_backend(target=b, n_shots=n_shots)
+                samples = []
                 tstart = time.time()
-                energy = sim.get_expectation_value(qubit_operator, abs_circ)
+                for _ in range(20):
+                    energy = sim.get_expectation_value(qubit_operator, abs_circ)
+                    samples += [energy]
                 tstop = time.time()
-                print(f"H2 get exp value with {b:10s} with n_shots={n_shots} returned {energy:.7f} \t Elapsed: {tstop - tstart:.3f} s.")
+                std = np.std(samples, ddof=1)
+
+                print(f"H2 get exp value with {b:10s} with n_shots={n_shots} returned std {std:.7f} \t Elapsed: {tstop - tstart:.3f} s.")
 
                 try:
-                    self.assertNotAlmostEqual(energy, expected, delta=1.e-6)
-                    self.assertAlmostEqual(energy, expected, delta=10/np.sqrt(n_shots))
+                    self.assertFalse(np.allclose(samples, [expected]*20, atol=1.e-6))
+                    self.assertAlmostEqual(std, exact_std, delta=exact_std*0.8)
                 except AssertionError:
                     test_fail = True
-                    print(f"{self._testMethodName} : Assertion failed {b} (result = {energy:.7f}, expected = {expected})")
-            if test_fail:
-                assert False
+                    print(f"{self._testMethodName} : Assertion failed {b} (result = {std:.7f}, expected = {exact_std})")
+            assert not test_fail
 
     def test_get_exp_value_from_initial_statevector_h2(self):
         """ Get expectation value of large circuits and qubit Hamiltonians corresponding to molecules.
