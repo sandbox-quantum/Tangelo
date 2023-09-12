@@ -79,17 +79,17 @@ class QMMMProblemDecomposition(ProblemDecomposition):
         self.verbose: bool = copt_dict.pop("verbose", False)
         self.mmpackage: str = copt_dict.pop("mmpackage", get_default_mm_package())
         self.supported_mm_packages = ["openmm", "rdkit"]
-        if self.mmpackage.lower() not in self.supported_mm_packages:
-            raise ValueError(f"{self.__class__.__name__} only supports the following MM packages {self.supported_mm_packages}")
 
         if self.charges is None and self.geometry[-3:] == "pdb":
+            if self.mmpackage is None:
+                raise ModuleNotFoundError(f"Any of {self.supported_mm_packages} is required to use {self.__class__.__name__} when supplying only a pdb file")
+            elif self.mmpackage.lower() not in self.supported_mm_packages:
+                raise ValueError(f"{self.__class__.__name__} only supports the following MM packages {self.supported_mm_packages}")
             try:
                 import openbabel
             except ModuleNotFoundError:
                 raise ModuleNotFoundError(f"openbabel is required to use {self.__class__.__name__} when supplying only a pdb file."
                                           "install with 'pip install openbabel-wheel'")
-            if self.mmpackage is None:
-                raise ModuleNotFoundError(f"openmm or rdkit is required to use {self.__class__.__name__} when supplying only a pdb file")
 
             # Obtain partial charges
             if self.mmpackage.lower() == "openmm":
