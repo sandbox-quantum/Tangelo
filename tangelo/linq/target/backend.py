@@ -337,7 +337,7 @@ class Backend(abc.ABC):
 
         # If the underlying operator is hermitian, expectation value is real and can be computed right away
         if are_coefficients_real:
-            if self._noise_model or not self.statevector_available \
+            if self._noise_model or not self.statevector_available or self.n_shots is not None \
                     or (state_prep_circuit.is_mixed_state and self.n_shots is not None) or state_prep_circuit.size == 0:
                 return self._get_expectation_value_from_frequencies(qubit_operator,
                                                                     state_prep_circuit,
