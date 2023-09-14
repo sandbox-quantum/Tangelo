@@ -24,6 +24,10 @@ class TestGates(unittest.TestCase):
         A test class to check that the circuit class is working properly, and processing the information
         of the gate objects it holds as expected.
     """
+    def test_name(self):
+        """ Test that name is a string and that it converts it to uppercase when initializing"""
+        self.assertRaises(TypeError, Gate, 1, 1)
+        self.assertEqual(Gate("H", 1), Gate("h", 1))
 
     def test_some_gates(self):
         """ Test that some basic gates can be invoked with a few different parameters, and that this information
