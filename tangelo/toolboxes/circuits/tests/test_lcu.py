@@ -26,7 +26,7 @@ from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import get_qft_circuit
 from tangelo.molecule_library import mol_H2_sto3g
-from tangelo.toolboxes.circuits.lcu import get_oaa_lcu_circuit, get_truncated_taylor_series
+from tangelo.toolboxes.circuits.lcu import get_oaa_lcu_circuit, get_truncated_taylor_series, get_truncated_taylor_series_qubits
 
 # Test for both "cirq" and if available "qulacs". These have different orderings.
 # qiskit is not currently supported because does not have multi controlled general gates.
@@ -39,7 +39,7 @@ sim_cirq = get_backend("cirq")
 class LCUTest(unittest.TestCase):
 
     def test_get_truncated_taylor_series(self):
-        """Test time-evolution of truncated Taylor series for different orders and times"""
+        """Test time-evolution of truncated Taylor series for different orders and times along with qubit indices function"""
 
         qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons,
                                          True, 0)
@@ -64,6 +64,9 @@ class LCUTest(unittest.TestCase):
                 len_ancilla = 2**(k+k*n_qubits_qu_op+1)
                 v = v.reshape([4, len_ancilla])[:, 0] if statevector_order == "lsq_first" else v.reshape([len_ancilla, 4])[0, :]
                 self.assertAlmostEqual(1, np.abs(v.conj().dot(exact)), delta=3.e-1**k)
+
+                # Test that the qubits in the circuit are equal to the qubit indices returned from get_truncated_taylor_series_qubits
+                self.assertEqual(taylor_circuit._qubit_indices, set(get_truncated_taylor_series_qubits(qu_op, k)))
 
         # Raise ValueError if Taylor series order is less than 1 or greater than 4
         # or imaginary coefficients in qubit operator
