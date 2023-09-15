@@ -72,7 +72,6 @@ def get_truncated_taylor_series_qubits(qu_op: QubitOperator, kmax: int):
     Args:
         qu_op (QubitOperator) :: The qubit operator to obtain the Uprep circuit for
         kmax (int): the order of the truncated Taylor series
-        t (float): The evolution time
     Returns:
         List[int]: The list of qubit indices used
     """
