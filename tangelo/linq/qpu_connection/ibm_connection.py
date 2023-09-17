@@ -68,6 +68,7 @@ class IBMConnection(QpuConnection):
             runtime_options = dict()
         options = Options(optimization_level=runtime_options.get('optimization_level', 1),
                           resilience_level=runtime_options.get('resilience_level', 0))
+        options.execution.shots = n_shots
 
         # Translate circuits in qiskit format, add final measurements
         if not isinstance(circuits, list):
@@ -87,10 +88,11 @@ class IBMConnection(QpuConnection):
 
         # Execute qiskit-runtime program, retrieve job ID
         if program == 'sampler':
-            job = self._submit_sampler(qiskit_c, n_shots, session, options)
+            sampler = Sampler(session=session, options=options)
+            job = sampler.run(circuits=qiskit_cs)
         elif program == 'estimator':
             estimator = Estimator(session=session, options=options)
-            job = estimator.run(circuits=qiskit_cs, observables=qiskit_ops, shots=n_shots)
+            job = estimator.run(circuits=qiskit_cs, observables=qiskit_ops)
         else:
             raise NotImplementedError("Only Sampler and Estimator programs currently available.")
 
@@ -121,25 +123,29 @@ class IBMConnection(QpuConnection):
 
         # Retrieve job object, check job has not been cancelled, retrieve results if not
         job = self.jobs[job_id]
-        result = job.result()
 
         if job.status() == JobStatus.CANCELLED:
             print(f"Job {job_id} was cancelled and no results can be retrieved.")
             return None
 
+        result = job.result()
         self.jobs_results[job_id] = job._results
 
         # Sampler: return histogram for user in standard Tangelo format
         if isinstance(result, SamplerResult):
-            hist = result.quasi_dists[0]
+            histograms = []
+            for j in range(len(result.quasi_dists)):
 
-            freqs = dict()
-            for i, freq in hist.items():
-                bs = bin(i).split('b')[-1]
-                n_qubits = job.inputs['circuits'].num_qubits
-                state_binstr = "0" * (n_qubits - len(bs)) + bs
-                freqs[state_binstr[::-1]] = freq
-            return freqs
+                hist = result.quasi_dists[j]
+                n_qubits = job.inputs['circuits'][j].num_qubits
+
+                freqs = dict()
+                for i, freq in hist.items():
+                    bs = bin(i).split('b')[-1]
+                    state_binstr = "0" * (n_qubits - len(bs)) + bs
+                    freqs[state_binstr[::-1]] = freq
+                histograms.append(freqs)
+            return histograms
 
         # Estimator: return the array of expectation values
         elif isinstance(result, EstimatorResult):
@@ -166,30 +172,3 @@ class IBMConnection(QpuConnection):
         print(f"Job {job_id} :: cancellation {message}.")
 
         return is_cancelled
-
-    def _submit_sampler(self, qiskit_c, n_shots, session, options):
-        """ Submit job using Sampler primitive, return job ID.
-
-        Args:
-            qiskit_c (Qiskit.QuantumCircuit): Circuit in Qiskit format
-            n_shots (int): Number of shots
-            session (qiskit_ibm_runtime.Session): Qiskit runtime Session object
-            options (qiskit_ibm_runtime.Options): Qiskit runtime Options object
-
-        Returns:
-            str: string representing the job id
-        """
-
-        # Set up program inputs
-        run_options = {"shots": n_shots}
-        resilience_settings = {"level": options.resilience_level}
-
-        program_inputs = {"circuits": qiskit_c, "circuit_indices": [0],
-                          "run_options": run_options,
-                          "resilience_settings": resilience_settings}
-
-        # Set backend
-        more_options = {"backend_name": session.backend()}
-
-        job = self.service.run(program_id="sampler", options=more_options, inputs=program_inputs)
-        return job
