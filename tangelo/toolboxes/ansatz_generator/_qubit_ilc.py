@@ -257,8 +257,8 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
 
     # Compute the ILC parameters using the ground state coefficients
     gs_coefs = subspace_coefs[:, 0]
-    if gs_coefs[0].real > 0.:
-        gs_coefs *= -1.
+    if gs_coefs[0].real < 0.:
+        gs_coefs = -gs_coefs
     denom_sum, ilc_var_params = 0., []
     for i in range(2):
         denom_sum += abs(gs_coefs[i])**2
@@ -346,7 +346,7 @@ def build_ilc_qubit_op_list(acs_gens, ilc_params):
 
     n_amps = len(ilc_params)
     ilc_op_list = [-.5 * ilc_params[i] * acs_gens[i] for i in range(n_amps-1, 0, -1)]
-    ilc_op_list += [ilc_params[0] * acs_gens[0]]
+    ilc_op_list += [-ilc_params[0] * acs_gens[0]]
     ilc_op_list += [-.5 * ilc_params[i] * acs_gens[i] for i in range(1, n_amps)]
     return ilc_op_list
 
