@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import unittest
 
 from numpy import linspace
@@ -19,11 +20,13 @@ from numpy import linspace
 from tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition import QMMMProblemDecomposition
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment, Link
 
+pwd_this_test = os.path.dirname(os.path.abspath(__file__))+"/"
+
 
 class ONIOMTest(unittest.TestCase):
 
-    def test_energy_ccsd_hf(self):
-        """Testing the oniom energy with a HF molecule and an partial charge of -0.3 at (0.5, 0.6, 0.8)
+    def test_energy_fci_hf(self):
+        """Testing the QM/MM energy with a HF molecule and an partial charge of -0.3 at (0.5, 0.6, 0.8) at FCI level
         """
 
         options_both = {"basis": "sto-3g"}
@@ -31,11 +34,30 @@ class ONIOMTest(unittest.TestCase):
         charges = [-0.3]
         coords = [(0.5, 0.6, 0.8)]
 
-        system = Fragment(solver_high="ccsd", options_low=options_both)
+        system = Fragment(solver_high="fci", options_low=options_both)
         qmmm_model_cc = QMMMProblemDecomposition({"geometry": geometry, "qmfragment": system, "charges": charges, "coords": coords})
 
         e_qmmm_cc = qmmm_model_cc.simulate()
         self.assertAlmostEqual(-98.62087, e_qmmm_cc, places=4)
+
+    def test_energy_ccsd_ala_ala_ala(self):
+        """Test that the QM/MM energy is correct when a pdb file is provided and indices are selected as qm region using Fragment"""
+
+        frag = Fragment(solver_high="ccsd", selected_atoms=[6, 7, 8, 9], broken_links=[Link(6, 4, factor=0.71)],
+                        options_high={"basis": "sto-3g"})
+        qmmm = QMMMProblemDecomposition({"geometry": pwd_this_test+"ala_ala_ala.pdb", "qmfragment": frag, "mmpackage": "rdkit"})
+
+        energy = qmmm.simulate()
+
+        self.assertAlmostEqual(-39.67720, energy, delta=1.e-4)
+
+    def test_energy_fci_hf_ala_ala_ala(self):
+        """Test that the reference energy is returned when an HF QM geometry is placed next to a pdb charges"""
+
+        qmmm_hf = QMMMProblemDecomposition({"geometry": [("H", (-2, 0, 0)), ("F", (-2, 0, 1))], "charges": [pwd_this_test+"ala_ala_ala.pdb"],
+                                            "mmpackage": "rdkit", "qmfragment": Fragment(solver_high="fci", options_high={"basis": "sto-3g"})})
+        energy = qmmm_hf.simulate()
+        self.assertAlmostEqual(-98.60027, energy, delta=1.e-4)
 
 
 if __name__ == "__main__":
