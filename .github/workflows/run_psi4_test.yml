@@ -39,7 +39,7 @@ jobs:
         pip install pytest-cov
         pip install rdkit
         pip install openbabel-wheel
-        conda install openmm
+        conda install -c omnia openmm
     
     - name: Install qulacs
       run: |
