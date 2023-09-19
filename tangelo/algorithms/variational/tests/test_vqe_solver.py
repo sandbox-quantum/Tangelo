@@ -655,6 +655,28 @@ class VQESolverTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             VQESolver(options).build()
 
+    def test_save_energies(self):
+        """Performing a deterministic number of optimization steps (calls to
+        energy_estimation). The energies attributes should have n elements,
+        where n is the number of optimization steps.
+        """
+
+        vqe_options = {"molecule": mol_H2_sto3g,
+                       "ansatz": Circuit([Gate("X", 0), Gate("X", 1)], n_qubits=4),
+                       "qubit_mapping": "JW",
+                       "up_then_down": False,
+                       "save_energies": True,
+                       "verbose": False}
+        vqe_solver = VQESolver(vqe_options)
+        vqe_solver.build()
+
+        n_steps = 3
+        # Deterministic number of calls to energy_estimation.
+        for _ in range(n_steps):
+            vqe_solver.energy_estimation(var_params=[])
+
+        self.assertEqual(len(vqe_solver.energies), n_steps)
+
 
 if __name__ == "__main__":
     unittest.main()
