@@ -16,6 +16,7 @@
 electronic structure calculations.
 """
 
+from contextlib import nullcontext
 import warnings
 import itertools
 from typing import Optional, Union, List
@@ -91,6 +92,7 @@ class VQESolver:
         ref_state (array or Circuit): The reference configuration to use. Replaces HF state
             QMF, QCC, ILC require ref_state to be an array. UCC1, UCC3, VSQS can not use a
             different ref_state than HF by construction.
+        save_energies (bool): Flag for saving energy estimation values.
     """
 
     def __init__(self, opt_dict):
@@ -114,6 +116,7 @@ class VQESolver:
         self.verbose: bool = copt_dict.pop("verbose", False)
         self.projective_circuit: Circuit = copt_dict.pop("projective_circuit", None)
         self.ref_state: Optional[Union[list, Circuit]] = copt_dict.pop("ref_state", None)
+        self.save_energies: bool = copt_dict.pop("save_energies", False)
 
         if len(copt_dict) > 0:
             raise KeyError(f"The following keywords are not supported in {self.__class__.__name__}: \n {copt_dict.keys()}")
@@ -164,6 +167,8 @@ class VQESolver:
         self.optimal_energy = None
         self.optimal_var_params = None
         self.builtin_ansatze = set(BuiltInAnsatze)
+
+        self.energies = list()
 
     def build(self):
         """Build the underlying objects required to run the VQE algorithm
@@ -310,6 +315,9 @@ class VQESolver:
 
         if self.verbose:
             print(f"\tEnergy = {energy:.7f} ")
+
+        if self.save_energies:
+            self.energies += [energy]
 
         return energy
 
@@ -668,9 +676,9 @@ class VQESolver:
 
         from scipy.optimize import minimize
 
-        with HiddenPrints():
+        with HiddenPrints() if not self.verbose else nullcontext():
             result = minimize(func, var_params, method="SLSQP",
-                              options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
+                                options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
 
         if self.verbose:
             print(f"VQESolver optimization results:")
