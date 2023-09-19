@@ -60,6 +60,8 @@ def get_charges_and_coords_from_pdb_file(filename: str, mmpackage: str = None):
 
     try:
         import openbabel
+        from openbabel.openbabel import obErrorLog
+        obErrorLog.SetOutputLevel(0)
     except ModuleNotFoundError:
         raise ModuleNotFoundError(f"openbabel is required to use get_charges_and_coords_from_pdb_file when supplying only a pdb file."
                                   "install with 'pip install openbabel-wheel'")

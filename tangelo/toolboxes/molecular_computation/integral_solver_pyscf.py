@@ -210,10 +210,10 @@ class IntegralSolverPySCF(IntegralSolver):
 
         if sqmol.uhf:
             one_body, two_body = self.compute_uhf_integrals(sqmol, mo_coeff)
-            return float(pyscf_mol.energy_nuc()), one_body, two_body
+            return float(sqmol.mean_field.energy_nuc()), one_body, two_body
 
         # Corresponding to nuclear repulsion energy and static coulomb energy.
-        core_constant = float(pyscf_mol.energy_nuc())
+        core_constant = float(sqmol.mean_field.energy_nuc())
 
         # get_hcore is equivalent to int1e_kin + int1e_nuc.
         one_electron_integrals = mo_coeff.T @ sqmol.mean_field.get_hcore() @ mo_coeff

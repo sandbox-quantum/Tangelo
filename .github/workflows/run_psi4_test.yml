@@ -31,12 +31,15 @@ jobs:
         conda init
       if: always()
 
-    - name: Install pip, wheel, pytest, jupyter
+    - name: Install pip, wheel, pytest, jupyter, openbabel, rdkit, openmm
       run: |
         python -m pip install --upgrade pip
         pip install wheel
         pip install pytest
         pip install pytest-cov
+        pip install rdkit
+        pip install openbabel-wheel
+        conda install openmm
     
     - name: Install qulacs
       run: |
