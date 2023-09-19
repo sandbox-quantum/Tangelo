@@ -670,11 +670,12 @@ class VQESolverTest(unittest.TestCase):
         vqe_solver = VQESolver(vqe_options)
         vqe_solver.build()
 
+        n_steps = 3
         # Deterministic number of calls to energy_estimation.
-        for _ in range(3):
+        for _ in range(n_steps):
             vqe_solver.energy_estimation(var_params=[])
 
-        self.assertEqual(len(vqe_solver.energies), 3)
+        self.assertEqual(len(vqe_solver.energies), n_steps)
 
 
 if __name__ == "__main__":
