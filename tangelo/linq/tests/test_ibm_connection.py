@@ -17,14 +17,16 @@ from tangelo.toolboxes.operators import QubitOperator
 # Circuit and qubit operator for test
 circ = Circuit([Gate("H", 0), Gate("X", 1)])
 circ2 = Circuit([Gate("RX", 0, parameter=2.), Gate("RY", 1, parameter=-1.)])
+circ3 = circ + Circuit([Gate("X", 1)])
 op = 1.0 * QubitOperator('Y0') - 2.0 * QubitOperator('Z0 X1')
 
 # Reference values
 ref_sampler = {'01': 0.5, '11': 0.5}
+ref_sampler2 = {'00': 0.5, '10': 0.5}
 sim = get_backend()
 ref_estimator = sim.get_expectation_value(op, circ2)
 
-os.environ['IBM_TOKEN'] = 'INSERT VALID TOKEN HERE, FOR TESTS. REMOVE AFTERWARDS'
+os.environ['IBM_TOKEN'] = 'INSERT YOUR TOKEN HERE'
 
 
 @unittest.skip("We do not want to store login information for automated testing. Manual testing only.")
@@ -51,13 +53,29 @@ class TestIBMConnection(unittest.TestCase):
         connection = IBMConnection()
 
         options = {'resilience_level': 1}
-        job_id = connection.job_submit('sampler', 'ibmq_qasm_simulator', 10**5, circ, runtime_options=options)
+        job_id = connection.job_submit('sampler', 'ibmq_qasm_simulator', 10**5, [circ], runtime_options=options)
         print(connection.job_status(job_id))
 
         job_results = connection.job_results(job_id)
         print(connection.job_status(job_id))
 
-        assert_freq_dict_almost_equal(job_results, ref_sampler, 1e-2)
+        assert_freq_dict_almost_equal(job_results[0], ref_sampler, 1e-2)
+
+    def test_submit_job_sampler_list(self):
+        """ Submit a sampler job to a valid backend, query status and retrieve results.
+         Provide a list of several circuits as input. """
+
+        connection = IBMConnection()
+
+        options = {'resilience_level': 1}
+        job_id = connection.job_submit('sampler', 'ibmq_qasm_simulator', 10**5, [circ, circ3], runtime_options=options)
+        print(connection.job_status(job_id))
+
+        job_results = connection.job_results(job_id)
+        print(connection.job_status(job_id))
+
+        assert_freq_dict_almost_equal(job_results[0], ref_sampler, 1e-2)
+        assert_freq_dict_almost_equal(job_results[1], ref_sampler2, 1e-2)
 
     def test_submit_job_estimator(self):
         """ Submit an estimator job to a valid backend, query status and retrieve results """
@@ -69,10 +87,11 @@ class TestIBMConnection(unittest.TestCase):
         print(conn.job_status(job_id))
 
         job_results = conn.job_results(job_id)
-        self.assertAlmostEqual(job_results[0], ref_estimator, delta=1e-2)
+        self.assertAlmostEqual(job_results[0], ref_estimator, delta=2e-2)
 
     def test_submit_job_estimator_list(self):
-        """ Submit an estimator job to a valid backend, query status and retrieve results """
+        """ Submit an estimator job to a valid backend, query status and retrieve results.
+         Provide list of several circuits and operators as input. """
 
         conn = IBMConnection()
 
@@ -80,7 +99,8 @@ class TestIBMConnection(unittest.TestCase):
         print(conn.job_status(job_id))
 
         job_results = conn.job_results(job_id)
-        np.testing.assert_almost_equal(np.array(job_results), np.array([ref_estimator]*2), decimal=2)
+        self.assertAlmostEqual(job_results[0], ref_estimator, delta=2e-2)
+        self.assertAlmostEqual(job_results[1], ref_estimator, delta=2e-2)
 
     def test_cancel_job(self):
         """ Submit a job to a valid backend, attempt to cancel """

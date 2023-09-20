@@ -41,7 +41,7 @@ class StateVector():
         self.coeffs = coefficients
         self.order = order
 
-    def initializing_circuit(self, return_phase=False):
+    def initializing_circuit(self, return_phase=False, set_n_qubits=False):
         """Calculate a circuit that implements the initialization of a given statevector from the zero state
         Implements a recursive initialization algorithm, including optimizations,
         from "Synthesis of Quantum Logic Circuits" Shende, Bullock, Markov
@@ -50,11 +50,12 @@ class StateVector():
         double cnots.
 
         Args:
-            return_phase (bool): Return the global phase that is not captured by the circuit
+            return_phase (bool): Return the global phase that is not captured by the circuit Default False
+            set_n_qubits (bool): Set n_qubits in Circuit to qubits needed for the length of the coefficients array.
 
         Returns:
             Circuit: The circuit that generates the statevector defined in coeffs
-            float: If return_phase=True, the global phase angle not captured by the Circuit
+            float: Optional, If return_phase=True, the global phase angle not captured by the Circuit
         """
         # call to generate the circuit that takes the desired vector to zero
         disentangling_circuit, global_phase = self.uncomputing_circuit(return_phase=True)
@@ -62,16 +63,19 @@ class StateVector():
         # invert the circuit to create the desired vector from zero (assuming
         # the qubits are in the zero state)
         state_prep_circuit = disentangling_circuit.inverse()
+        if not set_n_qubits:
+            state_prep_circuit._qubits_simulated = None
         global_phase = -global_phase
 
         return_value = (state_prep_circuit, global_phase) if return_phase else state_prep_circuit
         return return_value
 
-    def uncomputing_circuit(self, return_phase=False):
+    def uncomputing_circuit(self, return_phase=False, set_n_qubits=False):
         """Generate a circuit that takes the desired state to the zero state.
 
         Args:
             return_phase (bool): Flag to return global_phase
+            set_n_qubits (bool): Set n_qubits in Circuit to qubits needed for the length of the coefficients array.
 
         Returns:
             Circuit: circuit to take self.coeffs vector to :math:`|{00\\ldots0}\\rangle`
@@ -109,6 +113,9 @@ class StateVector():
 
         if self.order == "lsq_first":
             circuit.reindex_qubits(list(reversed(range(0, self.n_qubits))))
+
+        if not set_n_qubits:
+            circuit._qubits_simulated = None
 
         return_value = (circuit, global_phase) if return_phase else circuit
         return return_value

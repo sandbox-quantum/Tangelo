@@ -82,6 +82,11 @@ class Gate(dict):
 
         check_qubit_indices(target, "target")
 
+        if not isinstance(name, str):
+            raise TypeError(f"The name of the gate must be a string but received {type(name)}")
+        else:
+            name = name.upper()
+
         if control is not None:
             if name[0] != "C":
                 raise ValueError(f"Gate {name} was given control={control} but does not support controls. Try C{name}")
