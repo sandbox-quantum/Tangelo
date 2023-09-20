@@ -46,7 +46,7 @@ def get_default_mm_package():
         return None
 
 
-def get_charges_and_coords_from_pdb_file(filename: str, mmpackage: str = None):
+def get_charges_and_coords_from_pdb_file(filenames: Union[str, List[str]], mmpackage: str = None):
     """Obtain the partial charges and geometry of a molecule given as a pdb file using mmpackage
 
     Args:
@@ -71,26 +71,44 @@ def get_charges_and_coords_from_pdb_file(filename: str, mmpackage: str = None):
         from openmm.app.pdbfile import PDBFile
         from openmm.app.forcefield import ForceField
         from openmm import NonbondedForce
-        pdb = PDBFile(filename)
+        from openmm.app import Modeller
+        files = [filenames] if isinstance(filenames, str) else filenames
+
+        pdbs = [PDBFile(file) for file in files]
+        modeller = Modeller(pdbs[0].topology, pdbs[0].positions)
+        for pdb in pdbs[1:]:
+            modeller.add(pdb.topology, pdb.positions)
         forcefield = ForceField('amber14-all.xml', 'amber14/tip3pfb.xml')
-        system = forcefield.createSystem(pdb.topology)
+        system = forcefield.createSystem(modeller.topology)
         nonbonded = [f for f in system.getForces() if isinstance(f, NonbondedForce)][0]
         charges = [nonbonded.getParticleParameters(i)[0]._value for i in range(system.getNumParticles())]
+        # Obtain xyz string
+        mol = openbabel.openbabel.OBMol()
+        conv = openbabel.openbabel.OBConversion()
+        conv.SetInAndOutFormats("pdb", "xyz")
+        geom = []
+        for file in filenames:
+            _ = conv.ReadFile(mol, file)
+            geometry = conv.WriteString(mol)
+            geom += atom_string_to_list(geometry.split("\n", 2)[2:][0])
     elif mmpackage.lower() == "rdkit":
         import rdkit
         from rdkit.Chem import AllChem
-        rdmol = rdkit.Chem.rdmolfiles.MolFromPDBFile(filename, removeHs=False)
+        # Combine all pdf files into one molecule
+        files = [filenames] if isinstance(filenames, str) else filenames
+        rdmol = rdkit.Chem.rdmolfiles.MolFromPDBFile(files[0], removeHs=False)
+        for file in files[1:]:
+            mol_to_add = rdkit.Chem.rdmolfiles.MolFromPDBFile(file, removeHs=False)
+            rdmol = rdkit.Chem.rdmolops.CombineMols(rdmol, mol_to_add)
+        rdkit.Chem.SanitizeMol(rdmol)
+
+        # Read charges and geometry
         mmff_props = AllChem.MMFFGetMoleculeProperties(rdmol, mmffVariant="MMFF94")
         charges = [mmff_props.GetMMFFPartialCharge(i) for i in range(rdmol.GetNumAtoms())]
-
-    # Obtain xyz string
-    mol = openbabel.openbabel.OBMol()
-    conv = openbabel.openbabel.OBConversion()
-    conv.SetInAndOutFormats("pdb", "xyz")
-    _ = conv.ReadFile(mol, filename)
-    geometry = conv.WriteString(mol)
-    geometry = geometry.split("\n", 2)[2:][0]
-    geom = atom_string_to_list(geometry)
+        rdkit.Chem.SanitizeMol(rdmol)
+        new_xyz = rdkit.Chem.rdmolfiles.MolToXYZBlock(rdmol)
+        # Strip first two lines and convert to standard format
+        geom = atom_string_to_list("".join([val+"\n" for val in new_xyz.split('\n')[2:]]))
 
     return charges, geom
 
@@ -142,11 +160,9 @@ class QMMMProblemDecomposition(ProblemDecomposition):
 
             self.pdbcharges, self.geometry = get_charges_and_coords_from_pdb_file(self.geometry, self.mmpackage)
         if isinstance(self.charges, list) and self.coords is None:
-            for filename in self.charges:
-                if isinstance(filename, str) and filename[-3:] == "pdb":
-                    charges, geometry = get_charges_and_coords_from_pdb_file(filename, self.mmpackage)
-                    self.mmcharges += charges
-                    self.mmcoords += [geom[1] for geom in geometry]
+            charges, geometry = get_charges_and_coords_from_pdb_file(self.charges, self.mmpackage)
+            self.mmcharges += charges
+            self.mmcoords += [geom[1] for geom in geometry]
 
         if len(copt_dict.keys()) > 0:
             raise KeyError(f"Keywords :: {copt_dict.keys()}, not available in {self.__class__.__name__}.")

@@ -53,12 +53,13 @@ class ONIOMTest(unittest.TestCase):
     def test_energy_fci_h2_ala_ala_ala(self):
         """Test that the reference energy is returned when an H2 QM geometry is placed next to a pdb charges with VQE as the solver"""
 
-        qmmm_h2 = QMMMProblemDecomposition({"geometry": [("H", (-2, 0, 0)), ("H", (-2, 0, 1))], "charges": [pwd_this_test+"ala_ala_ala.pdb"],
+        qmmm_h2 = QMMMProblemDecomposition({"geometry": [("H", (-2, 0, 0)), ("H", (-2, 0, 1))], "charges": [pwd_this_test+"ala_ala_ala.pdb",
+                                                                                                            pwd_this_test+"ala_ala_ala_shifted.pdb"],
                                             "mmpackage": "rdkit",
                                             "qmfragment": Fragment(solver_high="vqe", options_high={"basis": "sto-3g", "ansatz": BuiltInAnsatze.QCC,
                                                                                                     "up_then_down": True})})
         energy = qmmm_h2.simulate()
-        self.assertAlmostEqual(-1.10258, energy, delta=1.e-4)
+        self.assertAlmostEqual(-1.102619, energy, delta=1.e-5)
         self.assertEqual(qmmm_h2.get_resources()["qubit_hamiltonian_terms"], 27)
 
 
