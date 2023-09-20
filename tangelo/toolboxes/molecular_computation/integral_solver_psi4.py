@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from copy import copy
-
 import numpy as np
+from openfermion.linalg import givens_decomposition_square
 
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 
@@ -138,10 +137,36 @@ class IntegralSolverPsi4(IntegralSolver):
             sqmol.mo_occ = [2]*docc + [1]*socc + (nbf - docc - socc)*[0]
         sqmol.n_mos = nbf
         sqmol.n_sos = nbf*2
-        self.mo_coeff = np.asarray(self.wfn.Ca()) if not sqmol.uhf else [np.asarray(self.wfn.Ca()), np.asarray(self.wfn.Cb())]
+        self.mo_coeff = np.asarray(self.wfn.Ca()) if not sqmol.uhf else np.array([np.asarray(self.wfn.Ca()), np.asarray(self.wfn.Cb())])
         self.ob = np.asarray(self.mints.ao_potential()) + np.asarray(self.mints.ao_kinetic())
         self.tb = np.asarray(self.mints.ao_eri())
         self.core_constant = self.mol.nuclear_repulsion_energy()
+
+    def modify_solver_mo_coeff(self, sqmol):
+        """Change the molecular coefficients in the self.wfn object to match self.mo_coeff
+        Args:
+            sqmol (SecondQuantizedMolecule): The SecondQuantizedMolecule object with mo_coeff
+        """
+        if not sqmol.uhf:
+            self.modify_c(self.wfn, self.mo_coeff)
+        else:
+            self.modify_c(self.wfn, self.mo_coeff[0])
+            self.modify_c(self.wfn, self.mo_coeff[1], False)
+
+    def modify_c(self, wfn, mo_coeff, a=True):
+        """Modify Psi4 WaveFunction coefficient Ca or Cb to be equal to mo_coeff
+        Args:
+            wfn (Psi4 WaveFunction): The Psi4Wavefunction to be modified
+            mo_coeff (array): The values to place in the wavefunction
+            a (bool): If True, replace the alpha coefficients Ca, If False replace the beta coefficients Cb
+        """
+
+        for i in range(mo_coeff.shape[0]):
+            for j in range(mo_coeff.shape[1]):
+                if a:
+                    wfn.Ca().set(0, i, j, mo_coeff[i, j])
+                else:
+                    wfn.Cb().set(0, i, j, mo_coeff[i, j])
 
     def get_integrals(self, sqmol, mo_coeff=None):
         r"""Computes core constant, one_body, and two-body integrals for all orbitals

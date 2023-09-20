@@ -18,7 +18,7 @@ import numpy as np
 
 from tangelo import SecondQuantizedMolecule
 from tangelo.algorithms.classical.ccsd_solver import CCSDSolver, default_ccsd_solver
-from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_sto3g_uhf_a1_frozen, xyz_H4, xyz_Be
+from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_sto3g_uhf_a1_frozen, xyz_H4, xyz_Be, xyz_H2O
 
 
 class CCSDSolverTest(unittest.TestCase):
@@ -61,27 +61,32 @@ class CCSDSolverTest(unittest.TestCase):
 
         self.assertAlmostEqual(energy, -14.531416, places=5)
 
-    @unittest.skipIf("pyscf" != default_ccsd_solver, "Test Skipped: Only functions for pyscf currently \n")
-    def test_ccsd_be_change_mo_coeff(self):
+    def test_ccsd_h2o_change_mo_coeff(self):
         """Test CCSDSolver against result from a reference implementation when rotating the molecular coefficients"""
-        mol = SecondQuantizedMolecule(xyz_Be, q=0, spin=0, basis="3-21g", frozen_orbitals=None)
+        mol = SecondQuantizedMolecule(xyz_H2O, q=0, spin=0, basis="sto-3g", frozen_orbitals=[6], symmetry=False)
+        mol_5 = SecondQuantizedMolecule(xyz_H2O, q=0, spin=0, basis="sto-3g", frozen_orbitals=[5], symmetry=False)
         swap_mat = np.eye(mol.mo_coeff.shape[1])
-        swap_mat[1, 1] = 0.
+        swap_mat[6, 6] = 0.
         swap_mat[5, 5] = 0.
-        swap_mat[1, 5] = 1.
-        swap_mat[5, 1] = 1.
+        swap_mat[6, 5] = 1.
+        swap_mat[5, 6] = 1.
 
-        # Swap orbital 1 and 5
-        mol.mo_coeff = mol.mo_coeff@swap_mat
         solver = CCSDSolver(mol)
+        energy_before = solver.simulate()
+
+        solver_5 = CCSDSolver(mol_5)
+        energy_5 = solver_5.simulate()
+
+        # Swap orbital 6 and 5
+        mol.mo_coeff = mol.mo_coeff@swap_mat
         energy = solver.simulate()
-        self.assertAlmostEqual(energy, -14.436697, places=5)
+        # Compare to SecondQunatizedMolecule with orbital 5 frozen
+        self.assertAlmostEqual(energy, energy_5, places=5)
 
         # Swap back orbital 1 and 5
         mol.mo_coeff = mol.mo_coeff@swap_mat
-        solver = CCSDSolver(mol)
         energy = solver.simulate()
-        self.assertAlmostEqual(energy, -14.531416, places=5)
+        self.assertAlmostEqual(energy, energy_before, places=5)
 
     def test_ccsd_be_frozen_core(self):
         """ Test CCSDSolver against result from reference implementation, with
