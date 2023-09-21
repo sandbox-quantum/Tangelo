@@ -171,6 +171,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                                                 symmetry=False,
                                                 uhf=molecule.uhf,
                                                 frozen_orbitals=molecule.frozen_orbitals)
+        self.init_mo_coeff = molecule.mo_coeff
         self.basis = molecule.basis
 
     def simulate(self):
@@ -185,13 +186,15 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         if self.n_frozen_occ or self.n_frozen_vir:
             if not self.molecule.uhf:
                 mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
+                self.molecule.solver.modify_c(wfn, self.init_mo_coeff)
                 # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
                 swap_ops = Permutation(mo_order).transpositions()
                 for swap_op in swap_ops:
                     wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
             else:
-
+                # Modify Ca mo_coeff in reference wavefunction to initial mo_coeff
+                self.molecule.solver.modify_c(wfn, self.init_mo_coeff[0])
                 # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
                 mo_order = (self.molecule.frozen_occupied[0] + self.molecule.active_occupied[0]
                             + self.molecule.active_virtual[0] + self.molecule.frozen_virtual[0])
@@ -200,6 +203,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                     wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
                 # Repeat for Beta orbitals
+                self.molecule.solver.modify_c(wfn, self.init_mo_coeff[1], False)
                 mo_order_b = (self.molecule.frozen_occupied[1] + self.molecule.active_occupied[1]
                               + self.molecule.active_virtual[1] + self.molecule.frozen_virtual[1])
                 swap_ops = Permutation(mo_order_b).transpositions()
