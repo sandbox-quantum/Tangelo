@@ -15,9 +15,11 @@
 import unittest
 
 import numpy as np
+from openfermion import get_sparse_operator
 
 from tangelo import SecondQuantizedMolecule
 from tangelo.algorithms import FCISolver
+from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.molecule_library import mol_H2_321g, mol_Be_321g, mol_H4_cation_sto3g, mol_H4_sto3g, xyz_H4
 
 
@@ -98,8 +100,6 @@ class FCISolverTest(unittest.TestCase):
         # Modify orbitals
         mol.mo_coeff = unitary_mat.T@mol.mo_coeff
 
-        from openfermion import get_sparse_operator
-        from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
         op = get_sparse_operator(fermion_to_qubit_mapping(mol.fermionic_hamiltonian, "JW")).toarray()
         energy_op = np.linalg.eigh(op)[0][0]
 
