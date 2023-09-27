@@ -23,6 +23,7 @@ from math import pi
 from collections import Counter
 
 from tangelo.linq import Gate, Circuit, stack, get_unitary_circuit_pieces
+from tangelo.linq.circuit import merge_rotations
 
 # Create several abstract circuits with different features
 mygates = [Gate("H", 2), Gate("CNOT", 1, control=0), Gate("CNOT", 2, control=1),
@@ -263,7 +264,7 @@ class TestCircuits(unittest.TestCase):
         """
 
         test_circuit = Circuit([Gate("RX", 0, parameter=2.), Gate("CNOT", 1, control=0),
-                                Gate("RZ", 2, parameter=0.01), Gate("CNOT", 1, control=0),
+                                Gate("RZ", 2, parameter=1e-4), Gate("CNOT", 1, control=0),
                                 Gate("RX", 0, parameter=-2.)])
         test_circuit.remove_small_rotations(param_threshold=0.05)
 
@@ -277,12 +278,52 @@ class TestCircuits(unittest.TestCase):
         self.assertTrue([] == test_circuit._gates)
 
     def test_simple_optimization_minus_a_qubit(self):
-        """ Test if removing redundant gates deletes a qubit."""
+        """ Test if simplification can remove unnecessary qubits """
 
         test_circuit = Circuit([Gate("X", 0), Gate("H", 1), Gate("H", 1)])
-        test_circuit.remove_redundant_gates()
-
+        test_circuit.remove_redundant_gates(remove_qubits=True)
         self.assertEqual(test_circuit.width, 1)
+
+    def test_merge_rotations(self):
+        """ Merge rotation gates with identical names and qubits when applicable."""
+
+        # Combine successive rotations (2 or more) to an expected angle of pi
+        crz_pi = Circuit([Gate('RZ', 1, parameter=pi)])
+        for n_rots in [2, 5]:
+            c = Circuit([Gate('RZ', 1, parameter=pi/n_rots)]*n_rots)
+            c_new = merge_rotations(c)
+            assert(c_new == crz_pi)
+
+        # Should not be combined (differences in the qubits)
+        c = Circuit([Gate('CRZ', target=1, control=0, parameter=pi/2),
+                     Gate('CRZ', target=1, control=2, parameter=pi/3)])
+        c_new = merge_rotations(c)
+        assert (c_new == c)
+
+        # When at least one rotation is tagged variational, the combined one should be too
+        cvar = Circuit([Gate('RY', 1, parameter=1.), Gate('RY', 1, parameter=2., is_variational=True)])
+        ccvar = merge_rotations(cvar)
+        assert(ccvar == Circuit([Gate('RY', 1, parameter=3., is_variational=True)]))
+
+    def test_simplify_circuit(self):
+
+        theta = pi / 3
+        eps = 1e-4
+
+        gates = [Gate('X', i) for i in range(2)]
+        gates += [Gate('H', 0), Gate('RX', 1, parameter=-pi / 2), Gate('RY', 2, parameter=-pi / 2)]
+        gates += [Gate('CNOT', 1, 0), Gate('RX', 1, parameter=-theta), Gate('CNOT', 2, 1)]
+        gates += [Gate('RZ', 2, parameter=-theta), Gate('CRY', 2, 0, parameter=eps),
+                  Gate('RZ', 2, parameter=theta + eps)]
+        gates += [Gate('CNOT', 2, 1), Gate('RX', 1, parameter=theta - eps), Gate('CNOT', 1, 0)]
+        gates += [Gate('H', 0), Gate('RX', 1, parameter=pi / 2), Gate('RY', 2, parameter=pi / 2)]
+
+        # Check that everything except the initial X gates can be removed
+        # NB: this removes unecessary qubits as well
+        c = Circuit(gates)
+        c.simplify()
+        assert(c == Circuit([Gate('X', i) for i in range(2)]))
+        print(c.width)
 
     def test_copy(self):
         """ Test if copy function is working properly."""
