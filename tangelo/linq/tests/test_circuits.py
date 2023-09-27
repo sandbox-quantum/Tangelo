@@ -323,7 +323,6 @@ class TestCircuits(unittest.TestCase):
         c = Circuit(gates)
         c.simplify()
         assert(c == Circuit([Gate('X', i) for i in range(2)]))
-        print(c.width)
 
     def test_copy(self):
         """ Test if copy function is working properly."""
