@@ -306,6 +306,9 @@ class TestCircuits(unittest.TestCase):
         assert(ccvar == Circuit([Gate('RY', 1, parameter=3., is_variational=True)]))
 
     def test_simplify_circuit(self):
+        """ Ensure the simplify convenience function effectively combine lower-level simplification
+        passes on a circuit (removing variational gates too close to identity, redundant gates that cancel
+        each other, combine compatible variational gates...) """
 
         theta = pi / 3
         eps = 1e-4

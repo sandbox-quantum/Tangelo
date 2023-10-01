@@ -465,7 +465,8 @@ def merge_rotations(circuit: Circuit):
     gate_qubits = {i: list() for i in range(circuit.width)}
     new_gates = []
 
-    rot_gates = {"RX", "RY", "RZ", "CRX", "CRY", "CRZ"}
+    # TODO: could extend to other variational gates, standard or native to some devices (XX, etc)
+    rot_gates = {"RX", "RY", "RZ", "CRX", "CRY", "CRZ", "PHASE", "CPHASE"}
 
     for gi, gate in enumerate(circuit):
         merge_gate = False
@@ -492,7 +493,7 @@ def merge_rotations(circuit: Circuit):
                 new_gates.append(gate)
                 continue
 
-            # Rotation gate found, combining.
+            # Single rotation gate found common to all qubits: combining.
             if gate.name in rot_gates:
                 if (gate.name, gate.target, gate.control) == (g_prev.name, g_prev.target, g_prev.control):
                     merge_gate = True
