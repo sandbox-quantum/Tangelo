@@ -98,7 +98,7 @@ class Molecule:
         default_solver = IntegralSolverPySCF
     elif is_package_installed("psi4"):
         default_solver = IntegralSolverPsi4
-    elif is_package_installed("autocas"):
+    elif is_package_installed("scine_autocas"):
         default_solver = IntegralSolverAutoCAS
     else:
         default_solver = IntegralSolverEmpty

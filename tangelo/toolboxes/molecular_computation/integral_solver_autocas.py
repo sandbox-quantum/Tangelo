@@ -30,32 +30,40 @@ class IntegralSolverAutoCAS(IntegralSolver):
     scine-autocas 2.1.0 requires numpy==1.19.5, but you have numpy 1.23.5 which is incompatible
     """
 
-    def __init__(self, **settings):
+    def __init__(self, autocas_yaml=None, **settings):
         """ TODO
         """
 
-        from scine_autocas import Autocas
         from scine_autocas.autocas_utils.molecule import Molecule
-        from scine_autocas.interfaces.molcas import Molcas
         from scine_autocas.main_functions import MainFunctions
-
-        self.autocas = Autocas
         self.molecule = Molecule
-        self.molcas = Molcas
-        self.functions = MainFunctions
+        self.autocas_workflow = MainFunctions()
 
-        # Default settings.
+        self.root_folder = os.getcwd()
+
+        self.autocas_yaml = autocas_yaml
+        if autocas_yaml is None:
+            self.autocas_yaml = os.path.join(self.root_folder, "autocas_settings.yml")
+
+        # Default settings. Other settings can be modified, see this url for an
+        # example: https://github.com/qcscine/autocas/blob/master/scripts/full.yml.
         self.settings = {
-            "root_folder": os.getcwd(),
-            "project_name": "mol",
-            "method": "dmrg_ci",
-            "dmrg_bond_dimension": 250,
-            "dmrg_sweeps": 5,
-            "cholesky": True
+            "molecule": {
+                "double_d_shell": True
+            },
+            "interface": {
+                "interface": "molcas", # Theo nly one supported as of now.
+                "project_name": "mol",
+                "environment": {"molcas_scratch_dir": os.path.join(self.root_folder, "molcas_scratch")},
+                "settings": {"work_dir":  os.path.join(self.root_folder, "autocas_project")}
+            }
         }
         self.settings.update(settings)
 
-        self.xyz_file = os.path.join(self.settings["root_folder"], f"{self.settings['project_name']}.xyz")
+        self.xyz_file = os.path.join(self.root_folder, f"{self.settings['interface']['project_name']}.xyz")
+        self.settings["interface"]["settings"]["xyz_file"] = self.xyz_file
+        self.settings["molecule"]["xyz_file"] = self.xyz_file
+
 
     def set_physical_data(self, mol):
         """ TODO
@@ -64,82 +72,65 @@ class IntegralSolverAutoCAS(IntegralSolver):
         # TODO check if file already exists.
         mol.to_file(self.xyz_file)
 
-        self.autocas_mol = self.molecule(
+        # Temporary molecule to file up the number of electrons.
+        autocas_mol = self.molecule(
             xyz_file=self.xyz_file,
             charge=mol.q,
             spin_multiplicity=mol.spin + 1, # TODO verify this.
-            double_d_shell=True # TODO also verify this.
         )
-        mol.n_electrons = self.autocas_mol.electrons
+        mol.n_electrons = autocas_mol.electrons
+
+        self.settings["molecule"].update({
+            "charge": mol.q,
+            "spin_multiplicity": mol.spin + 1,
+        })
 
     def compute_mean_field(self, sqmol):
         """ TODO: add frozen_orbitals to the inplace change of the attributes.
         """
+        # PyYAML package is a requirement for autocas.
+        import yaml
 
-        autocas = self.autocas(self.autocas_mol)
-        molcas = self.molcas([self.autocas_mol])
-
-        # Setup interface
-        molcas.project_name = self.settings["project_name"]
-        molcas.settings.work_dir = os.path.join(self.settings["root_folder"], "molcas_work_dir")
-        molcas.environment.molcas_scratch_dir = os.path.join(self.settings["root_folder"], "molcas_scratch_dir")
-        molcas.settings.xyz_file = self.xyz_file
-        molcas.settings.cholesky = self.settings["cholesky"]
+        #self.settings["interface"]["settings"]["basis_set"] = sqmol.basis
 
         # Additional options related to the molecular problem.
-        molcas.settings.basis_set = sqmol.basis
-        molcas.settings.uhf = sqmol.uhf
-
         # TODO
         if sqmol.uhf == True:
             raise NotImplementedError
 
-        # Default value for first pass (TODO: not hardcoded).
-        molcas.settings.method = "dmrg_ci"
-        molcas.settings.dmrg_bond_dimension = 250
-        molcas.settings.dmrg_sweeps = 5
+        with open(self.autocas_yaml, "w", encoding="utf-8") as file:
+            yaml.dump(self.settings, file)
 
-        # Make initial active space and evaluate initial DMRG calculation.
-        occ_initial, index_initial = autocas.make_initial_active_space()
-
-        # Initial HF calculation.
-        molcas.calculate()
-
-        # Returns energy, s1, s2 and mutual_information
-        # https://github.com/qcscine/autocas/blob/67bf02866efdccb74abd40e06b56a7e8f4248ec7/scine_autocas/interfaces/molcas/__init__.py#L506-L531
-        _, s1_entropy, _, _ = molcas.calculate(occ_initial, index_initial)
-
-        # Make active space based on single orbital entropies.
-        cas_occ, cas_index = autocas.get_active_space(
-            occ_initial, s1_entropy,
-            force_cas=True # Debug argument.
-        )
-
-        # Second DMRG options (with an active based on s1 entropies).
-        molcas.settings.method = self.settings["method"]
-        molcas.settings.dmrg_bond_dimension = self.settings["dmrg_bond_dimension"]
-        molcas.settings.dmrg_sweeps = self.settings["dmrg_sweeps"]
-
-        # Do a calculation with this CAS.
-        final_energy, _, _, _ = molcas.calculate(cas_occ, cas_index)
+        self.autocas_workflow.main({
+            "yaml_input": self.autocas_yaml,
+            "xyz_file": self.xyz_file,
+            "basis_set": sqmol.basis
+        })
 
         # Set SecondQuantizedMolecule attributes.
-        sqmol.mf_energy = final_energy
-        sqmol.mo_energies = molcas.hdf5_utils.mo_energies
-        sqmol.mo_occ = molcas.hdf5_utils.occupations
+        sqmol.mf_energy = self.autocas_workflow.results["energy"]
+
+        interface = self.autocas_workflow.results["interface"]
+        sqmol.mo_energies = interface.hdf5_utils.mo_energies
+        sqmol.mo_occ = interface.hdf5_utils.occupations
+
         sqmol.n_mos = len(sqmol.mo_energies)
         sqmol.n_sos = sqmol.n_mos * 2
 
-        with h5py.File(molcas.orbital_file, "r") as h5_file:
+        with h5py.File(interface.orbital_file, "r") as h5_file:
             mo_coeff = np.array(h5_file.get("MO_VECTORS"))
         self.mo_coeff = mo_coeff.reshape((sqmol.n_mos,)*2)
 
-        print(sqmol.__dict__)
+        cas_index = self.autocas_workflow.results["final_orbital_indices"]
         sqmol.frozen_orbitals = [i for i in range(sqmol.n_mos) if i not in cas_index]
 
     def get_integrals(self, sqmol, mo_coeff=None):
         """ TODO
         """
-
         # TODO get integrals here.
+        # Here are some notes that I have gathered before this on the ice.
+        # The one-body integrals are located in mol.OneInt. However, it contains
+        # more than just the overlap integrals.
+        # The two-body integrals are decomposed with the Cholesky method by
+        # default. This is done by the SEWARD program.
         pass
