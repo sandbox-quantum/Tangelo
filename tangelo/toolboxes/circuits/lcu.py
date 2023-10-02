@@ -67,6 +67,19 @@ def get_truncated_taylor_series(qu_op: QubitOperator, kmax: int, t: float, contr
     return amplified_lcu_circuit * rsteps
 
 
+def get_truncated_taylor_series_qubits(qu_op: QubitOperator, kmax: int):
+    """Return the list of qubits used in the Truncated Taylor series circuit
+    Args:
+        qu_op (QubitOperator) :: The qubit operator to obtain the Uprep circuit for
+        kmax (int): the order of the truncated Taylor series
+    Returns:
+        List[int]: The list of qubit indices used
+    """
+    n_qubits = math.ceil(math.log2(len(qu_op.terms)))
+    qu_op_size = count_qubits(qu_op)
+    return list(range(qu_op_size + kmax+1 + kmax*n_qubits))
+
+
 def Uprepkl(qu_op: QubitOperator, kmax: int, t: float) -> Tuple[Circuit, List[QubitOperator], int]:
     """Generate Uprep circuit using qubit encoding defined in arXiv:1412.4687
     Args:
