@@ -33,6 +33,8 @@ from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import mol_to
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 
+supported_integral_solvers = ["pyscf", "psi4"]
+
 
 def atom_string_to_list(atom_string):
     """Convert atom coordinate string (typically stored in text files) into a
@@ -76,6 +78,15 @@ def get_default_integral_solver(qmmm=False):
         return IntegralSolverPsi4QMMM if qmmm else IntegralSolverPsi4
     else:
         return IntegralSolverEmpty
+
+
+def get_integral_solver_by_str_identifier(name: str, qmmm=False):
+    if name.lower() == "pyscf":
+        return IntegralSolverPySCFQMMM if qmmm else IntegralSolverPySCF
+    elif name.lower() == "psi4":
+        return IntegralSolverPsi4QMMM if qmmm else IntegralSolverPsi4
+    else:
+        raise ValueError(f"{name} is not one of the natively supported IntegralSolvers which are {supported_integral_solvers}")
 
 
 @dataclass

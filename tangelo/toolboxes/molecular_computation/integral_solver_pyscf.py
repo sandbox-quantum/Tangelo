@@ -296,7 +296,7 @@ class IntegralSolverPySCF(IntegralSolver):
 
 class IntegralSolverPySCFQMMM(IntegralSolverPySCF):
     """Instantiate Electronic Structure integration with PySCF using electrostatic embedding """
-    def __init__(self, coords, charges, chkfile=None, use_newton=False):
+    def __init__(self, charges, chkfile=None, use_newton=False):
         """Initialize the integral solver class for pyscf. A chkfile path can be
         provided.
 
@@ -310,8 +310,8 @@ class IntegralSolverPySCFQMMM(IntegralSolverPySCF):
             one (minao). No chkfile is created.
 
         Args:
-            coords (List[array-like]): The coordinates of the partial charges used for the electrostatic embedding
-            charges (List[float]): The partial charges for the electrostatic embedding
+            charges (List[Tuple[float, Tuple[float, float, float]]]): The partial charges for the electrostatic embedding as
+                a list with elements (charge, (x, y, z))
             chkfile (string): Path of the chkfile.
             use_newton (bool): Use RHF.newton() for scf iterations
         """
@@ -324,8 +324,8 @@ class IntegralSolverPySCFQMMM(IntegralSolverPySCF):
         self.qmmm = qmmm
         self.chkfile = chkfile
         self.newton = use_newton
-        self.coords = coords
-        self.charges = charges
+        self.coords = [charge[1] for charge in charges]
+        self.charges = [charge[0] for charge in charges]
 
     def compute_mean_field(self, sqmol):
         """Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following

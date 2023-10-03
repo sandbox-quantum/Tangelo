@@ -102,11 +102,10 @@ class Testpsi4(unittest.TestCase):
 
         options_both = {"basis": "sto-3g"}
         geometry = [("H", (0, 0, 0)), ("F", (0, 0, 1))]
-        charges = [-0.3]
-        coords = [(0.5, 0.6, 0.8)]
+        charges = [(-0.3, (0.5, 0.6, 0.8))]
 
         system = Fragment(solver_high="ccsd", options_low=options_both)
-        qmmm_model_cc = QMMMProblemDecomposition({"geometry": geometry, "qmfragment": system, "charges": charges, "coords": coords})
+        qmmm_model_cc = QMMMProblemDecomposition({"geometry": geometry, "qmfragment": system, "charges": charges})
 
         e_qmmm_cc = qmmm_model_cc.simulate()
         self.assertAlmostEqual(-98.62087, e_qmmm_cc, places=4)

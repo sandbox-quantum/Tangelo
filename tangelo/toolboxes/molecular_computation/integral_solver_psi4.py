@@ -244,15 +244,19 @@ class IntegralSolverPsi4(IntegralSolver):
 
 
 class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
-    """psi4 IntegrationSolver class"""
-    def __init__(self, coords, charges):
+    """Psi4 IntegrationSolver class with charges supplied for electrostatic embedding.
+
+    Args: charges (List[Tuple[float, Tuple[float, float, float]]]): The partial charges for the electrostatic embedding as
+                a list with elements (charge, (x, y, z))"""
+    def __init__(self, charges):
         import psi4
         self.backend = psi4
         self.backend.core.clean()
         self.backend.core.clean_options()
         self.backend.core.clean_variables()
-        self.coords = coords
-        self.charges = charges
+        self.combinedcharges = charges
+        self.coords = [charge[1] for charge in charges]
+        self.charges = [charge[0] for charge in charges]
 
     def set_physical_data(self, mol):
         """Set molecular data that is independant of basis set in mol

@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Our own n-layered Integrated molecular Orbital and Molecular mechanics
-(ONIOM) solver. User specifies either the number (if beginning from start of
+"""QMMM module where the user specifies either the number (if beginning from start of
 list), or the indices, of atoms which are to be identified as the model
 system(s), from the larger molecular system.
 
@@ -29,88 +28,13 @@ Reference:
     and Keiji Morokuma
     Chemical Reviews 2015 115 (12), 5678-5796. DOI: 10.1021/cr5004419.
 """
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Type
 
-from tangelo.helpers.utils import is_package_installed
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment
-from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list, get_default_integral_solver
-
-
-def get_default_mm_package():
-    if is_package_installed("openmm"):
-        return "openmm"
-    elif is_package_installed("rdkit"):
-        return "rdkit"
-    else:
-        return None
-
-
-def get_charges_and_coords_from_pdb_file(filenames: Union[str, List[str]], mmpackage: str = None):
-    """Obtain the partial charges and geometry of a molecule given as a pdb file using mmpackage
-
-    Args:
-        filename (str): The location of the pdb file
-        mmpackate (str): Either openmm or rdkit are supported.
-
-    Returns:
-        List[float]: The partial charges
-        List[Tuple[str, Tuple[float, float, float]]]: The geometry of atom name and coordinates of the partial charges
-    """
-
-    try:
-        import openbabel
-        from openbabel.openbabel import obErrorLog
-        obErrorLog.SetOutputLevel(0)
-    except ModuleNotFoundError:
-        raise ModuleNotFoundError(f"openbabel is required to use get_charges_and_coords_from_pdb_file when supplying only a pdb file."
-                                  "install with 'pip install openbabel-wheel'")
-
-    # Obtain partial charges
-    if mmpackage.lower() == "openmm":
-        from openmm.app.pdbfile import PDBFile
-        from openmm.app.forcefield import ForceField
-        from openmm import NonbondedForce
-        from openmm.app import Modeller
-        files = [filenames] if isinstance(filenames, str) else filenames
-
-        pdbs = [PDBFile(file) for file in files]
-        modeller = Modeller(pdbs[0].topology, pdbs[0].positions)
-        for pdb in pdbs[1:]:
-            modeller.add(pdb.topology, pdb.positions)
-        forcefield = ForceField('amber14-all.xml', 'amber14/tip3pfb.xml')
-        system = forcefield.createSystem(modeller.topology)
-        nonbonded = [f for f in system.getForces() if isinstance(f, NonbondedForce)][0]
-        charges = [nonbonded.getParticleParameters(i)[0]._value for i in range(system.getNumParticles())]
-        # Obtain xyz string
-        mol = openbabel.openbabel.OBMol()
-        conv = openbabel.openbabel.OBConversion()
-        conv.SetInAndOutFormats("pdb", "xyz")
-        geom = []
-        for file in filenames:
-            _ = conv.ReadFile(mol, file)
-            geometry = conv.WriteString(mol)
-            geom += atom_string_to_list(geometry.split("\n", 2)[2:][0])
-    elif mmpackage.lower() == "rdkit":
-        import rdkit
-        from rdkit.Chem import AllChem
-        # Combine all pdf files into one molecule
-        files = [filenames] if isinstance(filenames, str) else filenames
-        rdmol = rdkit.Chem.rdmolfiles.MolFromPDBFile(files[0], removeHs=False)
-        for file in files[1:]:
-            mol_to_add = rdkit.Chem.rdmolfiles.MolFromPDBFile(file, removeHs=False)
-            rdmol = rdkit.Chem.rdmolops.CombineMols(rdmol, mol_to_add)
-        rdkit.Chem.SanitizeMol(rdmol)
-
-        # Read charges and geometry
-        mmff_props = AllChem.MMFFGetMoleculeProperties(rdmol, mmffVariant="MMFF94")
-        charges = [mmff_props.GetMMFFPartialCharge(i) for i in range(rdmol.GetNumAtoms())]
-        rdkit.Chem.SanitizeMol(rdmol)
-        new_xyz = rdkit.Chem.rdmolfiles.MolToXYZBlock(rdmol)
-        # Strip first two lines and convert to standard format
-        geom = atom_string_to_list("".join([val+"\n" for val in new_xyz.split('\n')[2:]]))
-
-    return charges, geom
+from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list, get_default_integral_solver, get_integral_solver_by_str_identifier
+from tangelo.toolboxes.molecular_computation.mm_charges_solver import MMChargesSolver, get_default_mm_package, get_mm_package
+from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 
 
 class QMMMProblemDecomposition(ProblemDecomposition):
@@ -125,49 +49,47 @@ class QMMMProblemDecomposition(ProblemDecomposition):
             geometry (string or list): XYZ atomic coords (in "str float float..."
                 or [[str, (float, float, float)], ...] format) or a pdb file.
                 If a pdb file is used, openMM must be installed.
-            charges (List[(float, int)]): The charges used for the electrostatic embedding of the QM region.
-                Each item in the list is a float corresponding to the charge.
-                Not necessary if using a pdb file.
-            coords (List[(float, float, float)]): The corresponding coordinates of the charges used for the electrostatic embedding.
-                Each item in the list is a tuple of floats (x, y, z) for each partial charge from the MM region.
-                Not necessary if using a pdb file.
+            charges (Union[List[str], List[Tuple[float, Tuple[float, float, float]]]]): The charges and their positions
+                used for the electrostatic embedding of the QM region.
+                Each item in the list is either a filename or (charge, (x, y, z))
             qmfragment (Fragment): Specification of the QM region its solvers.
+            mmpackage (Union[MMChargesSolver, str]): Either a str identifier for an MMChargesSolver or an MMChargesSolverObject
+            integral_solver (IntegralSolver): An unitialized IntegralSolver class that accepts charges as an argument in the form
+                as defined above
             verbose (bolean): Verbose flag.
         """
 
         copt_dict = opt_dict.copy()
         self.geometry: Union[str, List[Tuple[str, Tuple[float]]]] = copt_dict.pop("geometry", None)
-        self.charges: List(float) = copt_dict.pop("charges", None)
-        self.coords: List[Tuple[float]] = copt_dict.pop("coords", None)
-        if self.charges is not None and self.coords is not None and len(self.charges) != len(self.coords):
-            raise ValueError(f"The length of the coords and charges lists must be the same but coords has length {len(self.coords)}"
-                             f"while charges has length {len(self.charges)}")
+        self.charges: Union[List(str), List[Tuple[float, Tuple[float, float, float]]]] = copt_dict.pop("charges", None)
         self.qmfragment: Fragment = copt_dict.pop("qmfragment", None)
         self.verbose: bool = copt_dict.pop("verbose", False)
-        self.mmpackage: str = copt_dict.pop("mmpackage", get_default_mm_package())
+        mmpackage: Union[MMChargesSolver, str] = copt_dict.pop("mmpackage", "default")
+        self.mmpackage: MMChargesSolver = mmpackage if isinstance(mmpackage, MMChargesSolver) else get_mm_package(mmpackage)
+        integral_solver: IntegralSolver = copt_dict.pop("integral_solver", "default")
+
         self.supported_mm_packages = ["openmm", "rdkit"]
 
-        self.mmcharges: List[float] = []
-        self.mmcoords: List[Tuple[float]] = []
+        self.mmcharges: List[Tuple[float, Tuple[float, float, float]]] = []
         self.pdbgeometry = False
+        self.qmcharges = None
 
-        if self.geometry[-3:] == "pdb":
+        if isinstance(self.geometry, str):
             self.pdbgeometry = True
             if self.mmpackage is None:
                 raise ModuleNotFoundError(f"Any of {self.supported_mm_packages} is required to use {self.__class__.__name__} when supplying only a pdb file")
-            elif self.mmpackage.lower() not in self.supported_mm_packages:
-                raise ValueError(f"{self.__class__.__name__} only supports the following MM packages {self.supported_mm_packages}")
 
-            self.pdbcharges, self.geometry = get_charges_and_coords_from_pdb_file(self.geometry, self.mmpackage)
-        if isinstance(self.charges, list) and self.coords is None:
-            charges, geometry = get_charges_and_coords_from_pdb_file(self.charges, self.mmpackage)
-            self.mmcharges += charges
-            self.mmcoords += [geom[1] for geom in geometry]
+            qmcharges, self.geometry = self.mmpackage.get_charges([self.geometry])
+            self.qmcharges = [(charge, self.geometry[i][1]) for i, charge in enumerate(qmcharges)]
+        if isinstance(self.charges, list) and isinstance(self.charges[0], str):
+            charges, geometry = self.mmpackage.get_charges(self.charges)
+            self.mmcharges += [(charge, geometry[i][1]) for i, charge in enumerate(charges)]
 
         if len(copt_dict.keys()) > 0:
             raise KeyError(f"Keywords :: {copt_dict.keys()}, not available in {self.__class__.__name__}.")
 
         # Raise error/warnings if input is not as expected
+
         if not self.geometry or not self.qmfragment:
             raise ValueError(f"A geometry and qm fragment must be provided when instantiating {self.__class__.__name__}.")
 
@@ -175,7 +97,11 @@ class QMMMProblemDecomposition(ProblemDecomposition):
 
         self.distribute_atoms()
 
-        self.integral_solver = get_default_integral_solver(qmmm=True)(self.mmcoords, self.mmcharges)
+        if isinstance(integral_solver, str):
+            self.integral_solver = (get_default_integral_solver(qmmm=True)(charges=self.mmcharges) if integral_solver == "default" else
+                                    get_integral_solver_by_str_identifier(integral_solver, qmmm=True)(charges=self.mmcharges))
+        else:
+            self.integral_solver = integral_solver(charges=self.mmcharges)
 
         self.qmfragment.build(self.integral_solver)
 
@@ -184,8 +110,7 @@ class QMMMProblemDecomposition(ProblemDecomposition):
         object. Depending on the input, the method has several behaviors.
         """
 
-        if self.coords is not None:
-            self.mmcoords += self.coords
+        if isinstance(self.charges, list) and isinstance(self.charges[0], tuple):
             self.mmcharges += self.charges
 
         # Case when no atoms are selected -> whole system. i.e. no added partial charges
@@ -194,16 +119,14 @@ class QMMMProblemDecomposition(ProblemDecomposition):
         # Case where an int is detected -> first n atoms.
         elif type(self.qmfragment.selected_atoms) is int:
             self.qmfragment.geometry = self.geometry[:self.qmfragment.selected_atoms]
-            if self.coords is None:
-                self.mmcoords += [self.geometry[n][1] for n in range(self.qmfragment.selected_atoms)]
-                self.mmcharges += self.pdbcharges[self.qmfragment.selected_atoms:]
+            if self.pdbgeometry:
+                self.mmcharges += self.qmcharges[self.qmfragment.selected_atoms:]
         # Case where a list of int is detected -> atom indexes are selected.
         # First atom is 0.
         elif isinstance(self.qmfragment.selected_atoms, list) and all(isinstance(id_atom, int) for id_atom in self.qmfragment.selected_atoms):
             self.qmfragment.geometry = [self.geometry[n] for n in self.qmfragment.selected_atoms]
-            if self.coords is None:
-                self.mmcoords += [self.geometry[n][1] for n in range(len(self.geometry)) if n not in self.qmfragment.selected_atoms]
-                self.mmcharges += [self.pdbcharges[n] for n in range(len(self.geometry)) if n not in self.qmfragment.selected_atoms]
+            if self.pdbgeometry:
+                self.mmcharges += [self.qmcharges[n] for n in range(len(self.geometry)) if n not in self.qmfragment.selected_atoms]
         # Otherwise, an error is raised (list of float, str, etc.).
         else:
             raise TypeError("selected_atoms must be an int or a list of int.")

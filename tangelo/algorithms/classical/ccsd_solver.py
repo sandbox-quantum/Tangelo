@@ -161,7 +161,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                                  f"with a UHF reference in {self.__class__.__name__}")
 
         # Frozen orbitals must be declared before calling compute_mean_field to be saved in ref_wfn for Psi4 ccsd.
-        intsolve = IntegralSolverPsi4() if not hasattr(molecule.solver, "charges") else IntegralSolverPsi4QMMM(molecule.solver.coords, molecule.solver.charges)
+        intsolve = IntegralSolverPsi4() if not hasattr(molecule.solver, "charges") else IntegralSolverPsi4QMMM(molecule.solver.combinedcharges)
         self.backend.set_options({'basis': molecule.basis, 'frozen_docc': [self.n_frozen_occ], 'frozen_uocc': [self.n_frozen_vir],
                                   'reference': self.ref})
 
