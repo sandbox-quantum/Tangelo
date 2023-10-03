@@ -40,8 +40,8 @@ from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolv
 class QMMMProblemDecomposition(ProblemDecomposition):
 
     def __init__(self, opt_dict: dict):
-        """Main class for the QMMM hybrid solver. It defines a QM region to be solved using quantum chemistry
-        and an MM region solved via a force field.
+        """Main class for the QM/MM hybrid solver. It defines a QM region (to be solved using quantum chemistry
+        or the quantum computer) and an MM region solved via a force field.
 
         The QM region includes the partial charges from a force-field calculation.
 
