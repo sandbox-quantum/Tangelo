@@ -16,17 +16,17 @@
 list), or the indices, of atoms which are to be identified as the model
 system(s), from the larger molecular system.
 
-Main model class for running oniom-calculations. This is analogous to the
+Main model class for running qmmm-calculations. This is analogous to the
 scf.RHF, etc. methods, requiring however a bit more information. User supplies
 an atomic-geometry, and specifies the system, as well as necessary models,
 of increasing sophistication.
 
 Reference:
-    - The ONIOM Method and Its Applications. Lung Wa Chung, W. M. C. Sameera,
-    Romain Ramozzi, Alister J. Page, Miho Hatanaka, Galina P. Petrova,
-    Travis V. Harris, Xin Li, Zhuofeng Ke, Fengyi Liu, Hai-Bei Li, Lina Ding
-    and Keiji Morokuma
-    Chemical Reviews 2015 115 (12), 5678-5796. DOI: 10.1021/cr5004419.
+    - A. Warshel, M. Levitt,
+    Theoretical studies of enzymic reactions: Dielectric, electrostatic and steric stabilization of the carbonium ion in the reaction of lysozyme,
+    Journal of Molecular Biology,
+    Volume 103, Issue 2, 1976, Pages 227-249.
+    https://doi.org/10.1016/0022-2836(76)90311-9.
 """
 from typing import List, Union, Tuple, Type
 
@@ -55,7 +55,7 @@ class QMMMProblemDecomposition(ProblemDecomposition):
             qmfragment (Fragment): Specification of the QM region its solvers.
             mmpackage (Union[MMChargesSolver, str]): Either a str identifier for an MMChargesSolver or an MMChargesSolverObject
             integral_solver (IntegralSolver): An unitialized IntegralSolver class that accepts charges as an argument in the form
-                as defined above
+                as defined above.
             verbose (bolean): Verbose flag.
         """
 
