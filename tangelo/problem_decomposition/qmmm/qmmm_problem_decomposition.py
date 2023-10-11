@@ -28,12 +28,12 @@ Reference:
     Volume 103, Issue 2, 1976, Pages 227-249.
     https://doi.org/10.1016/0022-2836(76)90311-9.
 """
-from typing import List, Union, Tuple, Type
+from typing import List, Union, Tuple
 
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment
 from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list, get_default_integral_solver, get_integral_solver_by_str_identifier
-from tangelo.toolboxes.molecular_computation.mm_charges_solver import MMChargesSolver, get_default_mm_package, get_mm_package
+from tangelo.toolboxes.molecular_computation.mm_charges_solver import MMChargesSolver, get_mm_package
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 
 
