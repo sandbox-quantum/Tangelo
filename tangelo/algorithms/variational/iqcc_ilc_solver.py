@@ -256,21 +256,21 @@ class iQCC_ILC_solver:
         if self.compress_qubit_ham:
             self.ilc_ansatz.qubit_ham.frobenius_norm_compression(self.compress_eps, n_qubits)
 
-        # set dis, acs, and var_params to none to rebuild the dis & acs and initialize new parameters
-        self.ilc_ansatz.dis = None
-        self.ilc_ansatz.acs = None
-        self.ilc_ansatz.var_params = None
-        self.ilc_ansatz.build_circuit()
-
-        self.vqe_solver.qubit_hamiltonian = self.ilc_ansatz.qubit_ham
-        self.vqe_solver.initial_var_params = self.ilc_ansatz.var_params
-
         if self.iteration == self.max_ilc_iter:
             self.terminate_ilc = True
             self.final_optimal_qmf_params = optimal_qmf_var_params
             self.final_optimal_ilc_params = optimal_ilc_var_params
             if self.verbose:
                 print(f"Terminating the ILC-VQE solver after {self.max_ilc_iter} iterations.")
+        else:
+            # set dis, acs, and var_params to none to rebuild the dis & acs and initialize new parameters
+            self.ilc_ansatz.dis = None
+            self.ilc_ansatz.acs = None
+            self.ilc_ansatz.var_params = None
+            self.ilc_ansatz.build_circuit()
+
+            self.vqe_solver.qubit_hamiltonian = self.ilc_ansatz.qubit_ham
+            self.vqe_solver.initial_var_params = self.ilc_ansatz.var_params
 
     def _update_qcc_solver(self, e_iqcc_ilc):
         """Updates after the final QCC energy evaluation with the final ILC dressed

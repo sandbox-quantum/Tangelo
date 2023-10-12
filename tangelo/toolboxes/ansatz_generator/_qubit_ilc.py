@@ -212,73 +212,10 @@ def gauss_elim_over_gf2(a_mat, b_vec=None):
     return np.array(z_sln, dtype=int)
 
 
-def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params):
+def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params, return_energy=False):
     """Driver function that solves the generalized eigenvalue problem Hc = ESc required
     to obtain the ground state coefficients (ILC parameters). These are subsequently recast
     according to Appendix C of Ref. 1 in a form that is suitable for constructing ILC circuits.
-
-    Args:
-        qubit_ham (QubitOperator): the qubit Hamiltonian of the system.
-        ilc_gens (list of QubitOperator): the anticommuting set of ILC Pauli words.
-
-    Returns:
-        list of float: the ILC parameters corresponding to the ACS of ILC generators
-    """
-
-    # Add the identity operator to the local copy of the ACS
-    ilc_gens.insert(0, QubitOperator.identity())
-    n_var_params = len(ilc_gens)
-    qubit_ham_mat = np.zeros((n_var_params, n_var_params), dtype=complex)
-    qubit_overlap_mat = np.zeros((n_var_params, n_var_params), dtype=complex)
-
-    # Construct the lower triangular matrices for the qubit Hamiltonian and overlap integrals
-    for i in range(n_var_params):
-        # H T_i|QMF> = H |psi_i>
-        h_psi_i = qubit_ham * ilc_gens[i]
-
-        # <QMF|T_i H T_i|QMF> = <psi_i| H | psi_i> = H_ii
-        qubit_ham_mat[i, i] = get_op_expval(ilc_gens[i] * h_psi_i, qmf_var_params)
-
-        # <QMF|T_i T_i|QMF> = <psi_i|psi_i> = 1
-        qubit_overlap_mat[i, i] = 1. + 0j
-
-        for j in range(i+1, n_var_params):
-            # <QMF|T_j H T_i|QMF> = <psi_j| H | psi_i> = H_ji
-            qubit_ham_mat[j, i] = get_op_expval(ilc_gens[j] * h_psi_i, qmf_var_params)
-
-            # <QMF|T_j T_i|QMF> = <psi_j|psi_i> --> exactly zero only for pure QMF states
-            qubit_overlap_mat[j, i] = get_op_expval(ilc_gens[j] * ilc_gens[i], qmf_var_params)
-            if i == 0:
-                qubit_ham_mat[j, i] *= 1j
-                qubit_overlap_mat[j, i] *= 1j
-
-    # Solve the generalized eigenvalue problem
-    _, subspace_coefs = scipy.linalg.eigh(a=qubit_ham_mat, b=qubit_overlap_mat, lower=True, driver="gvd")
-
-    # Compute the ILC parameters using the ground state coefficients
-    gs_coefs = subspace_coefs[:, 0]
-    if gs_coefs[0].real < 0.:
-        gs_coefs = -gs_coefs
-    denom_sum, ilc_var_params = 0., []
-    for i in range(2):
-        denom_sum += abs(gs_coefs[i])**2
-    beta_1 = np.arcsin(gs_coefs[1] / np.sqrt(denom_sum))
-    ilc_var_params.append(beta_1.real)
-    for i in range(2, n_var_params):
-        denom_sum += abs(gs_coefs[i])**2
-        beta = np.arcsin(gs_coefs[i] / np.sqrt(denom_sum))
-        ilc_var_params.append(beta.real)
-    del ilc_gens[0]
-    return ilc_var_params
-
-
-def get_ilc_params_by_diag_with_energy(qubit_ham, ilc_gens, qmf_var_params):
-    """Driver function that solves the generalized eigenvalue problem Hc = ESc required
-    to obtain the ground state coefficients (ILC parameters). These are subsequently recast
-    according to Appendix C of Ref. 1 in a form that is suitable for constructing ILC circuits.
-
-    This version generates the parameters assuming the exact circuit expansion of Eq. 17 of
-    https://arxiv.org/pdf/2002.05701.pdf
 
     Args:
         qubit_ham (QubitOperator): the qubit Hamiltonian of the system.
@@ -320,13 +257,20 @@ def get_ilc_params_by_diag_with_energy(qubit_ham, ilc_gens, qmf_var_params):
 
     # Compute the ILC parameters using the ground state coefficients
     gs_coefs = subspace_coefs[:, 0]
-    tau = np.arccos(gs_coefs[0])
-    ilc_var_params = []
-    for j, val in enumerate(gs_coefs[1:]):
-        ilc_var_params += [val/np.sin(tau)*tau]
-
+    if gs_coefs[0].real < 0.:
+        gs_coefs = -gs_coefs
+    denom_sum, ilc_var_params = 0., []
+    for i in range(2):
+        denom_sum += abs(gs_coefs[i])**2
+    beta_1 = np.arcsin(gs_coefs[1] / np.sqrt(denom_sum))
+    ilc_var_params.append(beta_1.real)
+    for i in range(2, n_var_params):
+        denom_sum += abs(gs_coefs[i])**2
+        beta = np.arcsin(gs_coefs[i] / np.sqrt(denom_sum))
+        ilc_var_params.append(beta.real)
     del ilc_gens[0]
-    return ilc_var_params, energies[0]
+    ilc_params = [-param for param in ilc_var_params]
+    return ilc_params if not return_energy else (ilc_params, energies[0])
 
 
 def build_ilc_qubit_op_list(acs_gens, ilc_params):
@@ -345,9 +289,9 @@ def build_ilc_qubit_op_list(acs_gens, ilc_params):
     """
 
     n_amps = len(ilc_params)
-    ilc_op_list = [-.5 * ilc_params[i] * acs_gens[i] for i in range(n_amps-1, 0, -1)]
-    ilc_op_list += [-ilc_params[0] * acs_gens[0]]
-    ilc_op_list += [-.5 * ilc_params[i] * acs_gens[i] for i in range(1, n_amps)]
+    ilc_op_list = [-.5 * ilc_params[i] * acs_gens[i] for i in range(0, n_amps-1)]
+    ilc_op_list += [-ilc_params[n_amps-1] * acs_gens[n_amps-1]]
+    ilc_op_list += [-.5 * ilc_params[i] * acs_gens[i] for i in range(n_amps-2, -1, -1)]
     return ilc_op_list
 
 
@@ -400,38 +344,4 @@ def ilc_op_dress(qubit_op, ilc_gens, ilc_params):
             qop_dress += sin2_tau * alphas[i] * alphas[j] * (ilc_gens[i] * qubit_op * ilc_gens[j]
                                                              + ilc_gens[j] * qubit_op * ilc_gens[i])
     qop_dress.compress()
-    return qop_dress
-
-
-def ilc_op_dress_exact(qubit_op, ilc_gens, ilc_params):
-    """Performs transformation of a qubit operator with the ACS of ILC generators and
-    parameters. For a set of N generators, each qubit operator transformation results
-    in quadratic (N * (N-1) / 2) growth of the number of its terms.
-
-    This version is taken from equation 17 of https://arxiv.org/pdf/2002.05701.pdf
-
-    Args:
-        qubit_op (QubitOperator): A qubit operator to be dressed.
-        ilc_gens (list of QubitOperator): The list of ILC Pauli word generators
-            selected from a user-specified number of characteristic ACS groups.
-        ilc_params (list or numpy array of float): The ILC variational parameters
-            arranged such that their ordering matches the ordering of ilc_gens.
-
-    Returns:
-        QubitOperator: Dressed qubit operator.
-    """
-
-    # first, recast the beta parameters into the set of coefficients {c_n}
-    tau = np.linalg.norm(ilc_params)
-    alphas = np.array(ilc_params)/tau
-
-    ctau2 = np.cos(tau)**2
-    s2tau = np.sin(2*tau)
-    stau2 = np.sin(tau)**2
-    qop_dress = ctau2*qubit_op
-    for i, ai in enumerate(alphas):
-        qop_dress += -1j/2*s2tau*ai*commutator(qubit_op, ilc_gens[i])
-        for j, aj in enumerate(alphas):
-            qop_dress += stau2*ai*aj*(ilc_gens[i] * qubit_op * ilc_gens[j])
-
     return qop_dress
