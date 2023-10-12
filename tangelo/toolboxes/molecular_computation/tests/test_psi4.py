@@ -25,6 +25,8 @@ from tangelo.algorithms.variational import SA_OO_Solver, BuiltInAnsatze, ADAPTSo
 from tangelo.molecule_library import xyz_H4, mol_H4_minao, xyz_H2, mol_H4_sto3g_uhf_a1_frozen
 
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))+"/"
+pdb = pwd_this_test + "ala_ala_ala.pdb"
+pdb_shifted = pwd_this_test + "ala_ala_ala_shifted.pdb"
 
 
 @unittest.skipIf("psi4" not in installed_chem_backends, "Test Skipped: Backend not available \n")
@@ -96,7 +98,7 @@ class Testpsi4(unittest.TestCase):
 
         self.assertAlmostEqual(iqcc_energy, -1.95831, places=3)
 
-    def test_oniom_energy_ccsd_hf(self):
+    def test_qmmm_energy_ccsd_hf(self):
         """Testing the QMMM energy with a HF molecule and an partial charge of -0.3 at (0.5, 0.6, 0.8)
         """
 
@@ -114,23 +116,15 @@ class Testpsi4(unittest.TestCase):
         """Test that the reference energy is returned when an H2 QM geometry is placed next to a pdb charges with VQE as the solver
         for both rdkit and openmm"""
 
-        qmmm_h2 = QMMMProblemDecomposition({"geometry": [("H", (-2, 0, 0)), ("H", (-2, 0, 1))], "charges": [pwd_this_test+"ala_ala_ala.pdb",
-                                                                                                            pwd_this_test+"ala_ala_ala_shifted.pdb"],
-                                            "mmpackage": "rdkit", "qmfragment": Fragment(solver_high="vqe",
-                                                                                         options_high={"basis": "sto-3g", "ansatz": BuiltInAnsatze.QCC,
-                                                                                                       "up_then_down": True})})
-        energy = qmmm_h2.simulate()
-        self.assertAlmostEqual(-1.102619, energy, delta=1.e-5)
-        self.assertEqual(qmmm_h2.get_resources()["qubit_hamiltonian_terms"], 27)
-
-        qmmm_h2 = QMMMProblemDecomposition({"geometry": [("H", (-2, 0, 0)), ("H", (-2, 0, 1))], "charges": [pwd_this_test+"ala_ala_ala.pdb",
-                                                                                                            pwd_this_test+"ala_ala_ala_shifted.pdb"],
-                                            "mmpackage": "openmm", "qmfragment": Fragment(solver_high="vqe",
-                                                                                          options_high={"basis": "sto-3g", "ansatz": BuiltInAnsatze.QCC,
-                                                                                                        "up_then_down": True})})
-        energy = qmmm_h2.simulate()
-        self.assertAlmostEqual(-1.102889, energy, delta=1.e-5)
-        self.assertEqual(qmmm_h2.get_resources()["qubit_hamiltonian_terms"], 27)
+        ref_ener = {"rdkit": -1.102619, "openmm": -1.102889}
+        for mmpackage in ["rdkit", "openmm"]:
+            qmmm_h2 = QMMMProblemDecomposition({"geometry": [("H", (-2, 0, 0)), ("H", (-2, 0, 1))], "charges":  [pdb, pdb_shifted],
+                                                "mmpackage": mmpackage, "qmfragment": Fragment(solver_high="vqe",
+                                                                                               options_high={"basis": "sto-3g", "ansatz": BuiltInAnsatze.QCC,
+                                                                                                             "up_then_down": True})})
+            energy = qmmm_h2.simulate()
+            self.assertAlmostEqual(ref_ener[mmpackage], energy, delta=1.e-5)
+            self.assertEqual(qmmm_h2.get_resources()["qubit_hamiltonian_terms"], 27)
 
 
 if __name__ == "__main__":

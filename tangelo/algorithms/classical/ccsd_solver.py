@@ -174,7 +174,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                                                 frozen_orbitals=molecule.frozen_orbitals)
 
         self.init_mo_coeff = molecule.mo_coeff
-        self.extra_energy = 0. if not hasattr(molecule.solver, "charges") else self.molecule.solver.ext_pot.computeNuclearEnergy(self.molecule.solver.mol)
+        self.extra_nuc_energy = 0. if not hasattr(molecule.solver, "charges") else self.molecule.solver.ext_pot.computeNuclearEnergy(self.molecule.solver.mol)
         self.basis = molecule.basis
 
     def simulate(self):
@@ -222,7 +222,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         else:
             energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
                                                      basis=self.basis, return_wfn=True, ref_wfn=wfn)
-        return energy + self.extra_energy
+        return energy + self.extra_nuc_energy
 
     def get_rdm(self):
         """Compute the Full CI 1- and 2-particle reduced density matrices.

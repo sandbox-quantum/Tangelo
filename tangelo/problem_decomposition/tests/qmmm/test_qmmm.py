@@ -22,6 +22,8 @@ from tangelo.toolboxes.molecular_computation.mm_charges_solver import MMChargesS
 from tangelo.toolboxes.molecular_computation.molecule import get_default_integral_solver
 
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))+"/"
+pdb_file = pwd_this_test + "ala_ala_ala.pdb"
+pdb_file_shifted = pwd_this_test + "ala_ala_ala_shifted.pdb"
 
 
 class QMMMTest(unittest.TestCase):
@@ -43,17 +45,19 @@ class QMMMTest(unittest.TestCase):
     def test_energy_ccsd_ala_ala_ala(self):
         """Test that the QM/MM energy is correct when a pdb file is provided and indices are selected as qm region using Fragment"""
 
+        # Test for selected atoms with default integral solver.
         frag = Fragment(solver_high="ccsd", selected_atoms=[6, 7, 8, 9], broken_links=[Link(6, 4, factor=0.71)],
                         options_high={"basis": "sto-3g"})
-        qmmm = QMMMProblemDecomposition({"geometry": pwd_this_test+"ala_ala_ala.pdb", "qmfragment": frag, "mmpackage": "rdkit"})
+        qmmm = QMMMProblemDecomposition({"geometry": pdb_file, "qmfragment": frag, "mmpackage": "rdkit"})
 
         energy = qmmm.simulate()
 
         self.assertAlmostEqual(-39.67720, energy, delta=1.e-4)
 
+        # Test when supplying an integral solver.
         frag = Fragment(solver_high="ccsd", selected_atoms=[6, 7, 8, 9], broken_links=[Link(6, 4, factor=0.71)],
                         options_high={"basis": "sto-3g"})
-        qmmm = QMMMProblemDecomposition({"geometry": pwd_this_test+"ala_ala_ala.pdb", "qmfragment": frag, "mmpackage": "rdkit",
+        qmmm = QMMMProblemDecomposition({"geometry": pdb_file, "qmfragment": frag, "mmpackage": "rdkit",
                                          "integral_solver": get_default_integral_solver(qmmm=True)})
 
         energy = qmmm.simulate()
@@ -63,23 +67,14 @@ class QMMMTest(unittest.TestCase):
     def test_energy_vqe_h2_ala_ala_ala(self):
         """Test that the reference energy is returned when an H2 QM geometry is placed next to a pdb charges with VQE as the solver"""
 
-        qmmm_h2 = QMMMProblemDecomposition({"geometry": [("H", (-2, 0, 0)), ("H", (-2, 0, 1))], "charges": [pwd_this_test+"ala_ala_ala.pdb",
-                                                                                                            pwd_this_test+"ala_ala_ala_shifted.pdb"],
-                                            "mmpackage": "rdkit",
-                                            "qmfragment": Fragment(solver_high="vqe", options_high={"basis": "sto-3g", "ansatz": BuiltInAnsatze.QCC,
-                                                                                                    "up_then_down": True})})
-        energy = qmmm_h2.simulate()
-        self.assertAlmostEqual(-1.102619, energy, delta=1.e-5)
-        self.assertEqual(qmmm_h2.get_resources()["qubit_hamiltonian_terms"], 27)
-
-        qmmm_h2 = QMMMProblemDecomposition({"geometry": [("H", (-2, 0, 0)), ("H", (-2, 0, 1))], "charges": [pwd_this_test+"ala_ala_ala.pdb",
-                                                                                                            pwd_this_test+"ala_ala_ala_shifted.pdb"],
-                                            "mmpackage": MMChargesSolverRDKit(),
-                                            "qmfragment": Fragment(solver_high="vqe", options_high={"basis": "sto-3g", "ansatz": BuiltInAnsatze.QCC,
-                                                                                                    "up_then_down": True})})
-        energy = qmmm_h2.simulate()
-        self.assertAlmostEqual(-1.102619, energy, delta=1.e-5)
-        self.assertEqual(qmmm_h2.get_resources()["qubit_hamiltonian_terms"], 27)
+        for mmpackage in ["rdkit", MMChargesSolverRDKit()]:
+            qmmm_h2 = QMMMProblemDecomposition({"geometry": [("H", (-2, 0, 0)), ("H", (-2, 0, 1))], "charges": [pdb_file, pdb_file_shifted],
+                                                "mmpackage": mmpackage,
+                                                "qmfragment": Fragment(solver_high="vqe", options_high={"basis": "sto-3g", "ansatz": BuiltInAnsatze.QCC,
+                                                                                                        "up_then_down": True})})
+            energy = qmmm_h2.simulate()
+            self.assertAlmostEqual(-1.102619, energy, delta=1.e-5)
+            self.assertEqual(qmmm_h2.get_resources()["qubit_hamiltonian_terms"], 27)
 
 
 if __name__ == "__main__":

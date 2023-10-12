@@ -19,7 +19,7 @@ from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolv
 
 
 class IntegralSolverPsi4(IntegralSolver):
-    """psi4 IntegrationSolver class"""
+    """psi4 IntegralSolver class"""
     def __init__(self):
         import psi4
         self.backend = psi4
@@ -244,16 +244,12 @@ class IntegralSolverPsi4(IntegralSolver):
 
 
 class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
-    """Psi4 IntegrationSolver class with charges supplied for electrostatic embedding.
+    """Psi4 IntegralSolver class with charges supplied for electrostatic embedding.
 
     Args: charges (List[Tuple[float, Tuple[float, float, float]]]): The partial charges for the electrostatic embedding as
                 a list with elements (charge, (x, y, z))"""
     def __init__(self, charges):
-        import psi4
-        self.backend = psi4
-        self.backend.core.clean()
-        self.backend.core.clean_options()
-        self.backend.core.clean_variables()
+        super().__init__()
         self.combinedcharges = charges
         self.coords = [charge[1] for charge in charges]
         self.charges = [charge[0] for charge in charges]
@@ -270,7 +266,8 @@ class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
 
         Args:
             mol (Molecule or SecondQuantizedMolecule): Class to add the other variables given populated.
-                mol.xyz (in appropriate format for solver): Definition of molecular geometry.
+                mol.xyz (in appropriate format for solver): Definition of molecular geometry. If supplying an input file,
+                    nocom and noreorient should be provided.
                 mol.q (float): Total charge.
                 mol.spin (int): Absolute difference between alpha and beta electron number.
         """
@@ -403,77 +400,3 @@ class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
                    + np.asarray(self.mints.ao_kinetic()))
         self.tb = np.asarray(self.mints.ao_eri())
         self.core_constant = self.mol.nuclear_repulsion_energy() + self.ext_pot.computeNuclearEnergy(self.wfn.molecule())
-
-    def get_integrals(self, sqmol, mo_coeff=None):
-        r"""Computes core constant, one_body, and two-body integrals for all orbitals
-
-        one-body integrals should be in the form
-        h[p,q]= \int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
-
-        two-body integrals should be in the form
-        h[p,q,r,s] = \int \phi_p(x) * \phi_q(y) * V_{elec-elec} \phi_r(y) \phi_s(x) dxdy
-
-        Using molecular orbitals \phi_j(x) = \sum_{ij} A_i(x) mo_coeff_{i,j} where A_i(x) are the atomic orbitals.
-
-        For UHF (if sqmol.uhf is True)
-        one_body coefficients are [alpha one_body, beta one_body]
-        two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]
-
-        where one_body and two_body are appropriately sized arrays for each spin sector.
-
-        Args:
-            sqmol (SecondQuantizedMolecule) : SecondQuantizedMolecule populated with all variables defined above
-            mo_coeff : Molecular orbital coefficients to use for calculating the integrals, instead of self.mo_coeff
-
-        Returns:
-            (float, array or List[array], array or List[array]): (core_constant, one_body coefficients, two_body coefficients)
-        """
-        if mo_coeff is None:
-            mo_coeff = self.mo_coeff
-
-        if sqmol.uhf:
-            return self.compute_uhf_integrals(mo_coeff)
-
-        ob = mo_coeff.T@self.ob@mo_coeff
-        eed = self.tb.copy()
-        eed = np.einsum("ij,jlmn -> ilmn", mo_coeff.T, eed)
-        eed = np.einsum("kl,jlmn -> jkmn", mo_coeff.T, eed)
-        eed = np.einsum("jlmn, mk -> jlkn", eed, mo_coeff)
-        eed = np.einsum("jlmn, nk -> jlmk", eed, mo_coeff)
-        tb = eed.transpose(0, 2, 3, 1)
-
-        return self.core_constant, ob, tb
-
-    def compute_uhf_integrals(self, mo_coeff):
-        """Compute 1-electron and 2-electron integrals
-        The return is formatted as
-        [numpy.ndarray]*2 numpy array h_{pq} for alpha and beta blocks
-        [numpy.ndarray]*3 numpy array storing h_{pqrs} for alpha-alpha, alpha-beta, beta-beta blocks
-
-        Args:
-            mo_coeff (List[array]): The molecular orbital coefficients for both spins [alpha, beta]
-
-        Returns:
-            List[array], List[array]: One and two body integrals
-        """
-
-        mo_a = self.backend.core.Matrix.from_array(mo_coeff[0])
-        mo_b = self.backend.core.Matrix.from_array(mo_coeff[1])
-
-        # calculate alpha and beta one-body integrals
-        hpq = [mo_coeff[0].T.dot(self.ob).dot(mo_coeff[0]), mo_coeff[1].T.dot(self.ob).dot(mo_coeff[1])]
-
-        # mo transform the two-electron integrals
-        eri_a = np.asarray(self.mints.mo_eri(mo_a, mo_a, mo_a, mo_a))
-        eri_b = np.asarray(self.mints.mo_eri(mo_b, mo_b, mo_b, mo_b))
-        eri_ba = np.asarray(self.mints.mo_eri(mo_a, mo_a, mo_b, mo_b))
-
-        # # convert this into physicist ordering for OpenFermion
-        two_body_integrals_a = np.asarray(eri_a.transpose(0, 2, 3, 1), order='C')
-        two_body_integrals_b = np.asarray(eri_b.transpose(0, 2, 3, 1), order='C')
-        two_body_integrals_ab = np.asarray(eri_ba.transpose(0, 2, 3, 1), order='C')
-
-        # Gpqrs has alpha, alphaBeta, Beta blocks
-        Gpqrs = (two_body_integrals_a, two_body_integrals_ab, two_body_integrals_b)
-
-        return self.core_constant, hpq, Gpqrs

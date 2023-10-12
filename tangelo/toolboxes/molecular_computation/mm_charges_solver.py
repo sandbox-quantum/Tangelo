@@ -27,7 +27,7 @@ class MMChargesSolver(abc.ABC):
 
     @abc.abstractmethod
     def get_charges(self) -> List[Tuple[float, Tuple[float, float, float]]]:
-        """Obtain the charges for the given low parameters of the input fragment (e.g. filenames, list(s) of coordinates)
+        """Obtain the charges for the given low parameters of the input fragment (e.g. file names, list(s) of coordinates)
 
         Returns:
             List[float]: The list of charges
@@ -35,14 +35,14 @@ class MMChargesSolver(abc.ABC):
         pass
 
 
-def convert_files_to_pdbs(filenames: Union[str, List[str]]):
+def convert_files_to_pdbs(input_files: Union[str, List[str]]):
     """Convert file or list of files to pdb files using openbabel.
 
     Args:
-        filename (Union[str, List[str]]): The filename(s) that describe the MM region
+        input_files (Union[str, List[str]]): The file name(s) that describe the MM region
 
     Returns:
-        List[str]: The list of pdb equivalent filenames.
+        List[str]: The list of pdb equivalent file name(s).
     """
 
     try:
@@ -53,7 +53,7 @@ def convert_files_to_pdbs(filenames: Union[str, List[str]]):
         raise ModuleNotFoundError(f"openbabel is required to use get_charges_and_coords_from_pdb_file when supplying only a pdb file."
                                   "install with 'pip install openbabel-wheel'")
 
-    filesold = [filenames] if isinstance(filenames, str) else filenames
+    filesold = [input_files] if isinstance(input_files, str) else input_files
 
     mol = openbabel.openbabel.OBMol()
     conv = openbabel.openbabel.OBConversion()
@@ -103,7 +103,6 @@ def get_mm_package(package: str = "default"):
 class MMChargesSolverOpenMM(MMChargesSolver):
     def __init__(self, force_field_params=('amber14-all.xml', 'amber14/tip3pfb.xml')):
         self.force_field_params = force_field_params
-        pass
 
     def get_charges(self, files) -> List[Tuple[float, Tuple[float, float, float]]]:
         from openmm.app.pdbfile import PDBFile
@@ -112,9 +111,8 @@ class MMChargesSolverOpenMM(MMChargesSolver):
         from openmm.app import Modeller
         import openbabel
 
-        pdbfiles = convert_files_to_pdbs(files)
-
-        pdbs = [PDBFile(file) for file in pdbfiles]
+        # Generate PDBFile class for each of the input files
+        pdbs = [PDBFile(file) for file in convert_files_to_pdbs(files)]
         modeller = Modeller(pdbs[0].topology, pdbs[0].positions)
         for pdb in pdbs[1:]:
             modeller.add(pdb.topology, pdb.positions)
@@ -122,7 +120,7 @@ class MMChargesSolverOpenMM(MMChargesSolver):
         system = forcefield.createSystem(modeller.topology)
         nonbonded = [f for f in system.getForces() if isinstance(f, NonbondedForce)][0]
         charges = [nonbonded.getParticleParameters(i)[0]._value for i in range(system.getNumParticles())]
-        # Obtain xyz string
+        # Generate the xyz coordinates of the atom
         mol = openbabel.openbabel.OBMol()
         conv = openbabel.openbabel.OBConversion()
         conv.SetInAndOutFormats("pdb", "xyz")
@@ -137,24 +135,24 @@ class MMChargesSolverOpenMM(MMChargesSolver):
 class MMChargesSolverRDKit(MMChargesSolver):
     def __init__(self, mmffVariant="MMFF94"):
         self.mmffVariant = mmffVariant
-        pass
 
     def get_charges(self, files) -> List[Tuple[float, Tuple[float, float, float]]]:
-        import rdkit
+        import rdkit.Chem as rdkc
         from rdkit.Chem import AllChem
 
         pdbfiles = convert_files_to_pdbs(files)
-        rdmol = rdkit.Chem.rdmolfiles.MolFromPDBFile(pdbfiles[0], removeHs=False)
+        rdmol = rdkc.rdmolfiles.MolFromPDBFile(pdbfiles[0], removeHs=False)
         for file in pdbfiles[1:]:
-            mol_to_add = rdkit.Chem.rdmolfiles.MolFromPDBFile(file, removeHs=False)
-            rdmol = rdkit.Chem.rdmolops.CombineMols(rdmol, mol_to_add)
-        rdkit.Chem.SanitizeMol(rdmol)
+            mol_to_add = rdkc.rdmolfiles.MolFromPDBFile(file, removeHs=False)
+            rdmol = rdkc.rdmolops.CombineMols(rdmol, mol_to_add)
+        rdkc.SanitizeMol(rdmol)
 
         # Read charges and geometry
         mmff_props = AllChem.MMFFGetMoleculeProperties(rdmol, mmffVariant=self.mmffVariant)
         charges = [mmff_props.GetMMFFPartialCharge(i) for i in range(rdmol.GetNumAtoms())]
-        rdkit.Chem.SanitizeMol(rdmol)
-        new_xyz = rdkit.Chem.rdmolfiles.MolToXYZBlock(rdmol)
+        rdkc.SanitizeMol(rdmol)
+        new_xyz = rdkc.rdmolfiles.MolToXYZBlock(rdmol)
+
         # Strip first two lines and convert to standard format
         geom = atom_string_to_list("".join([val+"\n" for val in new_xyz.split('\n')[2:]]))
 

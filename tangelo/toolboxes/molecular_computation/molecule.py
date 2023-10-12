@@ -80,7 +80,7 @@ def get_default_integral_solver(qmmm=False):
         return IntegralSolverEmpty
 
 
-def get_integral_solver_by_str_identifier(name: str, qmmm=False):
+def get_integral_solver(name: str, qmmm=False):
     if name.lower() == "pyscf":
         return IntegralSolverPySCFQMMM if qmmm else IntegralSolverPySCF
     elif name.lower() == "psi4":

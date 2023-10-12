@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""QMMM module where the user specifies either the number (if beginning from start of
+"""QM/MM module where the user specifies either the number (if beginning from start of
 list), or the indices, of atoms which are to be identified as the model
 system(s), from the larger molecular system.
 
 Main model class for running qmmm-calculations. This is analogous to the
 scf.RHF, etc. methods, requiring however a bit more information. User supplies
-an atomic-geometry, and specifies the system, as well as necessary models,
+an atomic geometry, and specifies the system, as well as necessary models,
 of increasing sophistication.
 
 Reference:
@@ -32,7 +32,7 @@ from typing import List, Union, Tuple
 
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment
-from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list, get_default_integral_solver, get_integral_solver_by_str_identifier
+from tangelo.toolboxes.molecular_computation.molecule import atom_string_to_list, get_default_integral_solver, get_integral_solver
 from tangelo.toolboxes.molecular_computation.mm_charges_solver import MMChargesSolver, get_mm_package
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 
@@ -85,21 +85,23 @@ class QMMMProblemDecomposition(ProblemDecomposition):
             charges, geometry = self.mmpackage.get_charges(self.charges)
             self.mmcharges += [(charge, geometry[i][1]) for i, charge in enumerate(charges)]
 
-        if len(copt_dict.keys()) > 0:
+        if copt_dict.keys():
             raise KeyError(f"Keywords :: {copt_dict.keys()}, not available in {self.__class__.__name__}.")
 
-        # Raise error/warnings if input is not as expected
+        # Raise error if geometry or qm fragment were not provided by user
 
         if not self.geometry or not self.qmfragment:
             raise ValueError(f"A geometry and qm fragment must be provided when instantiating {self.__class__.__name__}.")
 
         self.geometry = atom_string_to_list(self.geometry) if isinstance(self.geometry, str) else self.geometry
 
+        # Distribute atoms to QM region or add to self.mmcharges for use in IntegralSolver
         self.distribute_atoms()
 
+        # Set integral solver
         if isinstance(integral_solver, str):
             self.integral_solver = (get_default_integral_solver(qmmm=True)(charges=self.mmcharges) if integral_solver == "default" else
-                                    get_integral_solver_by_str_identifier(integral_solver, qmmm=True)(charges=self.mmcharges))
+                                    get_integral_solver(integral_solver, qmmm=True)(charges=self.mmcharges))
         else:
             self.integral_solver = integral_solver(charges=self.mmcharges)
 
@@ -116,22 +118,25 @@ class QMMMProblemDecomposition(ProblemDecomposition):
         # Case when no atoms are selected -> whole system. i.e. no added partial charges
         if self.qmfragment.selected_atoms is None:
             self.qmfragment.geometry = self.geometry
+
         # Case where an int is detected -> first n atoms.
         elif type(self.qmfragment.selected_atoms) is int:
             self.qmfragment.geometry = self.geometry[:self.qmfragment.selected_atoms]
             if self.pdbgeometry:
                 self.mmcharges += self.qmcharges[self.qmfragment.selected_atoms:]
+
         # Case where a list of int is detected -> atom indexes are selected.
         # First atom is 0.
         elif isinstance(self.qmfragment.selected_atoms, list) and all(isinstance(id_atom, int) for id_atom in self.qmfragment.selected_atoms):
             self.qmfragment.geometry = [self.geometry[n] for n in self.qmfragment.selected_atoms]
             if self.pdbgeometry:
                 self.mmcharges += [self.qmcharges[n] for n in range(len(self.geometry)) if n not in self.qmfragment.selected_atoms]
+
         # Otherwise, an error is raised (list of float, str, etc.).
         else:
             raise TypeError("selected_atoms must be an int or a list of int.")
 
-        # If there are broken_links (other than an empty list nor None).
+        # If there are broken_links (other than an empty list or None).
         # The whole molecule geometry is needed to compute the position of
         # the capping atom (or functional group).
         if self.qmfragment.broken_links:
@@ -139,16 +144,16 @@ class QMMMProblemDecomposition(ProblemDecomposition):
                 self.qmfragment.geometry += li.relink(self.geometry)
 
     def simulate(self):
-        r"""Run the QMMM electrostatic embedding calculation
+        """Run the QM/MM electrostatic embedding calculation
 
         Returns:
-            float: Total ONIOM energy.
+            float: Total QM/MM energy.
         """
 
         return self.qmfragment.simulate()
 
     def get_resources(self):
-        """Estimate the resources required by ONIOM. Only supports fragments
+        """Estimate the resources required by QM/MM. Only supports fragments
         solved with quantum solvers. Resources for each fragments are outputed
         as a dictionary.
         """
