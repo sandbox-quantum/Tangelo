@@ -220,6 +220,8 @@ def get_ilc_params_by_diag(qubit_ham, ilc_gens, qmf_var_params, return_energy=Fa
     Args:
         qubit_ham (QubitOperator): the qubit Hamiltonian of the system.
         ilc_gens (list of QubitOperator): the anticommuting set of ILC Pauli words.
+        qmf_var_params (array): The QMF variational parameters
+        return_energy (bool): Return the energy from the ILC diagonalization. Default False.
 
     Returns:
         list of float: the ILC parameters corresponding to the ACS of ILC generators
@@ -289,7 +291,7 @@ def build_ilc_qubit_op_list(acs_gens, ilc_params):
     """
 
     n_amps = len(ilc_params)
-    ilc_op_list = [-.5 * ilc_params[i] * acs_gens[i] for i in range(0, n_amps-1)]
+    ilc_op_list = [-.5 * ilc_params[i] * acs_gens[i] for i in range(n_amps-1)]
     ilc_op_list += [-ilc_params[n_amps-1] * acs_gens[n_amps-1]]
     ilc_op_list += [-.5 * ilc_params[i] * acs_gens[i] for i in range(n_amps-2, -1, -1)]
     return ilc_op_list

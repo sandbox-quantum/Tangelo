@@ -263,7 +263,7 @@ class iQCC_ILC_solver:
             if self.verbose:
                 print(f"Terminating the ILC-VQE solver after {self.max_ilc_iter} iterations.")
         else:
-            # set dis, acs, and var_params to none to rebuild the dis & acs and initialize new parameters
+            # Set dis, acs, and var_params to None to rebuild the dis & acs and initialize new parameters
             self.ilc_ansatz.dis = None
             self.ilc_ansatz.acs = None
             self.ilc_ansatz.var_params = None
