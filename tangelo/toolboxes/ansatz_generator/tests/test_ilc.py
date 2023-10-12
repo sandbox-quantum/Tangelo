@@ -175,12 +175,12 @@ class ILCTest(unittest.TestCase):
         qmf_var_params = [ 3.14159265e+00, -1.02576971e-11,  1.35522331e-11,  3.14159265e+00,
                            3.14159265e+00, -5.62116001e-11, -1.41419277e-11, -2.36789365e-11,
                           -5.53225030e-11, -3.56400157e-11, -2.61030058e-11, -3.55652002e-11]
-        ilc_var_params, energy = get_ilc_params_by_diag(qubit_hamiltonian, ilc_ansatz.acs, np.array(qmf_var_params), return_energy=True)
+        ilc_var_params, energy_diag = get_ilc_params_by_diag(qubit_hamiltonian, ilc_ansatz.acs, np.array(qmf_var_params), return_energy=True)
         var_params = qmf_var_params + ilc_var_params
         # Assert energy returned is as expected for given parameters
         ilc_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
-        self.assertAlmostEqual(energy, energy, delta=1e-5)
+        self.assertAlmostEqual(energy_diag, energy, delta=1e-5)
 
 
 if __name__ == "__main__":
