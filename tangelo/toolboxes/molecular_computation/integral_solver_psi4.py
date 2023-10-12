@@ -19,7 +19,7 @@ from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolv
 
 
 class IntegralSolverPsi4(IntegralSolver):
-    """psi4 IntegrationSolver class"""
+    """psi4 IntegralSolver class"""
     def __init__(self):
         import psi4
         self.backend = psi4
@@ -241,3 +241,162 @@ class IntegralSolverPsi4(IntegralSolver):
         Gpqrs = (two_body_integrals_a, two_body_integrals_ab, two_body_integrals_b)
 
         return self.core_constant, hpq, Gpqrs
+
+
+class IntegralSolverPsi4QMMM(IntegralSolverPsi4):
+    """Psi4 IntegralSolver class with charges supplied for electrostatic embedding.
+
+    Args: charges (List[Tuple[float, Tuple[float, float, float]]]): The partial charges for the electrostatic embedding as
+                a list with elements (charge, (x, y, z))"""
+    def __init__(self, charges):
+        super().__init__()
+        self.combinedcharges = charges
+        self.coords = [charge[1] for charge in charges]
+        self.charges = [charge[0] for charge in charges]
+
+    def set_physical_data(self, mol):
+        """Set molecular data that is independant of basis set in mol
+
+        Modify mol variable:
+            mol.xyz to (list): Nested array-like structure with elements and coordinates
+                                            (ex:[ ["H", (0., 0., 0.)], ...]) in angstrom
+        Add to mol:
+            mol.n_electrons (int): Self-explanatory.
+            mol.n_atoms (int): Self-explanatory.
+
+        Args:
+            mol (Molecule or SecondQuantizedMolecule): Class to add the other variables given populated.
+                mol.xyz (in appropriate format for solver): Definition of molecular geometry. If supplying an input file,
+                    nocom and noreorient should be provided.
+                mol.q (float): Total charge.
+                mol.spin (int): Absolute difference between alpha and beta electron number.
+        """
+        self.backend.core.set_output_file('output.dat', False)
+        if isinstance(mol.xyz, list):
+            input_string = f"{mol.q} {mol.spin + 1} \n"
+            input_string += "nocom \n"
+            input_string += "noreorient \n"
+            for line in mol.xyz:
+                input_string += f"{line[0]} {line[1][0]} {line[1][1]} {line[1][2]} \n"
+            input_string += "symmetry c1"
+
+            self.mol = self.backend.geometry(input_string)
+            self.mol_nosym = self.backend.geometry(input_string)
+        else:
+            self.mol = self.backend.geometry(mol.xyz)
+            mol.n_atoms = self.mol.natom()
+            mol.xyz = list()
+            for i in range(mol.n_atoms):
+                mol.xyz += [(self.mol.symbol(i), tuple(self.mol.xyz(i)[p]*0.52917721067 for p in range(3)))]
+
+        self.backend.set_options({'basis': "def2-msvp"})
+        wfn = self.backend.core.Wavefunction.build(self.mol, self.backend.core.get_global_option('basis'))
+
+        mol.n_electrons = wfn.nalpha() + wfn.nbeta()
+        mol.n_atoms = self.mol.natom()
+
+    def compute_mean_field(self, sqmol):
+        """Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following
+        variables to sqmol
+
+        Modify sqmol variables.
+            sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending on the spin).
+            sqmol.mo_energies (list of float): Molecular orbital energies.
+            sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0. and 2.).
+            sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
+            sqmol.n_sos (int): Number of spin-orbitals with a given basis set.
+
+        Add to sqmol:
+            self.mo_coeff (ndarray or List[ndarray]): array of molecular orbital coefficients (MO coeffs) if RHF ROHF
+                                                        list of arrays [alpha MO coeffs, beta MO coeffs] if UHF
+
+        Args:
+            sqmol (SecondQuantizedMolecule): Populated variables of Molecule plus
+                sqmol.basis (string): Basis set.
+                sqmol.ecp (dict): The effective core potential (ecp) for any atoms in the molecule.
+                    e.g. {"C": "crenbl"} use CRENBL ecp for Carbon atoms.
+                sqmol.symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.
+                    Can also specify point group using string. e.g. "Dooh", "D2h", "C2v", ...
+                sqmol.uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False
+
+
+        """
+        if sqmol.symmetry:
+            input_string = f"{sqmol.q} {sqmol.spin + 1} \n"
+            for line in sqmol.xyz:
+                input_string += f"{line[0]} {line[1][0]} {line[1][1]} {line[1][2]} \n"
+            if isinstance(sqmol.symmetry, str):
+                input_string += "symmetry" + sqmol.symmetry
+            self.mol = self.backend.geometry(input_string)
+
+        self.backend.set_options({'basis': sqmol.basis, 'maxiter': 500})
+        if sqmol.uhf:
+            self.backend.set_options({'reference': 'uhf', 'guess': 'gwh', 'guess_mix': True})
+        elif sqmol.spin != 0:
+            self.backend.set_options({'reference': 'rohf', 'guess': 'core'})
+        else:
+            self.backend.set_options({'reference': 'rhf'})
+
+        if self.backend.__version__ < '1.6':
+            self.chrgfield = self.backend.QMMM()
+            self.bohr = False
+            fac = 1.
+        else:
+            self.chrgfield = True
+            self.external_potentials = []
+            self.bohr = True
+            fac = 0.52917720859
+        self.ext_pot = self.backend.core.ExternalPotential()
+
+        for i, chrg in enumerate(self.charges):
+            if self.bohr:
+                self.external_potentials.append([chrg, np.array([self.coords[i][0], self.coords[i][1], self.coords[i][2]])/fac])
+            else:
+                self.chrgfield.extern.addCharge(chrg, self.coords[i][0], self.coords[i][1], self.coords[i][2])
+            self.ext_pot.addCharge(chrg, self.coords[i][0]/fac, self.coords[i][1]/fac, self.coords[i][2]/fac)
+
+        if not self.bohr:
+            self.backend.core.set_global_option_python('EXTERN', self.chrgfield.extern)
+            sqmol.mf_energy, self.sym_wfn = self.backend.energy('scf', molecule=self.mol, basis=self.backend.core.get_global_option('basis'),
+                                                                return_wfn=True)
+        else:
+            sqmol.mf_energy, self.sym_wfn = self.backend.energy('scf', molecule=self.mol, basis=self.backend.core.get_global_option('basis'),
+                                                                return_wfn=True, external_potentials=self.external_potentials)
+        self.wfn = self.sym_wfn.c1_deep_copy(self.sym_wfn.basisset())
+        self.backend.core.clean_options()
+
+        sqmol.mo_energies = np.asarray(self.wfn.epsilon_a())
+        if sqmol.symmetry:
+            self.irreps = [self.mol.point_group().char_table().gamma(i).symbol().upper() for i in range(self.sym_wfn.nirrep())]
+            sym_mo_energies = []
+            tmp = self.backend.driver.p4util.numpy_helper._to_array(self.sym_wfn.epsilon_a(), dense=False)
+            for i in self.irreps:
+                sym_mo_energies += [(i, j, x) for j, x in enumerate(tmp[self.irreps.index(i)])]
+            ordered_energies = sorted(sym_mo_energies, key=lambda x: x[1])
+            sqmol.mo_symm_labels = [o[0] for o in ordered_energies]
+            sqmol.mo_symm_ids = [o[1] for o in ordered_energies]
+        else:
+            sqmol.mo_symm_labels = None
+            sqmol.mo_symm_ids = None
+
+        self.mints = self.backend.core.MintsHelper(self.wfn.basisset())
+        nbf = np.asarray(self.mints.ao_overlap()).shape[0]
+
+        if sqmol.uhf:
+            na = self.wfn.nalpha()
+            nb = self.wfn.nbeta()
+            sqmol.mo_occ = [[1]*na + (nbf-na)*[0]]+[[1]*nb + (nbf-nb)*[0]]
+        else:
+            docc = self.wfn.doccpi()[0]
+            socc = self.wfn.soccpi()[0]
+            sqmol.mo_occ = [2]*docc + [1]*socc + (nbf - docc - socc)*[0]
+        sqmol.n_mos = nbf
+        sqmol.n_sos = nbf*2
+
+        self.mo_coeff = np.asarray(self.wfn.Ca()) if not sqmol.uhf else [np.asarray(self.wfn.Ca()), np.asarray(self.wfn.Cb())]
+
+        self.ob = np.asarray(self.mints.ao_potential()) + np.asarray(self.mints.ao_kinetic())
+        self.ob = (np.asarray(self.mints.ao_potential()) + np.asarray(self.ext_pot.computePotentialMatrix(self.wfn.basisset()))
+                   + np.asarray(self.mints.ao_kinetic()))
+        self.tb = np.asarray(self.mints.ao_eri())
+        self.core_constant = self.mol.nuclear_repulsion_energy() + self.ext_pot.computeNuclearEnergy(self.wfn.molecule())

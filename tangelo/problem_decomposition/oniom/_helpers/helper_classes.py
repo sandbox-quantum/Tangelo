@@ -23,9 +23,9 @@ from typing import Union, List
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-from tangelo import SecondQuantizedMolecule
 from tangelo.algorithms import CCSDSolver, FCISolver, VQESolver, MINDO3Solver, ADAPTSolver, QITESolver
 from tangelo.problem_decomposition.oniom._helpers.capping_groups import elements, chemical_groups
+from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule, get_default_integral_solver
 
 
 class Link:
@@ -96,7 +96,7 @@ class Link:
 
 class Fragment:
 
-    def __init__(self, solver_low: str, options_low: dict = None, solver_high: str = None, options_high: dict = None,
+    def __init__(self, solver_low: str = None, options_low: dict = None, solver_high: str = None, options_high: dict = None,
                  selected_atoms: Union[int, List[int]] = None, charge: int = 0, spin: int = 0, broken_links: List[Link] = None):
         """Fragment class for the ONIOM solver. Each fragment can have broken
         links. In this case, they are capped with a chosen atom. Each fragment
@@ -134,8 +134,11 @@ class Fragment:
 
         self.selected_atoms = selected_atoms
 
+        if solver_low is None and solver_high is None:
+            raise ValueError("At least one of solver high or solver low must be specified.")
+
         # Solver with low accuracy.
-        self.solver_low = solver_low.upper()
+        self.solver_low = solver_low.upper() if solver_low is not None else solver_low
         self.options_low = options_low if options_low is not None else default_solver_options
 
         # Solver with higher accuracy.
@@ -147,7 +150,7 @@ class Fragment:
 
         # Check if the solvers are implemented in ONIOM.
         builtin_solvers = self.supported_classical_solvers.keys() | self.supported_quantum_solvers.keys()
-        if self.solver_low not in builtin_solvers:
+        if self.solver_low and self.solver_low not in builtin_solvers:
             raise NotImplementedError(f"This {self.solver_low} solver has not been implemented yet in {self.__class__.__name__}")
         elif self.solver_high and self.solver_high not in builtin_solvers:
             raise NotImplementedError(f"This {self.solver_high} solver has not been implemented yet in {self.__class__.__name__}")
@@ -161,26 +164,29 @@ class Fragment:
         self.mol_high = None
         self.e_fragment = None
 
-    def build(self):
+    def build(self, integral_solver=None):
         """Get the solver objects for this layer. Also defined molecule objects."""
+
+        solver = get_default_integral_solver()() if integral_solver is None else integral_solver
 
         # Low accuracy solver.
         # We begin by defining the molecule.
-        if self.mol_low is None:
-            self.mol_low = self.get_mol(self.options_low["basis"], self.options_low.get("frozen_orbitals", None))
-            # Basis is only relevant when computing the mean-field. After this,
-            # it is discarded (not needed for electronic solver because they
-            # retrieved it from the molecule object).
-            self.options_low = {i: self.options_low[i] for i in self.options_low if i not in ["basis", "frozen_orbitals"]}
+        if self.solver_low is not None:
+            if self.mol_low is None:
+                self.mol_low = self.get_mol(self.options_low["basis"], solver, self.options_low.get("frozen_orbitals", None))
+                # Basis is only relevant when computing the mean-field. After this,
+                # it is discarded (not needed for electronic solver because they
+                # retrieved it from the molecule object).
+                self.options_low = {i: self.options_low[i] for i in self.options_low if i not in ["basis", "frozen_orbitals"]}
 
-        self.solver_low = self.get_solver(self.mol_low, self.solver_low, self.options_low)
+            self.solver_low = self.get_solver(self.mol_low, self.solver_low, self.options_low)
 
         # Higher accuracy solver.
         if self.solver_high is not None:
 
             # Molecule is reconstructed (in case a different basis is used).
             if self.mol_high is None:
-                self.mol_high = self.get_mol(self.options_high["basis"], self.options_high.get("frozen_orbitals", None))
+                self.mol_high = self.get_mol(self.options_high["basis"], solver, self.options_high.get("frozen_orbitals", None))
                 # Same process done as in low accuracy process.
                 self.options_high = {i: self.options_high[i] for i in self.options_high if i not in ["basis", "frozen_orbitals"]}
 
@@ -194,27 +200,31 @@ class Fragment:
         """
 
         # Low accuracy solver.
-        e_low = Fragment.get_energy(self.mol_low, self.solver_low)
+        self.e_low = 0
+        if self.solver_low is not None:
+            self.e_low = Fragment.get_energy(self.mol_low, self.solver_low)
 
         # Higher accuracy solver.
-        e_high = 0.
+        self.e_high = 0.
         if self.solver_high is not None:
-            e_high = Fragment.get_energy(self.mol_high, self.solver_high)
+            self.e_high = Fragment.get_energy(self.mol_high, self.solver_high)
 
             # Contribution from low accuracy is substracted, as defined by ONIOM.
-            e_low *= -1
+            self.e_low *= -1
 
-        self.e_fragment = e_high + e_low
+        self.e_fragment = self.e_high + self.e_low
         return self.e_fragment
 
-    def get_mol(self, basis, frozen=None):
+    def get_mol(self, basis, integral_solver=None, frozen=None):
         """Get the molecule object for this fragment (with a specified basis).
 
         Returns:
             SecondQuantizedMolecule: Molecule object.
         """
 
-        return SecondQuantizedMolecule(self.geometry, self.charge, self.spin, basis=basis, frozen_orbitals=frozen)
+        solver = get_default_integral_solver()() if integral_solver is None else integral_solver
+
+        return SecondQuantizedMolecule(self.geometry, self.charge, self.spin, solver, basis=basis, frozen_orbitals=frozen)
 
     @staticmethod
     def get_energy(molecule, solver):
