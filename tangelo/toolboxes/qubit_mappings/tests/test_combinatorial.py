@@ -17,8 +17,8 @@ import unittest
 import numpy as np
 
 from tangelo.molecule_library import mol_H2_sto3g
-from tangelo.toolboxes.operators import QubitOperator
-from tangelo.toolboxes.qubit_mappings import combinatorial
+from tangelo.toolboxes.operators import QubitOperator as QOp
+from tangelo.toolboxes.qubit_mappings import combinatorial, combinatorial2, combinatorial3, combinatorial4
 from tangelo.toolboxes.qubit_mappings.combinatorial import element_to_qubitop, basis, \
     conf_to_integer, one_body_op_on_state
 
@@ -38,18 +38,17 @@ class FunctionsCombinatorialTest(unittest.TestCase):
         quop_10 = element_to_qubitop(1, 1, 0, array[1][0])
         quop_11 = element_to_qubitop(1, 1, 1, array[1][1])
 
-        self.assertEqual(quop_00, QubitOperator("", 0.5) + QubitOperator("Z0", 0.5))
-        self.assertEqual(quop_01, QubitOperator("X0", 0.5*2.22) + QubitOperator("Y0", 0.5j*2.22))
-        self.assertEqual(quop_10, QubitOperator("X0", 0.5*3j) + QubitOperator("Y0", -0.5j*3j))
-        self.assertEqual(quop_11, QubitOperator("", 0.5*(4+1j)) + QubitOperator("Z0", -0.5*(4+1j)))
+        self.assertEqual(quop_00, QOp("", 0.5) + QOp("Z0", 0.5))
+        self.assertEqual(quop_01, QOp("X0", 0.5*2.22) + QOp("Y0", 0.5j*2.22))
+        self.assertEqual(quop_10, QOp("X0", 0.5*3j) + QOp("Y0", -0.5j*3j))
+        self.assertEqual(quop_11, QOp("", 0.5*(4+1j)) + QOp("Z0", -0.5*(4+1j)))
 
     def test_element_to_qubitop_4by4(self):
         """Test the mapping of a 4x4 matrix element to a qubit operator."""
 
         quop_01_00 = element_to_qubitop(2, 1, 0, 5.)
 
-        ref_op = QubitOperator("X0", 0.25) + QubitOperator("Y0", -0.25j) + \
-            QubitOperator("X0 Z1", 0.25) + QubitOperator("Y0 Z1", -0.25j)
+        ref_op = QOp("X0", 0.25) + QOp("Y0", -0.25j) + QOp("X0 Z1", 0.25) + QOp("Y0 Z1", -0.25j)
         ref_op *= 5.
 
         self.assertEqual(quop_01_00, ref_op)
@@ -73,7 +72,7 @@ class FunctionsCombinatorialTest(unittest.TestCase):
         self.assertEqual(conf_to_integer((2, 3), 4), 5)
 
     def test_one_body_op_on_state(self):
-        """Test the function that applies an operator a^{\dagger}_j a_i."""
+        r"""Test the function that applies an operator a^{\dagger}_j a_i."""
 
         conf_in = (0, 1, 2)
 
@@ -104,16 +103,74 @@ class CombinatorialTest(unittest.TestCase):
         """Test the mapping of H2 STO-3G to a combinatorial (qubit) Hamiltonian."""
 
         H_ferm = mol_H2_sto3g.fermionic_hamiltonian
-        qubit_op = combinatorial(H_ferm, mol_H2_sto3g.n_active_mos,
+        qubit_op = combinatorial2(H_ferm, mol_H2_sto3g.n_active_mos,
             mol_H2_sto3g.n_active_electrons)
 
-        ref_qubit_op = QubitOperator("", -0.3399536)
-        ref_qubit_op += QubitOperator("Y0 Y1", -0.181288)
-        ref_qubit_op += QubitOperator("Z0", -0.3939836)
-        ref_qubit_op += QubitOperator("Z0 Z1", 0.0112365)
-        ref_qubit_op += QubitOperator("Z1", -0.3939836)
+        ref_qubit_op = (QOp("Z1", -0.3939836) + QOp("Y0 Y1", -0.181288) +
+                        QOp("Z0", -0.3939836) + QOp("Z0 Z1", 0.0112365) +
+                        -0.3399536)
+
+        print(qubit_op, "\n")
+        print(ref_qubit_op)
 
         self.assertTrue(qubit_op.isclose(ref_qubit_op, tol=1e-4))
+
+    def test_combinatorial_new(self):
+        """Test the mapping of H2 STO-3G to a combinatorial (qubit) Hamiltonian."""
+
+        from time import time
+        from openfermion import load_operator
+        from tangelo.toolboxes.operators import count_qubits
+        from tangelo import SecondQuantizedMolecule
+        from tangelo.molecule_library import mol_H2_sto3g, mol_H2_321g, mol_H2O_sto3g, mol_H2O_321g
+
+        xyz_hf = """
+        F 0.0000 0.0000 0.0000
+        H 0.0000 0.0000 0.9168
+        """
+
+        xyz_lih = """
+        Li 0.0000 0.0000 0.0000
+        H  0.0000 0.0000 1.5949
+        """
+
+        xyz_h4 = """
+        H  0.0000 0.0000 0.0000
+        H  0.0000 1.0000 0.0000
+        H  1.0000 0.0000 0.0000
+        H  1.0000 1.0000 0.0000
+        """
+
+        atoms = xyz_hf
+        basis = '3-21G'
+        mol = mol_H2O_sto3g
+
+        if not mol:
+            mol = SecondQuantizedMolecule(atoms, q=0, spin=0, basis=basis,
+                                    frozen_orbitals="frozen_core")
+
+        fop = mol.fermionic_hamiltonian
+        print(f'fop terms = {len(fop.terms)} \t {mol.n_active_mos} \t {mol.n_active_electrons}')
+
+        t1 = time()
+        qop1 = combinatorial4(fop, mol.n_active_mos, mol.n_active_electrons)
+        t2 = time()
+        print(f'c1 time elapsed {t2-t1}s (#terms = {len(qop1.terms)})')
+
+        qop2 = combinatorial3(fop, mol.n_active_mos, mol.n_active_electrons)
+        t3 = time()
+        print(f'c2 time elapsed {t3-t2}s (#terms = {len(qop2.terms)})')
+
+        # qop2 = load_operator("comb_quop_lih_fc_ccpvdz.data",
+        #                      data_directory='.', plain_text=True)
+        #print(qop1, qop2)
+        # print(len(qop1.terms), len(qop2.terms))
+        # print(count_qubits(qop1), count_qubits(qop2))
+        # q = qop2-qop1
+        # q.compress(abs_tol=1e-4)
+        # print(type(q), q)
+        #
+        self.assertTrue(qop1.isclose(qop2, tol=1e-4))
 
 
 if __name__ == "__main__":
