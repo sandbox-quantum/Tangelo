@@ -26,7 +26,6 @@ from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
 from tangelo.toolboxes.operators.operators import FermionOperator, QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator._general_unitary_cc import uccgsd_generator as uccgsd_pool
-from tangelo.toolboxes.operators import qubitop_to_qubitham
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.linq import Circuit, get_backend
 
@@ -128,7 +127,7 @@ class QITESolver:
                                                 up_then_down=self.up_then_down,
                                                 spin=0)
 
-            self.qubit_hamiltonian = qubitop_to_qubitham(qubit_op, self.qubit_mapping, self.up_then_down)
+            self.qubit_hamiltonian = qubit_op
 
         # Getting the pool of operators for the ansatz. If more functionalities
         # are added, this part must be modified and generalized.
@@ -179,10 +178,8 @@ class QITESolver:
         for term in self.pool_operators:
             self.pool_qubit_op += term
 
-        self.qubit_operator = self.qubit_hamiltonian.to_qubitoperator()
-
         # Obtain all qubit terms that need to be measured
-        self.pool_h = [element*self.qubit_operator for element in self.pool_operators]
+        self.pool_h = [element*self.qubit_hamiltonian for element in self.pool_operators]
         self.pool_pool = [[element1*element2 for element2 in self.pool_operators] for element1 in self.pool_operators]
 
         # Obtain initial state preparation circuit
@@ -294,7 +291,7 @@ class QITESolver:
             float: energy computed by the backend
         """
         circuit = Circuit(n_qubits=self.final_circuit.width) if self.use_statevector else self.final_circuit
-        energy = backend.get_expectation_value(self.qubit_hamiltonian.to_qubitoperator(),
+        energy = backend.get_expectation_value(self.qubit_hamiltonian,
                                                circuit,
                                                initial_statevector=self.final_statevector)
         return energy
