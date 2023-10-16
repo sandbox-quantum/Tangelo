@@ -73,9 +73,9 @@ def convert_files_to_pdbs(input_files: Union[str, List[str]]):
 
 
 def get_default_mm_package() -> Type[MMChargesSolver]:
-    if is_package_installed("rdkit"):
+    if is_package_installed("openmm"):
         return MMChargesSolverOpenMM()
-    elif is_package_installed("openmm"):
+    elif is_package_installed("rdkit"):
         return MMChargesSolverRDKit()
     else:
         return None
