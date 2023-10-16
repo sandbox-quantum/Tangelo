@@ -77,7 +77,7 @@ class MethodOfIncrementsHelper():
             assert os.path.isfile(log_file), f"The file {log_file} does not exist."
 
             with open(log_file, "r") as f:
-                full_result = json.loads(f.read())
+                full_result = json.loads("\n".join(f.readlines()[1:]))
 
         full_result["subproblem_data"] = {int(k): v for k, v in full_result["subproblem_data"].items()}
         self.full_result = full_result
