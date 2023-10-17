@@ -45,9 +45,6 @@ ZERO_TOLERANCE = 1e-8
 
 def int_to_tuple(integer, n_qubits):
 
-    if integer == 131072:
-        pass
-
     term = []
     for i in range(1, n_qubits+1):
         shift_x = 2*(i-1)
@@ -92,10 +89,7 @@ def one_body_op_on_state(op, state_in):
         int: Phase shift. Can be -1 or 1.
     """
 
-    assert len(op) == 2, f"Operator {op} has length {len(op)}, but a length of 2 is expected."
-
     # Copy the state, then transform it into a list (it will be mutated).
-    #state = deepcopy(state_in) # Not need: since state_in is unmutable, list will make a new object
     state = list(state_in)
 
     # Unpack the creation and annihilation operators.
@@ -103,12 +97,8 @@ def one_body_op_on_state(op, state_in):
     creation_qubit, creation_dagger = creation_op
     annihilation_qubit, annihilation_dagger = annihilation_op
 
-    # Confirm dagger operator to the left.
-    assert creation_dagger == 1, f"The left operator in {op} is not a creation operator."
-    assert annihilation_dagger == 0, f"The right operator in {op} is not an annihilation operator."
-
     # annihilation logics on the state.
-    if annihilation_qubit in state: # use state_in.
+    if annihilation_qubit in state:
         state.remove(annihilation_qubit)
     else:
         return (), 0
@@ -131,22 +121,17 @@ def one_body_op_on_state(op, state_in):
 
 
 def recursive_mapping(M):
-    n_rows, n_cols = M.shape
-    assert(n_rows == n_cols) # Shouldn't that be guaranteed if our code was done correctly ?
 
-    # if n_rows==4:
-    #     print()
+    n_rows, n_cols = M.shape
 
     # Bottom of recursion: 2x2 matrix case
-    #print(n_rows)#, np.min(M), np.max(M))
     if n_rows == 2:
         res = {0: 0.5*(M[0,0]+M[1,1]), 1: 0.5*(M[0,1]+M[1,0]),
                 2: 0.5*(M[0,0]-M[1,1]), 3: 0.5j*(M[0,1]-M[1,0])}
-        #print(res)
         return res
     else:
         n_qubits = int(math.log2(n_rows))
-        pivr, pivc = n_rows//2, n_cols//2
+        piv = n_rows//2
         shift_x = 2*(n_qubits-1)
         shift_z = shift_x + 1
 
@@ -161,17 +146,16 @@ def recursive_mapping(M):
         x_plus_iy = {x_op: 0.5, y_op: 0.5j}
         x_minus_iy = {x_op: 0.5, y_op: -0.5j}
 
-        M_00 = tensor_product_pauli_dicts(recursive_mapping(M[:pivr, :pivc]), i_plus_z)
-        M_11 = tensor_product_pauli_dicts(recursive_mapping(M[pivr:, pivc:]), i_minus_z)
-        M_01 = tensor_product_pauli_dicts(recursive_mapping(M[:pivr, pivc:]), x_plus_iy)
-        M_10 = tensor_product_pauli_dicts(recursive_mapping(M[pivr:, :pivc]), x_minus_iy)
+        M_00 = tensor_product_pauli_dicts(recursive_mapping(M[:piv, :piv]), i_plus_z)
+        M_11 = tensor_product_pauli_dicts(recursive_mapping(M[piv:, piv:]), i_minus_z)
+        M_01 = tensor_product_pauli_dicts(recursive_mapping(M[:piv, piv:]), x_plus_iy)
+        M_10 = tensor_product_pauli_dicts(recursive_mapping(M[piv:, :piv]), x_minus_iy)
 
         # Merge the 4 outputs into one additively
-        d = dict()
-        for k in set(M_00.keys()) | set(M_01.keys()) | set(M_10.keys()) | set(M_11.keys()):
-            #d[k] = sum(Mx.get(k, 0.) for Mx in [M_00, M_01, M_10, M_11])
-            d[k] = M_00.get(k, 0) + M_01.get(k, 0) + M_10.get(k, 0) + M_11.get(k, 0) # faster
-        return d
+        for d in M_01, M_10, M_11:
+            for (k, v) in d.items():
+                M_00[k] = M_00.get(k, 0.) + v
+        return M_00
 
 
 def combinatorial(ferm_op, n_modes, n_electrons):
@@ -226,7 +210,7 @@ def combinatorial(ferm_op, n_modes, n_electrons):
             new_unique_int = basis_set[new_state]
             quop_matrix[unique_int, new_unique_int] += phase*coeff
 
-    # Converts matrix back into qubit operator object
+    # Convert matrix back into qubit operator object
     quop_ints = recursive_mapping(quop_matrix)
     quop = QubitOperator()
     for (term, coeff) in quop_ints.items():
