@@ -43,11 +43,11 @@ ZERO_TOLERANCE = 1e-8
 
 
 def int_to_tuple(integer, n_qubits):
-    """ Convert integer encoding a qubit Hamiltonian term in stabilizer representation
-    into an Openfermion-style tuple.
+    """ Convert a qubit Hamiltonian term in integer encoding (stabilizer representation) into
+    an Openfermion-style tuple.
 
     Bits in the binary representation of the integer encode the Pauli operators that need to be applied
-    to each qubit. Each consecutive pair of bits encode infromation for a specific qubit.
+    to each qubit. Each consecutive pair of bits encode information for a specific qubit.
 
     Args:
         integer (int): integer to decode. Its binary representation has 2*n_qubits bits
