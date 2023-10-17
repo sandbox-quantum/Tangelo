@@ -43,6 +43,19 @@ ZERO_TOLERANCE = 1e-8
 
 
 def int_to_tuple(integer, n_qubits):
+    """ Convert integer encoding a qubit Hamiltonian term in stabilizer representation
+    into an Openfermion-style tuple.
+
+    Bits in the binary representation of the integer encode the Pauli operators that need to be applied
+    to each qubit. Each consecutive pair of bits encode infromation for a specific qubit.
+
+    Args:
+        integer (int): integer to decode. Its binary representation has 2*n_qubits bits
+        n_qubits (int): number of qubits in the term
+
+    Returns:
+        tuple: OpenFermion-style term including up to n_qubits qubits
+    """
 
     term = []
     for i in range(1, n_qubits+1):
@@ -65,6 +78,15 @@ def int_to_tuple(integer, n_qubits):
 
 
 def tensor_product_pauli_dicts(pa, pb):
+    """ Perform the tensor product of 2 Pauli operators by using their underlying dictionary of terms.
+
+    Args:
+        pa (dict[int -> complex]): first Pauli dictionary
+        pb (dict[int -> complex]): second Pauli dictionary
+
+    Returns:
+        dict[int -> complex]: tensor product of Pauli operators
+    """
     pp = dict()
     for ta, ca in pa.items():
         for tb, cb in pb.items():
@@ -120,13 +142,20 @@ def one_body_op_on_state(op, state_in):
 
 
 def recursive_mapping(M):
+    """ Maps an arbitrary square matrix representing an operator via Pauli decomposition.
+
+    Args:
+        M (np.array(np, complex, np.complex)): Square matrix representing the operator.
+
+    Returns:
+        dict[int -> complex]: Pauli operator encoded as a dictionary
+    """
 
     n_rows, n_cols = M.shape
 
     # Bottom of recursion: 2x2 matrix case
     if n_rows == 2:
-        res = {0: 0.5*(M[0,0]+M[1,1]), 1: 0.5*(M[0,1]+M[1,0]),
-                2: 0.5*(M[0,0]-M[1,1]), 3: 0.5j*(M[0,1]-M[1,0])}
+        res = {0: 0.5*(M[0,0]+M[1,1]), 1: 0.5*(M[0,1]+M[1,0]), 2: 0.5*(M[0,0]-M[1,1]), 3: 0.5j*(M[0,1]-M[1,0])}
         return res
     else:
         n_qubits = int(math.log2(n_rows))
@@ -158,6 +187,19 @@ def recursive_mapping(M):
 
 
 def combinatorial(ferm_op, n_modes, n_electrons):
+    """ Function to transform the fermionic Hamiltonian into a basis constructed
+    in the Fock space.
+
+    Args:
+        ferm_op (FermionOperator). Fermionic operator, with alternate ordering
+            as followed in the openfermion package
+        n_modes (int): Number of relevant molecular orbitals, i.e. active molecular
+            orbitals.
+        n_electrons (int): Number of active electrons.
+
+    Returns:
+        QubitOperator: Self-explanatory.
+    """
 
     # The chemist ordering splits some 1-body and 2-body terms.
     ferm_op_chemist = chemist_ordered(ferm_op)
@@ -222,7 +264,7 @@ def combinatorial(ferm_op, n_modes, n_electrons):
 
 
 def basis(M, N):
-    """Function to construct the combinatorial basis set, i.e. a basis set
+    """ Function to construct the combinatorial basis set, i.e. a basis set
     respecting the number of electrons and the total spin.
 
     Args:
@@ -239,7 +281,7 @@ def basis(M, N):
 
 
 def conf_to_integer(sigma, M):
-    """Function to map an electronic configuration to a unique integer, as done
+    """ Function to map an electronic configuration to a unique integer, as done
     in arXiv.2205.11742 eq. (14).
 
     Args:
