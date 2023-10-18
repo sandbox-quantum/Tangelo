@@ -20,60 +20,60 @@ from tangelo.problem_decomposition import MethodOfIncrementsHelper
 
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 data_folder = os.path.join(pwd_this_test, "data")
-mi_results = os.path.join(data_folder, "BeH2_STO3G_MIFNO_HBCI/full_results_186184445859680125.log")
+mi_results = os.path.join(data_folder, "BeH2_STO3G_iFCI_HBCI/full_results_13242875561568846089.log")
 
 with open(mi_results, "r") as f:
     mi_object = json.loads("\n".join(f.readlines()[1:]))
 mi_object["subproblem_data"] = {int(k): v for k, v in mi_object["subproblem_data"].items()}
 
 
-class MIFNOHelperTest(unittest.TestCase):
+class iFCIHelperTest(unittest.TestCase):
 
     def setUp(self):
-        self.e_tot = -15.83647358459995
-        self.e_corr = -0.06915435696141081
+        self.e_tot = -15.834586605234621
+        self.e_corr = -0.06745129202803568
         self.e_mf = self.e_tot - self.e_corr
 
     def test_init_from_file(self):
         """Verify initialization with a json file."""
 
-        beh2_mifno = MethodOfIncrementsHelper(log_file=mi_results)
+        beh2_ifci = MethodOfIncrementsHelper(log_file=mi_results)
 
-        self.assertAlmostEqual(beh2_mifno.e_tot, self.e_tot)
-        self.assertAlmostEqual(beh2_mifno.e_corr, self.e_corr)
-        self.assertAlmostEqual(beh2_mifno.e_mf, self.e_mf)
+        self.assertAlmostEqual(beh2_ifci.e_tot, self.e_tot)
+        self.assertAlmostEqual(beh2_ifci.e_corr, self.e_corr)
+        self.assertAlmostEqual(beh2_ifci.e_mf, self.e_mf)
 
         # Testing the number of detected increments.
-        self.assertEqual(len(beh2_mifno.frag_info), 2)
+        self.assertEqual(len(beh2_ifci.frag_info), 2)
 
     def test_init_from_dict(self):
         """Verify initialization with a dict object."""
 
-        beh2_mifno = MethodOfIncrementsHelper(full_result=mi_object)
+        beh2_ifci = MethodOfIncrementsHelper(full_result=mi_object)
 
-        self.assertAlmostEqual(beh2_mifno.e_tot, self.e_tot)
-        self.assertAlmostEqual(beh2_mifno.e_corr, self.e_corr)
-        self.assertAlmostEqual(beh2_mifno.e_mf, self.e_mf)
+        self.assertAlmostEqual(beh2_ifci.e_tot, self.e_tot)
+        self.assertAlmostEqual(beh2_ifci.e_corr, self.e_corr)
+        self.assertAlmostEqual(beh2_ifci.e_mf, self.e_mf)
 
         # Testing the number of detected increments.
-        self.assertEqual(len(beh2_mifno.frag_info), 2)
+        self.assertEqual(len(beh2_ifci.frag_info), 2)
 
     def test_fragment_ids(self):
         """Verify if the fragment_ids property returns all the fragment ids.."""
 
-        beh2_mifno = MethodOfIncrementsHelper(full_result=mi_object)
-        frag_ids = beh2_mifno.fragment_ids
+        beh2_ifci = MethodOfIncrementsHelper(full_result=mi_object)
+        frag_ids = beh2_ifci.fragment_ids
 
         self.assertEqual(frag_ids, ["(0,)", "(1,)", "(2,)", "(0, 1)", "(0, 2)", "(1, 2)"])
 
     def test_mi_summation(self):
         """Verify that the energy can be recomputed with the incremental method."""
 
-        beh2_mifno = MethodOfIncrementsHelper(full_result=mi_object)
+        beh2_ifci = MethodOfIncrementsHelper(full_result=mi_object)
 
-        e_mi = beh2_mifno.mi_summation()
+        e_mi = beh2_ifci.mi_summation()
 
-        self.assertAlmostEqual(e_mi, beh2_mifno.e_tot)
+        self.assertAlmostEqual(e_mi, beh2_ifci.e_tot)
 
 
 if __name__ == "__main__":
