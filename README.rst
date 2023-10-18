@@ -146,4 +146,15 @@ If you use Tangelo in your research, please cite the `Tangelo release paper <htt
       doi = {10.48550/arXiv.2206.12424}
    }
 
+   @article{tangelo,
+      author = {Valentin Senicourt and James Brown and Alexandre Fleury and Ryan Day and Erika Lloyd and Marc P. Coons and Krzysztof Bieniasz and Lee Huntington and Alejandro J. Garza and Shunji Matsuura and Rudi Plesch and Takeshi Yamazaki and Arman Zaribafiyan},
+      title = {Tangelo: An Open-source Python Package for End-to-end Chemistry Workflows on Quantum Computers},
+      year = {2022},
+      url= {https://arxiv.org/abs/2206.12424},
+      number = {arXiv:2206.12424},
+      eprint = {arXiv:2206.12424},
+      publisher = {{arXiv}},
+      doi = {10.48550/arXiv.2206.12424}
+   }
+
 © SandboxAQ 2024. This software is released under the Apache Software License version 2.0.

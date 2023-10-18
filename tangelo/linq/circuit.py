@@ -426,6 +426,29 @@ class Circuit:
                                remove_qubits=remove_qubits)
         self.__dict__ = opt_circuit.__dict__
 
+    def merge_rotations(self):
+        """ Convenience method to merge compatible rotations applied successively on identical qubits indices.
+        The operation is done in-place and alters the input circuit.
+        """
+        opt_circuit = merge_rotations(self)
+        self.__dict__ = opt_circuit.__dict__
+
+    def simplify(self, max_cycles=100, param_threshold=1e-3, remove_qubits=False):
+        """ Convenience method to simplify gates in a circuit, by repeating a set of simple passes
+        until no further changes occurs, or a maximum number of cycles has been reached.
+
+        Args:
+            max_cycles (int): Optional, maximum number of cycles to perform
+            param_threshold (float): Optional, max absolute value to consider a rotation
+                as small enough to be discarded
+            remove_qubits (bool): Optional, remove qubit with no operations assigned left
+        """
+
+        opt_circuit = simplify(self,
+                               max_cycles=max_cycles, param_threshold=param_threshold,
+                               remove_qubits=remove_qubits)
+        self.__dict__ = opt_circuit.__dict__
+
     def controlled_measurement_op(self, measure):
         """Call the object self._cmeasure_control and return the next circuit to apply."""
         if callable(self._cmeasure_control):

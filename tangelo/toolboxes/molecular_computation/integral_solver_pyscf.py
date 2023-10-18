@@ -407,7 +407,10 @@ class IntegralSolverPySCFQMMM(IntegralSolverPySCF):
             raise ValueError("Hartree-Fock calculation did not converge")
 
         if sqmol.symmetry:
-            self.assign_mo_coeff_symmetries(sqmol)
+            sqmol.mo_symm_ids = list(self.symm.label_orb_symm(sqmol.mean_field.mol, sqmol.mean_field.mol.irrep_id,
+                                                              sqmol.mean_field.mol.symm_orb, sqmol.mean_field.mo_coeff))
+            irrep_map = {i: s for s, i in zip(molecule.irrep_name, molecule.irrep_id)}
+            sqmol.mo_symm_labels = [irrep_map[i] for i in sqmol.mo_symm_ids]
         else:
             sqmol.mo_symm_ids = None
             sqmol.mo_symm_labels = None
