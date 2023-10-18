@@ -19,6 +19,6 @@ setuptools.setup(
     test_suite="tangelo",
     install_requires=['h5py', 'bitarray', 'openfermion'],
     extras_require={
-        'pyscf': ['pyscf', 'pyscf-semiempirical @ git+https://github.com/pyscf/semiempirical@v0.1.0'], # pyscf-semiempirical PyPI sdist is missing C extension files
+        'pyscf': ['pyscf'] #'pyscf-semiempirical @ git+https://github.com/pyscf/semiempirical@v0.1.0'], # pyscf-semiempirical PyPI sdist is missing C extension files
     }
 )
