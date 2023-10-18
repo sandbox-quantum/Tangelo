@@ -22,8 +22,8 @@ experiment.
 from functools import reduce
 import itertools
 import os
-import requests
 import json
+import warnings
 
 import h5py
 import numpy as np
@@ -80,40 +80,52 @@ class MethodOfIncrementsHelper():
                 full_result = json.loads("\n".join(f.readlines()[1:]))
 
         full_result["subproblem_data"] = {int(k): v for k, v in full_result["subproblem_data"].items()}
-        self.full_result = full_result
 
         # Incremental (problem decomposition) quantities.
         self.e_tot = full_result["energy_total"]
         self.e_corr = full_result["energy_correlation"]
         self.e_mf = self.e_tot - self.e_corr
 
-        self.frag_info = dict()#read_relevant_info(full_result, fragment_relevant_info)
+        self.frag_info = MethodOfIncrementsHelper.read_relevant_info(full_result)
 
     @staticmethod
-    def read_relevant_info(full_result, fragment_relevant_info):
+    def read_relevant_info(full_result):
+        """Method to filter the relevant information in the full_result
+        dictionary.
+
+        Args:
+            full_result (dict): QEMIST Cloud output for the MI problem.
+
+        Returns:
+            (dict): Simplified version of the MI result dictionary.
+        """
+
+        # Relevant info and their default fallback values.
+        fragment_relevant_info = {
+            "energy_total": 0.,
+            "energy_correlation": 0.,
+            "frozen_orbitals_truncated": list(),
+            "complete_orbital_space": list(),
+            "epsilon": 0.,
+            "correction": 0.,
+            "problem_handle": None,
+        }
 
         # Select only the relevant information in the full result.
         frag_info = dict()
         for n_body, fragments_per_truncation in full_result["subproblem_data"].items():
             frag_info[n_body] = dict()
             for frag_id, frag_result in fragments_per_truncation.items():
+
+                # There is no problem_handle for the fragment if it has been
+                # screened out by QEMIST Cloud.
                 if frag_result.get("problem_handle", None) is not None:
-                    frag_info[n_body][frag_id] = {k: frag_result.get(k, None) for k in fragment_relevant_info}
 
-                    # If the mean-field energy for the fragment is not the same,
-                    # the coordinates, spin, basis or charge of the problem
-                    # might be different.
-                    #e_mf_frag = frag_result["energy_total"] - frag_result["energy_correlation"]
-                    #assert round(self.e_mf, 6) == round(e_mf_frag, 6), \
-                    #    f"The mean-field energy for fragment {frag_id} is " \
-                    #    "different than the one detected in the MI results."
+                    # Default values.
+                    frag_info[n_body][frag_id] = fragment_relevant_info.copy()
 
-                    # The mo_coefficients data are essential to recompute
-                    # fermionic operators.
-                    #assert "mo_coefficients" in frag_result, "MO coefficients "\
-                    #    f"not found in the {frag_id} results. Verify that " \
-                    #    "the `export_fragment_data` flag is set to True for " \
-                    #    "the MI-FNO calculation in QEMIST Cloud."
+                    # Updating default values with QEMIST Cloud results.
+                    frag_info[n_body][frag_id].update({k: v for k, v in frag_result.items() if k in fragment_relevant_info.keys()})
 
         return frag_info
 
@@ -149,7 +161,9 @@ class MethodOfIncrementsHelper():
         df["frozen_orbitals_truncated"] = df["frozen_orbitals_truncated"].apply(lambda d: d if isinstance(d, list) else [])
         df["complete_orbital_space"] = df["complete_orbital_space"].apply(lambda d: d if isinstance(d, list) else [])
 
-        return df.drop(["mo_coefficients"], axis=1)
+        df["n_electrons"], df["n_spinorbitals"] = zip(*df.index.map(self.n_electrons_spinorbs))
+
+        return df
 
     @property
     def fragment_ids(self):
@@ -161,47 +175,46 @@ class MethodOfIncrementsHelper():
         """Output the nested frag_info without the first layer."""
         return reduce(lambda a, b: {**a, **b}, self.frag_info.values())
 
-    def retrieve_mo_coeff(self, destination_folder=os.getcwd()):
-        """Function to fetch molecular orbital coefficients. A download path can
-        be provided to change the directory where the files will be downloaded.
-        If the files already exist, the function skips the download step. The
-        array is stored in the ["mo_coefficients"]["array"] entry in the
-        frag_info dictionary attribute.
+    def retrieve_mo_coeff(self, source_folder=os.getcwd(), prefix="mo_coefficients_", suffix=".h5"):
+        """Function to fetch molecular orbital coefficients. The array is
+        stored in the ["mo_coefficients"] entry in the frag_info dictionary
+        attribute.
 
         Args:
-            destination_folder (string): Users can specify a path to a
+            source_folder (string): Users can specify a path to a
                 destination folder, where the files containing the coefficients
                 will be downloaded. The default value is the directory where the
                 user's python script is run.
+            prefix (str): Prefix for the file names. Default is
+                "mo_coeffcients_".
+            suffix (str):  Suffix for the file name structure, including the
+                file extension. Default is ".h5".
         """
-        if not os.path.isdir(destination_folder):
-            raise FileNotFoundError(f"The {destination_folder} path does not exist.")
-        absolute_path = os.path.abspath(destination_folder)
+        if not os.path.isdir(source_folder):
+            raise FileNotFoundError(f"The {source_folder} path does not exist.")
+        absolute_path = os.path.abspath(source_folder)
 
         # For each fragment, fetch the molecular orbital coefficients from the
         # HDF5 files.
-        n_files = len(self.fragment_ids)
-        i_file = 1
         for n_body_fragments in self.frag_info.values():
             for frag_id, frag in n_body_fragments.items():
-                if frag.get("mo_coefficients", None):
-                    file_path = os.path.join(absolute_path, str(frag["problem_handle"]) + ".h5")
+                file_path = os.path.join(absolute_path, prefix + str(frag["problem_handle"]) + suffix)
 
-                    if not os.path.exists(file_path):
-                        print(f"Downloading and writing MO coefficients file to {file_path} ({i_file} / {n_files})")
-                        response = requests.get(frag["mo_coefficients"]["url"])
+                # Files must be downloaded a priori because URLs are not in
+                # QEMIST Cloud log files.
+                if not os.path.exists(file_path):
 
-                        with open(file_path, "wb") as file:
-                            file.write(response.content)
+                    # This is not important if the user does not request a
+                    # fermionic operator for this fragment. In the other case,
+                    # an error will be raise in the compute_fermionoperator
+                    # method.
+                    warnings.warn(f"File {file_path} not found. MO coefficients for fragment {frag_id} are not available.")
+                    continue
 
-                    with h5py.File(file_path, "r") as file:
-                        mo_coeff = np.array(file["mo_coefficients"])
+                with h5py.File(file_path, "r") as file:
+                    mo_coeff = np.array(file["mo_coefficients"])
 
-                    n_body_fragments[frag_id]["mo_coefficients"]["array"] = mo_coeff
-                else:
-                    print(f"MO coefficients for fragment {frag_id} ({i_file} / {n_files}) not available.")
-
-                i_file += 1
+                n_body_fragments[frag_id]["mo_coefficients"] = mo_coeff
 
     def compute_fermionoperator(self, molecule, frag_id):
         """Compute the fermionic Hamiltonian for an incremental fragment.
@@ -215,29 +228,19 @@ class MethodOfIncrementsHelper():
         """
         n_body = len(eval(frag_id))
 
-        if self.frag_info[n_body][frag_id]["mo_coefficients"] is None:
-            raise RuntimeError(f"The fragment information has not been imported.")
+        if "mo_coefficients" not in self.frag_info[n_body][frag_id]:
+            raise RuntimeError(f"The molecular orbital coefficients are not available. "
+                               f"Please call the {self.__class__.__name__}.retrieve_mo_coeff method.")
 
-        if self.frag_info[n_body][frag_id]["mo_coefficients"].get("array", None) is None:
-            raise RuntimeError(f"The molecular orbital coefficients are not available. Please call the {self.__class__.__name__}.retrieve_mo_coeff method.")
-
-        mo_coeff = self.frag_info[n_body][frag_id]["mo_coefficients"]["array"]
+        mo_coeff = self.frag_info[n_body][frag_id]["mo_coefficients"]
         frozen_orbitals = self.frag_info[n_body][frag_id]["frozen_orbitals_truncated"]
-
-        # TODO: Checks in the child class.
-        # Something is wrong if the molecule provided does not have the same
-        # mean-field energy.
-        #assert round(molecule.mf_energy, 6) == round(self.e_mf, 6),  \
-        #    "The molecule's mean-field energy is different than the one from " \
-        #    "the results. Please verify that the molecular quantities are "\
-        #    "the same as the one in the MI-FNO computation."
 
         # Returning a new molecule with the frozen orbitals.
         try:
             new_molecule = molecule.freeze_mos(frozen_orbitals, inplace=False)
         except ValueError:
             raise ValueError(f"All orbitals except {frag_id} are frozen from "
-                             "the FNO truncation. That means no "
+                             "the virtual orbital truncation. That means no "
                              "correlation energy can be extracted from this "
                              "fragment.")
 
@@ -275,12 +278,6 @@ class MethodOfIncrementsHelper():
         else:
             # TODO: find a way to disable this for iFCI and enable this for MIFNO.
             fragment_correction = {k: v["correction"] for k, v in self.frag_info_flattened.items()}
-
-            #if any(fragment_correction[frag_id] is None for frag_id in user_provided_energies.keys()):
-            #    raise RuntimeError(f"Not all the fragments in {list(user_provided_energies.keys())} "
-            #        "have been imported. The MP2 correction must be known "
-            #        "for all fragments to recompute the total MI-FNO energy.")
-
             user_provided_energies = {frag_id: e + fragment_correction[frag_id] for frag_id, e in user_provided_energies.items()}
 
         # Update to consider energies taken from a calculation.
