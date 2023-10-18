@@ -124,8 +124,19 @@ The contribution process is detailed in the `contributions <./CONTRIBUTIONS.rst>
 Citations
 ---------
 
-If you use Tangelo in your research, please cite:
+If you use Tangelo in your research, please cite the `Tangelo release paper <https://arxiv.org/abs/2206.12424>`_ and consider mentioning Tangelo in your talks.
 
-   Valentin Senicourt, James Brown, Alexandre Fleury, Ryan Day, Erika Lloyd, Marc P. Coons, Krzysztof Bieniasz, Lee Huntington, Alejandro J. Garza, Shunji Matsuura, Rudi Plesch, Takeshi Yamazaki, and Arman Zaribafiyan Tangelo: An Open-source Python Package for End-to-end Chemistry Workflows on Quantum Computers 2022 arXiv:2206.12424
+.. code-block:: latex
+
+   @article{tangelo,
+      author = {Valentin Senicourt and James Brown and Alexandre Fleury and Ryan Day and Erika Lloyd and Marc P. Coons and Krzysztof Bieniasz and Lee Huntington and Alejandro J. Garza and Shunji Matsuura and Rudi Plesch and Takeshi Yamazaki and Arman Zaribafiyan},
+      title = {Tangelo: An Open-source Python Package for End-to-end Chemistry Workflows on Quantum Computers},
+      year = {2022},
+      url= {https://arxiv.org/abs/2206.12424},
+      number = {arXiv:2206.12424},
+      eprint = {arXiv:2206.12424},
+      publisher = {{arXiv}},
+      doi = {10.48550/arXiv.2206.12424}
+   }
 
 © Good Chemistry Company 2023. This software is released under the Apache Software License version 2.0.

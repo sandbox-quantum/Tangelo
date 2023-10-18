@@ -174,8 +174,12 @@ class FCISolverPsi4(ElectronicStructureSolver):
         self.backend.core.clean_variables()
         self.ciwfn = None
         self.degenerate_mo_energies = False
+        self.extra_nuc_energy = 0
         if isinstance(molecule.solver, IntegralSolverPsi4) and not molecule.symmetry:
             self.molecule = molecule
+            if hasattr(molecule.solver, "chrgfield"):
+                self.chrgfield = molecule.solver.chrgfield
+                self.extra_nuc_energy = self.molecule.solver.ext_pot.computeNuclearEnergy(self.molecule.solver.mol)
         else:
             self.degenerate_mo_energies = np.any(np.isclose(molecule.mo_energies[1:], molecule.mo_energies[:-1]))
             self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
@@ -210,10 +214,20 @@ class FCISolverPsi4(ElectronicStructureSolver):
             for swap_op in swap_ops:
                 wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
+        if hasattr(self, "chrgfield"):
+            # TODO: Remove support for older version.
+            if self.backend.__version__ < "1.6":
+                self.backend.core.set_global_option_python('EXTERN', self.chrgfield.extern)
+            else:
+                energy, self.ciwfn = self.backend.energy('fci', molecule=self.molecule.solver.mol,
+                                                         basis=self.basis, return_wfn=True,
+                                                         ref_wfn=wfn, external_potentials=self.molecule.solver.external_potentials)
+                return energy + self.extra_nuc_energy
+
         energy, self.ciwfn = self.backend.energy('fci', molecule=self.molecule.solver.mol,
                                                  basis=self.basis, return_wfn=True,
                                                  ref_wfn=wfn)
-        return energy
+        return energy + self.extra_nuc_energy
 
     def get_rdm(self):
         """Compute the Full CI 1- and 2-particle reduced density matrices.
