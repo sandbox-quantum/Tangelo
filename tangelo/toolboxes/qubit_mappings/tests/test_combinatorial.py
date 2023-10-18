@@ -12,47 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import unittest
 
-import numpy as np
+from openfermion import load_operator
 
+from tangelo import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H2_sto3g
-from tangelo.toolboxes.operators import QubitOperator
+from tangelo.toolboxes.operators import QubitOperator as QOp
 from tangelo.toolboxes.qubit_mappings import combinatorial
-from tangelo.toolboxes.qubit_mappings.combinatorial import element_to_qubitop, basis, \
-    conf_to_integer, one_body_op_on_state
+from tangelo.toolboxes.qubit_mappings.combinatorial import basis, conf_to_integer, one_body_op_on_state
+
+
+path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
 
 
 class FunctionsCombinatorialTest(unittest.TestCase):
-
-    def test_element_to_qubitop_2by2(self):
-        """Test the mapping of a 2x2 matrix to qubit operators."""
-
-        array = np.array([
-            [1, 2.22],
-            [3j, 4+1j]
-        ])
-
-        quop_00 = element_to_qubitop(1, 0, 0, array[0][0])
-        quop_01 = element_to_qubitop(1, 0, 1, array[0][1])
-        quop_10 = element_to_qubitop(1, 1, 0, array[1][0])
-        quop_11 = element_to_qubitop(1, 1, 1, array[1][1])
-
-        self.assertEqual(quop_00, QubitOperator("", 0.5) + QubitOperator("Z0", 0.5))
-        self.assertEqual(quop_01, QubitOperator("X0", 0.5*2.22) + QubitOperator("Y0", 0.5j*2.22))
-        self.assertEqual(quop_10, QubitOperator("X0", 0.5*3j) + QubitOperator("Y0", -0.5j*3j))
-        self.assertEqual(quop_11, QubitOperator("", 0.5*(4+1j)) + QubitOperator("Z0", -0.5*(4+1j)))
-
-    def test_element_to_qubitop_4by4(self):
-        """Test the mapping of a 4x4 matrix element to a qubit operator."""
-
-        quop_01_00 = element_to_qubitop(2, 1, 0, 5.)
-
-        ref_op = QubitOperator("X0", 0.25) + QubitOperator("Y0", -0.25j) + \
-            QubitOperator("X0 Z1", 0.25) + QubitOperator("Y0 Z1", -0.25j)
-        ref_op *= 5.
-
-        self.assertEqual(quop_01_00, ref_op)
 
     def test_basis(self):
         """Test the basis function to construct a combinatorial set."""
@@ -73,7 +48,7 @@ class FunctionsCombinatorialTest(unittest.TestCase):
         self.assertEqual(conf_to_integer((2, 3), 4), 5)
 
     def test_one_body_op_on_state(self):
-        """Test the function that applies an operator a^{\dagger}_j a_i."""
+        r"""Test the function that applies an operator a^{\dagger}_j a_i."""
 
         conf_in = (0, 1, 2)
 
@@ -101,19 +76,31 @@ class FunctionsCombinatorialTest(unittest.TestCase):
 class CombinatorialTest(unittest.TestCase):
 
     def test_combinatorial_h2_sto3g(self):
-        """Test the mapping of H2 STO-3G to a combinatorial (qubit) Hamiltonian."""
+        """Test the mapping of H2 STO-3G to a combinatorial (qubit) Hamiltonian. 2-qubit problem. """
 
-        H_ferm = mol_H2_sto3g.fermionic_hamiltonian
-        qubit_op = combinatorial(H_ferm, mol_H2_sto3g.n_active_mos,
-            mol_H2_sto3g.n_active_electrons)
+        fop = mol_H2_sto3g.fermionic_hamiltonian
+        qop = combinatorial(fop, mol_H2_sto3g.n_active_mos, mol_H2_sto3g.n_active_electrons)
 
-        ref_qubit_op = QubitOperator("", -0.3399536)
-        ref_qubit_op += QubitOperator("Y0 Y1", -0.181288)
-        ref_qubit_op += QubitOperator("Z0", -0.3939836)
-        ref_qubit_op += QubitOperator("Z0 Z1", 0.0112365)
-        ref_qubit_op += QubitOperator("Z1", -0.3939836)
+        ref_qop = (QOp("Z1", -0.3939836) + QOp("Y0 Y1", -0.181288) +
+                   QOp("Z0", -0.3939836) + QOp("Z0 Z1", 0.0112365) + -0.3399536)
 
-        self.assertTrue(qubit_op.isclose(ref_qubit_op, tol=1e-4))
+        self.assertTrue(qop.isclose(ref_qop, tol=1e-4))
+
+    def test_combinatorial_H2O_sto3g(self):
+        """Test the mapping of H2O STO-3G to a combinatorial (qubit) Hamiltonian. 9-qubit problem. """
+
+        xyz_h2o = """
+        O  0.0000  0.0000  0.1173
+        H  0.0000  0.7572 -0.4692
+        H  0.0000 -0.7572 -0.4692
+        """
+
+        mol = SecondQuantizedMolecule(xyz_h2o, q=0, spin=0, basis='sto-3g')
+        qop = combinatorial(mol.fermionic_hamiltonian, mol.n_active_mos, mol.n_active_electrons)
+
+        quop_ref = load_operator(file_name='comb_quop_h2o_sto3g.data', data_directory=path_data,
+                                 plain_text=True)
+        self.assertTrue(qop.isclose(quop_ref, tol=1e-4))
 
 
 if __name__ == "__main__":
