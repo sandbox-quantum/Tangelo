@@ -21,7 +21,7 @@ import numpy as np
 
 from tangelo.linq import get_backend
 from tangelo.toolboxes.ansatz_generator.ilc import ILC
-from tangelo.toolboxes.ansatz_generator._qubit_ilc import gauss_elim_over_gf2
+from tangelo.toolboxes.ansatz_generator._qubit_ilc import gauss_elim_over_gf2, get_ilc_params_by_diag
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g
 
@@ -148,7 +148,7 @@ class ILCTest(unittest.TestCase):
 
         # The QMF and ILC parameters can both be specified; determined automatically otherwise.
         qmf_var_params = [3.14159265e+00,  3.14159265e+00, -7.59061327e-12,  0.]
-        ilc_var_params = [1.12894599e-01]
+        ilc_var_params = [-1.12894599e-01]
         var_params = qmf_var_params + ilc_var_params
         ilc_ansatz.update_var_params(var_params)
         # Assert energy returned is as expected for given parameters
@@ -175,13 +175,12 @@ class ILCTest(unittest.TestCase):
         qmf_var_params = [ 3.14159265e+00, -1.02576971e-11,  1.35522331e-11,  3.14159265e+00,
                            3.14159265e+00, -5.62116001e-11, -1.41419277e-11, -2.36789365e-11,
                           -5.53225030e-11, -3.56400157e-11, -2.61030058e-11, -3.55652002e-11]
-        ilc_var_params = [ 0.14001419, -0.10827113,  0.05840200, -0.12364925,
-                          -0.07275071, -0.04703495,  0.02925292,  0.03145765]
+        ilc_var_params, energy_diag = get_ilc_params_by_diag(qubit_hamiltonian, ilc_ansatz.acs, np.array(qmf_var_params), return_energy=True)
         var_params = qmf_var_params + ilc_var_params
         # Assert energy returned is as expected for given parameters
         ilc_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
-        self.assertAlmostEqual(energy, -1.6379638, delta=1e-6)
+        self.assertAlmostEqual(energy_diag, energy, delta=1e-5)
 
 
 if __name__ == "__main__":

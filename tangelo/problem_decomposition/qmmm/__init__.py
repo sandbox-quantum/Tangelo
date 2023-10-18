@@ -12,6 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver, IntegralSolverEmpty
-from tangelo.toolboxes.molecular_computation.integral_solver_psi4 import IntegralSolverPsi4, IntegralSolverPsi4QMMM
-from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import IntegralSolverPySCF, IntegralSolverPySCFQMMM
+from tangelo.problem_decomposition.oniom._helpers.helper_classes import Fragment, Link

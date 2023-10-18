@@ -196,7 +196,7 @@ class ILC(Ansatz):
 
     def build_circuit(self, var_params=None):
         """Build and return the quantum circuit implementing the state preparation ansatz
-         (with currently specified initial_state and var_params). """
+         (with currently specified initial_state and var_params)."""
 
         # Build the DIS or specify a list of generators; updates the number of QCC parameters
         self._get_ilc_generators()

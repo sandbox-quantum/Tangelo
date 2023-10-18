@@ -341,28 +341,55 @@ class Circuit:
             return TypeError("Name of circuit object must be a string")
         return {"name": self.name, "type": "QuantumCircuit", "gates": [gate.serialize() for gate in self._gates]}
 
-    def remove_small_rotations(self, param_threshold=0.05):
+    def remove_small_rotations(self, param_threshold=1e-3, remove_qubits=False):
         """Convenience method to remove small rotations from the circuit.
         See separate remove_small_rotations function.
 
         Args:
-            param_threshold (float): Max absolute value to consider a rotation
-                as a small one.
+            param_threshold (float): Optional, max absolute value to consider a rotation
+                as small enough to be discarded
+            remove_qubits (bool): Optional, remove qubit with no operations assigned left
 
         Returns:
             Circuit: The circuit without small rotations.
         """
-        opt_circuit = remove_small_rotations(self, param_threshold)
+        opt_circuit = remove_small_rotations(self, param_threshold=param_threshold, remove_qubits=remove_qubits)
         self.__dict__ = opt_circuit.__dict__
 
-    def remove_redundant_gates(self):
+    def remove_redundant_gates(self, remove_qubits=False):
         """Convenience method to remove redundant gates from the circuit.
         See separate remove_redundant_gates function.
+
+        Args:
+            remove_qubits (bool): Optional, remove qubit with no operations assigned left
 
         Returns:
             Circuit: The circuit without redundant gates.
         """
-        opt_circuit = remove_redundant_gates(self)
+        opt_circuit = remove_redundant_gates(self, remove_qubits=remove_qubits)
+        self.__dict__ = opt_circuit.__dict__
+
+    def merge_rotations(self):
+        """ Convenience method to merge compatible rotations applied successively on identical qubits indices.
+        The operation is done in-place and alters the input circuit.
+        """
+        opt_circuit = merge_rotations(self)
+        self.__dict__ = opt_circuit.__dict__
+
+    def simplify(self, max_cycles=100, param_threshold=1e-3, remove_qubits=False):
+        """ Convenience method to simplify gates in a circuit, by repeating a set of simple passes
+        until no further changes occurs, or a maximum number of cycles has been reached.
+
+        Args:
+            max_cycles (int): Optional, maximum number of cycles to perform
+            param_threshold (float): Optional, max absolute value to consider a rotation
+                as small enough to be discarded
+            remove_qubits (bool): Optional, remove qubit with no operations assigned left
+        """
+
+        opt_circuit = simplify(self,
+                               max_cycles=max_cycles, param_threshold=param_threshold,
+                               remove_qubits=remove_qubits)
         self.__dict__ = opt_circuit.__dict__
 
 
@@ -398,15 +425,16 @@ def stack(*circuits):
     return stacked_circuit
 
 
-def remove_small_rotations(circuit, param_threshold=0.05):
+def remove_small_rotations(circuit, param_threshold=1e-3, remove_qubits=False):
     """Remove small rotation gates, up to a parameter threshold, from the
     circuit. Rotations from the set {"RX", "RY", "RZ", "CRX", "CRY", "CRZ"} are
     considered.
 
     Args:
         circuit (Circuit): the circuits to trim and stack into a single one
-        param_threshold (float): Max absolute value to consider a rotation as
-            a small one.
+        param_threshold (float): Optional, Max absolute value to consider a rotation
+            small enough to be discarded
+        remove_qubits (bool): Optional, remove qubit with no operations assigned left
 
     Returns:
         Circuit: The circuit without small-rotation gates.
@@ -415,10 +443,73 @@ def remove_small_rotations(circuit, param_threshold=0.05):
     rot_gates = {"RX", "RY", "RZ", "CRX", "CRY", "CRZ"}
     gates = [g for g in circuit._gates if not (g.name in rot_gates and abs(g.parameter) % (2*np.pi) < param_threshold)]
 
-    return Circuit(gates)
+    return Circuit(gates) if remove_qubits else Circuit(gates, n_qubits=circuit.width)
 
 
-def remove_redundant_gates(circuit):
+def merge_rotations(circuit: Circuit):
+    """ Merge rotation gates successively applied to the same qubits (targets, controls), into a single
+    equivalent rotation gate. If one of the gates involved is labeled variational, the merged rotation is
+    as well.
+
+    Agglomerating non-numerical values for parameters is currently unsupported.
+
+    Args:
+        circuit (Circuit): Input quantum circuit
+
+    Returns:
+        Circuit: circuit with merged rotations
+    """
+
+    NoneGate = Gate('NONE', 0)
+
+    gate_qubits = {i: list() for i in range(circuit.width)}
+    new_gates = []
+
+    # TODO: could extend to other variational gates, standard or native to some devices (XX, etc)
+    rot_gates = {"RX", "RY", "RZ", "CRX", "CRY", "CRZ", "PHASE", "CPHASE"}
+
+    for gi, gate in enumerate(circuit):
+        merge_gate = False
+
+        # Identify qubits the current gate acts on.
+        qubits = gate.target if gate.control is None else gate.target + gate.control
+
+        # For all qubits involved, inspect the previous gate.
+        g_prevs = [gate_qubits[qubit_i][-1][1] if gate_qubits[qubit_i] else NoneGate for qubit_i in qubits]
+
+        # No rotations merged: no single previous gate found operating on all qubits involved.
+        if (NoneGate in g_prevs):
+            for qubit_i in qubits:
+                gate_qubits[qubit_i] += [(gi, gate)]
+            new_gates.append(gate)
+            continue
+
+        else:
+            if all(gg == g_prevs[0] for gg in g_prevs):
+                g_prev = g_prevs[0]
+            else:
+                for qubit_i in qubits:
+                    gate_qubits[qubit_i] += [(gi, gate)]
+                new_gates.append(gate)
+                continue
+
+            # Single rotation gate found common to all qubits: combining.
+            if gate.name in rot_gates:
+                if (gate.name, gate.target, gate.control) == (g_prev.name, g_prev.target, g_prev.control):
+                    merge_gate = True
+                    g_prev.is_variational |= gate.is_variational
+                    g_prev.parameter += gate.parameter
+
+        # No rotation merged, gate added for all qubits involved.
+        if not merge_gate:
+            for qubit_i in qubits:
+                gate_qubits[qubit_i] += [(gi, gate)]
+            new_gates.append(gate)
+
+    return Circuit(new_gates)
+
+
+def remove_redundant_gates(circuit, remove_qubits=False):
     """Remove redundant gates in a circuit. Redundant gates are adjacent gates
     that can be cancelled as their global effect is the identity. This function
     also works with many-qubit gates. However, it does not perform reordering of
@@ -426,6 +517,7 @@ def remove_redundant_gates(circuit):
 
     Args:
         circuit (Circuit): the circuits to remove redundant gates.
+        remove_qubits (bool): Optional, remove qubit with no operations assigned left
 
     Returns:
         Circuit: The circuit without redundant gates.
@@ -458,7 +550,40 @@ def remove_redundant_gates(circuit):
     # Remove gates that can be cancelled.
     gates = [gate for gate_i, gate in enumerate(circuit._gates) if gate_i not in indices_to_remove]
 
-    return Circuit(gates)
+    return Circuit(gates) if remove_qubits else Circuit(gates, n_qubits=circuit.width)
+
+
+def simplify(circuit, max_cycles=100, param_threshold=1e-3, remove_qubits=False):
+    """ Convenience function to simplify gates in a circuit, by repeating a set of simple passes
+    until no further changes occurs, or a maximum number of cycles has been reached (out of place operation).
+
+    Args:
+        circuit (Circuit): the input circuit
+        max_cycles (int): Optional, maximum number of cycles to perform
+        param_threshold (float): Optional, max absolute value to consider a rotation
+            as small enough to be discarded
+        remove_qubits (bool): Optional, remove qubit with no operations assigned left
+
+    Returns:
+        Circuit: The simplified circuit
+    """
+
+    # Set up parameter for initial cycle
+    i_cycle = 0
+    c_old = circuit.copy()
+    c_new = Circuit()
+
+    while (i_cycle < max_cycles) and (c_old != c_new):
+
+        c_new = merge_rotations(c_old)
+        c_new.remove_small_rotations(param_threshold=param_threshold, remove_qubits=remove_qubits)
+        c_new.remove_redundant_gates(remove_qubits=remove_qubits)
+
+        # Update variables for next cycle
+        i_cycle += 1
+        c_new, c_old = c_old, c_new
+
+    return c_old
 
 
 def get_unitary_circuit_pieces(circuit: Circuit) -> Tuple[List[Circuit], List[int]]:

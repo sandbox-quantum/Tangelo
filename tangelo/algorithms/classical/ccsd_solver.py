@@ -21,7 +21,7 @@ import numpy as np
 from sympy.combinatorics.permutations import Permutation
 
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
-from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF
+from tangelo.toolboxes.molecular_computation import IntegralSolverPsi4, IntegralSolverPySCF, IntegralSolverPsi4QMMM
 from tangelo.algorithms.electronic_structure_solver import ElectronicStructureSolver
 from tangelo.helpers.utils import installed_chem_backends, is_package_installed
 
@@ -161,9 +161,10 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                                  f"with a UHF reference in {self.__class__.__name__}")
 
         # Frozen orbitals must be declared before calling compute_mean_field to be saved in ref_wfn for Psi4 ccsd.
-        intsolve = IntegralSolverPsi4()
+        intsolve = IntegralSolverPsi4() if not hasattr(molecule.solver, "charges") else IntegralSolverPsi4QMMM(molecule.solver.combinedcharges)
         self.backend.set_options({'basis': molecule.basis, 'frozen_docc': [self.n_frozen_occ], 'frozen_uocc': [self.n_frozen_vir],
                                   'reference': self.ref})
+
         self.molecule = SecondQuantizedMolecule(xyz=molecule.xyz, q=molecule.q, spin=molecule.spin,
                                                 solver=intsolve,
                                                 basis=molecule.basis,
@@ -171,6 +172,9 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                                                 symmetry=False,
                                                 uhf=molecule.uhf,
                                                 frozen_orbitals=molecule.frozen_orbitals)
+
+        self.init_mo_coeff = molecule.mo_coeff
+        self.extra_nuc_energy = 0. if not hasattr(molecule.solver, "charges") else self.molecule.solver.ext_pot.computeNuclearEnergy(self.molecule.solver.mol)
         self.basis = molecule.basis
 
     def simulate(self):
@@ -185,13 +189,15 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
         if self.n_frozen_occ or self.n_frozen_vir:
             if not self.molecule.uhf:
                 mo_order = self.molecule.frozen_occupied + self.molecule.active_occupied + self.molecule.active_virtual + self.molecule.frozen_virtual
+                self.molecule.solver.modify_c(wfn, self.init_mo_coeff)
                 # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
                 swap_ops = Permutation(mo_order).transpositions()
                 for swap_op in swap_ops:
                     wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
             else:
-
+                # Modify Ca mo_coeff in reference wavefunction to initial mo_coeff
+                self.molecule.solver.modify_c(wfn, self.init_mo_coeff[0])
                 # Obtain swap operations that will take the unordered list back to ordered with the correct active space in the middle.
                 mo_order = (self.molecule.frozen_occupied[0] + self.molecule.active_occupied[0]
                             + self.molecule.active_virtual[0] + self.molecule.frozen_virtual[0])
@@ -200,6 +206,7 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
                     wfn.Ca().rotate_columns(0, swap_op[0], swap_op[1], np.deg2rad(90))
 
                 # Repeat for Beta orbitals
+                self.molecule.solver.modify_c(wfn, self.init_mo_coeff[1], False)
                 mo_order_b = (self.molecule.frozen_occupied[1] + self.molecule.active_occupied[1]
                               + self.molecule.active_virtual[1] + self.molecule.frozen_virtual[1])
                 swap_ops = Permutation(mo_order_b).transpositions()
@@ -208,9 +215,14 @@ class CCSDSolverPsi4(ElectronicStructureSolver):
 
         self.backend.set_options({'basis': self.basis, 'frozen_docc': [self.n_frozen_occ], 'frozen_uocc': [self.n_frozen_vir],
                                   'qc_module': 'ccenergy', 'reference': self.ref})
-        energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
-                                                 basis=self.basis, return_wfn=True, ref_wfn=wfn)
-        return energy
+        if hasattr(self.molecule, "charges") and self.backend.__version__ >= "1.6":
+            energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
+                                                     basis=self.basis, return_wfn=True, ref_wfn=wfn,
+                                                     external_potentials=self.molecule.solver.external_potentials)
+        else:
+            energy, self.ccwfn = self.backend.energy('ccsd', molecule=self.molecule.solver.mol,
+                                                     basis=self.basis, return_wfn=True, ref_wfn=wfn)
+        return energy + self.extra_nuc_energy
 
     def get_rdm(self):
         """Compute the Full CI 1- and 2-particle reduced density matrices.
