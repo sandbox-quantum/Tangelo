@@ -32,7 +32,7 @@ import pandas as pd
 
 class MethodOfIncrementsHelper():
     """Python object to post-process, fetch and manipulate QEMIST Cloud
-    incremental results.
+    incremental results. This is referring to the Method of Increments (MI).
 
     Attributes:
         e_tot (float): Total incremental energy.
@@ -47,23 +47,22 @@ class MethodOfIncrementsHelper():
     Properties:
         to_dataframe (pandas.DataFrame): Converted frag_info dict into a pandas
             DataFrame.
-        fragment_ids (list of string): List of all fragment identifiers.
+        fragment_ids (list of str): List of all fragment identifiers.
         frag_info_flattened (dictionary): The nested frag_info without the first
             layer (keys = truncation number).
     """
 
     def __init__(self, log_file=None, full_result=None):
         """Initialization method to process the classical results. A json path
-        or a python dictionary can be passed to the method for the MI
-        or each FNO fragment results. Passing both a path and a dictionary
-        raises an error. Not all fragment results need to be imported:
-        in case of missing data, MIFNOHelper raises an error
-        mentionning the missing pieces.
+        or a python dictionary can be passed to the method for the full MI
+        results. Passing both a path and a dictionary raises an error. Not all
+        fragment results need to be imported: in case of missing data, this
+         helper class raises an error mentionning the missing pieces.
 
         Args:
-            log_file (string): Path to a json file containing the MIFNO
-                results from QEMIST Cloud.
-            full_result (dict): MIFNO results (QEMIST Cloud output).
+            log_file (str): Path to a json file containing the MI results
+                from QEMIST Cloud.
+            full_result (dict): MI results (QEMIST Cloud output).
         """
 
         # Raise error if input is not as expected. Only a single input must be
@@ -115,6 +114,7 @@ class MethodOfIncrementsHelper():
         frag_info = dict()
         for n_body, fragments_per_truncation in full_result["subproblem_data"].items():
             frag_info[n_body] = dict()
+
             for frag_id, frag_result in fragments_per_truncation.items():
 
                 # There is no problem_handle for the fragment if it has been
@@ -149,6 +149,13 @@ class MethodOfIncrementsHelper():
     def __getitem__(self, frag_id):
         """The user can select the fragment information (python dictionary) with
         the [] operator.
+
+        Args:
+            frag_id (str): Fragment id, e.g. "(1,)", "(1 ,2)", etc.
+
+        Returns:
+            (dict): Fragment information for the provided frag_id.
+
         """
         return self.frag_info_flattened[frag_id]
 
@@ -178,18 +185,19 @@ class MethodOfIncrementsHelper():
     def retrieve_mo_coeff(self, source_folder=os.getcwd(), prefix="mo_coefficients_", suffix=".h5"):
         """Function to fetch molecular orbital coefficients. The array is
         stored in the ["mo_coefficients"] entry in the frag_info dictionary
-        attribute.
+        attribute. Each MO coefficient file name should contain the QEMIST Cloud
+        problem handle for this fragment.
 
         Args:
-            source_folder (string): Users can specify a path to a
-                destination folder, where the files containing the coefficients
-                will be downloaded. The default value is the directory where the
-                user's python script is run.
+            source_folder (str): Users can specify a path to a folder, where the
+                files containing the coefficients are stored. The default value
+                is the directory where the user's python script is run.
             prefix (str): Prefix for the file names. Default is
                 "mo_coeffcients_".
             suffix (str):  Suffix for the file name structure, including the
                 file extension. Default is ".h5".
         """
+
         if not os.path.isdir(source_folder):
             raise FileNotFoundError(f"The {source_folder} path does not exist.")
         absolute_path = os.path.abspath(source_folder)
@@ -200,8 +208,7 @@ class MethodOfIncrementsHelper():
             for frag_id, frag in n_body_fragments.items():
                 file_path = os.path.join(absolute_path, prefix + str(frag["problem_handle"]) + suffix)
 
-                # Files must be downloaded a priori because URLs are not in
-                # QEMIST Cloud log files.
+                # Files must be downloaded a priori.
                 if not os.path.exists(file_path):
 
                     # This is not important if the user does not request a
@@ -221,11 +228,12 @@ class MethodOfIncrementsHelper():
 
         Args:
             molecule (SecondQuantizedMolecule): Full molecule description.
-            frag_id (string): Fragment id, e.g. "(0, )", "(1, 2)", ...
+            frag_id (str): Fragment id, e.g. "(0, )", "(1, 2)", ...
 
         Returns:
             FermionOperator: Fermionic operator for the specified fragment id.
         """
+
         n_body = len(eval(frag_id))
 
         if "mo_coefficients" not in self.frag_info[n_body][frag_id]:
@@ -252,12 +260,16 @@ class MethodOfIncrementsHelper():
         problem. This method makes computing the total energy with new
         results possible.
 
-        It computes the epsilons with the MP2 correction:
+        It computes the epsilons:
         \epsilon_{i} = E_c(i)
         \epsilon_{ij} = E_c(ij) - \epsilon_{i} - \epsilon_{i}
         \epsilon_{ijk} = E_c(ijk) - \epsilon_{ij} - \epsilon_{ik}
             - \epsilon_{jk} - \epsilon_{i} - \epsilon_{j} - \epsilon_{k}
         etc.
+
+        A correction term per fragment is considered if applicable. For MI-FNO,
+        there is an MP2 correction for the truncated virtual space. For iFCI,
+        there is no such correction.
 
         Args:
             user_provided_energies (dict): New energy values provided by the
@@ -267,6 +279,7 @@ class MethodOfIncrementsHelper():
         Returns:
             float: Method of increment total energy.
         """
+
         fragment_energies = {k: v["energy_total"] for k, v in self.frag_info_flattened.items()}
 
         if any([e is None for e in fragment_energies.values()]):
@@ -276,7 +289,6 @@ class MethodOfIncrementsHelper():
         if user_provided_energies is None:
             user_provided_energies = dict()
         else:
-            # TODO: find a way to disable this for iFCI and enable this for MIFNO.
             fragment_correction = {k: v["correction"] for k, v in self.frag_info_flattened.items()}
             user_provided_energies = {frag_id: e + fragment_correction[frag_id] for frag_id, e in user_provided_energies.items()}
 
@@ -286,7 +298,7 @@ class MethodOfIncrementsHelper():
         # Equivalent to truncation_order in QEMIST Cloud.
         n_body_max = max(self.frag_info.keys())
 
-        # Perform the incremental sumamtion.
+        # Perform the incremental summation.
         epsilons = dict()
         for n_body in range(1, n_body_max + 1):
             for frag_id in self.frag_info[n_body].keys():
@@ -304,7 +316,7 @@ class MethodOfIncrementsHelper():
         """Output the number of electrons and spinorbitals for a given fragment.
 
         Args:
-            frag_id (string): Fragment id, e.g. "(0, )", "(1, 2)", ...
+            frag_id (str): Fragment id, e.g. "(0, )", "(1, 2)", ...
 
         Returns:
             int, int: Number of electrons, number of spinorbitals.
