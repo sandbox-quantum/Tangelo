@@ -20,7 +20,7 @@ from tangelo.problem_decomposition import MethodOfIncrementsHelper
 
 pwd_this_test = os.path.dirname(os.path.abspath(__file__))
 data_folder = os.path.join(pwd_this_test, "data")
-mi_results = os.path.join(data_folder, "BeH2_STO3G_iFCI_HBCI/full_results_13242875561568846089.log")
+mi_results = os.path.join(data_folder, "BeH2_CCPVDZ_iFCI_HBCI/full_results_13242875561568846089.log")
 
 with open(mi_results, "r") as f:
     mi_object = json.loads("\n".join(f.readlines()[1:]))
