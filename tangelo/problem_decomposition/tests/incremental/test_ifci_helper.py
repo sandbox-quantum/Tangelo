@@ -27,7 +27,7 @@ with open(mi_results, "r") as f:
 mi_object["subproblem_data"] = {int(k): v for k, v in mi_object["subproblem_data"].items()}
 
 
-class iFCIHelperTest(unittest.TestCase):
+class IFCIHelperTest(unittest.TestCase):
 
     def setUp(self):
         self.e_tot = -15.834586605234621
@@ -59,7 +59,7 @@ class iFCIHelperTest(unittest.TestCase):
         self.assertEqual(len(beh2_ifci.frag_info), 2)
 
     def test_fragment_ids(self):
-        """Verify if the fragment_ids property returns all the fragment ids.."""
+        """Verify whether fragment_ids property returns all the fragment ids."""
 
         beh2_ifci = MethodOfIncrementsHelper(full_result=mi_object)
         frag_ids = beh2_ifci.fragment_ids

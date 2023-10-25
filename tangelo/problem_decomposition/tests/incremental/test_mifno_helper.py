@@ -59,7 +59,7 @@ class MIFNOHelperTest(unittest.TestCase):
         self.assertEqual(len(beh2_mifno.frag_info), 2)
 
     def test_fragment_ids(self):
-        """Verify if the fragment_ids property returns all the fragment ids.."""
+        """Verify whether fragment_ids property returns all the fragment ids."""
 
         beh2_mifno = MethodOfIncrementsHelper(full_result=mi_object)
         frag_ids = beh2_mifno.fragment_ids

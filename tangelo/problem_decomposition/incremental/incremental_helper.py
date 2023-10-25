@@ -13,10 +13,19 @@
 # limitations under the License.
 
 """This file provides helpers in order to import data coming from an incremental
-job run on QEMIST Cloud, providing the users with both fragment information as
-well as reference results obtained by the classical solvers in QEMIST Cloud. The
-fragments can be passed to a quantum solver or be used for a quantum computing
-experiment.
+job (MIFNO or iFCI) run on QEMIST Cloud, providing the users with both fragment
+information as well as reference results obtained by the classical solvers in
+QEMIST Cloud. The fragments can be passed to a quantum solver or be used for a
+quantum computing experiment.
+
+MIFNO references:
+- Verma, L. Huntington, M. P. Coons, Y. Kawashima, T. Yamazaki and A. Zaribafiyan
+The Journal of Chemical Physics 155, 034110 (2021).
+
+iFCI references:
+- Paul M. Zimmerman, J. Chem. Phys., 146, 104102 (2017).
+- Paul M. Zimmerman, J Chem. Phys., 146, 224104 (2017).
+- Alan E. Rask and Paul M. Zimmerman, J. Phys. Chem. A, 125, 7, 1598-1609 (2021).
 """
 
 from functools import reduce
@@ -31,8 +40,9 @@ import pandas as pd
 
 
 class MethodOfIncrementsHelper():
-    """Python object to post-process, fetch and manipulate QEMIST Cloud
+    """Python class to post-process, fetch and manipulate QEMIST Cloud
     incremental results. This is referring to the Method of Increments (MI).
+    MI-FNO and iFCI results are both supported by this class.
 
     Attributes:
         e_tot (float): Total incremental energy.
@@ -85,10 +95,10 @@ class MethodOfIncrementsHelper():
         self.e_corr = full_result["energy_correlation"]
         self.e_mf = self.e_tot - self.e_corr
 
-        self.frag_info = MethodOfIncrementsHelper.read_relevant_info(full_result)
+        self.frag_info = MethodOfIncrementsHelper.read_mi_info(full_result)
 
     @staticmethod
-    def read_relevant_info(full_result):
+    def read_mi_info(full_result):
         """Method to filter the relevant information in the full_result
         dictionary.
 
@@ -198,9 +208,9 @@ class MethodOfIncrementsHelper():
                 file extension. Default is ".h5".
         """
 
-        if not os.path.isdir(source_folder):
-            raise FileNotFoundError(f"The {source_folder} path does not exist.")
         absolute_path = os.path.abspath(source_folder)
+        if not os.path.isdir(absolute_path):
+            raise FileNotFoundError(f"Folder not found:\n {absolute_path}")
 
         # For each fragment, fetch the molecular orbital coefficients from the
         # HDF5 files.
