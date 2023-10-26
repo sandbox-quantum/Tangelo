@@ -70,10 +70,27 @@ class MIFNOHelperTest(unittest.TestCase):
         """Verify that the energy can be recomputed with the incremental method."""
 
         beh2_mifno = MethodOfIncrementsHelper(full_result=mi_object)
-
         e_mi = beh2_mifno.mi_summation()
 
         self.assertAlmostEqual(e_mi, beh2_mifno.e_tot)
+
+    def test_retrieve_mo_coeff(self):
+        """Verify that the molecular orbital coefficients can be read from files."""
+
+        beh2_mifno = MethodOfIncrementsHelper(full_result=mi_object)
+        beh2_mifno.retrieve_mo_coeff(source_folder=os.path.join(data_folder, "BeH2_CCPVDZ_MIFNO_HBCI"),
+                                    prefix="mo_coefficients_")
+
+    def test_missing_folder(self):
+        """Verify that a missing folder for molecular orbital coefficients is
+        raising an error.
+        """
+
+        beh2_mifno = MethodOfIncrementsHelper(full_result=mi_object)
+
+        with self.assertRaises(FileNotFoundError):
+            beh2_mifno.retrieve_mo_coeff(source_folder=os.path.join(data_folder, "missing_folder"),
+                                        prefix="mo_coefficients_")
 
 
 if __name__ == "__main__":
