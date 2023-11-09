@@ -55,7 +55,7 @@ class IBMConnection(QpuConnection):
             circuits (Circuit | List[Circuit]): Tangelo circuit(s)
             operators (QubitOperator | List[QubitOperator]) : Optional, qubit operators for computing expectation values
             runtime_options (dict): Optional, extra keyword arguments for options supported in qiskit-runtime.
-            instance (str): The service instance to use, as in hub/group/project in that format.
+            instance (str): Optional, desired IBM service instance in the "hub/group/project" format. Default is likely to send to "ibm-q/open/main" 
 
         Returns:
             str: string representing the job id
