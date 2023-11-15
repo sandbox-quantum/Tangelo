@@ -96,6 +96,16 @@ class TrimTrivialQubits(unittest.TestCase):
         self.assertEqual(ref_circ._gates, trimmed_circuit._gates)
         self.assertAlmostEqual(sim.get_expectation_value(trimmed_operator, trimmed_circuit), ref_value+1, places=5)
 
+    def test_trim_trivial_qubits_unentangled_non_trivial_pieces(self):
+        """ Test if trim trivial qubit function produces correct and compatible circuits and operators """
+
+        unentangled_circ = Circuit([Gate("RY", 0, parameter=0.1), Gate("RY", 3, parameter=0.2)])
+        qu_op = QubitOperator("Z0 Z1 Z3")
+        ref_exp = sim.get_expectation_value(qu_op, unentangled_circ)
+
+        trimmed_operator, trimmed_circuit = trim_trivial_qubits(qu_op, unentangled_circ)
+        self.assertAlmostEqual(sim.get_expectation_value(trimmed_operator, trimmed_circuit), ref_exp, places=5)
+
 
 if __name__ == "__main__":
     unittest.main()

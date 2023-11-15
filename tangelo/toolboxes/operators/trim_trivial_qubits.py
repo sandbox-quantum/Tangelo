@@ -90,7 +90,7 @@ def is_bitflip_gate(gate, atol=1e-5):
         return False
 
 
-def trim_trivial_circuit(circuit):
+def trim_trivial_circuit(circuit: Circuit):
     """
     Split Circuit into entangled and unentangled components.
     Returns entangled Circuit, and the indices and states of unentangled qubits
@@ -103,7 +103,7 @@ def trim_trivial_circuit(circuit):
         dict : dictionary mapping trimmed qubit indices to their states (0 or 1)
     """
     # Split circuit and get relevant indices
-    circs = circuit.split()
+    circs = circuit.split(trim_qubits=False)
     e_indices = circuit.get_entangled_indices()
     used_qubits = set()
     for eq in e_indices:
@@ -117,7 +117,8 @@ def trim_trivial_circuit(circuit):
     circuit_new = Circuit()
     # Go through circuit components, trim if trivial, otherwise append to new circuit
     for i, circ in enumerate(circs):
-        if circ.width != 1 or circ.size not in (1, 2):
+        circ_width = len(circ._qubit_indices)
+        if circ_width != 1 or circ.size not in (1, 2):
             circuit_new += circ
             continue
 
@@ -154,6 +155,8 @@ def trim_trivial_circuit(circuit):
                     circuit_new += circ
             else:
                 circuit_new += circ
+
+    circuit_new.trim_qubits()
 
     return circuit_new, dict(sorted(trim_states.items()))
 

@@ -291,9 +291,12 @@ class Circuit:
 
         return entangled_indices
 
-    def split(self):
+    def split(self, trim_qubits=True):
         """ Split a circuit featuring unentangled qubit subsets into as many circuit objects.
         Each circuit only contains the gate operations targeting the qubit indices in its subsets.
+
+        Args:
+            trim_qubits (bool): Trim qubits on each circuit object and reindex to lowest value, Default: True
 
         Returns:
             list of Circuit: list of resulting circuits
@@ -308,9 +311,10 @@ class Circuit:
                     separate_circuits[i].add_gate(g)
                     break
 
-        # Trim unnecessary indices in the new circuits
-        for c in separate_circuits:
-            c.trim_qubits()
+        if trim_qubits:
+            # Trim unnecessary indices in the new circuits
+            for c in separate_circuits:
+                c.trim_qubits()
         return separate_circuits
 
     def stack(self, *other_circuits):
