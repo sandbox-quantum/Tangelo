@@ -12,14 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Dict, Tuple, Union
+
 import numpy as np
 
 from tangelo.toolboxes.operators import QubitOperator, count_qubits
-from tangelo.linq import Circuit
+from tangelo.linq import Circuit, Gate
 from tangelo.linq.helpers.circuits import pauli_string_to_of, pauli_of_to_string
 
 
-def trim_trivial_operator(qu_op, trim_states, n_qubits=None, reindex=True):
+def trim_trivial_operator(qu_op: QubitOperator, trim_states: Dict[int, int],
+                          n_qubits: Union[None, int] = None, reindex: bool = True) -> QubitOperator:
     """
     Calculate expectation values of a QubitOperator acting on qubits in a
     trivial |0> or |1> state. Return a trimmed QubitOperator with updated coefficients
@@ -58,7 +61,7 @@ def trim_trivial_operator(qu_op, trim_states, n_qubits=None, reindex=True):
     return qu_op_trim
 
 
-def is_bitflip_gate(gate, atol=1e-5):
+def is_bitflip_gate(gate: Gate, atol: float = 1e-5) -> bool:
     """
     Check if a gate is a bitflip gate.
 
@@ -90,7 +93,7 @@ def is_bitflip_gate(gate, atol=1e-5):
         return False
 
 
-def trim_trivial_circuit(circuit):
+def trim_trivial_circuit(circuit: Circuit) -> Tuple[Circuit, Dict[int, int]]:
     """
     Split Circuit into entangled and unentangled components.
     Returns entangled Circuit, and the indices and states of unentangled qubits
@@ -103,7 +106,7 @@ def trim_trivial_circuit(circuit):
         dict : dictionary mapping trimmed qubit indices to their states (0 or 1)
     """
     # Split circuit and get relevant indices
-    circs = circuit.split()
+    circs = circuit.split(trim_qubits=False)
     e_indices = circuit.get_entangled_indices()
     used_qubits = set()
     for eq in e_indices:
@@ -117,7 +120,8 @@ def trim_trivial_circuit(circuit):
     circuit_new = Circuit()
     # Go through circuit components, trim if trivial, otherwise append to new circuit
     for i, circ in enumerate(circs):
-        if circ.width != 1 or circ.size not in (1, 2):
+        circ_width = len(circ._qubit_indices)
+        if circ_width != 1 or circ.size not in (1, 2):
             circuit_new += circ
             continue
 
@@ -155,10 +159,12 @@ def trim_trivial_circuit(circuit):
             else:
                 circuit_new += circ
 
+    circuit_new.trim_qubits()
+
     return circuit_new, dict(sorted(trim_states.items()))
 
 
-def trim_trivial_qubits(operator, circuit):
+def trim_trivial_qubits(operator: QubitOperator, circuit: Circuit) -> Tuple[QubitOperator, Circuit]:
     """
     Trim circuit and operator based on expectation values calculated from
     trivial components of the circuit.
