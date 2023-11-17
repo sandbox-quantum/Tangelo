@@ -21,7 +21,7 @@ characteristics (width, size ...).
 import copy
 import inspect
 import abc
-from typing import List, Tuple, Iterator
+from typing import List, Tuple, Iterator, Union, Set, Dict, Callable
 
 import numpy as np
 from cirq.contrib.svg import SVGCircuit
@@ -51,14 +51,15 @@ class Circuit:
         """Initialize gate list and internal variables depending on user input."""
 
         self.name = name
-        self._gates = list()
-        self._qubits_simulated = n_qubits
-        self._qubit_indices = set() if not n_qubits else set(range(n_qubits))
-        self._gate_counts = dict()
-        self._n_qubit_gate_counts = dict()
-        self._variational_gates = []
-        self._probabilities = dict()
-        self._cmeasure_control = cmeasure_control
+        self._gates: List[Gate] = list()
+        self._qubits_simulated: Union[None, int] = n_qubits
+        self._qubit_indices: Set[int] = set() if not n_qubits else set(range(n_qubits))
+        self._gate_counts: Dict[str, int] = dict()
+        self._n_qubit_gate_counts: Dict[int, int] = dict()
+        self._variational_gates: List[Gate] = []
+        self._probabilities: Dict[str, float] = dict()
+        self._cmeasure_control: Callable = cmeasure_control
+        self._applied_gates: List[Gate] = []
 
         if gates:
             _ = [self.add_gate(g) for g in gates]
@@ -164,6 +165,14 @@ class Circuit:
             return {"": 1}
         else:
             return self._probabilities
+
+    @property
+    def applied_gates(self):
+        """Returns the list of gates applied during the latest simulation of the circuit"""
+        if self.counts.get("CMEASURE", 0):
+            return self._applied_gates
+        else:
+            return self._gates
 
     def draw(self):
         """Method to output a prettier version of the circuit for use in jupyter notebooks that uses cirq SVGCircuit"""

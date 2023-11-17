@@ -58,6 +58,7 @@ def get_qulacs_gates():
     GATE_QULACS["SWAP"] = qulacs.QuantumCircuit.add_SWAP_gate
     GATE_QULACS["CSWAP"] = qulacs.gate.SWAP
     GATE_QULACS["MEASURE"] = qulacs.gate.Measurement
+    GATE_QULACS["CMEASURE"] = qulacs.gate.Measurement
     return GATE_QULACS
 
 
@@ -130,7 +131,7 @@ def translate_c_to_qulacs(source_circuit, noise_model=None, save_measurements=Fa
             target_circuit.add_gate(mat_gate)
         elif gate.name in {"CNOT"}:
             (GATE_QULACS[gate.name])(target_circuit, gate.control[0], gate.target[0])
-        elif gate.name in {"MEASURE"}:
+        elif gate.name in {"MEASURE", "CMEASURE"}:
             m_gate = (GATE_QULACS[gate.name])(gate.target[0], measure_count)
             target_circuit.add_gate(m_gate)
             if save_measurements:

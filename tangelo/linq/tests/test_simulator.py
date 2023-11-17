@@ -637,7 +637,7 @@ class TestSimulateMisc(unittest.TestCase):
         self.assertAlmostEqual(sim.get_expectation_value(QubitOperator("Z0", 1.), circuit1), -1.)
 
     def test_measurement_controlled_gates(self):
-        sim = get_backend("cirq", n_shots=1)
+        sim = get_backend("qulacs", n_shots=1)
 
         circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0, parameter={"0": [Gate("X", 0)], "1": []}),  Gate("CNOT", 1, 0)])
         f, _ = sim.simulate(circuit, save_mid_circuit_meas=True, desired_meas_result="0")
@@ -647,8 +647,19 @@ class TestSimulateMisc(unittest.TestCase):
         assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
         assert_freq_dict_almost_equal(circuit.success_probabilities, {"0": 0.5, "1": 0.5}, 1.e-7)
 
+        # Test with initial state H and measure "1". H|0> = (|0>+|1>)/sqrt(2) H|1> = (|0>-|1>)/sqrt(2)
+        circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0, parameter={"0": [], "1": [Gate("X", 0)]})])
+        f, sv = sim.simulate(circuit, save_mid_circuit_meas=True, desired_meas_result="1",
+                             initial_statevector=[1, 0], return_statevector=True)
+        assert_freq_dict_almost_equal(f, {"0": 1}, 1.e-7)
+        self.assertTrue(np.allclose([1, 0], sv))
+        f, sv = sim.simulate(circuit, save_mid_circuit_meas=True, desired_meas_result="1",
+                             initial_statevector=[0, 1], return_statevector=True)
+        assert_freq_dict_almost_equal(f, {"0": 1}, 1.e-7)
+        self.assertTrue(np.allclose([-1, 0], sv))
+
     def test_measurement_controlled_gates_function(self):
-        sim = get_backend("cirq", n_shots=1)
+        sim = get_backend("qulacs", n_shots=1)
 
         # Repeat until success H+CNOT to prepare |11>
         def cfunc(measurement):
@@ -656,11 +667,24 @@ class TestSimulateMisc(unittest.TestCase):
                 return [Gate("H", 0), Gate("CMEASURE", 0)]
             else:
                 return []
+        applied_circuit = Circuit([Gate(name='H', target=[0]), Gate(name='MEASURE', target=[0]),
+                                   Gate(name='H', target=[0]), Gate(name='MEASURE', target=[0]),
+                                   Gate(name='H', target=[0]), Gate(name='MEASURE', target=[0]),
+                                   Gate(name='CNOT', target=[1], control=[0])])
 
         circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0),  Gate("CNOT", 1, 0)], cmeasure_control=cfunc)
         f, _ = sim.simulate(circuit, save_mid_circuit_meas=True, desired_meas_result="001")
         assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
         assert_freq_dict_almost_equal(circuit.success_probabilities, {"001": 0.125}, 1.e-7)
+        self.assertTrue(applied_circuit == Circuit(circuit.applied_gates[0]))
+    
+        sim = get_backend("qulacs", n_shots=1000)
+
+        circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0),  Gate("CNOT", 1, 0)], cmeasure_control=cfunc)
+        f, _ = sim.simulate(circuit, save_mid_circuit_meas=True)
+        assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
+        self.assertTrue(sim.mid_circuit_meas_freqs["1"] > sim.mid_circuit_meas_freqs["01"])
+        self.assertTrue(sim.mid_circuit_meas_freqs["01"] > sim.mid_circuit_meas_freqs["001"])
 
     def test_measurement_controlled_gates_class(self):
         from typing import List
@@ -668,7 +692,7 @@ class TestSimulateMisc(unittest.TestCase):
         from tangelo.linq.circuit import ClassicalControl
         import numpy as np
 
-        sim = get_backend("cirq", n_shots=1)
+        sim = get_backend("qulacs", n_shots=1)
 
         ugate = Gate("CPHASE", 1, control=0, parameter=np.pi/16+np.pi/8+np.pi/4+np.pi/2)
 
@@ -701,8 +725,6 @@ class TestSimulateMisc(unittest.TestCase):
 
         circuit = Circuit([Gate("H", 0), Gate("X", 1)]+[ugate]*2**(bits)+[Gate("H", 0), Gate("CMEASURE", 0)], cmeasure_control=cfunc)
         f, _ = sim.simulate(circuit, save_mid_circuit_meas=True)
-
-        print(circuit.success_probabilities, f)
 
         assert_freq_dict_almost_equal(f, {"01": 1}, 1.e-7)
         assert_freq_dict_almost_equal(circuit.success_probabilities, {"0011110": 1}, 1.e-7)

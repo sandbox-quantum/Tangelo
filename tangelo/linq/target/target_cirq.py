@@ -72,6 +72,11 @@ class CirqSimulator(Backend):
         """
         n_meas = source_circuit.counts.get("MEASURE", 0)
         n_cmeas = source_circuit.counts.get("CMEASURE", 0)
+
+        if self._noise_model and n_cmeas > 0:
+            raise RuntimeError(f"{self.__class__.__name__} does not currently support classical-controlled"
+                               "gates with a noise model.")
+
         # Only DensityMatrixSimulator handles noise well, can use Simulator, but it is slower
         if self._noise_model or (source_circuit.is_mixed_state and not save_mid_circuit_meas):
             cirq_simulator = self.cirq.DensityMatrixSimulator(dtype=np.complex128)
@@ -82,20 +87,20 @@ class CirqSimulator(Backend):
         cirq_initial_statevector = np.asarray(initial_statevector, dtype=complex) if initial_statevector is not None else 0
 
         if n_cmeas > 0:
-            dmeas = None if not desired_meas_result else list(desired_meas_result)
-            applied_gates = []
-            if initial_statevector is not None:
-                sv = cirq_initial_statevector
-            else:
-                sv = np.zeros(2**source_circuit.width)
-                sv[0] = 1
-            success_probability = 1.
             self.all_frequencies = dict()
             samples = dict()
             n_shots = self.n_shots if self.n_shots is not None else 1
             n_qubits = source_circuit.width
             indices = list(range(n_qubits))
-            for shot in range(n_shots):
+            for _ in range(n_shots):
+                if initial_statevector is not None:
+                    sv = cirq_initial_statevector
+                else:
+                    sv = np.zeros(2**source_circuit.width)
+                    sv[0] = 1
+                success_probability = 1.
+                applied_gates = []
+                dmeas = None if not desired_meas_result else list(desired_meas_result)
                 measurements = ""
                 unitary_circuits, qubits, cmeasure_flags = get_unitary_circuit_pieces(source_circuit)
                 precirc = [Circuit()]*len(unitary_circuits)
@@ -146,7 +151,7 @@ class CirqSimulator(Backend):
                     success_probability *= cprob
                 source_circuit._probabilities[measurements] = success_probability
                 applied_gates += precirc[0]._gates + unitary_circuits[-1]._gates
-                source_circuit._applied_gates = applied_gates
+                source_circuit._applied_gates += [applied_gates]
                 translated_circuit = translate_c(precirc[0]+unitary_circuits[-1], "cirq", output_options={"save_measurements": True})
                 job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
                 self._current_state = job_sim.final_state_vector
@@ -160,8 +165,7 @@ class CirqSimulator(Backend):
                     samples[bitstr] = samples.get(bitstr, 0) + 1
             if self.n_shots:
                 self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
-
-                frequencies = {k[-n_qubits:]: v / self.n_shots for k, v in samples.items()}
+                frequencies = {k[:]: v / self.n_shots for k, v in samples.items()}
 
         # Calculate final density matrix and sample from that for noisy simulation or simulating mixed states
         elif (self._noise_model or source_circuit.is_mixed_state) and not save_mid_circuit_meas:

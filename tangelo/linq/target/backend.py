@@ -289,16 +289,20 @@ class Backend(abc.ABC):
         # For mid-circuit measurements post-process the result
         if save_mid_circuit_meas:
             # TODO: refactor to break a circular import. May involve by relocating get_xxx_oneterm functions
-            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
+            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict, split_frequency_dict_for_last_n_digits
 
             (all_frequencies, statevector) = self.simulate_circuit(source_circuit,
                                                                    return_statevector=return_statevector,
                                                                    initial_statevector=initial_statevector,
                                                                    desired_meas_result=desired_meas_result,
                                                                    save_mid_circuit_meas=save_mid_circuit_meas)
-            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(all_frequencies,
-                                                                            list(range(n_meas)),
-                                                                            desired_measurement=desired_meas_result)
+            if n_cmeas == 0:
+                self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(all_frequencies,
+                                                                                list(range(n_meas)),
+                                                                                desired_measurement=desired_meas_result)
+            else:
+                frequencies, self.mid_circuit_meas_freqs = split_frequency_dict_for_last_n_digits(all_frequencies,
+                                                                                                  source_circuit.width)
             return (frequencies, statevector)
 
         return self.simulate_circuit(source_circuit,

@@ -18,7 +18,7 @@ from collections import Counter
 
 import numpy as np
 
-from tangelo.linq import Circuit, get_unitary_circuit_pieces
+from tangelo.linq import Circuit, Gate, get_unitary_circuit_pieces
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.translator import translate_operator
@@ -69,6 +69,7 @@ class QulacsSimulator(Backend):
                                                                                        "save_measurements": save_mid_circuit_meas})
 
         n_meas = source_circuit.counts.get("MEASURE", 0)
+        n_cmeas = source_circuit.counts.get("CMEASURE", 0)
 
         # Initialize state on GPU if available and desired. Default to CPU otherwise.
         if ('QuantumStateGpu' in dir(self.qulacs)) and (int(os.getenv("QULACS_USE_GPU", 0)) != 0):
@@ -80,8 +81,91 @@ class QulacsSimulator(Backend):
         if initial_statevector is not None:
             state.load(initial_statevector)
 
+        if n_cmeas > 0:
+            self.all_frequencies = dict()
+            samples = dict()
+            n_shots = self.n_shots if self.n_shots is not None else 1
+            n_qubits = source_circuit.width
+            for _ in range(n_shots):
+                if initial_statevector is not None:
+                    sv = initial_statevector
+                else:
+                    sv = np.zeros(2**n_qubits)
+                    sv[0] = 1.
+                success_probability = 1.
+                applied_gates = []
+                dmeas = None if not desired_meas_result else list(desired_meas_result)
+                measurements = ""
+                unitary_circuits, qubits, cmeasure_flags = get_unitary_circuit_pieces(source_circuit)
+                precirc = [Circuit()]*len(unitary_circuits)
+                while len(unitary_circuits) > 1:
+                    circ = precirc[0] + unitary_circuits[0]
+                    applied_gates += circ._gates + [Gate("MEASURE", qubits[0])]
+                    if circ.size > 0:
+                        translated_circuit = translate_c(circ, "qulacs", output_options={"save_measurements": True})
+                        state.load(sv)
+                        translated_circuit.update_quantum_state(state)
+                        if desired_meas_result:
+                            measure = dmeas[0]
+                            measurements += measure
+                            sv, cprob = self.collapse_statevector_to_desired_measurement(state.get_vector(), qubits[0], int(dmeas[0]))
+                            del dmeas[0]
+                        else:
+                            sv, cprob = self.collapse_statevector_to_desired_measurement(state.get_vector(), qubits[0], 0, ignore_zero_prob=True)
+                            if np.random.random(1) > cprob:
+                                sv, cprob = self.collapse_statevector_to_desired_measurement(state.get_vector(), qubits[0], 1)
+                                measure = "1"
+                            else:
+                                measure = "0"
+                            measurements += measure
+                        # If a CMEASURE has occured
+                        if cmeasure_flags[0] is not None:
+                            if isinstance(cmeasure_flags[0], str):
+                                newcirc = source_circuit.controlled_measurement_op(measure)
+                            elif isinstance(cmeasure_flags[0], dict):
+                                newcirc = Circuit(cmeasure_flags[0][measure], n_qubits=source_circuit.width)
+                            new_unitary_circuits, new_qubits, new_cmeasure_flags = get_unitary_circuit_pieces(newcirc)
+                        # No classical control
+                        else:
+                            new_unitary_circuits = [Circuit(n_qubits=source_circuit.width)]
+                            new_qubits = []
+                            new_cmeasure_flags = []
+                        del unitary_circuits[0]
+                        del qubits[0]
+                        del cmeasure_flags[0]
+                        del precirc[0]
+                        precirc[0] = new_unitary_circuits[-1] + precirc[0]
+
+                        if len(new_unitary_circuits) > 1:
+                            unitary_circuits = new_unitary_circuits[:-1] + unitary_circuits
+                            qubits = new_qubits + qubits
+                            cmeasure_flags = new_cmeasure_flags + cmeasure_flags
+                            precirc = [Circuit()]*len(qubits) + precirc
+                    else:
+                        sv, cprob = self.collapse_statevector_to_desired_measurement(sv, qubits[0], int(desired_meas_result[0]))
+                    success_probability *= cprob
+                source_circuit._probabilities[measurements] = success_probability
+                applied_gates += precirc[0]._gates + unitary_circuits[-1]._gates
+                source_circuit._applied_gates += [applied_gates]
+                translated_circuit = translate_c(precirc[0]+unitary_circuits[-1], "qulacs", output_options={"save_measurements": True})
+                state.load(sv)
+                translated_circuit.update_quantum_state(state)
+                self._current_state = state.get_vector()
+                python_statevector = self._current_state
+                if self.n_shots is None:
+                    frequencies = self._statevector_to_frequencies(self._current_state)
+                    for meas, val in frequencies.items():
+                        self.all_frequencies[measurements + meas] = val
+                else:
+                    bitstr = self._int_to_binstr(state.sampling(1)[0], source_circuit.width)
+                    samples[measurements+bitstr] = samples.get(measurements+bitstr, 0) + 1
+            if self.n_shots:
+                self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
+                frequencies = {k: v / self.n_shots for k, v in samples.items()}
+            return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)
+
         # Deterministic circuit, run once and sample from statevector
-        if not self._noise_model and not source_circuit.is_mixed_state:
+        elif not self._noise_model and not source_circuit.is_mixed_state:
             translated_circuit.update_quantum_state(state)
             self._current_state = state
 
