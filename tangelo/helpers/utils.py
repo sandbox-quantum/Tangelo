@@ -76,6 +76,7 @@ def deprecated(custom_message=""):
 all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq", "qdk", "pennylane", "sympy", "stim"}
 all_backends_simulator = {"qulacs", "qiskit", "cirq", "qdk"}
 sv_backends_simulator = {"qulacs", "qiskit", "cirq"}
+cmeasure_backends_simulator = {"qulacs", "cirq"}
 symbolic_backends = {"sympy"}
 chem_backends = {"pyscf", "psi4"}
 clifford_backends_simulator = {"stim"}
@@ -90,6 +91,7 @@ installed_simulator = installed_backends & all_backends_simulator
 installed_sv_simulator = installed_backends & sv_backends_simulator
 installed_chem_backends = {p_id for p_id in chem_backends if is_package_installed(p_id)}
 installed_clifford_simulators = {p_id for p_id in clifford_backends_simulator if is_package_installed(p_id)}
+installed_cmeasure_simulators = {p_id for p_id in cmeasure_backends_simulator if is_package_installed(p_id)}
 
 # Check if qulacs installed (better performance for tests). If not, defaults to cirq (always installed with openfermion)
 default_simulator = "qulacs" if "qulacs" in installed_sv_simulator else "cirq"

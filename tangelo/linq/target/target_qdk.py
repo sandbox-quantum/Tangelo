@@ -63,6 +63,9 @@ class QDKSimulator(Backend):
         with open('tmp_circuit.qs', 'w+') as f_out:
             f_out.write(translated_circuit)
 
+        if source_circuit.counts.get("CMEASURE", 0):
+            raise RuntimeError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
+
         if desired_meas_result:
             warnings.warn("qdk uses statistics from n_shots instead of statistics on the number of successful desired_meas_result.")
 

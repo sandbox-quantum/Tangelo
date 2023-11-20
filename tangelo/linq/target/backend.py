@@ -710,10 +710,36 @@ class Backend(abc.ABC):
 
         Returns:
             array: the collapsed and renormalized statevector
-            float: the probability this occured
+            float: the probability this occurred.
         """
 
         return collapse_statevector_to_desired_measurement(statevector, qubit, result, self.backend_info()['statevector_order'], ignore_zero_prob)
+
+    def perform_measurement(self, statevector, qubit, desired_meas_result=None):
+        """Perform a measurement and return the new statevector and the probability that measurement occurred
+
+        Args:
+            statevector (array): The statevector to perform the measurement on.
+            qubit (int): The qubit to apply the measurement to
+            desired_meas_result (Union[int, None]): The desired measurement result, Default None
+
+        Returns:
+            str: The result of the measurement
+            array: The measured and renormalized statevector
+            float: The probability this measurement occurred
+        """
+
+        if desired_meas_result:
+            new_sv, prob = self.collapse_statevector_to_desired_measurement(statevector, qubit, int(desired_meas_result))
+            return desired_meas_result, new_sv, prob
+        else:
+            new_sv, prob = self.collapse_statevector_to_desired_measurement(statevector, qubit, 0, ignore_zero_prob=True)
+            if prob < np.random.random():
+                new_sv, prob = self.collapse_statevector_to_desired_measurement(statevector, qubit, 1, ignore_zero_prob=True)
+                return "1", new_sv, prob
+            else:
+                return "0", new_sv, prob
+
 
     @staticmethod
     @abc.abstractmethod

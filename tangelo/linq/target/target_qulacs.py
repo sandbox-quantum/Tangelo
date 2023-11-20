@@ -101,52 +101,49 @@ class QulacsSimulator(Backend):
                 while len(unitary_circuits) > 1:
                     circ = precirc[0] + unitary_circuits[0]
                     applied_gates += circ._gates + [Gate("MEASURE", qubits[0])]
+
                     if circ.size > 0:
                         translated_circuit = translate_c(circ, "qulacs", output_options={"save_measurements": True})
                         state.load(sv)
                         translated_circuit.update_quantum_state(state)
-                        if desired_meas_result:
-                            measure = dmeas[0]
-                            measurements += measure
-                            sv, cprob = self.collapse_statevector_to_desired_measurement(state.get_vector(), qubits[0], int(dmeas[0]))
-                            del dmeas[0]
-                        else:
-                            sv, cprob = self.collapse_statevector_to_desired_measurement(state.get_vector(), qubits[0], 0, ignore_zero_prob=True)
-                            if np.random.random(1) > cprob:
-                                sv, cprob = self.collapse_statevector_to_desired_measurement(state.get_vector(), qubits[0], 1)
-                                measure = "1"
-                            else:
-                                measure = "0"
-                            measurements += measure
-                        # If a CMEASURE has occured
-                        if cmeasure_flags[0] is not None:
-                            if isinstance(cmeasure_flags[0], str):
-                                newcirc = source_circuit.controlled_measurement_op(measure)
-                            elif isinstance(cmeasure_flags[0], dict):
-                                newcirc = Circuit(cmeasure_flags[0][measure], n_qubits=source_circuit.width)
-                            new_unitary_circuits, new_qubits, new_cmeasure_flags = get_unitary_circuit_pieces(newcirc)
-                        # No classical control
-                        else:
-                            new_unitary_circuits = [Circuit(n_qubits=source_circuit.width)]
-                            new_qubits = []
-                            new_cmeasure_flags = []
-                        del unitary_circuits[0]
-                        del qubits[0]
-                        del cmeasure_flags[0]
-                        del precirc[0]
-                        precirc[0] = new_unitary_circuits[-1] + precirc[0]
-
-                        if len(new_unitary_circuits) > 1:
-                            unitary_circuits = new_unitary_circuits[:-1] + unitary_circuits
-                            qubits = new_qubits + qubits
-                            cmeasure_flags = new_cmeasure_flags + cmeasure_flags
-                            precirc = [Circuit()]*len(qubits) + precirc
-                    else:
-                        sv, cprob = self.collapse_statevector_to_desired_measurement(sv, qubits[0], int(desired_meas_result[0]))
+                        sv = state.get_vector()
+                    
+                    # Perform measurement. 
+                    desired_meas = dmeas[0] if desired_meas_result else None
+                    measure, sv, cprob = self.perform_measurement(sv, qubits[0], desired_meas)
+                    measurements += measure
                     success_probability *= cprob
+                    if desired_meas_result:
+                        del dmeas[0]
+
+                    # If a CMEASURE has occured
+                    if cmeasure_flags[0] is not None:
+                        if isinstance(cmeasure_flags[0], str):
+                            newcirc = source_circuit.controlled_measurement_op(measure)
+                        elif isinstance(cmeasure_flags[0], dict):
+                            newcirc = Circuit(cmeasure_flags[0][measure], n_qubits=source_circuit.width)
+                        new_unitary_circuits, new_qubits, new_cmeasure_flags = get_unitary_circuit_pieces(newcirc)
+                    # No classical control
+                    else:
+                        new_unitary_circuits = [Circuit(n_qubits=source_circuit.width)]
+                        new_qubits = []
+                        new_cmeasure_flags = []
+
+                    del unitary_circuits[0]
+                    del qubits[0]
+                    del cmeasure_flags[0]
+                    del precirc[0]
+                    precirc[0] = new_unitary_circuits[-1] + precirc[0]
+
+                    if len(new_unitary_circuits) > 1:
+                        unitary_circuits = new_unitary_circuits[:-1] + unitary_circuits
+                        qubits = new_qubits + qubits
+                        cmeasure_flags = new_cmeasure_flags + cmeasure_flags
+                        precirc = [Circuit()]*len(qubits) + precirc
+
                 source_circuit._probabilities[measurements] = success_probability
                 applied_gates += precirc[0]._gates + unitary_circuits[-1]._gates
-                source_circuit._applied_gates += [applied_gates]
+                source_circuit._applied_gates = applied_gates
                 translated_circuit = translate_c(precirc[0]+unitary_circuits[-1], "qulacs", output_options={"save_measurements": True})
                 state.load(sv)
                 translated_circuit.update_quantum_state(state)
