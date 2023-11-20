@@ -58,7 +58,7 @@ class Circuit:
         self._n_qubit_gate_counts: Dict[int, int] = dict()
         self._variational_gates: List[Gate] = []
         self._probabilities: Dict[str, float] = dict()
-        self._cmeasure_control: Callable = cmeasure_control
+        self._cmeasure_control: Union[Callable, ClassicalControl, None] = cmeasure_control
         self._applied_gates: List[Gate] = []
 
         if gates:
@@ -414,6 +414,11 @@ class Circuit:
             return Circuit(self._cmeasure_control(measure), n_qubits=self.width)
         elif isinstance(self._cmeasure_control, ClassicalControl):
             return Circuit(self._cmeasure_control.return_circuit(measure), n_qubits=self.width)
+
+    def finalize_cmeasure_control(self):
+        """Call the finalize method in cmeasure_control"""
+        if isinstance(self._cmeasure_control, ClassicalControl):
+            self._cmeasure_control.finalize()
 
 
 def stack(*circuits):

@@ -160,6 +160,10 @@ class CirqSimulator(Backend):
                     isamples = self.cirq.sample_state_vector(self._current_state, indices, repetitions=1)
                     bitstr = measurements + "".join([str(int(q)) for q in isamples[0]])
                     samples[bitstr] = samples.get(bitstr, 0) + 1
+
+                # Call the finalize method of ClassicalControl, used to reset variables, perform computation etc.
+                source_circuit.finalize_cmeasure_control()
+
             if self.n_shots:
                 self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
                 frequencies = {k[:]: v / self.n_shots for k, v in samples.items()}

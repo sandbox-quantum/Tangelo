@@ -156,6 +156,10 @@ class QulacsSimulator(Backend):
                 else:
                     bitstr = self._int_to_binstr(state.sampling(1)[0], source_circuit.width)
                     samples[measurements+bitstr] = samples.get(measurements+bitstr, 0) + 1
+
+                # Call the finalize method of ClassicalControl, used to reset variables, perform computation etc.
+                source_circuit.finalize_cmeasure_control()
+
             if self.n_shots:
                 self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
                 frequencies = {k: v / self.n_shots for k, v in samples.items()}

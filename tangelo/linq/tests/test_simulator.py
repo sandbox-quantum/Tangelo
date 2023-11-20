@@ -711,18 +711,24 @@ class TestSimulateMisc(unittest.TestCase):
 
         for backend in installed_cmeasure_simulators:
 
-            sim = get_backend(backend, n_shots=1)
+            sim = get_backend(backend, n_shots=2)
 
-            # Unitary has eigenvalue (1/16+1/8+1/4+1/2)*pi with eigenvector |1> on qubit 1.
-            ugate = Gate("CPHASE", 1, control=0, parameter=np.pi/16+np.pi/8+np.pi/4+np.pi/2)
+            # Unitary has eigenvalue (1/16+1/8+1/2)*pi with eigenvector |1> on qubit 1.
+            # Measurement will be 0011010 = 0/64+0/32+1/16+1/8+0/4+1/2+0 
+            ugate = Gate("CPHASE", 1, control=0, parameter=np.pi/16+np.pi/8+np.pi/2)
 
             class IterativeQPE(ClassicalControl):
                 def __init__(self, bits):
                     self.bits = bits
                     self.bitplace = bits*1
                     self.phase = 0
+                    self.measurements = [""]
+                    self.energies = [0.]
+                    self.n_runs = 0
 
                 def return_circuit(self, measurement) -> List[Gate]:
+                    self.measurements[self.n_runs] += measurement
+                    self.energies[self.n_runs] += int(measurement)/2**self.bitplace
                     if self.bitplace > 0:
                         self.bitplace -= 1
                         self.correction = [Gate("PHASE", 0, parameter=-2*np.pi*self.phase*2**(self.bitplace+1))]
@@ -739,6 +745,9 @@ class TestSimulateMisc(unittest.TestCase):
                 def finalize(self):
                     self.bitplace = self.bits*1
                     self.phase = 0
+                    self.n_runs += 1
+                    self.measurements += [""]
+                    self.energies += [0.]
 
             bits = 6
             cfunc = IterativeQPE(bits)
@@ -747,7 +756,10 @@ class TestSimulateMisc(unittest.TestCase):
             f, _ = sim.simulate(circuit, save_mid_circuit_meas=True)
 
             assert_freq_dict_almost_equal(f, {"01": 1}, 1.e-7)
-            assert_freq_dict_almost_equal(circuit.success_probabilities, {"0011110": 1}, 1.e-7)
+            assert_freq_dict_almost_equal(circuit.success_probabilities, {"0011010": 1}, 1.e-7)
+            self.assertEqual(cfunc.measurements, ["0011010", "0011010", ""])
+            energy = 1/16+1/8+1/2
+            np.testing.assert_array_almost_equal(cfunc.energies, [energy, energy, 0.])
 
 
 if __name__ == "__main__":
