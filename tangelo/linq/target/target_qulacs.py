@@ -107,8 +107,8 @@ class QulacsSimulator(Backend):
                         state.load(sv)
                         translated_circuit.update_quantum_state(state)
                         sv = state.get_vector()
-                    
-                    # Perform measurement. 
+
+                    # Perform measurement.
                     desired_meas = dmeas[0] if desired_meas_result else None
                     measure, sv, cprob = self.perform_measurement(sv, qubits[0], desired_meas)
                     measurements += measure

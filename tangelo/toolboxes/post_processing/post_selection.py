@@ -136,6 +136,7 @@ def split_frequency_dict(frequencies, indices, desired_measurement=None):
 
     return midcirc_dict, marginal_dict
 
+
 def split_frequency_dict_for_last_n_digits(frequencies, n_to_keep):
     """Marginalize the frequencies dictionary over the last_n_digits.
     This splits the frequency dictionary into two frequency dictionaries
@@ -145,7 +146,7 @@ def split_frequency_dict_for_last_n_digits(frequencies, n_to_keep):
 
     Args:
         frequencies (dict): The input frequency dictionary
-        last_n_to_keep (int): The last n digits of the bitstring to store in 
+        last_n_to_keep (int): The last n digits of the bitstring to store.
 
     Returns:
         dict: The frequencies for the last n digits

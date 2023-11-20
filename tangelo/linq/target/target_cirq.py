@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from collections import Counter
-from copy import copy
 
 import numpy as np
 
@@ -114,7 +113,7 @@ class CirqSimulator(Backend):
                         job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
                         sv = job_sim.final_state_vector
 
-                    # Perform measurement. 
+                    # Perform measurement.
                     desired_meas = dmeas[0] if desired_meas_result else None
                     measure, sv, cprob = self.perform_measurement(sv, qubits[0], desired_meas)
                     measurements += measure

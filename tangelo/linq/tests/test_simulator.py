@@ -655,7 +655,7 @@ class TestSimulateMisc(unittest.TestCase):
             assert_freq_dict_almost_equal(circuit.success_probabilities, {"0": 0.5, "1": 0.5}, 1.e-7)
 
             # Test that an initial state of |0> or |1> is utilized by the circuit.
-            # Test with initial state H and measure "1". H|0> = (|0>+|1>)/sqrt(2) 
+            # Test with initial state H and measure "1". H|0> = (|0>+|1>)/sqrt(2)
             circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0, parameter={"0": [], "1": [Gate("X", 0)]})])
             f, sv = sim.simulate(circuit, save_mid_circuit_meas=True, desired_meas_result="1",
                                  initial_statevector=[1, 0], return_statevector=True)
@@ -691,11 +691,10 @@ class TestSimulateMisc(unittest.TestCase):
             assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
             assert_freq_dict_almost_equal(circuit.success_probabilities, {"001": 0.125}, 1.e-7)
             self.assertTrue(applied_circuit == Circuit(circuit.applied_gates))
-    
 
             # Test that the correct ordering of probabilities is obtained when running without specifying the
             # desired measurement result.
-            sim.n_shots=1000
+            sim.n_shots = 1000
 
             circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0),  Gate("CNOT", 1, 0)], cmeasure_control=cfunc)
             f, _ = sim.simulate(circuit, save_mid_circuit_meas=True)

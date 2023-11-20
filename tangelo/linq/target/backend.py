@@ -740,7 +740,6 @@ class Backend(abc.ABC):
             else:
                 return "0", new_sv, prob
 
-
     @staticmethod
     @abc.abstractmethod
     def backend_info() -> dict:
