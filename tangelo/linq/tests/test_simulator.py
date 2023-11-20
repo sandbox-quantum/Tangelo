@@ -714,7 +714,7 @@ class TestSimulateMisc(unittest.TestCase):
             sim = get_backend(backend, n_shots=2)
 
             # Unitary has eigenvalue (1/16+1/8+1/2)*pi with eigenvector |1> on qubit 1.
-            # Measurement will be 0011010 = 0/64+0/32+1/16+1/8+0/4+1/2+0 
+            # Measurement will be 0011010 = 0/64+0/32+1/16+1/8+0/4+1/2+0
             ugate = Gate("CPHASE", 1, control=0, parameter=np.pi/16+np.pi/8+np.pi/2)
 
             class IterativeQPE(ClassicalControl):
