@@ -183,6 +183,15 @@ class TestCircuits(unittest.TestCase):
         self.assertTrue(c2 == Circuit([Gate("CSWAP", target=[0, 2], control=[1])]))
         self.assertTrue(c3 == Circuit([Gate("H", target=0)]))
 
+        c = Circuit([Gate("CSWAP", target=[2, 5], control=[0]),
+                     Gate("CSWAP", target=[3, 7], control=[4]),
+                     Gate("H", 6)])
+        c1, c2, c3 = c.split(trim_qubits=False)
+
+        self.assertTrue(c1 == Circuit([Gate("CSWAP", target=[2, 5], control=[0])]))
+        self.assertTrue(c2 == Circuit([Gate("CSWAP", target=[3, 7], control=[4])]))
+        self.assertTrue(c3 == Circuit([Gate("H", target=6)]))
+
     def test_stack_circuits(self):
         """ Test circuit stacking """
 

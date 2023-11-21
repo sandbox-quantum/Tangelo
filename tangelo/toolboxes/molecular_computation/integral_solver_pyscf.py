@@ -209,10 +209,10 @@ class IntegralSolverPySCF(IntegralSolver):
 
         if sqmol.uhf:
             one_body, two_body = self.compute_uhf_integrals(sqmol, mo_coeff)
-            return float(pyscf_mol.energy_nuc()), one_body, two_body
+            return float(sqmol.mean_field.energy_nuc()), one_body, two_body
 
         # Corresponding to nuclear repulsion energy and static coulomb energy.
-        core_constant = float(pyscf_mol.energy_nuc())
+        core_constant = float(sqmol.mean_field.energy_nuc())
 
         # get_hcore is equivalent to int1e_kin + int1e_nuc.
         one_electron_integrals = mo_coeff.T @ sqmol.mean_field.get_hcore() @ mo_coeff
@@ -291,3 +291,110 @@ class IntegralSolverPySCF(IntegralSolver):
         Gpqrs = (two_body_integrals_a, two_body_integrals_ab, two_body_integrals_b)
 
         return hpq, Gpqrs
+
+
+class IntegralSolverPySCFQMMM(IntegralSolverPySCF):
+    """Instantiate Electronic Structure integration with PySCF using electrostatic embedding """
+    def __init__(self, charges, chkfile=None, use_newton=False):
+        """Initialize the integral solver class for pyscf. A chkfile path can be
+        provided.
+
+        Regarding the chkfile, three scenarios are possible:
+        - A chkfile path is provided, but the file doesn't exist: it creates
+            a chkfile at the end of the SCF calculation.
+        - A chkfile path is provided and a file already exists: the initial
+            guess is taken from the chkfile and this file is updated at the end
+            of the calculation.
+        - No chkfile path is provided: The SCF initial guess stays the default
+            one (minao). No chkfile is created.
+
+        Args:
+            charges (List[Tuple[float, Tuple[float, float, float]]]): The partial charges for the electrostatic embedding as
+                a list with elements (charge, (x, y, z))
+            chkfile (string): Path of the chkfile.
+            use_newton (bool): Use RHF.newton() for scf iterations
+        """
+        from pyscf import gto, lib, scf, symm, ao2mo, qmmm
+        self.gto = gto
+        self.lib = lib
+        self.scf = scf
+        self.symm = symm
+        self.ao2mo = ao2mo
+        self.qmmm = qmmm
+        self.chkfile = chkfile
+        self.newton = use_newton
+        self.coords = [charge[1] for charge in charges]
+        self.charges = [charge[0] for charge in charges]
+
+    def compute_mean_field(self, sqmol):
+        """Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following
+        variables to sqmol
+
+        Modify sqmol variables.
+            sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending on the spin).
+            sqmol.mo_energies (list of float): Molecular orbital energies.
+            sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0. and 2.).
+            sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
+            sqmol.n_sos (int): Number of spin-orbitals with a given basis set.
+
+        Add to sqmol:
+            self.mo_coeff (ndarray or List[ndarray]): array of molecular orbital coefficients (MO coeffs) if RHF ROHF
+                                                        list of arrays [alpha MO coeffs, beta MO coeffs] if UHF
+
+        Args:
+            sqmol (SecondQuantizedMolecule): Populated variables of Molecule plus
+                sqmol.basis (string): Basis set.
+                sqmol.ecp (dict): The effective core potential (ecp) for any atoms in the molecule.
+                    e.g. {"C": "crenbl"} use CRENBL ecp for Carbon atoms.
+                sqmol.symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.
+                    Can also specify point group using string. e.g. "Dooh", "D2h", "C2v", ...
+                sqmol.uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False
+        """
+
+        molecule = mol_to_pyscf(sqmol, sqmol.basis, sqmol.symmetry, sqmol.ecp)
+
+        if self.newton:
+            mean_field = self.scf.RHF(molecule).newton() if not sqmol.uhf else self.scf.UHF(molecule)
+        else:
+            mean_field = self.scf.RHF(molecule) if not sqmol.uhf else self.scf.UHF(molecule)
+
+        sqmol.mean_field = self.qmmm.mm_charge(mean_field, self.coords, self.charges)
+        sqmol.mean_field.verbose = 0
+
+        chkfile_found = False
+        if self.chkfile:
+            chkfile_found = os.path.exists(self.chkfile)
+            sqmol.mean_field.chkfile = self.chkfile
+
+        # Force broken symmetry for uhf calculation when spin is 0 as shown in
+        # https://github.com/sunqm/pyscf/blob/master/examples/scf/32-break_spin_symm.py
+        if sqmol.uhf and sqmol.spin == 0 and not chkfile_found:
+            dm_alpha, dm_beta = sqmol.mean_field.get_init_guess()
+            dm_beta[:1, :] = 0
+            dm = (dm_alpha, dm_beta)
+            sqmol.mean_field.kernel(dm)
+        else:
+            sqmol.mean_field.init_guess = "chkfile" if chkfile_found else "minao"
+            sqmol.mean_field.kernel()
+
+        sqmol.mean_field.analyze()
+        if not sqmol.mean_field.converged:
+            raise ValueError("Hartree-Fock calculation did not converge")
+
+        if sqmol.symmetry:
+            sqmol.mo_symm_ids = list(self.symm.label_orb_symm(sqmol.mean_field.mol, sqmol.mean_field.mol.irrep_id,
+                                                              sqmol.mean_field.mol.symm_orb, sqmol.mean_field.mo_coeff))
+            irrep_map = {i: s for s, i in zip(molecule.irrep_name, molecule.irrep_id)}
+            sqmol.mo_symm_labels = [irrep_map[i] for i in sqmol.mo_symm_ids]
+        else:
+            sqmol.mo_symm_ids = None
+            sqmol.mo_symm_labels = None
+
+        sqmol.mf_energy = sqmol.mean_field.e_tot
+        sqmol.mo_energies = sqmol.mean_field.mo_energy
+        sqmol.mo_occ = sqmol.mean_field.mo_occ
+
+        sqmol.n_mos = molecule.nao_nr()
+        sqmol.n_sos = 2*sqmol.n_mos
+
+        self.mo_coeff = sqmol.mean_field.mo_coeff
