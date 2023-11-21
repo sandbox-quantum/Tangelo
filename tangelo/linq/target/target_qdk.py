@@ -63,7 +63,7 @@ class QDKSimulator(Backend):
         with open('tmp_circuit.qs', 'w+') as f_out:
             f_out.write(translated_circuit)
 
-        if source_circuit.counts.get("CMEASURE", 0):
+        if "CMEASURE" in source_circuit.counts:
             raise RuntimeError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
 
         if desired_meas_result:

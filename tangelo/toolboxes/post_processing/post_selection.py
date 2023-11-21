@@ -137,30 +137,28 @@ def split_frequency_dict(frequencies, indices, desired_measurement=None):
     return midcirc_dict, marginal_dict
 
 
-def split_frequency_dict_for_last_n_digits(frequencies, n_to_keep):
+def split_frequency_dict_for_last_n_digits(frequencies, n):
     """Marginalize the frequencies dictionary over the last_n_digits.
     This splits the frequency dictionary into two frequency dictionaries
     and aggregates the corresponding frequencies.
-    If desired_measurement is provided, the marginalized frequencies are
-    post-selected for that outcome on the mid-circuit measurements.
 
     Args:
         frequencies (dict): The input frequency dictionary
-        last_n_to_keep (int): The last n digits of the bitstring to store.
+        n (int): The last n digits of the bitstring to store
 
     Returns:
-        dict: The frequencies for the last n digits
         dict: The marginal frequencies for remaining indices (different bitstring lengths in general)
+        dict: The frequencies for the last n bits
     """
 
-    freq_dict = dict()
-    other_freq_dict = dict()
+    freqs1 = dict()
+    freqs2 = dict()
 
     for measure, count in frequencies.items():
         n_measure = len(measure)
-        measfreq = "".join([measure[i] for i in range(n_measure-n_to_keep, n_measure)])
-        measother = "".join([measure[i] for i in range(n_measure-n_to_keep)])
-        freq_dict[measfreq] = freq_dict.get(measfreq, 0.) + count
-        other_freq_dict[measother] = other_freq_dict.get(measother, 0.) + count
 
-    return freq_dict, other_freq_dict
+        meas_other, meas_last_n = measure[:n_measure-n], measure[n_measure-n:]
+        freqs1[meas_other] = freqs1.get(meas_other, 0.) + count
+        freqs2[meas_last_n] = freqs2.get(meas_last_n, 0.) + count
+
+    return freqs1, freqs2

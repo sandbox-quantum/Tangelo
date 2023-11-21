@@ -301,7 +301,7 @@ class Backend(abc.ABC):
                                                                                 list(range(n_meas)),
                                                                                 desired_measurement=desired_meas_result)
             else:
-                frequencies, self.mid_circuit_meas_freqs = split_frequency_dict_for_last_n_digits(all_frequencies,
+                self.mid_circuit_meas_freqs, frequencies = split_frequency_dict_for_last_n_digits(all_frequencies,
                                                                                                   source_circuit.width)
             return (frequencies, statevector)
 
@@ -706,7 +706,7 @@ class Backend(abc.ABC):
             statevector (array): The statevector for which the collapse to the desired qubit value is performed.
             qubit (int): The index of the qubit to collapse to the classical result.
             result (string): "0" or "1".
-            ignore_zero_prob (bool): Default False, If True, a vector of zeros could be returned if probability is zero
+            ignore_zero_prob (bool): If True, a vector of zeros is returned if the probability is zero. Default value set to False.
 
         Returns:
             array: the collapsed and renormalized statevector

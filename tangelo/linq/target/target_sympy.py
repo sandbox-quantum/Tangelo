@@ -53,7 +53,7 @@ class SympySimulator(Backend):
         from sympy.physics.quantum.qubit import Qubit, matrix_to_qubit, \
             qubit_to_matrix, measure_all
 
-        if source_circuit.counts.get("CMEASURE", 0):
+        if "CMEASURE" in source_circuit.counts:
             raise RuntimeError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
 
         translated_circuit = translate_c(source_circuit, "sympy")

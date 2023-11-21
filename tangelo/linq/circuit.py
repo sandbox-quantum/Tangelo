@@ -19,7 +19,6 @@ characteristics (width, size ...).
 """
 
 import copy
-import inspect
 import abc
 from typing import List, Tuple, Iterator, Union, Set, Dict, Callable
 
@@ -168,11 +167,16 @@ class Circuit:
 
     @property
     def applied_gates(self):
-        """Returns the list of gates applied during the latest simulation of the circuit"""
-        if self.counts.get("CMEASURE", 0):
-            return self._applied_gates
-        else:
-            return self._gates
+        """Returns the list of gates applied during the latest simulation of the circuit.
+
+        If a CMEASURE gate is applied, the resulting circuit can be different from the _gates,
+        The CMEASURE or MEASURE gate will store its measurement result as the parameter.
+
+        Example: circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0, {"0": Gate("X", 0) "1": []})])
+        will have circuit.applied_gates = [Gate("H", 0), Gate("CMEASURE", 0, parameter="0"), Gate("X", 1)]  or
+                  circuit.applied_gates = [Gate("H", 0), Gate("CMEASURE", 0, parameter="1")]
+        """
+        return self._applied_gates if self.counts.get("CMEASURE", 0) else self._gates
 
     def draw(self):
         """Method to output a prettier version of the circuit for use in jupyter notebooks that uses cirq SVGCircuit"""
@@ -410,7 +414,7 @@ class Circuit:
 
     def controlled_measurement_op(self, measure):
         """Call the object self._cmeasure_control and return the next circuit to apply."""
-        if inspect.isfunction(self._cmeasure_control):
+        if callable(self._cmeasure_control):
             return Circuit(self._cmeasure_control(measure), n_qubits=self.width)
         elif isinstance(self._cmeasure_control, ClassicalControl):
             return Circuit(self._cmeasure_control.return_circuit(measure), n_qubits=self.width)

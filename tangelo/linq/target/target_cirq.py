@@ -73,7 +73,7 @@ class CirqSimulator(Backend):
         n_cmeas = source_circuit.counts.get("CMEASURE", 0)
 
         if self._noise_model and n_cmeas > 0:
-            raise RuntimeError(f"{self.__class__.__name__} does not currently support classical-controlled"
+            raise RuntimeError(f"{self.__class__.__name__} does not currently support measurement-controlled"
                                "gates with a noise model.")
 
         # Only DensityMatrixSimulator handles noise well, can use Simulator, but it is slower
@@ -85,6 +85,8 @@ class CirqSimulator(Backend):
         # If requested, set initial state
         cirq_initial_statevector = np.asarray(initial_statevector, dtype=complex) if initial_statevector is not None else 0
 
+        # If a CMEASURE (measurement-controlled) gate is present, use this branch for all cases.
+        # Can be refactored later if/when cirq supports classically controlled gates.
         if n_cmeas > 0:
 
             self.all_frequencies = dict()
@@ -92,7 +94,9 @@ class CirqSimulator(Backend):
             n_shots = self.n_shots if self.n_shots is not None else 1
             n_qubits = source_circuit.width
             indices = list(range(n_qubits))
+
             for _ in range(n_shots):
+
                 if initial_statevector is not None:
                     sv = cirq_initial_statevector
                 else:
@@ -102,14 +106,22 @@ class CirqSimulator(Backend):
                 applied_gates = []
                 dmeas = None if not desired_meas_result else list(desired_meas_result)
                 measurements = ""
-                unitary_circuits, qubits, cmeasure_flags = get_unitary_circuit_pieces(source_circuit)
-                precirc = [Circuit()]*len(unitary_circuits)
-                while len(unitary_circuits) > 1:
-                    circ = precirc[0]+unitary_circuits[0]
-                    applied_gates += circ._gates + [Gate("MEASURE", qubits[0])]
 
-                    if circ.size > 0:
-                        translated_circuit = translate_c(circ, "cirq", output_options={"save_measurements": True})
+                # Break circuit into pieces that do not include CMEASURE or MEASURE gates
+                unitary_circuits, qubits, cmeasure_flags = get_unitary_circuit_pieces(source_circuit)
+                # Generate list of circuits that are extended by previous CMEASURE operations
+                precirc = [Circuit()]*len(unitary_circuits)
+
+                # CMEASURE operations can return gates that include CMEASURE operations.
+                # Example: repeat until success circuits.
+                # Therefore, the list of unitary_circuits can grow. Apply all unitary pieces and delete from list
+                # until all non-measurement circuits segments have been applied.
+                while len(unitary_circuits) > 1:
+                    c = precirc[0]+unitary_circuits[0]
+                    applied_gates += c._gates
+
+                    if c.size > 0:
+                        translated_circuit = translate_c(c, "cirq", output_options={"save_measurements": True})
                         job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
                         sv = job_sim.final_state_vector
 
@@ -121,41 +133,53 @@ class CirqSimulator(Backend):
                     if desired_meas_result:
                         del dmeas[0]
 
-                    # If a CMEASURE has occured
+                    # If a CMEASURE has occurred
                     if cmeasure_flags[0] is not None:
+                        applied_gates += [Gate("CMEASURE", qubits[0], parameter=measure)]
                         if isinstance(cmeasure_flags[0], str):
                             newcirc = source_circuit.controlled_measurement_op(measure)
                         elif isinstance(cmeasure_flags[0], dict):
                             newcirc = Circuit(cmeasure_flags[0][measure], n_qubits=source_circuit.width)
                         new_unitary_circuits, new_qubits, new_cmeasure_flags = get_unitary_circuit_pieces(newcirc)
+
                     # No classical control
                     else:
+                        applied_gates += [Gate("MEASURE", qubits[0], parameter=measure)]
                         new_unitary_circuits = [Circuit(n_qubits=source_circuit.width)]
                         new_qubits = []
                         new_cmeasure_flags = []
 
+                    # Remove circuits, measurements and corresponding qubits that have been applied.
                     del unitary_circuits[0]
                     del qubits[0]
                     del cmeasure_flags[0]
                     del precirc[0]
                     precirc[0] = new_unitary_circuits[-1] + precirc[0]
 
+                    # If new_unitary_circuits includes MEASURE or CMEASURE Gates, the number of unitary_circuits
+                    # grows.
                     if len(new_unitary_circuits) > 1:
                         unitary_circuits = new_unitary_circuits[:-1] + unitary_circuits
                         qubits = new_qubits + qubits
                         cmeasure_flags = new_cmeasure_flags + cmeasure_flags
                         precirc = [Circuit()]*len(qubits) + precirc
 
-                source_circuit._probabilities[measurements] = success_probability
-                applied_gates += precirc[0]._gates + unitary_circuits[-1]._gates
-                source_circuit._applied_gates = applied_gates
-                translated_circuit = translate_c(precirc[0]+unitary_circuits[-1], "cirq", output_options={"save_measurements": True})
+                # No more MEASURE or CMEASURE gates are present, run final unitary circuit segment and set attributes
+                final_circuit = precirc[0] + unitary_circuits[-1]
+                translated_circuit = translate_c(final_circuit, "cirq", output_options={"save_measurements": True})
                 job_sim = cirq_simulator.simulate(translated_circuit, initial_state=sv)
+
                 self._current_state = job_sim.final_state_vector
+                source_circuit._probabilities[measurements] = success_probability
+                source_circuit._applied_gates = applied_gates + final_circuit._gates
+
+                # Update counts if n_shots are required
                 if self.n_shots is None:
                     frequencies = self._statevector_to_frequencies(self._current_state)
                     for meas, val in frequencies.items():
                         self.all_frequencies[measurements + meas] = val
+
+                # Obtain full dictionary of frequencies from the final statevector.
                 else:
                     isamples = self.cirq.sample_state_vector(self._current_state, indices, repetitions=1)
                     bitstr = measurements + "".join([str(int(q)) for q in isamples[0]])
@@ -164,6 +188,7 @@ class CirqSimulator(Backend):
                 # Call the finalize method of ClassicalControl, used to reset variables, perform computation etc.
                 source_circuit.finalize_cmeasure_control()
 
+            # Convert counts to frequencies
             if self.n_shots:
                 self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
                 frequencies = {k[:]: v / self.n_shots for k, v in samples.items()}

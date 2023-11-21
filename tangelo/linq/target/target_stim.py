@@ -58,7 +58,7 @@ class StimSimulator(Backend):
             raise NotImplementedError("initial_statevector not yet implemented with stim ")
         if desired_meas_result is not None:
             raise NotImplementedError("desired_meas_result not yet implemented with stim ")
-        if source_circuit.counts.get("CMEASURE", 0):
+        if "CMEASURE" in source_circuit.counts:
             raise RuntimeError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
 
         if self.n_shots or self._noise_model:
