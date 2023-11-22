@@ -73,7 +73,7 @@ class CirqSimulator(Backend):
         n_cmeas = source_circuit.counts.get("CMEASURE", 0)
 
         if self._noise_model and n_cmeas > 0:
-            raise RuntimeError(f"{self.__class__.__name__} does not currently support measurement-controlled"
+            raise NotImplementedError(f"{self.__class__.__name__} does not currently support measurement-controlled"
                                "gates with a noise model.")
 
         # Only DensityMatrixSimulator handles noise well, can use Simulator, but it is slower
