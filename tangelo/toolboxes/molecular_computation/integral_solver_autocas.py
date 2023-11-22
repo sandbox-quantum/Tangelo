@@ -41,18 +41,14 @@ class IntegralSolverAutoCAS(IntegralSolver):
 
         self.root_folder = os.getcwd()
 
-        self.autocas_yaml = autocas_yaml
-        if autocas_yaml is None:
-            self.autocas_yaml = os.path.join(self.root_folder, "autocas_settings.yml")
-
         # Default settings. Other settings can be modified, see this url for an
         # example: https://github.com/qcscine/autocas/blob/master/scripts/full.yml.
         self.settings = {
             "molecule": {
-                "double_d_shell": True
+                "double_d_shell": False
             },
             "interface": {
-                "interface": "molcas", # Theo nly one supported as of now.
+                "interface": "molcas", # The only one supported as of now.
                 "project_name": "mol",
                 "environment": {"molcas_scratch_dir": os.path.join(self.root_folder, "molcas_scratch")},
                 "settings": {"work_dir":  os.path.join(self.root_folder, "autocas_project")}
@@ -64,6 +60,9 @@ class IntegralSolverAutoCAS(IntegralSolver):
         self.settings["interface"]["settings"]["xyz_file"] = self.xyz_file
         self.settings["molecule"]["xyz_file"] = self.xyz_file
 
+        self.autocas_yaml = autocas_yaml
+        if autocas_yaml is None:
+            self.autocas_yaml = os.path.join(self.root_folder, f"autocas_settings_{self.settings['interface']['project_name']}.yml")
 
     def set_physical_data(self, mol):
         """ TODO
@@ -91,7 +90,8 @@ class IntegralSolverAutoCAS(IntegralSolver):
         # PyYAML package is a requirement for autocas.
         import yaml
 
-        #self.settings["interface"]["settings"]["basis_set"] = sqmol.basis
+        self.settings["interface"]["settings"]["basis_set"] = sqmol.basis
+        self.settings["interface"]["settings"]["uhf"] = sqmol.uhf
 
         # Additional options related to the molecular problem.
         # TODO
@@ -133,4 +133,4 @@ class IntegralSolverAutoCAS(IntegralSolver):
         # more than just the overlap integrals.
         # The two-body integrals are decomposed with the Cholesky method by
         # default. This is done by the SEWARD program.
-        pass
+        return None, None, None

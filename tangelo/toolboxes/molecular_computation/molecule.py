@@ -78,6 +78,8 @@ def get_default_integral_solver(qmmm=False):
         return IntegralSolverPySCFQMMM if qmmm else IntegralSolverPySCF
     elif is_package_installed("psi4"):
         return IntegralSolverPsi4QMMM if qmmm else IntegralSolverPsi4
+    elif is_package_installed("scine_autocas"):
+        return IntegralSolverAutoCAS
     else:
         return IntegralSolverEmpty
 
