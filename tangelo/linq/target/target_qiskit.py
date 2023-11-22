@@ -74,7 +74,7 @@ class QiskitSimulator(Backend):
 
         n_meas = source_circuit.counts.get("MEASURE", 0)
         if "CMEASURE" in source_circuit.counts:
-            raise RuntimeError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
+            raise NotImplementedError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
 
         qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
 

@@ -59,7 +59,7 @@ class StimSimulator(Backend):
         if desired_meas_result is not None:
             raise NotImplementedError("desired_meas_result not yet implemented with stim ")
         if "CMEASURE" in source_circuit.counts:
-            raise RuntimeError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
+            raise NotImplementedError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
 
         if self.n_shots or self._noise_model:
             translated_circuit = translate_c(source_circuit, "stim",

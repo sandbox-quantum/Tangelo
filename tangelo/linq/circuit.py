@@ -176,7 +176,7 @@ class Circuit:
         will have circuit.applied_gates = [Gate("H", 0), Gate("CMEASURE", 0, parameter="0"), Gate("X", 1)]  or
                   circuit.applied_gates = [Gate("H", 0), Gate("CMEASURE", 0, parameter="1")]
         """
-        return self._applied_gates if self.counts.get("CMEASURE", 0) else self._gates
+        return self._applied_gates if "CMEASURE" in self.counts else self._gates
 
     def draw(self):
         """Method to output a prettier version of the circuit for use in jupyter notebooks that uses cirq SVGCircuit"""
@@ -418,6 +418,8 @@ class Circuit:
             return Circuit(self._cmeasure_control(measure), n_qubits=self.width)
         elif isinstance(self._cmeasure_control, ClassicalControl):
             return Circuit(self._cmeasure_control.return_circuit(measure), n_qubits=self.width)
+        else:
+            raise TypeError(f"cmeasure_control must either be a function or an instance of {ClassicalControl}")
 
     def finalize_cmeasure_control(self):
         """Call the finalize method in cmeasure_control"""

@@ -54,7 +54,7 @@ class SympySimulator(Backend):
             qubit_to_matrix, measure_all
 
         if "CMEASURE" in source_circuit.counts:
-            raise RuntimeError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
+            raise NotImplementedError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
 
         translated_circuit = translate_c(source_circuit, "sympy")
 

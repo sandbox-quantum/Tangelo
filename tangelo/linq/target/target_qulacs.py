@@ -185,7 +185,6 @@ class QulacsSimulator(Backend):
 
             if self.n_shots:
                 self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
-                frequencies = {k: v / self.n_shots for k, v in samples.items()}
             return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)
 
         # Deterministic circuit, run once and sample from statevector

@@ -21,7 +21,6 @@ import unittest
 import os
 import time
 from typing import List
-from copy import copy
 
 import numpy as np
 from openfermion import load_operator, get_sparse_operator
@@ -679,7 +678,7 @@ class TestSimulateMisc(unittest.TestCase):
         cmeas_circuit = Circuit([Gate("CMEASURE", 0, parameter={"0": [], "1": []})])
         for backend in (installed_simulator | installed_clifford_simulators) - installed_cmeasure_simulators:
             sim = get_backend(backend, n_shots=1)
-            self.assertRaises(RuntimeError, sim.simulate, cmeas_circuit)
+            self.assertRaises(NotImplementedError, sim.simulate, cmeas_circuit)
 
     def test_measurement_controlled_gates_function(self):
         """Test that the repeat until success circuit is properly performed."""
@@ -729,7 +728,7 @@ class TestSimulateMisc(unittest.TestCase):
                 def __init__(self, n_bits: int):
                     """Iterative QPE with n_bits"""
                     self.n_bits: int = n_bits
-                    self.bitplace: int = copy(self.n_bits)
+                    self.bitplace: int = n_bits
                     self.phase: float = 0
                     self.measurements: List[str] = [""]
                     self.energies: List[float] = [0.]
@@ -756,7 +755,7 @@ class TestSimulateMisc(unittest.TestCase):
                         return []
 
                 def finalize(self):
-                    self.bitplace = copy(self.n_bits)
+                    self.bitplace = self.n_bits
                     self.phase = 0
                     self.n_runs += 1
                     self.measurements += [""]
