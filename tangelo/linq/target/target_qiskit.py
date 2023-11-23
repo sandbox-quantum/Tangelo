@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import math
-from collections import Counter
 
 import numpy as np
 
@@ -74,6 +73,9 @@ class QiskitSimulator(Backend):
             return backend, translated_circuit
 
         n_meas = source_circuit.counts.get("MEASURE", 0)
+        if "CMEASURE" in source_circuit.counts:
+            raise NotImplementedError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
+
         qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
 
         def load_statevector(translated_circuit, initial_statevector):
@@ -96,7 +98,7 @@ class QiskitSimulator(Backend):
         if desired_meas_result is not None and not self._noise_model:
             # Split circuit into chunks between mid-circuit measurements. Simulate a chunk, collapse the statevector according
             # to the desired measurement and simulate the next chunk using this new statevector as input
-            unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
+            unitary_circuits, qubits, _ = get_unitary_circuit_pieces(source_circuit)
         else:
             translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
 

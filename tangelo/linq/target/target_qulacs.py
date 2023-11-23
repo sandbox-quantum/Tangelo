@@ -18,7 +18,7 @@ from collections import Counter
 
 import numpy as np
 
-from tangelo.linq import Circuit, get_unitary_circuit_pieces
+from tangelo.linq import Circuit, Gate, get_unitary_circuit_pieces
 from tangelo.linq.target.backend import Backend
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.translator import translate_operator
@@ -69,6 +69,7 @@ class QulacsSimulator(Backend):
                                                                                        "save_measurements": save_mid_circuit_meas})
 
         n_meas = source_circuit.counts.get("MEASURE", 0)
+        n_cmeas = source_circuit.counts.get("CMEASURE", 0)
 
         # Initialize state on GPU if available and desired. Default to CPU otherwise.
         if ('QuantumStateGpu' in dir(self.qulacs)) and (int(os.getenv("QULACS_USE_GPU", 0)) != 0):
@@ -80,8 +81,114 @@ class QulacsSimulator(Backend):
         if initial_statevector is not None:
             state.load(initial_statevector)
 
+        # If a CMEASURE (measurement-controlled) gate is present, use this branch for all cases.
+        # Can be refactored later if/when cirq supports classically controlled gates.
+        if n_cmeas > 0:
+
+            self.all_frequencies = dict()
+            samples = dict()
+            n_shots = self.n_shots if self.n_shots is not None else 1
+            n_qubits = source_circuit.width
+
+            for _ in range(n_shots):
+
+                if initial_statevector is not None:
+                    sv = initial_statevector
+                else:
+                    sv = np.zeros(2**n_qubits)
+                    sv[0] = 1.
+                success_probability = 1.
+                applied_gates = []
+                dmeas = None if not desired_meas_result else list(desired_meas_result)
+                measurements = ""
+
+                # Break circuit into pieces that do not include CMEASURE or MEASURE gates
+                unitary_circuits, qubits, cmeasure_flags = get_unitary_circuit_pieces(source_circuit)
+                # Generate list of circuits that are extended by previous CMEASURE operations
+                precirc = [Circuit()]*len(unitary_circuits)
+
+                # CMEASURE operations can return gates that include CMEASURE operations.
+                # Example: repeat until success circuits.
+                # Therefore, the list of unitary_circuits can grow. Apply all unitary pieces and delete from list
+                # until all non-measurement circuits segments have been applied.
+                while len(unitary_circuits) > 1:
+                    c = precirc[0]+unitary_circuits[0]
+                    applied_gates += c._gates
+
+                    if c.size > 0:
+                        translated_circuit = translate_c(c, "qulacs", output_options={"save_measurements": True})
+                        state.load(sv)
+                        translated_circuit.update_quantum_state(state)
+                        sv = state.get_vector()
+
+                    # Perform measurement.
+                    desired_meas = dmeas[0] if desired_meas_result else None
+                    measure, sv, cprob = self.perform_measurement(sv, qubits[0], desired_meas)
+                    measurements += measure
+                    success_probability *= cprob
+                    if desired_meas_result:
+                        del dmeas[0]
+
+                    # If a CMEASURE has occurred
+                    if cmeasure_flags[0] is not None:
+                        applied_gates += [Gate("CMEASURE", qubits[0], parameter=measure)]
+                        if isinstance(cmeasure_flags[0], str):
+                            newcirc = source_circuit.controlled_measurement_op(measure)
+                        elif isinstance(cmeasure_flags[0], dict):
+                            newcirc = Circuit(cmeasure_flags[0][measure], n_qubits=source_circuit.width)
+                        new_unitary_circuits, new_qubits, new_cmeasure_flags = get_unitary_circuit_pieces(newcirc)
+
+                    # No classical control
+                    else:
+                        applied_gates += [Gate("MEASURE", qubits[0], parameter=measure)]
+                        new_unitary_circuits = [Circuit(n_qubits=source_circuit.width)]
+                        new_qubits = []
+                        new_cmeasure_flags = []
+
+                    # Remove circuits, measurements and corresponding qubits that have been applied.
+                    del unitary_circuits[0]
+                    del qubits[0]
+                    del cmeasure_flags[0]
+                    del precirc[0]
+                    precirc[0] = new_unitary_circuits[-1] + precirc[0]
+
+                    # If new_unitary_circuits includes MEASURE or CMEASURE Gates, the number of unitary_circuits
+                    # grows.
+                    if len(new_unitary_circuits) > 1:
+                        unitary_circuits = new_unitary_circuits[:-1] + unitary_circuits
+                        qubits = new_qubits + qubits
+                        cmeasure_flags = new_cmeasure_flags + cmeasure_flags
+                        precirc = [Circuit()]*len(qubits) + precirc
+
+                # No more MEASURE or CMEASURE gates are present, run final unitary circuit segment and set attributes
+                final_circuit = precirc[0] + unitary_circuits[-1]
+                translated_circuit = translate_c(final_circuit, "qulacs", output_options={"save_measurements": True})
+                state.load(sv)
+                translated_circuit.update_quantum_state(state)
+                self._current_state = state.get_vector()
+                python_statevector = self._current_state
+
+                self._current_state = state.get_vector()
+                source_circuit._probabilities[measurements] = success_probability
+                source_circuit._applied_gates = applied_gates + final_circuit._gates
+
+                if self.n_shots is None:
+                    frequencies = self._statevector_to_frequencies(self._current_state)
+                    for meas, val in frequencies.items():
+                        self.all_frequencies[measurements + meas] = val
+                else:
+                    bitstr = self._int_to_binstr(state.sampling(1)[0], source_circuit.width)
+                    samples[measurements+bitstr] = samples.get(measurements+bitstr, 0) + 1
+
+                # Call the finalize method of ClassicalControl, used to reset variables, perform computation etc.
+                source_circuit.finalize_cmeasure_control()
+
+            if self.n_shots:
+                self.all_frequencies = {k: v / self.n_shots for k, v in samples.items()}
+            return (self.all_frequencies, python_statevector) if return_statevector else (self.all_frequencies, None)
+
         # Deterministic circuit, run once and sample from statevector
-        if not self._noise_model and not source_circuit.is_mixed_state:
+        elif not self._noise_model and not source_circuit.is_mixed_state:
             translated_circuit.update_quantum_state(state)
             self._current_state = state
 
@@ -100,7 +207,7 @@ class QulacsSimulator(Backend):
         elif desired_meas_result is not None:
             if not self._noise_model:
                 success_probability = 1
-                unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
+                unitary_circuits, qubits, _ = get_unitary_circuit_pieces(source_circuit)
 
                 for i, circ in enumerate(unitary_circuits[:-1]):
                     if circ.size > 0:

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .gate import *
-from .circuit import Circuit, stack, remove_small_rotations, remove_redundant_gates, get_unitary_circuit_pieces
+from .circuit import Circuit, stack, remove_small_rotations, remove_redundant_gates, get_unitary_circuit_pieces, ClassicalControl
 from .translator import *
 from .simulator import get_backend
 from .target.backend import get_expectation_value_from_frequencies_oneterm
