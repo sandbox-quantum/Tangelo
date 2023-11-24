@@ -1,3 +1,25 @@
+"""Description from QEMIST Cloud
+In the frozen natural orbital (FNO) method, the virtual molecular orbitals are
+transformed and ranked. The one-particle virtual–virtual block of the 2nd order
+Moller-Plesset density matrix is diagonalized to obtain natural orbitals. The
+eigenvalues are used to truncate the virtual space, while the eigenvectors are
+employed to transform the virtual space.
+
+Paper: arXiv:2002.07901
+
+class LocalizationMethod(IntEnum):
+    NONE = 0
+    BOYS = 1
+    PM = 2
+
+class TruncationMethod(IntEnum):
+    NONE = 0
+    OCCUPANCY = 1
+    PERCENTAGE_OF_OCCUPANCY = 2
+    PERCENTAGE = 3
+    COUNT = 4
+"""
+
 import time
 from functools import reduce
 
@@ -8,9 +30,11 @@ import numpy as np
 
 def do_frozen_core_mp2(mean_field, frozen_occupied):
     """Compute mp2 object and compute correlation energy for full virtual space
+
     Args:
         mean_field: pyscf UHF mean_field object
         frozen_occupied:
+
     Returns: mp2 object and mp2 corr. energy for full virtual space
     """
 
@@ -23,7 +47,8 @@ def do_frozen_core_mp2(mean_field, frozen_occupied):
 
 class FNO(lib.StreamObject):
     def __init__(self, molecule, perturb_theory: mp, frac_fno):
-        """This is FNO class which needs HF, MP2 object along with fraction of FNO occupance %
+        """This is FNO class which needs HF, MP2 object along with fraction of
+        FNO occupance %.
 
         Args:
             molecule (SecondQuantizedMolecule): Molecule object
@@ -36,7 +61,8 @@ class FNO(lib.StreamObject):
         # compute the Fock matrix in new mo basis
         self.fock_ao = molecule.mean_field.get_fock()
         self._mp = perturb_theory
-        # obtain MP2 aplitudes.  Can be unfolded into t2aa, t2ab, t2bb <= t2
+
+        # obtain MP2 aplitudes. Can be unfolded into t2aa, t2ab, t2bb <= t2
         self.t2 = perturb_theory.t2
         # list of occupied orbitals that are frozen in MP2 calculation
         self.frozen_list = perturb_theory.frozen
@@ -63,7 +89,8 @@ class FNO(lib.StreamObject):
             self.tvrt.append(tvrt)
 
     def _compute_mp2_vv_density(self, t2=None):
-        '''Create the virtual-virtual block MP2 density for alpha and beta.'''
+        """Create the virtual-virtual block MP2 density for alpha and beta."""
+
         if t2 is None:
             t2 = self.t2
         t2aa, t2ab, t2bb = t2
@@ -75,11 +102,16 @@ class FNO(lib.StreamObject):
 
         return (dvva + dvva.conj().T, dvvb + dvvb.conj().T)
 
+    def _virtual_virtual_MP2_density(self, mean_field):
+        pass
+
     def _diagonalize_density(self, D, ispin):
         """Diagonalize density and return eval, evec and put no of
         FNO orbitals in appropriate space
+
         Args:
             D (array): density matrix
+
         Returns
             array : eigenvectors of density matrix in appropriate space
         """
@@ -115,6 +147,7 @@ class FNO(lib.StreamObject):
 
     def compute_aa(self, mo_coeff, spin):
         """Compute FNO mo_coeff and mo_energy for given spin"""
+
         fock = self.fock_ao[spin]
         # obtain Fock matrix in mo form
         fock_mo = mo_coeff.T.dot(fock).dot(mo_coeff)
