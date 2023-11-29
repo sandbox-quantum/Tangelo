@@ -46,10 +46,10 @@ mol_H4_sto3g = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g")
 mol_H4_sto3g_symm = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g", symmetry=True)
 mol_H4_minao = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="minao") if has_pyscf else None
 mol_H4_cation_sto3g = SecondQuantizedMolecule(xyz_H4, q=1, spin=1, basis="sto-3g")
-mol_H4_cation_sto3g.mo_coeff = [[ 0.41972471, -0.47196477, -0.3961148 , -0.96961923],
-                                [ 0.41972471, -0.47196477,  0.3961148 ,  0.96961923],
-                                [ 0.28346875,  0.6196045 ,  0.67216556, -0.56718079],
-                                [ 0.28346875,  0.6196045 , -0.67216556,  0.56718079]]
+mol_H4_cation_sto3g.mo_coeff = [[ 0.41972471, -0.47196477, -0.39611480, -0.96961923],
+                                [ 0.41972471, -0.47196477,  0.39611480,  0.96961923],
+                                [ 0.28346875,  0.61960450,  0.67216556, -0.56718079],
+                                [ 0.28346875,  0.61960450, -0.67216556,  0.56718079]]
 mol_H4_doublecation_minao = SecondQuantizedMolecule(xyz_H4, q=2, spin=0, basis="minao") if has_pyscf else None
 mol_H4_doublecation_321g = SecondQuantizedMolecule(xyz_H4, q=2, spin=0, basis="3-21g")
 mol_H4_sto3g_uhf_a1_frozen = SecondQuantizedMolecule(xyz_H4, q=0, spin=0, basis="sto-3g", uhf=True, frozen_orbitals=[[1], []])
