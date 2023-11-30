@@ -106,7 +106,7 @@ class TestCircuits(unittest.TestCase):
         c = copy.deepcopy(circuit3)
         c += circuit4
         self.assertTrue(c == circuit_sum)
-        
+
         c = Circuit()
         c += circuit4
         self.assertTrue(c == circuit4)
