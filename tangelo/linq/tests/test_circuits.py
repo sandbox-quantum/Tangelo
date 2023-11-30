@@ -90,7 +90,7 @@ class TestCircuits(unittest.TestCase):
         self.assertTrue(circuit1.size == n_gates)
 
     def test_add_circuits(self):
-        """ Test the concatenation of two circuit objects (add, iadd) """
+        """ Test the concatenation of two circuit objects """
 
         circuit_sum = circuit3 + circuit4
         self.assertTrue(circuit_sum.size == circuit3.size + circuit4.size)
