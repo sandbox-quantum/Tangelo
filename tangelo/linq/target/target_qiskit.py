@@ -67,7 +67,7 @@ class QiskitSimulator(Backend):
         """
         def aer_backend_with_statevector(translated_circuit):
             "Generate AerSimulator backend and append save statevector instruction to translated_circuit"
-            backend = self.AerSimulator(method='statevector')
+            backend = self.AerSimulator(method='statevector', noise_model=qiskit_noise_model)
             translated_circuit = self.qiskit.transpile(translated_circuit, backend)
             translated_circuit.save_statevector()
             return backend, translated_circuit
@@ -90,7 +90,7 @@ class QiskitSimulator(Backend):
 
         def run_and_measure_one_shot(backend, translated_circuit):
             "Return statevector and mid-circuit measurement for one shot"
-            sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
+            sim_results = backend.run(translated_circuit, shots=1).result()
             current_state = sim_results.get_statevector(translated_circuit)
             measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas)), inplace=True).get_counts()))[::-1]
             return current_state, measure
