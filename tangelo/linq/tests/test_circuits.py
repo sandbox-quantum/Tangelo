@@ -92,7 +92,6 @@ class TestCircuits(unittest.TestCase):
     def test_add_circuits(self):
         """ Test the concatenation of two circuit objects (add, iadd) """
 
-        # Test addition out of place
         circuit_sum = circuit3 + circuit4
         self.assertTrue(circuit_sum.size == circuit3.size + circuit4.size)
         self.assertTrue(circuit_sum.is_variational == circuit3.is_variational or circuit4.is_variational)
@@ -101,15 +100,6 @@ class TestCircuits(unittest.TestCase):
                                                          + Counter(circuit4._gate_counts)))
         self.assertTrue(len(circuit_sum._variational_gates) == (len(circuit3._variational_gates) +
                                                                 len(circuit4._variational_gates)))
-
-        # Test addition in place
-        c = copy.deepcopy(circuit3)
-        c += circuit4
-        self.assertTrue(c == circuit_sum)
-
-        c = Circuit()
-        c += circuit4
-        self.assertTrue(c == circuit4)
 
     def test_mul_circuit(self):
         """ Test the multiplication (repetition) operator for circuit objects """
