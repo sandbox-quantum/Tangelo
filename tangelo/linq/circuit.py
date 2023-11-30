@@ -75,10 +75,22 @@ class Circuit:
 
     def __add__(self, other):
         """Concatenate the list of instructions of two circuit objects into a
-        single one.
+        single new object.
         """
         n_qubits = max(self.width, other.width) if self._qubits_simulated or other._qubits_simulated else None
         return Circuit(self._gates + other._gates, n_qubits=n_qubits)
+
+    def __iadd__(self, other):
+        """Append gates of a second circuit to the original object.
+        Does not create copies or new objects, faster than __add__ as a result.
+        """
+
+        nq1 = self._qubits_simulated if self._qubits_simulated is not None else 0
+        nq2 = other._qubits_simulated if other._qubits_simulated is not None else 0
+        self._qubits_simulated = max(nq1, nq2)
+        for g in other:
+            self.add_gate(g)
+        return self
 
     def __mul__(self, n_repeat):
         """Return a circuit consisting of n_repeat repetitions of the input circuit.

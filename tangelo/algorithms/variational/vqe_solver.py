@@ -171,9 +171,7 @@ class VQESolver:
         self.energies = list()
 
     def build(self):
-        """Build the underlying objects required to run the VQE algorithm
-        afterwards.
-        """
+        """Build the underlying objects required to run the VQE algorithm afterwards."""
 
         if isinstance(self.ansatz, Circuit):
             self.ansatz = agen.VariationalCircuitAnsatz(self.ansatz)
@@ -251,6 +249,7 @@ class VQESolver:
         """Run the VQE algorithm, using the ansatz, classical optimizer, initial
         parameters and hardware backend built in the build method.
         """
+
         if not (self.ansatz and self.backend):
             raise RuntimeError("No ansatz circuit or hardware backend built. Have you called VQESolver.build ?")
 
@@ -265,6 +264,7 @@ class VQESolver:
         self.optimal_circuit = self.reference_circuit+self.ansatz.circuit if self.ref_state is not None else self.ansatz.circuit
         if self.projective_circuit:
             self.optimal_circuit += self.projective_circuit
+
         return self.optimal_energy
 
     def get_resources(self):
@@ -450,6 +450,10 @@ class VQESolver:
             qb_freq_dict = dict()
             qb_expect_dict = dict()
 
+        # State preparation circuit
+        prep_circuit = ref_state + self.ansatz.circuit
+        _, sv = self.backend.simulate(prep_circuit, return_statevector=True)
+
         # Loop over each element of Hamiltonian (non-zero value)
         for key in self.molecule.fermionic_hamiltonian.terms:
             # Ignore constant / empty term
@@ -483,9 +487,9 @@ class VQESolver:
                     if qb_term not in qb_freq_dict:
                         if resample:
                             warnings.warn(f"Warning: rerunning circuit for missing qubit term {qb_term}")
-                        basis_circuit = Circuit(measurement_basis_gates(qb_term))
-                        full_circuit = ref_state + self.ansatz.circuit + basis_circuit
-                        qb_freq_dict[qb_term], _ = self.backend.simulate(full_circuit)
+                        basis_circuit = Circuit(measurement_basis_gates(qb_term), n_qubits=prep_circuit.width)
+                        qb_freq_dict[qb_term], _ = self.backend.simulate(basis_circuit, initial_statevector=sv)
+
                     if resample:
                         if qb_term not in resampled_expect_dict:
                             resampled_freq_dict = get_resampled_frequencies(qb_freq_dict[qb_term], self.backend.n_shots)
