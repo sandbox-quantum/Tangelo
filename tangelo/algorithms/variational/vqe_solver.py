@@ -447,12 +447,12 @@ class VQESolver:
             else:
                 raise AttributeError("Need to run RDM calculation with savefrequencies=True")
         else:
-            qb_freq_dict = dict()
-            qb_expect_dict = dict()
+            qb_freq_dict, qb_expect_dict = dict(), dict()
 
-        # State preparation circuit
+        # Build state preparation circuit. If noiseless, simulate and save the statevector
         prep_circuit = ref_state + self.ansatz.circuit
-        _, sv = self.backend.simulate(prep_circuit, return_statevector=True)
+        if self.backend_options.get("noise_model") is None:
+            _, sv = self.backend.simulate(prep_circuit, return_statevector=True)
 
         # Loop over each element of Hamiltonian (non-zero value)
         for key in self.molecule.fermionic_hamiltonian.terms:
@@ -487,8 +487,19 @@ class VQESolver:
                     if qb_term not in qb_freq_dict:
                         if resample:
                             warnings.warn(f"Warning: rerunning circuit for missing qubit term {qb_term}")
+
                         basis_circuit = Circuit(measurement_basis_gates(qb_term), n_qubits=prep_circuit.width)
-                        qb_freq_dict[qb_term], _ = self.backend.simulate(basis_circuit, initial_statevector=sv)
+
+                        # Noiseless simulation: reuse statevector.
+                        if self.backend_options.get("noise_model") is None:
+                            qb_freq_dict[qb_term], _ = self.backend.simulate(basis_circuit, initial_statevector=sv)
+                        else:
+                            # Simulate from scratch. Manually adding / removing measurement gates
+                            # saves a lot of time with no relevant side effects
+                            for g in basis_circuit:
+                                prep_circuit.add_gate(g)
+                            qb_freq_dict[qb_term], _ = self.backend.simulate(prep_circuit)
+                            prep_circuit._gates = prep_circuit._gates[:-len(basis_circuit) or None]
 
                     if resample:
                         if qb_term not in resampled_expect_dict:
