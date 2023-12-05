@@ -706,9 +706,7 @@ class VQESolver:
         from scipy.optimize import minimize
 
         with HiddenPrints() if not self.verbose else nullcontext():
-            result = minimize(func, var_params, method="SLSQP",
-                              #options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
-                              options={"disp": True, "maxiter": 2, "eps": 1e-2, "ftol": 1e-2})
+            result = minimize(func, var_params, method="SLSQP", options={"disp": True, "maxiter": 2000, "eps": 1e-5, "ftol": 1e-5})
 
         if self.verbose:
             print(f"VQESolver optimization results:")
