@@ -1,386 +1,416 @@
-"""Description from QEMIST Cloud
-In the frozen natural orbital (FNO) method, the virtual molecular orbitals are
-transformed and ranked. The one-particle virtual–virtual block of the 2nd order
-Moller-Plesset density matrix is diagonalized to obtain natural orbitals. The
-eigenvalues are used to truncate the virtual space, while the eigenvectors are
-employed to transform the virtual space.
+# Copyright 2023 Good Chemistry Company.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-Paper: arXiv:2002.07901
+"""Module containing datastructures for interfacing with the Frozen Natural
+Orbitals (FNOs), to automatically truncate the virtual orbital space.
 
-class LocalizationMethod(IntEnum):
-    NONE = 0
-    BOYS = 1
-    PM = 2
-
-class TruncationMethod(IntEnum):
-    NONE = 0
-    OCCUPANCY = 1
-    PERCENTAGE_OF_OCCUPANCY = 2
-    PERCENTAGE = 3
-    COUNT = 4
+Reference: arXiv:2002.07901
 """
 
-import time
-from functools import reduce
+from typing import List, Sequence, Tuple, Union
+import warnings
 
-from pyscf import lib, ao2mo, cc, mp, scf
-from pyscf.lib import logger
 import numpy as np
 
+from tangelo.algorithms.classical import MP2Solver
+from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
 
-def do_frozen_core_mp2(mean_field, frozen_occupied):
-    """Compute mp2 object and compute correlation energy for full virtual space
 
-    Args:
-        mean_field: pyscf UHF mean_field object
-        frozen_occupied:
+class FNO():
+    """Class to interface with the Frozen Natural Orbitals protocol, that aims
+    at reducing the computational cost of a molecular problem by truncating
+    the virtual space. In general, the virtual orbitals are ranked according to
+    their MP2 occupancies, and selected with a given threshold. They are also
+    transformed to the FNO basis, using the eigenvectors of the MP2
+    virtual-virtual density matrix.
 
-    Returns: mp2 object and mp2 corr. energy for full virtual space
+    Attributes:
+            sec_mol (SecondQuantizedMolecule): Self-explanatory.
+            uhf (bool): Flag indicating the type of mean field used.
+            n_mos (int): Number of molecular orbitals.
+            fock_ao (np.array): Fock matrix in atomic orbital form.
+            frozen_occupied (list): List of indices of frozen occupied orbitals.
+            threshold (float or list): Threshold(s) for FNO occupancy.
+
+        Properties:
+            updated_sec_mol: Returns an updated SecondQuantizedMolecule object with
+                frozen orbitals and updated MO coefficients.
+
+        Methods:
+            compute_fno: Computes and truncates the FNO orbitals.
+            get_frozen_indices: Determines the indices of the frozen orbitals.
+            diagonalize_and_reorder: Diagonalizes a matrix and can reorder the
+                eigenvalues and eigenvectors based on occupations.
+            get_number_of_fnos_from_frac_occupancies: Calculates the number of
+                active virtual orbitals based on fractional occupancies.
     """
 
-    pt = mp.UMP2(mean_field).set(frozen=frozen_occupied)
-    pt.verbose = 0
-    fMP2_energy, _ = pt.kernel()
+    def __init__(self, sec_mol: SecondQuantizedMolecule, threshold: Union[float, Sequence[float]]):
+        """Initialization of the FNO class instance.
 
-    return pt, fMP2_energy
-
-
-class FNO(lib.StreamObject):
-    def __init__(self, molecule, perturb_theory: mp, frac_fno):
-        """This is FNO class which needs HF, MP2 object along with fraction of
-        FNO occupance %.
+        Checks for frozen virtual orbitals and warns if they are set, as they
+        might be overwritten.
 
         Args:
-            molecule (SecondQuantizedMolecule): Molecule object
-            pt: MP2 object
-            frac_fno: % of FNO occupation (%alpha, %beta)
+            sec_mol (SecondQuantizedMolecule): The SecondQuantizedMolecule
+                object.
+            threshold (float or list): Threshold(s) for FNO occupancy.
         """
 
-        self._scf = molecule.mean_field
-        self.scf_mo_coeff = molecule.mean_field.mo_coeff
-        # compute the Fock matrix in new mo basis
-        self.fock_ao = molecule.mean_field.get_fock()
-        self._mp = perturb_theory
+        # Check if there are frozen virtual orbitals. Print warning that this
+        # setting will be overwritten.
+        if sec_mol.frozen_virtual and sec_mol.frozen_virtual != [[], []]:
+            warnings.warn(f"The frozen orbitals {sec_mol.frozen_virtual} indices are likely to be overwritten in {self.__class__.__name__}.", RuntimeWarning)
 
-        # obtain MP2 aplitudes. Can be unfolded into t2aa, t2ab, t2bb <= t2
-        self.t2 = perturb_theory.t2
-        # list of occupied orbitals that are frozen in MP2 calculation
-        self.frozen_list = perturb_theory.frozen
+        self.sec_mol = sec_mol
 
-        # user data
-        self.frac_fno = frac_fno
+        # Molecular properties useful for the FNO class methods.
+        self.uhf = sec_mol.uhf
+        self.n_mos = self.sec_mol.n_mos
+        self.fock_ao = self.sec_mol.mean_field.get_fock()
+        self.frozen_occupied = self.sec_mol.frozen_occupied
 
-        # I need to compute this for later use
-        self.n_active_occupied = [len(molecule.active_occupied[0]), len(molecule.active_occupied[1])]
-        self.n_active_virtual = list()
-        self.n_frozen_virtual = list()
-        self.n_frozen_occupied = [len(molecule.frozen_occupied[0]), len(molecule.frozen_occupied[1])]
-        self.mo_coeff = []
-        self.mo_energy = []
-        self.fno_occupancy = []
+        self.threshold = threshold
 
-        # I need the total virtual and for FNO truncation
-        self.frozen_vrt = list()
-        self.tvrt = list()
-        self._nocc = list()
-        for ispin in range(2):
-            self._nocc.append(len(molecule.mo_occ[ispin][molecule.mo_occ[ispin] > 0]))
-            tvrt = self._scf.mo_coeff[ispin].shape[1] - self._nocc[ispin]
-            self.tvrt.append(tvrt)
+        if self.uhf:
+            self.n_occupied = [len(x+y) for x, y in zip(self.sec_mol.frozen_occupied, self.sec_mol.active_occupied)]
+            self._compute_ump2_densities()
+        else:
+            self.n_occupied = len(self.sec_mol.frozen_occupied + self.sec_mol.active_occupied)
+            self._compute_rmp2_densities()
 
-    def _compute_mp2_vv_density(self, t2=None):
-        """Create the virtual-virtual block MP2 density for alpha and beta."""
+        self.compute_fno(self.threshold)
 
-        if t2 is None:
-            t2 = self.t2
+    @property
+    def updated_sec_mol(self) -> SecondQuantizedMolecule:
+        """Returns an updated SecondQuantizedMolecule object with frozen
+        orbitals and updated MO coefficients.
+
+        Returns:
+            SecondQuantizedMolecule: Updated SecondQuantizedMolecule object with
+                restricted active space, and updated mo_coeff with the FNO
+                coefficients.
+        """
+
+        frozen_orbitals = self.get_frozen_indices()
+        sec_mol_updated = self.sec_mol.freeze_mos(frozen_orbitals, inplace=False)
+        sec_mol_updated.mo_coeff = self.mo_coeff
+        return sec_mol_updated
+
+    def compute_fno(self, threshold: Union[float, List[float]]) -> None:
+        """Method to compute and truncate the FNO orbitals. It calls
+        the `_compute_rfno` or the `_compute_ufno`method, whether is appropriate.
+        """
+        self._compute_ufno(threshold) if self.uhf else self._compute_rfno(threshold)
+
+    def get_frozen_indices(self) -> Union[List[int], List[List[int]]]:
+        """Method to determine the indices of the frozen orbitals, and it calls
+        the `_get_restricted_frozen_indices` or the `_get_unrestricted_frozen_indices`
+        method, whether is appropriate.
+        """
+        return self._get_unrestricted_frozen_indices() if self.uhf else self._get_restricted_frozen_indices()
+
+
+    def _get_restricted_frozen_indices(self) -> List[int]:
+        """Method to determine the indices of the frozen orbitals in a
+        restricted calculation.
+
+        Returns:
+            List[int]: List containing the frozen orbital indices for the
+                molecular orbitals.
+        """
+
+        # All are set to False.
+        moidx = np.zeros(self.n_mos, dtype=bool)
+
+        # True starting from first index until an active orbital index.
+        active_virt_fno = self.n_occupied + self.n_active_virt_fno
+        moidx[: active_virt_fno] = True
+
+        # Set frozen occupied orbital to False.
+        moidx[self.frozen_occupied] = False
+
+        # Obtain the frozen indices
+        frozen_indices = np.where(moidx == False)[0].tolist()
+
+        return frozen_indices
+
+    def _get_unrestricted_frozen_indices(self) -> List[List[int]]:
+        """Method to determine the indices of the frozen orbitals in an
+        unrestricted calculation.
+
+        Returns:
+            List[List[int]]: List containing the frozen orbital indices for
+                alpha and beta spins.
+        """
+
+        frozen_indices = [None] * 2
+        for is_beta_spin, n_active_virt_fno in enumerate(self.n_active_virt_fno):
+
+            # All are set to False.
+            moidx = np.zeros(self.n_mos, dtype=bool)
+
+            # True starting from first index until an active orbital index.
+            active_virt_fno = self.n_occupied[is_beta_spin] + n_active_virt_fno
+            moidx[: active_virt_fno] = True
+
+            # Set frozen occupied orbital to False.
+            moidx[self.frozen_occupied[is_beta_spin]] = False
+
+            # Obtain the frozen indices
+            frozen_indices[is_beta_spin] = np.where(moidx == False)[0].tolist()
+
+        return frozen_indices
+
+    def _compute_mp2(self) -> np.array:
+        """"Method to compute the RMP2 or UMP2 classical solution.
+
+        Returns:
+            t2 (np.array or tuple of np.array): T2 amplitudes, in the pyscf
+                format. The exact format depends if the calculation has been
+                from a RHF or a UHF mean field.
+        """
+
+        mp2 = MP2Solver(self.sec_mol)
+        mp2.simulate()
+
+        return mp2.solver.mp2_t2
+
+    def _compute_rmp2_densities(self) -> None:
+        """Method to computes the restricted MP2 densities for further
+        consideration. They are diagonalized, and the eigenvalues and
+        eigenvectors are used to rank and transform the virtual block of the
+        molecular orbitals.
+        """
+
+        # Compute the RMP2 solution.
+        t2 = self._compute_mp2()
+
+        # Compute density matrix of the virtual-virtual block.
+        rho_virtvirt = self._compute_virt_virt_rmp2_density(t2)
+
+        self.fno_occ, self.unitary = self.diagonalize_and_reorder(rho_virtvirt, reorder=True)
+
+    def _compute_virt_virt_rmp2_density(self, t2: np.array) -> np.array:
+        """Method to compute the virtual-virtual density matrices for a
+        restricted MP2 calculation.
+
+        Args:
+            t2 (np.array): Array containing T2 amplitudes, in the pyscf format.
+
+        Returns:
+            np.array: Virtual-virtual density matrix.
+        """
+
+        n_virtual = self.n_mos - self.n_occupied
+
+        dvv = np.zeros((n_virtual,)*2, dtype=t2.dtype)
+
+        for i in range(self.n_occupied):
+            t2i = t2[i]
+            l2i = t2i.conj()
+            dvv += np.einsum("jca,jcb->ba", l2i, t2i) * 2 - np.einsum("jca,jbc->ba", l2i, t2i)
+
+        return dvv + dvv.conj().T
+
+    def _compute_ump2_densities(self) -> None:
+        """Method to computes the unrestricted MP2 densities for further
+        consideration. They are diagonalized, and the eigenvalues and
+        eigenvectors are used to rank and transform the virtual block of the
+        molecular orbitals.
+        """
+
+        # Compute the UMP2 solution.
+        t2 = self._compute_mp2()
+
+        # Compute density matrix of the virtual-virtual block.
+        rho_virtvirt = self._compute_virt_virt_ump2_density(t2)
+
+        self.fno_occ = [None] * 2
+        self.unitary = [None] * 2
+        for is_beta_spin, rho in enumerate(rho_virtvirt):
+            occ, unitary = self.diagonalize_and_reorder(rho, reorder=True)
+            self.fno_occ[is_beta_spin] = occ
+            self.unitary[is_beta_spin] = unitary
+
+    def _compute_virt_virt_ump2_density(self, t2: Tuple) -> Tuple:
+        """Method to compute the virtual-virtual density matrices for an
+        unrestricted MP2 calculation.
+
+        Args:
+            t2 (tuple of arrays): Array containing T2 amplitudes, in the
+                alpha-alpha, alpha-beta and beta-beta format (like pyscf).
+
+        Returns:
+            tuple: Virtual-virtual density matrices for alpha and beta spins.
+        """
+
+        # Unpack the T2 amplitudes.
         t2aa, t2ab, t2bb = t2
 
-        dvva = lib.einsum('mnae,mnbe->ba', t2aa.conj(), t2aa) * .5
-        dvva += lib.einsum('mnae,mnbe->ba', t2ab.conj(), t2ab)
-        dvvb = lib.einsum('mnae,mnbe->ba', t2bb.conj(), t2bb) * .5
-        dvvb += lib.einsum('mnea,mneb->ba', t2ab.conj(), t2ab)
+        dvva = np.einsum("mnae,mnbe->ba", t2aa.conj(), t2aa) * .5
+        dvva += np.einsum("mnae,mnbe->ba", t2ab.conj(), t2ab)
+
+        dvvb = np.einsum("mnae,mnbe->ba", t2bb.conj(), t2bb) * .5
+        dvvb += np.einsum("mnea,mneb->ba", t2ab.conj(), t2ab)
 
         return (dvva + dvva.conj().T, dvvb + dvvb.conj().T)
 
-    def _virtual_virtual_MP2_density(self, mean_field):
-        pass
-
-    def _diagonalize_density(self, D, ispin):
-        """Diagonalize density and return eval, evec and put no of
-        FNO orbitals in appropriate space
+    def _compute_rfno(self, threshold: Union[int, float]) -> None:
+        """Method to apply the Frozen Natural Orbitals (FNOs) based on a
+        specified threshold. This method deals with the restricted mean-field
+        formalism.
 
         Args:
-            D (array): density matrix
-
-        Returns
-            array : eigenvectors of density matrix in appropriate space
+            threshold (int or float): Threshold for FNO occupancy.
         """
-        # obtain natual orbitals
-        occ, unitary = diagonalize_and_reorder(D)
 
-        # find out active number of FNO orbitals
-        self.frozen_vrt.append(get_number_of_frozen_vrt(self.frac_fno[ispin], occ))
+        self.n_active_virt_fno = self.get_number_of_fnos_from_frac_occupancies(
+            self.fno_occ, threshold)
 
-        self.fno_occupancy.append(occ)
-        return unitary
+        self.mo_coeff = self._compute_mo_coeff(
+            self.n_occupied,
+            self.n_active_virt_fno,
+            self.sec_mol.mo_coeff,
+            self.unitary,
+            self.fock_ao
+        )
 
-    def compute_mo_coeff(self, unitary, spin):
-        """Get transformed mo_coeff using FNO for given spin
+    def _compute_ufno(self, threshold: Union[List[int], List[float]]) -> None:
+        """Method to apply the Frozen Natural Orbitals (FNOs) based on a
+        specified threshold. This method deals with the unrestricted mean-field
+        formalism.
+
         Args:
-            unitary (array): Transformation unitary for virtual-virtual block
-            spin (int): 0 = alpha, 1 = beta
+            threshold (list of int or float): List of thresholds for
+                FNO occupancy. Entries are for the alpha and beta spinorbitals,
+                respectively.
+        """
+
+        self.mo_coeff = [None] * 2
+        self.n_active_virt_fno = [None] * 2
+
+        for is_beta_spin, thresh in enumerate(threshold):
+
+            n_active_virt_fno = self.get_number_of_fnos_from_frac_occupancies(
+                self.fno_occ[is_beta_spin], thresh)
+
+            self.n_active_virt_fno[is_beta_spin] = n_active_virt_fno
+
+            self.mo_coeff[is_beta_spin] = self._compute_mo_coeff(
+                self.n_occupied[is_beta_spin],
+                n_active_virt_fno,
+                self.sec_mol.mo_coeff[is_beta_spin],
+                self.unitary[is_beta_spin],
+                self.fock_ao[is_beta_spin]
+            )
+
+    def _compute_mo_coeff(self, n_occ: int, n_active_virt_fnos: int, mo_coeff_scf: np.array, unitary: np.array, fock_ao: np.array) -> np.array:
+        """Method to compute the Molecular Orbital (MO) coefficients based on
+        provided parameters.
+
+        It transforms the MO coefficients into Frozen Natural Orbitals
+        (FNOs). The high-level steps involves slicing the virtual block from
+        'mo_coeff_scf', transforming it using the provided 'unitary', and
+        slicing again the active part of virtual orbitals to obtain FNOs.
+
+        The Fock matrix is then recanonicalized using the resulting
+        coefficients. Diagonalizing the Fock matrix in the MO basis is
+        performed to get the full set of MO coefficients.
+
+        Args:
+            n_occ (int): Number of occupied orbitals.
+            n_active_virt_fnos (int): Number of active virtual in the Frozen
+                Natural Orbitals basis.
+            mo_coeff_scf (np.array): Molecular Orbital coefficients from the
+                self-consistent field (SCF) calculation.
+            unitary (np.array): Unitary matrix corresponding to the sorted
+                eigenvectors of the MP2 densities.
+            fock_ao (np.array): Fock matrix in atomic orbital (AO) form.
+
         Returns:
-            array: FNO Transformed mo_coeff
+            np.array: Updated Molecular Orbital coefficients based on the
+                computed FNOs.
         """
-        # get number of occupied orbitals
-        n_occupied = self._nocc[spin]
-        # get number of active virtual orbitals
-        n_active_virtual = self.frozen_vrt[spin]
-        # get spin block of scf mo_coeff
-        c_scf = self.scf_mo_coeff[spin]
-        # slice the virtual block from mo_coeff
-        c_aa = c_scf[:, n_occupied:]
-        # Transform the vitual block with fno unitary
-        c_aa_fno = np.dot(c_aa, unitary)
-        # slice the active part of virutal orbitals
-        return c_aa_fno[:, :n_active_virtual]
 
-    def compute_aa(self, mo_coeff, spin):
-        """Compute FNO mo_coeff and mo_energy for given spin"""
+        # Transform the MO coefficients in FNO.
+        mo_coeff_virtual = mo_coeff_scf[:, n_occ:]
+        mo_coeff_virtual_fno = mo_coeff_virtual @ unitary
+        mo_coeff_fno = mo_coeff_virtual_fno[:, :n_active_virt_fnos]
 
-        fock = self.fock_ao[spin]
-        # obtain Fock matrix in mo form
-        fock_mo = mo_coeff.T.dot(fock).dot(mo_coeff)
-        mo_energy_sc, unitary_sc = diagonalize_and_reorder(fock_mo, order=1)
-        # print('MO energy in FNO',mo_energy_sc)
-        mo_coeff_new = np.dot(mo_coeff, unitary_sc)
+        # Obtain Fock matrix in MO form.
+        fock_mo = mo_coeff_fno.T @ fock_ao @ mo_coeff_fno
 
-        # update the mo_vectors
-        scf_mo_coeff = self.scf_mo_coeff[spin]
+        # Diagonalize the new Fock matrix and apply the transformation.
+        _,  unitary_sc = self.diagonalize_and_reorder(fock_mo, reorder=False)
+        mo_coeff_new = mo_coeff_fno @ unitary_sc
 
-        nocc_aa = self._nocc[spin]
-        fno_vrt_aa = self.frozen_vrt[spin]
-        active_space_aa = nocc_aa+fno_vrt_aa
+        n_active_space = n_occ + n_active_virt_fnos
 
-        # update the mo_coeff
-        mo_coeff_occ = scf_mo_coeff[:, :nocc_aa]
+        # Update the mo_coeff
+        mo_coeff_occ = mo_coeff_scf[:, : n_occ]
         mo_coeff_sc = mo_coeff_new[:, :]
-        mo_coeff_vrt = scf_mo_coeff[:, active_space_aa:]
+        mo_coeff_vrt = mo_coeff_scf[:, n_active_space:]
         mo_coeff = np.hstack((mo_coeff_occ, mo_coeff_sc, mo_coeff_vrt))
 
-        # update the mo_energy
-        E_occ = self._scf.mo_energy[spin][:nocc_aa]
-        E_sc = mo_energy_sc[:]
-        E_vrt = self._scf.mo_energy[spin][active_space_aa:]
+        return mo_coeff
 
-        mo_energy = np.hstack((E_occ, E_sc, E_vrt))
+    @staticmethod
+    def diagonalize_and_reorder(m: np.array, reorder: bool=True) -> tuple:
+        """Method to diagonalize a matrix and reorder the eigenvalues and
+        eigenvectors based on occupations.
 
-        self.n_active_virtual.append(fno_vrt_aa)
-        self.mo_coeff.append(mo_coeff)
-        self.mo_energy.append(mo_energy)
+        Args:
+            m (np.array): The matrix to be diagonalized.
+            reorder (bool): Flag indicating whether to reorder the eigenvalues
+                and eigenvectors based on occupations. Defaults to True.
 
-        return mo_coeff, mo_energy
-
-    def compute_fno(self):
-        """Compute FNO Transformed mo_coeff & mo_energy
+        Returns:
+        - tuple: A tuple containing the reordered eigenvalues and the
+            corresponding eigenvectors. The eigenvalues represent occupations,
+            and the eigenvectors represent rotation operators.
         """
-        # compute MP2 density matrix of vv block
-        Dvv = self._compute_mp2_vv_density()  # Dvv -> [Dvv_aa, Dvv_bb]
-        self.mo_coeff = []
-        mo_coeff_fno = []
-        for spin in [0, 1]:
-            # Diagonalize the density
-            unitary = self._diagonalize_density(Dvv[spin], spin)
-            # do the transformation and slicing etc
-            mo_coeff_fno.append(self.compute_mo_coeff(unitary, spin))
-            _ = self.compute_aa(mo_coeff_fno[spin], spin)
-            n_frozen_virtual = self.tvrt[spin] - self.n_active_virtual[spin]
-            self.n_frozen_virtual.append(n_frozen_virtual)
 
-        return self.mo_coeff, self.mo_energy
+        # Obtain natural orbitals.
+        eigen_vals, eigen_vecs = np.linalg.eigh(m)
 
-    def get_active_indices(self):
-        pt = self._mp
-        self.active_indices = []
-        self.frozen_indices = []
-        for ispin in [0, 1]:
-            # all are False
-            moidx = np.zeros(pt.mo_occ[ispin].size, dtype=bool)
-            # true starting from first index till active orbital index
-            occ_active_vrt_index = self.n_frozen_occupied[ispin] + self.n_active_occupied[ispin] + self.n_active_virtual[ispin]
-            moidx[:occ_active_vrt_index] = True
-            # find if user has asked for frozen occupied orbitals
-            # if no frozen_list is provided skip
-            # fno.frozen_list is coming from mp2
-            # if user said None
-            if self.frozen_list is None:   # this may be run into troubles
-                pass
-            # below is possible scenario my code is working
-            elif isinstance(self.frozen_list, (int, np.integer)):
-                moidx[:self.frozen_list] = False
-            # when frozen_list is a list, which is not at present
-            else:
-                moidx[self.frozen_list[ispin]] = False
-            # obtain the frozen indices
-            active_indices = np.where(moidx)[0]
-            frozen_indices = np.where(moidx == False)[0]  # Doesn't work if using np.where(moidx is False)[0]
-            # append alpha and beta to the active_indices
-            self.active_indices.append(list(active_indices))
-            self.frozen_indices.append(list(frozen_indices))
+        # Sort according to the occupations.
+        order = -1 if reorder else 1
+        idx = eigen_vals.argsort()[::order]
+        occupations = eigen_vals[idx]
+        rotation_op = eigen_vecs[:, idx]
 
-        return self.active_indices
+        return occupations, rotation_op
 
-    def compute_full_integrals(self):
-        """Compute 1-electron and 2-electron integrals
-        The return is formatted as
-        [As x As]*2 numpy array h_{pq} for alpha and beta blocks
-        [As x As x As x As]*3 numpy array storing h_{pqrs} for alpha-alpha, alpha-beta, beta-beta blocks
+    @staticmethod
+    def get_number_of_fnos_from_frac_occupancies(fno_occ, threshold_frac_occ: float) -> int:
+        """Method to calculate the number of Frozen Natural Orbitals (FNOs)
+        to consider, based on fractional occupancies.
+
+        Args:
+            fno_occ (np.array): Array containing fractional occupancies of FNOs.
+            threshold_frac_occ (float): Threshold value for fractional occupancy.
+
+        Returns:
+            int: Number of FNOs determined by the cumulative sum of fractional
+                occupancies satisfying the provided threshold.
         """
-        # step 1 : find nao, nmo (atomic orbitals & molecular orbitals)
 
-        # molecular orbitals (alpha and beta will be the same)
-        # Lets take alpha blocks to find the shape and things
+        fno_occ_cumul_frac_occ = np.cumsum(fno_occ) / np.sum(fno_occ)
+        where_threshold = np.where(fno_occ_cumul_frac_occ <= threshold_frac_occ, 1, 0)
 
-        # molecular orbitals
-        nmo = self.nmo = self.mo_coeff[0].shape[1]
-        # atomic orbitals
-        nao = self.nao = self.mo_coeff[0].shape[0]
+        # +1 to be equivalent to the old function it is based on.
+        number_of_fnos = np.sum(where_threshold ) + 1
 
-        # step 2 : obtain Hcore Hamiltonian in atomic orbitals basis
-        hcore = self._scf.get_hcore()
-
-        # step 3 : obatin two-electron integral in atomic basis
-        eri = ao2mo.restore(8, self._scf._eri, nao)
-
-        # step 4 : create the placeholder for the matrices
-        # one-electron matrix (alpha, beta)
-        self.hpq = []
-
-        # step 5 : do the mo transformation
-        # step the mo coeff alpha and beta
-        mo_a = self.mo_coeff[0]
-        mo_b = self.mo_coeff[1]
-
-        # mo transform the hcore
-        self.hpq.append(mo_a.T.dot(hcore).dot(mo_a))
-        self.hpq.append(mo_b.T.dot(hcore).dot(mo_b))
-
-        # mo transform the two-electron integrals
-        eri_a = ao2mo.incore.full(eri, mo_a)
-        eri_b = ao2mo.incore.full(eri, mo_b)
-        eri_ba = ao2mo.incore.general(eri, (mo_a, mo_a, mo_b, mo_b), compact=False)
-
-        # Change the format of integrals (full)
-        eri_a = ao2mo.restore(1, eri_a, nmo)
-        eri_b = ao2mo.restore(1, eri_b, nmo)
-        eri_ba = eri_ba.reshape(nmo, nmo, nmo, nmo)
-
-        # # convert this into the order OpenFemion like to receive
-        two_body_integrals_a = np.asarray(eri_a.transpose(0, 2, 3, 1), order='C')
-        two_body_integrals_b = np.asarray(eri_b.transpose(0, 2, 3, 1), order='C')
-        two_body_integrals_ab = np.asarray(eri_ba.transpose(0, 2, 3, 1), order='C')
-
-        # Gpqrs has alpha, alphaBeta, Beta blocks
-        self.Gpqrs = (two_body_integrals_a, two_body_integrals_ab, two_body_integrals_b)
-
-        return self.hpq, self.Gpqrs
-
-
-def diagonalize_and_reorder(matrix_provided, order=-1):
-    """Diagonalize the density matrix and sort the eigenvalues and corresponding eigenvectors,"""
-    evals, evecs = np.linalg.eigh(matrix_provided)
-    idx = evals.argsort()[::order]
-    evals = evals[idx]
-    evecs = evecs[:, idx]
-    return evals, evecs
-
-
-def get_number_of_frozen_vrt(frac_fno, FNO_occup):
-    # Devise a rule to truncate the MO space.
-    # Strategy one fraction of total FNO occupancy.
-    total_FNO_occ = np.sum(FNO_occup)
-
-    percentage_FNO_to_include = frac_fno / 100
-
-    fno_occ_tmp = 0.0
-    FNO_vrt = 0
-
-    for occpancy in FNO_occup:
-        thres = fno_occ_tmp / total_FNO_occ
-        if thres <= percentage_FNO_to_include:
-            FNO_vrt += 1
-            fno_occ_tmp += occpancy
-
-    return FNO_vrt
-
-
-def rhf_get_frozen_mask(fno_cc, spin):
-    # Start with all (orbitals to be) False first
-    moidx = np.zeros(fno_cc.mo_occ[spin].size, dtype=bool)
-
-    # Starting from first index make index True, Keep n_frozen_virtual as False
-    if isinstance(fno_cc.frozen, (int, np.integer)):
-        moidx[:fno_cc.frozen+fno_cc.n_active_occupied[spin]+fno_cc.n_active_virtual[spin]] = True
-    else:
-        moidx[:fno_cc.frozen[spin]+fno_cc.n_active_occupied[spin]+fno_cc.n_active_virtual[spin]] = True
-
-    if fno_cc.frozen_list is None:
-        pass
-    # check if the frozen_list is an interger
-    elif isinstance(fno_cc.frozen_list, (int, np.integer)):
-        moidx[:fno_cc.frozen_list] = False  # make n_frozen_occupied as False
-    # if frozen_list is given make those list of orbital as False
-    else:
-        moidx[fno_cc.frozen_list[spin]] = False
-    return moidx
-
-
-def old_get_frozen_mask(fno_cc):
-    moidx = np.zeros(fno_cc.mo_occ.size, dtype=bool)  # all are False
-    moidx[:fno_cc.frozen+fno_cc.n_active_occupied+fno_cc.n_active_virtual] = True  # true starting from first index till active orbital index
-    if fno_cc.frozen_list is None:
-        pass
-    elif isinstance(fno_cc.frozen_list, (int, np.integer)):
-        moidx[:fno_cc.frozen_list] = False
-    else:
-        moidx[fno_cc.frozen_list] = False  # make the frozen index False
-    return moidx
-
-
-def get_frozen_mask(fno_cc):
-    """
-    fno_cc:
-        open shell CC object
-    return :
-        index for active occupied & virtual orbitals
-    """
-    moidxa = rhf_get_frozen_mask(fno_cc, 0)
-    moidxb = rhf_get_frozen_mask(fno_cc, 1)
-
-    return moidxa, moidxb
-
-
-if __name__ == "__main__":
-    from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
-
-    xyz_CF2 = """
-        C   0.0000 0.0000 0.5932
-        F   0.0000 1.0282 -0.1977
-        F   0.0000 -1.0282 -0.1977
-    """
-
-    mol = SecondQuantizedMolecule(xyz_CF2, 0, 2, basis="cc-pvdz", uhf=True, frozen_orbitals=[[0,1,2,3,4,5,6,7,8,9],[0,1,2,3,4,5,6,7,8,9]])
-    print(mol.n_active_ab_electrons)
-
-    pt, frozen_occupied_mp2_etot = do_frozen_core_mp2(mol.mean_field, mol.frozen_occupied)
-    fno = FNO(mol, pt, [40, 40])
-    fno_mo_coeff, mo_energy = fno.compute_fno()
-
-    active = fno.get_active_indices()
-    print(f"The FNO truncated active orbitals are {active}")
-    frozen_orbitals = [[i for i in range(mol.n_mos) if i not in active[0]], [i for i in range(mol.n_mos) if i not in active[1]]]
-    print(frozen_orbitals)
-
-    mol_frozen = SecondQuantizedMolecule(xyz_CF2, 0, 2, basis="cc-pvdz", uhf=True, frozen_orbitals=frozen_orbitals)
-    mol_fno = mol.freeze_mos(frozen_orbitals, inplace=False)
-    mol_fno.mo_coeff = fno_mo_coeff
+        return number_of_fnos
