@@ -709,6 +709,6 @@ class DMETProblemDecomposition(ProblemDecomposition):
             float: The chemical potential found by the optimizer.
         """
 
-        result = scipy.optimize.newton(func, var_params, tol=1e-5)
+        result = scipy.optimize.newton(func, var_params, tol=1e-5, maxiter=3)
 
         return result.real
