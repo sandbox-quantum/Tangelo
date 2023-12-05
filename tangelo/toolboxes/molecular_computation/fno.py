@@ -366,7 +366,7 @@ class FNO():
         return mo_coeff
 
     @staticmethod
-    def diagonalize_and_reorder(m: np.array, reorder: bool = True) -> tuple:
+    def diagonalize_and_reorder(m: np.array, reorder: bool = True) -> Tuple:
         """Method to diagonalize a matrix and reorder the eigenvalues and
         eigenvectors based on occupations.
 
