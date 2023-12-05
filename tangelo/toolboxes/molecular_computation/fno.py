@@ -121,7 +121,6 @@ class FNO():
         """
         return self._get_unrestricted_frozen_indices() if self.uhf else self._get_restricted_frozen_indices()
 
-
     def _get_restricted_frozen_indices(self) -> List[int]:
         """Method to determine the indices of the frozen orbitals in a
         restricted calculation.
@@ -141,8 +140,8 @@ class FNO():
         # Set frozen occupied orbital to False.
         moidx[self.frozen_occupied] = False
 
-        # Obtain the frozen indices
-        frozen_indices = np.where(moidx == False)[0].tolist()
+        # Obtain the frozen indices.
+        frozen_indices = np.where(moidx == 0)[0].tolist()
 
         return frozen_indices
 
@@ -169,7 +168,7 @@ class FNO():
             moidx[self.frozen_occupied[is_beta_spin]] = False
 
             # Obtain the frozen indices
-            frozen_indices[is_beta_spin] = np.where(moidx == False)[0].tolist()
+            frozen_indices[is_beta_spin] = np.where(moidx == 0)[0].tolist()
 
         return frozen_indices
 
@@ -367,7 +366,7 @@ class FNO():
         return mo_coeff
 
     @staticmethod
-    def diagonalize_and_reorder(m: np.array, reorder: bool=True) -> tuple:
+    def diagonalize_and_reorder(m: np.array, reorder: bool = True) -> tuple:
         """Method to diagonalize a matrix and reorder the eigenvalues and
         eigenvectors based on occupations.
 
@@ -377,9 +376,9 @@ class FNO():
                 and eigenvectors based on occupations. Defaults to True.
 
         Returns:
-        - tuple: A tuple containing the reordered eigenvalues and the
-            corresponding eigenvectors. The eigenvalues represent occupations,
-            and the eigenvectors represent rotation operators.
+            tuple: A tuple containing the reordered eigenvalues and the
+                corresponding eigenvectors. The eigenvalues represent
+                occupations, and the eigenvectors represent rotation operators.
         """
 
         # Obtain natural orbitals.
