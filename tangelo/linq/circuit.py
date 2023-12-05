@@ -75,7 +75,7 @@ class Circuit:
 
     def __add__(self, other):
         """Concatenate the list of instructions of two circuit objects into a
-        single one.
+        single new object.
         """
         n_qubits = max(self.width, other.width) if self._qubits_simulated or other._qubits_simulated else None
         return Circuit(self._gates + other._gates, n_qubits=n_qubits)
