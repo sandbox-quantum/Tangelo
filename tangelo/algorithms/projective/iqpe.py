@@ -178,21 +178,26 @@ class IterativeQPESolver:
                 self.n_runs: int = 0
                 self.qft_qubit: int = qft_qubit
                 self.unitary: unitary.Unitary = u
+                self.started: bool = False
 
             def return_circuit(self, measurement) -> List[Gate]:
-                self.measurements[self.n_runs] += measurement
-                self.energies[self.n_runs] += int(measurement)/2**self.bitplace
+                # Ignore the first measurement as it is always 0 and meaningless.
+                if self.started:
+                    self.measurements[self.n_runs] += measurement
+                    self.energies[self.n_runs] += int(measurement)/2**self.bitplace
+                else:
+                    self.started = True
 
                 if self.bitplace > 0:
-                    self.bitplace -= 1
-
                     # Update phase and determine reset gates
                     if measurement == "1":
-                        self.phase += 1/2**(self.bitplace+1)
+                        self.phase += 1/2**(self.bitplace)
                         reset_to_zero = [Gate("X", self.qft_qubit)]
                     else:
                         reset_to_zero = []
 
+                    # Decrease bitplace and apply next phase estimation
+                    self.bitplace -= 1
                     phase_correction = [Gate("PHASE", self.qft_qubit, parameter=-np.pi*self.phase*2**(self.bitplace))]
                     gates = reset_to_zero + [Gate("H", self.qft_qubit)] + phase_correction
                     gates += self.unitary.build_circuit(2**(self.bitplace), self.qft_qubit)._gates + [Gate("H", self.qft_qubit)]
@@ -206,8 +211,9 @@ class IterativeQPESolver:
                 self.n_runs += 1
                 self.measurements += [""]
                 self.energies += [0.]
+                self.started = False
 
-        self.cfunc = IterativeQPEControl(self.n_qpe_qubits-1, self.qft_qubit, self.unitary)
+        self.cfunc = IterativeQPEControl(self.n_qpe_qubits, self.qft_qubit, self.unitary)
         self.circuit = Circuit(self.reference_circuit._gates+[Gate("CMEASURE", self.qft_qubit)],
                                cmeasure_control=self.cfunc, n_qubits=self.qft_qubit+1)
 

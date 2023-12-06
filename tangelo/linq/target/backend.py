@@ -256,6 +256,8 @@ class Backend(abc.ABC):
         """
         n_meas = source_circuit.counts.get("MEASURE", 0)
         n_cmeas = source_circuit.counts.get("CMEASURE", 0)
+        if n_cmeas > 0:
+            save_mid_circuit_meas = True
 
         if desired_meas_result is not None:
             if not isinstance(desired_meas_result, str) or (len(desired_meas_result) != n_meas and n_cmeas == 0):

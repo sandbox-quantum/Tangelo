@@ -67,41 +67,40 @@ class QPESolverTest(unittest.TestCase):
         self.assertEqual(resources["qubit_hamiltonian_terms"], 5)
         self.assertEqual(resources["circuit_width"], 3)
 
-    def test_simulate_h2_circuit(self):
-        """Run QPE on H2 molecule, with scbk qubit mapping and exact simulator providing only the Trotter circuit and
-        the exact initial state.
+    def test_circuit_input(self):
+        """Run QPE on  a qubit Hamiltonian, providing only the Trotter circuit and the exact initial state.
         """
 
-        qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos,
-                                         mol_H2_sto3g.n_active_electrons, True, 0)
-        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
-        _, wavefunction = np.linalg.eigh(ham_mat)
+        # Generate qubit operator with state 9 having eigenvalue 0.25
+        qu_op = (QubitOperator("X0 X1", 0.125) + QubitOperator("Y1 Y2", 0.125) + QubitOperator("Z2 Z3", 0.125))
 
-        sv = StateVector(wavefunction[:, 0], order="lsq_first")
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
+        e, wavefunction = np.linalg.eigh(ham_mat)
+
+        sv = StateVector(wavefunction[:, 9], order="lsq_first")
         ref_circ = sv.initializing_circuit()
-        unit_circ = trotterize(mol_H2_sto3g.fermionic_hamiltonian, 2*np.pi, 1, 4, True,
-                               {"qubit_mapping": "scbk", "up_then_down": True, "n_spinorbitals": mol_H2_sto3g.n_active_sos,
-                                "n_electrons": mol_H2_sto3g.n_active_electrons})
+
+        unit_circ = trotterize(qu_op, -2*np.pi, 2, 4, True)
 
         # Test supplying circuit and applying QPE controls to only gates marked as variational
-        qpe_options = {"unitary": unit_circ, "size_qpe_register": 7, "ref_state": ref_circ,
+        qpe_options = {"unitary": unit_circ, "size_qpe_register": 3, "ref_state": ref_circ,
                        "backend_options": {"target": "qulacs", "n_shots": 1}, "unitary_options": {"control_method": "variational"}}
         qpe_solver = IterativeQPESolver(qpe_options)
         qpe_solver.build()
 
         energy = qpe_solver.simulate()
 
-        self.assertAlmostEqual(energy, -(-1.13727-qu_op.constant), delta=1e-3)
+        self.assertAlmostEqual(energy, 0.125, delta=1e-3)
 
         # Test supplying circuit with QPE controls added to every gate.
-        qpe_options = {"unitary": unit_circ, "size_qpe_register": 7, "ref_state": ref_circ,
+        qpe_options = {"unitary": unit_circ, "size_qpe_register": 3, "ref_state": ref_circ,
                        "backend_options": {"target": "qulacs", "n_shots": 1}, "unitary_options": {"control_method": "all"}}
         qpe_solver = IterativeQPESolver(qpe_options)
         qpe_solver.build()
 
         energy = qpe_solver.simulate()
 
-        self.assertAlmostEqual(energy, -(-1.13727-qu_op.constant), delta=1e-3)
+        self.assertAlmostEqual(energy, 0.125, delta=1e-3)
 
     def test_qubit_hamiltonian_input(self):
         """Test with qubit hamiltonian input."""
@@ -116,7 +115,7 @@ class QPESolverTest(unittest.TestCase):
         sv = StateVector(wavefunction[:, 9], order="lsq_first")
         init_circ = sv.initializing_circuit()
 
-        qpe = IterativeQPESolver({"qubit_hamiltonian": qu_op, "size_qpe_register": 6, "ref_state": init_circ,
+        qpe = IterativeQPESolver({"qubit_hamiltonian": qu_op, "size_qpe_register": 4, "ref_state": init_circ,
                                   "backend_options": {"noise_model": None, "target": "cirq"},
                                   "unitary_options": {"time": -2*np.pi, "n_trotter_steps": 1,
                                                       "n_steps_method": "repeat", "trotter_order": 4}})
