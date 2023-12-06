@@ -14,4 +14,4 @@
 
 from .quantum_imaginary_time import QITESolver
 from .qpe import QPESolver
-from .iqpe import iQPESolver
+from .iqpe import IterativeQPESolver
