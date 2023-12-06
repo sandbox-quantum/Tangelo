@@ -314,7 +314,7 @@ class SecondQuantizedMolecule(Molecule):
     def mo_coeff(self, new_mo_coeff):
         """The molecular coefficients can be of any type that can be converted to an array but must have the same
         shape as the original molecular coefficients.
-        
+
         For UHF, the first dimension is of size two for alpha and beta coefficients"""
         # Asserting the new molecular coefficient matrix have the same dimensions.
         if self.uhf:
