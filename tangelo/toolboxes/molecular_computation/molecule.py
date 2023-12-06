@@ -317,9 +317,9 @@ class SecondQuantizedMolecule(Molecule):
             for j in range(2):
                 new_mo_coeff = list(new_mo_coeff)
                 new_mo_coeff[j] = np.array(new_mo_coeff[j])
-                assert self.solver.mo_coeff[j].shape == new_mo_coeff[j].shape
-                f"The new molecular coefficients matrix for index {j} has a {new_mo_coeff[j].shape}"\
-                f" shape: expected shape is {self.solver.mo_coeff[j].shape}."
+                assert self.solver.mo_coeff[j].shape == new_mo_coeff[j].shape, \
+                    f"The new molecular coefficients matrix for index {j} has a {new_mo_coeff[j].shape}"\
+                    f" shape: expected shape is {self.solver.mo_coeff[j].shape}."
             self.solver.mo_coeff = new_mo_coeff
         else:
             assert self.solver.mo_coeff.shape == (new_mo_coeff := np.array(new_mo_coeff)).shape, \
