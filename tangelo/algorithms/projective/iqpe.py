@@ -40,7 +40,7 @@ class BuiltInUnitary(Enum):
 
 class IterativeQPESolver:
     r"""Solve the electronic structure problem for a molecular system by using
-    the Quantum Phase Estimation (QPE) algorithm.
+    the iterative Quantum Phase Estimation (QPE) algorithm.
 
     This algorithm evaluates the energy of a molecular system by performing
     a series of controlled time-evolutions
@@ -167,12 +167,6 @@ class IterativeQPESolver:
         self.n_state, self.n_ancilla = self.unitary.qubit_indices()
         self.qft_qubit = max(list(self.n_state)+list(self.n_ancilla)) + 1
 
-        # Build the circuit that implements QPE given the Unitary that implements the controlled unitary circuits.
-        #self.circuit = get_qft_circuit(self.qpe_qubit_list)
-        #for i, qubit in enumerate(self.qpe_qubit_list):
-        #    self.circuit += self.unitary.build_circuit(2**i, control=qubit)
-        #self.circuit += get_qft_circuit(self.qpe_qubit_list, inverse=True)
-
         class IterativeQPEControl(ClassicalControl):
             def __init__(self, n_bits: int, qft_qubit: int, u: unitary.Unitary):
                 """Iterative QPE with n_bits"""
@@ -200,8 +194,9 @@ class IterativeQPESolver:
                         reset_to_zero = []
 
                     phase_correction = [Gate("PHASE", self.qft_qubit, parameter=-np.pi*self.phase*2**(self.bitplace))]
-                    gates = reset_to_zero + [Gate("H", self.qft_qubit)] + phase_correction + self.unitary.build_circuit(2**(self.bitplace), self.qft_qubit)._gates + [Gate("H", self.qft_qubit)]
-                    return gates + [Gate("CMEASURE", self.qft_qubit)] #if self.bitplace else gates
+                    gates = reset_to_zero + [Gate("H", self.qft_qubit)] + phase_correction
+                    gates += self.unitary.build_circuit(2**(self.bitplace), self.qft_qubit)._gates + [Gate("H", self.qft_qubit)]
+                    return gates + [Gate("CMEASURE", self.qft_qubit)]
                 else:
                     return []
 

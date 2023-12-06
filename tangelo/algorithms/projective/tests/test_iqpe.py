@@ -116,8 +116,10 @@ class QPESolverTest(unittest.TestCase):
         sv = StateVector(wavefunction[:, 9], order="lsq_first")
         init_circ = sv.initializing_circuit()
 
-        qpe = IterativeQPESolver({"qubit_hamiltonian": qu_op, "size_qpe_register": 6, "ref_state": init_circ, "backend_options": {"noise_model": None, "target": "cirq"},
-                                  "unitary_options": {"time": -2*np.pi, "n_trotter_steps": 1, "n_steps_method": "repeat", "trotter_order": 4}})
+        qpe = IterativeQPESolver({"qubit_hamiltonian": qu_op, "size_qpe_register": 6, "ref_state": init_circ,
+                                  "backend_options": {"noise_model": None, "target": "cirq"},
+                                  "unitary_options": {"time": -2*np.pi, "n_trotter_steps": 1,
+                                                      "n_steps_method": "repeat", "trotter_order": 4}})
         qpe.build()
         energy = qpe.simulate()
         self.assertAlmostEqual(energy, 0.25, delta=1.e-5)
