@@ -18,6 +18,7 @@ Orbitals (FNOs), to automatically truncate the virtual orbital space.
 Reference: arXiv:2002.07901
 """
 
+from copy import copy, deepcopy
 from typing import List, Sequence, Tuple, Union
 import warnings
 
@@ -25,9 +26,10 @@ import numpy as np
 
 from tangelo.algorithms.classical import MP2Solver
 from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
+from tangelo.toolboxes.operators import FermionOperator
 
 
-class FNO():
+class FNO:
     """Class to interface with the Frozen Natural Orbitals protocol, that aims
     at reducing the computational cost of a molecular problem by truncating
     the virtual space. In general, the virtual orbitals are ranked according to
@@ -93,20 +95,16 @@ class FNO():
         self.compute_fno(self.threshold)
 
     @property
-    def updated_sec_mol(self) -> SecondQuantizedMolecule:
-        """Returns an updated SecondQuantizedMolecule object with frozen
-        orbitals and updated MO coefficients.
+    def fermionic_hamiltonian(self) -> FermionOperator:
+        """Returns a FNO fermionic hamiltonian object, with the truncated active
+        space and updated MO coefficients.
 
         Returns:
-            SecondQuantizedMolecule: Updated SecondQuantizedMolecule object with
-                restricted active space, and updated mo_coeff with the FNO
-                coefficients.
+            FermionOperator: Self-explanatory.
         """
-
         frozen_orbitals = self.get_frozen_indices()
         sec_mol_updated = self.sec_mol.freeze_mos(frozen_orbitals, inplace=False)
-        sec_mol_updated.mo_coeff = self.mo_coeff
-        return sec_mol_updated
+        return sec_mol_updated._get_fermionic_hamiltonian(self.mo_coeff)
 
     def compute_fno(self, threshold: Union[float, List[float]]) -> None:
         """Method to compute and truncate the FNO orbitals. It calls
@@ -212,11 +210,9 @@ class FNO():
             np.array: Virtual-virtual density matrix.
         """
 
-        n_virtual = self.n_mos - self.n_occupied
+        dvv = np.zeros(t2.shape[2:4], dtype=t2.dtype)
 
-        dvv = np.zeros((n_virtual,)*2, dtype=t2.dtype)
-
-        for i in range(self.n_occupied):
+        for i in range(t2.shape[0]):
             t2i = t2[i]
             l2i = t2i.conj()
             dvv += np.einsum("jca,jcb->ba", l2i, t2i) * 2 - np.einsum("jca,jbc->ba", l2i, t2i)
