@@ -17,7 +17,7 @@ import unittest
 import numpy as np
 
 from tangelo import SecondQuantizedMolecule
-from tangelo.molecule_library import mol_H2_321g
+from tangelo.molecule_library import mol_H2_321g, mol_H2_sto3g_uhf
 from tangelo.toolboxes.molecular_computation.fno import FNO
 
 
@@ -80,6 +80,21 @@ class FNOTest(unittest.TestCase):
         ]
 
         self.assertEqual(ref_frozen_orbitals, frozen_orbitals)
+
+    def test_h2_invalid_threshold(self):
+        """Test the threshold rejection mechanism. """
+
+        with self.assertRaises(ValueError):
+            FNO(mol_H2_321g, 1.1)
+
+        with self.assertRaises(ValueError):
+            FNO(mol_H2_321g, [1., 1.])
+
+        with self.assertRaises(ValueError):
+            FNO(mol_H2_sto3g_uhf, [1., 1., 1.])
+
+        with self.assertRaises(ValueError):
+            FNO(mol_H2_sto3g_uhf, [1., 1.1])
 
 
 if __name__ == "__main__":

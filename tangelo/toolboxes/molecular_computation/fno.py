@@ -18,7 +18,6 @@ Orbitals (FNOs), to automatically truncate the virtual orbital space.
 Reference: arXiv:2002.07901
 """
 
-from copy import copy, deepcopy
 from typing import List, Sequence, Tuple, Union
 import warnings
 
@@ -38,7 +37,7 @@ class FNO:
     virtual-virtual density matrix.
 
     Attributes:
-            sec_mol (SecondQuantizedMolecule): Self-explanatory.
+            sqmol (SecondQuantizedMolecule): Self-explanatory.
             uhf (bool): Flag indicating the type of mean field used.
             n_mos (int): Number of molecular orbitals.
             fock_ao (np.array): Fock matrix in atomic orbital form.
@@ -46,7 +45,7 @@ class FNO:
             threshold (float or list): Threshold(s) for FNO occupancy.
 
         Properties:
-            updated_sec_mol: Returns an updated SecondQuantizedMolecule object with
+            fermionic_hamiltonian: Returns a fermionic Hamiltonian, with the
                 frozen orbitals and updated MO coefficients.
 
         Methods:
@@ -58,57 +57,69 @@ class FNO:
                 active virtual orbitals based on fractional occupancies.
     """
 
-    def __init__(self, sec_mol: SecondQuantizedMolecule, threshold: Union[float, Sequence[float]]):
+    def __init__(self, sqmol: SecondQuantizedMolecule, threshold: Union[float, Sequence[float]]):
         """Initialization of the FNO class instance.
 
         Checks for frozen virtual orbitals and warns if they are set, as they
         might be overwritten.
 
         Args:
-            sec_mol (SecondQuantizedMolecule): The SecondQuantizedMolecule
+            sqmol (SecondQuantizedMolecule): The SecondQuantizedMolecule
                 object.
             threshold (float or list): Threshold(s) for FNO occupancy.
         """
 
         # Check if there are frozen virtual orbitals. Print warning that this
         # setting will be overwritten.
-        if sec_mol.frozen_virtual and sec_mol.frozen_virtual != [[], []]:
-            warnings.warn(f"The frozen orbitals {sec_mol.frozen_virtual} indices are likely to be overwritten in {self.__class__.__name__}.", RuntimeWarning)
+        if sqmol.frozen_virtual and sqmol.frozen_virtual != [[], []]:
+            warnings.warn(f"The frozen orbitals indices will be overwritten in {self.__class__.__name__}.", RuntimeWarning)
 
-        self.sec_mol = sec_mol
+        self.sqmol = sqmol
 
         # Molecular properties useful for the FNO class methods.
-        self.uhf = sec_mol.uhf
-        self.n_mos = self.sec_mol.n_mos
-        self.fock_ao = self.sec_mol.mean_field.get_fock()
-        self.frozen_occupied = self.sec_mol.frozen_occupied
+        self.uhf = sqmol.uhf
+        self.n_mos = self.sqmol.n_mos
+        self.fock_ao = self.sqmol.mean_field.get_fock()
+        self.frozen_occupied = self.sqmol.frozen_occupied
+
+        # Verify threshold format.
+        if isinstance(threshold, float) and 0. < threshold <= 1.:
+            self.threshold = [threshold] * 2 if self.uhf else threshold
+        elif isinstance(threshold, (list, tuple, np.ndarray)) and self.uhf and all(map(lambda x: 0. < x <= 1., threshold)):
+            length_thresh = threshold.size if isinstance(threshold, np.ndarray) else len(threshold)
+            if length_thresh != 2:
+                raise ValueError("The threshold parameter must contain 2 values, one for each alpha / beta spinorbital set.")
+            self.threshold = threshold
+        else:
+            raise ValueError(f"The threshold {threshold} is invalid, it must be a float or a sequence of floats between 0 and 1.")
 
         self.threshold = threshold
 
         if self.uhf:
-            self.n_occupied = [len(x+y) for x, y in zip(self.sec_mol.frozen_occupied, self.sec_mol.active_occupied)]
+            self.n_occupied = [len(x+y) for x, y in zip(self.sqmol.frozen_occupied, self.sqmol.active_occupied)]
             self._compute_ump2_densities()
         else:
-            self.n_occupied = len(self.sec_mol.frozen_occupied + self.sec_mol.active_occupied)
+            self.n_occupied = len(self.sqmol.frozen_occupied + self.sqmol.active_occupied)
             self._compute_rmp2_densities()
 
         self.compute_fno(self.threshold)
 
     @property
     def fermionic_hamiltonian(self) -> FermionOperator:
-        """Returns a FNO fermionic hamiltonian object, with the truncated active
-        space and updated MO coefficients.
+        """Property that returns a FNO fermionic hamiltonian object, with the
+        truncated active space and updated MO coefficients.
 
         Returns:
             FermionOperator: Self-explanatory.
         """
         frozen_orbitals = self.get_frozen_indices()
-        sec_mol_updated = self.sec_mol.freeze_mos(frozen_orbitals, inplace=False)
-        return sec_mol_updated._get_fermionic_hamiltonian(self.mo_coeff)
+        sqmol_updated = self.sqmol.freeze_mos(frozen_orbitals, inplace=False)
+        return sqmol_updated._get_fermionic_hamiltonian(self.mo_coeff)
 
     def compute_fno(self, threshold: Union[float, List[float]]) -> None:
         """Method to compute and truncate the FNO orbitals. It calls
-        the `_compute_rfno` or the `_compute_ufno`method, whether is appropriate.
+        the `_compute_rfno` or the `_compute_ufno`method, whichever is
+        appropriate.
         """
         self._compute_ufno(threshold) if self.uhf else self._compute_rfno(threshold)
 
@@ -179,7 +190,7 @@ class FNO:
                 from a RHF or a UHF mean field.
         """
 
-        mp2 = MP2Solver(self.sec_mol)
+        mp2 = MP2Solver(self.sqmol)
         mp2.simulate()
 
         return mp2.solver.mp2_t2
@@ -277,7 +288,7 @@ class FNO:
         self.mo_coeff = self._compute_mo_coeff(
             self.n_occupied,
             self.n_active_virt_fno,
-            self.sec_mol.mo_coeff,
+            self.sqmol.mo_coeff,
             self.unitary,
             self.fock_ao
         )
@@ -306,7 +317,7 @@ class FNO:
             self.mo_coeff[is_beta_spin] = self._compute_mo_coeff(
                 self.n_occupied[is_beta_spin],
                 n_active_virt_fno,
-                self.sec_mol.mo_coeff[is_beta_spin],
+                self.sqmol.mo_coeff[is_beta_spin],
                 self.unitary[is_beta_spin],
                 self.fock_ao[is_beta_spin]
             )
@@ -406,6 +417,6 @@ class FNO:
         where_threshold = np.where(fno_occ_cumul_frac_occ <= threshold_frac_occ, 1, 0)
 
         # +1 to be equivalent to the old function it is based on.
-        number_of_fnos = np.sum(where_threshold ) + 1
+        number_of_fnos = np.sum(where_threshold) + 1
 
         return number_of_fnos
