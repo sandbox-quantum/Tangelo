@@ -77,7 +77,7 @@ class CirqSimulator(Backend):
                                "gates with a noise model.")
 
         # Only DensityMatrixSimulator handles noise well, can use Simulator, but it is slower
-        if self._noise_model or (source_circuit.is_mixed_state and not save_mid_circuit_meas):
+        if self._noise_model or (source_circuit.is_mixed_state and not save_mid_circuit_meas) and n_cmeas == 0:
             cirq_simulator = self.cirq.DensityMatrixSimulator(dtype=np.complex128)
         else:
             cirq_simulator = self.cirq.Simulator(dtype=np.complex128)

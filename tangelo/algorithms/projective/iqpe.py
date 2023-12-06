@@ -12,22 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Implements the Quantum Phase Estimation (QPE) algorithm to solve
+"""Implements the iterative Quantum Phase Estimation (QPE) algorithm to solve
 electronic structure calculations.
 """
 
-from typing import Optional, Union
+from typing import Optional, Union, List
+from collections import Counter
 
 from enum import Enum
+import numpy as np
 
 from tangelo import SecondQuantizedMolecule
-from tangelo.linq import get_backend, Circuit
+from tangelo.linq import get_backend, Circuit, Gate, ClassicalControl
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_mapped_vector, vector_to_circuit, get_reference_circuit
 import tangelo.toolboxes.unitary_generator as unitary
 import tangelo.toolboxes.ansatz_generator as agen
-from tangelo.toolboxes.ansatz_generator.ansatz_utils import get_qft_circuit
 from tangelo.toolboxes.post_processing.histogram import Histogram
 
 
@@ -37,7 +38,7 @@ class BuiltInUnitary(Enum):
     CircuitUnitary = unitary.CircuitUnitary
 
 
-class QPESolver:
+class IterativeQPESolver:
     r"""Solve the electronic structure problem for a molecular system by using
     the Quantum Phase Estimation (QPE) algorithm.
 
@@ -52,7 +53,7 @@ class QPESolver:
     measurement as a binary fraction.
 
     Attributes:
-        molecule (SecondQuantizedMolecule) : The molecular system. If a unitary
+        molecule (SecondQuantizedMolecule) : The molecular system.
         qubit_mapping (str) : one of the supported qubit mapping identifiers.
         unitary (Unitary) : one of the supported unitary evolutions.
         backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
@@ -69,12 +70,12 @@ class QPESolver:
         projective_circuit (Circuit): A terminal circuit that projects into the correct space, always added to
             the end of the unitary circuit. Could be measurement gates for example
         ref_state (array or Circuit): The reference configuration to use. Replaces HF state
-        size_qpe_register (int): The number of qubits to use for the qpe register
+        size_qpe_register (int): The number of iterations of single qubit QPE to use for the calculation.
     """
 
     def __init__(self, opt_dict):
 
-        default_backend_options = {"target": None, "n_shots": None, "noise_model": None}
+        default_backend_options = {"target": None, "n_shots": 1, "noise_model": None}
         copt_dict = opt_dict.copy()
 
         self.molecule: Optional[SecondQuantizedMolecule] = copt_dict.pop("molecule", None)
@@ -101,8 +102,8 @@ class QPESolver:
         # Raise error/warnings if input is not as expected. Only a single input
         if (bool(self.molecule) and bool(self.qubit_hamiltonian)):
             raise ValueError(f"Both a molecule and qubit Hamiltonian can not be provided when instantiating {self.__class__.__name__}.")
-        if isinstance(self.unitary, Circuit) and bool(self.qubit_hamiltonian):
-            raise ValueError(f"Both a qubit Hamiltonian and a circuit defining the unitary can not be provided in {self.__class__.__name__}.")
+        if isinstance(self.unitary, (Circuit, unitary.Unitary)) and bool(self.qubit_hamiltonian):
+            raise ValueError(f"Both a qubit Hamiltonian and a unitary can not be provided in {self.__class__.__name__}.")
         if isinstance(self.unitary, (Circuit, unitary.Unitary)) and bool(self.molecule):
             raise Warning(f"The molecule is only being used to generate the reference state. The unitary is being used for the QPE.")
 
@@ -164,14 +165,56 @@ class QPESolver:
 
         # Determine where to place QPE ancilla qubit indices
         self.n_state, self.n_ancilla = self.unitary.qubit_indices()
-        qft_start = max(list(self.n_state)+list(self.n_ancilla)) + 1
-        self.qpe_qubit_list = list(reversed(range(qft_start, qft_start+self.n_qpe_qubits)))
+        self.qft_qubit = max(list(self.n_state)+list(self.n_ancilla)) + 1
 
         # Build the circuit that implements QPE given the Unitary that implements the controlled unitary circuits.
-        self.circuit = get_qft_circuit(self.qpe_qubit_list)
-        for i, qubit in enumerate(self.qpe_qubit_list):
-            self.circuit += self.unitary.build_circuit(2**i, control=qubit)
-        self.circuit += get_qft_circuit(self.qpe_qubit_list, inverse=True)
+        #self.circuit = get_qft_circuit(self.qpe_qubit_list)
+        #for i, qubit in enumerate(self.qpe_qubit_list):
+        #    self.circuit += self.unitary.build_circuit(2**i, control=qubit)
+        #self.circuit += get_qft_circuit(self.qpe_qubit_list, inverse=True)
+
+        class IterativeQPEControl(ClassicalControl):
+            def __init__(self, n_bits: int, qft_qubit: int, u: unitary.Unitary):
+                """Iterative QPE with n_bits"""
+                self.n_bits: int = n_bits
+                self.bitplace: int = n_bits
+                self.phase: float = 0
+                self.measurements: List[str] = [""]
+                self.energies: List[float] = [0.]
+                self.n_runs: int = 0
+                self.qft_qubit: int = qft_qubit
+                self.unitary: unitary.Unitary = u
+
+            def return_circuit(self, measurement) -> List[Gate]:
+                self.measurements[self.n_runs] += measurement
+                self.energies[self.n_runs] += int(measurement)/2**self.bitplace
+
+                if self.bitplace > 0:
+                    self.bitplace -= 1
+
+                    # Update phase and determine reset gates
+                    if measurement == "1":
+                        self.phase += 1/2**(self.bitplace+1)
+                        reset_to_zero = [Gate("X", self.qft_qubit)]
+                    else:
+                        reset_to_zero = []
+
+                    phase_correction = [Gate("PHASE", self.qft_qubit, parameter=-np.pi*self.phase*2**(self.bitplace))]
+                    gates = reset_to_zero + [Gate("H", self.qft_qubit)] + phase_correction + self.unitary.build_circuit(2**(self.bitplace), self.qft_qubit)._gates + [Gate("H", self.qft_qubit)]
+                    return gates + [Gate("CMEASURE", self.qft_qubit)] #if self.bitplace else gates
+                else:
+                    return []
+
+            def finalize(self):
+                self.bitplace = self.n_bits
+                self.phase = 0
+                self.n_runs += 1
+                self.measurements += [""]
+                self.energies += [0.]
+
+        self.cfunc = IterativeQPEControl(self.n_qpe_qubits-1, self.qft_qubit, self.unitary)
+        self.circuit = Circuit(self.reference_circuit._gates+[Gate("CMEASURE", self.qft_qubit)],
+                               cmeasure_control=self.cfunc, n_qubits=self.qft_qubit+1)
 
     def simulate(self):
         """Run the QPE circuit. Return the energy of the most probable bitstring
@@ -186,10 +229,11 @@ class QPESolver:
         if not (self.unitary and self.backend):
             raise RuntimeError(f"No unitary or hardware backend built. Have you called {self.__class__.__name__}.build ?")
 
-        self.freqs, _ = self.backend.simulate(self.reference_circuit+self.circuit)
+        self.freqs, _ = self.backend.simulate(self.circuit)
         self.histogram = Histogram(self.freqs)
         self.histogram.remove_qubit_indices(*(self.n_state+self.n_ancilla))
-        self.qpe_freqs = self.histogram.frequencies
+        qpe_counts = Counter(self.cfunc.measurements[:self.backend.n_shots])
+        self.qpe_freqs = {key[::-1]: value/self.backend.n_shots for key, value in qpe_counts.items()}
         self.bitstring = max(self.qpe_freqs.items(), key=lambda x: x[1])[0]
 
         return self.energy_estimation(self.bitstring)

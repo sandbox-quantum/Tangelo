@@ -18,6 +18,7 @@ import numpy as np
 from openfermion import get_sparse_operator
 
 from tangelo.algorithms.projective.qpe import QPESolver
+from tangelo.algorithms.projective.iqpe import IterativeQPESolver
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
 from tangelo.toolboxes.operators import QubitOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -32,53 +33,60 @@ class QPESolverTest(unittest.TestCase):
         """Try instantiating QPESolver with basic input."""
 
         options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw"}
-        QPESolver(options)
+        IterativeQPESolver(options)
 
     def test_instantiation_incorrect_keyword(self):
         """Instantiating with an incorrect keyword should return an error """
 
         options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw", "dummy": True}
-        self.assertRaises(KeyError, QPESolver, options)
+        self.assertRaises(KeyError, IterativeQPESolver, options)
 
     def test_instantiation_missing_molecule(self):
         """Instantiating with no molecule should return an error."""
 
         options = {"qubit_mapping": "jw"}
-        self.assertRaises(ValueError, QPESolver, options)
+        self.assertRaises(ValueError, IterativeQPESolver, options)
 
     def test_simulate_h2(self):
-        """Run QPE on H2 molecule, with JW qubit mapping and exact simulator
+        """Run QPE on H2 molecule, with scbk qubit mapping and exact simulator with the approximate initial state
         """
 
-        qpe_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "scbk", "up_then_down": True, "size_qpe_register": 8,
-                       "backend_options": {"target": "qulacs"}, "unitary_options": {"time": 2*np.pi, "n_trotter_steps": 1,
+        qpe_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "scbk", "up_then_down": True, "size_qpe_register": 7,
+                       "backend_options": {"target": "qulacs", "n_shots": 20}, "unitary_options": {"time": 2*np.pi, "n_trotter_steps": 1,
                                                                                     "n_steps_method": "repeat", "trotter_order": 4}}
-        qpe_solver = QPESolver(qpe_options)
+        qpe_solver = IterativeQPESolver(qpe_options)
         qpe_solver.build()
 
-        energy = qpe_solver.simulate()
-        self.assertAlmostEqual(energy, 0.13671875, delta=1e-4)
+        _ = qpe_solver.simulate()
+        # Use the highest probability circuit which is about 0.5. Will fail ~1 in every 2^20 times.
+        max_prob_key = max(qpe_solver.circuit.success_probabilities, key=qpe_solver.circuit.success_probabilities.get)
+        self.assertAlmostEqual(qpe_solver.energy_estimation(max_prob_key[::-1]), 0.14, delta=1e-2)
 
         # Test that get_resources returns expected results
         resources = qpe_solver.get_resources()
         self.assertEqual(resources["qubit_hamiltonian_terms"], 5)
-        self.assertEqual(resources["circuit_width"], 10)
+        self.assertEqual(resources["circuit_width"], 3)
 
     def test_simulate_h2_circuit(self):
-        """Run QPE on H2 molecule, with JW qubit mapping and exact simulator providing only the Trotter circuit
+        """Run QPE on H2 molecule, with scbk qubit mapping and exact simulator providing only the Trotter circuit and
+        the exact initial state.
         """
 
-        ref_circ = get_reference_circuit(mol_H2_sto3g.n_active_sos, mol_H2_sto3g.n_active_electrons, "scbk", True, 0)
         qu_op = fermion_to_qubit_mapping(mol_H2_sto3g.fermionic_hamiltonian, "scbk", mol_H2_sto3g.n_active_sos,
                                          mol_H2_sto3g.n_active_electrons, True, 0)
+        ham_mat = get_sparse_operator(qu_op.to_openfermion()).toarray()
+        _, wavefunction = np.linalg.eigh(ham_mat)
+
+        sv = StateVector(wavefunction[:, 0], order="lsq_first")
+        ref_circ = sv.initializing_circuit()
         unit_circ = trotterize(mol_H2_sto3g.fermionic_hamiltonian, 2*np.pi, 1, 4, True,
                                {"qubit_mapping": "scbk", "up_then_down": True, "n_spinorbitals": mol_H2_sto3g.n_active_sos,
                                 "n_electrons": mol_H2_sto3g.n_active_electrons})
 
         # Test supplying circuit and applying QPE controls to only gates marked as variational
-        qpe_options = {"unitary": unit_circ, "size_qpe_register": 8, "ref_state": ref_circ,
-                       "backend_options": {"target": "qulacs"}, "unitary_options": {"control_method": "variational"}}
-        qpe_solver = QPESolver(qpe_options)
+        qpe_options = {"unitary": unit_circ, "size_qpe_register": 7, "ref_state": ref_circ,
+                       "backend_options": {"target": "qulacs", "n_shots": 1}, "unitary_options": {"control_method": "variational"}}
+        qpe_solver = IterativeQPESolver(qpe_options)
         qpe_solver.build()
 
         energy = qpe_solver.simulate()
@@ -86,9 +94,9 @@ class QPESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -(-1.13727-qu_op.constant), delta=1e-3)
 
         # Test supplying circuit with QPE controls added to every gate.
-        qpe_options = {"unitary": unit_circ, "size_qpe_register": 8, "ref_state": ref_circ,
-                       "backend_options": {"target": "qulacs"}, "unitary_options": {"control_method": "all"}}
-        qpe_solver = QPESolver(qpe_options)
+        qpe_options = {"unitary": unit_circ, "size_qpe_register": 7, "ref_state": ref_circ,
+                       "backend_options": {"target": "qulacs", "n_shots": 1}, "unitary_options": {"control_method": "all"}}
+        qpe_solver = IterativeQPESolver(qpe_options)
         qpe_solver.build()
 
         energy = qpe_solver.simulate()
@@ -108,8 +116,8 @@ class QPESolverTest(unittest.TestCase):
         sv = StateVector(wavefunction[:, 9], order="lsq_first")
         init_circ = sv.initializing_circuit()
 
-        qpe = QPESolver({"qubit_hamiltonian": qu_op, "size_qpe_register": 4, "ref_state": init_circ, "backend_options": {"target": "cirq"},
-                         "unitary_options": {"time": -2*np.pi, "n_trotter_steps": 1, "n_steps_method": "repeat", "trotter_order": 4}})
+        qpe = IterativeQPESolver({"qubit_hamiltonian": qu_op, "size_qpe_register": 6, "ref_state": init_circ, "backend_options": {"noise_model": None, "target": "cirq"},
+                                  "unitary_options": {"time": -2*np.pi, "n_trotter_steps": 1, "n_steps_method": "repeat", "trotter_order": 4}})
         qpe.build()
         energy = qpe.simulate()
         self.assertAlmostEqual(energy, 0.25, delta=1.e-5)
