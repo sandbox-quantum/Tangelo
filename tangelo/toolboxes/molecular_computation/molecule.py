@@ -313,9 +313,18 @@ class SecondQuantizedMolecule(Molecule):
     @mo_coeff.setter
     def mo_coeff(self, new_mo_coeff):
         # Asserting the new molecular coefficient matrix have the same dimensions.
-        assert self.solver.mo_coeff.shape == (new_mo_coeff := np.array(new_mo_coeff)).shape, \
-            f"The new molecular coefficients matrix has a {new_mo_coeff.shape}"\
-            f" shape: expected shape is {self.solver.mo_coeff.shape}."
+        if self.uhf:
+            for j in range(2):
+                new_mo_coeff = list(new_mo_coeff)
+                new_mo_coeff[j] = np.array(new_mo_coeff[j])
+                assert self.solver.mo_coeff[j].shape == new_mo_coeff[j].shape
+                f"The new molecular coefficients matrix for index {j} has a {new_mo_coeff[j].shape}"\
+                f" shape: expected shape is {self.solver.mo_coeff[j].shape}."
+            self.solver.mo_coeff = new_mo_coeff
+        else:
+            assert self.solver.mo_coeff.shape == (new_mo_coeff := np.array(new_mo_coeff)).shape, \
+                f"The new molecular coefficients matrix has a {new_mo_coeff.shape}"\
+                f" shape: expected shape is {self.solver.mo_coeff.shape}."
         self.solver.mo_coeff = new_mo_coeff
         if hasattr(self.solver, "modify_solver_mo_coeff"):
             self.solver.modify_solver_mo_coeff(self)
