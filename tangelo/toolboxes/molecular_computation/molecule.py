@@ -335,6 +335,8 @@ class SecondQuantizedMolecule(Molecule):
         self.solver.mo_coeff = new_mo_coeff
         if hasattr(self.solver, "modify_solver_mo_coeff"):
             self.solver.modify_solver_mo_coeff(self)
+        if hasattr(self.solver, "assign_mo_coeff_symmetries") and self.symmetry:
+            self.solver.assign_mo_coeff_symmetries(self)
 
     def _get_fermionic_hamiltonian(self, mo_coeff=None):
         """This method returns the fermionic hamiltonian. It written to take
