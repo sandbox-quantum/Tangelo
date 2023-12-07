@@ -167,7 +167,7 @@ class IntegralSolverPySCF(IntegralSolver):
                                                               sqmol.mean_field.mol.symm_orb, sqmol.mean_field.mo_coeff[a])
                     sqmol.mo_symm_ids.append(list(orbital_labels))
                     irrep_map = {i: s for s, i in zip(molecule.irrep_name, molecule.irrep_id)}
-                    sqmol.mo_symm_labels.append([irrep_map[i] for i in sqmol.mo_symm_ids])
+                    sqmol.mo_symm_labels.append([irrep_map[i] for i in sqmol.mo_symm_ids[a]])
         else:
             sqmol.mo_symm_ids = None
             sqmol.mo_symm_labels = None
@@ -406,7 +406,7 @@ class IntegralSolverPySCFQMMM(IntegralSolverPySCF):
                                                               sqmol.mean_field.mol.symm_orb, sqmol.mean_field.mo_coeff[a])
                     sqmol.mo_symm_ids.append(list(orbital_labels))
                     irrep_map = {i: s for s, i in zip(molecule.irrep_name, molecule.irrep_id)}
-                    sqmol.mo_symm_labels.append([irrep_map[i] for i in sqmol.mo_symm_ids])
+                    sqmol.mo_symm_labels.append([irrep_map[i] for i in sqmol.mo_symm_ids[a]])
         else:
             sqmol.mo_symm_ids = None
             sqmol.mo_symm_labels = None
