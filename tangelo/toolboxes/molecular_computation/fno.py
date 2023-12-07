@@ -18,14 +18,11 @@ Orbitals (FNOs), to automatically truncate the virtual orbital space.
 Reference: arXiv:2002.07901
 """
 
-from typing import List, Sequence, Tuple, Union
 import warnings
 
 import numpy as np
 
 from tangelo.algorithms.classical import MP2Solver
-from tangelo.toolboxes.molecular_computation.molecule import SecondQuantizedMolecule
-from tangelo.toolboxes.operators import FermionOperator
 
 
 class FNO:
@@ -57,7 +54,7 @@ class FNO:
                 active virtual orbitals based on fractional occupancies.
     """
 
-    def __init__(self, sqmol: SecondQuantizedMolecule, threshold: Union[float, Sequence[float]]):
+    def __init__(self, sqmol, threshold):
         """Initialization of the FNO class instance.
 
         Checks for frozen virtual orbitals and warns if they are set, as they
@@ -83,15 +80,8 @@ class FNO:
         self.frozen_occupied = self.sqmol.frozen_occupied
 
         # Verify threshold format.
-        if isinstance(threshold, float) and 0. < threshold <= 1.:
-            self.threshold = [threshold] * 2 if self.uhf else threshold
-        elif isinstance(threshold, (list, tuple, np.ndarray)) and self.uhf and all(map(lambda x: 0. < x <= 1., threshold)):
-            length_thresh = threshold.size if isinstance(threshold, np.ndarray) else len(threshold)
-            if length_thresh != 2:
-                raise ValueError("The threshold parameter must contain 2 values, one for each alpha / beta spinorbital set.")
-            self.threshold = threshold
-        else:
-            raise ValueError(f"The threshold {threshold} is invalid, it must be a float or a sequence of floats between 0 and 1.")
+        if not isinstance(threshold, (int, float)) or not 0. < threshold <= 1.:
+            raise ValueError(f"The threshold {threshold} is invalid, the %FNO occupancy threshold must be within 0 and 1.")
 
         self.threshold = threshold
 
@@ -105,7 +95,7 @@ class FNO:
         self.compute_fno(self.threshold)
 
     @property
-    def fermionic_hamiltonian(self) -> FermionOperator:
+    def fermionic_hamiltonian(self):
         """Property that returns a FNO fermionic hamiltonian object, with the
         truncated active space and updated MO coefficients.
 
@@ -116,26 +106,26 @@ class FNO:
         sqmol_updated = self.sqmol.freeze_mos(frozen_orbitals, inplace=False)
         return sqmol_updated._get_fermionic_hamiltonian(self.mo_coeff)
 
-    def compute_fno(self, threshold: Union[float, List[float]]) -> None:
+    def compute_fno(self, threshold):
         """Method to compute and truncate the FNO orbitals. It calls
         the `_compute_rfno` or the `_compute_ufno`method, whichever is
         appropriate.
         """
         self._compute_ufno(threshold) if self.uhf else self._compute_rfno(threshold)
 
-    def get_frozen_indices(self) -> Union[List[int], List[List[int]]]:
+    def get_frozen_indices(self):
         """Method to determine the indices of the frozen orbitals, and it calls
         the `_get_restricted_frozen_indices` or the `_get_unrestricted_frozen_indices`
         method, whether is appropriate.
         """
         return self._get_unrestricted_frozen_indices() if self.uhf else self._get_restricted_frozen_indices()
 
-    def _get_restricted_frozen_indices(self) -> List[int]:
+    def _get_restricted_frozen_indices(self):
         """Method to determine the indices of the frozen orbitals in a
         restricted calculation.
 
         Returns:
-            List[int]: List containing the frozen orbital indices for the
+            list of int: List containing the frozen orbital indices for the
                 molecular orbitals.
         """
 
@@ -154,12 +144,12 @@ class FNO:
 
         return frozen_indices
 
-    def _get_unrestricted_frozen_indices(self) -> List[List[int]]:
+    def _get_unrestricted_frozen_indices(self):
         """Method to determine the indices of the frozen orbitals in an
         unrestricted calculation.
 
         Returns:
-            List[List[int]]: List containing the frozen orbital indices for
+            list of int list: List containing the frozen orbital indices for
                 alpha and beta spins.
         """
 
@@ -181,7 +171,7 @@ class FNO:
 
         return frozen_indices
 
-    def _compute_mp2(self) -> np.array:
+    def _compute_mp2(self):
         """"Method to compute the RMP2 or UMP2 classical solution.
 
         Returns:
@@ -195,7 +185,7 @@ class FNO:
 
         return mp2.solver.mp2_t2
 
-    def _compute_rmp2_densities(self) -> None:
+    def _compute_rmp2_densities(self):
         """Method to computes the restricted MP2 densities for further
         consideration. They are diagonalized, and the eigenvalues and
         eigenvectors are used to rank and transform the virtual block of the
@@ -210,7 +200,7 @@ class FNO:
 
         self.fno_occ, self.unitary = self.diagonalize_and_reorder(rho_virtvirt, reorder=True)
 
-    def _compute_virt_virt_rmp2_density(self, t2: np.array) -> np.array:
+    def _compute_virt_virt_rmp2_density(self, t2):
         """Method to compute the virtual-virtual density matrices for a
         restricted MP2 calculation.
 
@@ -230,7 +220,7 @@ class FNO:
 
         return dvv + dvv.conj().T
 
-    def _compute_ump2_densities(self) -> None:
+    def _compute_ump2_densities(self):
         """Method to computes the unrestricted MP2 densities for further
         consideration. They are diagonalized, and the eigenvalues and
         eigenvectors are used to rank and transform the virtual block of the
@@ -250,7 +240,7 @@ class FNO:
             self.fno_occ[is_beta_spin] = occ
             self.unitary[is_beta_spin] = unitary
 
-    def _compute_virt_virt_ump2_density(self, t2: Tuple) -> Tuple:
+    def _compute_virt_virt_ump2_density(self, t2):
         """Method to compute the virtual-virtual density matrices for an
         unrestricted MP2 calculation.
 
@@ -273,7 +263,7 @@ class FNO:
 
         return (dvva + dvva.conj().T, dvvb + dvvb.conj().T)
 
-    def _compute_rfno(self, threshold: Union[int, float]) -> None:
+    def _compute_rfno(self, threshold):
         """Method to apply the Frozen Natural Orbitals (FNOs) based on a
         specified threshold. This method deals with the restricted mean-field
         formalism.
@@ -293,7 +283,7 @@ class FNO:
             self.fock_ao
         )
 
-    def _compute_ufno(self, threshold: Union[List[int], List[float]]) -> None:
+    def _compute_ufno(self, threshold):
         """Method to apply the Frozen Natural Orbitals (FNOs) based on a
         specified threshold. This method deals with the unrestricted mean-field
         formalism.
@@ -307,10 +297,11 @@ class FNO:
         self.mo_coeff = [None] * 2
         self.n_active_virt_fno = [None] * 2
 
-        for is_beta_spin, thresh in enumerate(threshold):
+        # 0 is for alpha, 1 is for beta.
+        for is_beta_spin in range(2):
 
             n_active_virt_fno = self.get_number_of_fnos_from_frac_occupancies(
-                self.fno_occ[is_beta_spin], thresh)
+                self.fno_occ[is_beta_spin], self.threshold)
 
             self.n_active_virt_fno[is_beta_spin] = n_active_virt_fno
 
@@ -322,7 +313,7 @@ class FNO:
                 self.fock_ao[is_beta_spin]
             )
 
-    def _compute_mo_coeff(self, n_occ: int, n_active_virt_fnos: int, mo_coeff_scf: np.array, unitary: np.array, fock_ao: np.array) -> np.array:
+    def _compute_mo_coeff(self, n_occ, n_active_virt_fnos, mo_coeff_scf, unitary, fock_ao):
         """Method to compute the Molecular Orbital (MO) coefficients based on
         provided parameters.
 
@@ -373,7 +364,7 @@ class FNO:
         return mo_coeff
 
     @staticmethod
-    def diagonalize_and_reorder(m: np.array, reorder: bool = True) -> Tuple:
+    def diagonalize_and_reorder(m, reorder=True):
         """Method to diagonalize a matrix and reorder the eigenvalues and
         eigenvectors based on occupations.
 
@@ -400,7 +391,7 @@ class FNO:
         return occupations, rotation_op
 
     @staticmethod
-    def get_number_of_fnos_from_frac_occupancies(fno_occ, threshold_frac_occ: float) -> int:
+    def get_number_of_fnos_from_frac_occupancies(fno_occ, threshold_frac_occ):
         """Method to calculate the number of Frozen Natural Orbitals (FNOs)
         to consider, based on fractional occupancies.
 

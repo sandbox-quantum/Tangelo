@@ -17,7 +17,7 @@ import unittest
 import numpy as np
 
 from tangelo import SecondQuantizedMolecule
-from tangelo.molecule_library import mol_H2_321g, mol_H2_sto3g_uhf
+from tangelo.molecule_library import mol_H2_321g
 from tangelo.toolboxes.molecular_computation.fno import FNO
 
 
@@ -71,7 +71,7 @@ class FNOTest(unittest.TestCase):
             F 0.0000 -1.0282 -0.1977
         """
         mol = SecondQuantizedMolecule(xyz_CF2, 0, 2, basis="cc-pvdz", uhf=True, frozen_orbitals=10)
-        fno = FNO(mol, [0.4, 0.4])
+        fno = FNO(mol, 0.4)
         frozen_orbitals = fno.get_frozen_indices()
 
         ref_frozen_orbitals = [
@@ -89,12 +89,6 @@ class FNOTest(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             FNO(mol_H2_321g, [1., 1.])
-
-        with self.assertRaises(ValueError):
-            FNO(mol_H2_sto3g_uhf, [1., 1., 1.])
-
-        with self.assertRaises(ValueError):
-            FNO(mol_H2_sto3g_uhf, [1., 1.1])
 
 
 if __name__ == "__main__":
