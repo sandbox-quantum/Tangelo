@@ -104,7 +104,7 @@ class IntegralSolverPySCF(IntegralSolver):
         Modify sqmol variables mo_symm_ids and mo_symm_labels to match current molecular coefficients.
 
         Args:
-            sqmol (SecondQuantizedMolecule): The SecondQuantizedMolecule to assign the symmetries of the molecular coefficients for 
+            sqmol (SecondQuantizedMolecule): The SecondQuantizedMolecule with the symmetrized molecular coefficients to be assigned.
         """
         if not sqmol.symmetry:
             raise RuntimeError("Can not assign symmetries to a SecondQuantizedMolecule that was not initially run with symmetry=True")
