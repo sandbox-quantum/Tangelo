@@ -76,6 +76,8 @@ class FNO:
         if self.uhf:
             self.n_occupied = [len(x+y) for x, y in zip(self.sqmol.frozen_occupied, self.sqmol.active_occupied)]
             self._compute_ump2_densities()
+        elif self.sqmol.spin != 0:
+            raise NotImplementedError("ROHF is not supported for FNO. Please use UHF for open-shell systems.")
         else:
             self.n_occupied = len(self.sqmol.frozen_occupied + self.sqmol.active_occupied)
             self._compute_rmp2_densities()
@@ -289,7 +291,7 @@ class FNO:
         for is_beta_spin in range(2):
 
             n_active_virt_fno = self.get_number_of_fnos_from_frac_occupancies(
-                self.fno_occ[is_beta_spin], self.threshold)
+                self.fno_occ[is_beta_spin], threshold)
 
             self.n_active_virt_fno[is_beta_spin] = n_active_virt_fno
 
