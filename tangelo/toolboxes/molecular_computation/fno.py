@@ -34,24 +34,12 @@ class FNO:
     virtual-virtual density matrix.
 
     Attributes:
-            sqmol (SecondQuantizedMolecule): Self-explanatory.
-            uhf (bool): Flag indicating the type of mean field used.
-            n_mos (int): Number of molecular orbitals.
-            fock_ao (np.array): Fock matrix in atomic orbital form.
-            frozen_occupied (list): List of indices of frozen occupied orbitals.
-            threshold (float or list): Threshold(s) for FNO occupancy.
-
-        Properties:
-            fermionic_hamiltonian: Returns a fermionic Hamiltonian, with the
-                frozen orbitals and updated MO coefficients.
-
-        Methods:
-            compute_fno: Computes and truncates the FNO orbitals.
-            get_frozen_indices: Determines the indices of the frozen orbitals.
-            diagonalize_and_reorder: Diagonalizes a matrix and can reorder the
-                eigenvalues and eigenvectors based on occupations.
-            get_number_of_fnos_from_frac_occupancies: Calculates the number of
-                active virtual orbitals based on fractional occupancies.
+        sqmol (SecondQuantizedMolecule): Self-explanatory.
+        uhf (bool): Flag indicating the type of mean field used.
+        n_mos (int): Number of molecular orbitals.
+        fock_ao (np.array): Fock matrix in atomic orbital form.
+        frozen_occupied (list): List of indices of frozen occupied orbitals.
+        threshold (float or list): Threshold(s) for FNO occupancy.
     """
 
     def __init__(self, sqmol, threshold):
