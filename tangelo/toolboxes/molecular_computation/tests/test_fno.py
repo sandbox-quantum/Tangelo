@@ -17,7 +17,7 @@ import unittest
 import numpy as np
 
 from tangelo import SecondQuantizedMolecule
-from tangelo.molecule_library import mol_H2_321g
+from tangelo.molecule_library import mol_H2_321g, mol_H4_cation_sto3g
 from tangelo.toolboxes.molecular_computation.fno import FNO
 
 
@@ -89,6 +89,12 @@ class FNOTest(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             FNO(mol_H2_321g, [1., 1.])
+
+    def test_h4_cation_sto3g_rohf_notimplemented(self):
+        """Test if the NotImplementedError is raises with a ROHF molecule. """
+
+        with self.assertRaises(NotImplementedError):
+            FNO(mol_H4_cation_sto3g, 0.5)
 
 
 if __name__ == "__main__":
