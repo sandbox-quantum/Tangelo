@@ -328,10 +328,12 @@ class SecondQuantizedMolecule(Molecule):
                     f"The new molecular coefficients matrix for index {j} has shape {new_mo_coeff[j].shape}"\
                     f" but the expected shape is {self.solver.mo_coeff[j].shape}."
             self.solver.mo_coeff = tuple(new_mo_coeff)
+
         else:
             assert self.solver.mo_coeff.shape == (new_mo_coeff := np.array(new_mo_coeff)).shape, \
                 f"The new molecular coefficients matrix has shape {new_mo_coeff.shape}"\
                 f" but the expected shape is {self.solver.mo_coeff.shape}."
+
         self.solver.mo_coeff = new_mo_coeff
         if hasattr(self.solver, "modify_solver_mo_coeff"):
             self.solver.modify_solver_mo_coeff(self)
