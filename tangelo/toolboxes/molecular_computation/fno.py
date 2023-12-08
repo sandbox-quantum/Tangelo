@@ -76,7 +76,7 @@ class FNO:
         if self.uhf:
             self.n_occupied = [len(x+y) for x, y in zip(self.sqmol.frozen_occupied, self.sqmol.active_occupied)]
             self._compute_ump2_densities()
-        elif self.sqmol != 0:
+        elif self.sqmol.spin != 0:
             raise NotImplementedError("ROHF is not supported for FNO. Please use UHF for open-shell systems.")
         else:
             self.n_occupied = len(self.sqmol.frozen_occupied + self.sqmol.active_occupied)
