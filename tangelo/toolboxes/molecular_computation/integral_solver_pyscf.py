@@ -98,6 +98,33 @@ class IntegralSolverPySCF(IntegralSolver):
         mol.n_atoms = pymol.natm
         mol.n_electrons = pymol.nelectron
 
+    def assign_mo_coeff_symmetries(self, sqmol):
+        """Assigns the symmetry labels for the current molecular coefficients.
+
+        Modify sqmol variables mo_symm_ids and mo_symm_labels to match current molecular coefficients.
+
+        Args:
+            sqmol (SecondQuantizedMolecule): The SecondQuantizedMolecule with the symmetrized molecular coefficients to be assigned.
+        """
+        if not sqmol.symmetry:
+            raise RuntimeError("Can not assign symmetries to a SecondQuantizedMolecule that was not initially run with symmetry=True")
+
+        if not sqmol.uhf:
+            sqmol.mo_symm_ids = list(self.symm.label_orb_symm(sqmol.mean_field.mol, sqmol.mean_field.mol.irrep_id,
+                                                              sqmol.mean_field.mol.symm_orb, sqmol.mean_field.mo_coeff))
+            irrep_map = {i: s for s, i in zip(sqmol.mean_field.mol.irrep_name, sqmol.mean_field.mol.irrep_id)}
+            sqmol.mo_symm_labels = [irrep_map[i] for i in sqmol.mo_symm_ids]
+
+        else:
+            sqmol.mo_symm_ids = []
+            sqmol.mo_symm_labels = []
+            for a in range(2):
+                orbital_labels = self.symm.label_orb_symm(sqmol.mean_field.mol, sqmol.mean_field.mol.irrep_id,
+                                                              sqmol.mean_field.mol.symm_orb, sqmol.mean_field.mo_coeff[a])
+                sqmol.mo_symm_ids.append(list(orbital_labels))
+                irrep_map = {i: s for s, i in zip(sqmol.mean_field.mol.irrep_name, sqmol.mean_field.mol.irrep_id)}
+                sqmol.mo_symm_labels.append([irrep_map[i] for i in sqmol.mo_symm_ids[a]])
+
     def compute_mean_field(self, sqmol):
         """Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following
         variables to sqmol
@@ -154,10 +181,7 @@ class IntegralSolverPySCF(IntegralSolver):
             raise ValueError("Hartree-Fock calculation did not converge")
 
         if sqmol.symmetry:
-            sqmol.mo_symm_ids = list(self.symm.label_orb_symm(sqmol.mean_field.mol, sqmol.mean_field.mol.irrep_id,
-                                                              sqmol.mean_field.mol.symm_orb, sqmol.mean_field.mo_coeff))
-            irrep_map = {i: s for s, i in zip(molecule.irrep_name, molecule.irrep_id)}
-            sqmol.mo_symm_labels = [irrep_map[i] for i in sqmol.mo_symm_ids]
+            self.assign_mo_coeff_symmetries(sqmol)
         else:
             sqmol.mo_symm_ids = None
             sqmol.mo_symm_labels = None
@@ -383,10 +407,7 @@ class IntegralSolverPySCFQMMM(IntegralSolverPySCF):
             raise ValueError("Hartree-Fock calculation did not converge")
 
         if sqmol.symmetry:
-            sqmol.mo_symm_ids = list(self.symm.label_orb_symm(sqmol.mean_field.mol, sqmol.mean_field.mol.irrep_id,
-                                                              sqmol.mean_field.mol.symm_orb, sqmol.mean_field.mo_coeff))
-            irrep_map = {i: s for s, i in zip(molecule.irrep_name, molecule.irrep_id)}
-            sqmol.mo_symm_labels = [irrep_map[i] for i in sqmol.mo_symm_ids]
+            self.assign_mo_coeff_symmetries(sqmol)
         else:
             sqmol.mo_symm_ids = None
             sqmol.mo_symm_labels = None
