@@ -318,11 +318,11 @@ class SecondQuantizedMolecule(Molecule):
         For UHF, the first dimension is of size two for alpha and beta coefficients"""
         # Asserting the new molecular coefficient matrix have the same dimensions.
         if self.uhf:
+            assert len(new_mo_coeff) == 2, \
+                f"The first dimension of the new molecular coefficients has size {len(new_mo_coeff)}"\
+                "but size 2 is required for alpha and beta electrons."
+            new_mo_coeff = list(new_mo_coeff)
             for j in range(2):
-                assert len(new_mo_coeff) == 2, \
-                    f"The first dimension of the new molecular coefficients has size {len(new_mo_coeff)}"\
-                    "but size 2 is required for alpha and beta electrons."
-                new_mo_coeff = list(new_mo_coeff)
                 new_mo_coeff[j] = np.array(new_mo_coeff[j])
                 assert self.solver.mo_coeff[j].shape == new_mo_coeff[j].shape, \
                     f"The new molecular coefficients matrix for index {j} has shape {new_mo_coeff[j].shape}"\
