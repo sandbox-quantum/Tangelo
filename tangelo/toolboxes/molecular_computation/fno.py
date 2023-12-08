@@ -101,7 +101,7 @@ class FNO:
         the `_compute_rfno` or the `_compute_ufno`method, whichever is
         appropriate.
         """
-        self._compute_ufno(threshold) if self.uhf or self.sqmol != 0 else self._compute_rfno(threshold)
+        self._compute_ufno(threshold) if self.uhf else self._compute_rfno(threshold)
 
     def get_frozen_indices(self):
         """Method to determine the indices of the frozen orbitals, and it calls
