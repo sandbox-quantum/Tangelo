@@ -106,9 +106,11 @@ class IterativeQPESolver:
 
         # Raise error/warnings if input is not as expected. Only a single input
         if (bool(self.molecule) and bool(self.qubit_hamiltonian)):
-            raise ValueError(f"Incompatible Options in {self.__class__.__name__}: Only one of the following can be provided by user: molecule OR qubit Hamiltonian.")
+            raise ValueError(f"Incompatible Options in {self.__class__.__name__}:"
+                             "Only one of the following can be provided by user: molecule OR qubit Hamiltonian.")
         if isinstance(self.unitary, (Circuit, ugen.Unitary)) and bool(self.qubit_hamiltonian):
-            raise ValueError(f"Incompatible Options in {self.__class__.__name__}: Only one of the following can be provided by user: unitary OR qubit Hamiltonian.")
+            raise ValueError(f"Incompatible Options in {self.__class__.__name__}:"
+                             "Only one of the following can be provided by user: unitary OR qubit Hamiltonian.")
         if isinstance(self.unitary, (Circuit, ugen.Unitary)) and bool(self.molecule):
             raise Warning(f"The molecule is only being used to generate the reference state. The unitary is being used for the iQPE.")
 

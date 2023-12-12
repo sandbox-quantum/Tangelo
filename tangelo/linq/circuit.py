@@ -672,6 +672,7 @@ class ClassicalControl(abc.ABC):
         and store results.
         """
 
+
 def generate_applied_gates(source_circuit: Circuit, desired_meas_result=None) -> List[Gate]:
     """Generate the applied gates of a Circuit without explicitly simulating.
 
@@ -687,11 +688,11 @@ def generate_applied_gates(source_circuit: Circuit, desired_meas_result=None) ->
         Must have the same length as the number of CMEASURE+MEASURE gates in source_circuit
     """
 
-    
     circuit = source_circuit.copy()
     n_cmeas = circuit.counts.get("CMEASURE", 0)
     if n_cmeas == 0:
-        warnings.warn("The supplied circuit does not contain CMEASURE gates. This function will not modify the applied_gates attribute.")
+        warnings.warn("The supplied circuit does not contain CMEASURE gates."
+                      "This function will not modify the applied_gates attribute.")
         return
 
     applied_gates = []
