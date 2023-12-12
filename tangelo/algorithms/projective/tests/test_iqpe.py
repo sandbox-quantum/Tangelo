@@ -18,7 +18,6 @@ import numpy as np
 from openfermion import get_sparse_operator
 
 from tangelo.helpers.utils import installed_backends
-from tangelo.linq import generate_applied_gates, Circuit
 from tangelo.algorithms.projective.iqpe import IterativeQPESolver
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
 from tangelo.toolboxes.operators import QubitOperator
@@ -57,7 +56,7 @@ class IterativeQPESolverTest(unittest.TestCase):
         iqpe_solver = IterativeQPESolver(iqpe_options)
         iqpe_solver.build()
 
-        _ = iqpe_solver.simulate()
+        iqpe_solver.simulate()
 
         # Use the highest probability circuit which is about 0.5. Will fail ~1 in every 2^20 times.
         max_prob_key = max(iqpe_solver.circuit.success_probabilities, key=iqpe_solver.circuit.success_probabilities.get)
@@ -120,21 +119,19 @@ class IterativeQPESolverTest(unittest.TestCase):
         iqpe.build()
 
         # Test that get_resources returns expected results before running the simulation.
+        # And the number of two qubit gates is the same as after the simulation.
         resources = iqpe.get_resources()
         self.assertEqual(resources["applied_circuit_width"], 5)
-        self.assertEqual(resources["applied_circuit_depth"], 412, f"{Circuit(generate_applied_gates(iqpe.circuit))}")
-        self.assertEqual(resources["applied_circuit_2qubit_gates"], 286)
+        two_qubit_gates_before = resources["applied_circuit_2qubit_gates"]
 
         # Simulate and obtain energy estimation.
         energy = iqpe.simulate()
         self.assertAlmostEqual(energy, 0.25, delta=1.e-5)
 
         # Test that get_resources returns expected results after running the simulation.
-        # The depth can decrease due to reset gates non-deterministically being applied.
         resources = iqpe.get_resources()
         self.assertEqual(resources["applied_circuit_width"], 5)
-        self.assertEqual(resources["applied_circuit_depth"], 412, f"{Circuit(iqpe.circuit.applied_gates)}")
-        self.assertEqual(resources["applied_circuit_2qubit_gates"], 286)
+        self.assertEqual(resources["applied_circuit_2qubit_gates"], two_qubit_gates_before)
 
 
 if __name__ == "__main__":

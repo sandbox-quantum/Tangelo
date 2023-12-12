@@ -682,10 +682,10 @@ def generate_applied_gates(source_circuit: Circuit, desired_meas_result=None) ->
     Note: Measurement outcomes with zero probability can not be screened.
 
     Args:
-        source_circuit (Circuit): a circuit in the abstract format to be simulated with
-        no state but the Classical Control function called.
+        source_circuit (Circuit): A circuit in the abstract format to be simulated with
+            the classical control function called.
         desired_meas_result (str): The binary string of the desired measurement.
-        Must have the same length as the number of CMEASURE+MEASURE gates in source_circuit
+            Must have the same length as the number of CMEASURE+MEASURE gates in source_circuit
     """
 
     circuit = source_circuit.copy()

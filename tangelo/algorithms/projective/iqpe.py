@@ -23,8 +23,8 @@ Ref:
 
 from typing import Optional, Union, List
 from collections import Counter
-
 from enum import Enum
+
 import numpy as np
 
 from tangelo import SecondQuantizedMolecule
@@ -187,6 +187,9 @@ class IterativeQPESolver:
             histogram (Histogram): The full Histogram of measurements on the iQPE ancilla qubit representing energies.
             qpe_freqs (dict): The dictionary of measurements on the iQPE ancilla qubit.
             freqs (dict): The full dictionary of measurements on all qubits.
+
+        Returns:
+            float: The energy of the most probable bitstring measured during iQPE.
         """
 
         if not (self.unitary and self.backend):
@@ -211,26 +214,18 @@ class IterativeQPESolver:
 
         resources = dict()
 
-        # If the attribute of the applied_gates has been populated, use the exact resources.
-        if self.circuit.applied_gates:
-            circuit = Circuit(self.circuit.applied_gates)
-            resources["applied_circuit_width"] = circuit.width
-            resources["applied_circuit_depth"] = circuit.depth()
-            resources["applied_circuit_2qubit_gates"] = circuit.counts_n_qubit.get(2, 0)
-
-        # Estimate the resources by using generate_applied_gates.
-        else:
-            circuit = Circuit(generate_applied_gates(self.circuit))
-            resources["applied_circuit_width"] = circuit.width
-            resources["applied_circuit_depth"] = circuit.depth()
-            resources["applied_circuit_2qubit_gates"] = circuit.counts_n_qubit.get(2, 0)
+        # If the attribute of the applied_gates has been populated, use the exact resources else approximate the iQPE circuit
+        circuit = Circuit(self.circuit.applied_gates) if self.circuit.applied_gates else Circuit(generate_applied_gates(self.circuit))
+        resources["applied_circuit_width"] = circuit.width
+        resources["applied_circuit_depth"] = circuit.depth()
+        resources["applied_circuit_2qubit_gates"] = circuit.counts_n_qubit.get(2, 0)
         return resources
 
     def energy_estimation(self, bitstring):
         """Estimate energy using the calculated frequency dictionary.
 
         Args:
-            bitstring (str): The bitstring to evaluate the energy of in base 10.
+            bitstring (str): The bitstring to evaluate the energy of in base 2.
 
         Returns:
              float: Energy of the given bitstring
@@ -261,7 +256,6 @@ class IterativeQPEControl(ClassicalControl):
 
         Args:
             measurement (str): "1" or "0"
-            qubit (int): The qubit index
 
         Returns:
             List[Gate]: The next gates to apply to the circuit
