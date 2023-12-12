@@ -64,7 +64,7 @@ class IterativeQPESolverTest(unittest.TestCase):
 
     @unittest.skipIf("qulacs" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_circuit_input(self):
-        """Run iQPE on  a qubit Hamiltonian, providing only the Trotter circuit and the exact initial state.
+        """Run iQPE on a qubit Hamiltonian, providing only the Trotter circuit and the exact initial state.
         """
 
         # Generate qubit operator with state 9 having eigenvalue 0.25
