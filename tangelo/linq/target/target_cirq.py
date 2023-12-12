@@ -76,8 +76,10 @@ class CirqSimulator(Backend):
             raise NotImplementedError(f"{self.__class__.__name__} does not currently support measurement-controlled"
                                "gates with a noise model.")
 
-        # Only DensityMatrixSimulator handles noise well, can use Simulator, but it is slower
-        if self._noise_model or (source_circuit.is_mixed_state and not save_mid_circuit_meas) and n_cmeas == 0:
+        # Only DensityMatrixSimulator handles noise well, can use Simulator, but it is slower.
+        # When not saving mid-circuit measurements, the measurement operation can be converted to a noise channel
+        # such that the circuit can be simulated once and the density matrix sampled at the end.
+        if self._noise_model or (source_circuit.is_mixed_state and not save_mid_circuit_meas):
             cirq_simulator = self.cirq.DensityMatrixSimulator(dtype=np.complex128)
         else:
             cirq_simulator = self.cirq.Simulator(dtype=np.complex128)

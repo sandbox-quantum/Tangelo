@@ -17,20 +17,18 @@ import unittest
 import numpy as np
 from openfermion import get_sparse_operator
 
-from tangelo.algorithms.projective.qpe import QPESolver
+from tangelo.helpers.utils import installed_backends
 from tangelo.algorithms.projective.iqpe import IterativeQPESolver
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
 from tangelo.toolboxes.operators import QubitOperator
-from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
-from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.linq.helpers.circuits.statevector import StateVector
 
 
-class QPESolverTest(unittest.TestCase):
+class IterativeQPESolverTest(unittest.TestCase):
 
     def test_instantiation(self):
-        """Try instantiating QPESolver with basic input."""
+        """Try instantiating IterativeQPESolver with basic input."""
 
         options = {"molecule": mol_H2_sto3g, "qubit_mapping": "jw"}
         IterativeQPESolver(options)
@@ -47,8 +45,9 @@ class QPESolverTest(unittest.TestCase):
         options = {"qubit_mapping": "jw"}
         self.assertRaises(ValueError, IterativeQPESolver, options)
 
+    @unittest.skipIf("qulacs" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_simulate_h2(self):
-        """Run QPE on H2 molecule, with scbk qubit mapping and exact simulator with the approximate initial state
+        """Run iQPE on H2 molecule, with scbk qubit mapping and exact simulator with the approximate initial state
         """
 
         qpe_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "scbk", "up_then_down": True, "size_qpe_register": 7,
@@ -58,17 +57,14 @@ class QPESolverTest(unittest.TestCase):
         qpe_solver.build()
 
         _ = qpe_solver.simulate()
+
         # Use the highest probability circuit which is about 0.5. Will fail ~1 in every 2^20 times.
         max_prob_key = max(qpe_solver.circuit.success_probabilities, key=qpe_solver.circuit.success_probabilities.get)
         self.assertAlmostEqual(qpe_solver.energy_estimation(max_prob_key[::-1]), 0.14, delta=1e-2)
 
-        # Test that get_resources returns expected results
-        resources = qpe_solver.get_resources()
-        self.assertEqual(resources["qubit_hamiltonian_terms"], 5)
-        self.assertEqual(resources["circuit_width"], 3)
-
+    @unittest.skipIf("qulacs" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_circuit_input(self):
-        """Run QPE on  a qubit Hamiltonian, providing only the Trotter circuit and the exact initial state.
+        """Run iQPE on  a qubit Hamiltonian, providing only the Trotter circuit and the exact initial state.
         """
 
         # Generate qubit operator with state 9 having eigenvalue 0.25
@@ -82,7 +78,7 @@ class QPESolverTest(unittest.TestCase):
 
         unit_circ = trotterize(qu_op, -2*np.pi, 2, 4, True)
 
-        # Test supplying circuit and applying QPE controls to only gates marked as variational
+        # Test supplying circuit and applying iQPE controls to only gates marked as variational
         qpe_options = {"unitary": unit_circ, "size_qpe_register": 3, "ref_state": ref_circ,
                        "backend_options": {"target": "qulacs", "n_shots": 1}, "unitary_options": {"control_method": "variational"}}
         qpe_solver = IterativeQPESolver(qpe_options)
@@ -92,7 +88,7 @@ class QPESolverTest(unittest.TestCase):
 
         self.assertAlmostEqual(energy, 0.125, delta=1e-3)
 
-        # Test supplying circuit with QPE controls added to every gate.
+        # Test supplying circuit with iQPE controls added to every gate.
         qpe_options = {"unitary": unit_circ, "size_qpe_register": 3, "ref_state": ref_circ,
                        "backend_options": {"target": "qulacs", "n_shots": 1}, "unitary_options": {"control_method": "all"}}
         qpe_solver = IterativeQPESolver(qpe_options)
@@ -120,8 +116,21 @@ class QPESolverTest(unittest.TestCase):
                                   "unitary_options": {"time": -2*np.pi, "n_trotter_steps": 1,
                                                       "n_steps_method": "repeat", "trotter_order": 4}})
         qpe.build()
+
+        # Test that get_resources returns expected results before running the simulation.
+        resources = qpe.get_resources()
+        self.assertEqual(resources["applied_circuit_width"], 5)
+        self.assertEqual(resources["applied_circuit_depth"], 1999)
+        self.assertEqual(resources["applied_circuit_2qubit_gates"], 1372)
         energy = qpe.simulate()
         self.assertAlmostEqual(energy, 0.25, delta=1.e-5)
+
+        # Test that get_resources returns expected results after running the simulation.
+        # The depth can decrease due to reset gates non-deterministically being applied.
+        resources = qpe.get_resources()
+        self.assertEqual(resources["applied_circuit_width"], 5)
+        self.assertEqual(resources["applied_circuit_depth"], 1997)
+        self.assertEqual(resources["applied_circuit_2qubit_gates"], 1372)
 
 
 if __name__ == "__main__":

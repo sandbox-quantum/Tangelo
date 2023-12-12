@@ -52,7 +52,7 @@ class QPESolver:
     measurement as a binary fraction.
 
     Attributes:
-        molecule (SecondQuantizedMolecule) : The molecular system. If a unitary
+        molecule (SecondQuantizedMolecule) : The molecular system.
         qubit_mapping (str) : one of the supported qubit mapping identifiers.
         unitary (Unitary) : one of the supported unitary evolutions.
         backend_options (dict): parameters to build the underlying compute backend (simulator, etc).
