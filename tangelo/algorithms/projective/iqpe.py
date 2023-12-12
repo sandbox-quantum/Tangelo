@@ -112,7 +112,7 @@ class IterativeQPESolver:
             raise ValueError(f"Incompatible Options in {self.__class__.__name__}:"
                              "Only one of the following can be provided by user: unitary OR qubit Hamiltonian.")
         if isinstance(self.unitary, (Circuit, ugen.Unitary)) and bool(self.molecule):
-            raise Warning(f"The molecule is only being used to generate the reference state. The unitary is being used for the iQPE.")
+            raise Warning("The molecule is only being used to generate the reference state. The unitary is being used for the iQPE.")
 
         # Initialize the reference state circuit.
         if self.ref_state is not None:
@@ -166,7 +166,7 @@ class IterativeQPESolver:
         if isinstance(self.unitary, BuiltInUnitary):
             self.unitary = self.unitary.value(self.qubit_hamiltonian, **self.unitary_options)
         elif not isinstance(self.unitary, ugen.Unitary):
-            raise TypeError(f"Invalid ansatz dataype. Expecting a custom Unitary (Unitary class).")
+            raise TypeError("Invalid ansatz dataype. Expecting a custom Unitary (Unitary class).")
 
         # Quantum circuit simulation backend options
         self.backend = get_backend(**self.backend_options)
