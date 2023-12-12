@@ -50,17 +50,17 @@ class IterativeQPESolverTest(unittest.TestCase):
         """Run iQPE on H2 molecule, with scbk qubit mapping and exact simulator with the approximate initial state
         """
 
-        qpe_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "scbk", "up_then_down": True, "size_qpe_register": 7,
+        iqpe_options = {"molecule": mol_H2_sto3g, "qubit_mapping": "scbk", "up_then_down": True, "size_qpe_register": 7,
                        "backend_options": {"target": "qulacs", "n_shots": 20}, "unitary_options": {"time": 2*np.pi, "n_trotter_steps": 1,
                                                                                     "n_steps_method": "repeat", "trotter_order": 4}}
-        qpe_solver = IterativeQPESolver(qpe_options)
-        qpe_solver.build()
+        iqpe_solver = IterativeQPESolver(iqpe_options)
+        iqpe_solver.build()
 
-        _ = qpe_solver.simulate()
+        _ = iqpe_solver.simulate()
 
         # Use the highest probability circuit which is about 0.5. Will fail ~1 in every 2^20 times.
-        max_prob_key = max(qpe_solver.circuit.success_probabilities, key=qpe_solver.circuit.success_probabilities.get)
-        self.assertAlmostEqual(qpe_solver.energy_estimation(max_prob_key[::-1]), 0.14, delta=1e-2)
+        max_prob_key = max(iqpe_solver.circuit.success_probabilities, key=iqpe_solver.circuit.success_probabilities.get)
+        self.assertAlmostEqual(iqpe_solver.energy_estimation(max_prob_key[::-1]), 0.14, delta=1e-2)
 
     @unittest.skipIf("qulacs" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_circuit_input(self):
@@ -79,22 +79,22 @@ class IterativeQPESolverTest(unittest.TestCase):
         unit_circ = trotterize(qu_op, -2*np.pi, 2, 4, True)
 
         # Test supplying circuit and applying iQPE controls to only gates marked as variational
-        qpe_options = {"unitary": unit_circ, "size_qpe_register": 3, "ref_state": ref_circ,
+        iqpe_options = {"unitary": unit_circ, "size_qpe_register": 3, "ref_state": ref_circ,
                        "backend_options": {"target": "qulacs", "n_shots": 1}, "unitary_options": {"control_method": "variational"}}
-        qpe_solver = IterativeQPESolver(qpe_options)
-        qpe_solver.build()
+        iqpe_solver = IterativeQPESolver(iqpe_options)
+        iqpe_solver.build()
 
-        energy = qpe_solver.simulate()
+        energy = iqpe_solver.simulate()
 
         self.assertAlmostEqual(energy, 0.125, delta=1e-3)
 
         # Test supplying circuit with iQPE controls added to every gate.
-        qpe_options = {"unitary": unit_circ, "size_qpe_register": 3, "ref_state": ref_circ,
+        iqpe_options = {"unitary": unit_circ, "size_qpe_register": 3, "ref_state": ref_circ,
                        "backend_options": {"target": "qulacs", "n_shots": 1}, "unitary_options": {"control_method": "all"}}
-        qpe_solver = IterativeQPESolver(qpe_options)
-        qpe_solver.build()
+        iqpe_solver = IterativeQPESolver(iqpe_options)
+        iqpe_solver.build()
 
-        energy = qpe_solver.simulate()
+        energy = iqpe_solver.simulate()
 
         self.assertAlmostEqual(energy, 0.125, delta=1e-3)
 
@@ -111,23 +111,25 @@ class IterativeQPESolverTest(unittest.TestCase):
         sv = StateVector(wavefunction[:, 9], order="lsq_first")
         init_circ = sv.initializing_circuit()
 
-        qpe = IterativeQPESolver({"qubit_hamiltonian": qu_op, "size_qpe_register": 4, "ref_state": init_circ,
+        iqpe = IterativeQPESolver({"qubit_hamiltonian": qu_op, "size_qpe_register": 4, "ref_state": init_circ,
                                   "backend_options": {"noise_model": None, "target": "cirq"},
                                   "unitary_options": {"time": -2*np.pi, "n_trotter_steps": 1,
                                                       "n_steps_method": "repeat", "trotter_order": 4}})
-        qpe.build()
+        iqpe.build()
 
         # Test that get_resources returns expected results before running the simulation.
-        resources = qpe.get_resources()
+        resources = iqpe.get_resources()
         self.assertEqual(resources["applied_circuit_width"], 5)
-        self.assertEqual(resources["applied_circuit_depth"], 1999)
+        self.assertEqual(resources["applied_circuit_depth"], 1999, f"{iqpe.circuit.applied_gates}")
         self.assertEqual(resources["applied_circuit_2qubit_gates"], 1372)
-        energy = qpe.simulate()
+
+        # Simulate and obtain energy estimation.
+        energy = iqpe.simulate()
         self.assertAlmostEqual(energy, 0.25, delta=1.e-5)
 
         # Test that get_resources returns expected results after running the simulation.
         # The depth can decrease due to reset gates non-deterministically being applied.
-        resources = qpe.get_resources()
+        resources = iqpe.get_resources()
         self.assertEqual(resources["applied_circuit_width"], 5)
         self.assertEqual(resources["applied_circuit_depth"], 1997)
         self.assertEqual(resources["applied_circuit_2qubit_gates"], 1372)

@@ -218,7 +218,7 @@ class IterativeQPESolver:
             resources["applied_circuit_depth"] = circuit.depth()
             resources["applied_circuit_2qubit_gates"] = circuit.counts_n_qubit.get(2, 0)
 
-        # Estimate the resources by
+        # Estimate the resources by using generate_applied_gates.
         else:
             circuit = Circuit(generate_applied_gates(self.circuit))
             resources["applied_circuit_width"] = circuit.width

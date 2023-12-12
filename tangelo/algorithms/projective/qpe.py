@@ -104,7 +104,7 @@ class QPESolver:
         if isinstance(self.unitary, Circuit) and bool(self.qubit_hamiltonian):
             raise ValueError(f"Both a qubit Hamiltonian and a circuit defining the unitary can not be provided in {self.__class__.__name__}.")
         if isinstance(self.unitary, (Circuit, unitary.Unitary)) and bool(self.molecule):
-            raise Warning(f"The molecule is only being used to generate the reference state. The unitary is being used for the QPE.")
+            raise Warning("The molecule is only being used to generate the reference state. The unitary is being used for the QPE.")
 
         if self.ref_state is not None:
             if isinstance(self.ref_state, Circuit):
@@ -157,7 +157,7 @@ class QPESolver:
         if isinstance(self.unitary, BuiltInUnitary):
             self.unitary = self.unitary.value(self.qubit_hamiltonian, **self.unitary_options)
         elif not isinstance(self.unitary, unitary.Unitary):
-            raise TypeError(f"Invalid ansatz dataype. Expecting a custom Unitary (Unitary class).")
+            raise TypeError("Invalid ansatz dataype. Expecting a custom Unitary (Unitary class).")
 
         # Quantum circuit simulation backend options
         self.backend = get_backend(**self.backend_options)
