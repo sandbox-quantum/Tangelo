@@ -20,7 +20,7 @@ characteristics (width, size ...).
 
 import copy
 import abc
-from typing import List, Tuple, Iterator, Union, Set, Dict, Callable
+from typing import List, Tuple, Union, Set, Dict, Callable
 import warnings
 
 import numpy as np
@@ -279,7 +279,7 @@ class Circuit:
         """
 
         if len(new_indices) != len(self._qubit_indices):
-            raise ValueError(f"The number of indices does not match the length of self._qubit_indices")
+            raise ValueError("The number of indices does not match the length of self._qubit_indices")
 
         qubits_in_use = self._qubit_indices
         mapping = {i: j for i, j in zip(qubits_in_use, new_indices)}
