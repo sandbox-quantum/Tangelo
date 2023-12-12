@@ -18,6 +18,7 @@ import numpy as np
 from openfermion import get_sparse_operator
 
 from tangelo.helpers.utils import installed_backends
+from tangelo.linq import generate_applied_gates, Circuit
 from tangelo.algorithms.projective.iqpe import IterativeQPESolver
 from tangelo.toolboxes.ansatz_generator.ansatz_utils import trotterize
 from tangelo.toolboxes.operators import QubitOperator
@@ -110,8 +111,9 @@ class IterativeQPESolverTest(unittest.TestCase):
 
         sv = StateVector(wavefunction[:, 9], order="lsq_first")
         init_circ = sv.initializing_circuit()
+        init_circ.simplify()
 
-        iqpe = IterativeQPESolver({"qubit_hamiltonian": qu_op, "size_qpe_register": 4, "ref_state": init_circ,
+        iqpe = IterativeQPESolver({"qubit_hamiltonian": qu_op, "size_qpe_register": 2, "ref_state": init_circ,
                                   "backend_options": {"noise_model": None, "target": "cirq"},
                                   "unitary_options": {"time": -2*np.pi, "n_trotter_steps": 1,
                                                       "n_steps_method": "repeat", "trotter_order": 4}})
@@ -120,8 +122,8 @@ class IterativeQPESolverTest(unittest.TestCase):
         # Test that get_resources returns expected results before running the simulation.
         resources = iqpe.get_resources()
         self.assertEqual(resources["applied_circuit_width"], 5)
-        self.assertEqual(resources["applied_circuit_depth"], 1999, f"{iqpe.circuit.applied_gates}")
-        self.assertEqual(resources["applied_circuit_2qubit_gates"], 1372)
+        self.assertEqual(resources["applied_circuit_depth"], 412, f"{Circuit(generate_applied_gates(iqpe.circuit))}")
+        self.assertEqual(resources["applied_circuit_2qubit_gates"], 286)
 
         # Simulate and obtain energy estimation.
         energy = iqpe.simulate()
@@ -131,8 +133,8 @@ class IterativeQPESolverTest(unittest.TestCase):
         # The depth can decrease due to reset gates non-deterministically being applied.
         resources = iqpe.get_resources()
         self.assertEqual(resources["applied_circuit_width"], 5)
-        self.assertEqual(resources["applied_circuit_depth"], 1997)
-        self.assertEqual(resources["applied_circuit_2qubit_gates"], 1372)
+        self.assertEqual(resources["applied_circuit_depth"], 412, f"{Circuit(iqpe.circuit.applied_gates)}")
+        self.assertEqual(resources["applied_circuit_2qubit_gates"], 286)
 
 
 if __name__ == "__main__":
