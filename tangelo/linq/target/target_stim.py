@@ -34,7 +34,8 @@ class StimSimulator(Backend):
         super().__init__(n_shots=n_shots, noise_model=noise_model)
         self.stim = stim
 
-    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None, desired_meas_result=None):
+    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None,
+                         desired_meas_result=None, save_mid_circuit_meas=False):
         """Perform state preparation corresponding to the input circuit on the
         target backend, return the frequencies of the different observables, and
         either the statevector or None depending on if return_statevector is set to True.
@@ -47,6 +48,7 @@ class StimSimulator(Backend):
             return_statevector (bool): option to return the statevector
             initial_statevector (list/array) : Not currently implemented, will raise an error
             desired_meas_result (str) : Not currently implemented, will raise an error
+            save_mid_circuit_meas (bool): Not currently implemented, will raise an error
 
         Returns:
             dict: A dictionary mapping multi-qubit states to their corresponding
@@ -58,6 +60,8 @@ class StimSimulator(Backend):
             raise NotImplementedError("initial_statevector not yet implemented with stim ")
         if desired_meas_result is not None:
             raise NotImplementedError("desired_meas_result not yet implemented with stim ")
+        if save_mid_circuit_meas:
+            raise NotImplementedError("save_mid_circuit_meas not yet implemented with stim ")
         if "CMEASURE" in source_circuit.counts:
             raise NotImplementedError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
 

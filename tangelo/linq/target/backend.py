@@ -204,6 +204,8 @@ class Backend(abc.ABC):
                 if available.
             initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
+            desired_meas_result (str): The binary string of the desired measurement.
+                Must have the same length as the number of MEASURE gates in source_circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
                 self.all_frequencies, with keys of length (n_meas + n_qubits).
@@ -256,6 +258,8 @@ class Backend(abc.ABC):
         """
         n_meas = source_circuit.counts.get("MEASURE", 0)
         n_cmeas = source_circuit.counts.get("CMEASURE", 0)
+        if n_cmeas > 0:
+            save_mid_circuit_meas = True
 
         if desired_meas_result is not None:
             if not isinstance(desired_meas_result, str) or (len(desired_meas_result) != n_meas and n_cmeas == 0):

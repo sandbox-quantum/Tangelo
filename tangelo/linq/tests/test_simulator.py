@@ -26,7 +26,7 @@ import numpy as np
 from openfermion import load_operator, get_sparse_operator
 
 from tangelo.toolboxes.operators import QubitOperator
-from tangelo.linq import Gate, Circuit, get_backend, ClassicalControl
+from tangelo.linq import Gate, Circuit, get_backend, ClassicalControl, generate_applied_gates
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.linq.target.backend import Backend, get_expectation_value_from_frequencies_oneterm
@@ -702,6 +702,7 @@ class TestSimulateMisc(unittest.TestCase):
             assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
             assert_freq_dict_almost_equal(circuit.success_probabilities, {"001": 0.125}, 1.e-7)
             self.assertTrue(applied_circuit == Circuit(circuit.applied_gates))
+            self.assertTrue(applied_circuit == Circuit(generate_applied_gates(circuit, desired_meas_result="001")))
 
             # Test that the correct ordering of probabilities is obtained when running without specifying the
             # desired measurement result.
@@ -734,7 +735,7 @@ class TestSimulateMisc(unittest.TestCase):
                     self.energies: List[float] = [0.]
                     self.n_runs: int = 0
 
-                def return_circuit(self, measurement) -> List[Gate]:
+                def return_gates(self, measurement) -> List[Gate]:
                     self.measurements[self.n_runs] += measurement
                     self.energies[self.n_runs] += int(measurement)/2**self.bitplace
 
