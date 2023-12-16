@@ -22,7 +22,7 @@
 .. |build| image:: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml/badge.svg
    :target: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml
 
-Tangelo is an open-source Python package maintained by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of quantum chemistry simulation workflows on quantum computers. It was developed as an engine to accelerate research, and leverages other popular frameworks to harness the innovation in our field.
+Tangelo is an open-source Python package maintained by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of quantum chemistry simulation workflows on quantum computers. It was developed as an engine to accelerate research, and takes advantage of other popular frameworks to harness the innovation in our field.
 
 -------------
 
@@ -31,6 +31,8 @@ Tangelo is an open-source Python package maintained by `Good Chemistry Company <
    <h3 align="center"> 
      <a href="https://github.com/goodchemistryco/Tangelo-Examples/blob/main/contents.rst" target="_blank"><b>Tutorials</b></a>
    &nbsp;&#183;&nbsp;
+     <a href="https://github.com/goodchemistryco/Tangelo/blob/features/docs/source/docs/source/_static/img/tangelo_feature_overview.jpeg?raw=true" target="_blank"><b>Features</b></a>
+   &nbsp;&#183;&nbsp;
      <a href="http://tangelo-docs.goodchemistry.com" target="_blank"><b>Docs</b></a>
    &nbsp;&#183;&nbsp;
      <a href="https://goodchemistry.com/blog/" target="_blank"><b>Blog</b></a>
@@ -38,7 +40,7 @@ Tangelo is an open-source Python package maintained by `Good Chemistry Company <
 
 -------------
 
-This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support quantum algorithms R&D and the design of successful experiments on quantum devices. Tangelo is backend-agnostic, so that users can write code once and experiment with current and future platforms with minimal changes. Tangelo is capable to perform quantum experiments that led to publications in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
+This package provides a growing collection of algorithms and toolboxes to support quantum algorithms R&D and the design of successful experiments on quantum devices. Tangelo is backend-agnostic, which means users can write code once and experiment with current and future platforms with minimal changes. Tangelo is capable to perform quantum experiments that led to publications in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
 
 .. raw:: html
 
@@ -87,7 +89,7 @@ Optional dependencies: Quantum Simulators and Classical Quantum Chemistry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as ``qulacs``\ , ``qiskit``\ , ``cirq``, among others. We leave it to you to install the packages of your choice, and refer to their own documentation. Most packages can be installed through pip or conda easily.
-Tangelo can be used without having a classical quantum chemistry package installed but many chemistry algorithms need one. The two quantum chemistry packages that are natively supported are `PySCF <https://pyscf.org/>`_ and `Psi4 <https://psicode.org/>`_, which can be installed through pip or conda. It is possible to plug in your own `IntegralSolver <https://github.com/goodchemistryco/Tangelo/blob/develop/tangelo/toolboxes/molecular_computation/integral_solver.py>`_ or pre-computed integrals too.
+Tangelo can be used without having a classical quantum chemistry package installed but many chemistry algorithms need one. The two quantum chemistry packages that are natively supported are `PySCF <https://pyscf.org/>`_ and `Psi4 <https://psicode.org/>`_, which can be installed through pip or conda. It is possible to plug in your own pre-computed integrals and other chemistry calculations done with the tools of your choice, or your own compute backend for executing quantum algorithms.
 
 Optional: environment variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
