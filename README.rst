@@ -40,7 +40,7 @@ Tangelo is an open-source Python package maintained by `Good Chemistry Company <
 
 -------------
 
-This package provides a growing collection of algorithms and toolboxes to support quantum algorithms R&D and the design of successful experiments on quantum devices. Tangelo is backend-agnostic, which means users can write code once and experiment with current and future platforms with minimal changes. Tangelo is capable to perform quantum experiments that led to publications in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
+This package provides a growing collection of algorithms and toolboxes to support quantum algorithms R&D and the design of successful experiments on quantum devices. Tangelo is backend-agnostic, which means users can write quantum algortihms once and run their calculations on current and future platforms with minimal changes. Tangelo is capable to perform quantum experiments that led to publications in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
 
 .. raw:: html
 
