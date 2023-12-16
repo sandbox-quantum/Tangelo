@@ -31,7 +31,7 @@ Tangelo is an open-source Python package maintained by `Good Chemistry Company <
    <h3 align="center"> 
      <a href="https://github.com/goodchemistryco/Tangelo-Examples/blob/main/contents.rst" target="_blank"><b>Tutorials</b></a>
    &nbsp;&#183;&nbsp;
-     <a href="https://github.com/goodchemistryco/Tangelo/blob/features/docs/source/docs/source/_static/img/tangelo_feature_overview.jpeg?raw=true" target="_blank"><b>Features</b></a>
+     <a href="https://github.com/goodchemistryco/Tangelo/blob/develop/docs/source/docs/source/_static/img/tangelo_feature_overview.jpeg?raw=true" target="_blank"><b>Features</b></a>
    &nbsp;&#183;&nbsp;
      <a href="http://tangelo-docs.goodchemistry.com" target="_blank"><b>Docs</b></a>
    &nbsp;&#183;&nbsp;
