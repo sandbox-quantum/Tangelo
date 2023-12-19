@@ -252,9 +252,14 @@ class UCCSD(Ansatz):
 
         # If symmetry is present, only keep parameters that have the original irreduciple representation.
         if self.molecule.symmetry:
-            params2keep = []
+
+            # Obtain the symmetry ids for each molecular orbital
             mo_ids = [self.molecule.mo_symm_ids[i] for i in self.molecule.active_occupied+self.molecule.active_virtual]
+
+            # Go through each excitation operator and determine the result irrep.
+            params2keep = []
             for key, value in self.param_dict.items():
+                # Generate the reference configuration. The irrep is always 0 for a singlet
                 ref_occ = [list(range(self.n_occupied)), list(range(self.n_occupied))]
                 if len(value) == 2:
                     ref_occ[0].remove(value[1])
@@ -263,6 +268,7 @@ class UCCSD(Ansatz):
                     for s in range(2):
                         for occ in ref_occ[s]:
                             irrep ^= mo_ids[occ]
+                    # If the irrep stays 0, that parameter can contribute
                     if irrep == 0:
                         params2keep += [key]
                 else:
@@ -274,6 +280,7 @@ class UCCSD(Ansatz):
                     for s in range(2):
                         for occ in ref_occ[s]:
                             irrep ^= mo_ids[occ]
+                    # If the irrep stays 0, that parameter can contribute
                     if irrep == 0:
                         params2keep += [key]
             self.params2keep = params2keep
