@@ -2,6 +2,29 @@
 
 This file documents the main changes between versions of the code.
 
+## [0.4.2] - 2023-12-20
+
+### Added
+
+- iQPE algorithm
+- support for adaptive circuit with mid-measurement controlled operations
+- iFCI fragment import
+- FNO for active space selection
+- UHF symmetry reference labels
+- IBMConnection now supports target instance
+
+
+### Changed
+
+- Performance improvement: VQE get_rdm
+- Feature: trim qubits flag for circuit.split
+- Bugfix: adapt to new qiskit version for noisy simulation
+- Bugfix: DMET fix for solvers and fragment object initialization with options
+- Bugfix: trim_trivial_qubits
+
+
+### Deprecated / Removed
+
 
 ## [0.4.1] - 2023-10-18
 
@@ -25,7 +48,7 @@ This file documents the main changes between versions of the code.
 - Bugfix: Updates in IBMConnection to keep up with changes in qiskit-runtime.
 
 
-### Deprecatedv / Removed
+### Deprecated / Removed
 
 
 
@@ -47,7 +70,7 @@ This file documents the main changes between versions of the code.
 - Bugfix: DMET with virtual space truncation threshold, as well as ecp
 - ADAPT now supports spin as parameter
 
-### Deprecatedv / Removed
+### Deprecated / Removed
 
 - in linq: Old translation functions, and Simulator class (use get_backend or translate_circuit instead)
 
