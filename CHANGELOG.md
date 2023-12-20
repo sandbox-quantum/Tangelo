@@ -2,6 +2,55 @@
 
 This file documents the main changes between versions of the code.
 
+## [0.4.2] - 2023-12-20
+
+### Added
+
+- iQPE algorithm
+- support for adaptive circuit with mid-measurement controlled operations
+- iFCI fragment import
+- FNO for active space selection
+- UHF symmetry reference labels
+- IBMConnection now supports target instance
+
+
+### Changed
+
+- Performance improvement: VQE get_rdm
+- Feature: trim qubits flag for circuit.split
+- Bugfix: adapt to new qiskit version for noisy simulation
+- Bugfix: DMET fix for solvers and fragment object initialization with options
+- Bugfix: trim_trivial_qubits
+
+
+### Deprecated / Removed
+
+
+## [0.4.1] - 2023-10-18
+
+### Added
+
+- QM/MM problem decomposition
+- QPE framework
+- Truncated taylor series function returning qubits
+- simplify method on Circuit
+
+### Changed
+
+- Automated testing currently covering python 3.8, 3.9, 3.10, 3.11 (#333)
+- Installation: pyscf removed from requirements
+- Performance improvement: combinatorial mapping
+- Feature: ILC iteration now implements exact expansion / parameters
+- Feature: VQE-like algorithms verbose mode now prints and tracks energies, for users interested in the convergence of the algorithm.
+- Bugfix: Combinatorial mapping now handles spin != 0 (#330)
+- Bugfix: get_expectation_value takes into account n_shots for all backends supporting the option.
+- Bugfix: Fix corner case of FCI and CCSD solvers calculations (mo coefficients were occasionally recomputed differently).
+- Bugfix: Updates in IBMConnection to keep up with changes in qiskit-runtime.
+
+
+### Deprecated / Removed
+
+
 
 ## [0.4.1] - 2023-10-18
 
@@ -47,7 +96,7 @@ This file documents the main changes between versions of the code.
 - Bugfix: DMET with virtual space truncation threshold, as well as ecp
 - ADAPT now supports spin as parameter
 
-### Deprecatedv / Removed
+### Deprecated / Removed
 
 - in linq: Old translation functions, and Simulator class (use get_backend or translate_circuit instead)
 
