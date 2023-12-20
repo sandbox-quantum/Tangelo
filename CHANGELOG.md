@@ -2,6 +2,29 @@
 
 This file documents the main changes between versions of the code.
 
+## [0.4.2] - 2023-12-20
+
+### Added
+
+- iQPE algorithm
+- support for adaptive circuit with mid-measurement controlled operations
+- iFCI fragment import
+- FNO for active space selection
+- UHF symmetry reference labels
+- IBMConnection now supports target instance
+
+
+### Changed
+
+- Performance improvement: VQE get_rdm
+- Feature: trim qubits flag for circuit.split
+- Bugfix: adapt to new qiskit version for noisy simulation
+- Bugfix: DMET fix for solvers and fragment object initialization with options
+- Bugfix: trim_trivial_qubits
+
+
+### Deprecated / Removed
+
 
 ## [0.4.1] - 2023-10-18
 
