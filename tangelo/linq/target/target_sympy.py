@@ -25,7 +25,8 @@ class SympySimulator(Backend):
     def __init__(self, n_shots=None, noise_model=None):
         super().__init__(n_shots, noise_model)
 
-    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None):
+    def simulate_circuit(self, source_circuit: Circuit, return_statevector=False, initial_statevector=None,
+                         desired_meas_result=None, save_mid_circuit_meas=False):
         """This simulator manipulates symbolic expressions, i.e. gates can have
         unspecified parameters (strings interpreted as variables). As with the
         other simulators, it performs state preparation corresponding to the
@@ -40,6 +41,8 @@ class SympySimulator(Backend):
                 if available.
             initial_statevector (array/matrix or sympy.physics.quantum.Qubit): A
                 valid statevector in the format supported by the target backend.
+            desired_meas_result (str) : Not currently implemented, will raise an error
+            save_mid_circuit_meas (bool): Not currently implemented, will raise an error
 
         Returns:
             dict: A dictionary mapping multi-qubit states to their corresponding
@@ -52,6 +55,13 @@ class SympySimulator(Backend):
         from sympy.physics.quantum import qapply
         from sympy.physics.quantum.qubit import Qubit, matrix_to_qubit, \
             qubit_to_matrix, measure_all
+
+        if "CMEASURE" in source_circuit.counts:
+            raise NotImplementedError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
+        if save_mid_circuit_meas:
+            raise NotImplementedError(f"{self.__class__.__name__} does not currently support mid-circuit measurements.")
+        if desired_meas_result is not None:
+            raise NotImplementedError(f"{self.__class__.__name__} does not currently support mid-circuit measurements.")
 
         translated_circuit = translate_c(source_circuit, "sympy")
 

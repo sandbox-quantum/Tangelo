@@ -59,6 +59,9 @@ class QDKSimulator(Backend):
             numpy.array: The statevector, if available for the target backend
                 and requested by the user (if not, set to None).
         """
+        if "CMEASURE" in source_circuit.counts:
+            raise NotImplementedError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
+
         translated_circuit = translate_c(source_circuit, "qdk", output_options={"save_measurements": save_mid_circuit_meas})
         with open('tmp_circuit.qs', 'w+') as f_out:
             f_out.write(translated_circuit)

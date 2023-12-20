@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import math
-from collections import Counter
 
 import numpy as np
 
@@ -68,12 +67,15 @@ class QiskitSimulator(Backend):
         """
         def aer_backend_with_statevector(translated_circuit):
             "Generate AerSimulator backend and append save statevector instruction to translated_circuit"
-            backend = self.AerSimulator(method='statevector')
+            backend = self.AerSimulator(method='statevector', noise_model=qiskit_noise_model)
             translated_circuit = self.qiskit.transpile(translated_circuit, backend)
             translated_circuit.save_statevector()
             return backend, translated_circuit
 
         n_meas = source_circuit.counts.get("MEASURE", 0)
+        if "CMEASURE" in source_circuit.counts:
+            raise NotImplementedError(f"{self.__class__.__name__} does not currently support CMEASURE operations.")
+
         qiskit_noise_model = get_qiskit_noise_model(self._noise_model) if self._noise_model else None
 
         def load_statevector(translated_circuit, initial_statevector):
@@ -88,7 +90,7 @@ class QiskitSimulator(Backend):
 
         def run_and_measure_one_shot(backend, translated_circuit):
             "Return statevector and mid-circuit measurement for one shot"
-            sim_results = backend.run(translated_circuit, noise_model=qiskit_noise_model, shots=1).result()
+            sim_results = backend.run(translated_circuit, shots=1).result()
             current_state = sim_results.get_statevector(translated_circuit)
             measure = next(iter(self.qiskit.result.marginal_counts(sim_results, indices=list(range(n_meas)), inplace=True).get_counts()))[::-1]
             return current_state, measure
@@ -96,7 +98,7 @@ class QiskitSimulator(Backend):
         if desired_meas_result is not None and not self._noise_model:
             # Split circuit into chunks between mid-circuit measurements. Simulate a chunk, collapse the statevector according
             # to the desired measurement and simulate the next chunk using this new statevector as input
-            unitary_circuits, qubits = get_unitary_circuit_pieces(source_circuit)
+            unitary_circuits, qubits, _ = get_unitary_circuit_pieces(source_circuit)
         else:
             translated_circuit = translate_c(source_circuit, "qiskit", output_options={"save_measurements": save_mid_circuit_meas})
 

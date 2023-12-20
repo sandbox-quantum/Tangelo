@@ -183,6 +183,15 @@ class TestCircuits(unittest.TestCase):
         self.assertTrue(c2 == Circuit([Gate("CSWAP", target=[0, 2], control=[1])]))
         self.assertTrue(c3 == Circuit([Gate("H", target=0)]))
 
+        c = Circuit([Gate("CSWAP", target=[2, 5], control=[0]),
+                     Gate("CSWAP", target=[3, 7], control=[4]),
+                     Gate("H", 6)])
+        c1, c2, c3 = c.split(trim_qubits=False)
+
+        self.assertTrue(c1 == Circuit([Gate("CSWAP", target=[2, 5], control=[0])]))
+        self.assertTrue(c2 == Circuit([Gate("CSWAP", target=[3, 7], control=[4])]))
+        self.assertTrue(c3 == Circuit([Gate("H", target=6)]))
+
     def test_stack_circuits(self):
         """ Test circuit stacking """
 
@@ -358,11 +367,12 @@ class TestCircuits(unittest.TestCase):
                     Circuit([Gate("H", 0)], n_qubits=2),
                     Circuit(n_qubits=2)]
         measure_qs = [0, 1, 0, 1, 1]
-        split_circuits, qubits_to_measure = get_unitary_circuit_pieces(test_circuit)
+        split_circuits, qubits_to_measure, meas_flags = get_unitary_circuit_pieces(test_circuit)
 
         for i, circ in enumerate(circuits[:-1]):
             self.assertEqual(circ, split_circuits[i])
             self.assertEqual(measure_qs[i], qubits_to_measure[i])
+            self.assertEqual(meas_flags[i], None)
         self.assertEqual(circuits[-1], split_circuits[-1])
 
 

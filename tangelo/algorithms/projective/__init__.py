@@ -13,3 +13,5 @@
 # limitations under the License.
 
 from .quantum_imaginary_time import QITESolver
+from .qpe import QPESolver
+from .iqpe import IterativeQPESolver

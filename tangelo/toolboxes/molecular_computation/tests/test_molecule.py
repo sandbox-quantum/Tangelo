@@ -126,6 +126,10 @@ class SecondQuantizedMoleculeTest(unittest.TestCase):
         assert(mo_symm_labels == molecule.mo_symm_labels)
         assert(mo_symm_ids == molecule.mo_symm_ids)
 
+        molecule = SecondQuantizedMolecule(xyz=xyz_H2O, q=0, spin=0, symmetry="C2v", basis="sto-3g", uhf=True)
+        assert([mo_symm_labels, mo_symm_labels] == molecule.mo_symm_labels)
+        assert([mo_symm_ids, mo_symm_ids] == molecule.mo_symm_ids)
+
     def test_ecp(self):
         """Verify that the number of electrons is reduced when ecp is called."""
 

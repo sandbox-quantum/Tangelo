@@ -19,7 +19,9 @@ characteristics (width, size ...).
 """
 
 import copy
-from typing import List, Tuple, Iterator
+import abc
+from typing import List, Tuple, Union, Set, Dict, Callable
+import warnings
 
 import numpy as np
 from cirq.contrib.svg import SVGCircuit
@@ -45,17 +47,19 @@ class Circuit:
     the example folder.
     """
 
-    def __init__(self, gates: List[Gate] = None, n_qubits=None, name="no_name"):
+    def __init__(self, gates: List[Gate] = None, n_qubits=None, name="no_name", cmeasure_control=None):
         """Initialize gate list and internal variables depending on user input."""
 
         self.name = name
-        self._gates = list()
-        self._qubits_simulated = n_qubits
-        self._qubit_indices = set() if not n_qubits else set(range(n_qubits))
-        self._gate_counts = dict()
-        self._n_qubit_gate_counts = dict()
-        self._variational_gates = []
-        self._probabilities = dict()
+        self._gates: List[Gate] = list()
+        self._qubits_simulated: Union[None, int] = n_qubits
+        self._qubit_indices: Set[int] = set() if not n_qubits else set(range(n_qubits))
+        self._gate_counts: Dict[str, int] = dict()
+        self._n_qubit_gate_counts: Dict[int, int] = dict()
+        self._variational_gates: List[Gate] = []
+        self._probabilities: Dict[str, float] = dict()
+        self._cmeasure_control: Union[Callable, ClassicalControl, None] = cmeasure_control
+        self._applied_gates: List[Gate] = []
 
         if gates:
             _ = [self.add_gate(g) for g in gates]
@@ -72,7 +76,7 @@ class Circuit:
 
     def __add__(self, other):
         """Concatenate the list of instructions of two circuit objects into a
-        single one.
+        single new object.
         """
         n_qubits = max(self.width, other.width) if self._qubits_simulated or other._qubits_simulated else None
         return Circuit(self._gates + other._gates, n_qubits=n_qubits)
@@ -143,9 +147,9 @@ class Circuit:
     @property
     def is_mixed_state(self):
         """Assume circuit leads to a mixed state due to mid-circuit measurement
-        if any MEASURE gate was explicitly added by the user.
+        if any MEASURE or CMEASURE gate was explicitly added by the user.
         """
-        return "MEASURE" in self.counts
+        return "MEASURE" in self.counts or "CMEASURE" in self.counts
 
     @property
     def success_probabilities(self):
@@ -162,6 +166,19 @@ class Circuit:
         else:
             return self._probabilities
 
+    @property
+    def applied_gates(self):
+        """Returns the list of gates applied during the latest simulation of the circuit.
+
+        If a CMEASURE gate is applied, the resulting circuit can be different from the _gates,
+        The CMEASURE or MEASURE gate will store its measurement result as the parameter.
+
+        Example: circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0, {"0": Gate("X", 0) "1": []})])
+        will have circuit.applied_gates = [Gate("H", 0), Gate("CMEASURE", 0, parameter="0"), Gate("X", 1)]  or
+                  circuit.applied_gates = [Gate("H", 0), Gate("CMEASURE", 0, parameter="1")]
+        """
+        return self._applied_gates if "CMEASURE" in self.counts else self._gates
+
     def draw(self):
         """Method to output a prettier version of the circuit for use in jupyter notebooks that uses cirq SVGCircuit"""
         # circular import
@@ -173,7 +190,7 @@ class Circuit:
 
     def copy(self):
         """Return a deepcopy of circuit"""
-        return Circuit(copy.deepcopy(self._gates), n_qubits=self._qubits_simulated, name=self.name)
+        return Circuit(copy.deepcopy(self._gates), n_qubits=self._qubits_simulated, name=self.name, cmeasure_control=copy.deepcopy(self._cmeasure_control))
 
     def add_gate(self, g):
         """Add a new gate to a circuit object and update other fields of the
@@ -262,7 +279,7 @@ class Circuit:
         """
 
         if len(new_indices) != len(self._qubit_indices):
-            raise ValueError(f"The number of indices does not match the length of self._qubit_indices")
+            raise ValueError("The number of indices does not match the length of self._qubit_indices")
 
         qubits_in_use = self._qubit_indices
         mapping = {i: j for i, j in zip(qubits_in_use, new_indices)}
@@ -291,9 +308,12 @@ class Circuit:
 
         return entangled_indices
 
-    def split(self):
+    def split(self, trim_qubits=True):
         """ Split a circuit featuring unentangled qubit subsets into as many circuit objects.
         Each circuit only contains the gate operations targeting the qubit indices in its subsets.
+
+        Args:
+            trim_qubits (bool): Trim qubits on each circuit object and reindex to lowest value, Default: True
 
         Returns:
             list of Circuit: list of resulting circuits
@@ -308,9 +328,10 @@ class Circuit:
                     separate_circuits[i].add_gate(g)
                     break
 
-        # Trim unnecessary indices in the new circuits
-        for c in separate_circuits:
-            c.trim_qubits()
+        if trim_qubits:
+            # Trim unnecessary indices in the new circuits
+            for c in separate_circuits:
+                c.trim_qubits()
         return separate_circuits
 
     def stack(self, *other_circuits):
@@ -391,6 +412,20 @@ class Circuit:
                                max_cycles=max_cycles, param_threshold=param_threshold,
                                remove_qubits=remove_qubits)
         self.__dict__ = opt_circuit.__dict__
+
+    def controlled_measurement_op(self, measure):
+        """Call the object self._cmeasure_control and return the next circuit to apply."""
+        if callable(self._cmeasure_control):
+            return Circuit(self._cmeasure_control(measure), n_qubits=self.width)
+        elif isinstance(self._cmeasure_control, ClassicalControl):
+            return Circuit(self._cmeasure_control.return_gates(measure), n_qubits=self.width)
+        else:
+            raise TypeError(f"cmeasure_control must either be a function or an instance of {ClassicalControl}")
+
+    def finalize_cmeasure_control(self):
+        """Call the finalize method in cmeasure_control"""
+        if isinstance(self._cmeasure_control, ClassicalControl):
+            self._cmeasure_control.finalize()
 
 
 def stack(*circuits):
@@ -598,15 +633,120 @@ def get_unitary_circuit_pieces(circuit: Circuit) -> Tuple[List[Circuit], List[in
     """
 
     n_qubits = circuit.width
-    circuits, gates, measure_qubits = list(), list(), list()
+    circuits, gates, measure_qubits, cmeasure_flags = list(), list(), list(), list()
 
     for g in circuit:
-        if g.name != "MEASURE":
+        if g.name not in ("MEASURE", "CMEASURE"):
             gates += [Gate(g.name, g.target, g.control, g.parameter, g.is_variational)]
         else:
             circuits += [Circuit(copy.deepcopy(gates), n_qubits=n_qubits)]
             measure_qubits += [g.target[0]]
+            cmeasure_flags += [None] if g.name == "MEASURE" else [g.parameter]
             gates = list()
     circuits += [Circuit(copy.deepcopy(gates), n_qubits=n_qubits)]
 
-    return circuits, measure_qubits
+    return circuits, measure_qubits, cmeasure_flags
+
+
+class ClassicalControl(abc.ABC):
+    def __init__(self):
+        """instantiate classical control operations"""
+
+    @abc.abstractmethod
+    def return_gates(self, measurement) -> List[Gate]:
+        """Return the list of gates based on the measurement outcome.
+
+        Args:
+            measurement (str): "1" or "0"
+            qubit (int): The qubit index
+
+        Returns:
+            List[Gate]: The next gates to apply to the circuit
+        """
+
+    @abc.abstractmethod
+    def finalize(self):
+        """Called from simulator after all gates have been called.
+
+        Can be used to reinitialize variables for the next run
+        and store results.
+        """
+
+
+def generate_applied_gates(source_circuit: Circuit, desired_meas_result=None) -> List[Gate]:
+    """Generate the applied gates of a Circuit without explicitly simulating.
+
+    Useful to determine the resources required for a circuit with measurement controlled operations given certain
+    measurement outcomes.
+
+    Note: Measurement outcomes with zero probability can not be screened.
+
+    Args:
+        source_circuit (Circuit): A circuit in the abstract format to be simulated with
+            the classical control function called.
+        desired_meas_result (str): The binary string of the desired measurement.
+            Must have the same length as the number of CMEASURE+MEASURE gates in source_circuit
+    """
+
+    circuit = source_circuit.copy()
+    n_cmeas = circuit.counts.get("CMEASURE", 0)
+    if n_cmeas == 0:
+        warnings.warn("The supplied circuit does not contain CMEASURE gates."
+                      "This function will not modify the applied_gates attribute.")
+        return
+
+    applied_gates = []
+    dmeas = None if not desired_meas_result else list(desired_meas_result)
+    measurements = ""
+
+    # Break circuit into pieces that do not include CMEASURE or MEASURE gates
+    unitary_circuits, qubits, cmeasure_flags = get_unitary_circuit_pieces(circuit)
+    # Generate list of circuits that are extended by previous CMEASURE operations
+    precirc = [Circuit()]*len(unitary_circuits)
+
+    while len(unitary_circuits) > 1:
+        c = precirc[0]+unitary_circuits[0]
+        applied_gates += c._gates
+
+        # Perform measurement.
+        measure = dmeas[0] if desired_meas_result else "1"
+        measurements += measure
+        if desired_meas_result:
+            del dmeas[0]
+
+        # If a CMEASURE has occurred
+        if cmeasure_flags[0] is not None:
+            applied_gates += [Gate("CMEASURE", qubits[0], parameter=measure)]
+            if isinstance(cmeasure_flags[0], str):
+                newcirc = circuit.controlled_measurement_op(measure)
+            elif isinstance(cmeasure_flags[0], dict):
+                newcirc = Circuit(cmeasure_flags[0][measure], n_qubits=circuit.width)
+            new_unitary_circuits, new_qubits, new_cmeasure_flags = get_unitary_circuit_pieces(newcirc)
+
+        # No classical control
+        else:
+            applied_gates += [Gate("MEASURE", qubits[0], parameter=measure)]
+            new_unitary_circuits = [Circuit(n_qubits=circuit.width)]
+            new_qubits = []
+            new_cmeasure_flags = []
+
+        # Remove circuits, measurements and corresponding qubits that have been applied.
+        del unitary_circuits[0]
+        del qubits[0]
+        del cmeasure_flags[0]
+        del precirc[0]
+        precirc[0] = new_unitary_circuits[-1] + precirc[0]
+
+        # If new_unitary_circuits includes MEASURE or CMEASURE Gates, the number of unitary_circuits grows.
+        if len(new_unitary_circuits) > 1:
+            unitary_circuits = new_unitary_circuits[:-1] + unitary_circuits
+            qubits = new_qubits + qubits
+            cmeasure_flags = new_cmeasure_flags + cmeasure_flags
+            precirc = [Circuit()]*len(qubits) + precirc
+
+    # No more MEASURE or CMEASURE gates are present, run final unitary circuit segment and set attributes
+    final_circuit = precirc[0] + unitary_circuits[-1]
+    # Call the finalize method of ClassicalControl, used to reset variables, perform computation etc.
+    circuit.finalize_cmeasure_control()
+
+    return applied_gates + final_circuit._gates

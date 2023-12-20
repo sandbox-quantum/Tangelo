@@ -1,26 +1,28 @@
-|tangelo_logo|
+.. raw:: html
 
-.. |tangelo_logo| image:: ./docs/source/_static/img/tangelo_logo_gradient.png
-   :width: 600
-   :alt: tangelo_logo
+   <p align="center">
+     <img width="600" alt="tangelo_logo" src="./docs/source/_static/img/tangelo_logo_gradient.png">
+   </p>
 
-|maintainer| |licence| |systems| |dev_branch|
+.. raw:: html
 
-..
-    |build|
+   <p align="center">
+     <a href="https://goodchemistry.com">
+       <img src="https://img.shields.io/badge/Maintainer-GoodChemistry-blue" alt="maintainer">
+     </a>
+     <a href="https://github.com/goodchemistryco/Tangelo/blob/main/LICENSE">
+       <img src="https://img.shields.io/badge/License-Apache_2.0-green" alt="license">
+     </a>
+     <img src="https://img.shields.io/badge/OS-Linux%20MacOS%20Windows-7373e3" alt="systems">
+     <a href="https://github.com/goodchemistryco/Tangelo/tree/develop">
+       <img src="https://img.shields.io/badge/DevBranch-develop-yellow" alt="dev_branch">
+     </a>
+   </p>
 
-.. |maintainer| image:: https://img.shields.io/badge/Maintainer-GoodChemistry-blue
-   :target: https://goodchemistry.com
-.. |licence| image:: https://img.shields.io/badge/License-Apache_2.0-green
-   :target: https://github.com/goodchemistryco/Tangelo/blob/main/LICENSE
-.. |systems| image:: https://img.shields.io/badge/OS-Linux%20MacOS%20Windows-7373e3
-.. |dev_branch| image:: https://img.shields.io/badge/DevBranch-develop-yellow
 .. |build| image:: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml/badge.svg
    :target: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml
 
-Welcome !
-
-Tangelo is an open-source Python package maintained by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of quantum chemistry simulation workflows on quantum computers. It was developed as an engine to accelerate research, and leverages other popular frameworks to harness the innovation in our field.
+Tangelo is an open-source Python package maintained by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of quantum chemistry simulation workflows on quantum computers. It was developed as an engine to accelerate research, and takes advantage of other popular frameworks to harness the innovation in our field.
 
 -------------
 
@@ -29,6 +31,8 @@ Tangelo is an open-source Python package maintained by `Good Chemistry Company <
    <h3 align="center"> 
      <a href="https://github.com/goodchemistryco/Tangelo-Examples/blob/main/contents.rst" target="_blank"><b>Tutorials</b></a>
    &nbsp;&#183;&nbsp;
+     <a href="https://github.com/goodchemistryco/Tangelo/blob/develop/docs/source/docs/source/_static/img/tangelo_feature_overview.jpeg?raw=true" target="_blank"><b>Features</b></a>
+   &nbsp;&#183;&nbsp;
      <a href="http://tangelo-docs.goodchemistry.com" target="_blank"><b>Docs</b></a>
    &nbsp;&#183;&nbsp;
      <a href="https://goodchemistry.com/blog/" target="_blank"><b>Blog</b></a>
@@ -36,13 +40,13 @@ Tangelo is an open-source Python package maintained by `Good Chemistry Company <
 
 -------------
 
-This package provides a growing collection of algorithms and toolboxes, including problem decomposition, to support quantum algorithms R&D and the design of successful experiments on quantum devices. Tangelo is backend-agnostic, so that users can write code once and experiment with current and future platforms with minimal changes. Tangelo is capable to perform quantum experiments that led to publications in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
+This package provides a growing collection of algorithms and toolboxes to support quantum algorithms R&D and the design of successful experiments on quantum devices. Tangelo is backend-agnostic, which means users can write quantum algortihms once and run their calculations on current and future platforms with minimal changes. Tangelo is capable to perform quantum experiments that led to publications in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
 
-|workflow|
+.. raw:: html
 
-.. |workflow| image:: ./docs/source/_static/img/quantum_workflow.png
-   :width: 700
-   :alt: tangelo_workflow
+   <p align="center">
+     <img width="700" alt="tangelo_workflow" src="./docs/source/_static/img/quantum_workflow.png">
+   </p>
 
 .. |curve| image:: ./docs/source/_static/img/curve_dmet_qcc.png
    :width: 400
@@ -85,7 +89,7 @@ Optional dependencies: Quantum Simulators and Classical Quantum Chemistry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Tangelo enables users to target various backends. In particular, it integrates quantum circuit simulators such as ``qulacs``\ , ``qiskit``\ , ``cirq``, among others. We leave it to you to install the packages of your choice, and refer to their own documentation. Most packages can be installed through pip or conda easily.
-Tangelo can be used without having a classical quantum chemistry package installed but many chemistry algorithms need one. The two quantum chemistry packages that are natively supported are `PySCF <https://pyscf.org/>`_ and `Psi4 <https://psicode.org/>`_, which can be installed through pip or conda. It is possible to plug in your own `IntegralSolver <https://github.com/goodchemistryco/Tangelo/blob/develop/tangelo/toolboxes/molecular_computation/integral_solver.py>`_ or pre-computed integrals too.
+Tangelo can be used without having a classical quantum chemistry package installed but many chemistry algorithms need one. The two quantum chemistry packages that are natively supported are `PySCF <https://pyscf.org/>`_ and `Psi4 <https://psicode.org/>`_, which can be installed through pip or conda. It is possible to plug in your own pre-computed integrals and other chemistry calculations done with the tools of your choice, or your own compute backend for executing quantum algorithms.
 
 Optional: environment variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

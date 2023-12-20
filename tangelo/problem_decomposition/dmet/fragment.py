@@ -28,6 +28,7 @@ from pyscf import ao2mo
 
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_fermion_operator
 from tangelo.toolboxes.molecular_computation.frozen_orbitals import convert_frozen_orbitals
+from tangelo.toolboxes.molecular_computation import IntegralSolverPySCF
 
 
 @dataclass
@@ -92,6 +93,8 @@ class SecondQuantizedDMETFragment:
             n_beta = n_active_electrons//2 - self.spin//2
             self.n_active_ab_electrons = (n_alpha, n_beta)
         self.n_active_electrons = sum(self.n_active_ab_electrons)
+
+        self.solver = IntegralSolverPySCF()
 
     @property
     def frozen_mos(self):

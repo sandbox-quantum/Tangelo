@@ -110,7 +110,7 @@ def get_variance_from_frequencies_oneterm(term, frequencies):
     return variance_term
 
 
-def collapse_statevector_to_desired_measurement(statevector, qubit, result, order="lsq_first"):
+def collapse_statevector_to_desired_measurement(statevector, qubit, result, order="lsq_first", ignore_zero_prob=False):
     """Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.
 
     Args:
@@ -118,6 +118,7 @@ def collapse_statevector_to_desired_measurement(statevector, qubit, result, orde
         qubit (int): Index of target qubit to collapse in the desired classical state.
         result (int): 0 or 1.
         order (string): The qubit ordering of the statevector, lsq_first or msq_first.
+        ignore_zero_prob (bool): Default False, If True, return zero vector if probability is below 1.e-14
 
     Returns:
         array: The collapsed and renormalized statevector.
@@ -141,12 +142,14 @@ def collapse_statevector_to_desired_measurement(statevector, qubit, result, orde
     before_index_length = 2**qubit if order == "lsq_first" else 2**(n_qubits-1-qubit)
     after_index_length = 2**(n_qubits-1-qubit) if order == "lsq_first" else 2**qubit
 
-    sv_selected = np.reshape(statevector, (before_index_length, 2, after_index_length))
+    sv_selected = np.reshape(statevector.copy(), (before_index_length, 2, after_index_length))
     sv_selected[:, (result + 1) % 2, :] = 0
     sv_selected = sv_selected.flatten()
 
     sqrt_probability = np.linalg.norm(sv_selected)
     if sqrt_probability < 1.e-14:
+        if ignore_zero_prob:
+            return sv_selected, sqrt_probability**2
         raise ValueError(f"Probability of desired measurement={0} for qubit={qubit} is zero.")
 
     sv_selected = sv_selected/sqrt_probability  # casting issue if inplace for probability 1
@@ -201,6 +204,8 @@ class Backend(abc.ABC):
                 if available.
             initial_statevector (list/array) : A valid statevector in the format
                 supported by the target backend.
+            desired_meas_result (str): The binary string of the desired measurement.
+                Must have the same length as the number of MEASURE gates in source_circuit
             save_mid_circuit_meas (bool): Save mid-circuit measurement results to
                 self.mid_circuit_meas_freqs. All measurements will be saved to
                 self.all_frequencies, with keys of length (n_meas + n_qubits).
@@ -252,9 +257,12 @@ class Backend(abc.ABC):
                 and requested by the user (if not, set to None).
         """
         n_meas = source_circuit.counts.get("MEASURE", 0)
+        n_cmeas = source_circuit.counts.get("CMEASURE", 0)
+        if n_cmeas > 0:
+            save_mid_circuit_meas = True
 
         if desired_meas_result is not None:
-            if not isinstance(desired_meas_result, str) or len(desired_meas_result) != n_meas:
+            if not isinstance(desired_meas_result, str) or (len(desired_meas_result) != n_meas and n_cmeas == 0):
                 raise ValueError("desired_meas result is not a string with the same length as the number of measurements "
                                  "in the circuit.")
             save_mid_circuit_meas = True
@@ -264,7 +272,7 @@ class Backend(abc.ABC):
                                  "is only valid for self.n_shots=1. The result is a mixed state otherwise, "
                                  f"but you requested n_shots={self.n_shots}.")
         elif source_circuit.is_mixed_state and not self.n_shots:
-            raise ValueError("Circuit contains MEASURE instruction, and is assumed to prepare a mixed state. "
+            raise ValueError("Circuit contains MEASURE or CMEASURE instruction, and is assumed to prepare a mixed state. "
                              "Please set the n_shots attribute to an appropriate value.")
 
         if source_circuit.width == 0:
@@ -285,16 +293,20 @@ class Backend(abc.ABC):
         # For mid-circuit measurements post-process the result
         if save_mid_circuit_meas:
             # TODO: refactor to break a circular import. May involve by relocating get_xxx_oneterm functions
-            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict
+            from tangelo.toolboxes.post_processing.post_selection import split_frequency_dict, split_frequency_dict_for_last_n_digits
 
             (all_frequencies, statevector) = self.simulate_circuit(source_circuit,
                                                                    return_statevector=return_statevector,
                                                                    initial_statevector=initial_statevector,
                                                                    desired_meas_result=desired_meas_result,
                                                                    save_mid_circuit_meas=save_mid_circuit_meas)
-            self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(all_frequencies,
-                                                                            list(range(n_meas)),
-                                                                            desired_measurement=desired_meas_result)
+            if n_cmeas == 0:
+                self.mid_circuit_meas_freqs, frequencies = split_frequency_dict(all_frequencies,
+                                                                                list(range(n_meas)),
+                                                                                desired_measurement=desired_meas_result)
+            else:
+                self.mid_circuit_meas_freqs, frequencies = split_frequency_dict_for_last_n_digits(all_frequencies,
+                                                                                                  source_circuit.width)
             return (frequencies, statevector)
 
         return self.simulate_circuit(source_circuit,
@@ -691,20 +703,46 @@ class Backend(abc.ABC):
 
         return state_binstr if use_ordering and (self.statevector_order == "lsq_first") else state_binstr[::-1]
 
-    def collapse_statevector_to_desired_measurement(self, statevector, qubit, result):
+    def collapse_statevector_to_desired_measurement(self, statevector, qubit, result, ignore_zero_prob=False):
         """Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.
 
         Args:
             statevector (array): The statevector for which the collapse to the desired qubit value is performed.
             qubit (int): The index of the qubit to collapse to the classical result.
             result (string): "0" or "1".
+            ignore_zero_prob (bool): If True, a vector of zeros is returned if the probability is zero. Default value set to False.
 
         Returns:
             array: the collapsed and renormalized statevector
-            float: the probability this occured
+            float: the probability this occurred.
         """
 
-        return collapse_statevector_to_desired_measurement(statevector, qubit, result, self.backend_info()['statevector_order'])
+        return collapse_statevector_to_desired_measurement(statevector, qubit, result, self.backend_info()['statevector_order'], ignore_zero_prob)
+
+    def perform_measurement(self, statevector, qubit, desired_meas_result=None):
+        """Perform a measurement and return the new statevector and the probability that measurement occurred
+
+        Args:
+            statevector (array): The statevector to perform the measurement on.
+            qubit (int): The qubit to apply the measurement to
+            desired_meas_result (Union[int, None]): The desired measurement result, Default None
+
+        Returns:
+            str: The result of the measurement
+            array: The measured and renormalized statevector
+            float: The probability this measurement occurred
+        """
+
+        if desired_meas_result:
+            new_sv, prob = self.collapse_statevector_to_desired_measurement(statevector, qubit, int(desired_meas_result))
+            return desired_meas_result, new_sv, prob
+        else:
+            new_sv, prob = self.collapse_statevector_to_desired_measurement(statevector, qubit, 0, ignore_zero_prob=True)
+            if prob < np.random.random():
+                new_sv, prob = self.collapse_statevector_to_desired_measurement(statevector, qubit, 1, ignore_zero_prob=True)
+                return "1", new_sv, prob
+            else:
+                return "0", new_sv, prob
 
     @staticmethod
     @abc.abstractmethod

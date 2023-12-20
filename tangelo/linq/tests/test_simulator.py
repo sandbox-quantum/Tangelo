@@ -20,16 +20,19 @@
 import unittest
 import os
 import time
+from typing import List
 
 import numpy as np
 from openfermion import load_operator, get_sparse_operator
 
 from tangelo.toolboxes.operators import QubitOperator
-from tangelo.linq import Gate, Circuit, get_backend
+from tangelo.linq import Gate, Circuit, get_backend, ClassicalControl, generate_applied_gates
 from tangelo.linq.translator import translate_circuit as translate_c
 from tangelo.linq.gate import PARAMETERIZED_GATES
 from tangelo.linq.target.backend import Backend, get_expectation_value_from_frequencies_oneterm
-from tangelo.helpers.utils import installed_simulator, installed_sv_simulator, installed_backends, installed_clifford_simulators, assert_freq_dict_almost_equal
+from tangelo.helpers.utils import (installed_simulator, installed_sv_simulator, installed_backends,
+                                   installed_clifford_simulators, assert_freq_dict_almost_equal,
+                                   installed_cmeasure_simulators)
 
 
 path_data = os.path.dirname(os.path.abspath(__file__)) + '/data'
@@ -635,6 +638,141 @@ class TestSimulateMisc(unittest.TestCase):
         assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
         np.testing.assert_almost_equal(np.array([0., 0., 0., 1.]), sv)
         self.assertAlmostEqual(sim.get_expectation_value(QubitOperator("Z0", 1.), circuit1), -1.)
+
+    def test_measurement_controlled_gates_using_dictionary(self):
+        """Test CMEASURE gate when parameter is a dictionary of operations with keys of "1" and "0"."""
+
+        for backend in installed_cmeasure_simulators:
+            sim = get_backend(backend, n_shots=1)
+
+            # Deterministically prepare |11> state after initial operation is a H gate by a measurement controlled operation
+            circuit = Circuit([Gate("H", 0),
+                               Gate("CMEASURE", 0, parameter={"0": [Gate("X", 0)], "1": []}),  Gate("CNOT", 1, 0)])
+
+            # Test that correct state is obtained when "0" is measured
+            f, _ = sim.simulate(circuit, save_mid_circuit_meas=True, desired_meas_result="0")
+            assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
+            assert_freq_dict_almost_equal(circuit.success_probabilities, {"0": 0.5}, 1.e-7)
+
+            # Test that the correct state is obtained when "1" is measured and the previous probability is also saved
+            f, _ = sim.simulate(circuit, save_mid_circuit_meas=True, desired_meas_result="1")
+            assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
+            assert_freq_dict_almost_equal(circuit.success_probabilities, {"0": 0.5, "1": 0.5}, 1.e-7)
+
+            # Test that an initial state of |0> or |1> is utilized by the circuit.
+            # Test with initial state H and measure "1". H|0> = (|0>+|1>)/sqrt(2)
+            circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0, parameter={"0": [], "1": [Gate("X", 0)]})])
+            f, sv = sim.simulate(circuit, save_mid_circuit_meas=True, desired_meas_result="1",
+                                 initial_statevector=[1, 0], return_statevector=True)
+            assert_freq_dict_almost_equal(f, {"0": 1}, 1.e-7)
+            self.assertTrue(np.allclose([1, 0], sv))
+
+            # Test with initial state H|1> = (|0>-|1>)/sqrt(2)
+            f, sv = sim.simulate(circuit, save_mid_circuit_meas=True, desired_meas_result="1",
+                                 initial_statevector=[0, 1], return_statevector=True)
+            assert_freq_dict_almost_equal(f, {"0": 1}, 1.e-7)
+            self.assertTrue(np.allclose([-1, 0], sv))
+
+    def test_measurement_controlled_gates_not_supported(self):
+        """Test that a runtime error is raised for simulators that do not support CMEASURE operations."""
+        cmeas_circuit = Circuit([Gate("CMEASURE", 0, parameter={"0": [], "1": []})])
+        for backend in (installed_simulator | installed_clifford_simulators) - installed_cmeasure_simulators:
+            sim = get_backend(backend, n_shots=1)
+            self.assertRaises(NotImplementedError, sim.simulate, cmeas_circuit)
+
+    def test_measurement_controlled_gates_function(self):
+        """Test that the repeat until success circuit is properly performed."""
+
+        for backend in installed_cmeasure_simulators:
+            sim = get_backend(backend, n_shots=1)
+
+            # Repeat until success H+CNOT to prepare |11>
+            def cfunc(measurement):
+                return [Gate("H", 0), Gate("CMEASURE", 0)] if measurement == "0" else []
+
+            applied_circuit = Circuit([Gate('H', 0),
+                                       Gate('CMEASURE', 0, parameter="0"), Gate('H', 0),
+                                       Gate('CMEASURE', 0, parameter="0"), Gate('H', 0),
+                                       Gate('CMEASURE', 0, parameter="1"),
+                                       Gate('CNOT', 1, control=0)])
+
+            # Test that the probability is correct when two failures followed by a success occur
+            circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0),  Gate("CNOT", 1, 0)], cmeasure_control=cfunc)
+            f, _ = sim.simulate(circuit, save_mid_circuit_meas=True, desired_meas_result="001")
+            assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
+            assert_freq_dict_almost_equal(circuit.success_probabilities, {"001": 0.125}, 1.e-7)
+            self.assertTrue(applied_circuit == Circuit(circuit.applied_gates))
+            self.assertTrue(applied_circuit == Circuit(generate_applied_gates(circuit, desired_meas_result="001")))
+
+            # Test that the correct ordering of probabilities is obtained when running without specifying the
+            # desired measurement result.
+            sim.n_shots = 1000
+
+            circuit = Circuit([Gate("H", 0), Gate("CMEASURE", 0),  Gate("CNOT", 1, 0)], cmeasure_control=cfunc)
+            f, _ = sim.simulate(circuit, save_mid_circuit_meas=True)
+            assert_freq_dict_almost_equal(f, {"11": 1}, 1.e-7)
+            self.assertTrue(sim.mid_circuit_meas_freqs["1"] > sim.mid_circuit_meas_freqs["01"])
+            self.assertTrue(sim.mid_circuit_meas_freqs["01"] > sim.mid_circuit_meas_freqs["001"])
+
+    def test_measurement_controlled_gates_class(self):
+        """Test of an adaptive IterativeQPE circuit."""
+
+        for backend in installed_cmeasure_simulators:
+
+            sim = get_backend(backend, n_shots=2)
+
+            # Unitary has eigenvalue (1/16+1/8+1/2)*pi with eigenvector |1> on qubit 1.
+            # Measurement will be 0011010 = 0/64 + 0/32 + 1/16 + 1/8 + 0/4 + 1/2 + 0
+            ugate = Gate("CPHASE", 1, control=0, parameter=np.pi*(1/16 + 1/8 + 1/2))
+
+            class IterativeQPE(ClassicalControl):
+                def __init__(self, n_bits: int):
+                    """Iterative QPE with n_bits"""
+                    self.n_bits: int = n_bits
+                    self.bitplace: int = n_bits
+                    self.phase: float = 0
+                    self.measurements: List[str] = [""]
+                    self.energies: List[float] = [0.]
+                    self.n_runs: int = 0
+
+                def return_gates(self, measurement) -> List[Gate]:
+                    self.measurements[self.n_runs] += measurement
+                    self.energies[self.n_runs] += int(measurement)/2**self.bitplace
+
+                    if self.bitplace > 0:
+                        self.bitplace -= 1
+
+                        # Update phase and determine reset gates
+                        if measurement == "1":
+                            self.phase += 1/2**(self.bitplace+1)
+                            reset_to_zero = [Gate("X", 0)]
+                        else:
+                            reset_to_zero = []
+
+                        phase_correction = [Gate("PHASE", 0, parameter=-np.pi*self.phase*2**(self.bitplace))]
+                        gates = reset_to_zero + [Gate("H", 0)] + phase_correction + [ugate]*2**self.bitplace + [Gate("H", 0)]
+                        return gates + [Gate("CMEASURE", 0)] if self.bitplace else gates
+                    else:
+                        return []
+
+                def finalize(self):
+                    self.bitplace = self.n_bits
+                    self.phase = 0
+                    self.n_runs += 1
+                    self.measurements += [""]
+                    self.energies += [0.]
+
+            bits = 6
+            cfunc = IterativeQPE(bits)
+
+            circuit = Circuit([Gate("X", 1), Gate("CMEASURE", 0)], cmeasure_control=cfunc, n_qubits=2)
+            f, _ = sim.simulate(circuit, save_mid_circuit_meas=True)
+
+            assert_freq_dict_almost_equal(f, {"01": 1}, 1.e-7)
+            assert_freq_dict_almost_equal(circuit.success_probabilities, {"001101": 1}, 1.e-7)
+            self.assertEqual(cfunc.measurements, ["001101", "001101", ""])
+            energy = 1/16+1/8+1/2
+            np.testing.assert_array_almost_equal(cfunc.energies, [energy, energy, 0.])
 
 
 if __name__ == "__main__":
