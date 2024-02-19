@@ -458,9 +458,14 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
+            if callable(self.fragment_frozen_orbitals[i]):
+                frozen_orbitals = self.fragment_frozen_orbitals[i](info_fragment)
+            else:
+                frozen_orbitals = self.fragment_frozen_orbitals[i]
+
             dummy_mol = self.fragment_builder(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
-                self.fragment_frozen_orbitals[i])
+                frozen_orbitals)
 
             if self.verbose:
                 print("\t\tFragment Number : # ", i + 1)
