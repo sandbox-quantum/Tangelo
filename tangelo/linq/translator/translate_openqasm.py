@@ -59,8 +59,9 @@ def translate_c_to_openqasm(source_circuit):
         str: the corresponding OpenQASM program, as per IBM Qiskit.
     """
     from .translate_qiskit import translate_c_to_qiskit
+    from qiskit.qasm2 import dumps
 
-    return translate_c_to_qiskit(source_circuit).qasm()
+    return dumps(translate_c_to_qiskit(source_circuit))
 
 
 def translate_c_from_openqasm(openqasm_str):

@@ -100,8 +100,8 @@ def get_qiskit_noise_model(noise_model):
     Model, compatible with QASM simulator.
     """
 
-    from qiskit.providers.aer.noise import NoiseModel as QiskitNoiseModel
-    from qiskit.providers.aer.noise.errors import depolarizing_error, pauli_error
+    from qiskit_aer.noise import NoiseModel as QiskitNoiseModel
+    from qiskit_aer.noise.errors import depolarizing_error, pauli_error
 
     qnd = get_qiskit_noise_dict(noise_model)
     qnm = QiskitNoiseModel()

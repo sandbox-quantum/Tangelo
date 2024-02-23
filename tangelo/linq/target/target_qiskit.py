@@ -214,8 +214,9 @@ class QiskitSimulator(Backend):
 
             opt_level = 0 if self._noise_model else None
 
-            job_sim = self.qiskit.execute(translated_circuit, backend, noise_model=qiskit_noise_model,
-                                          shots=self.n_shots, basis_gates=None, optimization_level=opt_level)
+            transpiled_circuit = self.qiskit.transpile(translated_circuit, backend)
+            job_sim = backend.run(transpiled_circuit, noise_model=qiskit_noise_model,
+                                  shots=self.n_shots, basis_gates=None, optimization_level=opt_level)
             sim_results = job_sim.result()
             self.all_frequencies = {state[::-1]: count/self.n_shots for state, count in sim_results.get_counts(0).items()}
 

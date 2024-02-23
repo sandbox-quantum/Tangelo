@@ -354,7 +354,7 @@ class TranslateCircuitTest(unittest.TestCase):
             (the latter has its own tests)
         """
         openqasm_circuit1 = '''OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[3];\ncreg c[3];\nh q[2];\ncx q[0],q[1];\ncx '''\
-                            '''q[1],q[2];\ny q[0];\ns q[0];\nrx(1.5) q[1];\nmeasure q[0] -> c[0];\n'''
+                            '''q[1],q[2];\ny q[0];\ns q[0];\nrx(1.5) q[1];\nmeasure q[0] -> c[0];'''
         openqasm_circuit2 = translate_c(abs_circ_mixed, "openqasm")
         print(openqasm_circuit2)
 
