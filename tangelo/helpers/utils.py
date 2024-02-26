@@ -73,8 +73,8 @@ def deprecated(custom_message=""):
 
 
 # List all built-in backends supported
-all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq", "pennylane", "sympy", "stim"} # "qdk"}
-all_backends_simulator = {"qulacs", "qiskit", "cirq"} # "qdk"}
+all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq", "pennylane", "sympy", "stim"}  # "qdk"}
+all_backends_simulator = {"qulacs", "qiskit", "cirq"}  # "qdk"}
 sv_backends_simulator = {"qulacs", "qiskit", "cirq"}
 cmeasure_backends_simulator = {"qulacs", "cirq"}
 symbolic_backends = {"sympy"}
