@@ -83,7 +83,7 @@ clifford_backends_simulator = {"stim"}
 
 # Dictionary mapping package names to their identifier in this module
 packages = {p: p for p in all_backends}
-#packages["qdk"] = "qsharp"
+# packages["qdk"] = "qsharp"
 
 # Figure out what is installed in user's environment
 installed_backends = {p_id for p_id, p_name in packages.items() if is_package_installed(p_name)}
