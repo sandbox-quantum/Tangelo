@@ -454,15 +454,17 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
-            # Interface with our data strcuture.
-            # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
-            # It has the same important attributes and methods to be used with
-            # functions of this package.
+            # Selecting an active space. If the object is callable, the function
+            # should take info_fragment as an argument (DMET fragment information).
             if callable(self.fragment_frozen_orbitals[i]):
                 frozen_orbitals = self.fragment_frozen_orbitals[i](info_fragment)
             else:
                 frozen_orbitals = self.fragment_frozen_orbitals[i]
 
+            # Interface with our data structure.
+            # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
+            # It has the same important attributes and methods to be used with
+            # functions of this package.
             dummy_mol = self.fragment_builder(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
                 frozen_orbitals)
@@ -559,9 +561,16 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
+            # Selecting an active space. If the object is callable, the function
+            # should take info_fragment as an argument (DMET fragment information).
+            if callable(self.fragment_frozen_orbitals[i]):
+                frozen_orbitals = self.fragment_frozen_orbitals[i](info_fragment)
+            else:
+                frozen_orbitals = self.fragment_frozen_orbitals[i]
+
             dummy_mol = self.fragment_builder(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
-                self.fragment_frozen_orbitals[i])
+                frozen_orbitals)
 
             # Buiding SCF fragments and quantum circuit. Resources are then
             # estimated. For classical sovlers, this functionality is not
