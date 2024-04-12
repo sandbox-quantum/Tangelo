@@ -9,6 +9,7 @@ from tangelo.linq.translator import translate_operator, translate_circuit
 from tangelo.linq.qpu_connection.qpu_connection import QpuConnection
 
 try:
+    from qiskit import QuantumCircuit, QuantumRegister
     from qiskit.providers.jobstatus import JobStatus
     from qiskit.primitives import SamplerResult, EstimatorResult
     from qiskit_ibm_runtime import QiskitRuntimeService, Sampler, Estimator, Session, Options
@@ -76,9 +77,13 @@ class IBMConnection(QpuConnection):
             circuits = [circuits]
         qiskit_cs = list()
         for c in circuits:
-            qiskit_c = translate_circuit(c, target="qiskit")
-            qiskit_c.remove_final_measurements()
-            qiskit_c.measure_all(add_bits=False)
+
+            if program == 'sampler':
+                qiskit_c = translate_circuit(c, target="qiskit")
+                qiskit_c.remove_final_measurements()
+                qiskit_c.measure_all(add_bits=False)
+            elif program == 'estimator':
+                qiskit_c = translate_circuit(c, target="qiskit", output_options={'no_classical_register': True})
             qiskit_cs.append(qiskit_c)
 
         # If needed, translate qubit operators in qiskit format
@@ -130,7 +135,7 @@ class IBMConnection(QpuConnection):
             return None
 
         result = job.result()
-        self.jobs_results[job_id] = job._results
+        self.jobs_results[job_id] = job.result()
 
         # Sampler: return histogram for user in standard Tangelo format
         if isinstance(result, SamplerResult):
