@@ -56,7 +56,7 @@ class OSDMETProblemDecompositionTest(unittest.TestCase):
 
         opt_dmet = {"molecule": mol_lio2,
                     "fragment_atoms": [1, 1, 1],
-                    "fragment_solvers": "hf",
+                    "fragment_solvers": "ccsd",
                     "electron_localization": Localization.nao,
                     "verbose": False
                     }
