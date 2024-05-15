@@ -56,8 +56,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
             DMETProblemDecomposition(opt_dmet)
 
     def test_not_implemented_solver(self):
-        """Test
-        """
+        """Test if a missing solver is raising an error."""
 
         opt_dmet = {"molecule": mol_H10_321g,
                     "fragment_atoms": [1]*10,
@@ -178,8 +177,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         self.assertAlmostEqual(energy, mol_H10_321g.mf_energy, places=4)
 
     def test_solver_mp2(self):
-        """Test the energy output of DMET with MP2 solvers.
-        """
+        """Test the energy output of DMET with MP2 solvers."""
 
         opt_dmet = {"molecule": mol_H10_321g,
                     "fragment_atoms": [1]*10,

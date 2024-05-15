@@ -87,7 +87,6 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         self.ao2mo = ao2mo
 
-        default_classical_options = dict()
         default_vqe_options = {"qubit_mapping": "jw",
                                "initial_var_params": "ones",
                                "verbose": False}
@@ -182,7 +181,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
         if not self.solvers_options:
             for solver in self.fragment_solvers:
                 if solver.lower() in {"ccsd", "fci", "mp2", "hf"}:
-                    self.solvers_options.append(default_classical_options)
+                    self.solvers_options.append(dict())
                 elif solver.lower() == "vqe":
                     self.solvers_options.append(default_vqe_options)
                 else:
