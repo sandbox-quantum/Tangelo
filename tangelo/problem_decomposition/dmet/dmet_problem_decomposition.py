@@ -481,7 +481,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
             solver_fragment = self.fragment_solvers[i]
             solver_options = self.solvers_options[i]
             if solver_fragment == "hf":
-                # This code block would output an error with a UHF mean-field.
+                # This code block would output an error with an UHF mean-field.
                 if self.uhf:
                     raise NotImplementedError("UHF mean-field is not supported for the HF solver.")
                 onerdm = mf_fragment.mo_coeff.T @ mf_fragment.make_rdm1() @ mf_fragment.mo_coeff
