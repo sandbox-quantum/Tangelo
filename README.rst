@@ -7,9 +7,6 @@
 .. raw:: html
 
    <p align="center">
-     <a href="https://goodchemistry.com">
-       <img src="https://img.shields.io/badge/Maintainer-GoodChemistry-blue" alt="maintainer">
-     </a>
      <a href="https://github.com/goodchemistryco/Tangelo/blob/main/LICENSE">
        <img src="https://img.shields.io/badge/License-Apache_2.0-green" alt="license">
      </a>
@@ -22,7 +19,7 @@
 .. |build| image:: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml/badge.svg
    :target: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml
 
-Tangelo is an open-source Python package maintained by `Good Chemistry Company <https://goodchemistry.com>`_, focusing on the development of quantum chemistry simulation workflows on quantum computers. It was developed as an engine to accelerate research, and takes advantage of other popular frameworks to harness the innovation in our field.
+Tangelo is an open-source Python package maintained by `SandboxAQ <https://www.sandboxaq.com/>`_, focusing on the development of quantum chemistry simulation workflows on quantum computers. It was developed as an engine to accelerate research, and takes advantage of other popular frameworks to harness the innovation in our field.
 
 -------------
 
@@ -40,7 +37,7 @@ Tangelo is an open-source Python package maintained by `Good Chemistry Company <
 
 -------------
 
-This package provides a growing collection of algorithms and toolboxes to support quantum algorithms R&D and the design of successful experiments on quantum devices. Tangelo is backend-agnostic, which means users can write quantum algortihms once and run their calculations on current and future platforms with minimal changes. Tangelo is capable to perform quantum experiments that led to publications in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
+This package provides a collection of algorithms and toolboxes to support quantum algorithms R&D and the design of successful experiments on quantum devices. Tangelo is backend-agnostic, which means users can write quantum algortihms once and run their calculations on current and future platforms with minimal changes. Tangelo is capable to perform quantum experiments that led to publications in scientific journals, co-authored by professionals from the chemical industry and quantum hardware manufacturers.
 
 .. raw:: html
 
@@ -51,9 +48,6 @@ This package provides a growing collection of algorithms and toolboxes to suppor
 .. |curve| image:: ./docs/source/_static/img/curve_dmet_qcc.png
    :width: 400
    :alt: curve
-
-We hope to grow a healthy community around Tangelo, collaborate, and together leverage the best of what the field has to offer.
-What will you do with Tangelo ?
 
 -----------------------------
 
@@ -143,4 +137,4 @@ If you use Tangelo in your research, please cite the `Tangelo release paper <htt
       doi = {10.48550/arXiv.2206.12424}
    }
 
-© Good Chemistry Company 2023. This software is released under the Apache Software License version 2.0.
+© SandboxAQ 2024. This software is released under the Apache Software License version 2.0.
