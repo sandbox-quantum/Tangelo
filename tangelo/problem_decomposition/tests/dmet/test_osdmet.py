@@ -67,6 +67,23 @@ class OSDMETProblemDecompositionTest(unittest.TestCase):
 
         self.assertAlmostEqual(energy, -156.6243118102, places=4)
 
+    def test_notimplemented_uhf_hf_solver(self):
+        """Tests if setting UHF=True raises an error if a HF solver is selected."""
+
+        mol_lio2 = SecondQuantizedMolecule(LiO2, q=0, spin=1, basis="STO-6G", frozen_orbitals=None, uhf=True)
+
+        opt_dmet = {"molecule": mol_lio2,
+                    "fragment_atoms": [1, 1, 1],
+                    "fragment_solvers": "hf",
+                    "electron_localization": Localization.nao,
+                    "verbose": False
+                    }
+
+        with self.assertRaises(NotImplementedError):
+            dmet_solver = DMETProblemDecomposition(opt_dmet)
+            dmet_solver.build()
+            dmet_solver.simulate()
+
 
 if __name__ == "__main__":
     unittest.main()
