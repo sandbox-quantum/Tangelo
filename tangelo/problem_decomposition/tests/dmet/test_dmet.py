@@ -56,7 +56,7 @@ class DMETProblemDecompositionTest(unittest.TestCase):
             DMETProblemDecomposition(opt_dmet)
 
     def test_not_implemented_solver(self):
-        """Test if a missing solver is raising an error."""
+        """Test if a non-implemented solver is raising an error."""
 
         opt_dmet = {"molecule": mol_H10_321g,
                     "fragment_atoms": [1]*10,

@@ -181,6 +181,8 @@ class DMETProblemDecomposition(ProblemDecomposition):
         if not self.solvers_options:
             for solver in self.fragment_solvers:
                 if solver.lower() in {"ccsd", "fci", "mp2", "hf"}:
+                    # To keep the same length for solver_options and fragment_solvers.
+                    # TODO: include solver options inside the fragment_solvers structures or objects.
                     self.solvers_options.append(dict())
                 elif solver.lower() == "vqe":
                     self.solvers_options.append(default_vqe_options)
