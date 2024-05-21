@@ -17,6 +17,7 @@ This file documents the main changes between versions of the code.
 
 ### Deprecated / Removed
 
+
 ## [0.4.2] - 2023-12-20
 
 ### Added
