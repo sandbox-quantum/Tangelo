@@ -1,4 +1,4 @@
-# Copyright 2023 Good Chemistry Company.
+# Copyright SandboxAQ 2021-2024.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -73,8 +73,8 @@ def deprecated(custom_message=""):
 
 
 # List all built-in backends supported
-all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq", "qdk", "pennylane", "sympy", "stim"}
-all_backends_simulator = {"qulacs", "qiskit", "cirq", "qdk"}
+all_backends = {"qulacs", "qiskit", "cirq", "braket", "projectq", "pennylane", "sympy", "stim"}  # "qdk"}
+all_backends_simulator = {"qulacs", "qiskit", "cirq"}  # "qdk"}
 sv_backends_simulator = {"qulacs", "qiskit", "cirq"}
 cmeasure_backends_simulator = {"qulacs", "cirq"}
 symbolic_backends = {"sympy"}
@@ -83,7 +83,7 @@ clifford_backends_simulator = {"stim"}
 
 # Dictionary mapping package names to their identifier in this module
 packages = {p: p for p in all_backends}
-packages["qdk"] = "qsharp"
+# packages["qdk"] = "qsharp"
 
 # Figure out what is installed in user's environment
 installed_backends = {p_id for p_id, p_name in packages.items() if is_package_installed(p_name)}

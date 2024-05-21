@@ -1,4 +1,4 @@
-# Copyright 2023 Good Chemistry Company.
+# Copyright SandboxAQ 2021-2024.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ from tangelo import SecondQuantizedMolecule
 from tangelo.problem_decomposition.dmet import _helpers as helpers
 from tangelo.problem_decomposition.problem_decomposition import ProblemDecomposition
 from tangelo.problem_decomposition.electron_localization import iao_localization, meta_lowdin_localization, nao_localization
-from tangelo.algorithms import FCISolver, CCSDSolver, VQESolver
+from tangelo.algorithms import FCISolver, CCSDSolver, VQESolver, MP2Solver
 from tangelo.toolboxes.post_processing.mc_weeny_rdm_purification import mcweeny_purify_2rdm
 from tangelo.toolboxes.molecular_computation.rdms import pad_rdms_with_frozen_orbitals_restricted, \
     pad_rdms_with_frozen_orbitals_unrestricted
@@ -82,10 +82,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
     def __init__(self, opt_dict):
         if not is_package_installed("pyscf"):
             raise ModuleNotFoundError(f"Using {self.__class__.__name__} requires the installation of the pyscf package.")
-        from pyscf import gto, scf
+        from pyscf import gto, scf, ao2mo
         from tangelo.problem_decomposition.dmet.fragment import SecondQuantizedDMETFragment
-        default_ccsd_options = dict()
-        default_fci_options = dict()
+
+        self.ao2mo = ao2mo
+
         default_vqe_options = {"qubit_mapping": "jw",
                                "initial_var_params": "ones",
                                "verbose": False}
@@ -179,12 +180,14 @@ class DMETProblemDecomposition(ProblemDecomposition):
         # If it is a list, we verified that the length is the same.
         if not self.solvers_options:
             for solver in self.fragment_solvers:
-                if solver == "ccsd":
-                    self.solvers_options.append(default_ccsd_options)
-                elif solver == "fci":
-                    self.solvers_options.append(default_fci_options)
-                elif solver == "vqe":
+                if solver.lower() in {"ccsd", "fci", "mp2", "hf"}:
+                    # To keep the same length for solver_options and fragment_solvers.
+                    # TODO: include solver options inside the fragment_solvers structures or objects.
+                    self.solvers_options.append(dict())
+                elif solver.lower() == "vqe":
                     self.solvers_options.append(default_vqe_options)
+                else:
+                    raise NotImplementedError(f"Solver {solver} is not implemented.")
         elif isinstance(self.solvers_options, dict):
             self.solvers_options = [self.solvers_options for _ in self.fragment_solvers]
         elif isinstance(self.solvers_options, list):
@@ -454,13 +457,20 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
-            # Interface with our data strcuture.
+            # Selecting an active space. If the object is callable, the function
+            # should take info_fragment as an argument (DMET fragment information).
+            if callable(self.fragment_frozen_orbitals[i]):
+                frozen_orbitals = self.fragment_frozen_orbitals[i](info_fragment)
+            else:
+                frozen_orbitals = self.fragment_frozen_orbitals[i]
+
+            # Interface with our data structure.
             # We create a dummy SecondQuantizedMolecule with a DMETFragment class.
             # It has the same important attributes and methods to be used with
             # functions of this package.
             dummy_mol = self.fragment_builder(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
-                self.fragment_frozen_orbitals[i])
+                frozen_orbitals)
 
             if self.verbose:
                 print("\t\tFragment Number : # ", i + 1)
@@ -469,15 +479,26 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # TODO: Changing this into something more simple is preferable. There
             # would be an enum class with every solver in it. After this, we would
             # define every solver in a list and call them recursively.
-            # FCISolver and CCSDSolver must be taken care of, but this is a PR itself.
             solver_fragment = self.fragment_solvers[i]
             solver_options = self.solvers_options[i]
-            if solver_fragment == "fci":
+            if solver_fragment == "hf":
+                # This code block would output an error with an UHF mean-field.
+                if self.uhf:
+                    raise NotImplementedError("UHF mean-field is not supported for the HF solver.")
+                onerdm = mf_fragment.mo_coeff.T @ mf_fragment.make_rdm1() @ mf_fragment.mo_coeff
+                twordm = mf_fragment.make_rdm2()
+                twordm = self.ao2mo.kernel(twordm, mf_fragment.mo_coeff)
+                twordm = self.ao2mo.restore(1, twordm, len(mf_fragment.mo_coeff))
+            elif solver_fragment == "fci":
                 solver_fragment = FCISolver(dummy_mol, **solver_options)
                 solver_fragment.simulate()
                 onerdm, twordm = solver_fragment.get_rdm()
             elif solver_fragment == "ccsd":
                 solver_fragment = CCSDSolver(dummy_mol, **solver_options)
+                solver_fragment.simulate()
+                onerdm, twordm = solver_fragment.get_rdm()
+            elif solver_fragment == "mp2":
+                solver_fragment = MP2Solver(dummy_mol, **solver_options)
                 solver_fragment.simulate()
                 onerdm, twordm = solver_fragment.get_rdm()
             elif solver_fragment == "vqe":
@@ -554,9 +575,16 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Unpacking the information for the selected fragment.
             mf_fragment, fock_frag_copy, mol_frag, t_list, one_ele, two_ele, fock = info_fragment
 
+            # Selecting an active space. If the object is callable, the function
+            # should take info_fragment as an argument (DMET fragment information).
+            if callable(self.fragment_frozen_orbitals[i]):
+                frozen_orbitals = self.fragment_frozen_orbitals[i](info_fragment)
+            else:
+                frozen_orbitals = self.fragment_frozen_orbitals[i]
+
             dummy_mol = self.fragment_builder(mol_frag, mf_fragment, fock,
                 fock_frag_copy, t_list, one_ele, two_ele, self.uhf,
-                self.fragment_frozen_orbitals[i])
+                frozen_orbitals)
 
             # Buiding SCF fragments and quantum circuit. Resources are then
             # estimated. For classical sovlers, this functionality is not

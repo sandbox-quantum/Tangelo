@@ -1,4 +1,4 @@
-# Copyright 2023 Good Chemistry Company.
+# Copyright SandboxAQ 2021-2024.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,6 +53,19 @@ class DMETProblemDecompositionTest(unittest.TestCase):
                     }
 
         with self.assertRaises(RuntimeError):
+            DMETProblemDecomposition(opt_dmet)
+
+    def test_not_implemented_solver(self):
+        """Test if a non-implemented solver is raising an error."""
+
+        opt_dmet = {"molecule": mol_H10_321g,
+                    "fragment_atoms": [1]*10,
+                    "fragment_solvers": "banana",
+                    "electron_localization": Localization.iao,
+                    "verbose": False
+                    }
+
+        with self.assertRaises(NotImplementedError):
             DMETProblemDecomposition(opt_dmet)
 
     def test_h10ring_ml_fci(self):
@@ -147,6 +160,36 @@ class DMETProblemDecompositionTest(unittest.TestCase):
         solver.build()
         energy = solver.simulate()
         self.assertAlmostEqual(energy, -0.94199, places=4)
+
+    def test_solver_hf(self):
+        """Test the energy output of DMET with HF solvers (proof of concept)."""
+
+        opt_dmet = {"molecule": mol_H10_321g,
+                    "fragment_atoms": [1]*10,
+                    "fragment_solvers": "hf",
+                    "electron_localization": Localization.iao,
+                    "verbose": False
+                    }
+
+        solver = DMETProblemDecomposition(opt_dmet)
+        solver.build()
+        energy = solver.simulate()
+        self.assertAlmostEqual(energy, mol_H10_321g.mf_energy, places=4)
+
+    def test_solver_mp2(self):
+        """Test the energy output of DMET with MP2 solvers."""
+
+        opt_dmet = {"molecule": mol_H10_321g,
+                    "fragment_atoms": [1]*10,
+                    "fragment_solvers": "mp2",
+                    "electron_localization": Localization.iao,
+                    "verbose": False
+                    }
+
+        solver = DMETProblemDecomposition(opt_dmet)
+        solver.build()
+        energy = solver.simulate()
+        self.assertAlmostEqual(energy, -4.489290, places=4)
 
     def test_fragment_ids(self):
         """Tests if a nested list of atom ids is provided."""

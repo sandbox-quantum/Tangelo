@@ -1,4 +1,4 @@
-# Copyright 2023 Good Chemistry Company.
+# Copyright SandboxAQ 2021-2024.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,8 +100,8 @@ def get_qiskit_noise_model(noise_model):
     Model, compatible with QASM simulator.
     """
 
-    from qiskit.providers.aer.noise import NoiseModel as QiskitNoiseModel
-    from qiskit.providers.aer.noise.errors import depolarizing_error, pauli_error
+    from qiskit_aer.noise import NoiseModel as QiskitNoiseModel
+    from qiskit_aer.noise.errors import depolarizing_error, pauli_error
 
     qnd = get_qiskit_noise_dict(noise_model)
     qnm = QiskitNoiseModel()

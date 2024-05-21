@@ -21,7 +21,7 @@ from tangelo._version import __version__
 # -- Project information -----------------------------------------------------
 
 project = 'tangelo'
-copyright = '2023 Good Chemistry Company'
+copyright = 'SandboxAQ 2021-2024'
 author = 'Valentin senicourt, Alexandre Fleury, Ryan Day, James Brown'
 
 # The full version, including alpha/beta/rc tags

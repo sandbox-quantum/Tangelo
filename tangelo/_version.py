@@ -1,4 +1,4 @@
-# Copyright 2023 Good Chemistry Company.
+# Copyright SandboxAQ 2021-2024.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,4 +14,4 @@
 
 """ Define version number here. It is read in setup.py, and bumped automatically
 when using the new release Github action. """
-__version__ = "0.4.2"
+__version__ = "0.4.3"

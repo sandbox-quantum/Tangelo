@@ -1,4 +1,4 @@
-# Copyright 2023 Good Chemistry Company.
+# Copyright SandboxAQ 2021-2024.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,13 +65,14 @@ def get_qiskit_gates():
     return GATE_QISKIT
 
 
-def translate_c_to_qiskit(source_circuit: Circuit, save_measurements=False):
+def translate_c_to_qiskit(source_circuit: Circuit, save_measurements=False, no_classical_register=False):
     """Take in a Circuit, return an equivalent qiskit.QuantumCircuit
 
     Args:
         source_circuit (Circuit): quantum circuit in the abstract format.
         save_measurements (bool): Return mid-circuit measurements in the order
             they appear in the circuit in the classical registers
+        no_classical_register (bool): do not create classical register in circuit (default: False)
 
     Returns:
         qiskit.QuantumCircuit: the corresponding qiskit.QuantumCircuit
@@ -82,7 +83,12 @@ def translate_c_to_qiskit(source_circuit: Circuit, save_measurements=False):
 
     n_meas = source_circuit._gate_counts.get("MEASURE", 0) if save_measurements else 0
     n_measures = n_meas + source_circuit.width
-    target_circuit = qiskit.QuantumCircuit(source_circuit.width, n_measures)
+    if no_classical_register:
+        if n_meas != 0:
+            print('Linq translator warning :: Qiskit circuit instantiated with no classical register but measurement gates are present')
+        target_circuit = qiskit.QuantumCircuit(source_circuit.width)
+    else:
+        target_circuit = qiskit.QuantumCircuit(source_circuit.width, n_measures)
 
     measurement = 0
 

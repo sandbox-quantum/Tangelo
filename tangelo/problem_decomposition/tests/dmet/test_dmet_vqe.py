@@ -1,4 +1,4 @@
-# Copyright 2023 Good Chemistry Company.
+# Copyright SandboxAQ 2021-2024.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,25 @@
 import unittest
 from copy import copy
 
-from tangelo.molecule_library import mol_H4_minao
+from tangelo.molecule_library import mol_H4_minao, mol_H10_321g
 from tangelo.problem_decomposition.dmet.dmet_problem_decomposition import Localization, DMETProblemDecomposition
+
+
+def define_dmet_frag_as(homo_minus_m=0, lumo_plus_n=0):
+
+    def callable_for_dmet_object(info_fragment):
+        mf_fragment, _, _, _, _, _, _ = info_fragment
+
+        n_molecular_orb = len(mf_fragment.mo_occ)
+
+        n_lumo = mf_fragment.mo_occ.tolist().index(0.)
+        n_homo = n_lumo - 1
+
+        frozen_orbitals = [n for n in range(n_molecular_orb) if n not in range(n_homo-homo_minus_m, n_lumo+lumo_plus_n+1)]
+
+        return frozen_orbitals
+
+    return callable_for_dmet_object
 
 
 class DMETVQETest(unittest.TestCase):
@@ -76,6 +93,32 @@ class DMETVQETest(unittest.TestCase):
         # scBK.
         self.assertEqual(resources_bk[0]["qubit_hamiltonian_terms"], 5)
         self.assertEqual(resources_bk[0]["circuit_width"], 2)
+
+    def test_h10_vqe_resources(self):
+        """Resources estimation on H10 ring, with restricted active space."""
+
+        # Building DMET fragments (with scBK).
+        opt_dmet = {"molecule": mol_H10_321g,
+                    "fragment_atoms": [1]*10,
+                    "fragment_solvers": ["vqe"]*2 + ["ccsd"]*8,
+                    "fragment_frozen_orbitals": [define_dmet_frag_as(0, 0), define_dmet_frag_as(1, 1)]*5,
+                    "electron_localization": Localization.meta_lowdin,
+                    "verbose": False
+                    }
+        opt_dmet["solvers_options"] = {
+            "qubit_mapping": "scbk",
+            "initial_var_params": "ones",
+            "up_then_down": True
+        }
+        dmet = DMETProblemDecomposition(opt_dmet)
+        dmet.build()
+        resources_scbk = dmet.get_resources()
+
+        self.assertEqual(resources_scbk[0]["qubit_hamiltonian_terms"], 9)
+        self.assertEqual(resources_scbk[0]["circuit_width"], 2)
+
+        self.assertEqual(resources_scbk[1]["qubit_hamiltonian_terms"], 325)
+        self.assertEqual(resources_scbk[1]["circuit_width"], 6)
 
 
 if __name__ == "__main__":
