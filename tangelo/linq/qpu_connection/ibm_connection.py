@@ -135,7 +135,7 @@ class IBMConnection(QpuConnection):
             return None
 
         result = job.result()
-        self.jobs_results[job_id] = job._results
+        self.jobs_results[job_id] = job.result()
 
         # Sampler: return histogram for user in standard Tangelo format
         if isinstance(result, SamplerResult):
