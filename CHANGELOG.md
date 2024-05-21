@@ -2,6 +2,22 @@
 
 This file documents the main changes between versions of the code.
 
+## [0.4.3] - 2024-05-21
+
+### Added
+
+- DMET: HF and MP2 solvers
+- DMET: fragment active space can be specified by usrs as a callable function (see DMET notebook)
+
+### Changed
+
+- Copyrights (SandboxAQ 2024)
+- Call to qiskit state vector simulator and IBM Q hardware experiment submissions (compatibility with Qiskit v1.0)
+
+
+### Deprecated / Removed
+
+
 ## [0.4.2] - 2023-12-20
 
 ### Added
