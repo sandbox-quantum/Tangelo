@@ -182,7 +182,7 @@ class TranslateCircuitTest(unittest.TestCase):
 
     @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_qiskit_multi_control(self):
-        from tangelo.linq import Gate, Circuit, translate_circuit
+        from tangelo.linq import translate_circuit
         from qiskit import QuantumCircuit
 
         for g in ["CRX", "CRY", "CRZ", "CPHASE"]:
