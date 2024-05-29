@@ -24,9 +24,11 @@ from typing import List, Tuple, Union, Set, Dict, Callable
 import warnings
 
 import numpy as np
+import sympy as sp
 from cirq.contrib.svg import SVGCircuit
 
 from tangelo.linq import Gate
+
 
 
 class Circuit:
@@ -179,7 +181,7 @@ class Circuit:
         """
         return self._applied_gates if "CMEASURE" in self.counts else self._gates
 
-    def draw(self):
+    def old_draw(self):
         """Method to output a prettier version of the circuit for use in jupyter notebooks that uses cirq SVGCircuit"""
         # circular import
         from tangelo.linq.translator.translate_cirq import translate_c_to_cirq
@@ -187,6 +189,27 @@ class Circuit:
         # Remove identity gates that are added in translate_c_to_cirq (to ensure all qubits are initialized) before drawing.
         cirq_circ.__delitem__(0)
         return SVGCircuit(cirq_circ)
+    
+    def draw(self):
+        from tangelo.linq.translator.translate_cirq import translate_c_to_cirq
+        circuit_copy = copy.deepcopy(self)
+        for gate in circuit_copy._gates:
+            if isinstance(gate.parameter, str):
+                gate.parameter = self._string_to_sympy(gate.parameter)
+
+        cirq_circ = translate_c_to_cirq(circuit_copy)
+        cirq_circ.__delitem__(0)
+        return SVGCircuit(cirq_circ)
+
+    def _string_to_sympy(self, parameter):
+        if parameter:
+            try:
+                return sp.symbols(parameter)
+            except Exception as e:
+                print(f"Error converting {parameter} to sympy symbol: {e}")
+                return parameter
+        return parameter
+
 
     def copy(self):
         """Return a deepcopy of circuit"""
