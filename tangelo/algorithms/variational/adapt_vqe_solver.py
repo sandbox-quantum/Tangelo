@@ -319,7 +319,7 @@ class ADAPTSolver:
         max_partial = gradients[sorted_op_indices[-1]]
 
         if self.verbose:
-            print(f"LARGEST PARTIAL DERIVATIVE: {max_partial :4E}")
+            print(f"LARGEST PARTIAL DERIVATIVE: {max_partial:4E}")
 
         return [sorted_op_indices[-1]] if max_partial >= tolerance else []
 
