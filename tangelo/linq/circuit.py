@@ -30,7 +30,6 @@ from cirq.contrib.svg import SVGCircuit
 from tangelo.linq import Gate
 
 
-
 class Circuit:
     """An abstract quantum circuit class, represented by a list of abstract gate
     operations acting on qubits indices. From this list of gates, the gate
@@ -182,10 +181,10 @@ class Circuit:
         return self._applied_gates if "CMEASURE" in self.counts else self._gates
 
     def draw(self):
-        """Method to output a prettier version of the circuit 
+        """Method to output a prettier version of the circuit
         for use in jupyter notebooks that uses cirq SVGCircuit"""
         from tangelo.linq.translator.translate_cirq import translate_c_to_cirq
-        circuit_copy =  self.copy()
+        circuit_copy = self.copy()
         for gate in circuit_copy._gates:
             if gate.parameter and isinstance(gate.parameter, str):
                 gate.parameter = self._string_to_sympy(gate)
