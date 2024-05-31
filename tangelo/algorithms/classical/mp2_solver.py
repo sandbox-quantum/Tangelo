@@ -81,9 +81,15 @@ class MP2SolverPySCF(ElectronicStructureSolver):
 
         # Execute MP2 calculation
         if self.uhf:
+
             self.mp2_fragment = self.mp.UMP2(self.mean_field, frozen=self.frozen)
         else:
             self.mp2_fragment = self.mp.RMP2(self.mean_field, frozen=self.frozen)
+            if self.mean_field.istype('UHF'):
+                self.mp2_fragment.mean_field = self.mean_field.to_uhf()
+
+        
+
 
         self.mp2_fragment.verbose = 0
         _, self.mp2_t2 = self.mp2_fragment.kernel()
