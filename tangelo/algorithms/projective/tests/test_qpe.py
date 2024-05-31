@@ -76,7 +76,7 @@ class QPESolverTest(unittest.TestCase):
                                 "n_electrons": mol_H2_sto3g.n_active_electrons})
 
         # Test supplying circuit and applying QPE controls to only gates marked as variational
-        qpe_options = {"unitary": unit_circ, "size_qpe_register": 8, "ref_state": ref_circ,
+        qpe_options = {"qubit_hamiltonian": qu_op, "unitary": unit_circ, "size_qpe_register": 8, "ref_state": ref_circ,
                        "backend_options": {"target": "qulacs"}, "unitary_options": {"control_method": "variational"}}
         qpe_solver = QPESolver(qpe_options)
         qpe_solver.build()
@@ -86,7 +86,7 @@ class QPESolverTest(unittest.TestCase):
         self.assertAlmostEqual(energy, -(-1.13727-qu_op.constant), delta=1e-3)
 
         # Test supplying circuit with QPE controls added to every gate.
-        qpe_options = {"unitary": unit_circ, "size_qpe_register": 8, "ref_state": ref_circ,
+        qpe_options = {"qubit_hamiltonian": qu_op, "unitary": unit_circ, "size_qpe_register": 8, "ref_state": ref_circ,
                        "backend_options": {"target": "qulacs"}, "unitary_options": {"control_method": "all"}}
         qpe_solver = QPESolver(qpe_options)
         qpe_solver.build()

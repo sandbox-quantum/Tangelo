@@ -215,7 +215,7 @@ def combinatorial(ferm_op, n_modes, n_electrons):
     # Get the number of qubits n.
     n_choose_alpha = comb(n_modes, n_alpha, exact=True)
     n_choose_beta = comb(n_modes, n_beta, exact=True)
-    n = math.ceil(np.log2(n_choose_alpha * n_choose_beta))
+    n = ceil(np.log2(n_choose_alpha * n_choose_beta))
 
     # Construct the basis set where each configuration is mapped to a unique integer.
     basis_set_alpha = basis(n_modes, n_alpha)

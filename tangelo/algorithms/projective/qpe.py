@@ -1,4 +1,4 @@
-# Copyright SandboxAQ 2021-2024.
+# Copyright 2023 Good Chemistry Company.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -94,17 +94,10 @@ class QPESolver:
         if len(copt_dict) > 0:
             raise KeyError(f"The following keywords are not supported in {self.__class__.__name__}: \n {copt_dict.keys()}")
 
-        # If nothing is provided raise and Error:
-        if not (bool(self.molecule) or bool(self.qubit_hamiltonian) or isinstance(self.unitary, (unitary.Unitary, Circuit))):
-            raise ValueError(f"A Molecule or a QubitOperator or a Unitary object/Circuit must be provided in {self.__class__.__name__}")
-
         # Raise error/warnings if input is not as expected. Only a single input
-        if (bool(self.molecule) and bool(self.qubit_hamiltonian)):
-            raise ValueError(f"Both a molecule and qubit Hamiltonian can not be provided when instantiating {self.__class__.__name__}.")
-        if isinstance(self.unitary, Circuit) and bool(self.qubit_hamiltonian):
-            raise ValueError(f"Both a qubit Hamiltonian and a circuit defining the unitary can not be provided in {self.__class__.__name__}.")
-        if isinstance(self.unitary, (Circuit, unitary.Unitary)) and bool(self.molecule):
-            raise Warning("The molecule is only being used to generate the reference state. The unitary is being used for the QPE.")
+        # must be provided to avoid conflicts.
+        if not (bool(self.molecule) ^ bool(self.qubit_hamiltonian)):
+            raise ValueError(f"A molecule OR qubit Hamiltonian object must be provided when instantiating {self.__class__.__name__}.")
 
         if self.ref_state is not None:
             if isinstance(self.ref_state, Circuit):
@@ -157,7 +150,7 @@ class QPESolver:
         if isinstance(self.unitary, BuiltInUnitary):
             self.unitary = self.unitary.value(self.qubit_hamiltonian, **self.unitary_options)
         elif not isinstance(self.unitary, unitary.Unitary):
-            raise TypeError("Invalid ansatz dataype. Expecting a custom Unitary (Unitary class).")
+            raise TypeError(f"Invalid ansatz dataype. Expecting a custom Unitary (Unitary class).")
 
         # Quantum circuit simulation backend options
         self.backend = get_backend(**self.backend_options)
