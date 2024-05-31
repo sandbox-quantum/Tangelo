@@ -85,13 +85,12 @@ class MP2SolverPySCF(ElectronicStructureSolver):
             self.mp2_fragment = self.mp.UMP2(self.mean_field, frozen=self.frozen)
         else:
             self.mp2_fragment = self.mp.RMP2(self.mean_field, frozen=self.frozen)
-            if self.mean_field.istype('UHF'):
-                self.mp2_fragment.mean_field = self.mean_field.to_uhf()
-
-        
-
+            if self.mp2_fragment.mo_coeff.shape == self.mean_field.mo_coeff.shape:
+                mf = self.mean_field.to_uhf()
+                self.mp2_fragment = self.mp.UMP2(mf, frozen=self.frozen, mo_coeff=mf.mo_coeff, mo_occ=None)
 
         self.mp2_fragment.verbose = 0
+        print(self.mp2_fragment.mo_coeff)
         _, self.mp2_t2 = self.mp2_fragment.kernel()
 
         total_energy = self.mp2_fragment.e_tot
