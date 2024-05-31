@@ -61,6 +61,14 @@ class OptimizerTest(unittest.TestCase):
         energy, _ = rotosolve(exp, ansatz.var_params_default, ansatz, qubit_hamiltonian)
 
         self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
+        
+
+    def test_rotoselect(self):
+        """Test rotoselect """
+
+        sim = get_backend()
+        self.assertTrue(False)
+
 
 
 if __name__ == "__main__":
