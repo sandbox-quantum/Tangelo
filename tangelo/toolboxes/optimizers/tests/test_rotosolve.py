@@ -59,7 +59,44 @@ class OptimizerTest(unittest.TestCase):
             return energy
 
         # Run rotosolve, returning energy
-        energy, _ = rotosolve(exp, ansatz.var_params_default, ansatz, qubit_hamiltonian)
+        energy, _ = rotosolve(exp, ansatz.var_params_default, ansatz, qubit_hamiltonian, extrapolate=False)
+
+        self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
+
+    def test_rotosolve_extrapolate(self):
+        """Test rotosovle on H2 without VQE, using custom variational circuit
+        and qubit Hamiltonian with JW qubit mapping on an exact simulator.
+        """
+        sim = get_backend()
+        # Create qubit Hamiltonian compatible with UCC1 Ansatz
+        qubit_hamiltonian = fermion_to_qubit_mapping(fermion_operator=mol_H2_sto3g.fermionic_hamiltonian,
+                                                     mapping="jw",
+                                                     n_spinorbitals=mol_H2_sto3g.n_active_sos,
+                                                     up_then_down=True,)
+
+        # Manual input of UCC1 circuit with extra variational parameters
+        circuit = Circuit()
+        # Create excitation ladder circuit used to build entangler
+        excit_gates = [Gate("RX", 0, parameter=np.pi/2, is_variational=True)]
+        excit_gates += [Gate("H", i) for i in {1, 2, 3}]
+        excit_gates += [Gate("CNOT", i+1, i) for i in range(3)]
+        excit_circuit = Circuit(excit_gates)
+        # Build UCC1 circuit: mean field + entangler circuits
+        circuit = Circuit([Gate("X", i) for i in {0, 2}])
+        circuit += excit_circuit
+        circuit.add_gate(Gate("RZ", 3, parameter=0, is_variational=True))
+        circuit += excit_circuit.inverse()
+        # Translate circuit into variational ansatz
+        ansatz = VariationalCircuitAnsatz(circuit)
+
+        # Define function to calculate energy and update variational parameters
+        def exp(var_params, ansatz, qubit_hamiltonian):
+            ansatz.update_var_params(var_params)
+            energy = sim.get_expectation_value(qubit_hamiltonian, ansatz.circuit)
+            return energy
+
+        # Run rotosolve, returning energy
+        energy, _ = rotosolve(exp, ansatz.var_params_default, ansatz, qubit_hamiltonian, extrapolate=True)
 
         self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
 
@@ -114,9 +151,9 @@ class OptimizerTest(unittest.TestCase):
         J = h = 1.0
 
         # Construct a "hardware efficient" CZ-based ansatz layer
-        heisenberg_gates = [Gate('Ry', i,parameter=0, is_variational=True) for i in range(5)]
-        heisenberg_gates += [Gate('CZ', i, (i+1)%n_qubits) for i in range(0,4,2)]
-        heisenberg_gates += [Gate('CZ', i, (i+1)%n_qubits) for i in range(1,5,2)]
+        heisenberg_gates = [Gate('Ry', i,parameter=0, is_variational=True) for i in range(n_qubits)]
+        heisenberg_gates += [Gate('CZ', i, (i+1)%n_qubits) for i in range(0,n_qubits-1,2)]
+        heisenberg_gates += [Gate('CZ', i, (i+1)%n_qubits) for i in range(1,n_qubits,2)]
         heisenberg_layer = Circuit(heisenberg_gates)
 
         heisenberg_circuit = Circuit()
@@ -140,14 +177,12 @@ class OptimizerTest(unittest.TestCase):
             return energy
 
         # Run rotoselect, return energy, parameters and axes of rotation:
-        init_params = ansatz.var_params_default
+        init_params = [np.pi/3]*ansatz.n_var_params
         init_axes = ['RX']*len(init_params)
         energy, _, axes = rotoselect(exp_rotoselect,
                                 init_params, init_axes, ansatz, hamiltonian)
 
-        energy, _, axes = rotosolve(exp_rotoselect, init_params, init_axes, ansatz, hamiltonian, ftol=1e-10)
-
-         # compare with known ground state energy:
+        # compare with known ground state energy:
         min_energy = -4.0
         self.assertAlmostEqual(energy, min_energy, delta=1e-4)
 
