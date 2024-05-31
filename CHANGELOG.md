@@ -17,6 +17,7 @@ This file documents the main changes between versions of the code.
 
 ### Deprecated / Removed
 
+
 ## [0.4.2] - 2023-12-20
 
 ### Added
@@ -64,6 +65,32 @@ This file documents the main changes between versions of the code.
 
 
 ### Deprecated / Removed
+
+
+
+## [0.4.1] - 2023-10-18
+
+### Added
+
+- QM/MM problem decomposition
+- QPE framework
+- Truncated taylor series function returning qubits
+- simplify method on Circuit
+
+### Changed
+
+- Automated testing currently covering python 3.8, 3.9, 3.10, 3.11 (#333)
+- Installation: pyscf removed from requirements
+- Performance improvement: combinatorial mapping
+- Feature: ILC iteration now implements exact expansion / parameters
+- Feature: VQE-like algorithms verbose mode now prints and tracks energies, for users interested in the convergence of the algorithm.
+- Bugfix: Combinatorial mapping now handles spin != 0 (#330)
+- Bugfix: get_expectation_value takes into account n_shots for all backends supporting the option.
+- Bugfix: Fix corner case of FCI and CCSD solvers calculations (mo coefficients were occasionally recomputed differently).
+- Bugfix: Updates in IBMConnection to keep up with changes in qiskit-runtime.
+
+
+### Deprecatedv / Removed
 
 
 
