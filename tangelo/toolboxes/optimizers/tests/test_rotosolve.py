@@ -100,7 +100,6 @@ class OptimizerTest(unittest.TestCase):
 
         self.assertAlmostEqual(energy, -1.137270422018, delta=1e-4)
 
-
     def test_rotoselect(self):
         """Test rotoselect using a single-qubit Euler rotation circuit"""
 
@@ -131,7 +130,7 @@ class OptimizerTest(unittest.TestCase):
         # Run rotoselect, return energy, parameters and axes of rotation:
         init_params = ansatz.var_params_default
         init_axes = ['RX']*len(init_params)
-        energy, _, axes = rotoselect(exp_rotoselect, 
+        energy, _, axes = rotoselect(exp_rotoselect,
                                 init_params, init_axes, ansatz, hamiltonian)
 
         # compare with exact energy:
@@ -141,10 +140,9 @@ class OptimizerTest(unittest.TestCase):
         # Ensure axes are all valid rotation gates:
         self.assertTrue(set(axes).issubset({'RX', 'RY', 'RZ'}))
 
-
     def test_rotoselect_heisenberg(self):
         """Test rotoselect using the 5-qubit periodic Heisenberg model"""
-        
+
         sim = get_backend()
         n_qubits = 3
         n_layers = 2
@@ -152,8 +150,8 @@ class OptimizerTest(unittest.TestCase):
 
         # Construct a "hardware efficient" CZ-based ansatz layer
         heisenberg_gates = [Gate('Ry', i,parameter=0, is_variational=True) for i in range(n_qubits)]
-        heisenberg_gates += [Gate('CZ', i, (i+1)%n_qubits) for i in range(0,n_qubits-1,2)]
-        heisenberg_gates += [Gate('CZ', i, (i+1)%n_qubits) for i in range(1,n_qubits,2)]
+        heisenberg_gates += [Gate('CZ', i, (i+1) % n_qubits) for i in range(0,n_qubits-1,2)]
+        heisenberg_gates += [Gate('CZ', i, (i+1) % n_qubits) for i in range(1,n_qubits,2)]
         heisenberg_layer = Circuit(heisenberg_gates)
 
         heisenberg_circuit = Circuit()
@@ -166,7 +164,7 @@ class OptimizerTest(unittest.TestCase):
         for i in range(n_qubits):
             hamiltonian += QubitHamiltonian((i,'Z'), h)
             for S in ['X','Y','Z']:
-                hamiltonian += QubitHamiltonian([(i,S),((i+1)%n_qubits,S)],J)
+                hamiltonian += QubitHamiltonian([(i,S),((i+1) % n_qubits,S)],J)
 
         # Define function to calculate energy and update parameters and rotation axes
         def exp_rotoselect(var_params, var_rot_axes, ansatz, qubit_hamiltonian):
@@ -188,6 +186,7 @@ class OptimizerTest(unittest.TestCase):
 
         # Ensure axes are all valid rotation gates:
         self.assertTrue(set(axes).issubset({'RX', 'RY', 'RZ'}))
+
 
 if __name__ == "__main__":
     unittest.main()

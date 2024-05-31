@@ -14,6 +14,7 @@
 
 import numpy as np
 
+
 def extrapolate_expval(theta, m_0, m_minus, m_plus, phi=0.0):
     """Extrapolates the expectation value of an observable
     M with respect to a single parameterized rotation (i.e.
@@ -36,7 +37,7 @@ def extrapolate_expval(theta, m_0, m_minus, m_plus, phi=0.0):
     a = 0.5*np.sqrt((2 * m_0 - m_plus - m_minus)**2 + (m_plus - m_minus)**2)
     b = np.arctan2(2 * m_0 - m_plus - m_minus, m_plus - m_minus) - phi
     c = 0.5*(m_plus + m_minus)
-    
+
     return a*np.sin(theta + b) + c
 
 
@@ -52,11 +53,11 @@ def rotosolve_step(func, var_params, i, *func_args, phi=0.0, m_phi=None):
             var_params (list of float): The variational parameters.
             i (int): Index of the variational parameter to update.
             *func_args (tuple): Optional arguments to pass to func.
-            phi (float): Optional angle phi for extrapolation (defaults to 0.0).
+            phi (float): Optional angle phi for extrapolation (default is 0.0).
             m_phi (float): Optional estimated value of m_phi
         Returns:
-            (list of floats, float): Optimal parameters, estimated optimal value 
-                of func
+            list of floats: Optimal parameters
+            float: Estimated optimal value of func
     """
 
     # Charaterize sinusoid of objective function using specific parameters
@@ -73,14 +74,14 @@ def rotosolve_step(func, var_params, i, *func_args, phi=0.0, m_phi=None):
     theta_min = phi - 0.5 * np.pi - \
         np.arctan2(2. * m_0 - m_plus - m_minus, m_plus - m_minus)
 
-    
     if theta_min < -np.pi:
         theta_min += 2 * np.pi
     elif theta_min > np.pi:
         theta_min -= 2 * np.pi
 
     # calculate extrapolated minimum energy estimate:
-    m_min_estimate = extrapolate_expval(theta_min, m_0, m_minus, m_plus, phi=phi)
+    m_min_estimate = \
+        extrapolate_expval(theta_min, m_0, m_minus, m_plus, phi=phi)
 
     # Update parameter to theta_min
     var_params[i] = theta_min
@@ -88,7 +89,8 @@ def rotosolve_step(func, var_params, i, *func_args, phi=0.0, m_phi=None):
     return var_params, m_min_estimate
 
 
-def rotosolve(func, var_params, *func_args, ftol=1e-5, maxiter=100, extrapolate=False):
+def rotosolve(func, var_params, *func_args, ftol=1e-5, maxiter=100,
+              extrapolate=False):
     """Optimization procedure for parameterized quantum circuits whose
      objective function varies sinusoidally with the parameters. Based
      on the work by arXiv:1905.09692, Mateusz Ostaszewski.
@@ -114,20 +116,21 @@ def rotosolve(func, var_params, *func_args, ftol=1e-5, maxiter=100, extrapolate=
      """
     # Get intial value, and run rotosolve for up to maxiter iterations
     energy_old = func(var_params, *func_args)
-    
+
     for it in range(maxiter):
-        
+
         # Update parameters one at a time using rotosolve_step
         energy_est = energy_old
         for i, theta in enumerate(var_params):
-
             # Optionally re-use the extrapolated energy as m_phi
             if extrapolate:
-                var_params, energy_est = rotosolve_step(func, var_params, i, *func_args, 
-                                                     phi=theta, m_phi=energy_est)
+                var_params, energy_est = \
+                    rotosolve_step(func, var_params, i, *func_args,
+                                   phi=theta, m_phi=energy_est)
             else:
-                var_params, energy_est = rotosolve_step(func, var_params, i, *func_args)
-        
+                var_params, energy_est = \
+                    rotosolve_step(func, var_params, i, *func_args)
+
         energy_new = func(var_params, *func_args)
 
         # Check if convergence tolerance is met
@@ -139,40 +142,42 @@ def rotosolve(func, var_params, *func_args, ftol=1e-5, maxiter=100, extrapolate=
 
     return energy_new, var_params
 
+
 def rotoselect_step(func, var_params, var_rot_axes, i, *func_args):
-    """Gradient free optimization step using specific points to 
-    characterize objective function w.r.t to parameterized 
-    rotation axes and rotation angles. Based on formulas in 
+    """Gradient free optimization step using specific points to
+    characterize objective function w.r.t to parameterized
+    rotation axes and rotation angles. Based on formulas in
     arXiv:1905.09692, Mateusz Ostaszewski
 
         Args:
             func (function handle): The function that performs energy
                 estimation. This function takes variational parameters and
-                parameter rotation axes (list of "RX", "RY", "RZ" strings) 
+                parameter rotation axes (list of "RX", "RY", "RZ" strings)
                 as input and returns a float.
             var_params (list of float): The variational parameters.
-            var_rot_axes (list): List of strings ("RX", "RY", or "RZ") 
+            var_rot_axes (list): List of strings ("RX", "RY", or "RZ")
                 corresonding to the axis of rotation for each angle in
                 the list of variational parameters.
             i (int): Index of the variational parameter to update.
             *func_args (tuple): Optional arguments to pass to func.
         Returns:
-            (list of floats, list of strs): Optimal parameters and rotation axes.
+            list of floats: Optimal parameters
+            list of strs: Optimal rotation axes
     """
     axes = ['RX', 'RY', 'RZ']
     m_axes = np.zeros(3)
     theta_min_axes = np.zeros(3)
-    
+
     # Evaluate func at phi = 0 (same result for all axes)
     var_params[i] = 0
     m_0 = func(var_params, var_rot_axes, *func_args)
-        
+
     # Do a rotosolve step for each axis:
     rotosolve_func_args = (var_rot_axes,) + func_args
     for k, axis in enumerate(axes):
         var_rot_axes[i] = axis
         var_params, m_axes[k] = \
-            rotosolve_step(func, var_params, i, 
+            rotosolve_step(func, var_params, i,
                            *rotosolve_func_args)
         theta_min_axes[k] = var_params[i]
 
@@ -180,25 +185,26 @@ def rotoselect_step(func, var_params, var_rot_axes, i, *func_args):
     k_opt = np.argmin(m_axes)
     var_rot_axes[i] = axes[k_opt]
     var_params[i] = theta_min_axes[k_opt]
-    
-    return var_params, var_rot_axes
-    
 
-def rotoselect(func, var_params, var_rot_axes, *func_args, ftol=1e-5, maxiter=100):
+    return var_params, var_rot_axes
+
+
+def rotoselect(func, var_params, var_rot_axes, *func_args, ftol=1e-5,
+               maxiter=100):
     """Optimization procedure for parameterized quantum circuits whose
        objective function varies sinusoidally with the parameters. This
        routine differs from `rotosolve` by sampling expectation values
        using the Pauli {X,Y,Z} generators instead of shifted angles of
-       rotation. Based on the work by arXiv:1905.09692, Mateusz 
+       rotation. Based on the work by arXiv:1905.09692, Mateusz
        Ostaszewski.
 
     Args:
         func (function handle): The function that performs energy
             estimation. This function takes variational parameters and
-            parameter rotation axes (list of "RX", "RY", "RZ" strings) 
+            parameter rotation axes (list of "RX", "RY", "RZ" strings)
             as input and returns a float.
         var_params (list): The variational parameters.
-        var_rot_axes (list): List of strings ("RX", "RY", or "RZ") 
+        var_rot_axes (list): List of strings ("RX", "RY", or "RZ")
             corresonding to the axis of rotation for each angle in
             the list of variational parameters.
         ftol (float): Convergence threshold.
@@ -212,17 +218,17 @@ def rotoselect(func, var_params, var_rot_axes, *func_args, ftol=1e-5, maxiter=10
     """
     # Check parameters and rotation axes are the same length:
     assert len(var_params) == len(var_rot_axes)
-    
+
     # Get intial value, and run rotosolve for up to maxiter iterations
     energy_old = func(var_params, var_rot_axes, *func_args)
     for it in range(maxiter):
-        
+
         # Update parameters one at a time using rotosolve_step
         for i in range(len(var_params)):
             var_params, var_rot_axes = \
                 rotoselect_step(func, var_params, var_rot_axes, i, *func_args)
         energy_new = func(var_params, var_rot_axes, *func_args)
-        
+
         # Check if convergence tolerance is met
         if abs(energy_new - energy_old) <= ftol:
             break
