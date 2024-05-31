@@ -88,7 +88,7 @@ def rotosolve_step(func, var_params, i, *func_args, phi=0.0, m_phi=None):
     return var_params, m_min_estimate
 
 
-def rotosolve(func, var_params, *func_args, ftol=1e-5, maxiter=100, extrapolate=True):
+def rotosolve(func, var_params, *func_args, ftol=1e-5, maxiter=100, extrapolate=False):
     """Optimization procedure for parameterized quantum circuits whose
      objective function varies sinusoidally with the parameters. Based
      on the work by arXiv:1905.09692, Mateusz Ostaszewski.
@@ -120,6 +120,8 @@ def rotosolve(func, var_params, *func_args, ftol=1e-5, maxiter=100, extrapolate=
         # Update parameters one at a time using rotosolve_step
         energy_est = energy_old
         for i, theta in enumerate(var_params):
+
+            # Optionally re-use the extrapolated energy as m_phi
             if extrapolate:
                 var_params, energy_est = rotosolve_step(func, var_params, i, *func_args, 
                                                      phi=theta, m_phi=energy_est)
@@ -127,7 +129,7 @@ def rotosolve(func, var_params, *func_args, ftol=1e-5, maxiter=100, extrapolate=
                 var_params, energy_est = rotosolve_step(func, var_params, i, *func_args)
         
         energy_new = func(var_params, *func_args)
-        print(energy_new)
+
         # Check if convergence tolerance is met
         if abs(energy_new - energy_old) <= ftol:
             break
