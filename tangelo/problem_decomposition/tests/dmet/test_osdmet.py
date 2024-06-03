@@ -85,9 +85,10 @@ class OSDMETProblemDecompositionTest(unittest.TestCase):
         dmet_solver._oneshot_loop(0.)
         energy = dmet_solver.dmet_energy
 
+        # Not sure on how to validate this case.
         self.assertAlmostEqual(energy, -156.34040, places=4)
 
-    def test_lio2_sto6g_restricted_hf(self):
+    def test_lio2_sto6g_unrestricted_hf(self):
         """Tests the result from a single loop of OS-DMET (UHF) against a value
         with nao localization and HF solution to fragments."""
 
@@ -105,7 +106,7 @@ class OSDMETProblemDecompositionTest(unittest.TestCase):
         dmet_solver._oneshot_loop(0.)
         energy = dmet_solver.dmet_energy
 
-        self.assertAlmostEqual(energy,mol_lio2.mf_energy, places=2)
+        self.assertAlmostEqual(energy, mol_lio2.mf_energy, places=2)
 
 
 if __name__ == "__main__":
