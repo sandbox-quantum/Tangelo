@@ -44,18 +44,20 @@ class HEA(Ansatz):
         n_qubits (int) : The number of qubits in the ansatz.
             Default, None.
         n_electrons (int) : Self-explanatory.
-        reference_state (str): "HF": Hartree-Fock reference state. "zero": for
-            no reference state. Default: "HF".
+        reference_state (str, Circuit): "HF": Hartree-Fock reference state. "zero": for
+            no reference state. Can also be a Circuit object. Default: "HF".
         """
 
     def __init__(self, molecule=None, mapping="jw", up_then_down=False,
                  n_layers=2, rot_type="euler", n_qubits=None, n_electrons=None,
                  spin=None, reference_state="HF"):
 
-        if not (bool(molecule) ^ (bool(n_qubits) and (bool(n_electrons) | (reference_state == "zero")))):
+        if not (bool(molecule) ^ (bool(n_qubits) and \
+            (bool(n_electrons) or isinstance(reference_state, Circuit) or (reference_state == "zero")))):
             raise ValueError(f"A molecule OR qubit + electrons number must be "
                              "provided when instantiating the HEA with the HF reference state. "
-                             "For reference_state='zero', only the number of qubits is needed.")
+                             "For reference_state='zero' or a Circuit reference_state, only the number of "
+                             "qubits is needed.")
 
         if n_qubits:
             self.n_qubits = n_qubits
@@ -124,6 +126,12 @@ class HEA(Ansatz):
 
     def prepare_reference_state(self):
         """Prepare a circuit generating the HF reference state."""
+        
+        if isinstance(self.reference_state, Circuit):
+            ref_circuit = self.reference_state.copy()
+            ref_circuit.fix_variational_parameters()
+            return ref_circuit
+
         if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"{self.reference_state} not in supported reference state methods of:{self.supported_reference_state}")
 
