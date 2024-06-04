@@ -18,6 +18,7 @@ import math
 from tangelo.toolboxes.ansatz_generator.adapt_ansatz import ADAPTAnsatz
 from tangelo.toolboxes.operators import FermionOperator
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
+from tangelo.linq import Gate, Circuit
 
 f_op = FermionOperator("2^ 3^ 0 1") - FermionOperator("0^ 1^ 2 3")
 qu_op = fermion_to_qubit_mapping(f_op, "jw")
@@ -57,6 +58,36 @@ class ADAPTAnsatzTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             ansatz.set_var_params([1.999, 2.999])
 
+    def test_adaptansatz_reference_state_circuit(self):
+        """ Verify variational gate parameters are frozen in a reference state circuit"""
+
+        # Create simple reference circuit:
+        ref_circuit = Circuit([
+            Gate('RY', 0, parameter=1.0, is_variational=True)
+            for _ in range(4)
+        ])
+
+        # Create ADAPTAnsatz ansatz with reference circuit
+        adapt_ansatz = ADAPTAnsatz(n_spinorbitals=2, n_electrons=2, spin=0,
+                            ansatz_options=dict(reference_state=ref_circuit))
+       
+        adapt_ansatz.build_circuit()
+        adapt_ansatz.add_operator(qu_op)
+
+        adapt_circ = adapt_ansatz.circuit
+        adapt_circ_gates = list(adapt_circ)
+
+        # Ensure gates are correctly prepended to circuit
+        self.assertEqual(adapt_circ.width,4)
+        self.assertEqual(adapt_circ_gates[0].name, 'RY')
+
+        # Ensure reference circuit gates were correctly converted to 
+        # non-variational gates
+        self.assertFalse(adapt_circ_gates[0].is_variational)
+
+        # Check ansatz parameters
+        self.assertEqual(adapt_ansatz.n_var_params, 1)
+        self.assertEqual(adapt_ansatz._n_terms_operators, [8])
 
 if __name__ == "__main__":
     unittest.main()

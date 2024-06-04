@@ -73,9 +73,9 @@ class ILC(Ansatz):
         max_ilc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_ilc_gens)
             generators are selected in order of decreasing |dEILC/dtau|. Default, None.
-        reference_state (string): The reference state id for the ansatz. The
-            supported reference states are stored in the supported_reference_state
-            attributes. Default, "HF".
+        reference_state (string, Circuit): The reference state id for the ansatz. Can also be a 
+            Circuit object. The supported string reference states are stored in the 
+            supported_reference_state attributes. Default, "HF".
     """
 
     def __init__(self, molecule, mapping="jw", up_then_down=False, acs=None,
@@ -187,11 +187,16 @@ class ILC(Ansatz):
         wavefunction with HF, multi-reference state, etc). These preparations must be consistent
         with the transform used to obtain the qubit operator. """
 
-        if self.reference_state not in self.supported_reference_state:
+        if isinstance(self.reference_state, Circuit):
+            reference_state_circuit = self.reference_state.copy()
+            reference_state_circuit.fix_variational_parameters()
+            return reference_state_circuit
+        elif self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
                              f"{self.supported_reference_state}.")
-        if self.reference_state == "HF":
+        elif self.reference_state == "HF":
             reference_state_circuit = get_qmf_circuit(self.qmf_var_params, True)
+        
         return reference_state_circuit
 
     def build_circuit(self, var_params=None):
