@@ -18,7 +18,7 @@ import numpy as np
 
 from tangelo.linq import get_backend, Gate, Circuit
 from tangelo.toolboxes.optimizers.rotosolve import rotosolve, rotoselect
-from tangelo.toolboxes.operators.operators import QubitHamiltonian
+from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator import VariationalCircuitAnsatz
@@ -115,9 +115,9 @@ class OptimizerTest(unittest.TestCase):
 
         # Build a single-qubit Hamiltonian
         hamiltonian = \
-            QubitHamiltonian((0,'X'), 1.0) + \
-            QubitHamiltonian((0,'Y'), 2,0) + \
-            QubitHamiltonian((0,'Z'), 3.0)
+            QubitOperator((0,'X'), 1.0) + \
+            QubitOperator((0,'Y'), 2.0) + \
+            QubitOperator((0,'Z'), 3.0)
 
         # Define function to calculate energy and update parameters and rotation axes
         def exp_rotoselect(var_params, var_rot_axes, ansatz, qubit_hamiltonian):
@@ -160,11 +160,11 @@ class OptimizerTest(unittest.TestCase):
         ansatz = VariationalCircuitAnsatz(heisenberg_circuit)
 
         # Construct periodic Heisenberg Hamiltonian
-        hamiltonian = QubitHamiltonian()
+        hamiltonian = QubitOperator()
         for i in range(n_qubits):
-            hamiltonian += QubitHamiltonian((i,'Z'), h)
+            hamiltonian += QubitOperator((i,'Z'), h)
             for S in ['X','Y','Z']:
-                hamiltonian += QubitHamiltonian([(i,S),((i+1) % n_qubits,S)],J)
+                hamiltonian += QubitOperator([(i,S),((i+1) % n_qubits,S)],J)
 
         # Define function to calculate energy and update parameters and rotation axes
         def exp_rotoselect(var_params, var_rot_axes, ansatz, qubit_hamiltonian):
