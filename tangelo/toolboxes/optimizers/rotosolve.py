@@ -19,8 +19,8 @@ def extrapolate_expval(theta, m_0, m_minus, m_plus, phi=0.0):
     """Extrapolates the expectation value of an observable
     M with respect to a single parameterized rotation (i.e.
     RX, RY, RZ) with angle theta. The extrapolation uses
-    samples taken at the angles phi, phi+pi/2, and phi-pi/2. 
-    This function uses the formula in Appendix A from 
+    samples taken at the angles phi, phi+pi/2, and phi-pi/2.
+    This function uses the formula in Appendix A from
     arXiv:1905.09692, by Mateusz Ostaszewski et al.
 
     Args:
