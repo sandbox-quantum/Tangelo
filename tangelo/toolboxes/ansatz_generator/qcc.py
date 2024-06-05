@@ -78,9 +78,9 @@ class QCC(Ansatz):
         max_qcc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_qcc_gens)
             generators are selected in order of decreasing |dEQCC/dtau|. Default, None.
-        reference_state (string): The reference state id for the ansatz. The
-            supported reference states are stored in the supported_reference_state
-            attributes. Default, "HF".
+        reference_state (string, Circuit): The reference state id for the ansatz. Can also be a 
+            Circuit object that prepares this state. The supported string reference state names 
+            are stored in the supported_reference_state attributes. Default, "HF".
     """
 
     def __init__(self, molecule, mapping="jw", up_then_down=False, dis=None,
@@ -191,6 +191,12 @@ class QCC(Ansatz):
         wavefunction with HF, multi-reference state, etc). These preparations must be consistent
         with the transform used to obtain the qubit operator. """
 
+        if isinstance(self.reference_state, Circuit):
+            self.n_qmf_params = 0
+            reference_state_circuit = self.reference_state.copy()
+            reference_state_circuit.fix_variational_parameters()
+            return reference_state_circuit
+
         if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
                              f"{self.supported_reference_state}.")
@@ -204,7 +210,8 @@ class QCC(Ansatz):
 
         # Build the DIS or specify a list of generators; updates the number of QCC parameters
         self._get_qcc_generators()
-        self.n_var_params = self.n_qmf_params + self.n_qcc_params
+        self.n_var_params = self.n_qcc_params if isinstance(self.reference_state, Circuit) \
+            else self.n_qmf_params + self.n_qcc_params
 
         # Get the variational parameters needed for the QCC unitary operator and circuit
         if var_params is not None:

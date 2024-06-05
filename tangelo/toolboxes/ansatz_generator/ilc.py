@@ -73,8 +73,9 @@ class ILC(Ansatz):
         max_ilc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_ilc_gens)
             generators are selected in order of decreasing |dEILC/dtau|. Default, None.
-        reference_state (string, Circuit): The reference state id for the ansatz. Can also be a 
-            Circuit object. The supported string reference states are stored in the 
+        reference_state (string, Circuit): The reference state id for the ansatz. If a Circuit object 
+            is passed, the Circuit overrides the qmf_circuit and its default variational parameters
+            override qmf_var_params. The supported string reference states are stored in the 
             supported_reference_state attributes. Default, "HF".
     """
 
@@ -120,7 +121,7 @@ class ILC(Ansatz):
                                                    self.mapping, self.up_then_down, self.spin)
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError("The number of QMF variational parameters must be 2 * n_qubits.")
-        self.n_qmf_params = 2 * self.n_qubits
+        self.n_qmf_params = 0 if isinstance(reference_state, Circuit) else 2 * self.n_qubits
         self.qmf_circuit = qmf_circuit
 
         self.acs = acs
@@ -172,6 +173,7 @@ class ILC(Ansatz):
             # Initialize ILC parameters by matrix diagonalization (see Appendix B, Refs. 1 & 2).
             elif var_params == "diag":
                 initial_var_params = get_ilc_params_by_diag(self.qubit_ham, self.acs, self.qmf_var_params)
+            
             # Insert the QMF variational parameters at the beginning.
             initial_var_params = np.concatenate((self.qmf_var_params, initial_var_params))
         else:
@@ -191,10 +193,12 @@ class ILC(Ansatz):
             reference_state_circuit = self.reference_state.copy()
             reference_state_circuit.fix_variational_parameters()
             return reference_state_circuit
-        elif self.reference_state not in self.supported_reference_state:
+
+        if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
                              f"{self.supported_reference_state}.")
-        elif self.reference_state == "HF":
+        
+        if self.reference_state == "HF":
             reference_state_circuit = get_qmf_circuit(self.qmf_var_params, True)
         
         return reference_state_circuit
