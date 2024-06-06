@@ -70,9 +70,10 @@ class QMF(Ansatz):
             <N> = n_electrons, <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z, where
             spin_z = spin // 2. Key, value pairs are case sensitive and mu > 0.
             Default, {"init_params": "hf_state"}.
-        reference_state (string, Circuit): The reference state id for the ansatz. Can also be a
-            Circuit object. The supported reference states are stored in the supported_reference_state
-            attributes. Default, "HF".
+        reference_state (string, Circuit): The reference state id for the ansatz.  Can also be a
+            Circuit object, in which case a copy of circuit with variational parameters fixed is used.
+            The supported reference states are stored in the supported_reference_state attributes.
+            Default, "HF".
     """
 
     def __init__(self, molecule, mapping="jw", up_then_down=False, init_qmf=None, reference_state="HF"):

@@ -38,8 +38,9 @@ class pUCCD(Ansatz):
 
     Args:
         molecule (SecondQuantizedMolecule): Self-explanatory.
-        reference_state (string, Circuit): String refering to an initial state. Can also
-            be a Circuit object. Default: "HF".
+        reference_state (string, Circuit): String refering to an initial state.  
+            Can also be a Circuit object, in which case a copy of
+            circuit with variational parameters fixed is used. Default: "HF".
     """
 
     def __init__(self, molecule, reference_state="HF"):

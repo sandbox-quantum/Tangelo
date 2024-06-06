@@ -47,7 +47,8 @@ class UCCGD(Ansatz):
             alternating spin up/down ordering).
         reference_state (string, Circuit): The reference state id for the ansatz. The
             supported reference states are stored in the supported_reference_state
-            attributes. Can also be a Circuit object. Default, "HF".
+            attributes. Can also be a Circuit object, in which case a copy of
+            circuit with variational parameters fixed is used. Default: "HF".
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, reference_state="HF"):

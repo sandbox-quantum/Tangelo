@@ -54,9 +54,11 @@ class UCCSD(Ansatz):
         up_then_down (bool): change basis ordering putting all spin up orbitals
             first, followed by all spin down. Default, False (i.e. has
             alternating spin up/down ordering).
-        reference_state (string, Circuit): The reference state id for the ansatz. The
-            supported reference states are stored in the supported_reference_state
-            attributes. Can also be a Circuit object. Default, "HF".
+        reference_state (string, Circuit): The reference state id for the ansatz.
+            Can also be a Circuit object, in which case a copy of
+            circuit with variational parameters fixed is used. The supported
+            string reference states are stored in the supported_reference_state
+            attributes. Default, "HF".
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, spin=None, reference_state="HF"):

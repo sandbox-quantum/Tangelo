@@ -45,7 +45,8 @@ class HEA(Ansatz):
             Default, None.
         n_electrons (int) : Self-explanatory.
         reference_state (str, Circuit): "HF": Hartree-Fock reference state. "zero": for
-            no reference state. Can also be a Circuit object. Default: "HF".
+            no reference state. Can also be a Circuit object, in which case a copy of
+            circuit with variational parameters fixed is used. Default: "HF".
         """
 
     def __init__(self, molecule=None, mapping="jw", up_then_down=False,
