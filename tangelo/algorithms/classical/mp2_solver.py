@@ -90,7 +90,6 @@ class MP2SolverPySCF(ElectronicStructureSolver):
                 self.mp2_fragment = self.mp.UMP2(mf, frozen=self.frozen, mo_coeff=mf.mo_coeff, mo_occ=None)
 
         self.mp2_fragment.verbose = 0
-        print(self.mp2_fragment.mo_coeff)
         _, self.mp2_t2 = self.mp2_fragment.kernel()
 
         total_energy = self.mp2_fragment.e_tot

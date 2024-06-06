@@ -73,7 +73,7 @@ jobs:
 
     - name: Install pyscf
       run: |
-        python -m pip install pyscf==2.4.0
+        python -m pip install pyscf==2.5.0
         python -m pip install git+https://github.com/pyscf/semiempirical
       if: always()
 
