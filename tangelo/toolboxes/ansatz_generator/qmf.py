@@ -33,6 +33,7 @@ import warnings
 
 import numpy as np
 
+from tangelo.linq import Circuit
 from tangelo.toolboxes.qubit_mappings.mapping_transform import get_qubit_number,\
                                                                fermion_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.ansatz import Ansatz
@@ -69,8 +70,8 @@ class QMF(Ansatz):
             <N> = n_electrons, <S^2> = spin_z * (spin_z + 1), and <Sz> = spin_z, where
             spin_z = spin // 2. Key, value pairs are case sensitive and mu > 0.
             Default, {"init_params": "hf_state"}.
-        reference_state (string): The reference state id for the ansatz. The
-            supported reference states are stored in the supported_reference_state
+        reference_state (string, Circuit): The reference state id for the ansatz. Can also be a
+            Circuit object. The supported reference states are stored in the supported_reference_state
             attributes. Default, "HF".
     """
 
@@ -195,6 +196,11 @@ class QMF(Ansatz):
         wavefunction with HF, multi-reference state, etc). These preparations must be consistent
         with the transform used to obtain the qubit operator. """
 
+        if isinstance(self.reference_state, Circuit):
+            ref_circuit = self.reference_state.copy()
+            ref_circuit.fix_variational_parameters()
+            return ref_circuit
+
         if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
                              f"{self.supported_reference_state}")
@@ -210,7 +216,7 @@ class QMF(Ansatz):
             self.set_var_params(var_params)
         elif self.var_params is None:
             self.set_var_params()
-
+        
         # Build the circuit for the QMF ansatz
         self.circuit = self.prepare_reference_state()
 

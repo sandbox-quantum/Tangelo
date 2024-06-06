@@ -203,7 +203,7 @@ class ILCTest(unittest.TestCase):
 
         # The QMF and ILC parameters can both be specified; determined automatically otherwise.
         ilc_var_params = [-1.12894599e-01]
-        var_params = ilc_var_params #qmf_var_params + ilc_var_params
+        var_params = qmf_var_params + ilc_var_params
         ilc_ansatz.update_var_params(var_params)
 
         # Assert energy returned is as expected for given parameters

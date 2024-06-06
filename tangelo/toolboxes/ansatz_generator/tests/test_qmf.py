@@ -21,6 +21,7 @@ import numpy as np
 from tangelo.linq import get_backend
 from tangelo.toolboxes.ansatz_generator.qmf import QMF
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_sto3g, mol_H4_cation_sto3g, mol_H4_sto3g_uhf_a1_frozen
+from tangelo.toolboxes.ansatz_generator._qubit_mf import get_qmf_circuit
 
 sim = get_backend()
 
@@ -151,6 +152,22 @@ class QMFTest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, qmf_ansatz.circuit)
         self.assertAlmostEqual(energy, mol_H4_sto3g_uhf_a1_frozen.mean_field.e_tot, delta=1e-6)
 
+    def test_qmf_circuit_reference_state_h2(self):
+        """ Verify construction of H2 ansatz works using a circuit reference state."""
+
+        # Build ansatz and circuit
+        qmf_var_params = [np.pi] * 2 + [0.] * 6
+        qmf_circuit = get_qmf_circuit(np.array(qmf_var_params), True)
+        qmf_ansatz = QMF(mol_H2_sto3g, reference_state=qmf_circuit)
+        qmf_ansatz.build_circuit()
+
+        # Build qubit hamiltonian for energy evaluation
+        qubit_hamiltonian = qmf_ansatz.qubit_ham
+
+        # Assert energy returned is as expected for given parameters
+        qmf_ansatz.update_var_params(qmf_var_params)
+        energy = sim.get_expectation_value(qubit_hamiltonian, qmf_ansatz.circuit)
+        self.assertAlmostEqual(energy, -1.1166843870853400, delta=1e-6)
 
 if __name__ == "__main__":
     unittest.main()

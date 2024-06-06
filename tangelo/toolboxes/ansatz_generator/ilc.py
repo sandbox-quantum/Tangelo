@@ -73,9 +73,9 @@ class ILC(Ansatz):
         max_ilc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_ilc_gens)
             generators are selected in order of decreasing |dEILC/dtau|. Default, None.
-        reference_state (string, Circuit): The reference state id for the ansatz. If a Circuit object 
-            is passed, the Circuit overrides the qmf_circuit and its default variational parameters
-            override qmf_var_params. The supported string reference states are stored in the 
+        reference_state (string, Circuit): The reference state id for the ansatz. If a Circuit object
+            is passed, then a copy of this circuit overrides the qmf_circuit and its variational
+            parameters override qmf_var_params. The supported string reference states are stored in the
             supported_reference_state attributes. Default, "HF".
     """
 
@@ -114,6 +114,18 @@ class ILC(Ansatz):
             self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping,
                                                       self.n_spinorbitals, self.n_electrons,
                                                       self.up_then_down, self.spin)
+        
+        # If a circuit is supplied as the reference state use this as the QMF circuit
+        # while retaining all variational parameters:
+        if isinstance(reference_state, Circuit):
+            self.qmf_circuit = reference_state.copy()
+            self.qmf_var_params = [
+                gate.parameter for gate in reference_state._variational_gates
+            ]
+            self.n_qmf_params = len(self.qmf_var_params)
+        else:
+            self.qmf_circuit = qmf_circuit
+            self.n_qmf_params = 2 * self.n_qubits
 
         self.qmf_var_params = np.array(qmf_var_params) if isinstance(qmf_var_params, list) else qmf_var_params
         if not isinstance(self.qmf_var_params, np.ndarray):
@@ -121,8 +133,6 @@ class ILC(Ansatz):
                                                    self.mapping, self.up_then_down, self.spin)
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError("The number of QMF variational parameters must be 2 * n_qubits.")
-        self.n_qmf_params = 0 if isinstance(reference_state, Circuit) else 2 * self.n_qubits
-        self.qmf_circuit = qmf_circuit
 
         self.acs = acs
         self.ilc_tau_guess = ilc_tau_guess
@@ -189,10 +199,10 @@ class ILC(Ansatz):
         wavefunction with HF, multi-reference state, etc). These preparations must be consistent
         with the transform used to obtain the qubit operator. """
 
+        # Note: because reference state parameters are needed in this ansatz, the reference state circuit
+        # is simply copied and stored in self.qmf_circuit:
         if isinstance(self.reference_state, Circuit):
-            reference_state_circuit = self.reference_state.copy()
-            reference_state_circuit.fix_variational_parameters()
-            return reference_state_circuit
+            return self.qmf_circuit
 
         if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "

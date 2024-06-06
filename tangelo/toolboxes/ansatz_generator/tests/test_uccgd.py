@@ -19,6 +19,8 @@ import numpy as np
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.uccgd import UCCGD
+from tangelo.toolboxes.operators import count_qubits
+from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.linq import get_backend
 
 
@@ -91,6 +93,30 @@ class UCCGDTest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, uccgd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.64190668, delta=1e-6)
 
+    def test_uccgd_circuit_reference_state_H2(self):
+        """ Verify construction of H2 ansatz works using a circuit reference state."""
+
+        # Build qubit hamiltonian
+        qubit_hamiltonian = jordan_wigner(mol_H2_sto3g.fermionic_hamiltonian)
+        n_qubits = count_qubits(qubit_hamiltonian)
+
+        # Construct reference circuit by hand
+        ref_h2_circuit = get_reference_circuit(
+                n_spinorbitals=n_qubits,
+                n_electrons=mol_H2_sto3g.n_electrons,
+                mapping='jw',
+                up_then_down=False,
+                spin=mol_H2_sto3g.spin)
+
+        # Build circuit
+        uccgd_ansatz = UCCGD(mol_H2_sto3g, reference_state=ref_h2_circuit)
+        uccgd_ansatz.build_circuit()
+
+        # Assert energy returned is as expected for given parameters
+        sim = get_backend()
+        uccgd_ansatz.update_var_params([0.78525105, 1.14993361, 1.57070471])
+        energy = sim.get_expectation_value(qubit_hamiltonian, uccgd_ansatz.circuit)
+        self.assertAlmostEqual(energy, -1.1372701, delta=1e-6)
 
 if __name__ == "__main__":
     unittest.main()
