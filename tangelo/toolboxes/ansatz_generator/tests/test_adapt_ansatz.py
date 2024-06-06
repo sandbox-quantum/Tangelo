@@ -63,8 +63,8 @@ class ADAPTAnsatzTest(unittest.TestCase):
 
         # Create simple reference circuit:
         ref_circuit = Circuit([
-            Gate('RY', 0, parameter=1.0, is_variational=True)
-            for _ in range(4)
+            Gate('RY', i, parameter=1.0, is_variational=True)
+            for i in range(4)
         ])
 
         # Create ADAPTAnsatz ansatz with reference circuit
@@ -72,7 +72,6 @@ class ADAPTAnsatzTest(unittest.TestCase):
                             ansatz_options=dict(reference_state=ref_circuit))
 
         adapt_ansatz.build_circuit()
-        adapt_ansatz.add_operator(qu_op)
 
         adapt_circ = adapt_ansatz.circuit
         adapt_circ_gates = list(adapt_circ)
@@ -85,9 +84,18 @@ class ADAPTAnsatzTest(unittest.TestCase):
         # non-variational gates
         self.assertFalse(adapt_circ_gates[0].is_variational)
 
+        # add qu_op to ansatz
+        adapt_ansatz.add_operator(qu_op)
+
         # Check ansatz parameters
         self.assertEqual(adapt_ansatz.n_var_params, 1)
         self.assertEqual(adapt_ansatz._n_terms_operators, [8])
+
+        # Check that circuit width and first gate is unchanged
+        adapt_circ = adapt_ansatz.circuit
+        adapt_circ_gates = list(adapt_circ)
+        self.assertEqual(adapt_circ.width,4)
+        self.assertEqual(adapt_circ_gates[0].name, 'RY')
 
 
 if __name__ == "__main__":
