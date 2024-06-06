@@ -83,7 +83,7 @@ class pUCCDTest(unittest.TestCase):
         # Build circuit.
         puccd_ansatz = pUCCD(mol_H2_sto3g, reference_state=ref_circuit)
         puccd_ansatz.build_circuit()
-        
+
         # Build qubit hamiltonian for energy evaluation.
         qubit_hamiltonian = boson_to_qubit_mapping(
             hard_core_boson_operator(mol_H2_sto3g.fermionic_hamiltonian)

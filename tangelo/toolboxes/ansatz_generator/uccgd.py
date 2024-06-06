@@ -111,7 +111,7 @@ class UCCGD(Ansatz):
         These preparations must be consistent with the transform used to obtain
         the qubit operator.
         """
-        
+
         if isinstance(self.reference_state, Circuit):
             ref_circuit = self.reference_state.copy()
             ref_circuit.fix_variational_parameters()

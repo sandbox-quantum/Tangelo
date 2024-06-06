@@ -70,7 +70,7 @@ class ADAPTAnsatzTest(unittest.TestCase):
         # Create ADAPTAnsatz ansatz with reference circuit
         adapt_ansatz = ADAPTAnsatz(n_spinorbitals=2, n_electrons=2, spin=0,
                             ansatz_options=dict(reference_state=ref_circuit))
-       
+
         adapt_ansatz.build_circuit()
         adapt_ansatz.add_operator(qu_op)
 
@@ -81,13 +81,14 @@ class ADAPTAnsatzTest(unittest.TestCase):
         self.assertEqual(adapt_circ.width,4)
         self.assertEqual(adapt_circ_gates[0].name, 'RY')
 
-        # Ensure reference circuit gates were correctly converted to 
+        # Ensure reference circuit gates were correctly converted to
         # non-variational gates
         self.assertFalse(adapt_circ_gates[0].is_variational)
 
         # Check ansatz parameters
         self.assertEqual(adapt_ansatz.n_var_params, 1)
         self.assertEqual(adapt_ansatz._n_terms_operators, [8])
+
 
 if __name__ == "__main__":
     unittest.main()

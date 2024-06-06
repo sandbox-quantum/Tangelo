@@ -172,5 +172,6 @@ class UCCSDTest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, uccsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.137270174551959, delta=1e-6)
 
+
 if __name__ == "__main__":
     unittest.main()

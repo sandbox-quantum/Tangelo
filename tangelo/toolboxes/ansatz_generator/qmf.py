@@ -216,7 +216,7 @@ class QMF(Ansatz):
             self.set_var_params(var_params)
         elif self.var_params is None:
             self.set_var_params()
-        
+
         # Build the circuit for the QMF ansatz
         self.circuit = self.prepare_reference_state()
 

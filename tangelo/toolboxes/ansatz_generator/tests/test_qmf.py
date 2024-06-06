@@ -169,5 +169,6 @@ class QMFTest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, qmf_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.1166843870853400, delta=1e-6)
 
+
 if __name__ == "__main__":
     unittest.main()

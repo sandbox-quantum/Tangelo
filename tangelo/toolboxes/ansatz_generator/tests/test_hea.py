@@ -166,9 +166,6 @@ class HEATest(unittest.TestCase):
         energy = sim.get_expectation_value(qubit_hamiltonian, hea_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.1372661564779496, delta=1e-6)
 
-        
-        
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -114,7 +114,7 @@ class ILC(Ansatz):
             self.qubit_ham = fermion_to_qubit_mapping(self.fermi_ham, self.mapping,
                                                       self.n_spinorbitals, self.n_electrons,
                                                       self.up_then_down, self.spin)
-        
+
         # If a circuit is supplied as the reference state use this as the QMF circuit
         # while retaining all variational parameters:
         if isinstance(reference_state, Circuit):
@@ -183,7 +183,7 @@ class ILC(Ansatz):
             # Initialize ILC parameters by matrix diagonalization (see Appendix B, Refs. 1 & 2).
             elif var_params == "diag":
                 initial_var_params = get_ilc_params_by_diag(self.qubit_ham, self.acs, self.qmf_var_params)
-            
+
             # Insert the QMF variational parameters at the beginning.
             initial_var_params = np.concatenate((self.qmf_var_params, initial_var_params))
         else:
@@ -207,10 +207,10 @@ class ILC(Ansatz):
         if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
                              f"{self.supported_reference_state}.")
-        
+
         if self.reference_state == "HF":
             reference_state_circuit = get_qmf_circuit(self.qmf_var_params, True)
-        
+
         return reference_state_circuit
 
     def build_circuit(self, var_params=None):

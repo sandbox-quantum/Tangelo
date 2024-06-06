@@ -192,12 +192,12 @@ class ILCTest(unittest.TestCase):
 
         # Specify the qubit operators from the anticommuting set (ACS) of ILC generators.
         acs = [QubitOperator("Y0 X1")]
-        ilc_ansatz = ILC(mol_H2_sto3g, mapping="scbk", up_then_down=True, acs=acs, 
+        ilc_ansatz = ILC(mol_H2_sto3g, mapping="scbk", up_then_down=True, acs=acs,
                             reference_state=ref_qmf_circuit)
 
         # Build the ILC circuit, which is prepended by the qubit mean field (QMF) circuit.
         ilc_ansatz.build_circuit()
-        
+
         # Get qubit hamiltonian for energy evaluation
         qubit_hamiltonian = ilc_ansatz.qubit_ham
 
@@ -209,6 +209,7 @@ class ILCTest(unittest.TestCase):
         # Assert energy returned is as expected for given parameters
         energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.137270126, delta=1e-6)
+
 
 if __name__ == "__main__":
     unittest.main()

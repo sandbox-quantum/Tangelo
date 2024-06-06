@@ -157,7 +157,7 @@ class QCCTest(unittest.TestCase):
 
     def test_qcc_circuit_reference_state_h2(self):
         """ Verify construction of H2 ansatz works using a circuit reference state."""
-        
+
         qmf_var_params = [ 3.14159265e+00, -2.42743256e-08,  3.14159266e+00, -3.27162543e-08,
                            3.08514545e-09,  3.08514545e-09,  3.08514545e-09,  3.08514545e-09]
         qmf_ref_circuit = get_qmf_circuit(np.array(qmf_var_params), True)
@@ -175,7 +175,7 @@ class QCCTest(unittest.TestCase):
         # The QMF and QCC parameters can both be specified; determined automatically otherwise.
         qcc_var_params = [-2.26136280e-01]
         var_params = qmf_var_params + qcc_var_params
-        
+
         # Assert energy returned is as expected for given parameters
         qcc_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
