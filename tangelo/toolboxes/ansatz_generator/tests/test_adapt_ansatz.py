@@ -91,19 +91,15 @@ class ADAPTAnsatzTest(unittest.TestCase):
         self.assertEqual(adapt_ansatz.n_var_params, 1)
         self.assertEqual(adapt_ansatz._n_terms_operators, [8])
 
-        # Check that circuit width and reference state gates are unchanged
         adapt_circ = adapt_ansatz.circuit
-        adapt_circ_gates = list(adapt_circ)
-        ref_circuit_gates = list(ref_circuit)
-        
         self.assertEqual(adapt_circ.width, 4)
-        
+
         # Ensure reference circuit gates were correctly converted to non-variational gates
         # with the same name
         ref_circ_gate_names = [ gate.name for gate in ref_circuit ]
         adapt_circ_gate_names = [ gate.name for gate in adapt_circ ]
         adapt_circ_gate_variationals = [ gate.is_variational for gate in adapt_circ ]
-        
+
         self.assertListEqual(ref_circ_gate_names, adapt_circ_gate_names[:ref_circuit.size])
         self.assertTrue(not any(adapt_circ_gate_variationals[:ref_circuit.size]))
 
