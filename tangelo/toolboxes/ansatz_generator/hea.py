@@ -52,15 +52,6 @@ class HEA(Ansatz):
     def __init__(self, molecule=None, mapping="jw", up_then_down=False,
                  n_layers=2, rot_type="euler", n_qubits=None, n_electrons=None,
                  spin=None, reference_state="HF"):
-
-        # Determine which arguments are provided
-        molecule_ref_state_provided = bool(molecule)
-        using_non_hf_state = bool(n_electrons) \
-                                        or isinstance(reference_state, Circuit) \
-                                        or (isinstance(reference_state, str) and reference_state != 'HF')
-        n_qubits_provided = bool(n_qubits)
-        alternative_ref_state_provided = (n_qubits_provided and using_non_hf_state)
-        
         
         # Ensure sufficient parameters are passed to instantiate this HEA with the given reference state
         if isinstance(reference_state, Circuit):
