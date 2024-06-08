@@ -111,25 +111,26 @@ class HEATest(unittest.TestCase):
 
         # Create simple reference circuit:
         ref_circuit = Circuit([
-            Gate('Ry', 0, parameter=1.0, is_variational=True),
-            Gate('Ry', 1, parameter=1.0, is_variational=True),
+            Gate('RY', 0, parameter=1.0, is_variational=True),
+            Gate('RY', 1, parameter=1.0, is_variational=True),
             Gate('CX', 0, 1),
         ])
 
-        # create HEA ansatz with reference circuit
+        # Create HEA ansatz with reference circuit
         hea_ansatz = HEA(n_qubits=2, reference_state=ref_circuit)
         hea_circ = hea_ansatz.build_circuit()
-        hea_circ_gates = list(hea_circ)
 
-        # ensure gates are correctly prepended to circuit
-        self.assertEqual(hea_circ.width,2)
-        self.assertEqual(hea_circ_gates[0].name, 'RY')
-        self.assertEqual(hea_circ_gates[1].name, 'RY')
-        self.assertEqual(hea_circ_gates[2].name, 'CX')
+        # Ensure gates are correctly prepended to circuit
+        self.assertEqual(hea_circ.width, 2)
 
-        # ensure reference circuit gates were correctly converted to variational gates:
-        self.assertFalse(hea_circ_gates[0].is_variational)
-        self.assertFalse(hea_circ_gates[1].is_variational)
+        # Ensure reference circuit gates were correctly converted
+        # to non-variational gates with the same name
+        hea_circ_gate_names = [ gate.name for gate in hea_circ ]
+        ref_circ_gate_names = [ gate.name for gate in ref_circuit ]
+        hea_circ_gate_variationals = [ gate.is_variational for gate in hea_circ ]
+
+        self.assertListEqual(ref_circ_gate_names, hea_circ_gate_names[:ref_circuit.size])
+        self.assertTrue(not any(hea_circ_gate_variationals[:ref_circuit.size]))
 
     def test_hea_circuit_reference_state_H2(self):
         """ Verify construction of H2 ansatz works using a circuit reference state."""

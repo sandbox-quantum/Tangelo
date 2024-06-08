@@ -53,12 +53,25 @@ class HEA(Ansatz):
                  n_layers=2, rot_type="euler", n_qubits=None, n_electrons=None,
                  spin=None, reference_state="HF"):
 
-        if not (bool(molecule) ^ (bool(n_qubits) and
-          (bool(n_electrons) or isinstance(reference_state, Circuit) or (reference_state == "zero")))):
-            raise ValueError(f"A molecule OR qubit + electrons number must be "
-                             "provided when instantiating the HEA with the HF reference state. "
-                             "For reference_state='zero' or a Circuit reference_state, only the number of "
-                             "qubits is needed.")
+        # Determine which arguments are provided
+        molecule_ref_state_provided = bool(molecule)
+        using_non_hf_state = bool(n_electrons) \
+                                        or isinstance(reference_state, Circuit) \
+                                        or (isinstance(reference_state, str) and reference_state != 'HF')
+        n_qubits_provided = bool(n_qubits)
+        alternative_ref_state_provided = (n_qubits_provided and using_non_hf_state)
+        
+        
+        # Ensure sufficient parameters are passed to instantiate this HEA with the given reference state
+        if isinstance(reference_state, Circuit):
+            if not bool(molecule) and not bool(n_qubits):
+                raise ValueError('Either a molecule or a qubit number must be specified to instantiate a HEA with a Circuit reference state.')
+        elif reference_state == 'HF':
+            if not bool(molecule) and not (bool(n_qubits) and bool(n_electrons)):
+                raise ValueError('Either a molecule or a qubit number + electron number must be specified to instantiate a HEA with the "HF" reference state.')
+        elif reference_state == 'zero':
+            if not bool(molecule) and not bool(n_qubits):
+                raise ValueError('Either a molecule or a qubit number must be specified to instantiate a HEA with the "zero" reference state.')
 
         if n_qubits:
             self.n_qubits = n_qubits

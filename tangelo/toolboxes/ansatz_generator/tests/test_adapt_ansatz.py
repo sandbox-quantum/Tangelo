@@ -77,25 +77,35 @@ class ADAPTAnsatzTest(unittest.TestCase):
         adapt_circ_gates = list(adapt_circ)
 
         # Ensure gates are correctly prepended to circuit
-        self.assertEqual(adapt_circ.width,4)
+        self.assertEqual(adapt_circ.width, 4)
         self.assertEqual(adapt_circ_gates[0].name, 'RY')
 
         # Ensure reference circuit gates were correctly converted to
         # non-variational gates
         self.assertFalse(adapt_circ_gates[0].is_variational)
 
-        # add qu_op to ansatz
+        # Add qu_op to ansatz
         adapt_ansatz.add_operator(qu_op)
 
         # Check ansatz parameters
         self.assertEqual(adapt_ansatz.n_var_params, 1)
         self.assertEqual(adapt_ansatz._n_terms_operators, [8])
 
-        # Check that circuit width and first gate is unchanged
+        # Check that circuit width and reference state gates are unchanged
         adapt_circ = adapt_ansatz.circuit
         adapt_circ_gates = list(adapt_circ)
-        self.assertEqual(adapt_circ.width,4)
-        self.assertEqual(adapt_circ_gates[0].name, 'RY')
+        ref_circuit_gates = list(ref_circuit)
+        
+        self.assertEqual(adapt_circ.width, 4)
+        
+        # Ensure reference circuit gates were correctly converted to non-variational gates
+        # with the same name
+        ref_circ_gate_names = [ gate.name for gate in ref_circuit ]
+        adapt_circ_gate_names = [ gate.name for gate in adapt_circ ]
+        adapt_circ_gate_variationals = [ gate.is_variational for gate in adapt_circ ]
+        
+        self.assertListEqual(ref_circ_gate_names, adapt_circ_gate_names[:ref_circuit.size])
+        self.assertTrue(not any(adapt_circ_gate_variationals[:ref_circuit.size]))
 
 
 if __name__ == "__main__":

@@ -441,7 +441,7 @@ class Circuit:
             self._cmeasure_control.finalize()
 
     def fix_variational_parameters(self):
-        """Fixes all variational parameters in this circuit, making the corresponding gates non-variational."""
+        """Fix all variational parameters in this circuit, making the corresponding gates non-variational."""
 
         for gate in self._variational_gates:
             gate.is_variational = False
