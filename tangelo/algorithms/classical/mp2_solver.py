@@ -95,7 +95,6 @@ class MP2SolverPySCF(ElectronicStructureSolver):
             else:
                 self.mp2_fragment = self.mp.RMP2(self.mean_field, frozen=self.frozen)
 
-
         self.mp2_fragment.verbose = 0
         _, self.mp2_t2 = self.mp2_fragment.kernel()
 
