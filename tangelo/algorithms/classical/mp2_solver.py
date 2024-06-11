@@ -88,10 +88,7 @@ class MP2SolverPySCF(ElectronicStructureSolver):
                 mf = self.mean_field
                 mf = mf.remove_soscf()
                 mf = mf.to_uhf()
-                if getattr(mf, 'with_df', None):
-                    self.mp2_fragment = self.mp.UMP2(mf, frozen=self.frozen, mo_coeff=mf.mo_coeff, mo_occ=None)
-                else:
-                    self.mp2_fragment = self.mp.UMP2(mf, frozen=self.frozen, mo_coeff=mf.mo_coeff, mo_occ=None)
+                self.mp2_fragment = self.mp.UMP2(mf, frozen=self.frozen, mo_coeff=mf.mo_coeff, mo_occ=None)
             else:
                 self.mp2_fragment = self.mp.RMP2(self.mean_field, frozen=self.frozen)
 
