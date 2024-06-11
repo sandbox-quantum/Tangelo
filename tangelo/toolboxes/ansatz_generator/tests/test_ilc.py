@@ -22,6 +22,7 @@ import numpy as np
 from tangelo.linq import get_backend
 from tangelo.toolboxes.ansatz_generator.ilc import ILC
 from tangelo.toolboxes.ansatz_generator._qubit_ilc import gauss_elim_over_gf2, get_ilc_params_by_diag
+from tangelo.toolboxes.ansatz_generator._qubit_mf import get_qmf_circuit
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g
 
@@ -181,6 +182,33 @@ class ILCTest(unittest.TestCase):
         ilc_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
         self.assertAlmostEqual(energy_diag, energy, delta=1e-5)
+
+    def test_ilc_circuit_reference_state_H2(self):
+        """ Verify construction of H2 ansatz works using a circuit reference state."""
+
+        # Construct reference circuit
+        qmf_var_params = [3.14159265e+00,  3.14159265e+00, -7.59061327e-12,  0.]
+        ref_qmf_circuit = get_qmf_circuit(np.array(qmf_var_params), True)
+
+        # Specify the qubit operators from the anticommuting set (ACS) of ILC generators.
+        acs = [QubitOperator("Y0 X1")]
+        ilc_ansatz = ILC(mol_H2_sto3g, mapping="scbk", up_then_down=True, acs=acs,
+                            reference_state=ref_qmf_circuit)
+
+        # Build the ILC circuit, which is prepended by the qubit mean field (QMF) circuit.
+        ilc_ansatz.build_circuit()
+
+        # Get qubit hamiltonian for energy evaluation
+        qubit_hamiltonian = ilc_ansatz.qubit_ham
+
+        # The QMF and ILC parameters can both be specified; determined automatically otherwise.
+        ilc_var_params = [-1.12894599e-01]
+        var_params = qmf_var_params + ilc_var_params
+        ilc_ansatz.update_var_params(var_params)
+
+        # Assert energy returned is as expected for given parameters
+        energy = sim.get_expectation_value(qubit_hamiltonian, ilc_ansatz.circuit)
+        self.assertAlmostEqual(energy, -1.137270126, delta=1e-6)
 
 
 if __name__ == "__main__":

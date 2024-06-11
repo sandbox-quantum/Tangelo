@@ -48,9 +48,10 @@ class UpCCGSD(Ansatz):
         up_then_down (bool): change basis ordering putting all spin up orbitals
             first, followed by all spin down. Default, False (i.e. has
             alternating spin up/down ordering).
-        reference_state (string): The reference state id for the ansatz. The
-            supported reference states are stored in the supported_reference_state
-            attributes. Default, "HF".
+        reference_state (string, Circuit): The reference state id for the ansatz. The
+            supported string reference states are stored in the supported_reference_state
+            attributes.  Can also be a Circuit object, in which case a copy of
+            circuit with variational parameters fixed is used. Default: "HF".
     """
 
     def __init__(self, molecule, mapping="JW", up_then_down=False, k=2, reference_state="HF"):
@@ -116,6 +117,11 @@ class UpCCGSD(Ansatz):
         These preparations must be consistent with the transform used to obtain
         the qubit operator.
         """
+
+        if isinstance(self.reference_state, Circuit):
+            ref_circuit = self.reference_state.copy()
+            ref_circuit.fix_variational_parameters()
+            return ref_circuit
 
         if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")
