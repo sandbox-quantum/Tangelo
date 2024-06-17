@@ -440,6 +440,13 @@ class Circuit:
         if isinstance(self._cmeasure_control, ClassicalControl):
             self._cmeasure_control.finalize()
 
+    def fix_variational_parameters(self):
+        """Fix all variational parameters in this circuit, making the corresponding gates non-variational."""
+
+        for gate in self._variational_gates:
+            gate.is_variational = False
+        self._variational_gates = []
+
 
 def stack(*circuits):
     """ Take list of circuits as input, and stack them (e.g concatenate them along the

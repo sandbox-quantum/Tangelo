@@ -38,8 +38,9 @@ class pUCCD(Ansatz):
 
     Args:
         molecule (SecondQuantizedMolecule): Self-explanatory.
-        reference_state (string): String refering to an initial state.
-            Default: "HF".
+        reference_state (string, Circuit): String refering to an initial state.
+            Can also be a Circuit object, in which case a copy of
+            circuit with variational parameters fixed is used. Default: "HF".
     """
 
     def __init__(self, molecule, reference_state="HF"):
@@ -99,6 +100,11 @@ class pUCCD(Ansatz):
         These preparations must be consistent with the transform used to obtain
         the qubit operator.
         """
+
+        if isinstance(self.reference_state, Circuit):
+            reference_state_circuit = self.reference_state.copy()
+            reference_state_circuit.fix_variational_parameters()
+            return reference_state_circuit
 
         if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are:{self.supported_reference_state}")

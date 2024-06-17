@@ -20,6 +20,7 @@ from openfermion import load_operator
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_doublecation_minao, mol_H4_cation_sto3g
 from tangelo.toolboxes.qubit_mappings import jordan_wigner
 from tangelo.toolboxes.ansatz_generator.upccgsd import UpCCGSD
+from tangelo.toolboxes.qubit_mappings.statevector_mapping import get_reference_circuit
 from tangelo.linq import get_backend
 
 # For openfermion.load_operator function.
@@ -117,6 +118,31 @@ class UpCCGSDTest(unittest.TestCase):
         upccgsd_ansatz.update_var_params(var_params)
         energy = sim.get_expectation_value(qubit_hamiltonian, upccgsd_ansatz.circuit)
         self.assertAlmostEqual(energy, -0.854608, delta=1e-4)
+
+    def test_upccgsd_circuit_reference_state_H2(self):
+        """ Verify construction of H2 ansatz works using a circuit reference state."""
+
+        # Build qubit hamiltonian
+        qubit_hamiltonian = jordan_wigner(mol_H2_sto3g.fermionic_hamiltonian)
+
+        # Construct reference circuit by hand
+        ref_h2_circuit = get_reference_circuit(
+                n_spinorbitals=mol_H2_sto3g.n_sos,
+                n_electrons=mol_H2_sto3g.n_electrons,
+                mapping='jw',
+                up_then_down=False,
+                spin=mol_H2_sto3g.spin)
+
+        # Build circuit
+        upccgsd_ansatz = UpCCGSD(mol_H2_sto3g, reference_state=ref_h2_circuit)
+        upccgsd_ansatz.build_circuit()
+
+        # Assert energy returned is as expected for given parameters
+        sim = get_backend()
+        upccgsd_ansatz.update_var_params([0.03518165, -0.02986551,  0.02897598, -0.03632711,
+                                          0.03044071,  0.08252277])
+        energy = sim.get_expectation_value(qubit_hamiltonian, upccgsd_ansatz.circuit)
+        self.assertAlmostEqual(energy, -1.1372658, delta=1e-6)
 
 
 if __name__ == "__main__":

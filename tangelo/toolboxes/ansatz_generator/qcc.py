@@ -78,9 +78,10 @@ class QCC(Ansatz):
         max_qcc_gens (int or None): Maximum number of generators allowed in the ansatz. If None,
             one generator from each DIS group is selected. If int, then min(|DIS|, max_qcc_gens)
             generators are selected in order of decreasing |dEQCC/dtau|. Default, None.
-        reference_state (string): The reference state id for the ansatz. The
-            supported reference states are stored in the supported_reference_state
-            attributes. Default, "HF".
+        reference_state (string): The reference state id for the ansatz. If a Circuit object
+            is passed, then a copy of this circuit overrides the qmf_circuit and its variational
+            parameters override qmf_var_params. The supported reference states are stored in the
+            supported_reference_state attributes. Default, "HF".
     """
 
     def __init__(self, molecule, mapping="jw", up_then_down=False, dis=None,
@@ -121,14 +122,24 @@ class QCC(Ansatz):
                                                       self.n_spinorbitals, self.n_electrons,
                                                       self.up_then_down, self.spin)
 
+        # If a circuit is supplied as the reference state use this as the QMF circuit
+        # while retaining all variational parameters:
+        if isinstance(reference_state, Circuit):
+            self.qmf_circuit = reference_state.copy()
+            self.qmf_var_params = [
+                gate.parameter for gate in reference_state._variational_gates
+            ]
+            self.n_qmf_params = len(self.qmf_var_params)
+        else:
+            self.qmf_circuit = qmf_circuit
+            self.n_qmf_params = 2 * self.n_qubits
+
         self.qmf_var_params = np.array(qmf_var_params) if isinstance(qmf_var_params, list) else qmf_var_params
         if not isinstance(self.qmf_var_params, np.ndarray):
             self.qmf_var_params = init_qmf_from_hf(self.n_spinorbitals, self.n_electrons,
                                                    self.mapping, self.up_then_down, self.spin)
         if self.qmf_var_params.size != 2 * self.n_qubits:
             raise ValueError("The number of QMF variational parameters must be 2 * n_qubits.")
-        self.n_qmf_params = 2 * self.n_qubits
-        self.qmf_circuit = qmf_circuit
 
         self.dis = dis
         self.qcc_tau_guess = qcc_tau_guess
@@ -190,6 +201,11 @@ class QCC(Ansatz):
         """Returns circuit preparing the reference state of the ansatz (e.g prepare reference
         wavefunction with HF, multi-reference state, etc). These preparations must be consistent
         with the transform used to obtain the qubit operator. """
+
+        # Note: because reference state parameters are needed in this ansatz, the reference state circuit
+        # is simply copied and stored in self.qmf_circuit:
+        if isinstance(self.reference_state, Circuit):
+            return self.qmf_circuit
 
         if self.reference_state not in self.supported_reference_state:
             raise ValueError(f"Only supported reference state methods are: "
