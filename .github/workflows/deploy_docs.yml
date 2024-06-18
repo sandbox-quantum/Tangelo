@@ -31,8 +31,9 @@ jobs:
         run: |
           sphinx-apidoc -o ./docs/source ./tangelo
           sphinx-build -M html ./docs/source ./docs/build -E
-          cp ./docs/source/_static/img/quantum_workflow.png ./docs/build/html
-          cp ./docs/source/_static/img/tangelo_logo_gradient.png ./docs/build/html
+          # cp ./docs/source/_static/img/quantum_workflow.png ./docs/build/html
+          # cp ./docs/source/_static/img/tangelo_logo_gradient.png ./docs/build/html
+          cp -r ./docs ./docs/build/html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
