@@ -22,6 +22,7 @@ from openfermion import load_operator
 
 from tangelo.linq import get_backend
 from tangelo.toolboxes.ansatz_generator.qcc import QCC
+from tangelo.toolboxes.ansatz_generator._qubit_mf import get_qmf_circuit
 from tangelo.toolboxes.operators.operators import QubitOperator
 from tangelo.molecule_library import mol_H2_sto3g, mol_H4_cation_sto3g, mol_H4_doublecation_minao, mol_H4_sto3g_uhf_a1_frozen
 from tangelo.toolboxes.qubit_mappings.mapping_transform import fermion_to_qubit_mapping
@@ -153,6 +154,32 @@ class QCCTest(unittest.TestCase):
         # Assert energy returned is the same as mean_field for reference state
         energy = sim.get_expectation_value(qu_op, qcc_ansatz.prepare_reference_state())
         self.assertAlmostEqual(energy, mol.mean_field.e_tot, delta=1e-6)
+
+    def test_qcc_circuit_reference_state_h2(self):
+        """ Verify construction of H2 ansatz works using a circuit reference state."""
+
+        qmf_var_params = [ 3.14159265e+00, -2.42743256e-08,  3.14159266e+00, -3.27162543e-08,
+                           3.08514545e-09,  3.08514545e-09,  3.08514545e-09,  3.08514545e-09]
+        qmf_ref_circuit = get_qmf_circuit(np.array(qmf_var_params), True)
+
+        # Build the ansatz with qmf reference circuit:
+        dis = [QubitOperator("Y0 X1 X2 X3")]
+        qcc_ansatz = QCC(mol_H2_sto3g, up_then_down=True, dis=dis, reference_state=qmf_ref_circuit)
+
+        # Build the QCC circuit, which is prepended by the qubit mean field (QMF) circuit.
+        qcc_ansatz.build_circuit()
+
+        # Get qubit hamiltonian for energy evaluation
+        qubit_hamiltonian = qcc_ansatz.qubit_ham
+
+        # The QMF and QCC parameters can both be specified; determined automatically otherwise.
+        qcc_var_params = [-2.26136280e-01]
+        var_params = qmf_var_params + qcc_var_params
+
+        # Assert energy returned is as expected for given parameters
+        qcc_ansatz.update_var_params(var_params)
+        energy = sim.get_expectation_value(qubit_hamiltonian, qcc_ansatz.circuit)
+        self.assertAlmostEqual(energy, -1.1372701746609022, delta=1e-6)
 
 
 if __name__ == "__main__":

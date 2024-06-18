@@ -18,6 +18,7 @@ import numpy as np
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.qubit_mappings.hcb import hard_core_boson_operator, boson_to_qubit_mapping
 from tangelo.toolboxes.ansatz_generator.puccd import pUCCD
+from tangelo.toolboxes.qubit_mappings.statevector_mapping import vector_to_circuit
 from tangelo.linq import get_backend
 
 
@@ -64,6 +65,31 @@ class pUCCDTest(unittest.TestCase):
 
         # Assert energy returned is as expected for given parameters.
         sim = get_backend()
+        puccd_ansatz.update_var_params([-0.22617753])
+        energy = sim.get_expectation_value(qubit_hamiltonian, puccd_ansatz.circuit)
+        self.assertAlmostEqual(energy, -1.13727, delta=1e-4)
+
+    def test_puccd_circuit_reference_state_H2(self):
+        """ Verify construction of H2 ansatz works using a circuit reference state."""
+
+        sim = get_backend()
+
+        # Construct H2 reference state circuit
+        ref_circuit = vector_to_circuit([
+            int(i < (mol_H2_sto3g.n_active_electrons // 2))
+            for i in range(mol_H2_sto3g.n_active_mos)
+        ])
+
+        # Build circuit.
+        puccd_ansatz = pUCCD(mol_H2_sto3g, reference_state=ref_circuit)
+        puccd_ansatz.build_circuit()
+
+        # Build qubit hamiltonian for energy evaluation.
+        qubit_hamiltonian = boson_to_qubit_mapping(
+            hard_core_boson_operator(mol_H2_sto3g.fermionic_hamiltonian)
+        )
+
+        # Assert energy returned is as expected for given parameters.
         puccd_ansatz.update_var_params([-0.22617753])
         energy = sim.get_expectation_value(qubit_hamiltonian, puccd_ansatz.circuit)
         self.assertAlmostEqual(energy, -1.13727, delta=1e-4)

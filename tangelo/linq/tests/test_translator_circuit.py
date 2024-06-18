@@ -180,6 +180,25 @@ class TranslateCircuitTest(unittest.TestCase):
         sim_results = qiskit_simulator.run(translated_circuit).result()
         np.testing.assert_array_almost_equal(sim_results.get_statevector(translated_circuit), reference_big_msq, decimal=6)
 
+    @unittest.skipIf("qiskit" not in installed_backends, "Test Skipped: Backend not available \n")
+    def test_qiskit_multi_control(self):
+        from qiskit import QuantumCircuit
+
+        for g in ["CRX", "CRY", "CRZ", "CPHASE"]:
+            c = Circuit([Gate(g, 2, control=[0, 1], parameter=1.)])
+            c_qiskit = translate_c(c, target="qiskit")
+            q = QuantumCircuit(3)
+            if g == "CRX":
+                q.mcrx(1., [0, 1], 2)
+            elif g == "CRY":
+                q.mcry(1., [0, 1], 2)
+            elif g == "CRZ":
+                q.mcrz(1., [0, 1], 2)
+            elif g == "CPHASE":
+                q.mcp(1., [0, 1], 2)
+
+            assert c_qiskit.data == q.data
+
     @unittest.skipIf("cirq" not in installed_backends, "Test Skipped: Backend not available \n")
     def test_cirq(self):
         """
