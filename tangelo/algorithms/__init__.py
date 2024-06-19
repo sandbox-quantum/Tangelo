@@ -13,5 +13,5 @@
 # limitations under the License.
 
 from .variational import BuiltInAnsatze, VQESolver, ADAPTSolver, SA_VQESolver, SA_OO_Solver
-from .classical import FCISolver, CCSDSolver, MINDO3Solver, MP2Solver
+from .classical import FCISolver, CCSDSolver, MP2Solver
 from .projective import QITESolver
