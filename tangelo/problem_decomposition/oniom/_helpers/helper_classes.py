@@ -242,8 +242,7 @@ class Fragment:
         # In case of RHF solver (inside SecondQuantizedMolecule object).
         if isinstance(solver, str):
             energy = molecule.mf_energy
-        # The remaining case is for VQESolver, CCSDSolver, FCISolver and
-        # MINDO3Solver.
+        # The remaining case is for VQESolver, CCSDSolver, FCISolver.
         else:
             energy = solver.simulate()
 
