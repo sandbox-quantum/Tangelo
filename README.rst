@@ -68,7 +68,7 @@ If you'd like to install via pip the code in a specific branch of this Github re
 
 .. code-block::
 
-   pip install git+https://github.com/goodchemistryco/Tangelo.git@develop
+   pip install git+https://github.com/sandbox-quantum/Tangelo.git@develop
 
 2. From source, using setuptools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
