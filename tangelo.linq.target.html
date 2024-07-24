@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.linq.target package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.linq.translator package" href="tangelo.linq.translator.html" />
+    <link rel="prev" title="tangelo.linq.qpu_connection package" href="tangelo.linq.qpu_connection.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.linq.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.circuit">tangelo.linq.circuit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.gate">tangelo.linq.gate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.qdk_template">tangelo.linq.qdk_template module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.simulator">tangelo.linq.simulator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.linq.html">tangelo.linq package</a></li>
+      <li class="breadcrumb-item active">tangelo.linq.target package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.linq.target.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-linq-target-package">
+<h1>tangelo.linq.target package<a class="headerlink" href="#tangelo-linq-target-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.linq.target.backend">
+<span id="tangelo-linq-target-backend-module"></span><h2>tangelo.linq.target.backend module<a class="headerlink" href="#module-tangelo.linq.target.backend" title="Link to this heading"></a></h2>
+<p>Base class to define backends (simulators or actual devices) and abstracting their
+differences from the user. Users can define their own backend as a child class of this one.
+Able to run noiseless and noisy simulations, leveraging the capabilities of different backends,
+quantum or classical.</p>
+<p>If the user provides a noise model, then a noisy simulation is run with n_shots
+shots. If the user only provides n_shots, a noiseless simulation is run, drawing
+the desired amount of shots. If the target backend has access to the statevector
+representing the quantum state, we leverage any kind of emulation available to
+reduce runtime (directly generating shot values from final statevector etc). If
+the quantum circuit contains a MEASURE instruction, it is assumed to simulate a
+mixed-state and the simulation will be carried by simulating individual shots
+(e.g a number of shots is required).</p>
+<p>Some backends may only support a subset of the above. This information is
+contained in the static method backend_info defined by each subclass target.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.target.backend.</span></span><span class="sig-name descname"><span class="pre">Backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.Backend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend.backend_info">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#tangelo.linq.target.backend.Backend.backend_info" title="Link to this definition"></a></dt>
+<dd><p>A dictionary that includes {‘noisy_simulation’: True or False,
+‘statevector_available’: True or False,
+‘statevector_order’: ‘lsq_first’ or ‘msq_first’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend.collapse_statevector_to_desired_measurement">
+<span class="sig-name descname"><span class="pre">collapse_statevector_to_desired_measurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statevector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_zero_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.Backend.collapse_statevector_to_desired_measurement" title="Link to this definition"></a></dt>
+<dd><p>Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>statevector</strong> (<em>array</em>) – The statevector for which the collapse to the desired qubit value is performed.</p></li>
+<li><p><strong>qubit</strong> (<em>int</em>) – The index of the qubit to collapse to the classical result.</p></li>
+<li><p><strong>result</strong> (<em>string</em>) – “0” or “1”.</p></li>
+<li><p><strong>ignore_zero_prob</strong> (<em>bool</em>) – If True, a vector of zeros is returned if the probability is zero. Default value set to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>array</strong> – the collapsed and renormalized statevector</p></li>
+<li><p><strong>float</strong> – the probability this occurred.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend.get_expectation_value">
+<span class="sig-name descname"><span class="pre">get_expectation_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_prep_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.Backend.get_expectation_value" title="Link to this definition"></a></dt>
+<dd><p>Take as input a qubit operator H and a quantum circuit preparing a
+state <a href="#id1"><span class="problematic" id="id2">|</span></a>psi&gt;. Return the expectation value &lt;psi | H | psi&gt;.</p>
+<p>In the case of a noiseless simulation, if the target backend exposes the
+statevector then it is used directly to compute expectation values, or
+draw samples if required. In the case of a noisy simulator, or if the
+statevector is not available on the target backend, individual shots
+must be run and the workflow is akin to what we would expect from an
+actual QPU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – the qubit operator.</p></li>
+<li><p><strong>state_prep_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – an abstract circuit used for state preparation.</p></li>
+<li><p><strong>initial_statevector</strong> (<em>array</em>) – The initial statevector for the simulation</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – The mid-circuit measurement results to select for.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>complex</strong> – The expectation value of this operator with regards to the
+state preparation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend.get_expectation_value_from_frequencies_oneterm">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_expectation_value_from_frequencies_oneterm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.Backend.get_expectation_value_from_frequencies_oneterm" title="Link to this definition"></a></dt>
+<dd><p>Return the expectation value of a single-term qubit-operator, given
+the result of a state-preparation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>term</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – a single-term qubit operator</p></li>
+<li><p><strong>frequencies</strong> (<em>dict</em>) – histogram of frequencies of measurements (assumed
+to be in lsq-first format).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>complex</strong> – The expectation value of this operator with regard to the
+state preparation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend.get_standard_error">
+<span class="sig-name descname"><span class="pre">get_standard_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_prep_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.Backend.get_standard_error" title="Link to this definition"></a></dt>
+<dd><p>Take as input a qubit operator H and a quantum circuit preparing a
+state <a href="#id3"><span class="problematic" id="id4">|</span></a>psi&gt;. Return the standard error of &lt;psi | H | psi&gt;, e.g. sqrt(Var H / n_shots).</p>
+<p>In the case of a noiseless simulation, if the target backend exposes the
+statevector then it is used directly to compute standard error (zero), or
+draw samples if required. In the case of a noisy simulator, or if the
+statevector is not available on the target backend, individual shots
+must be run and the workflow is akin to what we would expect from an
+actual QPU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – the qubit operator.</p></li>
+<li><p><strong>state_prep_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – an abstract circuit used for state preparation.</p></li>
+<li><p><strong>initial_statevector</strong> (<em>list/array</em>) – A valid statevector in the format
+supported by the target backend.</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – The mid-circuit measurement results to select for.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>complex</strong> – The standard error of this operator with regard to the
+state preparation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend.get_variance">
+<span class="sig-name descname"><span class="pre">get_variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_prep_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.Backend.get_variance" title="Link to this definition"></a></dt>
+<dd><p>Take as input a qubit operator H and a quantum circuit preparing a
+state <a href="#id5"><span class="problematic" id="id6">|</span></a>psi&gt;. Return the variance &lt;psi | H | psi&gt;.</p>
+<p>In the case of a noiseless simulation, if the target backend exposes the
+statevector then it is used directly to compute variance (zero), or
+draw samples if required. In the case of a noisy simulator, or if the
+statevector is not available on the target backend, individual shots
+must be run and the workflow is akin to what we would expect from an
+actual QPU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – the qubit operator.</p></li>
+<li><p><strong>state_prep_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – an abstract circuit used for state preparation.</p></li>
+<li><p><strong>initial_statevector</strong> (<em>list/array</em>) – A valid statevector in the format
+supported by the target backend.</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – The mid-circuit measurement results to select for.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>complex</strong> – The variance of this operator with regard to the
+state preparation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend.get_variance_from_frequencies_oneterm">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_variance_from_frequencies_oneterm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.Backend.get_variance_from_frequencies_oneterm" title="Link to this definition"></a></dt>
+<dd><p>Return the variance of a single-term qubit-operator, given
+the result of a state-preparation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>term</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – a single-term qubit operator.</p></li>
+<li><p><strong>frequencies</strong> (<em>dict</em>) – histogram of frequencies of measurements (assumed
+to be in lsq-first format).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>complex</strong> – The variance of this operator with regard to the
+state preparation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend.perform_measurement">
+<span class="sig-name descname"><span class="pre">perform_measurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statevector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.Backend.perform_measurement" title="Link to this definition"></a></dt>
+<dd><p>Perform a measurement and return the new statevector and the probability that measurement occurred</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>statevector</strong> (<em>array</em>) – The statevector to perform the measurement on.</p></li>
+<li><p><strong>qubit</strong> (<em>int</em>) – The qubit to apply the measurement to</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>None</em><em>]</em>) – The desired measurement result, Default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>str</strong> – The result of the measurement</p></li>
+<li><p><strong>array</strong> – The measured and renormalized statevector</p></li>
+<li><p><strong>float</strong> – The probability this measurement occurred</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_mid_circuit_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.Backend.simulate" title="Link to this definition"></a></dt>
+<dd><p>Perform state preparation corresponding to the input circuit on the
+target backend, return the frequencies of the different observables, and
+either the statevector or None depending on the availability of the
+statevector and if return_statevector is set to True. For the
+statevector backends supporting it, an initial statevector can be
+provided to initialize the quantum state without simulating all the
+equivalent gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – a circuit in the abstract format to be translated
+for the target backend.</p></li>
+<li><p><strong>return_statevector</strong> (<em>bool</em>) – option to return the statevector as well,
+if available.</p></li>
+<li><p><strong>initial_statevector</strong> (<em>list/array</em>) – A valid statevector in the format
+supported by the target backend.</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – The binary string of the desired measurement.
+Must have the same length as the number of MEASURE gates in source_circuit
+If self.n_shots is set, statistics are performed assuming self.n_shots successes</p></li>
+<li><p><strong>save_mid_circuit_meas</strong> (<em>bool</em>) – Save mid-circuit measurement results to
+self.mid_circuit_meas_freqs. All measurements will be saved to
+self.all_frequencies, with keys of length (n_meas + n_qubits).
+The leading n_meas values will hold the results of the MEASURE gates,
+ordered by their appearance in the source_circuit.
+The last n_qubits values will hold the measurements performed on
+each of qubits at the end of the circuit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – A dictionary mapping multi-qubit states to their corresponding
+frequency.</p></li>
+<li><p><strong>numpy.array</strong> – The statevector, if available for the target backend
+and requested by the user (if not, set to None).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.Backend.simulate_circuit">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">simulate_circuit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.Backend.simulate_circuit" title="Link to this definition"></a></dt>
+<dd><p>Perform state preparation corresponding to the input circuit on the
+target backend, return the frequencies of the different observables, and
+either the statevector or None depending on the availability of the
+statevector and if return_statevector is set to True. For the
+statevector backends supporting it, an initial statevector can be
+provided to initialize the quantum state without simulating all the
+equivalent gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – a circuit in the abstract format to be translated
+for the target backend.</p></li>
+<li><p><strong>return_statevector</strong> (<em>bool</em>) – option to return the statevector as well,
+if available.</p></li>
+<li><p><strong>initial_statevector</strong> (<em>list/array</em>) – A valid statevector in the format
+supported by the target backend.</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – The binary string of the desired measurement.
+Must have the same length as the number of MEASURE gates in source_circuit</p></li>
+<li><p><strong>save_mid_circuit_meas</strong> (<em>bool</em>) – Save mid-circuit measurement results to
+self.mid_circuit_meas_freqs. All measurements will be saved to
+self.all_frequencies, with keys of length (n_meas + n_qubits).
+The leading n_meas values will hold the results of the MEASURE gates,
+ordered by their appearance in the source_circuit.
+The last n_qubits values will hold the measurements performed on
+each of qubits at the end of the circuit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – A dictionary mapping multi-qubit states to their corresponding
+frequency.</p></li>
+<li><p><strong>numpy.array</strong> – The statevector, if available for the target backend
+and requested by the user (if not, set to None).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.collapse_statevector_to_desired_measurement">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.target.backend.</span></span><span class="sig-name descname"><span class="pre">collapse_statevector_to_desired_measurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statevector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lsq_first'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_zero_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.collapse_statevector_to_desired_measurement" title="Link to this definition"></a></dt>
+<dd><p>Take 0 or 1 part of a statevector for a given qubit and return a normalized statevector and probability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>statevector</strong> (<em>array</em>) – The statevector for which the collapse to the desired qubit value is performed.</p></li>
+<li><p><strong>qubit</strong> (<em>int</em>) – Index of target qubit to collapse in the desired classical state.</p></li>
+<li><p><strong>result</strong> (<em>int</em>) – 0 or 1.</p></li>
+<li><p><strong>order</strong> (<em>string</em>) – The qubit ordering of the statevector, lsq_first or msq_first.</p></li>
+<li><p><strong>ignore_zero_prob</strong> (<em>bool</em>) – Default False, If True, return zero vector if probability is below 1.e-14</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>array</strong> – The collapsed and renormalized statevector.</p></li>
+<li><p><strong>float</strong> – The probability for the desired measurement to occur.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.get_expectation_value_from_frequencies_oneterm">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.target.backend.</span></span><span class="sig-name descname"><span class="pre">get_expectation_value_from_frequencies_oneterm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.get_expectation_value_from_frequencies_oneterm" title="Link to this definition"></a></dt>
+<dd><p>Return the expectation value of a single-term qubit-operator, given
+the result of a state-preparation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>term</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – a single-term qubit operator.</p></li>
+<li><p><strong>frequencies</strong> (<em>dict</em>) – histogram of frequencies of measurements (assumed
+to be in lsq-first format).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>complex</strong> – The expectation value of this operator with regard to the
+state preparation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.target.backend.get_variance_from_frequencies_oneterm">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.target.backend.</span></span><span class="sig-name descname"><span class="pre">get_variance_from_frequencies_oneterm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.backend.get_variance_from_frequencies_oneterm" title="Link to this definition"></a></dt>
+<dd><p>Return the variance of the expectation value of a single-term qubit-operator, given
+the result of a state-preparation.
+:param term: a single-term qubit operator.
+:type term: QubitOperator
+:param frequencies: histogram of frequencies of measurements (assumed</p>
+<blockquote>
+<div><p>to be in lsq-first format).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>complex</strong> – The variance of this operator with regard to the
+state preparation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.target.target_cirq">
+<span id="tangelo-linq-target-target-cirq-module"></span><h2>tangelo.linq.target.target_cirq module<a class="headerlink" href="#module-tangelo.linq.target.target_cirq" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_cirq.CirqSimulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.target.target_cirq.</span></span><span class="sig-name descname"><span class="pre">CirqSimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_cirq.CirqSimulator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_cirq.CirqSimulator.backend_info">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_cirq.CirqSimulator.backend_info" title="Link to this definition"></a></dt>
+<dd><p>A dictionary that includes {‘noisy_simulation’: True or False,
+‘statevector_available’: True or False,
+‘statevector_order’: ‘lsq_first’ or ‘msq_first’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_cirq.CirqSimulator.expectation_value_from_prepared_state">
+<span class="sig-name descname"><span class="pre">expectation_value_from_prepared_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepared_state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_cirq.CirqSimulator.expectation_value_from_prepared_state" title="Link to this definition"></a></dt>
+<dd><p>Compute an expectation value using a representation of the state (density matrix, state vector…)
+using Cirq functionalities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – a qubit operator in tangelo format</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – the number of qubits the operator acts on</p></li>
+<li><p><strong>prepared_state</strong> (<em>np.array</em>) – a numpy array encoding the state (can be a vector or a matrix)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float64</strong> – the expectation value of the qubit operator w.r.t the input state</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_cirq.CirqSimulator.simulate_circuit">
+<span class="sig-name descname"><span class="pre">simulate_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_mid_circuit_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_cirq.CirqSimulator.simulate_circuit" title="Link to this definition"></a></dt>
+<dd><p>Perform state preparation corresponding to the input circuit on the
+target backend, return the frequencies of the different observables, and
+either the statevector or None depending on the availability of the
+statevector and if return_statevector is set to True. For the
+statevector backends supporting it, an initial statevector can be
+provided to initialize the quantum state without simulating all the
+equivalent gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – a circuit in the abstract format to be translated
+for the target backend.</p></li>
+<li><p><strong>return_statevector</strong> (<em>bool</em>) – option to return the statevector as well,
+if available.</p></li>
+<li><p><strong>initial_statevector</strong> (<em>list/array</em>) – A valid statevector in the format
+supported by the target backend.</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – The binary string of the desired measurement.
+Must have the same length as the number of MEASURE gates in source_circuit</p></li>
+<li><p><strong>save_mid_circuit_meas</strong> (<em>bool</em>) – Save mid-circuit measurement results to
+self.mid_circuit_meas_freqs. All measurements will be saved to
+self.all_frequencies, with keys of length (n_meas + n_qubits).
+The leading n_meas values will hold the results of the MEASURE gates,
+ordered by their appearance in the source_circuit.
+The last n_qubits values will hold the measurements performed on
+each of qubits at the end of the circuit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – A dictionary mapping multi-qubit states to their corresponding
+frequency.</p></li>
+<li><p><strong>numpy.array</strong> – The statevector, if available for the target backend
+and requested by the user (if not, set to None).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.target.target_qdk">
+<span id="tangelo-linq-target-target-qdk-module"></span><h2>tangelo.linq.target.target_qdk module<a class="headerlink" href="#module-tangelo.linq.target.target_qdk" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_qdk.QDKSimulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.target.target_qdk.</span></span><span class="sig-name descname"><span class="pre">QDKSimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_qdk.QDKSimulator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_qdk.QDKSimulator.backend_info">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_qdk.QDKSimulator.backend_info" title="Link to this definition"></a></dt>
+<dd><p>A dictionary that includes {‘noisy_simulation’: True or False,
+‘statevector_available’: True or False,
+‘statevector_order’: ‘lsq_first’ or ‘msq_first’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_qdk.QDKSimulator.simulate_circuit">
+<span class="sig-name descname"><span class="pre">simulate_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_mid_circuit_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_qdk.QDKSimulator.simulate_circuit" title="Link to this definition"></a></dt>
+<dd><p>Perform state preparation corresponding to the input circuit on the
+target backend, return the frequencies of the different observables, and
+either the statevector or None depending on the availability of the
+statevector and if return_statevector is set to True. For the
+statevector backends supporting it, an initial statevector can be
+provided to initialize the quantum state without simulating all the
+equivalent gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – a circuit in the abstract format to be translated
+for the target backend.</p></li>
+<li><p><strong>return_statevector</strong> (<em>bool</em>) – option to return the statevector as well,
+if available.</p></li>
+<li><p><strong>initial_statevector</strong> (<em>list/array</em>) – A valid statevector in the format
+supported by the target backend.</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – The binary string of the desired measurement.
+Must have the same length as the number of MEASURE gates in source_circuit</p></li>
+<li><p><strong>save_mid_circuit_meas</strong> (<em>bool</em>) – Save mid-circuit measurement results to
+self.mid_circuit_meas_freqs. All measurements will be saved to
+self.all_frequencies, with keys of length (n_meas + n_qubits).
+The leading n_meas values will hold the results of the MEASURE gates,
+ordered by their appearance in the source_circuit.
+The last n_qubits values will hold the measurements performed on
+each of qubits at the end of the circuit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – A dictionary mapping multi-qubit states to their corresponding
+frequency.</p></li>
+<li><p><strong>numpy.array</strong> – The statevector, if available for the target backend
+and requested by the user (if not, set to None).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.target.target_qiskit">
+<span id="tangelo-linq-target-target-qiskit-module"></span><h2>tangelo.linq.target.target_qiskit module<a class="headerlink" href="#module-tangelo.linq.target.target_qiskit" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_qiskit.QiskitSimulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.target.target_qiskit.</span></span><span class="sig-name descname"><span class="pre">QiskitSimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_qiskit.QiskitSimulator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<p>Interface to the qiskit simulator.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_qiskit.QiskitSimulator.backend_info">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_qiskit.QiskitSimulator.backend_info" title="Link to this definition"></a></dt>
+<dd><p>A dictionary that includes {‘noisy_simulation’: True or False,
+‘statevector_available’: True or False,
+‘statevector_order’: ‘lsq_first’ or ‘msq_first’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_qiskit.QiskitSimulator.simulate_circuit">
+<span class="sig-name descname"><span class="pre">simulate_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_mid_circuit_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_qiskit.QiskitSimulator.simulate_circuit" title="Link to this definition"></a></dt>
+<dd><p>Perform state preparation corresponding to the input circuit on the
+target backend, return the frequencies of the different observables, and
+either the statevector or None depending on the availability of the
+statevector and if return_statevector is set to True. For the
+statevector backends supporting it, an initial statevector can be
+provided to initialize the quantum state without simulating all the
+equivalent gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – a circuit in the abstract format to be translated
+for the target backend.</p></li>
+<li><p><strong>return_statevector</strong> (<em>bool</em>) – option to return the statevector as well,
+if available.</p></li>
+<li><p><strong>initial_statevector</strong> (<em>list/array</em>) – A valid statevector in the format
+supported by the target backend.</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – The binary string of the desired measurement.
+Must have the same length as the number of MEASURE gates in source_circuit</p></li>
+<li><p><strong>save_mid_circuit_meas</strong> (<em>bool</em>) – Save mid-circuit measurement results to
+self.mid_circuit_meas_freqs. All measurements will be saved to
+self.all_frequencies, with keys of length (n_meas + n_qubits).
+The leading n_meas values will hold the results of the MEASURE gates,
+ordered by their appearance in the source_circuit.
+The last n_qubits values will hold the measurements performed on
+each of qubits at the end of the circuit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – A dictionary mapping multi-qubit states to their corresponding
+frequency.</p></li>
+<li><p><strong>numpy.array</strong> – The statevector, if available for the target backend
+and requested by the user (if not, set to None).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.target.target_qulacs">
+<span id="tangelo-linq-target-target-qulacs-module"></span><h2>tangelo.linq.target.target_qulacs module<a class="headerlink" href="#module-tangelo.linq.target.target_qulacs" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_qulacs.QulacsSimulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.target.target_qulacs.</span></span><span class="sig-name descname"><span class="pre">QulacsSimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_qulacs.QulacsSimulator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_qulacs.QulacsSimulator.backend_info">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_qulacs.QulacsSimulator.backend_info" title="Link to this definition"></a></dt>
+<dd><p>A dictionary that includes {‘noisy_simulation’: True or False,
+‘statevector_available’: True or False,
+‘statevector_order’: ‘lsq_first’ or ‘msq_first’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_qulacs.QulacsSimulator.expectation_value_from_prepared_state">
+<span class="sig-name descname"><span class="pre">expectation_value_from_prepared_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepared_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_qulacs.QulacsSimulator.expectation_value_from_prepared_state" title="Link to this definition"></a></dt>
+<dd><p>Compute an expectation value using a representation of the state
+using qulacs functionalities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – a qubit operator in tangelo format</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – Number of qubits.</p></li>
+<li><p><strong>prepared_state</strong> (<em>np.array</em>) – a numpy array encoding the state (can be
+a vector or a matrix). It is internally transformed into a
+qulacs.QuantumState object. Default is None, in this case it is
+set to the current state in the simulator object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float64</strong> – the expectation value of the qubit operator w.r.t the input state</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_qulacs.QulacsSimulator.simulate_circuit">
+<span class="sig-name descname"><span class="pre">simulate_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_mid_circuit_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_qulacs.QulacsSimulator.simulate_circuit" title="Link to this definition"></a></dt>
+<dd><p>Perform state preparation corresponding to the input circuit on the
+target backend, return the frequencies of the different observables, and
+either the statevector or None depending on the availability of the
+statevector and if return_statevector is set to True. For the
+statevector backends supporting it, an initial statevector can be
+provided to initialize the quantum state without simulating all the
+equivalent gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – a circuit in the abstract format to be translated
+for the target backend.</p></li>
+<li><p><strong>return_statevector</strong> (<em>bool</em>) – option to return the statevector as well,
+if available.</p></li>
+<li><p><strong>initial_statevector</strong> (<em>list/array</em>) – A valid statevector in the format
+supported by the target backend.</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – The binary string of the desired measurement.
+Must have the same length as the number of MEASURE gates in source_circuit</p></li>
+<li><p><strong>save_mid_circuit_meas</strong> (<em>bool</em>) – Save mid-circuit measurement results to
+self.mid_circuit_meas_freqs. All measurements will be saved to
+self.all_frequencies, with keys of length (n_meas + n_qubits).
+The leading n_meas values will hold the results of the MEASURE gates,
+ordered by their appearance in the source_circuit.
+The last n_qubits values will hold the measurements performed on
+each of qubits at the end of the circuit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – A dictionary mapping multi-qubit states to their corresponding
+frequency.</p></li>
+<li><p><strong>numpy.array</strong> – The statevector, if available for the target backend
+and requested by the user (if not, set to None).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.target.target_stim">
+<span id="tangelo-linq-target-target-stim-module"></span><h2>tangelo.linq.target.target_stim module<a class="headerlink" href="#module-tangelo.linq.target.target_stim" title="Link to this heading"></a></h2>
+<p>The stim simulation package is made for fast simulation of Clifford circuits.
+See <a class="reference external" href="https://arxiv.org/abs/2103.02202v3">https://arxiv.org/abs/2103.02202v3</a> for more details.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_stim.StimSimulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.target.target_stim.</span></span><span class="sig-name descname"><span class="pre">StimSimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_stim.StimSimulator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<p>Interface to the stim simulator</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_stim.StimSimulator.backend_info">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_stim.StimSimulator.backend_info" title="Link to this definition"></a></dt>
+<dd><p>A dictionary that includes {‘noisy_simulation’: True or False,
+‘statevector_available’: True or False,
+‘statevector_order’: ‘lsq_first’ or ‘msq_first’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_stim.StimSimulator.simulate_circuit">
+<span class="sig-name descname"><span class="pre">simulate_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_mid_circuit_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_stim.StimSimulator.simulate_circuit" title="Link to this definition"></a></dt>
+<dd><p>Perform state preparation corresponding to the input circuit on the
+target backend, return the frequencies of the different observables, and
+either the statevector or None depending on if return_statevector is set to True.
+The initial_statevector, and desired_meas_result features are currently not implemented
+and will return and error if not None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – a circuit in the abstract format to be translated
+for the target backend.</p></li>
+<li><p><strong>return_statevector</strong> (<em>bool</em>) – option to return the statevector</p></li>
+<li><p><strong>initial_statevector</strong> (<em>list/array</em>) – Not currently implemented, will raise an error</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – Not currently implemented, will raise an error</p></li>
+<li><p><strong>save_mid_circuit_meas</strong> (<em>bool</em>) – Not currently implemented, will raise an error</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – A dictionary mapping multi-qubit states to their corresponding
+frequency.</p></li>
+<li><p><strong>numpy.array</strong> – The statevector, if available for the target backend
+and requested by the user (if not, set to None).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.target.target_sympy">
+<span id="tangelo-linq-target-target-sympy-module"></span><h2>tangelo.linq.target.target_sympy module<a class="headerlink" href="#module-tangelo.linq.target.target_sympy" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_sympy.SympySimulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.target.target_sympy.</span></span><span class="sig-name descname"><span class="pre">SympySimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_sympy.SympySimulator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_sympy.SympySimulator.backend_info">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_sympy.SympySimulator.backend_info" title="Link to this definition"></a></dt>
+<dd><p>A dictionary that includes {‘noisy_simulation’: True or False,
+‘statevector_available’: True or False,
+‘statevector_order’: ‘lsq_first’ or ‘msq_first’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_sympy.SympySimulator.expectation_value_from_prepared_state">
+<span class="sig-name descname"><span class="pre">expectation_value_from_prepared_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepared_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_sympy.SympySimulator.expectation_value_from_prepared_state" title="Link to this definition"></a></dt>
+<dd><p>Compute an expectation value using a representation of the state
+using sympy functionalities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – a qubit operator in tangelo format</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – Number of qubits.</p></li>
+<li><p><strong>prepared_state</strong> (<em>array/matrix</em><em> or </em><em>sympy.physics.quantum.Qubit</em>) – A
+numpy or a sympy object representing the state. Internally, a
+numpy object is transformed into the sympy representation.
+Default is None, in this case it is set to the current state in
+the simulator object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sympy.core.add.Add</strong> – Eigenvalue represented as a symbolic sum.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.target.target_sympy.SympySimulator.simulate_circuit">
+<span class="sig-name descname"><span class="pre">simulate_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_statevector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_mid_circuit_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.target.target_sympy.SympySimulator.simulate_circuit" title="Link to this definition"></a></dt>
+<dd><p>This simulator manipulates symbolic expressions, i.e. gates can have
+unspecified parameters (strings interpreted as variables). As with the
+other simulators, it performs state preparation corresponding to the
+input circuit, returns the frequencies of the different observables, and
+either the statevector or None depending on if return_statevector is set
+to True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – A circuit in the abstract format to be
+translated for the target backend.</p></li>
+<li><p><strong>return_statevector</strong> (<em>bool</em>) – Option to return the statevector as well,
+if available.</p></li>
+<li><p><strong>initial_statevector</strong> (<em>array/matrix</em><em> or </em><em>sympy.physics.quantum.Qubit</em>) – A
+valid statevector in the format supported by the target backend.</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – Not currently implemented, will raise an error</p></li>
+<li><p><strong>save_mid_circuit_meas</strong> (<em>bool</em>) – Not currently implemented, will raise an error</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – A dictionary mapping multi-qubit states to their corresponding
+frequency.</p></li>
+<li><p><strong>sympy.Matrix</strong> – The symbolic statevector, if requested
+by the user (if not, set to None).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.target">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.linq.target" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.linq.qpu_connection.html" class="btn btn-neutral float-left" title="tangelo.linq.qpu_connection package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.linq.translator.html" class="btn btn-neutral float-right" title="tangelo.linq.translator package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

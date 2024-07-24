@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.toolboxes.operators package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.toolboxes.optimizers package" href="tangelo.toolboxes.optimizers.html" />
+    <link rel="prev" title="tangelo.toolboxes.molecular_computation package" href="tangelo.toolboxes.molecular_computation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.toolboxes.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.html#module-tangelo.toolboxes">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+      <li class="breadcrumb-item active">tangelo.toolboxes.operators package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.toolboxes.operators.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-toolboxes-operators-package">
+<h1>tangelo.toolboxes.operators package<a class="headerlink" href="#tangelo-toolboxes-operators-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.toolboxes.operators.multiformoperator">
+<span id="tangelo-toolboxes-operators-multiformoperator-module"></span><h2>tangelo.toolboxes.operators.multiformoperator module<a class="headerlink" href="#module-tangelo.toolboxes.operators.multiformoperator" title="Link to this heading"></a></h2>
+<p>Module defining the MultiformOperator class. It stores a qubit operator in
+many forms: tuples, numpy array of int and stabilizer formalism. Most of the
+internal methods use the numpy array of int. The main application for this class
+is to identify commutation relation faster with the stabilizer notation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.ConvertPauli">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.multiformoperator.</span></span><span class="sig-name descname"><span class="pre">ConvertPauli</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pauli_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.ConvertPauli" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Helper class to help convert from/to string &lt;-&gt; int &lt;-&gt; stabilizer. It
+aims to replace multiple dictionaries. It performs the conversion of</p>
+<blockquote>
+<div><p>I &lt;-&gt; 0 &lt;-&gt; (0, 0)
+Z &lt;-&gt; 1 &lt;-&gt; (0, 1)
+X &lt;-&gt; 2 &lt;-&gt; (1, 0)
+Y &lt;-&gt; 3 &lt;-&gt; (1, 1)</p>
+</div></blockquote>
+<p>The input can be anything found in the previous conversion table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pauli_id</strong> (<em>string</em><em>, </em><em>int</em><em> or </em><em>tuple</em><em> of </em><em>bool</em>) – Single Pauli.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.ConvertPauli.char">
+<span class="sig-name descname"><span class="pre">char</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.ConvertPauli.char" title="Link to this definition"></a></dt>
+<dd><p>Pauli letter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.ConvertPauli.integer">
+<span class="sig-name descname"><span class="pre">integer</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.ConvertPauli.integer" title="Link to this definition"></a></dt>
+<dd><p>Pauli integer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.ConvertPauli.tuple">
+<span class="sig-name descname"><span class="pre">tuple</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.ConvertPauli.tuple" title="Link to this definition"></a></dt>
+<dd><p>Pauli binary representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple of bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.multiformoperator.</span></span><span class="sig-name descname"><span class="pre">MultiformOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">terms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitOperator</span></code></a></p>
+<p>Construct integer and binary representations of the operator, as based on
+the user-specified input. Internal operations are mostly done with an
+integer array. The conversion is defined as:
+Letter | Integer | Binary
+-    I   |    0    | (0,0)
+-    Z   |    1    | (0,1)
+-    X   |    2    | (1,0)
+-    Y   |    3    | (1,1)
+Most of the algorithms use the integer representation to detect symmetries
+and performed operation (ex: multiplication). At the end, the operator can
+be output as a QubitOperator.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.terms">
+<span class="sig-name descname"><span class="pre">terms</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.terms" title="Link to this definition"></a></dt>
+<dd><p>Qubit terms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.n_qubits">
+<span class="sig-name descname"><span class="pre">n_qubits</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.n_qubits" title="Link to this definition"></a></dt>
+<dd><p>Number of qubits for this operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.factors">
+<span class="sig-name descname"><span class="pre">factors</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.factors" title="Link to this definition"></a></dt>
+<dd><p>Factors for each term. Without that,
+information would be lost when converting from a QubitOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like of complex</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.integer">
+<span class="sig-name descname"><span class="pre">integer</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.integer" title="Link to this definition"></a></dt>
+<dd><p>Array of 0s, 1s, 2s and 3s. Each line
+represents a term, and each term is a Pauli word.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like of np.int8</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.binary">
+<span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.binary" title="Link to this definition"></a></dt>
+<dd><p>Array of 0s (false) and 1s (true). Binary
+representation of the integer array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like of bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.binary_swap">
+<span class="sig-name descname"><span class="pre">binary_swap</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.binary_swap" title="Link to this definition"></a></dt>
+<dd><p>Copy of self.binary but with swapped
+columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like of bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.kernel">
+<span class="sig-name descname"><span class="pre">kernel</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.kernel" title="Link to this definition"></a></dt>
+<dd><p>Null space of the binary representation + identity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="simple">
+<dt>Properties:</dt><dd><p>n_terms (int): Number of terms in this qubit Hamiltonian.
+qubit_operator (QubitOperator): Self-explanatory.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.collapse">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collapse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.collapse" title="Link to this definition"></a></dt>
+<dd><p>Function to identify and sum over duplicate terms in an operator, to
+collapse a set of Pauli words to their minimal representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operator</strong> (<em>array</em><em> of </em><em>int</em>) – Operator in integer notation.</p></li>
+<li><p><strong>factors</strong> (<em>array</em><em> of </em><em>complex</em>) – Self-explanatory.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(array of int, arrays of float)</strong> – Array of unique integer-encoded
+Pauli words, their factors in the operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.compress">
+<span class="sig-name descname"><span class="pre">compress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abs_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.compress" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Overloads the QubitOperator.compress method. It adds an update for</dt><dd><p>the attributes.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>abs_tol</strong> (<em>float</em>) – Tolerance for the coefficients to be discarded or
+not. By default, it is EQ_TOLERANCE=1e-8 (in openfermion).</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – Define n_qubits when compressing operator</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.from_binaryop">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_binaryop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bin_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.from_binaryop" title="Link to this definition"></a></dt>
+<dd><p>Initialize MultiformOperator from a binary operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.from_integerop">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_integerop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.from_integerop" title="Link to this definition"></a></dt>
+<dd><p>Initialize MultiformOperator from an integer operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.from_qubitop">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_qubitop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.from_qubitop" title="Link to this definition"></a></dt>
+<dd><p>Initialize MultiformOperator from a qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.get_kernel">
+<span class="sig-name descname"><span class="pre">get_kernel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.get_kernel" title="Link to this definition"></a></dt>
+<dd><p>Get the kernel for a matrix of binary integers. The identity matrix
+is appended, and the extended matrix is then reduced to column-echelon
+form. The null space is then extracted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Array-like</strong> – 2d numpy array of binary integers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.n_terms">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_terms</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.n_terms" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.qubitoperator">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qubitoperator</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.qubitoperator" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.MultiformOperator.remove_terms">
+<span class="sig-name descname"><span class="pre">remove_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator.remove_terms" title="Link to this definition"></a></dt>
+<dd><p>Remove term(s) from operator. The associated entry is deleted from
+factors, integer, binary and binary_swap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>indices</strong> (<em>int</em><em> or </em><em>list</em><em> of </em><em>int</em>) – Remove all the terms corresponding to
+the indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.do_commute">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.multiformoperator.</span></span><span class="sig-name descname"><span class="pre">do_commute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hybrid_op_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hybrid_op_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_resolved</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.do_commute" title="Link to this definition"></a></dt>
+<dd><p>Check if two operators commute, using the stabilizer notation. With the
+<em>term_resolved</em> flag, the user can identify which terms in the parent
+operator do or do not commute with the target operator.</p>
+<p>In stabilizer notation, (ax|az)(bz|bx) = -1^(ax.bz + az.bx) (bz|bx)(ax|az)
+define the commutation relations. By evaluating the sign of (ax.bz + az.bx),
+we recover commutation relation. For a given pair of terms in the operators,
+ax.bz + az.bx = sum(XOR (AND (a’ . b))) where a’ is the z-x swapped
+a-vector. We then apply an OR reduction over all of the b-terms to
+identify whether term a_i commutes with all of b_j. Applying once again,
+an OR reduction over all a_i, we get the commutator for the entirety of
+a,b.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hybrid_op_a</strong> – First MultiformOperator.</p></li>
+<li><p><strong>hybrid_op_b</strong> – Second MultiformOperator.</p></li>
+<li><p><strong>term_resolved</strong> (<em>bool</em>) – If True, get commutator for each term.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>bool or array of bool</strong> – If the operators commute or array of bool
+describing which terms are commuting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.integer_to_binary">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.multiformoperator.</span></span><span class="sig-name descname"><span class="pre">integer_to_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integer_op</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.integer_to_binary" title="Link to this definition"></a></dt>
+<dd><p>Perform conversion from integer array to binary (stabilizer) array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>interger_op</strong> (<em>array-like</em><em> of </em><em>int</em>) – 2-D numpy array of 0s (I), 1s (Z), 2s
+(X) and 3s (Y) representing a qubit operator (shape[0] = number of
+terms, shape[1] = number of qubits.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>array-like of bool</strong> – Array of 0s and 1s representing the operator with
+the stabilizer notation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.integer_to_qubit_terms">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.multiformoperator.</span></span><span class="sig-name descname"><span class="pre">integer_to_qubit_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integer_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.integer_to_qubit_terms" title="Link to this definition"></a></dt>
+<dd><p>Perform conversion from integer array to qubit terms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>interger_op</strong> (<em>array-like</em><em> of </em><em>int</em>) – 2-D numpy array of 0s (I), 1s (Z), 2s
+(X) and 3s (Y) representing a qubit operator (shape[0] = number of
+terms, shape[1] = number of qubits.</p></li>
+<li><p><strong>factors</strong> (<em>array-like</em><em> of </em><em>float</em>) – Coefficients for the qubit terms.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – Pauli terms and coefficients.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.multiformoperator.qubit_to_integer">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.multiformoperator.</span></span><span class="sig-name descname"><span class="pre">qubit_to_integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.multiformoperator.qubit_to_integer" title="Link to this definition"></a></dt>
+<dd><p>Perform conversion from qubit operator to integer array. The integer
+attribute is instantiated, and populated from the QubitOperator attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>QubitOperator</strong> – self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>array-like of int</strong> – 2-D numpy array of 0s (I), 1s (Z), 2s (X) and 3s (Y)
+representing a qubit operator (shape[0] = number of terms, shape[1]
+= number of qubits.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.operators.operators">
+<span id="tangelo-toolboxes-operators-operators-module"></span><h2>tangelo.toolboxes.operators.operators module<a class="headerlink" href="#module-tangelo.toolboxes.operators.operators" title="Link to this heading"></a></h2>
+<p>This module defines various kinds of operators used in vqe. It can later be
+broken down in several modules if needed.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.BosonOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.operators.</span></span><span class="sig-name descname"><span class="pre">BosonOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.BosonOperator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BosonOperator</span></code></p>
+<p>Currently, this class is coming from openfermion. Can be later on be
+replaced by our own implementation.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.FermionOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.operators.</span></span><span class="sig-name descname"><span class="pre">FermionOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.FermionOperator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FermionOperator</span></code></p>
+<p>Custom FermionOperator class. Based on openfermion’s, with additional functionalities.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.FermionOperator.get_coeffs">
+<span class="sig-name descname"><span class="pre">get_coeffs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeff_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.FermionOperator.get_coeffs" title="Link to this definition"></a></dt>
+<dd><p>Method to get the coefficient tensors from a fermion operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coeff_threshold</strong> (<em>float</em>) – Ignore coefficient below the threshold.
+Default value is 1e-8.</p></li>
+<li><p><strong>spatial</strong> (<em>bool</em>) – Spatial orbital or spin orbital.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(float, array float, array of float)</strong> – Core constant, one- (N*N) and
+two-body coefficient matrices (N*N*N*N), where N is the number
+of spinorbitals or spatial orbitals.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.FermionOperator.to_openfermion">
+<span class="sig-name descname"><span class="pre">to_openfermion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.FermionOperator.to_openfermion" title="Link to this definition"></a></dt>
+<dd><p>Converts Tangelo FermionOperator to openfermion</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitHamiltonian">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.operators.</span></span><span class="sig-name descname"><span class="pre">QubitHamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitHamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitOperator</span></code></a></p>
+<p>QubitHamiltonian objects are essentially openfermion.QubitOperator
+objects, with extra attributes. The mapping procedure (mapping) and the
+qubit ordering (up_then_down) are incorporated into the class. In addition
+to QubitOperator, several checks are done when performing arithmetic
+operations on QubitHamiltonians.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitHamiltonian.term">
+<span class="sig-name descname"><span class="pre">term</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitHamiltonian.term" title="Link to this definition"></a></dt>
+<dd><p>Same as openfermion term formats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>openfermion-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitHamiltonian.coefficient">
+<span class="sig-name descname"><span class="pre">coefficient</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitHamiltonian.coefficient" title="Link to this definition"></a></dt>
+<dd><p>Coefficient for this term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>complex</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitHamiltonian.mapping">
+<span class="sig-name descname"><span class="pre">mapping</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitHamiltonian.mapping" title="Link to this definition"></a></dt>
+<dd><p>Mapping procedure for fermionic to qubit encoding
+(ex: “JW”, “BK”, etc.).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitHamiltonian.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitHamiltonian.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>Whether spin ordering is all up then all down.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="simple">
+<dt>Properties:</dt><dd><p>n_terms (int): Number of terms in this qubit Hamiltonian.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitHamiltonian.n_terms">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_terms</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitHamiltonian.n_terms" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitHamiltonian.to_qubitoperator">
+<span class="sig-name descname"><span class="pre">to_qubitoperator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitHamiltonian.to_qubitoperator" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.operators.</span></span><span class="sig-name descname"><span class="pre">QubitOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QubitOperator</span></code></p>
+<p>Currently, this class is coming from openfermion. Can be later on be
+replaced by our own implementation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitOperator.frobenius_norm_compression">
+<span class="sig-name descname"><span class="pre">frobenius_norm_compression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitOperator.frobenius_norm_compression" title="Link to this definition"></a></dt>
+<dd><p>Reduces the number of operator terms based on its Frobenius norm
+and a user-defined threshold, epsilon. The eigenspectrum of the
+compressed operator will not deviate more than epsilon. For more
+details, see J. Chem. Theory Comput. 2020, 16, 2, 1055-1063.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epsilon</strong> (<em>float</em>) – Parameter controlling the degree of compression
+and resulting accuracy.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – Number of qubits in the register.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – The compressed qubit operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitOperator.from_openfermion">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_openfermion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">of_qop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitOperator.from_openfermion" title="Link to this definition"></a></dt>
+<dd><p>Enable instantiation of a QubitOperator from an openfermion QubitOperator object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>of_qop</strong> (<em>openfermion QubitOperator</em>) – an existing qubit operator defined with Openfermion</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>corresponding QubitOperator object.</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitOperator.get_max_number_hamiltonian_terms">
+<span class="sig-name descname"><span class="pre">get_max_number_hamiltonian_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitOperator.get_max_number_hamiltonian_terms" title="Link to this definition"></a></dt>
+<dd><p>Compute the possible number of terms for a qubit Hamiltonian. In the
+absence of an external magnetic field, each Hamiltonian term must have
+an even number of Pauli Y operators to preserve time-reversal symmetry.
+See J. Chem. Theory Comput. 2020, 16, 2, 1055-1063 for more details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n_qubits</strong> (<em>int</em>) – Number of qubits in the register.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>int</strong> – The maximum number of possible qubit Hamiltonian terms.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitOperator.qubit_indices">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qubit_indices</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitOperator.qubit_indices" title="Link to this definition"></a></dt>
+<dd><p>Return a set of integers corresponding to qubit indices the qubit
+operator acts on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>set</strong> – Set of qubit indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.QubitOperator.to_openfermion">
+<span class="sig-name descname"><span class="pre">to_openfermion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.QubitOperator.to_openfermion" title="Link to this definition"></a></dt>
+<dd><p>Converts Tangelo QubitOperator to openfermion</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.count_qubits">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.operators.</span></span><span class="sig-name descname"><span class="pre">count_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qb_op</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.count_qubits" title="Link to this definition"></a></dt>
+<dd><p>Return the number of qubits used by the qubit operator based on the
+highest index found in the terms.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.list_to_fermionoperator">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.operators.</span></span><span class="sig-name descname"><span class="pre">list_to_fermionoperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_terms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.list_to_fermionoperator" title="Link to this definition"></a></dt>
+<dd><p>Input: a list of terms to generate FermionOperator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>FermionOperator</strong> – Single merged operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.normal_ordered">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.operators.</span></span><span class="sig-name descname"><span class="pre">normal_ordered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fe_op</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.normal_ordered" title="Link to this definition"></a></dt>
+<dd><p>Input: a Fermionic operator of class
+toolboxes.operators.FermionicOperator or openfermion.FermionicOperator for
+reordering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>FermionicOperator</strong> – Normal ordered operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.qubitop_to_qubitham">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.operators.</span></span><span class="sig-name descname"><span class="pre">qubitop_to_qubitham</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.qubitop_to_qubitham" title="Link to this definition"></a></dt>
+<dd><p>Function to convert a QubitOperator into a QubitHamiltonian.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_op</strong> (<a class="reference internal" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – Self-explanatory.</p></li>
+<li><p><strong>mapping</strong> (<em>string</em>) – Qubit mapping procedure.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – Whether or not spin ordering is all up then
+all down.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitHamiltonian</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.operators.squared_normal_ordered">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.operators.</span></span><span class="sig-name descname"><span class="pre">squared_normal_ordered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_terms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.operators.squared_normal_ordered" title="Link to this definition"></a></dt>
+<dd><p>Input: a list of terms to generate toolboxes.operators.FermionOperator
+or openfermion.FermionOperator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>FermionOperator</strong> – squared (i.e. fe_op*fe_op) and
+normal ordered.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.operators.taper_qubits">
+<span id="tangelo-toolboxes-operators-taper-qubits-module"></span><h2>tangelo.toolboxes.operators.taper_qubits module<a class="headerlink" href="#module-tangelo.toolboxes.operators.taper_qubits" title="Link to this heading"></a></h2>
+<p>Module defining a class to store objects related to qubit tapering, i.e.
+resource reduction through symmetries.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.taper_qubits.QubitTapering">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.taper_qubits.</span></span><span class="sig-name descname"><span class="pre">QubitTapering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'JW'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.taper_qubits.QubitTapering" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class keeping track of symmetries and operation to taper qubits in qubit
+operators. The taper function is kept as an attribute to taper other Pauli
+word generators (Hamiltonian dressing, ansatz construction, etc). Z2
+tapering is implemented, but other tapering methods could be added in the
+core of this class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.taper_qubits.QubitTapering.initial_op">
+<span class="sig-name descname"><span class="pre">initial_op</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.taper_qubits.QubitTapering.initial_op" title="Link to this definition"></a></dt>
+<dd><p>Qubit operator to be analyzed for
+symmetries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator" title="tangelo.toolboxes.operators.multiformoperator.MultiformOperator">MultiformOperator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.taper_qubits.QubitTapering.initial_n_qubits">
+<span class="sig-name descname"><span class="pre">initial_n_qubits</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.taper_qubits.QubitTapering.initial_n_qubits" title="Link to this definition"></a></dt>
+<dd><p>Number of qubits before tapering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.taper_qubits.QubitTapering.z2_taper">
+<span class="sig-name descname"><span class="pre">z2_taper</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.taper_qubits.QubitTapering.z2_taper" title="Link to this definition"></a></dt>
+<dd><p>Function handle for tapering a MultiformOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>func</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.taper_qubits.QubitTapering.z2_tapered_op">
+<span class="sig-name descname"><span class="pre">z2_tapered_op</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.taper_qubits.QubitTapering.z2_tapered_op" title="Link to this definition"></a></dt>
+<dd><p>Tapered operator with z2 symmetries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator" title="tangelo.toolboxes.operators.multiformoperator.MultiformOperator">MultiformOperator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.taper_qubits.QubitTapering.z2_properties">
+<span class="sig-name descname"><span class="pre">z2_properties</span></span><a class="headerlink" href="#tangelo.toolboxes.operators.taper_qubits.QubitTapering.z2_properties" title="Link to this definition"></a></dt>
+<dd><p>Relevant quantities used to define the z2 taper
+function. Needed to back track a z2 tapered operator to the full
+operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.taper_qubits.QubitTapering.z2_tapering">
+<span class="sig-name descname"><span class="pre">z2_tapering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.taper_qubits.QubitTapering.z2_tapering" title="Link to this definition"></a></dt>
+<dd><p>Function to taper a qubit operator from symmetries found in
+self.initial_op.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<a class="reference internal" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – Self-explanatory.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – Self-explanatory.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – The tapered qubit operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.operators.trim_trivial_qubits">
+<span id="tangelo-toolboxes-operators-trim-trivial-qubits-module"></span><h2>tangelo.toolboxes.operators.trim_trivial_qubits module<a class="headerlink" href="#module-tangelo.toolboxes.operators.trim_trivial_qubits" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.trim_trivial_qubits.is_bitflip_gate">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.trim_trivial_qubits.</span></span><span class="sig-name descname"><span class="pre">is_bitflip_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate" title="tangelo.linq.gate.Gate"><span class="pre">Gate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#tangelo.toolboxes.operators.trim_trivial_qubits.is_bitflip_gate" title="Link to this definition"></a></dt>
+<dd><p>Check if a gate is a bitflip gate.</p>
+<p>A gate is a bitflip gate if it satisfies one of the following conditions:
+1. The gate name is either X, Y.
+2. The gate name is RX or RY, and has a parameter that is an odd multiple of pi.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gate</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate" title="tangelo.linq.gate.Gate"><em>Gate</em></a>) – The gate to check.</p></li>
+<li><p><strong>atol</strong> (<em>float</em>) – Optional, the absolute tolerance for gate parameter</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>bool</strong> – True if the gate is a single qubit bitflip gate, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.trim_trivial_qubits.trim_trivial_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.trim_trivial_qubits.</span></span><span class="sig-name descname"><span class="pre">trim_trivial_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.operators.trim_trivial_qubits.trim_trivial_circuit" title="Link to this definition"></a></dt>
+<dd><p>Split Circuit into entangled and unentangled components.
+Returns entangled Circuit, and the indices and states of unentangled qubits</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – circuit to be trimmed</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>Circuit</strong> – Trimmed, entangled circuit</p></li>
+<li><p><strong>dict</strong> – dictionary mapping trimmed qubit indices to their states (0 or 1)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.trim_trivial_qubits.trim_trivial_operator">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.trim_trivial_qubits.</span></span><span class="sig-name descname"><span class="pre">trim_trivial_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qu_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">trim_states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reindex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.operators.trim_trivial_qubits.trim_trivial_operator" title="Link to this definition"></a></dt>
+<dd><p>Calculate expectation values of a QubitOperator acting on qubits in a
+trivial <a href="#id1"><span class="problematic" id="id2">|</span></a>0&gt; or <a href="#id3"><span class="problematic" id="id4">|</span></a>1&gt; state. Return a trimmed QubitOperator with updated coefficients</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qu_op</strong> (<a class="reference internal" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – Operator to trim</p></li>
+<li><p><strong>trim_states</strong> (<em>dict</em>) – Dictionary mapping qubit indices to states to trim, e.g. {1: 0, 3: 1}</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – Optional, number of qubits in full system</p></li>
+<li><p><strong>reindex</strong> (<em>bool</em>) – Optional, if True, remaining qubits will be reindexed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – trimmed QubitOperator with updated coefficients</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.trim_trivial_qubits.trim_trivial_qubits">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.trim_trivial_qubits.</span></span><span class="sig-name descname"><span class="pre">trim_trivial_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.operators.trim_trivial_qubits.trim_trivial_qubits" title="Link to this definition"></a></dt>
+<dd><p>Trim circuit and operator based on expectation values calculated from
+trivial components of the circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operator</strong> (<a class="reference internal" href="#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – Operator to trim</p></li>
+<li><p><strong>circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – circuit to be trimmed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>QubitOperator</strong> – Trimmed qubit operator</p></li>
+<li><p><strong>Circuit</strong> – Trimmed circuit</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.operators.z2_tapering">
+<span id="tangelo-toolboxes-operators-z2-tapering-module"></span><h2>tangelo.toolboxes.operators.z2_tapering module<a class="headerlink" href="#module-tangelo.toolboxes.operators.z2_tapering" title="Link to this heading"></a></h2>
+<p>Module that defines helper functions to taper qubits in a molecular problem
+with Z2 tapering.</p>
+<p>For all chemical Hamiltonians, there are at least two symmetries (electron
+number and spin conservation) that reduce the qubits count by two. Furthermore,
+molecular symmetries can lead to a reduction of the number of qubits required to
+encode a problem. Those symmetries can be interpreted as degenerated
+eigenvalues. In the real space, symmetry operations lead to the same total
+energy.</p>
+<dl class="simple">
+<dt>Ref:</dt><dd><p>Tapering off qubits to simulate fermionic Hamiltonians
+Sergey Bravyi, Jay M. Gambetta, Antonio Mezzacapo, Kristan Temme.
+arXiv:1701.08213</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.z2_tapering.get_clifford_operators">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.z2_tapering.</span></span><span class="sig-name descname"><span class="pre">get_clifford_operators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.z2_tapering.get_clifford_operators" title="Link to this definition"></a></dt>
+<dd><p>Function to identify, with a kernel, suitable single-Pauli gates and the
+related unitary Clifford gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kernel</strong> (<em>array-like</em><em> of </em><em>bool</em>) – Array of M x 2N booleans, where M is the
+number of terms and N is the number of qubits. Refers to a qubit
+operator in the stabilizer notation.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(list of MultiformOperator, list of int)</strong> – Encoded binary-encoded Pauli
+strings and symmetry indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.z2_tapering.get_eigenvalues">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.z2_tapering.</span></span><span class="sig-name descname"><span class="pre">get_eigenvalues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symmetries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.z2_tapering.get_eigenvalues" title="Link to this definition"></a></dt>
+<dd><p>Get the initial state eigenvalues, as operated on by each of the symmetry
+operators. These are used to capture the action of each Pauli string in the
+Hamiltonian on the tapered qubits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symmetries</strong> (<em>array-like</em><em> of </em><em>bool</em>) – Symmetries in binary encoding.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – Self-explanatory.</p></li>
+<li><p><strong>n_electrons</strong> (<em>int</em>) – Self-explanatory.</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – Qubit mapping.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – Whether or not spin ordering is all up then
+all down.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>array of +/-1</strong> – Eigenvalues of an operator with symmetries.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.z2_tapering.get_unitary">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.z2_tapering.</span></span><span class="sig-name descname"><span class="pre">get_unitary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cliffords</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.z2_tapering.get_unitary" title="Link to this definition"></a></dt>
+<dd><p>Function generating the product over multiple Clifford
+operators as a single unitary. The result is a MultiformOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cliffords</strong> (<em>list</em><em> of </em><a class="reference internal" href="#tangelo.toolboxes.operators.multiformoperator.MultiformOperator" title="tangelo.toolboxes.operators.multiformoperator.MultiformOperator"><em>MultiformOperator</em></a>) – Encoded Clifford operators.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>MultiformOperator</strong> – Multiplication reflecting the composite operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.operators.z2_tapering.get_z2_taper_function">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.operators.z2_tapering.</span></span><span class="sig-name descname"><span class="pre">get_z2_taper_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unitary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_symmetries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigenvalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.operators.z2_tapering.get_z2_taper_function" title="Link to this definition"></a></dt>
+<dd><p>Defines a method for applying taper to an arbitrary operator in this
+space. The operator is first conditioned against the tapering-operators:
+terms which do not commute with the Hamiltonian’s symmetries are culled, and
+the remaining operator is rotated against the tapering unitary. After
+applying the eigenvalues to account for tapered elements, the operator is
+then finally tapered, with the relevant qubits removed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unitary</strong> (<em>array</em><em> of </em><em>float</em>) – Unitary matrix to perform U*HU.</p></li>
+<li><p><strong>kernel</strong> (<em>array</em><em> of </em><em>bool</em>) – Kernel representing the NULL space for the
+operator.</p></li>
+<li><p><strong>q_indices</strong> (<em>array</em><em> of </em><em>int</em>) – Indices for the relevant columns in the
+operator array representation.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – Self-explanatory.</p></li>
+<li><p><strong>n_symmetries</strong> (<em>int</em>) – Number of qubits to remove.</p></li>
+<li><p><strong>eigenvalues</strong> (<em>array</em><em> of </em><em>int</em>) – Initial state eigenvalues for the qubits
+to be removed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>function</strong> – function for tapering operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.operators">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.toolboxes.operators" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.toolboxes.molecular_computation.html" class="btn btn-neutral float-left" title="tangelo.toolboxes.molecular_computation package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.toolboxes.optimizers.html" class="btn btn-neutral float-right" title="tangelo.toolboxes.optimizers package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+tangelo.toolboxes.measurements package
+======================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.toolboxes.measurements.classical_shadows
+   tangelo.toolboxes.measurements.tests
+
+Submodules
+----------
+
+tangelo.toolboxes.measurements.estimate\_measurements module
+------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.measurements.estimate_measurements
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.measurements.qubit\_terms\_grouping module
+------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.measurements.qubit_terms_grouping
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.toolboxes.measurements
+   :members:
+   :undoc-members:
+   :show-inheritance:

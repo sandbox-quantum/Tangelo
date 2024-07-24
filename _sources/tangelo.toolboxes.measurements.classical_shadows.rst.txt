@@ -1,0 +1,45 @@
+tangelo.toolboxes.measurements.classical\_shadows package
+=========================================================
+
+Submodules
+----------
+
+tangelo.toolboxes.measurements.classical\_shadows.adaptive module
+-----------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.measurements.classical_shadows.adaptive
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.measurements.classical\_shadows.classical\_shadows module
+---------------------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.measurements.classical_shadows.classical_shadows
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.measurements.classical\_shadows.derandomized module
+---------------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.measurements.classical_shadows.derandomized
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.measurements.classical\_shadows.randomized module
+-------------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.measurements.classical_shadows.randomized
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.toolboxes.measurements.classical_shadows
+   :members:
+   :undoc-members:
+   :show-inheritance:

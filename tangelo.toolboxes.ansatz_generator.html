@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.toolboxes.ansatz_generator package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.toolboxes.circuits package" href="tangelo.toolboxes.circuits.html" />
+    <link rel="prev" title="tangelo.toolboxes package" href="tangelo.toolboxes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.toolboxes.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.html#module-tangelo.toolboxes">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+      <li class="breadcrumb-item active">tangelo.toolboxes.ansatz_generator package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.toolboxes.ansatz_generator.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-toolboxes-ansatz-generator-package">
+<h1>tangelo.toolboxes.ansatz_generator package<a class="headerlink" href="#tangelo-toolboxes-ansatz-generator-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.adapt_ansatz">
+<span id="tangelo-toolboxes-ansatz-generator-adapt-ansatz-module"></span><h2>tangelo.toolboxes.ansatz_generator.adapt_ansatz module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.adapt_ansatz" title="Link to this heading"></a></h2>
+<p>This module defines the adaptive ansatz class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.adapt_ansatz.</span></span><span class="sig-name descname"><span class="pre">ADAPTAnsatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ansatz_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>Adaptive ansatz used with ADAPT-VQE. This Ansatz class has methods to
+take a (or many) QubitOperator, transform it (them) into a circuit and
+append it (them). The number of variational parameters corresponds to the
+number of terms added to the Ansatz.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.n_spinorbitals">
+<span class="sig-name descname"><span class="pre">n_spinorbitals</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.n_spinorbitals" title="Link to this definition"></a></dt>
+<dd><p>Number of spin orbitals in a given basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.n_electrons">
+<span class="sig-name descname"><span class="pre">n_electrons</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.n_electrons" title="Link to this definition"></a></dt>
+<dd><p>Number of electrons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.spin">
+<span class="sig-name descname"><span class="pre">spin</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.spin" title="Link to this definition"></a></dt>
+<dd><p>Spin of system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.operators">
+<span class="sig-name descname"><span class="pre">operators</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.operators" title="Link to this definition"></a></dt>
+<dd><p>List of operators to consider at the
+construction step. Can be useful for restarting computation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of <a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator">QubitOperator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.ferm_operators">
+<span class="sig-name descname"><span class="pre">ferm_operators</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.ferm_operators" title="Link to this definition"></a></dt>
+<dd><p>Same as operators, but in
+fermionic form. Not necessarily for running the ansatz, but it is
+convenient for analyzing results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of <a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator">FermionOperator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.mapping">
+<span class="sig-name descname"><span class="pre">mapping</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.mapping" title="Link to this definition"></a></dt>
+<dd><p>Qubit encoding.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>Ordering convention.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.var_params">
+<span class="sig-name descname"><span class="pre">var_params</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.var_params" title="Link to this definition"></a></dt>
+<dd><p>Variational parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.circuit">
+<span class="sig-name descname"><span class="pre">circuit</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.circuit" title="Link to this definition"></a></dt>
+<dd><p>Quantum circuit defined by a list of Gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.add_operator">
+<span class="sig-name descname"><span class="pre">add_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pauli_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ferm_operator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.add_operator" title="Link to this definition"></a></dt>
+<dd><p>Add a new operator to our circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pauli_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – Operator to convert into a circuit
+and append it to the present circuit.</p></li>
+<li><p><strong>ferm_operator</strong> (<em>FermionicOperator</em>) – Same operator in fermionic form.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Construct the variational circuit to be used as our ansatz.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.n_var_params">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_var_params</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.n_var_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Prepare a circuit generating the HF reference state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set initial variational parameter values. Defaults to zeros.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.adapt_ansatz.ADAPTAnsatz.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Update variational parameters (done repeatedly during VQE).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.ansatz">
+<span id="tangelo-toolboxes-ansatz-generator-ansatz-module"></span><h2>tangelo.toolboxes.ansatz_generator.ansatz module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.ansatz" title="Link to this heading"></a></h2>
+<p>This module defines the ansatz abstract class, providing the foundation to
+implement variational ansatz circuits.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz.</span></span><span class="sig-name descname"><span class="pre">Ansatz</span></span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for all Ansatz. Derived/children classes wirtten by users and
+developers must implement the following abstract methods.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz.build_circuit">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the ansatz.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz.prepare_reference_state">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Return circuit preparing the desired reference wavefunction (HF,
+multi-reference state…).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz.set_var_params">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Initialize variational parameters as zeros, random numbers, MP2, or
+any insightful values. Impacts the convergence of variational
+algorithms.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz.update_var_params">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Update value of variational parameters in the already-built ansatz
+circuit member.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.ansatz_utils">
+<span id="tangelo-toolboxes-ansatz-generator-ansatz-utils-module"></span><h2>tangelo.toolboxes.ansatz_generator.ansatz_utils module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.ansatz_utils" title="Link to this heading"></a></h2>
+<p>Provide useful functions, corresponding to common patterns in quantum
+chemistry circuits (CNOT ladders, Pauli-word to circuit translation …) to
+facilitate the assembly of ansatz quantum circuits.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.append_qft_rotations_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">append_qft_rotations_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.append_qft_rotations_gates" title="Link to this definition"></a></dt>
+<dd><p>Appends the list of gates required for a quantum fourier transform to a gate list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gate_list</strong> (<em>list</em>) – List of Gate elements</p></li>
+<li><p><strong>qubit_list</strong> (<em>list</em>) – List of integers for which the qft operations are performed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list</strong> – List of Gate objects for rotation portion of qft circuit appended to gate_list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.controlled_pauliwords">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">controlled_pauliwords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.controlled_pauliwords" title="Link to this definition"></a></dt>
+<dd><p>Takes a qubit operator and returns controlled-pauliword circuits for each term as a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_op</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – The qubit operator with pauliwords to generate circuits for</p></li>
+<li><p><strong>control</strong> (<em>int</em>) – The index of the control qubit</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – When generating each Circuit, create with n_qubits size</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list</strong> – List of controlled-pauliword Circuit for each pauliword in the qubit_op</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.controlled_swap_to_XX_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">controlled_swap_to_XX_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.controlled_swap_to_XX_gates" title="Link to this definition"></a></dt>
+<dd><p>Equivalent decomposition of controlled swap into 1-qubit gates and XX 2-qubit gate.</p>
+<p>This is useful for IonQ experiments as the native two-qubit gate is the XX Ising coupling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> (<em>int</em>) – control qubit</p></li>
+<li><p><strong>n1</strong> (<em>int</em>) – first target qubit</p></li>
+<li><p><strong>n2</strong> (<em>int</em>) – second target qubit</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list</strong> – List of Gate that applies controlled swap operation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.derangement_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">derangement_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decomp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.derangement_circuit" title="Link to this definition"></a></dt>
+<dd><p>Returns the (controlled-)derangement circuit for multiple copies of a state</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_list</strong> (<em>list</em><em> of </em><em>list</em><em>(</em><em>int</em><em>)</em>) – Each item in the list is a list of qubit registers for each copy. The length of
+each list of qubit registers must be the same.
+For example [[1, 2], [3, 4]] applies controlled-swaps between equivalent states located on qubits [1, 2] and [3, 4]</p></li>
+<li><p><strong>control</strong> (<em>int</em>) – The control register to be measured.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – The number of qubits in the circuit.</p></li>
+<li><p><strong>decomp</strong> (<em>str</em>) – Use the decomposed controlled-swap into 1-qubit gates and a certain 2-qubit gate listed below.
+“XX”: 2-qubit gate is XX</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The derangement circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.exp_pauliword_to_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">exp_pauliword_to_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pauli_word</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variational</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.exp_pauliword_to_gates" title="Link to this definition"></a></dt>
+<dd><p>Generate a list of Gate objects corresponding to the exponential of a pauli word.
+The process is described in Whitfield 2010 <a class="reference external" href="https://arxiv.org/pdf/1001.3855.pdf">https://arxiv.org/pdf/1001.3855.pdf</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pauli_word</strong> (<em>tuple</em>) – Openfermion-like tuple that generates a pauli_word to exponentiate</p></li>
+<li><p><strong>coef</strong> (<em>float</em>) – The coefficient in the exponentiation</p></li>
+<li><p><strong>variational</strong> (<em>bool</em>) – When creating the Gate objects, label the (controlled-)Rz gate as variational</p></li>
+<li><p><strong>control</strong> (<em>integer</em>) – The control qubit label</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list</strong> – list of Gate objects that represents the exponentiation of the pauli word.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.get_exponentiated_qubit_operator_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">get_exponentiated_qubit_operator_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variational</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trotter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pauli_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.get_exponentiated_qubit_operator_circuit" title="Link to this definition"></a></dt>
+<dd><p>Generate the exponentiation of a qubit operator in first- or second-order Trotterized form.
+The algorithm is described in Whitfield 2010 <a class="reference external" href="https://arxiv.org/pdf/1001.3855.pdf">https://arxiv.org/pdf/1001.3855.pdf</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_op</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – qubit hamiltonian to exponentiate</p></li>
+<li><p><strong>time</strong> (<em>float</em><em> or </em><em>dict</em>) – The time to evolve the whole system or individiual times for each
+term in the operator. If a dictionary, must have keys that have a matching key in qubit_op.terms</p></li>
+<li><p><strong>variational</strong> (<em>bool</em>) – Whether the coefficients are variational</p></li>
+<li><p><strong>trotter_order</strong> (<em>int</em>) – order of trotter approximation, only 1 or 2 are supported.</p></li>
+<li><p><strong>return_phase</strong> (<em>bool</em>) – Return the global-phase generated</p></li>
+<li><p><strong>pauli_order</strong> (<em>list</em>) – The desired pauli_word order for trotterization defined as a list of (pauli_word, coeff)
+elements which have matching dictionary elements pauli_word: coeff in QubitOperator terms.items().
+The coeff in pauli_order is used to generate the exponential.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>Circuit</strong> – circuit corresponding to exponentiation of qubit operator</p></li>
+<li><p><strong>phase</strong> – The global phase of the time evolution if return_phase=True else not included</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.get_qft_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">get_qft_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">swap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.get_qft_circuit" title="Link to this definition"></a></dt>
+<dd><p>Returns the QFT or iQFT circuit given a list of qubits to act on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubits</strong> (<em>int</em><em> or </em><em>list</em>) – The list of qubits to apply the QFT circuit to. If an integer,
+the operation is applied to the [0,…,qubits-1] qubits</p></li>
+<li><p><strong>n_qubits</strong> – Argument to initialize a Circuit with the desired number of qubits.</p></li>
+<li><p><strong>inverse</strong> (<em>bool</em>) – If True, the inverse QFT is applied. If False, QFT is applied</p></li>
+<li><p><strong>swap</strong> (<em>bool</em>) – Whether to apply swap to the registers.</p></li>
+<li><p><strong>Returns</strong> – Circuit: The circuit that applies QFT or iQFT to qubits</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.givens_gate">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">givens_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_variational</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.givens_gate" title="Link to this definition"></a></dt>
+<dd><p>Generates the list of gates corresponding to a givens rotation exp(-theta*(XX+YY))</p>
+<p>Explicitly the two-qubit matrix is
+[[1,      0,           0,       0],</p>
+<blockquote>
+<div><p>[0,  cos(theta), -sin(theta),  0],
+[0,  sin(theta),  cos(theta),  0],
+[0,      0,            0,      1]]</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>list</em>) – list of two integers that indicate which qubits are involved in the givens rotation</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – the rotation angle</p></li>
+<li><p><strong>is_variational</strong> (<em>bool</em>) – Whether the rotation angle is a variational parameter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list of Gate</strong> – The list of gates corresponding to the givens rotation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.pauli_op_to_gate">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">pauli_op_to_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.pauli_op_to_gate" title="Link to this definition"></a></dt>
+<dd><p>Return the change-of-basis gates required to map pauli words to quantum
+circuit as per Whitfield 2010 (<a class="reference external" href="https://arxiv.org/pdf/1001.3855.pdf">https://arxiv.org/pdf/1001.3855.pdf</a>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.recursive_trotter_suzuki_decomposition">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">recursive_trotter_suzuki_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pauli_words</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.recursive_trotter_suzuki_decomposition" title="Link to this definition"></a></dt>
+<dd><p>Recursive function that returns the Trotter-Suzuki decomposition as defined in <a class="reference external" href="https://arxiv.org/pdf/math-ph/0506007.pdf">https://arxiv.org/pdf/math-ph/0506007.pdf</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pauli_words</strong> (<em>List</em><em>[</em><em>tuple</em><em>]</em>) – The list of Pauli (terms, coeff) to perform the Trotter-Suzuki decomposition to the given order.</p></li>
+<li><p><strong>order</strong> (<em>int</em>) – The order of the decomposition</p></li>
+<li><p><strong>time</strong> (<em>float</em>) – The evolve time applied equally to all terms.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>List[tuple]</strong> – The list of (pauli, coeff) that defines the gate sequence for time-evolution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.swap_registers">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">swap_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.swap_registers" title="Link to this definition"></a></dt>
+<dd><p>Function to swap register order.
+:param gate_list: List of Gate
+:type gate_list: list
+:param qubit_list: List of integers for the locations of the qubits
+:type qubit_list: list</p>
+<dl class="simple">
+<dt>Result:</dt><dd><p>list: The Gate operations that swap the register order</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ansatz_utils.trotterize">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ansatz_utils.</span></span><span class="sig-name descname"><span class="pre">trotterize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_trotter_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trotter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variational</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ansatz_utils.trotterize" title="Link to this definition"></a></dt>
+<dd><p>Generate the circuit that represents time evolution of an operator.
+This circuit is generated as a trotterization of a qubit operator which is either the input
+or mapped from the given fermion operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a><em> or </em><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a>) – operator to time evolve</p></li>
+<li><p><strong>time</strong> (<em>float</em><em> or </em><em>dict</em>) – The time to evolve the whole system or individiual times for each
+term in the operator. If a dict, each key must match the keys in operator.terms</p></li>
+<li><p><strong>variational</strong> (<em>bool</em>) – whether the coefficients are variational</p></li>
+<li><p><strong>trotter_order</strong> (<em>int</em>) – order of trotter approximation, 1 or 2 supported</p></li>
+<li><p><strong>n_trotter_steps</strong> (<em>int</em>) – The number of different time steps taken for total time t</p></li>
+<li><p><strong>mapping_options</strong> (<em>dict</em>) – <p>Defines the desired Fermion-&gt;Qubit mapping
+Default values:{“up_then_down”: False, “qubit_mapping”: “jw”, “n_spinorbitals”: None,</p>
+<blockquote>
+<div><p>”n_electrons”: None}</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>control</strong> (<em>int</em>) – The label for the control Qubit of the time-evolution</p></li>
+<li><p><strong>return_phase</strong> (<em>bool</em>) – If return_phase is True, the global phase of the time-evolution will be returned</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>Circuit</strong> – circuit corresponding to time evolution of the operator</p></li>
+<li><p><strong>float</strong> – the global phase not included in the circuit if return_phase=True else not included</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.fermionic_operators">
+<span id="tangelo-toolboxes-ansatz-generator-fermionic-operators-module"></span><h2>tangelo.toolboxes.ansatz_generator.fermionic_operators module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.fermionic_operators" title="Link to this heading"></a></h2>
+<p>This module defines the fermionic operators that can be used to obtain
+expectation values of commonly used quantum numbers. The available operators are
+1) N: number of electrons
+2) Sz: The spin z-projection Sz|psi&gt;=m_s|psi&gt;
+3) S^2: The spin quantum number S^2|psi&gt;=s(s+1)|psi&gt; associated with spin
+angular momentum which allows one to decide whether the state has the correct
+properties.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.fermionic_operators.number_operator">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">number_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.fermionic_operators.number_operator" title="Link to this definition"></a></dt>
+<dd><p>Function to generate the normal ordered number operator as a
+FermionOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_orbs</strong> (<em>int</em>) – number of orbitals in the fermion basis (this is number of
+spin-orbitals divided by 2).</p></li>
+<li><p><strong>up_then_down</strong> – The ordering of the spin orbitals. qiskit (True)
+openfermion (False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FermionOperator</strong> – The number operator penalty hat{N}.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.fermionic_operators.number_operator_list">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">number_operator_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.fermionic_operators.number_operator_list" title="Link to this definition"></a></dt>
+<dd><p>Function to generate the normal ordered number operator as a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_orbs</strong> (<em>int</em>) – number of orbitals in the fermion basis (this is number of
+spin-orbitals divided by 2).</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – The ordering of the spin orbitals. qiskit (True)
+openfermion (False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list</strong> – The number operator penalty hat{N}.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.fermionic_operators.spin2_operator">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">spin2_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.fermionic_operators.spin2_operator" title="Link to this definition"></a></dt>
+<dd><p>Function to generate the normal ordered S^2 operator as a
+FermionOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_orbs</strong> (<em>int</em>) – number of orbitals in the fermion basis (this is number of
+spin-orbitals divided by 2).</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – The ordering of the spin orbitals. qiskit (True)
+openfermion (False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FermionOperator</strong> – The S^2 operator hat{S}^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.fermionic_operators.spin2_operator_list">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">spin2_operator_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.fermionic_operators.spin2_operator_list" title="Link to this definition"></a></dt>
+<dd><p>Function to generate the normal ordered S^2 operator as a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_orbs</strong> (<em>int</em>) – number of orbitals in the fermion basis (this is number of
+spin-orbitals divided by 2).</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – The ordering of the spin orbitals. qiskit (True)
+openfermion (False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list</strong> – The S^2 operator hat{S}^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.fermionic_operators.spinz_operator">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">spinz_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.fermionic_operators.spinz_operator" title="Link to this definition"></a></dt>
+<dd><p>Function to generate the normal ordered Sz operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_orbs</strong> (<em>int</em>) – number of orbitals in the fermion basis (this is number of
+spin-orbitals divided by 2).</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – The ordering of the spin orbitals. qiskit (True)
+openfermion (False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FermionOperator</strong> – The Sz operator hat{Sz}.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.fermionic_operators.spinz_operator_list">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.fermionic_operators.</span></span><span class="sig-name descname"><span class="pre">spinz_operator_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.fermionic_operators.spinz_operator_list" title="Link to this definition"></a></dt>
+<dd><p>Function to generate the normal ordered Sz operator as a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_orbs</strong> (<em>int</em>) – number of orbitals in the fermion basis (this is number of
+spin-orbitals divided by 2).</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – The ordering of the spin orbitals. qiskit (True)
+openfermion (False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list</strong> – The Sz operator hat{Sz}.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.hea">
+<span id="tangelo-toolboxes-ansatz-generator-hea-module"></span><h2>tangelo.toolboxes.ansatz_generator.hea module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.hea" title="Link to this heading"></a></h2>
+<p>This module defines the hardware efficient ansatz class, for use in applying
+VQE as first defined in “Hardware-efficient Variational Quantum Eigensolver for
+Small Molecules and Quantum Magnets” <a class="reference external" href="https://arxiv.org/abs/1704.05018">https://arxiv.org/abs/1704.05018</a>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.hea.HEA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.hea.</span></span><span class="sig-name descname"><span class="pre">HEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'euler'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HF'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.hea.HEA" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class implements the HEA ansatz. A molecule or a number of qubits +
+a number of electrons can be passed to this class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – The molecular system.</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – one of the supported qubit mapping identifiers. Default:
+“JW”</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – change basis ordering putting all spin up orbitals
+first, followed by all spin down. Default, False has alternating
+spin up/down ordering.</p></li>
+<li><p><strong>n_layers</strong> (<em>int</em>) – The number of HEA ansatz layers to use. One layer is
+hea_rot_type + grid of CNots. Default: 2.</p></li>
+<li><p><strong>rot_type</strong> (<em>str</em>) – “euler”: RzRxRz on each qubit for each rotation layer.
+“real”: Ry on each qubit for each rotation layer. Default: “euler”.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – The number of qubits in the ansatz.
+Default, None.</p></li>
+<li><p><strong>n_electrons</strong> (<em>int</em>) – Self-explanatory.</p></li>
+<li><p><strong>reference_state</strong> (<em>str</em><em>, </em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – “HF”: Hartree-Fock reference state. “zero”: for
+no reference state. Can also be a Circuit object, in which case a copy of
+circuit with variational parameters fixed is used. Default: “HF”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.hea.HEA.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.hea.HEA.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Construct the variational circuit to be used as our ansatz.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.hea.HEA.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.hea.HEA.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Prepare a circuit generating the HF reference state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.hea.HEA.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.hea.HEA.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set values for variational parameters, such as zeros, random numbers,
+MP2 (…), providing some keywords for users, and also supporting direct
+user input (list or numpy array). Return the parameters so that
+workflows such as VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.hea.HEA.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.hea.HEA.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Update variational parameters (done repeatedly during VQE).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.ilc">
+<span id="tangelo-toolboxes-ansatz-generator-ilc-module"></span><h2>tangelo.toolboxes.ansatz_generator.ilc module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.ilc" title="Link to this heading"></a></h2>
+<p>This module defines the qubit coupled cluster ansatz class with involutory
+linear combinations (ILC) of anticommuting sets (ACS) of Pauli words
+(generators). Relative to the direct interation set (DIS) of QCC generators,
+which incur an exponential growth of Hamiltonian terms upon dressing, the ACS
+of ILC generators enables Hamiltonian dressing such that the number of terms
+grows quadratically and exact quadratic truncation of the Baker-Campbell-Hausdorff
+expansion. For more information about this ansatz, see references below.</p>
+<dl>
+<dt>Refs:</dt><dd><ol class="arabic">
+<li><ol class="upperalpha simple" start="18">
+<li><ol class="upperalpha simple">
+<li><p>Lang, I. G. Ryabinkin, and A. F. Izmaylov.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><p>arXiv:2002.05701v1, 2020, 1–10.</p>
+</div></blockquote>
+</li>
+<li><ol class="upperalpha simple" start="18">
+<li><ol class="upperalpha simple">
+<li><p>Lang, I. G. Ryabinkin, and A. F. Izmaylov.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><ol class="upperalpha simple" start="10">
+<li><p>Chem. Theory Comput. 2021, 17, 1, 66–78.</p></li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ilc.ILC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.ilc.</span></span><span class="sig-name descname"><span class="pre">ILC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qmf_circuit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qmf_var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_ham</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ilc_tau_guess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deilc_dtau_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_ilc_gens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HF'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ilc.ILC" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class implements the ILC ansatz. Closed-shell and restricted open-shell ILC are
+supported. While the form of the ILC ansatz is the same for either variation, the underlying
+fermionic mean-field state is treated differently depending on the spin. Closed-shell
+or restricted open-shell ILC implies that spin = 0 or spin != 0 and the fermionic mean-field
+state is obtained using a RHF or ROHF Hamiltonian, respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a><em> or </em><em>dict</em>) – The molecular system, which can
+be passed as a SecondQuantizedMolecule or a dictionary with keys that
+specify n_spinoribtals, n_electrons, and spin. Default, None.</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – One of the supported  mapping identifiers. Default, “jw”.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – Change basis ordering putting all spin-up orbitals first,
+followed by all spin-down. Default, False.</p></li>
+<li><p><strong>acs</strong> (<em>list</em><em> of </em><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – The mutually anticommuting generator list for the ILC ansatz.
+Default, None.</p></li>
+<li><p><strong>qmf_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – An instance of tangelo.linq Circuit class implementing a QMF state
+circuit. If passed from the QMF ansatz class, parameters are variational.
+If None, one is created with QMF parameters that are not variational. Default, None.</p></li>
+<li><p><strong>qmf_var_params</strong> (<em>list</em><em> or </em><em>numpy array</em><em> of </em><em>float</em>) – QMF variational parameter set.
+If None, the values are determined using a Hartree-Fock reference state. Default, None.</p></li>
+<li><p><strong>qubit_ham</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – Pass a qubit Hamiltonian to the  ansatz class and ignore
+the fermionic Hamiltonian in molecule. Default, None.</p></li>
+<li><p><strong>deilc_dtau_thresh</strong> (<em>float</em>) – Threshold for <a href="#id5"><span class="problematic" id="id6">|dEILC/dtau|</span></a> so that a candidate group is added
+to the DIS if <a href="#id7"><span class="problematic" id="id8">|dEILC/dtau|</span></a> &gt;= deilc_dtau_thresh for a generator. Default, 1e-3 a.u.</p></li>
+<li><p><strong>ilc_tau_guess</strong> (<em>float</em>) – The initial guess for all ILC variational parameters.
+Default, 1e-2 a.u.</p></li>
+<li><p><strong>max_ilc_gens</strong> (<em>int</em><em> or </em><em>None</em>) – Maximum number of generators allowed in the ansatz. If None,
+one generator from each DIS group is selected. If int, then min(<a href="#id9"><span class="problematic" id="id10">|DIS|</span></a>, max_ilc_gens)
+generators are selected in order of decreasing <a href="#id11"><span class="problematic" id="id12">|dEILC/dtau|</span></a>. Default, None.</p></li>
+<li><p><strong>reference_state</strong> (<em>string</em><em>, </em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – The reference state id for the ansatz. If a Circuit object
+is passed, then a copy of this circuit overrides the qmf_circuit and its variational
+parameters override qmf_var_params. The supported string reference states are stored in the
+supported_reference_state attributes. Default, “HF”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ilc.ILC.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ilc.ILC.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the state preparation ansatz
+(with currently specified initial_state and var_params).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ilc.ILC.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ilc.ILC.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g prepare reference
+wavefunction with HF, multi-reference state, etc). These preparations must be consistent
+with the transform used to obtain the qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ilc.ILC.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ilc.ILC.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set values for variational parameters, such as zeros or floats,
+providing some keywords for users, and also supporting direct user input
+(list or numpy array). Return the parameters so that workflows such as VQE can
+retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.ilc.ILC.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.ilc.ILC.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Shortcut: set value of variational parameters in the existing ansatz circuit member.
+Preferable to rebuilding your circuit from scratch, which can be an involved process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.penalty_terms">
+<span id="tangelo-toolboxes-ansatz-generator-penalty-terms-module"></span><h2>tangelo.toolboxes.ansatz_generator.penalty_terms module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.penalty_terms" title="Link to this heading"></a></h2>
+<p>This module defines the penatly terms that can be added to the target
+fermionic Hamiltonian, providing the ability to restrict the Hilbert space of
+solutions using VQE. For example usages see</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Illa G. Ryabinkin, Scott N. Genin, Artur F. Izmaylov. “Constrained</dt><dd><p>variational quantum eigensolver: Quantum computer search engine in the
+Fock space” <a class="reference external" href="https://arxiv.org/abs/1806.00461">https://arxiv.org/abs/1806.00461</a>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Gabriel Greene-Diniz, David Munoz Ramo. “Generalized unitary coupled</dt><dd><p>cluster excitations for multireference molecular states optimized by the
+Variational Quantum Eigensolver” <a class="reference external" href="https://arxiv.org/abs/1910.05168">https://arxiv.org/abs/1910.05168</a>.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.penalty_terms.combined_penalty">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.penalty_terms.</span></span><span class="sig-name descname"><span class="pre">combined_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_penalty_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.penalty_terms.combined_penalty" title="Link to this definition"></a></dt>
+<dd><p>Function to generate the sum of all available penalty terms, currently
+implemented are
+- “N”: number operator with eigenvalue (number of particles).
+- “Sz”: Sz|s,m_s&gt; = ms|s,m_s&gt;.
+- “S^2”: S^2|s,m_s&gt; = s(s+1)|s,m_s&gt;.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_orbs</strong> (<em>int</em>) – number of active orbitals in the fermion basis (this is
+number of spin-orbitals divided by 2).</p></li>
+<li><p><strong>opt_penalty_terms</strong> (<em>dict</em>) – <p>The options for each penalty “N”, “Sz”, “S^2”
+as
+- “N” (array or list[float]):</p>
+<blockquote>
+<div><p>[Prefactor, Value] Prefactor * (hat{N} - Value)^2</p>
+</div></blockquote>
+<ul>
+<li><dl class="simple">
+<dt>”Sz” (array or list[float]):</dt><dd><p>[Prefactor, Value] Prefactor * (hat{Sz} - Value)^2</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>”S^2” (array or list[float]):</dt><dd><p>[Prefactor, Value] Prefactor * (hat{S}^2 - Value)^2</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+<li><p><strong>up_then_down</strong> – The ordering of the spin orbitals.
+qiskit (True) openfermion (False)
+If later transforming to qubits, one should generally let the qubit
+mapping handle this.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FermionOperator</strong> – The combined n_electron+sz+s^2 penalty
+terms.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.penalty_terms.number_operator_penalty">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.penalty_terms.</span></span><span class="sig-name descname"><span class="pre">number_operator_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.penalty_terms.number_operator_penalty" title="Link to this definition"></a></dt>
+<dd><p>Function to generate the normal ordered number operator penalty term as
+a FermionOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_orbs</strong> (<em>int</em>) – number of orbitals in the fermion basis (this is number of
+spin-orbitals divided by 2).</p></li>
+<li><p><strong>n_electrons</strong> (<em>int</em>) – number of electrons.</p></li>
+<li><p><strong>mu</strong> (<em>float</em>) – Positive number in front of penalty term.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – The ordering of the spin orbitals.
+qiskit (True) openfermion (False)
+If later transforming to qubits, one should generally let the qubit
+mapping handle the ordering.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FermionOperator</strong> – The number operator penalty term
+mu*(hat{N}-n_electrons)^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.penalty_terms.spin2_operator_penalty">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.penalty_terms.</span></span><span class="sig-name descname"><span class="pre">spin2_operator_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.penalty_terms.spin2_operator_penalty" title="Link to this definition"></a></dt>
+<dd><p>Function to generate the normal ordered S^2 operator penalty term,
+operator form taken from
+<a class="reference external" href="https://pubs.rsc.org/en/content/articlepdf/2019/cp/c9cp02546d">https://pubs.rsc.org/en/content/articlepdf/2019/cp/c9cp02546d</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_orbs</strong> (<em>int</em>) – number of orbitals in the fermion basis (this is number of
+spin-orbitals divided by 2).</p></li>
+<li><p><strong>s2</strong> (<em>int</em>) – the desired S^2 quantum number to penalize for.
+singlet: s2=0*(0+1)=0, doublet: s2=(1/2)*(1/2+1)=3/4, triplet,
+s2=1*(1+1)=2 …</p></li>
+<li><p><strong>mu</strong> (<em>float</em>) – Positive number in front of penalty term.</p></li>
+<li><p><strong>up_then_down</strong> – The ordering of the spin orbitals.
+qiskit (True) openfermion (False)
+If later transforming to qubits, one should generally let the qubit
+mapping handle the ordering.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FermionOperator</strong> – The S^2 operator penalty term mu*(hat{S}^2-s2)^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.penalty_terms.spin_operator_penalty">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.penalty_terms.</span></span><span class="sig-name descname"><span class="pre">spin_operator_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_orbs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.penalty_terms.spin_operator_penalty" title="Link to this definition"></a></dt>
+<dd><p>Function to generate the normal ordered Sz operator penalty term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_orbs</strong> (<em>int</em>) – number of orbitals in the fermion basis (this is number of
+spin-orbitals divided by 2).</p></li>
+<li><p><strong>sz</strong> (<em>int</em>) – the desired Sz quantum number to penalize for.</p></li>
+<li><p><strong>mu</strong> (<em>float</em>) – Positive number in front of penalty term.</p></li>
+<li><p><strong>up_then_down</strong> – The ordering of the spin orbitals.
+qiskit (True) openfermion (False)
+If later transforming to qubits, one should generally let the qubit
+mapping handle the ordering.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FermionOperator</strong> – The Sz operator penalty term mu*(hat{Sz}-sz)^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.puccd">
+<span id="tangelo-toolboxes-ansatz-generator-puccd-module"></span><h2>tangelo.toolboxes.ansatz_generator.puccd module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.puccd" title="Link to this heading"></a></h2>
+<p>This module defines the pUCCD ansatz class. The molecular FermionOperator is
+expected to be converted to a BosonOperator (electrons in pairs). Single bosonic
+excitations (corresponding to double fermion excitations) form the ansatz. Those
+excitations are transformed into a quantum circuit via Givens rotations.</p>
+<dl class="simple">
+<dt>Ref:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>V.E. Elfving, M. Millaruelo, J.A. Gámez, and C. Gogolin.</dt><dd><p>Phys. Rev. A 103, 032605 (2021).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.puccd.pUCCD">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.puccd.</span></span><span class="sig-name descname"><span class="pre">pUCCD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HF'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.puccd.pUCCD" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class implements the pUCCD ansatz, as described in Phys. Rev. A 103,
+032605 (2021). Electrons are described as hard-core boson and only double
+excitations are considered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – Self-explanatory.</p></li>
+<li><p><strong>reference_state</strong> (<em>string</em><em>, </em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – String refering to an initial state.
+Can also be a Circuit object, in which case a copy of
+circuit with variational parameters fixed is used. Default: “HF”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.puccd.pUCCD.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.puccd.pUCCD.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the state
+preparation ansatz (with currently specified initial_state and
+var_params).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.puccd.pUCCD.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.puccd.pUCCD.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g
+prepare reference wavefunction with HF, multi-reference state, etc).
+These preparations must be consistent with the transform used to obtain
+the qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.puccd.pUCCD.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.puccd.pUCCD.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set values for variational parameters, such as ones, zeros or random
+numbers providing some keywords for users, and also supporting direct
+user input (list or numpy array). Return the parameters so that
+workflows such as VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.puccd.pUCCD.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.puccd.pUCCD.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Shortcut: set value of variational parameters in the already-built
+ansatz circuit member. Preferable to rebuilt your circuit from scratch,
+which can be an involved process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.qcc">
+<span id="tangelo-toolboxes-ansatz-generator-qcc-module"></span><h2>tangelo.toolboxes.ansatz_generator.qcc module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.qcc" title="Link to this heading"></a></h2>
+<p>This module defines the qubit coupled cluster (QCC) ansatz class. The
+motivation behind this ansatz is to provide an improved alternative to
+classical unitary coupled cluster for describing the electron correlation of
+molecular systems. This implementation is based on Ref. 1, where the ansaztz
+takes the form of a variational product state built directly from a set of
+parameterized exponentiated qubit operators. A qubit operator is selected for
+the ansatz based on an energy gradient criterion that indicates its potential
+contribution to variational lowering of the QCC energy. For chemical applications,
+the quantum mean-field ansatz is used in conjunction with this ansatz to
+describe an electronic wave function on a quantum computer. For more information
+about this ansatz and its variations, see references below.</p>
+<dl>
+<dt>Refs:</dt><dd><ol class="arabic">
+<li><ol class="upperroman simple">
+<li><ol class="upperalpha simple" start="7">
+<li><p>Ryabinkin, T.-C. Yen, S. N. Genin, and A. F. Izmaylov.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><ol class="upperalpha simple" start="10">
+<li><p>Chem. Theory Comput. 2018, 14 (12), 6317-6326.</p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><ol class="upperroman simple">
+<li><ol class="upperalpha simple" start="7">
+<li><p>Ryabinkin, R. A. Lang, S. N. Genin, and A. F. Izmaylov.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><ol class="upperalpha simple" start="10">
+<li><p>Chem. Theory Comput. 2020, 16, 2, 1055–1063.</p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><ol class="upperalpha simple" start="18">
+<li><ol class="upperalpha simple">
+<li><p>Lang, I. G. Ryabinkin, and A. F. Izmaylov.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><ol class="upperalpha simple" start="10">
+<li><p>Chem. Theory Comput. 2021, 17, 1, 66–78.</p></li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.qcc.QCC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.qcc.</span></span><span class="sig-name descname"><span class="pre">QCC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qmf_circuit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qmf_var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_ham</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qcc_tau_guess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deqcc_dtau_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_qcc_gens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HF'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.qcc.QCC" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class implements the QCC ansatz. Closed-shell and restricted open-shell QCC are
+supported. While the form of the QCC ansatz is the same for either variation, the underlying
+fermionic mean-field state is treated differently depending on the spin. Closed-shell
+or restricted open-shell QCC implies that spin = 0 or spin != 0 and the fermionic mean-field
+state is obtained using a RHF or ROHF Hamiltonian, respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a><em>, </em><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment" title="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment"><em>SecondQuantizedDMETFragment</em></a><em> or </em><em>dict</em>) – The molecular system, which can be passed as a
+SecondQuantizedMolecule/SecondQuantizedDMETFragment or a dictionary
+with keys that specify n_spinoribtals, n_electrons, and spin.
+Default, None.</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – One of the supported qubit mapping identifiers. Default, “jw”.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – Change basis ordering putting all spin-up orbitals first,
+followed by all spin-down. Default, False.</p></li>
+<li><p><strong>dis</strong> (<em>list</em><em> of </em><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – The direct interaction set (DIS) of generators for the
+QCC ansatz. Default, None.</p></li>
+<li><p><strong>qmf_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – An instance of tangelo.linq Circuit class implementing a QMF state
+circuit. If passed from the QMF ansatz class, parameters are variational.
+If None, one is created with QMF parameters that are not variational. Default, None.</p></li>
+<li><p><strong>qmf_var_params</strong> (<em>list</em><em> or </em><em>numpy array</em><em> of </em><em>float</em>) – QMF variational parameter set.
+If None, the values are determined using a Hartree-Fock reference state. Default, None.</p></li>
+<li><p><strong>qubit_ham</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – Pass a qubit Hamiltonian to the QCC ansatz class and ignore
+the fermionic Hamiltonian in molecule. Default, None.</p></li>
+<li><p><strong>deqcc_dtau_thresh</strong> (<em>float</em>) – Threshold for <a href="#id13"><span class="problematic" id="id14">|dEQCC/dtau|</span></a> so that a candidate group is added
+to the DIS if <a href="#id15"><span class="problematic" id="id16">|dEQCC/dtau|</span></a> &gt;= deqcc_dtau_thresh for a generator. Default, 1e-3 a.u.</p></li>
+<li><p><strong>qcc_tau_guess</strong> (<em>float</em>) – The initial guess for all QCC variational parameters.
+Default, 1e-2 a.u.</p></li>
+<li><p><strong>max_qcc_gens</strong> (<em>int</em><em> or </em><em>None</em>) – Maximum number of generators allowed in the ansatz. If None,
+one generator from each DIS group is selected. If int, then min(<a href="#id17"><span class="problematic" id="id18">|DIS|</span></a>, max_qcc_gens)
+generators are selected in order of decreasing <a href="#id19"><span class="problematic" id="id20">|dEQCC/dtau|</span></a>. Default, None.</p></li>
+<li><p><strong>reference_state</strong> (<em>string</em>) – The reference state id for the ansatz. If a Circuit object
+is passed, then a copy of this circuit overrides the qmf_circuit and its variational
+parameters override qmf_var_params. The supported reference states are stored in the
+supported_reference_state attributes. Default, “HF”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.qcc.QCC.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.qcc.QCC.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the state preparation ansatz
+(with currently specified initial_state and var_params).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.qcc.QCC.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.qcc.QCC.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g prepare reference
+wavefunction with HF, multi-reference state, etc). These preparations must be consistent
+with the transform used to obtain the qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.qcc.QCC.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.qcc.QCC.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set values for variational parameters, such as zeros or floats,
+providing some keywords for users, and also supporting direct user input
+(list or numpy array). Return the parameters so that workflows such as VQE can
+retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.qcc.QCC.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.qcc.QCC.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Shortcut: set value of variational parameters in the existing ansatz circuit member.
+Preferable to rebuilding your circuit from scratch, which can be an involved process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.qmf">
+<span id="tangelo-toolboxes-ansatz-generator-qmf-module"></span><h2>tangelo.toolboxes.ansatz_generator.qmf module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.qmf" title="Link to this heading"></a></h2>
+<p>This module defines the qubit mean-field (QMF) ansatz class. The ansatz is a
+variational product state built from a set of parameterized single-qubit states.
+For applications in quantum chemistry, the ansatz can be used to describe the
+mean-field component of an electronic wave function on a quantum computer.
+For more information about this ansatz, see references below.</p>
+<dl>
+<dt>Refs:</dt><dd><ol class="arabic">
+<li><ol class="upperroman simple">
+<li><ol class="upperalpha simple" start="7">
+<li><p>Ryabinkin, T.-C. Yen, S. N. Genin, and A. F. Izmaylov.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><ol class="upperalpha simple" start="10">
+<li><p>Chem. Theory Comput. 2018, 14 (12), 6317-6326.</p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><ol class="upperroman simple">
+<li><ol class="upperalpha simple" start="7">
+<li><p>Ryabinkin and S. N. Genin.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><p><a class="reference external" href="https://arxiv.org/abs/1812.09812">https://arxiv.org/abs/1812.09812</a> 2018.</p>
+</div></blockquote>
+</li>
+<li><ol class="upperalpha simple" start="19">
+<li><p>N. Genin, I. G. Ryabinkin, and A. F. Izmaylov.
+<a class="reference external" href="https://arxiv.org/abs/1901.04715">https://arxiv.org/abs/1901.04715</a> 2019.</p></li>
+</ol>
+</li>
+<li><ol class="upperroman simple">
+<li><ol class="upperalpha simple" start="7">
+<li><p>Ryabinkin, S. N. Genin, and A. F. Izmaylov.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><ol class="upperalpha simple" start="10">
+<li><p>Chem. Theory Comput. 2019, 15, 1, 249–255.</p></li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.qmf.QMF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.qmf.</span></span><span class="sig-name descname"><span class="pre">QMF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_qmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HF'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.qmf.QMF" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class implements the QMF ansatz. Closed-shell and restricted open-shell QMF are
+supported. While the form of the QMF ansatz is the same for either variation, the underlying
+fermionic mean-field state is treated differently depending on the spin. Closed-shell
+or restricted open-shell QMF implies that spin = 0 or spin != 0 and the fermionic mean-field
+state is obtained using a RHF or ROHF Hamiltonian, respectively.</p>
+<p>Optimizing QMF variational parameters can be risky without taking proper precautions,
+especially when a random initial guess is used. It is recommended that penalty terms are
+added to the mean-field Hamiltonian to enforce appropriate electron number and spin angular
+momentum symmetries on the QMF wave function during optimization (see Ref. 4). If using
+penalty terms is to be avoided, an initial guess based on a Hartree-Fock reference state will
+likely converge quickly to the desired state, but this is not guaranteed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – The molecular system.</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – One of the supported qubit mapping identifiers. Default, “jw”.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – Change basis ordering putting all spin up orbitals first,
+followed by all spin down. Default, False.</p></li>
+<li><p><strong>init_qmf</strong> (<em>dict</em>) – Controls for QMF variational parameter initialization and mean-field
+Hamiltonian penalization. Supported keys are “init_params”, “N”, “S^2”, or “Sz” (str).
+Values of “init_params” must be in self.supported_initial_var_params (str). Values of
+“N”, “S^2”, or “Sz” are (tuple or None). If tuple, the elements are a penalty
+term coefficient, mu (float), and a target value of the penalty operator (int).
+Example - “key”: (mu, target). If “N”, “S^2”, or “Sz” is None, a penalty term is added
+with default mu and target values: mu = 1.5 and target is derived from molecule as
+&lt;N&gt; = n_electrons, &lt;S^2&gt; = spin_z * (spin_z + 1), and &lt;Sz&gt; = spin_z, where
+spin_z = spin // 2. Key, value pairs are case sensitive and mu &gt; 0.
+Default, {“init_params”: “hf_state”}.</p></li>
+<li><p><strong>reference_state</strong> (<em>string</em><em>, </em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – The reference state id for the ansatz.  Can also be a
+Circuit object, in which case a copy of circuit with variational parameters fixed is used.
+The supported reference states are stored in the supported_reference_state attributes.
+Default, “HF”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.qmf.QMF.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.qmf.QMF.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the state preparation ansatz
+(with currently specified initial_state and var_params).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.qmf.QMF.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.qmf.QMF.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g prepare reference
+wavefunction with HF, multi-reference state, etc). These preparations must be consistent
+with the transform used to obtain the qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.qmf.QMF.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.qmf.QMF.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set values for variational parameters, such as zeros, random numbers,
+or a Hartree-Fock state occupation vector, providing some keywords
+for users, and also supporting direct user input (list or numpy array).
+Return the parameters so that workflows such as VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.qmf.QMF.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.qmf.QMF.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Shortcut: set value of variational parameters in the already-built ansatz circuit member.
+Preferable to rebuilt your circuit from scratch, which can be an involved process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.rucc">
+<span id="tangelo-toolboxes-ansatz-generator-rucc-module"></span><h2>tangelo.toolboxes.ansatz_generator.rucc module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.rucc" title="Link to this heading"></a></h2>
+<p>This module defines the reduced UCCs ansatz class (RUCC, refering to both
+UCC1 and UCC3), providing the foundation to implement variational ansatz
+circuits. They are UCCD and UCCSD ansatz, but terms acting in the same way on an
+Hartree-Fock initial state have been removed.</p>
+<p>This must be used on a 2 levels system (2 MOs, 4 SOs) to be physically relevant.</p>
+<dl class="simple">
+<dt>Reference for those circuits.</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>McCaskey, A.J., Parks, Z.P., Jakowski, J. et al.</dt><dd><p>Quantum chemistry as a benchmark for near-term quantum computers.
+npj Quantum Inf 5, 99 (2019).
+<a class="reference external" href="https://doi.org/10.1038/s41534-019-0209-0">https://doi.org/10.1038/s41534-019-0209-0</a></p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.rucc.RUCC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.rucc.</span></span><span class="sig-name descname"><span class="pre">RUCC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.rucc.RUCC" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class implements the reduced-UCC ansatz, i.e. UCC1=UCCD and
+UCC3=UCCSD. Currently, only closed-shell is supported. This implies that the
+mean-field is computed with the RHF reference integrals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n_var_params</strong> (<em>int</em>) – Number of variational parameters, must be 1 or 3.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.rucc.RUCC.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.rucc.RUCC.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the state
+preparation ansatz (with currently specified initial_state and
+var_params).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list</strong> – Initial variational parameters. Must be consistent with the
+chosen UCC (1 or 3).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.rucc.RUCC.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.rucc.RUCC.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g.
+prepare reference wavefunction with HF, multi-reference state, etc).
+This method outputs <a href="#id1"><span class="problematic" id="id2">|</span></a>1010&gt;.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Circuit</strong> – <a href="#id3"><span class="problematic" id="id4">|</span></a>1010&gt; initial state.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.rucc.RUCC.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.rucc.RUCC.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set values for variational parameters, such as zeros, random numbers
+providing some keywords for users, and also supporting direct user input
+(list or numpy array). Return the parameters so that workflows such as
+VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.rucc.RUCC.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.rucc.RUCC.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Shortcut: set value of variational parameters in the already-built
+ansatz circuit member. The circuit does not need to be rebuilt every
+time if only the variational parameters change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list</strong> – Variational parameters to parse into the circuit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.uccgd">
+<span id="tangelo-toolboxes-ansatz-generator-uccgd-module"></span><h2>tangelo.toolboxes.ansatz_generator.uccgd module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.uccgd" title="Link to this heading"></a></h2>
+<p>This module defines the UCCGD ansatz class. It provides a chemically
+inspired ansatz and is an implementation of the classical unitary CCGD ansatz.
+Generalized double excitation determinants, in accordance
+with the system number of electron and spin, are considered. For more
+information about this ansatz, see references below.</p>
+<p>Refs:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.uccgd.UCCGD">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.uccgd.</span></span><span class="sig-name descname"><span class="pre">UCCGD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'JW'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HF'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.uccgd.UCCGD" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class implements the UCCGD ansatz. This implies that the
+mean-field is computed with the RHF or ROHF reference integrals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – The molecular system.</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – one of the supported qubit mapping identifiers. Default:
+“JW”.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – change basis ordering putting all spin up orbitals
+first, followed by all spin down. Default, False (i.e. has
+alternating spin up/down ordering).</p></li>
+<li><p><strong>reference_state</strong> (<em>string</em><em>, </em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – The reference state id for the ansatz. The
+supported reference states are stored in the supported_reference_state
+attributes. Can also be a Circuit object, in which case a copy of
+circuit with variational parameters fixed is used. Default: “HF”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.uccgd.UCCGD.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.uccgd.UCCGD.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the state
+preparation ansatz (with currently specified initial_state and
+var_params).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.uccgd.UCCGD.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.uccgd.UCCGD.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g
+prepare reference wavefunction with HF, multi-reference state, etc).
+These preparations must be consistent with the transform used to obtain
+the qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.uccgd.UCCGD.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.uccgd.UCCGD.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set values for variational parameters, such as zeros, random numbers,
+providing some keywords for users, and also supporting direct user input
+(list or numpy array). Return the parameters so that workflows such as
+VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.uccgd.UCCGD.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.uccgd.UCCGD.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Shortcut: set value of variational parameters in the already-built
+ansatz circuit member. Preferable to rebuilt your circuit from scratch,
+which can be an involved process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.uccsd">
+<span id="tangelo-toolboxes-ansatz-generator-uccsd-module"></span><h2>tangelo.toolboxes.ansatz_generator.uccsd module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.uccsd" title="Link to this heading"></a></h2>
+<p>This module defines the UCCSD ansatz class. It provides a chemically inspired
+ansatz and is an implementation of the classical unitary CCSD ansatz. Single and
+double excitation determinants, in accordance with the system number of electron
+and spin, are considered. For more information about this ansatz, see references
+below.</p>
+<dl>
+<dt>Refs:</dt><dd><ul>
+<li><dl class="simple">
+<dt>P.Kl. Barkoutsos, J.F. Gonthier, I. Sokolov, N. Moll, G. Salis, A. Fuhrer,</dt><dd><p>M. Ganzhorn, D.J. Egger, M. Troyer, A. Mezzacapo, S. Filipp, and
+I. Tavernelli. Phys. Rev. A 98, 022322 (2018).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>I.O. Sokolov, P.Kl. Barkoutsos, P.J. Ollitrault, D. Greenberg, J. Rice,</dt><dd><ol class="upperalpha simple" start="13">
+<li><p>Pistoia, and I. Tavernelli. J. Chem. Phys. 152, 124107 (2020).</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><ol class="upperalpha simple" start="25">
+<li><p>Shen, X. Zhang, S. Zhang, J.N. Zhang, M.H. Yung, and K. Kim.</p></li>
+</ol>
+<blockquote>
+<div><p>Physical Review A 95, 020501 (2017).</p>
+</div></blockquote>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.uccsd.UCCSD">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.uccsd.</span></span><span class="sig-name descname"><span class="pre">UCCSD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'JW'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HF'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.uccsd.UCCSD" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class implements the UCCSD ansatz. Currently, closed-shell and
+restricted open-shell UCCSD are supported. This implies that the mean-field
+is computed with the RHF or ROHF reference integrals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – The molecular system.</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – one of the supported qubit mapping identifiers. Default,
+“jw”.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – change basis ordering putting all spin up orbitals
+first, followed by all spin down. Default, False (i.e. has
+alternating spin up/down ordering).</p></li>
+<li><p><strong>reference_state</strong> (<em>string</em><em>, </em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – The reference state id for the ansatz.
+Can also be a Circuit object, in which case a copy of
+circuit with variational parameters fixed is used. The supported
+string reference states are stored in the supported_reference_state
+attributes. Default, “HF”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.uccsd.UCCSD.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.uccsd.UCCSD.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the state
+preparation ansatz (with currently specified initial_state and
+var_params).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.uccsd.UCCSD.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.uccsd.UCCSD.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g
+prepare reference wavefunction with HF, multi-reference state, etc).
+These preparations must be consistent with the transform used to obtain
+the qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.uccsd.UCCSD.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.uccsd.UCCSD.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set values for variational parameters, such as zeros, random numbers,
+MP2 (…), providing some keywords for users, and also supporting direct
+user input (list or numpy array). Return the parameters so that
+workflows such as VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.uccsd.UCCSD.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.uccsd.UCCSD.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Shortcut: set value of variational parameters in the already-built
+ansatz circuit member. Preferable to rebuilt your circuit from scratch,
+which can be an involved process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.upccgsd">
+<span id="tangelo-toolboxes-ansatz-generator-upccgsd-module"></span><h2>tangelo.toolboxes.ansatz_generator.upccgsd module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.upccgsd" title="Link to this heading"></a></h2>
+<p>This module defines the k-UpCCGSD ansatz class. It provides a chemically
+inspired ansatz and is an implementation of the classical unitary CCGSD ansatz.
+Generalized Single and pairwise double excitation determinants, in accordance
+with the system number of electron and spin, are considered. For more
+information about this ansatz, see references below.</p>
+<dl class="simple">
+<dt>Refs:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>Joonho Lee, William J. Huggins, Martin Head-Gordon, and K. Birgitta.</dt><dd><p>“Generalized Unitary Couple Cluster Wavefunctions for Quantum
+Computation” arxiv:1810.02327.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.upccgsd.</span></span><span class="sig-name descname"><span class="pre">UpCCGSD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'JW'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HF'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class implements the UpCCGSD ansatz. This implies that the
+mean-field is computed with the RHF or ROHF reference integrals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – The molecular system.</p></li>
+<li><p><strong>k</strong> – parameters for the number of times UpCCGSD is repeated see
+(arxiv:1810.02327) for details. Default, 2.</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – one of the supported qubit mapping identifiers. Default:
+“JW”.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – change basis ordering putting all spin up orbitals
+first, followed by all spin down. Default, False (i.e. has
+alternating spin up/down ordering).</p></li>
+<li><p><strong>reference_state</strong> (<em>string</em><em>, </em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – The reference state id for the ansatz. The
+supported string reference states are stored in the supported_reference_state
+attributes.  Can also be a Circuit object, in which case a copy of
+circuit with variational parameters fixed is used. Default: “HF”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the state
+preparation ansatz (with currently specified initial_state and
+var_params).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g
+prepare reference wavefunction with HF, multi-reference state, etc).
+These preparations must be consistent with the transform used to obtain
+the qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set values for variational parameters, such as zeros, random numbers,
+providing some keywords for users, and also supporting direct user input
+(list or numpy array). Return the parameters so that workflows such as
+VQE can retrieve these values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Shortcut: set value of variational parameters in the already-built
+ansatz circuit member. Preferable to rebuilt your circuit from scratch,
+which can be an involved process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.variational_circuit">
+<span id="tangelo-toolboxes-ansatz-generator-variational-circuit-module"></span><h2>tangelo.toolboxes.ansatz_generator.variational_circuit module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.variational_circuit" title="Link to this heading"></a></h2>
+<p>This module defines an ansatz class to wrap up a custom tangelo.linq
+circuit.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.variational_circuit.</span></span><span class="sig-name descname"><span class="pre">VariationalCircuitAnsatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abstract_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class takes an arbitrary circuit and convert it to an Ansatz. This
+enables users to provide a custom pre-built circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Circuit</strong> – Circuit with variational gates.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Update parameters of the pre-built circuit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Method not needed as it is expected to be in the circuit provided.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set initial variational parameter values. Defaults to random.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.variational_circuit.VariationalCircuitAnsatz.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Update variational parameters (done repeatedly during VQE).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator.vsqs">
+<span id="tangelo-toolboxes-ansatz-generator-vsqs-module"></span><h2>tangelo.toolboxes.ansatz_generator.vsqs module<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator.vsqs" title="Link to this heading"></a></h2>
+<p>This module defines the Variationally Scheduled Quantum Simulation class. It provides an
+Adiabatic State Preparation (ASP) inspired ansatz as described in <a class="reference external" href="https://arxiv.org/abs/2003.09913">https://arxiv.org/abs/2003.09913</a>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.vsqs.VSQS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.ansatz_generator.vsqs.</span></span><span class="sig-name descname"><span class="pre">VSQS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_hamiltonian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_nav</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trotter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.vsqs.VSQS" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.ansatz_generator.ansatz.Ansatz" title="tangelo.toolboxes.ansatz_generator.ansatz.Ansatz"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ansatz</span></code></a></p>
+<p>This class implements the Variationally Scheduled Quantum Simulator (VSQS) for state preparation as described in
+<a class="reference external" href="https://arxiv.org/abs/2003.09913">https://arxiv.org/abs/2003.09913</a></p>
+<p>Must supply either a molecule or a qubit_hamiltonian. If supplying a qubit_hamiltonian, must also supply
+a reference_state Circuit and a h_init QubitOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – The molecular system. Default: None</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – One of the supported fermion to qubit mappings. Default : “JW”</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – Change basis ordering, putting all spin up orbitals first, followed by all spin down.
+Default: False (alternating spin up/down ordering)</p></li>
+<li><p><strong>intervals</strong> (<em>int</em>) – The number of steps in the VSQS process. Must be greater than 1. Default: 2</p></li>
+<li><p><strong>time</strong> (<em>float</em>) – The propagation time. Default: 1.</p></li>
+<li><p><strong>qubit_hamiltonian</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – The qubit Hamiltonian to evolve. Default: None</p></li>
+<li><p><strong>reference_state</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – The reference state for the propagation as defined by a Circuit. Mandatory if supplying
+a qubit_hamiltonian. Default: None</p></li>
+<li><p><strong>h_init</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – The initial qubit Hamiltonian that corresponds to the reference state. Mandatory if supplying
+a qubit_hamiltonian. Default: None</p></li>
+<li><p><strong>h_nav</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – The navigator Hamiltonian. Default: None</p></li>
+<li><p><strong>trotter_order</strong> (<em>int</em>) – The order of the Trotterization for each qubit operator. Default: 1</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.vsqs.VSQS.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.vsqs.VSQS.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build the VSQS circuit by successive first- or second-order trotterizations of h_init, h_final and possibly h_nav</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.vsqs.VSQS.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.vsqs.VSQS.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Prepare a circuit generating the HF reference state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.vsqs.VSQS.set_var_params">
+<span class="sig-name descname"><span class="pre">set_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.vsqs.VSQS.set_var_params" title="Link to this definition"></a></dt>
+<dd><p>Set values for the variational parameters. Default is linear interpolation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.ansatz_generator.vsqs.VSQS.update_var_params">
+<span class="sig-name descname"><span class="pre">update_var_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.ansatz_generator.vsqs.VSQS.update_var_params" title="Link to this definition"></a></dt>
+<dd><p>Update the variational parameters in the circuit without rebuilding.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.ansatz_generator">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.toolboxes.ansatz_generator" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.toolboxes.html" class="btn btn-neutral float-left" title="tangelo.toolboxes package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.toolboxes.circuits.html" class="btn btn-neutral float-right" title="tangelo.toolboxes.circuits package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

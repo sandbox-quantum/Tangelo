@@ -1,0 +1,61 @@
+tangelo.toolboxes.post\_processing package
+==========================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.toolboxes.post_processing.tests
+
+Submodules
+----------
+
+tangelo.toolboxes.post\_processing.bootstrapping module
+-------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.post_processing.bootstrapping
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.post\_processing.extrapolation module
+-------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.post_processing.extrapolation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.post\_processing.histogram module
+---------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.post_processing.histogram
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.post\_processing.mc\_weeny\_rdm\_purification module
+----------------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.post_processing.mc_weeny_rdm_purification
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.post\_processing.post\_selection module
+---------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.post_processing.post_selection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.toolboxes.post_processing
+   :members:
+   :undoc-members:
+   :show-inheritance:

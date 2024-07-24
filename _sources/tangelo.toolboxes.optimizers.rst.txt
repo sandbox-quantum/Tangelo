@@ -1,0 +1,21 @@
+tangelo.toolboxes.optimizers package
+====================================
+
+Submodules
+----------
+
+tangelo.toolboxes.optimizers.rotosolve module
+---------------------------------------------
+
+.. automodule:: tangelo.toolboxes.optimizers.rotosolve
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.toolboxes.optimizers
+   :members:
+   :undoc-members:
+   :show-inheritance:

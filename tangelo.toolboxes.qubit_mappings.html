@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.toolboxes.qubit_mappings package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.toolboxes.unitary_generator package" href="tangelo.toolboxes.unitary_generator.html" />
+    <link rel="prev" title="tangelo.toolboxes.post_processing package" href="tangelo.toolboxes.post_processing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.toolboxes.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.html#module-tangelo.toolboxes">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+      <li class="breadcrumb-item active">tangelo.toolboxes.qubit_mappings package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.toolboxes.qubit_mappings.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-toolboxes-qubit-mappings-package">
+<h1>tangelo.toolboxes.qubit_mappings package<a class="headerlink" href="#tangelo-toolboxes-qubit-mappings-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.toolboxes.qubit_mappings.bravyi_kitaev">
+<span id="tangelo-toolboxes-qubit-mappings-bravyi-kitaev-module"></span><h2>tangelo.toolboxes.qubit_mappings.bravyi_kitaev module<a class="headerlink" href="#module-tangelo.toolboxes.qubit_mappings.bravyi_kitaev" title="Link to this heading"></a></h2>
+<p>Tools for performing Bravyi-Kitaev Transformation, as prescribed via the
+Fenwick Tree mapping. This implementation accommodates mapping of qubit
+registers where the number of qubits is not a power of two.</p>
+<p>NB: this is a minimal implementation, just wrapping around current openfermion
+code (v 1.0.1). This wrapper enables future refactoring to utilize our own
+implementation, as needed.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.bravyi_kitaev.bravyi_kitaev">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.bravyi_kitaev.</span></span><span class="sig-name descname"><span class="pre">bravyi_kitaev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.bravyi_kitaev.bravyi_kitaev" title="Link to this definition"></a></dt>
+<dd><p>Execute transformation of FermionOperator to QubitOperator using the
+Bravyi-Kitaev transformation. Important note: there are several
+implementations of “Bravyi Kitaev” transformation, in both the literature,
+and historical versions of openfermion. This function executes the
+transformaton defined in arXiv:quant-ph/0003137. Different versions are not
+necessarily the same, and result in undesirable performance. This method is
+a simple wrapper around openfermion’s bravyi_kitaev, but we are forcing the
+user to pass n_qubits to avoid unexpected behaviour.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fermion_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a>) – input fermionic operator to be
+transformed.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – number of qubits associated with the operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – output bravyi-kitaev encoded qubit operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.qubit_mappings.combinatorial">
+<span id="tangelo-toolboxes-qubit-mappings-combinatorial-module"></span><h2>tangelo.toolboxes.qubit_mappings.combinatorial module<a class="headerlink" href="#module-tangelo.toolboxes.qubit_mappings.combinatorial" title="Link to this heading"></a></h2>
+<p>Combinatorial mapping as described in references (1) and (2). In contrast to
+qubit mappings such as JW, BK that use occupation/parity, the mappings in this
+file use the Fock configurations as the elements of the basis set. Thus, the
+number of required qubits scales with the number of electronic configuration
+instead of the number of spinorbitals.</p>
+<p class="rubric">References</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>Streltsov, A. I., Alon, O. E. &amp; Cederbaum, L. S. General mapping for</dt><dd><p>bosonic and fermionic operators in Fock space. Phys. Rev. A 81, 022124
+(2010).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Chamaki, D., Metcalf, M. &amp; de Jong, W. A. Compact Molecular Simulation on</dt><dd><p>Quantum Computers via Combinatorial Mapping and Variational State
+Preparation. Preprint at <a class="reference external" href="https://doi.org/10.48550/arXiv.2205.11742">https://doi.org/10.48550/arXiv.2205.11742</a>
+(2022).</p>
+</dd>
+</dl>
+</li>
+</ol>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.combinatorial.basis">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.combinatorial.</span></span><span class="sig-name descname"><span class="pre">basis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.combinatorial.basis" title="Link to this definition"></a></dt>
+<dd><p>Function to construct the combinatorial basis set, i.e. a basis set
+respecting the number of electrons and the total spin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of spatial orbitals.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Number of alpha or beta electrons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>OrderedDict</strong> – Lexicographically sorted basis set, mapping electronic
+configuration to unique integers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.combinatorial.combinatorial">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.combinatorial.</span></span><span class="sig-name descname"><span class="pre">combinatorial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ferm_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_modes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.combinatorial.combinatorial" title="Link to this definition"></a></dt>
+<dd><p>Function to transform the fermionic Hamiltonian into a basis constructed
+in the Fock space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ferm_op</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a>) – as followed in the openfermion package</p></li>
+<li><p><strong>n_modes</strong> (<em>int</em>) – Number of relevant molecular orbitals, i.e. active molecular
+orbitals.</p></li>
+<li><p><strong>n_electrons</strong> (<em>int</em>) – Number of active electrons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.combinatorial.conf_to_integer">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.combinatorial.</span></span><span class="sig-name descname"><span class="pre">conf_to_integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.combinatorial.conf_to_integer" title="Link to this definition"></a></dt>
+<dd><p>Function to map an electronic configuration to a unique integer, as done
+in arXiv.2205.11742 eq. (14).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sigma</strong> (<em>tuple</em><em> of </em><em>int</em>) – Orbital indices where the electron are in the
+electronic configuration.</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of modes, i.e. number of spatial orbitals.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>int</strong> – Unique integer for the input electronic state.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.combinatorial.int_to_tuple">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.combinatorial.</span></span><span class="sig-name descname"><span class="pre">int_to_tuple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.combinatorial.int_to_tuple" title="Link to this definition"></a></dt>
+<dd><p>Convert a qubit Hamiltonian term in integer encoding (stabilizer representation) into
+an Openfermion-style tuple.</p>
+<p>Bits in the binary representation of the integer encode the Pauli operators that need to be applied
+to each qubit. Each consecutive pair of bits encode information for a specific qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>integer</strong> (<em>int</em>) – integer to decode. Its binary representation has 2*n_qubits bits</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – number of qubits in the term</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tuple</strong> – OpenFermion-style term including up to n_qubits qubits</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.combinatorial.one_body_op_on_state">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.combinatorial.</span></span><span class="sig-name descname"><span class="pre">one_body_op_on_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_in</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.combinatorial.one_body_op_on_state" title="Link to this definition"></a></dt>
+<dd><p>Function to apply a a^{dagger}_i a_j operator as described in Phys. Rev.
+A 81, 022124 (2010) eq. (8).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<em>tuple</em>) – Operator, written as ((qubit_i, 1), (qubit_j, 0)), where 0/1
+means annihilation/creation on the specified qubit.</p></li>
+<li><p><strong>state_in</strong> (<em>tuple</em>) – Electronic configuration described as tuple of
+spinorbital indices where there is an electron.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>tuple</strong> – Resulting state with the same form as in the input state.
+Can be 0.</p></li>
+<li><p><strong>int</strong> – Phase shift. Can be -1 or 1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.combinatorial.recursive_mapping">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.combinatorial.</span></span><span class="sig-name descname"><span class="pre">recursive_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.combinatorial.recursive_mapping" title="Link to this definition"></a></dt>
+<dd><p>Maps an arbitrary square matrix representing an operator via Pauli decomposition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>M</strong> (<em>np.array</em><em>(</em><em>np</em><em>, </em><em>complex</em><em>, </em><em>np.complex</em><em>)</em>) – Square matrix representing the operator.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict[int -&gt; complex]</strong> – Pauli operator encoded as a dictionary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.combinatorial.tensor_product_pauli_dicts">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.combinatorial.</span></span><span class="sig-name descname"><span class="pre">tensor_product_pauli_dicts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.combinatorial.tensor_product_pauli_dicts" title="Link to this definition"></a></dt>
+<dd><p>Perform the tensor product of 2 Pauli operators by using their underlying dictionary of terms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pa</strong> (<em>dict</em><em>[</em><em>int -&gt; complex</em><em>]</em>) – first Pauli dictionary</p></li>
+<li><p><strong>pb</strong> (<em>dict</em><em>[</em><em>int -&gt; complex</em><em>]</em>) – second Pauli dictionary</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict[int -&gt; complex]</strong> – tensor product of Pauli operators</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.qubit_mappings.hcb">
+<span id="tangelo-toolboxes-qubit-mappings-hcb-module"></span><h2>tangelo.toolboxes.qubit_mappings.hcb module<a class="headerlink" href="#module-tangelo.toolboxes.qubit_mappings.hcb" title="Link to this heading"></a></h2>
+<p>Module that defines function to convert a fermionic operator to a boson
+operator. For electronic system, it means to couple all the electrons by pair.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.hcb.boson_to_qubit_mapping">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.hcb.</span></span><span class="sig-name descname"><span class="pre">boson_to_qubit_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bos_op</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.hcb.boson_to_qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>Function to convert a Bosonic operator to a qubit operator. As qubits are
+bosons, the mapping is similar to the Jordan-Wigner mapping, but without the
+trailing Pauli-Z to account for anticommutation of the creation and
+annihilation operators.</p>
+<p>In short, every creation operator b^{dagger} (resp. annihilation b) are
+mapped to X-iY strings (resp. X+iY), where X and Y are referring to the
+Pauli matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bos_op</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.BosonOperator" title="tangelo.toolboxes.operators.operators.BosonOperator"><em>BosonOperator</em></a>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.hcb.hard_core_boson_operator">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.hcb.</span></span><span class="sig-name descname"><span class="pre">hard_core_boson_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ferm_op</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.hcb.hard_core_boson_operator" title="Link to this definition"></a></dt>
+<dd><p>Function to extract the coefficient of the Hard-Core Bosonic (HCB)
+Hamiltonian.</p>
+<dl class="simple">
+<dt>Refs:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>V.E. Elfving, M. Millaruelo, J.A. Gámez, and C. Gogolin. Phys. Rev. A</dt><dd><p>103, 032605 (2021).</p>
+</dd>
+</dl>
+</li>
+<li><p>N.T. Thang and P.T.T. Nga, Communications in Physics 21, 301 (2011).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ferm_op</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>BosonOperator</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.qubit_mappings.jkmn">
+<span id="tangelo-toolboxes-qubit-mappings-jkmn-module"></span><h2>tangelo.toolboxes.qubit_mappings.jkmn module<a class="headerlink" href="#module-tangelo.toolboxes.qubit_mappings.jkmn" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.jkmn.jkmn">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.jkmn.</span></span><span class="sig-name descname"><span class="pre">jkmn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.jkmn.jkmn" title="Link to this definition"></a></dt>
+<dd><p>The JKMN mapping of a fermion operator as described in arXiv:1910.10746v2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fermion_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a>) – The fermion operator to transform to a qubit operator</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – The number of qubits in the system</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – The qubit operator corresponding to the Fermion Operator</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.jkmn.jkmn_prep_vector">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.jkmn.</span></span><span class="sig-name descname"><span class="pre">jkmn_prep_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.jkmn.jkmn_prep_vector" title="Link to this definition"></a></dt>
+<dd><p>Apply JKMN mapping to fermion occupation vector.</p>
+<p>Each fermionic mode i is generated by applying gamma_{2*i} = a_i^{dagger} + a_i. The returned
+vector is defined by which qubits have X or Y operations applied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>list</em><em> of </em><em>int</em>) – The occupation of each spinorbital</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>numpy array of int</strong> – The state preparation vector that defines which qubits to apply X gates to</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.qubit_mappings.jordan_wigner">
+<span id="tangelo-toolboxes-qubit-mappings-jordan-wigner-module"></span><h2>tangelo.toolboxes.qubit_mappings.jordan_wigner module<a class="headerlink" href="#module-tangelo.toolboxes.qubit_mappings.jordan_wigner" title="Link to this heading"></a></h2>
+<p>Jordan-Wigner transform on fermionic operators.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.jordan_wigner.</span></span><span class="sig-name descname"><span class="pre">jordan_wigner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.jordan_wigner.jordan_wigner" title="Link to this definition"></a></dt>
+<dd><p>Apply the Jordan-Wigner transform to a FermionOperator,
+InteractionOperator, or DiagonalCoulombHamiltonian to convert to a
+QubitOperator.</p>
+<p>Operators are mapped as follows:
+a_j^dagger -&gt; Z_0 .. Z_{j-1} (X_j - iY_j) / 2
+a_j -&gt; Z_0 .. Z_{j-1} (X_j + iY_j) / 2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>QubitOperator</strong> – An instance of the QubitOperator class.</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The runtime of this method is exponential in the maximum locality of the
+original FermionOperator.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TypeError</strong> – Operator must be a FermionOperator,</p></li>
+<li><p><strong>DiagonalCoulombHamiltonian</strong><strong>, or </strong><strong>InteractionOperator.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.qubit_mappings.mapping_transform">
+<span id="tangelo-toolboxes-qubit-mappings-mapping-transform-module"></span><h2>tangelo.toolboxes.qubit_mappings.mapping_transform module<a class="headerlink" href="#module-tangelo.toolboxes.qubit_mappings.mapping_transform" title="Link to this heading"></a></h2>
+<p>This module provides a common point for mapping operators and
+statevectors from Fermionic to Qubit encodings via any of:
+- Jordan-Wigner
+- Bravyi-Kitaev (Fenwick Tree implementation)
+- symmetry-conserving Bravyi-Kitaev (2-qubit reduction via Z2 taper)</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.mapping_transform.fermion_to_qubit_mapping">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.mapping_transform.</span></span><span class="sig-name descname"><span class="pre">fermion_to_qubit_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.mapping_transform.fermion_to_qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>Perform mapping of fermionic operator to qubit operator. This function is
+mostly a wrapper around standard openfermion code, with some important
+distinctions. We strictly enforce the specification of n_qubits for
+Bravyi-Kitaev type transformations, and n_electrons for scBK. In the absence
+of this information, these methods can return unexpected results if the
+input operator does not specifically address the highest-orbital/qubit
+index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fermion_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a>) – operator to translate to qubit
+representation.</p></li>
+<li><p><strong>mapping</strong> (<em>string</em>) – options are – “JW” (Jordan Wigner), “BK”
+(Bravyi Kitaev), “scBK” (symmetry-conserving Bravyi Kitaev).</p></li>
+<li><p><strong>n_spinorbitals</strong> (<em>int</em>) – number of spin-orbitals for problem. Not required
+for Jordan-Wigner.</p></li>
+<li><p><strong>n_electrons</strong> (<em>int</em>) – number of occupied electron modes in problem.
+Required for symmetry conserving Bravyi-Kitaev only.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – flag to change basis ordering, putting all spin up
+then all spin down.</p></li>
+<li><p><strong>spin</strong> (<em>int</em>) – The spin number (n_alpha - n_beta)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – input operator, encoded in the qubit space.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.mapping_transform.get_fermion_operator">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.mapping_transform.</span></span><span class="sig-name descname"><span class="pre">get_fermion_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.mapping_transform.get_fermion_operator" title="Link to this definition"></a></dt>
+<dd><p>Cast operator to FermionOperator datatype. Input is of SymbolicOperator
+type, but term words must be valid input for FermionOperator, as for example
+for InteractionOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>operator</strong> (<em>SymbolicOperator</em>) – input operator to be cast.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FermionOperator</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.mapping_transform.get_qubit_number">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.mapping_transform.</span></span><span class="sig-name descname"><span class="pre">get_qubit_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.mapping_transform.get_qubit_number" title="Link to this definition"></a></dt>
+<dd><p>Get the number of qubits for a specified number of spin orbitals, after
+passing through the qubit mapping. Symmetry-conserving Bravyi-Kitaev reduces
+the qubit number by 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mapping</strong> (<em>string</em>) – qubit-mapping, JW, BK or SCBK.</p></li>
+<li><p><strong>n_spinorbitals</strong> (<em>int</em>) – number of spin-orbitals for molecule.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>int</strong> – number of qubits.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.mapping_transform.make_up_then_down">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.mapping_transform.</span></span><span class="sig-name descname"><span class="pre">make_up_then_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.mapping_transform.make_up_then_down" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Re-order the orbital indexing to force all spin up, followed by all spin</dt><dd><p>down. The default ordering alternates between spin up and down.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fermion_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a>) – input operator.</p></li>
+<li><p><strong>n_spinorbitals</strong> (<em>int</em>) – number of spin-orbitals in register.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FermionOperator</strong> – operator with all spin up followed by all spin down.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.qubit_mappings.statevector_mapping">
+<span id="tangelo-toolboxes-qubit-mappings-statevector-mapping-module"></span><h2>tangelo.toolboxes.qubit_mappings.statevector_mapping module<a class="headerlink" href="#module-tangelo.toolboxes.qubit_mappings.statevector_mapping" title="Link to this heading"></a></h2>
+<p>Tools to define a reference state under a specified qubit-mapping, and
+translate into a Circuit.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.statevector_mapping.do_bk_transform">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">do_bk_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.statevector_mapping.do_bk_transform" title="Link to this definition"></a></dt>
+<dd><p>Apply Bravyi-Kitaev transformation to fermion occupation vector.
+Currently, simple wrapper on openfermion tools.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>numpy array</em><em> of </em><em>int</em>) – fermion occupation vector.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>numpy array of int</strong> – qubit-encoded occupation vector.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.statevector_mapping.do_jkmn_transform">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">do_jkmn_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.statevector_mapping.do_jkmn_transform" title="Link to this definition"></a></dt>
+<dd><p>Instantiate qubit vector for JKMN transformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>numpy array</em><em> of </em><em>int</em>) – fermion occupation vector.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>numpy array of int</strong> – qubit-encoded occupation vector.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.statevector_mapping.do_scbk_transform">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">do_scbk_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.statevector_mapping.do_scbk_transform" title="Link to this definition"></a></dt>
+<dd><p>Instantiate qubit vector for symmetry-conserving Bravyi-Kitaev
+Generate Majorana mode for each occupied spin-orbital and apply X gate
+to each non-Z operator in the Pauli word.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector</strong> (<em>numpy array</em><em> of </em><em>int</em>) – fermion occupation vector.</p></li>
+<li><p><strong>n_spinorbitals</strong> (<em>int</em>) – number of qubits in register.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>numpy array of int</strong> – qubit-encoded occupation vector.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.statevector_mapping.get_mapped_vector">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">get_mapped_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.statevector_mapping.get_mapped_vector" title="Link to this definition"></a></dt>
+<dd><p>Return vector to generate circuit for a given occupation vector and mapping</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector</strong> (<em>array</em><em> of </em><em>int</em>) – fermion occupation vector with up_then_down=False ordering.
+Number of spin-orbitals is assumed by length of array.</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – One of the supported qubit mappings</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – if True, all up, then all down, if False,
+alternating spin up/down.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>array</strong> – The vector that generates the mapping occupations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.statevector_mapping.get_reference_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">get_reference_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.statevector_mapping.get_reference_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build the Hartree-Fock state preparation circuit for the designated
+mapping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_spinorbitals</strong> (<em>int</em>) – number of qubits in register.</p></li>
+<li><p><strong>n_electrons</strong> (<em>int</em>) – number of electrons in system.</p></li>
+<li><p><strong>mapping</strong> (<em>string</em>) – specify mapping, see mapping_transform.py for options
+“JW” (Jordan Wigner), or “BK” (Bravyi Kitaev), or “SCBK”
+(symmetry-conserving Bravyi Kitaev).</p></li>
+<li><p><strong>up_then_down</strong> (<em>boolean</em>) – if True, all up, then all down, if False,
+alternating spin up/down.</p></li>
+<li><p><strong>spin</strong> (<em>int</em>) – 2*S = n_alpha - n_beta.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – instance of tangelo.linq Circuit class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.statevector_mapping.get_vector">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">get_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.statevector_mapping.get_vector" title="Link to this definition"></a></dt>
+<dd><p>Get integer vector corresponding to Hartree Fock reference state.
+Reference state will occupy up to the n_electron-th molecular orbital.
+Depending on convention, basis is ordered alternating spin-up/spin-down
+(updown = False), or all up, then all down (updown = True).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_spinorbitals</strong> (<em>int</em>) – number of spin-orbitals in register.</p></li>
+<li><p><strong>n_electrons</strong> (<em>int</em>) – number of electrons in system.</p></li>
+<li><p><strong>mapping</strong> (<em>string</em>) – specify mapping, see mapping_transform.py for options
+“JW” (Jordan Wigner), or “BK” (Bravyi Kitaev), or “SCBK”
+(symmetry-conserving Bravyi Kitaev) or “JKMN”
+(Jiang Kalev Mruczkiewicz Neven)</p></li>
+<li><p><strong>up_then_down</strong> (<em>boolean</em>) – <dl class="simple">
+<dt>if True, all up, then all down, if False,</dt><dd><p>alternating spin up/down.</p>
+</dd>
+</dl>
+<p>spin (int): 2*S = n_alpha - n_beta.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>numpy array of int</strong> – binary integer array indicating occupation of each
+spin-orbital.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.statevector_mapping.vector_to_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.statevector_mapping.</span></span><span class="sig-name descname"><span class="pre">vector_to_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.statevector_mapping.vector_to_circuit" title="Link to this definition"></a></dt>
+<dd><p>Translate occupation vector into a circuit. Each occupied state
+corresponds to an X-gate on the associated qubit index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>numpy array</em><em> of </em><em>int</em>) – occupation vector.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – instance of tangelo.linq Circuit class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev">
+<span id="tangelo-toolboxes-qubit-mappings-symmetry-conserving-bravyi-kitaev-module"></span><h2>tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev module<a class="headerlink" href="#module-tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev" title="Link to this heading"></a></h2>
+<p>Module to remove two qubits from the problem space using conservation of
+electron number and conservation of electron spin. As described in
+arXiv:1701.08213 and Phys. Rev. X 6, 031007.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.check_operator">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.</span></span><span class="sig-name descname"><span class="pre">check_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_orbitals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.check_operator" title="Link to this definition"></a></dt>
+<dd><p>Check if the input fermion operator is suitable for application of
+symmetry-consering BK qubit reduction. Excitation must: preserve parity of
+fermion occupation, and parity of spin expectation value. This assumes
+alternating spin-up/spin-down ordering of input operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fermion_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a>) – input fermionic operator.</p></li>
+<li><p><strong>num_orbitals</strong> (<em>int</em>) – specify number of orbitals (number of modes / 2),
+required for up then down ordering.</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – True if all spin up before all spin down, otherwise
+alternates.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.edit_operator_for_spin">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.</span></span><span class="sig-name descname"><span class="pre">edit_operator_for_spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_orbital</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital_parity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.edit_operator_for_spin" title="Link to this definition"></a></dt>
+<dd><p>Removes the Z terms acting on the orbital from the operator. For qubits
+to be tapered out, the action of Z-operators in operator terms are reduced
+to the associated eigenvalues. This simply corresponds to multiplying term
+coefficients by the related eigenvalue +/-1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – input operator.</p></li>
+<li><p><strong>spin_orbital</strong> (<em>int</em>) – index of qubit encoding (spin/occupation) parity.</p></li>
+<li><p><strong>orbital_parity</strong> (<em>int</em>) – plus/minus one, parity of eigenvalue.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – updated operator, with relevant coefficients multiplied
+by +/-1.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.prune_unused_indices">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.</span></span><span class="sig-name descname"><span class="pre">prune_unused_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.prune_unused_indices" title="Link to this definition"></a></dt>
+<dd><p>Rewritten from openfermion implementation. This uses the number of qubits,
+rather than the operator itself to specify the number of qubits relevant to
+the problem. This is especially important for, e.g. terms in the ansatz
+which may not individually pertain to all qubits in the problem.</p>
+<p>Remove indices that do not appear in any terms.</p>
+<p>Indices will be renumbered such that if an index i does not appear in any
+terms, then the next largest index that appears in at least one term will be
+renumbered to i.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – input operator.</p></li>
+<li><p><strong>prune_indices</strong> (<em>tuple</em><em> of </em><em>int</em>) – indices to be removed from qubit register.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – number of qubits in register.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – output operator, with designated qubit indices excised.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.symmetry_conserving_bravyi_kitaev">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.</span></span><span class="sig-name descname"><span class="pre">symmetry_conserving_bravyi_kitaev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fermion_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_spinorbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev.symmetry_conserving_bravyi_kitaev" title="Link to this definition"></a></dt>
+<dd><p>Returns the QubitOperator for the FermionOperator supplied, with two
+qubits removed using conservation of (parity) of electron spin and number,
+as described in arXiv:1701.08213.  This function has been modified from its
+analogous implementation in openfermion in order to circumvent failures when
+passing a fermion_operator which does not explicitly reference the highest
+index qubit in the register.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fermion_operator</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a>) – fermionic operator to transform to
+QubitOperator.</p></li>
+<li><p><strong>n_spinorbitals</strong> (<em>int</em>) – The number of active spin-orbitals being
+considered for the system.</p></li>
+<li><p><strong>n_electrons</strong> (<em>int</em>) – The number of active fermions being considered for
+the system (note, this is less than the number of electrons in a
+molecule if some orbitals have been frozen).</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – specify if the spin-orbital basis is already
+ordered putting all spin up before all spin down states.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>QubitOperator</strong> – The qubit operator corresponding to the supplied
+fermionic operator, with two qubits removed using spin symmetries.</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Reorders orbitals from the default even-odd ordering to all spin-up
+orbitals, then all spin-down orbitals.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError if fermion_hamiltonian isn&quot;t</strong><strong> of </strong><strong>the type FermionOperator</strong><strong>, </strong><strong>or</strong> – </p></li>
+<li><p><strong>active_orbitals isn&quot;t an integer</strong><strong>, or </strong><strong>active_fermions isn&quot;t an integer.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Notes: This function reorders the spin orbitals as all spin-up, then all</dt><dd><p>spin-down. It uses the OpenFermion bravyi_kitaev_tree mapping, rather
+than the bravyi-kitaev mapping. Caution advised when using with a
+Fermi-Hubbard Hamiltonian; this technique correctly reduces the
+Hamiltonian only for the lowest energy even and odd fermion number
+states, not states with an arbitrary number of fermions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.qubit_mappings">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.toolboxes.qubit_mappings" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.toolboxes.post_processing.html" class="btn btn-neutral float-left" title="tangelo.toolboxes.post_processing package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.toolboxes.unitary_generator.html" class="btn btn-neutral float-right" title="tangelo.toolboxes.unitary_generator package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

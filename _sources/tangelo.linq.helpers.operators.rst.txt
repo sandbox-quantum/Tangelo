@@ -1,0 +1,21 @@
+tangelo.linq.helpers.operators package
+======================================
+
+Submodules
+----------
+
+tangelo.linq.helpers.operators.operators module
+-----------------------------------------------
+
+.. automodule:: tangelo.linq.helpers.operators.operators
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.linq.helpers.operators
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,45 @@
+tangelo.linq.helpers.circuits package
+=====================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.linq.helpers.circuits.tests
+
+Submodules
+----------
+
+tangelo.linq.helpers.circuits.clifford\_circuits module
+-------------------------------------------------------
+
+.. automodule:: tangelo.linq.helpers.circuits.clifford_circuits
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.helpers.circuits.measurement\_basis module
+-------------------------------------------------------
+
+.. automodule:: tangelo.linq.helpers.circuits.measurement_basis
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.helpers.circuits.statevector module
+------------------------------------------------
+
+.. automodule:: tangelo.linq.helpers.circuits.statevector
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.linq.helpers.circuits
+   :members:
+   :undoc-members:
+   :show-inheritance:

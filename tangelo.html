@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.algorithms package" href="tangelo.algorithms.html" />
+    <link rel="prev" title="Contributions guidelines" href="CONTRIBUTIONS.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">tangelo package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">tangelo package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-package">
+<h1>tangelo package<a class="headerlink" href="#tangelo-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html">tangelo.algorithms.classical package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#module-tangelo.algorithms.classical.ccsd_solver">tangelo.algorithms.classical.ccsd_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#module-tangelo.algorithms.classical.fci_solver">tangelo.algorithms.classical.fci_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#module-tangelo.algorithms.classical.mp2_solver">tangelo.algorithms.classical.mp2_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#module-tangelo.algorithms.classical">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.projective.html">tangelo.algorithms.projective package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#module-tangelo.algorithms.projective.iqpe">tangelo.algorithms.projective.iqpe module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#module-tangelo.algorithms.projective.qpe">tangelo.algorithms.projective.qpe module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#module-tangelo.algorithms.projective.quantum_imaginary_time">tangelo.algorithms.projective.quantum_imaginary_time module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#module-tangelo.algorithms.projective">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.variational.html">tangelo.algorithms.variational package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.adapt_vqe_solver">tangelo.algorithms.variational.adapt_vqe_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.iqcc_ilc_solver">tangelo.algorithms.variational.iqcc_ilc_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.iqcc_solver">tangelo.algorithms.variational.iqcc_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.sa_oo_vqe_solver">tangelo.algorithms.variational.sa_oo_vqe_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.sa_vqe_solver">tangelo.algorithms.variational.sa_vqe_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.tetris_adapt_vqe_solver">tangelo.algorithms.variational.tetris_adapt_vqe_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.vqe_solver">tangelo.algorithms.variational.vqe_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.html#module-tangelo.algorithms.electronic_structure_solver">tangelo.algorithms.electronic_structure_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html#tangelo.algorithms.electronic_structure_solver.ElectronicStructureSolver"><code class="docutils literal notranslate"><span class="pre">ElectronicStructureSolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.html#tangelo.algorithms.electronic_structure_solver.ElectronicStructureSolver.get_rdm"><code class="docutils literal notranslate"><span class="pre">ElectronicStructureSolver.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.html#tangelo.algorithms.electronic_structure_solver.ElectronicStructureSolver.simulate"><code class="docutils literal notranslate"><span class="pre">ElectronicStructureSolver.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.html#module-tangelo.algorithms">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.helpers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.helpers.html#module-tangelo.helpers.math">tangelo.helpers.math module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html#tangelo.helpers.math.arrays_almost_equal_up_to_global_phase"><code class="docutils literal notranslate"><span class="pre">arrays_almost_equal_up_to_global_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html#tangelo.helpers.math.bool_col_echelon"><code class="docutils literal notranslate"><span class="pre">bool_col_echelon()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.helpers.html#module-tangelo.helpers.utils">tangelo.helpers.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html#tangelo.helpers.utils.HiddenPrints"><code class="docutils literal notranslate"><span class="pre">HiddenPrints</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html#tangelo.helpers.utils.assert_freq_dict_almost_equal"><code class="docutils literal notranslate"><span class="pre">assert_freq_dict_almost_equal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html#tangelo.helpers.utils.deprecated"><code class="docutils literal notranslate"><span class="pre">deprecated()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html#tangelo.helpers.utils.is_package_installed"><code class="docutils literal notranslate"><span class="pre">is_package_installed()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.helpers.html#module-tangelo.helpers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.helpers.html">tangelo.linq.helpers package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.html#module-tangelo.linq.helpers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.noisy_simulation.html">tangelo.linq.noisy_simulation package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#module-tangelo.linq.noisy_simulation.noise_models">tangelo.linq.noisy_simulation.noise_models module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#module-tangelo.linq.noisy_simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.qpu_connection.html">tangelo.linq.qpu_connection package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection.braket_connection">tangelo.linq.qpu_connection.braket_connection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection.ibm_connection">tangelo.linq.qpu_connection.ibm_connection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection.ionq_connection">tangelo.linq.qpu_connection.ionq_connection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection.qemist_cloud_connection">tangelo.linq.qpu_connection.qemist_cloud_connection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection.qpu_connection">tangelo.linq.qpu_connection.qpu_connection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html">tangelo.linq.target package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.backend">tangelo.linq.target.backend module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_cirq">tangelo.linq.target.target_cirq module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_qdk">tangelo.linq.target.target_qdk module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_qiskit">tangelo.linq.target.target_qiskit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_qulacs">tangelo.linq.target.target_qulacs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_stim">tangelo.linq.target.target_stim module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_sympy">tangelo.linq.target.target_sympy module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html">tangelo.linq.translator package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.qdk_template">tangelo.linq.translator.qdk_template module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_braket">tangelo.linq.translator.translate_braket module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_circuit">tangelo.linq.translator.translate_circuit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_cirq">tangelo.linq.translator.translate_cirq module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_json_ionq">tangelo.linq.translator.translate_json_ionq module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_openqasm">tangelo.linq.translator.translate_openqasm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_pennylane">tangelo.linq.translator.translate_pennylane module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_projectq">tangelo.linq.translator.translate_projectq module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_qdk">tangelo.linq.translator.translate_qdk module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_qiskit">tangelo.linq.translator.translate_qiskit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_qubitop">tangelo.linq.translator.translate_qubitop module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_qulacs">tangelo.linq.translator.translate_qulacs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_stim">tangelo.linq.translator.translate_stim module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_sympy">tangelo.linq.translator.translate_sympy module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.circuit">tangelo.linq.circuit module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit"><code class="docutils literal notranslate"><span class="pre">Circuit</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.add_gate"><code class="docutils literal notranslate"><span class="pre">Circuit.add_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.applied_gates"><code class="docutils literal notranslate"><span class="pre">Circuit.applied_gates</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.controlled_measurement_op"><code class="docutils literal notranslate"><span class="pre">Circuit.controlled_measurement_op()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.copy"><code class="docutils literal notranslate"><span class="pre">Circuit.copy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.counts"><code class="docutils literal notranslate"><span class="pre">Circuit.counts</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.counts_n_qubit"><code class="docutils literal notranslate"><span class="pre">Circuit.counts_n_qubit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.depth"><code class="docutils literal notranslate"><span class="pre">Circuit.depth()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.draw"><code class="docutils literal notranslate"><span class="pre">Circuit.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.finalize_cmeasure_control"><code class="docutils literal notranslate"><span class="pre">Circuit.finalize_cmeasure_control()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.fix_variational_parameters"><code class="docutils literal notranslate"><span class="pre">Circuit.fix_variational_parameters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.get_entangled_indices"><code class="docutils literal notranslate"><span class="pre">Circuit.get_entangled_indices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.inverse"><code class="docutils literal notranslate"><span class="pre">Circuit.inverse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.is_mixed_state"><code class="docutils literal notranslate"><span class="pre">Circuit.is_mixed_state</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.is_variational"><code class="docutils literal notranslate"><span class="pre">Circuit.is_variational</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.merge_rotations"><code class="docutils literal notranslate"><span class="pre">Circuit.merge_rotations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.reindex_qubits"><code class="docutils literal notranslate"><span class="pre">Circuit.reindex_qubits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.remove_redundant_gates"><code class="docutils literal notranslate"><span class="pre">Circuit.remove_redundant_gates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.remove_small_rotations"><code class="docutils literal notranslate"><span class="pre">Circuit.remove_small_rotations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.serialize"><code class="docutils literal notranslate"><span class="pre">Circuit.serialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.simplify"><code class="docutils literal notranslate"><span class="pre">Circuit.simplify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.size"><code class="docutils literal notranslate"><span class="pre">Circuit.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.split"><code class="docutils literal notranslate"><span class="pre">Circuit.split()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.stack"><code class="docutils literal notranslate"><span class="pre">Circuit.stack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.success_probabilities"><code class="docutils literal notranslate"><span class="pre">Circuit.success_probabilities</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.trim_qubits"><code class="docutils literal notranslate"><span class="pre">Circuit.trim_qubits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit.width"><code class="docutils literal notranslate"><span class="pre">Circuit.width</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.ClassicalControl"><code class="docutils literal notranslate"><span class="pre">ClassicalControl</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.ClassicalControl.finalize"><code class="docutils literal notranslate"><span class="pre">ClassicalControl.finalize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.ClassicalControl.return_gates"><code class="docutils literal notranslate"><span class="pre">ClassicalControl.return_gates()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.generate_applied_gates"><code class="docutils literal notranslate"><span class="pre">generate_applied_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.get_unitary_circuit_pieces"><code class="docutils literal notranslate"><span class="pre">get_unitary_circuit_pieces()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.merge_rotations"><code class="docutils literal notranslate"><span class="pre">merge_rotations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.remove_redundant_gates"><code class="docutils literal notranslate"><span class="pre">remove_redundant_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.remove_small_rotations"><code class="docutils literal notranslate"><span class="pre">remove_small_rotations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.simplify"><code class="docutils literal notranslate"><span class="pre">simplify()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.stack"><code class="docutils literal notranslate"><span class="pre">stack()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.gate">tangelo.linq.gate module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate"><code class="docutils literal notranslate"><span class="pre">Gate</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate.name"><code class="docutils literal notranslate"><span class="pre">Gate.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate.target"><code class="docutils literal notranslate"><span class="pre">Gate.target</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate.control"><code class="docutils literal notranslate"><span class="pre">Gate.control</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate.parameter"><code class="docutils literal notranslate"><span class="pre">Gate.parameter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate.is_variational"><code class="docutils literal notranslate"><span class="pre">Gate.is_variational</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate.inverse"><code class="docutils literal notranslate"><span class="pre">Gate.inverse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate.is_clifford"><code class="docutils literal notranslate"><span class="pre">Gate.is_clifford()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate.serialize"><code class="docutils literal notranslate"><span class="pre">Gate.serialize()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.qdk_template">tangelo.linq.qdk_template module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.simulator">tangelo.linq.simulator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.simulator.get_backend"><code class="docutils literal notranslate"><span class="pre">get_backend()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html">tangelo.problem_decomposition.dmet package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#module-tangelo.problem_decomposition.dmet.dmet_problem_decomposition">tangelo.problem_decomposition.dmet.dmet_problem_decomposition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#module-tangelo.problem_decomposition.dmet.fragment">tangelo.problem_decomposition.dmet.fragment module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#module-tangelo.problem_decomposition.dmet">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html">tangelo.problem_decomposition.electron_localization package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#module-tangelo.problem_decomposition.electron_localization.iao_localization">tangelo.problem_decomposition.electron_localization.iao_localization module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#module-tangelo.problem_decomposition.electron_localization.meta_lowdin_localization">tangelo.problem_decomposition.electron_localization.meta_lowdin_localization module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#module-tangelo.problem_decomposition.electron_localization.nao_localization">tangelo.problem_decomposition.electron_localization.nao_localization module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#module-tangelo.problem_decomposition.electron_localization">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html">tangelo.problem_decomposition.incremental package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#module-tangelo.problem_decomposition.incremental.incremental_helper">tangelo.problem_decomposition.incremental.incremental_helper module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#module-tangelo.problem_decomposition.incremental">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html">tangelo.problem_decomposition.oniom package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html#module-tangelo.problem_decomposition.oniom.oniom_problem_decomposition">tangelo.problem_decomposition.oniom.oniom_problem_decomposition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html#module-tangelo.problem_decomposition.oniom">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html">tangelo.problem_decomposition.qmmm package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html#module-tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition">tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html#module-tangelo.problem_decomposition.qmmm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.html#module-tangelo.problem_decomposition.problem_decomposition">tangelo.problem_decomposition.problem_decomposition module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html#tangelo.problem_decomposition.problem_decomposition.ProblemDecomposition"><code class="docutils literal notranslate"><span class="pre">ProblemDecomposition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.html#tangelo.problem_decomposition.problem_decomposition.ProblemDecomposition.simulate"><code class="docutils literal notranslate"><span class="pre">ProblemDecomposition.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.html#module-tangelo.problem_decomposition">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.toolboxes.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html">tangelo.toolboxes.ansatz_generator package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.adapt_ansatz">tangelo.toolboxes.ansatz_generator.adapt_ansatz module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.ansatz">tangelo.toolboxes.ansatz_generator.ansatz module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.ansatz_utils">tangelo.toolboxes.ansatz_generator.ansatz_utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.fermionic_operators">tangelo.toolboxes.ansatz_generator.fermionic_operators module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.hea">tangelo.toolboxes.ansatz_generator.hea module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.ilc">tangelo.toolboxes.ansatz_generator.ilc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.penalty_terms">tangelo.toolboxes.ansatz_generator.penalty_terms module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.puccd">tangelo.toolboxes.ansatz_generator.puccd module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.qcc">tangelo.toolboxes.ansatz_generator.qcc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.qmf">tangelo.toolboxes.ansatz_generator.qmf module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.rucc">tangelo.toolboxes.ansatz_generator.rucc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.uccgd">tangelo.toolboxes.ansatz_generator.uccgd module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.uccsd">tangelo.toolboxes.ansatz_generator.uccsd module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.upccgsd">tangelo.toolboxes.ansatz_generator.upccgsd module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.variational_circuit">tangelo.toolboxes.ansatz_generator.variational_circuit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator.vsqs">tangelo.toolboxes.ansatz_generator.vsqs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.ansatz_generator.html#module-tangelo.toolboxes.ansatz_generator">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.circuits.html">tangelo.toolboxes.circuits package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.circuits.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.circuits.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.circuits.html#module-tangelo.toolboxes.circuits.diagonal_coulomb">tangelo.toolboxes.circuits.diagonal_coulomb module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.circuits.html#module-tangelo.toolboxes.circuits.discrete_clock">tangelo.toolboxes.circuits.discrete_clock module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.circuits.html#module-tangelo.toolboxes.circuits.grid_circuits">tangelo.toolboxes.circuits.grid_circuits module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.circuits.html#module-tangelo.toolboxes.circuits.lcu">tangelo.toolboxes.circuits.lcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.circuits.html#module-tangelo.toolboxes.circuits.multiproduct">tangelo.toolboxes.circuits.multiproduct module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.circuits.html#module-tangelo.toolboxes.circuits.qsp">tangelo.toolboxes.circuits.qsp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.circuits.html#module-tangelo.toolboxes.circuits">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.measurements.html">tangelo.toolboxes.measurements package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.html#module-tangelo.toolboxes.measurements.estimate_measurements">tangelo.toolboxes.measurements.estimate_measurements module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.html#module-tangelo.toolboxes.measurements.qubit_terms_grouping">tangelo.toolboxes.measurements.qubit_terms_grouping module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.html#module-tangelo.toolboxes.measurements">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html">tangelo.toolboxes.molecular_computation package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#module-tangelo.toolboxes.molecular_computation.coefficients">tangelo.toolboxes.molecular_computation.coefficients module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#module-tangelo.toolboxes.molecular_computation.fno">tangelo.toolboxes.molecular_computation.fno module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#module-tangelo.toolboxes.molecular_computation.frozen_orbitals">tangelo.toolboxes.molecular_computation.frozen_orbitals module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#module-tangelo.toolboxes.molecular_computation.integral_solver">tangelo.toolboxes.molecular_computation.integral_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#module-tangelo.toolboxes.molecular_computation.integral_solver_psi4">tangelo.toolboxes.molecular_computation.integral_solver_psi4 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#module-tangelo.toolboxes.molecular_computation.integral_solver_pyscf">tangelo.toolboxes.molecular_computation.integral_solver_pyscf module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#module-tangelo.toolboxes.molecular_computation.mm_charges_solver">tangelo.toolboxes.molecular_computation.mm_charges_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#module-tangelo.toolboxes.molecular_computation.molecule">tangelo.toolboxes.molecular_computation.molecule module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#module-tangelo.toolboxes.molecular_computation.rdms">tangelo.toolboxes.molecular_computation.rdms module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#module-tangelo.toolboxes.molecular_computation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.operators.html">tangelo.toolboxes.operators package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.operators.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.operators.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.operators.html#module-tangelo.toolboxes.operators.multiformoperator">tangelo.toolboxes.operators.multiformoperator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.operators.html#module-tangelo.toolboxes.operators.operators">tangelo.toolboxes.operators.operators module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.operators.html#module-tangelo.toolboxes.operators.taper_qubits">tangelo.toolboxes.operators.taper_qubits module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.operators.html#module-tangelo.toolboxes.operators.trim_trivial_qubits">tangelo.toolboxes.operators.trim_trivial_qubits module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.operators.html#module-tangelo.toolboxes.operators.z2_tapering">tangelo.toolboxes.operators.z2_tapering module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.operators.html#module-tangelo.toolboxes.operators">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.optimizers.html">tangelo.toolboxes.optimizers package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.optimizers.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.optimizers.html#module-tangelo.toolboxes.optimizers.rotosolve">tangelo.toolboxes.optimizers.rotosolve module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.optimizers.html#module-tangelo.toolboxes.optimizers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.post_processing.html">tangelo.toolboxes.post_processing package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.post_processing.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.post_processing.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.post_processing.html#module-tangelo.toolboxes.post_processing.bootstrapping">tangelo.toolboxes.post_processing.bootstrapping module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.post_processing.html#module-tangelo.toolboxes.post_processing.extrapolation">tangelo.toolboxes.post_processing.extrapolation module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.post_processing.html#module-tangelo.toolboxes.post_processing.histogram">tangelo.toolboxes.post_processing.histogram module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.post_processing.html#module-tangelo.toolboxes.post_processing.mc_weeny_rdm_purification">tangelo.toolboxes.post_processing.mc_weeny_rdm_purification module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.post_processing.html#module-tangelo.toolboxes.post_processing.post_selection">tangelo.toolboxes.post_processing.post_selection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.post_processing.html#module-tangelo.toolboxes.post_processing">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html">tangelo.toolboxes.qubit_mappings package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#module-tangelo.toolboxes.qubit_mappings.bravyi_kitaev">tangelo.toolboxes.qubit_mappings.bravyi_kitaev module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#module-tangelo.toolboxes.qubit_mappings.combinatorial">tangelo.toolboxes.qubit_mappings.combinatorial module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#module-tangelo.toolboxes.qubit_mappings.hcb">tangelo.toolboxes.qubit_mappings.hcb module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#module-tangelo.toolboxes.qubit_mappings.jkmn">tangelo.toolboxes.qubit_mappings.jkmn module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#module-tangelo.toolboxes.qubit_mappings.jordan_wigner">tangelo.toolboxes.qubit_mappings.jordan_wigner module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#module-tangelo.toolboxes.qubit_mappings.mapping_transform">tangelo.toolboxes.qubit_mappings.mapping_transform module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#module-tangelo.toolboxes.qubit_mappings.statevector_mapping">tangelo.toolboxes.qubit_mappings.statevector_mapping module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#module-tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev">tangelo.toolboxes.qubit_mappings.symmetry_conserving_bravyi_kitaev module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.qubit_mappings.html#module-tangelo.toolboxes.qubit_mappings">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.unitary_generator.html">tangelo.toolboxes.unitary_generator package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.unitary_generator.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.unitary_generator.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.unitary_generator.html#module-tangelo.toolboxes.unitary_generator.trotter_suzuki">tangelo.toolboxes.unitary_generator.trotter_suzuki module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.unitary_generator.html#module-tangelo.toolboxes.unitary_generator.unitary">tangelo.toolboxes.unitary_generator.unitary module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.unitary_generator.html#module-tangelo.toolboxes.unitary_generator.unitary_circuit">tangelo.toolboxes.unitary_generator.unitary_circuit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.unitary_generator.html#module-tangelo.toolboxes.unitary_generator">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.toolboxes.html#module-tangelo.toolboxes">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.molecule_library">
+<span id="tangelo-molecule-library-module"></span><h2>tangelo.molecule_library module<a class="headerlink" href="#module-tangelo.molecule_library" title="Link to this heading"></a></h2>
+<p>Module to create some molecules used in the package unittest.</p>
+</section>
+<section id="module-tangelo">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="CONTRIBUTIONS.html" class="btn btn-neutral float-left" title="Contributions guidelines" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.algorithms.html" class="btn btn-neutral float-right" title="tangelo.algorithms package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

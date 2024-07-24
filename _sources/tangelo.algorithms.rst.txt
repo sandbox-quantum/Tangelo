@@ -1,0 +1,31 @@
+tangelo.algorithms package
+==========================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.algorithms.classical
+   tangelo.algorithms.projective
+   tangelo.algorithms.variational
+
+Submodules
+----------
+
+tangelo.algorithms.electronic\_structure\_solver module
+-------------------------------------------------------
+
+.. automodule:: tangelo.algorithms.electronic_structure_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.algorithms
+   :members:
+   :undoc-members:
+   :show-inheritance:

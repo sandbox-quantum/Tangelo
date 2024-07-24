@@ -1,0 +1,77 @@
+tangelo.algorithms.variational package
+======================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.algorithms.variational.tests
+
+Submodules
+----------
+
+tangelo.algorithms.variational.adapt\_vqe\_solver module
+--------------------------------------------------------
+
+.. automodule:: tangelo.algorithms.variational.adapt_vqe_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.algorithms.variational.iqcc\_ilc\_solver module
+-------------------------------------------------------
+
+.. automodule:: tangelo.algorithms.variational.iqcc_ilc_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.algorithms.variational.iqcc\_solver module
+--------------------------------------------------
+
+.. automodule:: tangelo.algorithms.variational.iqcc_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.algorithms.variational.sa\_oo\_vqe\_solver module
+---------------------------------------------------------
+
+.. automodule:: tangelo.algorithms.variational.sa_oo_vqe_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.algorithms.variational.sa\_vqe\_solver module
+-----------------------------------------------------
+
+.. automodule:: tangelo.algorithms.variational.sa_vqe_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.algorithms.variational.tetris\_adapt\_vqe\_solver module
+----------------------------------------------------------------
+
+.. automodule:: tangelo.algorithms.variational.tetris_adapt_vqe_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.algorithms.variational.vqe\_solver module
+-------------------------------------------------
+
+.. automodule:: tangelo.algorithms.variational.vqe_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.algorithms.variational
+   :members:
+   :undoc-members:
+   :show-inheritance:

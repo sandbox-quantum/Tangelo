@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.algorithms.projective package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.algorithms.variational package" href="tangelo.algorithms.variational.html" />
+    <link rel="prev" title="tangelo.algorithms.classical package" href="tangelo.algorithms.classical.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.algorithms.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.html#module-tangelo.algorithms.electronic_structure_solver">tangelo.algorithms.electronic_structure_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.html#module-tangelo.algorithms">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+      <li class="breadcrumb-item active">tangelo.algorithms.projective package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.algorithms.projective.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-algorithms-projective-package">
+<h1>tangelo.algorithms.projective package<a class="headerlink" href="#tangelo-algorithms-projective-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.algorithms.projective.iqpe">
+<span id="tangelo-algorithms-projective-iqpe-module"></span><h2>tangelo.algorithms.projective.iqpe module<a class="headerlink" href="#module-tangelo.algorithms.projective.iqpe" title="Link to this heading"></a></h2>
+<p>Implements the iterative Quantum Phase Estimation (iQPE) algorithm to solve
+electronic structure calculations.</p>
+<dl class="simple">
+<dt>Ref:</dt><dd><p>M. Dobsicek, G. Johansson, V. Shumeiko, and G. Wendin, Arbitrary Accuracy Iterative Quantum Phase
+Estimation Algorithm using a Single Ancillary Qubit: A two-qubit benchmark, Phys. Rev. A 76, 030306(R)
+(2007).</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.BuiltInUnitary">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.projective.iqpe.</span></span><span class="sig-name descname"><span class="pre">BuiltInUnitary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.BuiltInUnitary" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumeration of the ansatz circuits supported by iQPE.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.BuiltInUnitary.CircuitUnitary">
+<span class="sig-name descname"><span class="pre">CircuitUnitary</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.unitary_generator.unitary_circuit.CircuitUnitary'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.BuiltInUnitary.CircuitUnitary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.BuiltInUnitary.TrotterSuzuki">
+<span class="sig-name descname"><span class="pre">TrotterSuzuki</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.unitary_generator.trotter_suzuki.TrotterSuzukiUnitary'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.BuiltInUnitary.TrotterSuzuki" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPEControl">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.projective.iqpe.</span></span><span class="sig-name descname"><span class="pre">IterativeQPEControl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qft_qubit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.toolboxes.unitary_generator.html#tangelo.toolboxes.unitary_generator.unitary.Unitary" title="tangelo.toolboxes.unitary_generator.unitary.Unitary"><span class="pre">Unitary</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPEControl" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.ClassicalControl" title="tangelo.linq.circuit.ClassicalControl"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicalControl</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPEControl.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPEControl.finalize" title="Link to this definition"></a></dt>
+<dd><p>Called from simulator after all gates have been called.</p>
+<p>Reinitialize all variables and store measurements and energies from the current iQPE run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPEControl.return_gates">
+<span class="sig-name descname"><span class="pre">return_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measurement</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="tangelo.linq.html#tangelo.linq.gate.Gate" title="tangelo.linq.gate.Gate"><span class="pre">Gate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPEControl.return_gates" title="Link to this definition"></a></dt>
+<dd><p>Return a list of gates based on the measurement outcome for the next step in iQPE.</p>
+<p>Each measurement updates the current phase correction and returns a list of gates that
+implements the next controlled time-evolution along with the phase correction to determine
+the next bit value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>measurement</strong> (<em>str</em>) – “1” or “0”</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>List[Gate]</strong> – The next gates to apply to the circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.projective.iqpe.</span></span><span class="sig-name descname"><span class="pre">IterativeQPESolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Solve the electronic structure problem for a molecular system by using
+the iterative Quantum Phase Estimation (iQPE) algorithm.</p>
+<p>This algorithm evaluates the energy of a molecular system by performing
+a series of controlled time-evolutions</p>
+<p>Users must first set the desired options of the iterative QPESolver object through the
+__init__ method, and call the “build” method to build the underlying objects
+(mean-field, hardware backend, unitary…). They are then able to call the
+the simulate method. In particular, simulate
+runs the iQPE algorithm, returning the optimal energy found by the most probable
+measurement as a binary fraction.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.molecule" title="Link to this definition"></a></dt>
+<dd><p>The molecular system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.qubit_mapping">
+<span class="sig-name descname"><span class="pre">qubit_mapping</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>one of the supported qubit mapping identifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.unitary">
+<span class="sig-name descname"><span class="pre">unitary</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.unitary" title="Link to this definition"></a></dt>
+<dd><p>one of the supported unitary evolutions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.unitary_generator.html#tangelo.toolboxes.unitary_generator.unitary.Unitary" title="tangelo.toolboxes.unitary_generator.unitary.Unitary">Unitary</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.backend_options">
+<span class="sig-name descname"><span class="pre">backend_options</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.backend_options" title="Link to this definition"></a></dt>
+<dd><p>parameters to build the underlying compute backend (simulator, etc).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.simulate_options">
+<span class="sig-name descname"><span class="pre">simulate_options</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.simulate_options" title="Link to this definition"></a></dt>
+<dd><p>Options for fine-control of the simulator backend, including desired measurement results, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.penalty_terms">
+<span class="sig-name descname"><span class="pre">penalty_terms</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.penalty_terms" title="Link to this definition"></a></dt>
+<dd><p>parameters for penalty terms to append to target
+qubit Hamiltonian (see penalty_terms for more details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.unitary_options">
+<span class="sig-name descname"><span class="pre">unitary_options</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.unitary_options" title="Link to this definition"></a></dt>
+<dd><p>parameters for the given ansatz (see given ansatz
+file for details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>change basis ordering putting all spin up orbitals
+first, followed by all spin down. Default, False has alternating</p>
+<blockquote>
+<div><p>spin up/down ordering.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.qubit_hamiltonian">
+<span class="sig-name descname"><span class="pre">qubit_hamiltonian</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.qubit_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>The Hamiltonian expressed as a sum of products of Pauli matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator">QubitOperator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.verbose" title="Link to this definition"></a></dt>
+<dd><p>Flag for iQPE verbosity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.projective_circuit">
+<span class="sig-name descname"><span class="pre">projective_circuit</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.projective_circuit" title="Link to this definition"></a></dt>
+<dd><p>A terminal circuit that projects into the correct space, always added to
+the end of the unitary circuit. Could be measurement gates for example</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.ref_state">
+<span class="sig-name descname"><span class="pre">ref_state</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.ref_state" title="Link to this definition"></a></dt>
+<dd><p>The reference configuration to use. Replaces HF state</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array or <a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.size_qpe_register">
+<span class="sig-name descname"><span class="pre">size_qpe_register</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.size_qpe_register" title="Link to this definition"></a></dt>
+<dd><p>The number of iterations of single qubit iQPE to use for the calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.build" title="Link to this definition"></a></dt>
+<dd><p>Build the underlying objects required to run the iQPE algorithm
+afterwards.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.energy_estimation">
+<span class="sig-name descname"><span class="pre">energy_estimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bitstring</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.energy_estimation" title="Link to this definition"></a></dt>
+<dd><p>Estimate energy using the calculated frequency dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bitstring</strong> (<em>str</em>) – The bitstring to evaluate the energy of in base 2.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – Energy of the given bitstring</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.get_resources" title="Link to this definition"></a></dt>
+<dd><p>Estimate the resources required by iQPE, with the current unitary. This
+assumes “build” has been run, as it requires the circuit and the
+qubit Hamiltonian. Return information that pertains to the user, for the
+purpose of running an experiment on a classical simulator or a quantum
+device.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.simulate" title="Link to this definition"></a></dt>
+<dd><p>Run the iQPE circuit. Return the energy of the most probable bitstring</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.bitstring">
+<span class="sig-name descname"><span class="pre">bitstring</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.bitstring" title="Link to this definition"></a></dt>
+<dd><p>The most probable bitstring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.histogram">
+<span class="sig-name descname"><span class="pre">histogram</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.histogram" title="Link to this definition"></a></dt>
+<dd><p>The full Histogram of measurements on the iQPE ancilla qubit representing energies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.post_processing.html#tangelo.toolboxes.post_processing.histogram.Histogram" title="tangelo.toolboxes.post_processing.histogram.Histogram">Histogram</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.qpe_freqs">
+<span class="sig-name descname"><span class="pre">qpe_freqs</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.qpe_freqs" title="Link to this definition"></a></dt>
+<dd><p>The dictionary of measurements on the iQPE ancilla qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.iqpe.IterativeQPESolver.freqs">
+<span class="sig-name descname"><span class="pre">freqs</span></span><a class="headerlink" href="#tangelo.algorithms.projective.iqpe.IterativeQPESolver.freqs" title="Link to this definition"></a></dt>
+<dd><p>The full dictionary of measurements on all qubits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>float</strong> – The energy of the most probable bitstring measured during iQPE.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms.projective.qpe">
+<span id="tangelo-algorithms-projective-qpe-module"></span><h2>tangelo.algorithms.projective.qpe module<a class="headerlink" href="#module-tangelo.algorithms.projective.qpe" title="Link to this heading"></a></h2>
+<p>Implements the Quantum Phase Estimation (QPE) algorithm to solve
+electronic structure calculations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.BuiltInUnitary">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.projective.qpe.</span></span><span class="sig-name descname"><span class="pre">BuiltInUnitary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.BuiltInUnitary" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumeration of the ansatz circuits supported by QPE.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.BuiltInUnitary.CircuitUnitary">
+<span class="sig-name descname"><span class="pre">CircuitUnitary</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.unitary_generator.unitary_circuit.CircuitUnitary'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.projective.qpe.BuiltInUnitary.CircuitUnitary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.BuiltInUnitary.TrotterSuzuki">
+<span class="sig-name descname"><span class="pre">TrotterSuzuki</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.unitary_generator.trotter_suzuki.TrotterSuzukiUnitary'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.projective.qpe.BuiltInUnitary.TrotterSuzuki" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.projective.qpe.</span></span><span class="sig-name descname"><span class="pre">QPESolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Solve the electronic structure problem for a molecular system by using
+the Quantum Phase Estimation (QPE) algorithm.</p>
+<p>This algorithm evaluates the energy of a molecular system by performing
+a series of controlled time-evolutions</p>
+<p>Users must first set the desired options of the QPESolver object through the
+__init__ method, and call the “build” method to build the underlying objects
+(mean-field, hardware backend, unitary…). They are then able to call the
+the simulate method. In particular, simulate
+runs the QPE algorithm, returning the optimal energy found by the most probable
+measurement as a binary fraction.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.molecule" title="Link to this definition"></a></dt>
+<dd><p>The molecular system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.qubit_mapping">
+<span class="sig-name descname"><span class="pre">qubit_mapping</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>one of the supported qubit mapping identifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.unitary">
+<span class="sig-name descname"><span class="pre">unitary</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.unitary" title="Link to this definition"></a></dt>
+<dd><p>one of the supported unitary evolutions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.unitary_generator.html#tangelo.toolboxes.unitary_generator.unitary.Unitary" title="tangelo.toolboxes.unitary_generator.unitary.Unitary">Unitary</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.backend_options">
+<span class="sig-name descname"><span class="pre">backend_options</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.backend_options" title="Link to this definition"></a></dt>
+<dd><p>parameters to build the underlying compute backend (simulator, etc).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.simulate_options">
+<span class="sig-name descname"><span class="pre">simulate_options</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.simulate_options" title="Link to this definition"></a></dt>
+<dd><p>Options for fine-control of the simulator backend, including desired measurement results, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.penalty_terms">
+<span class="sig-name descname"><span class="pre">penalty_terms</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.penalty_terms" title="Link to this definition"></a></dt>
+<dd><p>parameters for penalty terms to append to target
+qubit Hamiltonian (see penalty_terms for more details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.unitary_options">
+<span class="sig-name descname"><span class="pre">unitary_options</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.unitary_options" title="Link to this definition"></a></dt>
+<dd><p>parameters for the given ansatz (see given ansatz
+file for details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>change basis ordering putting all spin up orbitals
+first, followed by all spin down. Default, False has alternating</p>
+<blockquote>
+<div><p>spin up/down ordering.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.qubit_hamiltonian">
+<span class="sig-name descname"><span class="pre">qubit_hamiltonian</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.qubit_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QubitOperator-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.verbose" title="Link to this definition"></a></dt>
+<dd><p>Flag for QPE verbosity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.projective_circuit">
+<span class="sig-name descname"><span class="pre">projective_circuit</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.projective_circuit" title="Link to this definition"></a></dt>
+<dd><p>A terminal circuit that projects into the correct space, always added to
+the end of the unitary circuit. Could be measurement gates for example</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.ref_state">
+<span class="sig-name descname"><span class="pre">ref_state</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.ref_state" title="Link to this definition"></a></dt>
+<dd><p>The reference configuration to use. Replaces HF state</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array or <a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.size_qpe_register">
+<span class="sig-name descname"><span class="pre">size_qpe_register</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.size_qpe_register" title="Link to this definition"></a></dt>
+<dd><p>The number of qubits to use for the qpe register</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.build" title="Link to this definition"></a></dt>
+<dd><p>Build the underlying objects required to run the QPE algorithm
+afterwards.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.energy_estimation">
+<span class="sig-name descname"><span class="pre">energy_estimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bitstring</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.energy_estimation" title="Link to this definition"></a></dt>
+<dd><p>Estimate energy using the calculated frequency dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bitstring</strong> (<em>str</em>) – The bitstring to evaluate the energy of in base 10.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – Energy of the given bitstring</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.get_resources" title="Link to this definition"></a></dt>
+<dd><p>Estimate the resources required by QPE, with the current unitary. This
+assumes “build” has been run, as it requires the circuit and the
+qubit Hamiltonian. Return information that pertains to the user, for the
+purpose of running an experiment on a classical simulator or a quantum
+device.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.simulate" title="Link to this definition"></a></dt>
+<dd><p>Run the QPE circuit. Return the energy of the most probable bitstring</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.bitstring">
+<span class="sig-name descname"><span class="pre">bitstring</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.bitstring" title="Link to this definition"></a></dt>
+<dd><p>The most probable bitstring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.histogram">
+<span class="sig-name descname"><span class="pre">histogram</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.histogram" title="Link to this definition"></a></dt>
+<dd><p>The full Histogram of measurements on the QPE ancilla qubits representing energies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.post_processing.html#tangelo.toolboxes.post_processing.histogram.Histogram" title="tangelo.toolboxes.post_processing.histogram.Histogram">Histogram</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.qpe_freqs">
+<span class="sig-name descname"><span class="pre">qpe_freqs</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.qpe_freqs" title="Link to this definition"></a></dt>
+<dd><p>The dictionary of measurements on the QPE ancilla qubits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.qpe.QPESolver.freqs">
+<span class="sig-name descname"><span class="pre">freqs</span></span><a class="headerlink" href="#tangelo.algorithms.projective.qpe.QPESolver.freqs" title="Link to this definition"></a></dt>
+<dd><p>The full dictionary of measurements on all qubits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms.projective.quantum_imaginary_time">
+<span id="tangelo-algorithms-projective-quantum-imaginary-time-module"></span><h2>tangelo.algorithms.projective.quantum_imaginary_time module<a class="headerlink" href="#module-tangelo.algorithms.projective.quantum_imaginary_time" title="Link to this heading"></a></h2>
+<p>Module that defines the Quantum Imaginary Time Algorithm (QITE)</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.projective.quantum_imaginary_time.</span></span><span class="sig-name descname"><span class="pre">QITESolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>QITE class. This is an iterative algorithm that obtains a unitary operator
+that approximates the imaginary time evolution of an initial state.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.molecule" title="Link to this definition"></a></dt>
+<dd><p>The molecular system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.dt">
+<span class="sig-name descname"><span class="pre">dt</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.dt" title="Link to this definition"></a></dt>
+<dd><p>The imaginary time step size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.min_de">
+<span class="sig-name descname"><span class="pre">min_de</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.min_de" title="Link to this definition"></a></dt>
+<dd><p>Maximum energy change allowed before convergence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.max_cycles">
+<span class="sig-name descname"><span class="pre">max_cycles</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.max_cycles" title="Link to this definition"></a></dt>
+<dd><p>Maximum number of iterations of QITE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.pool">
+<span class="sig-name descname"><span class="pre">pool</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.pool" title="Link to this definition"></a></dt>
+<dd><p>Function that returns a list of FermionOperator. Each
+element represents an excitation/operator that has an effect on the
+total energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>func</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.pool_args">
+<span class="sig-name descname"><span class="pre">pool_args</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.pool_args" title="Link to this definition"></a></dt>
+<dd><p>The arguments for the pool function given as a
+tuple.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.qubit_mapping">
+<span class="sig-name descname"><span class="pre">qubit_mapping</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>One of the supported qubit mapping identifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.qubit_hamiltonian">
+<span class="sig-name descname"><span class="pre">qubit_hamiltonian</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.qubit_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QubitOperator-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>Spin orbitals ordering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.n_spinorbitals">
+<span class="sig-name descname"><span class="pre">n_spinorbitals</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.n_spinorbitals" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.n_electrons">
+<span class="sig-name descname"><span class="pre">n_electrons</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.n_electrons" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.backend_options">
+<span class="sig-name descname"><span class="pre">backend_options</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.backend_options" title="Link to this definition"></a></dt>
+<dd><p>Backend options for the underlying QITE propagation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.verbose" title="Link to this definition"></a></dt>
+<dd><p>Flag for verbosity of QITE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.build" title="Link to this definition"></a></dt>
+<dd><p>Builds the underlying objects required to run the QITE algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.calculate_matrices">
+<span class="sig-name descname"><span class="pre">calculate_matrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_energy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.calculate_matrices" title="Link to this definition"></a></dt>
+<dd><p>Calculated matrix elements for imaginary time evolution.
+The matrices are defined in section 3.5 of <a class="reference external" href="https://arxiv.org/pdf/2108.04413.pdf">https://arxiv.org/pdf/2108.04413.pdf</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>backend</strong> (<a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><em>Backend</em></a>) – the backend from which the matrices are generated</p></li>
+<li><p><strong>new_energy</strong> (<em>float</em>) – the current energy_expectation of the Hamiltonian</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>matrix float</strong> – The expectation values &lt;psi| pu^+ pv <a href="#id1"><span class="problematic" id="id2">|</span></a>psi&gt;</p></li>
+<li><p><strong>array float</strong> – The expectation values &lt;psi| pu^+ H <a href="#id3"><span class="problematic" id="id4">|</span></a>psi&gt;</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.energy_expectation">
+<span class="sig-name descname"><span class="pre">energy_expectation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.energy_expectation" title="Link to this definition"></a></dt>
+<dd><p>Estimate energy using the self.final_circuit, qubit hamiltonian and compute
+backend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><em>Backend</em></a>) – the backend one computes the energy expectation with</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – energy computed by the backend</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.get_resources" title="Link to this definition"></a></dt>
+<dd><p>Returns resources currently used in underlying state preparation i.e. self.final_circuit
+the number of pool operators, and the size of qubit_hamiltonian</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dict</strong> – Dictionary of various quantum resources required</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.prepare_reference_state">
+<span class="sig-name descname"><span class="pre">prepare_reference_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.prepare_reference_state" title="Link to this definition"></a></dt>
+<dd><p>Returns circuit preparing the reference state of the ansatz (e.g
+prepare reference wavefunction with HF, multi-reference state, etc).
+These preparations must be consistent with the transform used to obtain
+the qubit operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.simulate" title="Link to this definition"></a></dt>
+<dd><p>Performs the QITE cycles. Each iteration, a linear system is
+solved to obtain the next unitary. The system to be solved can be found in
+section 3.5 of <a class="reference external" href="https://arxiv.org/pdf/2108.04413.pdf">https://arxiv.org/pdf/2108.04413.pdf</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>float</strong> – final energy after obtaining running QITE</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.update_statevector">
+<span class="sig-name descname"><span class="pre">update_statevector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.update_statevector" title="Link to this definition"></a></dt>
+<dd><p>Update self.final_statevector by propagating with next_circuit using backend</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>backend</strong> (<a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><em>Backend</em></a>) – the backend to use for the statevector update</p></li>
+<li><p><strong>next_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – The circuit to apply to the statevector</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms.projective">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.algorithms.projective" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.algorithms.classical.html" class="btn btn-neutral float-left" title="tangelo.algorithms.classical package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.algorithms.variational.html" class="btn btn-neutral float-right" title="tangelo.algorithms.variational package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

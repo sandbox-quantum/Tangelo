@@ -1,0 +1,61 @@
+tangelo.toolboxes.operators package
+===================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.toolboxes.operators.tests
+
+Submodules
+----------
+
+tangelo.toolboxes.operators.multiformoperator module
+----------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.operators.multiformoperator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.operators.operators module
+--------------------------------------------
+
+.. automodule:: tangelo.toolboxes.operators.operators
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.operators.taper\_qubits module
+------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.operators.taper_qubits
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.operators.trim\_trivial\_qubits module
+--------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.operators.trim_trivial_qubits
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.operators.z2\_tapering module
+-----------------------------------------------
+
+.. automodule:: tangelo.toolboxes.operators.z2_tapering
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.toolboxes.operators
+   :members:
+   :undoc-members:
+   :show-inheritance:

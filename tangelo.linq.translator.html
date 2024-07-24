@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.linq.translator package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.problem_decomposition package" href="tangelo.problem_decomposition.html" />
+    <link rel="prev" title="tangelo.linq.target package" href="tangelo.linq.target.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.linq.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.circuit">tangelo.linq.circuit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.gate">tangelo.linq.gate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.qdk_template">tangelo.linq.qdk_template module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.simulator">tangelo.linq.simulator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.linq.html">tangelo.linq package</a></li>
+      <li class="breadcrumb-item active">tangelo.linq.translator package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.linq.translator.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-linq-translator-package">
+<h1>tangelo.linq.translator package<a class="headerlink" href="#tangelo-linq-translator-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.linq.translator.qdk_template">
+<span id="tangelo-linq-translator-qdk-template-module"></span><h2>tangelo.linq.translator.qdk_template module<a class="headerlink" href="#module-tangelo.linq.translator.qdk_template" title="Link to this heading"></a></h2>
+<p>This python module stores template Q# strings that can be used to have Q# code files ready
+to be shared with collaborators, submitted to a remote compute backend through Microsoft services
+or compiled by the local QDK simulator.</p>
+</section>
+<section id="module-tangelo.linq.translator.translate_braket">
+<span id="tangelo-linq-translator-translate-braket-module"></span><h2>tangelo.linq.translator.translate_braket module<a class="headerlink" href="#module-tangelo.linq.translator.translate_braket" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract
+format and Braket format</p>
+<p>In order to produce an equivalent circuit for the target backend, it is necessary
+to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_braket.get_braket_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_braket.</span></span><span class="sig-name descname"><span class="pre">get_braket_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_braket.get_braket_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent methods of the
+braket.circuits.Circuit class API and supported gates:
+<a class="reference external" href="https://amazon-braket-sdk-python.readthedocs.io/en/latest/_apidoc/braket.circuits.circuit.html">https://amazon-braket-sdk-python.readthedocs.io/en/latest/_apidoc/braket.circuits.circuit.html</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_braket.translate_c_from_braket">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_braket.</span></span><span class="sig-name descname"><span class="pre">translate_c_from_braket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_braket.translate_c_from_braket" title="Link to this definition"></a></dt>
+<dd><p>Take in a quantum circuit object as defined in the Python Braket SDK,
+return an abstract circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_circuit</strong> (<em>braket.circuits.Circuit</em>) – quantum circuit in Python
+Braket SDK format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – quantum circuit in the abstract format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_braket.translate_c_to_braket">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_braket.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_braket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_braket.translate_c_to_braket" title="Link to this definition"></a></dt>
+<dd><p>Take in an abstract circuit, return a quantum circuit object as defined
+in the Python Braket SDK.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_circuit</strong> – quantum circuit in the abstract format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>braket.circuits.Circuit</strong> – quantum circuit in Python Braket SDK format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_circuit">
+<span id="tangelo-linq-translator-translate-circuit-module"></span><h2>tangelo.linq.translator.translate_circuit module<a class="headerlink" href="#module-tangelo.linq.translator.translate_circuit" title="Link to this heading"></a></h2>
+<p>Module to convert quantum circuits to different formats.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_circuit.translate_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_circuit.</span></span><span class="sig-name descname"><span class="pre">translate_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tangelo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_circuit.translate_circuit" title="Link to this definition"></a></dt>
+<dd><p>Function to convert a quantum circuit defined within the “source” format
+to a “target” format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circuit</strong> (<em>source format</em>) – Self-explanatory.</p></li>
+<li><p><strong>target</strong> (<em>string</em>) – Identifier for the target format.</p></li>
+<li><p><strong>source</strong> (<em>string</em>) – Identifier for the source format.</p></li>
+<li><p><strong>output_options</strong> (<em>dict</em>) – Backend specific options (e.g. a noise model,
+number of qubits, etc.).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(circuit in target format)</strong> – Translated quantum circuit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_cirq">
+<span id="tangelo-linq-translator-translate-cirq-module"></span><h2>tangelo.linq.translator.translate_cirq module<a class="headerlink" href="#module-tangelo.linq.translator.translate_cirq" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract
+format and circ format.</p>
+<p>In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_cirq.get_cirq_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_cirq.</span></span><span class="sig-name descname"><span class="pre">get_cirq_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_cirq.get_cirq_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent methods of the
+cirq class API and supported gates: <a class="reference external" href="https://quantumai.google/cirq/gates">https://quantumai.google/cirq/gates</a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_cirq.translate_c_to_cirq">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_cirq.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_cirq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_measurements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_cirq.translate_c_to_cirq" title="Link to this definition"></a></dt>
+<dd><p>Take in an abstract circuit, return an equivalent cirq QuantumCircuit
+object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – quantum circuit in the abstract format.</p></li>
+<li><p><strong>noise_model</strong> (<a class="reference internal" href="tangelo.linq.noisy_simulation.html#tangelo.linq.noisy_simulation.noise_models.NoiseModel" title="tangelo.linq.noisy_simulation.noise_models.NoiseModel"><em>NoiseModel</em></a>) – The noise model to use</p></li>
+<li><p><strong>save_measurements</strong> (<em>bool</em>) – If True, all measurements in the circuit are saved
+with the key ‘n’ for the nth measurement in the Circuit. If False, no
+measurements are saved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cirq.Circuit</strong> – a corresponding cirq Circuit. Right now, the structure is
+of LineQubit. It is possible in the future that we may support
+NamedQubit or GridQubit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_cirq.translate_op_from_cirq">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_cirq.</span></span><span class="sig-name descname"><span class="pre">translate_op_from_cirq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_cirq.translate_op_from_cirq" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate a cirq linear combination of Pauli strings
+to a Tangelo QubitOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_operator</strong> (<em>cirq.ops.linear_combinations.PauliSum</em>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(tangelo.toolboxes.operators.QubitOperator)</strong> – Tangelo qubit operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_cirq.translate_op_to_cirq">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_cirq.</span></span><span class="sig-name descname"><span class="pre">translate_op_to_cirq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_cirq.translate_op_to_cirq" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate a Tangelo QubitOperator to a cirq linear
+combination of Pauli strings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_operator</strong> (<em>tangelo.toolboxes.operators.QubitOperator</em>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(cirq.ops.linear_combinations.PauliSum)</strong> – Cirq summation of Pauli strings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_json_ionq">
+<span id="tangelo-linq-translator-translate-json-ionq-module"></span><h2>tangelo.linq.translator.translate_json_ionq module<a class="headerlink" href="#module-tangelo.linq.translator.translate_json_ionq" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract
+format and ionq format.</p>
+<p>In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_json_ionq.get_ionq_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_json_ionq.</span></span><span class="sig-name descname"><span class="pre">get_ionq_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_json_ionq.get_ionq_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent gate name used in
+the json IonQ format. For more information:
+- <a class="reference external" href="https://dewdrop.ionq.co/">https://dewdrop.ionq.co/</a>
+- <a class="reference external" href="https://docs.ionq.co">https://docs.ionq.co</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_json_ionq.translate_c_from_json_ionq">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_json_ionq.</span></span><span class="sig-name descname"><span class="pre">translate_c_from_json_ionq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_json_ionq.translate_c_from_json_ionq" title="Link to this definition"></a></dt>
+<dd><p>Take in a dictionary following the IonQ JSON format as described below,
+return an equivalent Tangelo Circuit.
+<a class="reference external" href="https://dewdrop.ionq.co/#json-specification">https://dewdrop.ionq.co/#json-specification</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_circuit</strong> (<em>dict</em>) – representation of the quantum circuit following
+the IonQ JSON format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – the corresponding quantum Circuit in Tangelo format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_json_ionq.translate_c_to_json_ionq">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_json_ionq.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_json_ionq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_json_ionq.translate_c_to_json_ionq" title="Link to this definition"></a></dt>
+<dd><p>Take in an abstract circuit, return a dictionary following the IonQ JSON
+format as described below.
+<a class="reference external" href="https://dewdrop.ionq.co/#json-specification">https://dewdrop.ionq.co/#json-specification</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_circuit</strong> – quantum circuit in the abstract format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – representation of the quantum circuit following the IonQ JSON
+format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_openqasm">
+<span id="tangelo-linq-translator-translate-openqasm-module"></span><h2>tangelo.linq.translator.translate_openqasm module<a class="headerlink" href="#module-tangelo.linq.translator.translate_openqasm" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract
+format and a subset of the openqasm format (the format generated by IBM openqasm
+functionalities in qiskit).</p>
+<p>In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_openqasm.get_openqasm_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_openqasm.</span></span><span class="sig-name descname"><span class="pre">get_openqasm_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_openqasm.get_openqasm_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent gate name used in
+OpenQASM. OpenQASM is a general format that allows users to express a quantum
+program, define conditional operations manipulating quantum and qubit
+registers, as well as defining new quantum unitaries. We however make the
+choice here to support well-known gate operations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_openqasm.translate_c_from_openqasm">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_openqasm.</span></span><span class="sig-name descname"><span class="pre">translate_c_from_openqasm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">openqasm_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_openqasm.translate_c_from_openqasm" title="Link to this definition"></a></dt>
+<dd><p>Take an OpenQASM 2.0 string as input (as defined by IBM Qiskit), return
+the equivalent abstract circuit. Only a subset of OpenQASM supported, mostly
+to be able to go back and forth QASM and abstract representations to
+leverage tools and innovation implemented to work in the QASM format. Not
+designed to support elaborate QASM programs defining their own operations.
+Compatible with qiskit.QuantumCircuit.from_qasm method.</p>
+<p>Assumes single-qubit measurement instructions only. Final qubit register
+measurement is implicit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>openqasm_string</strong> (<em>str</em>) – an OpenQASM program, as a string, as defined by
+IBM Qiskit.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – corresponding quantum circuit in the abstract format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_openqasm.translate_c_to_openqasm">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_openqasm.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_openqasm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_openqasm.translate_c_to_openqasm" title="Link to this definition"></a></dt>
+<dd><p>Take in an abstract circuit, return a OpenQASM 2.0 string using IBM
+Qiskit (they are the reference for OpenQASM).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_circuit</strong> – quantum circuit in the abstract format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>str</strong> – the corresponding OpenQASM program, as per IBM Qiskit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_pennylane">
+<span id="tangelo-linq-translator-translate-pennylane-module"></span><h2>tangelo.linq.translator.translate_pennylane module<a class="headerlink" href="#module-tangelo.linq.translator.translate_pennylane" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract
+format and pennylane format.</p>
+<p>In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_pennylane.get_pennylane_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_pennylane.</span></span><span class="sig-name descname"><span class="pre">get_pennylane_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_pennylane.get_pennylane_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent methods of the
+pennylane class API and supported gates:https://docs.pennylane.ai/en/stable/code/qml.html#classes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_pennylane.translate_c_to_pennylane">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_pennylane.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_pennylane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_pennylane.translate_c_to_pennylane" title="Link to this definition"></a></dt>
+<dd><p>Take in an tangelo Circuit, return an equivalent pennylane List[subclass of pennylane.operator.Operation].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – quantum circuit in the abstract format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>List[Type[pennylane.operator.Operation]]</strong> – corresponding list of objects from child classes of pennylane.operator.Operation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_pennylane.translate_op_from_pennylane">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_pennylane.</span></span><span class="sig-name descname"><span class="pre">translate_op_from_pennylane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_pennylane.translate_op_from_pennylane" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate pennylane Hamiltonian (only real
+coefficients) to a Tangelo QubitOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_operator</strong> (<em>pennylane.ops.qubit.hamiltonian.Hamiltonian</em>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(tangelo.toolboxes.operators.QubitOperator)</strong> – Tangelo qubit operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_pennylane.translate_op_to_pennylane">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_pennylane.</span></span><span class="sig-name descname"><span class="pre">translate_op_to_pennylane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_pennylane.translate_op_to_pennylane" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate a Tangelo QubitOperator to a pennylane
+Hamiltonian operator. For the pennylane package, all the coefficients must
+be real.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_operator</strong> (<em>tangelo.toolboxes.operators.QubitOperator</em>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(pennylane.ops.qubit.hamiltonian.Hamiltonian)</strong> – Pennylane Hamiltonian.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_projectq">
+<span id="tangelo-linq-translator-translate-projectq-module"></span><h2>tangelo.linq.translator.translate_projectq module<a class="headerlink" href="#module-tangelo.linq.translator.translate_projectq" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract
+format and projectq format</p>
+<p>In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_projectq.get_projectq_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_projectq.</span></span><span class="sig-name descname"><span class="pre">get_projectq_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_projectq.get_projectq_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent gate name used in
+projectq API and supported gates:
+<a class="reference external" href="https://projectq.readthedocs.io/en/latest/projectq.ops.html">https://projectq.readthedocs.io/en/latest/projectq.ops.html</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_projectq.translate_c_from_projectq">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_projectq.</span></span><span class="sig-name descname"><span class="pre">translate_c_from_projectq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">projectq_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_projectq.translate_c_from_projectq" title="Link to this definition"></a></dt>
+<dd><p>Convenience function to help people move away from their ProjectQ
+workflow. Take ProjectQ instructions, expressed as a string, similar to one
+from the ProjectQ <cite>CommandPrinter</cite> engine. Will bundle all qubit allocation
+(resp. deallocation) at the beginning (resp. end) of the circuit. Example
+available in the <cite>examples</cite> folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>projectq_str</strong> (<em>str</em>) – ProjectQ program, as a string (Allocate, Deallocate,
+gate operations…).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – corresponding quantum circuit in the abstract format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_projectq.translate_c_to_projectq">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_projectq.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_projectq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_projectq.translate_c_to_projectq" title="Link to this definition"></a></dt>
+<dd><p>Take in an abstract circuit, return a string containing equivalent
+projectq instructions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_circuit</strong> – quantum circuit in the abstract format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>str</strong> – the corresponding projectq instructions (allocation , gates,
+deallocation).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_projectq.translate_op_from_projectq">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_projectq.</span></span><span class="sig-name descname"><span class="pre">translate_op_from_projectq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_projectq.translate_op_from_projectq" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate projectq qubit operator to a Tangelo
+QubitOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_operator</strong> (<em>projectq.ops.QubitOperator</em>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(tangelo.toolboxes.operators.QubitOperator)</strong> – Tangelo qubit operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_projectq.translate_op_to_projectq">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_projectq.</span></span><span class="sig-name descname"><span class="pre">translate_op_to_projectq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_projectq.translate_op_to_projectq" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate a Tangelo QubitOperator to a projectq qubit
+operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_operator</strong> (<em>tangelo.toolboxes.operators.QubitOperator</em>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(projectq.ops.QubitOperator)</strong> – ProjectQ QubitOperator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_qdk">
+<span id="tangelo-linq-translator-translate-qdk-module"></span><h2>tangelo.linq.translator.translate_qdk module<a class="headerlink" href="#module-tangelo.linq.translator.translate_qdk" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract
+format and qdk/qsharp format.</p>
+<p>In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qdk.get_qdk_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qdk.</span></span><span class="sig-name descname"><span class="pre">get_qdk_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qdk.get_qdk_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent gate name used in
+Q# operations API and supported gates:
+<a class="reference external" href="https://docs.microsoft.com/en-us/qsharp/api/qsharp/microsoft.quantum.intrinsic">https://docs.microsoft.com/en-us/qsharp/api/qsharp/microsoft.quantum.intrinsic</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qdk.translate_c_to_qsharp">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qdk.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_qsharp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MyQsharpOperation'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_measurements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qdk.translate_c_to_qsharp" title="Link to this definition"></a></dt>
+<dd><p>Take in an abstract circuit, generate the corresponding Q# operation
+(state prep + measurement) string, in the appropriate Q# template. The Q#
+output can be written to file and will be compiled at runtime.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> – quantum circuit in the abstract format.</p></li>
+<li><p><strong>operation</strong> (<em>str</em>) – name of the Q# operation.</p></li>
+<li><p><strong>save_measurements</strong> (<em>bool</em>) – True, return all mid-circuit measurement results.
+This returns a frequency vector that is of size 2^(n_meas+n_qubits). False,
+all measurements are overwritten.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>str</strong> – The Q# code (operation + template). This needs to be written into a
+.qs file, and compiled at runtime.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_qiskit">
+<span id="tangelo-linq-translator-translate-qiskit-module"></span><h2>tangelo.linq.translator.translate_qiskit module<a class="headerlink" href="#module-tangelo.linq.translator.translate_qiskit" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit and operator format conversion between
+Tangelo format and qiskit format.</p>
+<p>In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<p>The module also enables bidirectional conversion between qiskit and Tangelo
+qubit operators (linear combination of Pauli operators)</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qiskit.get_qiskit_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qiskit.</span></span><span class="sig-name descname"><span class="pre">get_qiskit_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qiskit.get_qiskit_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the Tangelo format to the equivalent add_gate method of
+Qiskit’s QuantumCircuit class API and supported gates:
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html">https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qiskit.translate_c_from_qiskit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qiskit.</span></span><span class="sig-name descname"><span class="pre">translate_c_from_qiskit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qiskit.translate_c_from_qiskit" title="Link to this definition"></a></dt>
+<dd><p>Take in a qiskit.QuantumCircuit, return an equivalent Tangelo Circuit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_circuit</strong> (<em>qiskit.QuantumCircuit</em>) – quantum circuit in the qiskit.QuantumCircuit format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – the corresponding quantum Circuit in Tangelo format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qiskit.translate_c_to_qiskit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qiskit.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_qiskit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_measurements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_classical_register</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qiskit.translate_c_to_qiskit" title="Link to this definition"></a></dt>
+<dd><p>Take in a Circuit, return an equivalent qiskit.QuantumCircuit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – quantum circuit in the abstract format.</p></li>
+<li><p><strong>save_measurements</strong> (<em>bool</em>) – Return mid-circuit measurements in the order
+they appear in the circuit in the classical registers</p></li>
+<li><p><strong>no_classical_register</strong> (<em>bool</em>) – do not create classical register in circuit (default: False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>qiskit.QuantumCircuit</strong> – the corresponding qiskit.QuantumCircuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qiskit.translate_op_from_qiskit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qiskit.</span></span><span class="sig-name descname"><span class="pre">translate_op_from_qiskit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qiskit.translate_op_from_qiskit" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate a qiskit SparsePauliOp to a Tangelo
+QubitOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_operator</strong> (<em>qiskit.quantum_info.operators.SparsePauliOp</em>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(tangelo.toolboxes.operators.QubitOperator)</strong> – Tangelo qubit operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qiskit.translate_op_to_qiskit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qiskit.</span></span><span class="sig-name descname"><span class="pre">translate_op_to_qiskit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qiskit.translate_op_to_qiskit" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate a Tangelo QubitOperator to a qiskit
+SparsePauliOp. Qiskit must be installed for the function to work.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<em>tangelo.toolboxes.operators.QubitOperator</em>) – Self-explanatory.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – Number of qubits relevant to the operator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(qiskit.quantum_info.operators.SparsePauliOp)</strong> – Qiskit qubit operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_qubitop">
+<span id="tangelo-linq-translator-translate-qubitop-module"></span><h2>tangelo.linq.translator.translate_qubitop module<a class="headerlink" href="#module-tangelo.linq.translator.translate_qubitop" title="Link to this heading"></a></h2>
+<p>Module to convert qubit operators to different formats.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qubitop.translate_operator">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qubitop.</span></span><span class="sig-name descname"><span class="pre">translate_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qubitop.translate_operator" title="Link to this definition"></a></dt>
+<dd><p>Function to convert a qubit operator defined within the “source” format
+to a “target” format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<em>source format</em>) – Self-explanatory.</p></li>
+<li><p><strong>source</strong> (<em>string</em>) – Identifier for the source format.</p></li>
+<li><p><strong>target</strong> (<em>string</em>) – Identifier for the target format.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – Number of qubits relevant to the operator. Not used by
+all format conversion functions, will be computed automatically if
+not specified.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(operator in target format)</strong> – Translated qubit operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_qulacs">
+<span id="tangelo-linq-translator-translate-qulacs-module"></span><h2>tangelo.linq.translator.translate_qulacs module<a class="headerlink" href="#module-tangelo.linq.translator.translate_qulacs" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract
+format and qulacs format.</p>
+<p>In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qulacs.get_qulacs_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qulacs.</span></span><span class="sig-name descname"><span class="pre">get_qulacs_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qulacs.get_qulacs_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent add_gate method of
+Qulacs’s QuantumCircuit class API and supported gates:
+<a class="reference external" href="http://qulacs.org/class_quantum_circuit.html">http://qulacs.org/class_quantum_circuit.html</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qulacs.translate_c_to_qulacs">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qulacs.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_qulacs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_measurements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qulacs.translate_c_to_qulacs" title="Link to this definition"></a></dt>
+<dd><p>Take in an abstract circuit, return an equivalent qulacs QuantumCircuit
+instance. If provided with a noise model, will add noisy gates at
+translation. Not very useful to look at, as qulacs does not provide much
+information about the noisy gates added when printing the “noisy circuit”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – quantum circuit in the abstract format.</p></li>
+<li><p><strong>noise_model</strong> (<a class="reference internal" href="tangelo.linq.noisy_simulation.html#tangelo.linq.noisy_simulation.noise_models.NoiseModel" title="tangelo.linq.noisy_simulation.noise_models.NoiseModel"><em>NoiseModel</em></a>) – A NoiseModel object from this package, located in the
+noisy_simulation subpackage.</p></li>
+<li><p><strong>save_measurements</strong> (<em>bool</em>) – If True, each nth measurement in the circuit is saved in
+the nth classical register. Otherwise, each measurement overwrites
+the first classical register.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>qulacs.QuantumCircuit</strong> – the corresponding qulacs quantum circuit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qulacs.translate_op_from_qulacs">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qulacs.</span></span><span class="sig-name descname"><span class="pre">translate_op_from_qulacs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qulacs.translate_op_from_qulacs" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate a qulacs general quantum operator to a
+Tangelo QubitOperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_operator</strong> (<em>qulacs_core.GeneralQuantumOperator</em>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(tangelo.toolboxes.operators.QubitOperator)</strong> – Tangelo qubit operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_qulacs.translate_op_to_qulacs">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_qulacs.</span></span><span class="sig-name descname"><span class="pre">translate_op_to_qulacs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_qulacs.translate_op_to_qulacs" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate a Tangelo QubitOperator to a qulacs general
+quantum operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_operator</strong> (<em>tangelo.toolboxes.operators.QubitOperator</em>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(qulacs_core.GeneralQuantumOperator)</strong> – Qulacs quantum operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_stim">
+<span id="tangelo-linq-translator-translate-stim-module"></span><h2>tangelo.linq.translator.translate_stim module<a class="headerlink" href="#module-tangelo.linq.translator.translate_stim" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit and operator format conversion between
+Tangelo format and stim format.</p>
+<p>In order to produce an equivalent circuit for the target backend, it is
+necessary to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_stim.get_stim_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_stim.</span></span><span class="sig-name descname"><span class="pre">get_stim_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_stim.get_stim_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the Tangelo format to the equivalent add_gate method of
+Stim’s CircuitInstruction class API and supported gates:
+<a class="reference external" href="https://github.com/quantumlib/Stim/blob/main/doc/gates.md">https://github.com/quantumlib/Stim/blob/main/doc/gates.md</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_stim.translate_c_to_stim">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_stim.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_stim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_stim.translate_c_to_stim" title="Link to this definition"></a></dt>
+<dd><p>Take in an abstract circuit, return an equivalent stim QuantumCircuit
+instance. If provided with a noise model, will add noisy gates at
+translation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – quantum circuit in the abstract format.</p></li>
+<li><p><strong>noise_model</strong> (<a class="reference internal" href="tangelo.linq.noisy_simulation.html#tangelo.linq.noisy_simulation.noise_models.NoiseModel" title="tangelo.linq.noisy_simulation.noise_models.NoiseModel"><em>NoiseModel</em></a>) – The noise model to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>stim.Circuit</strong> – the corresponding stim quantum circuit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_stim.translate_tableau">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_stim.</span></span><span class="sig-name descname"><span class="pre">translate_tableau</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_stim.translate_tableau" title="Link to this definition"></a></dt>
+<dd><p>Take in an abstract circuit and build it directly into a stim TableauSimulator
+instance. For noiseless expectations values, this method is faster than translating
+into a stim circuit object first and then building it into the stim TableauSimulator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – quantum circuit in the abstract format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>stim.TableauSimulator</strong> – the corresponding Tableau Simulator</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator.translate_sympy">
+<span id="tangelo-linq-translator-translate-sympy-module"></span><h2>tangelo.linq.translator.translate_sympy module<a class="headerlink" href="#module-tangelo.linq.translator.translate_sympy" title="Link to this heading"></a></h2>
+<p>Functions helping with quantum circuit format conversion between abstract
+format and SYMPY format</p>
+<p>In order to produce an equivalent circuit for the target backend, it is necessary
+to account for:
+- how the gate names differ between the source backend to the target backend.
+- how the order and conventions for some of the inputs to the gate operations</p>
+<blockquote>
+<div><p>may also differ.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_sympy.controlled_gate">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_sympy.</span></span><span class="sig-name descname"><span class="pre">controlled_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate_function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_sympy.controlled_gate" title="Link to this definition"></a></dt>
+<dd><p>Change a one-qubit gate to a controlled gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gate_function</strong> (<em>sympy.physics.quantum.gate</em>) – Class for a specific gate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>function</strong> – Function wrapping a gate with CGate.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_sympy.get_sympy_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_sympy.</span></span><span class="sig-name descname"><span class="pre">get_sympy_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_sympy.get_sympy_gates" title="Link to this definition"></a></dt>
+<dd><p>Map gate name of the abstract format to the equivalent methods of the
+sympy backend (symbolic simulation).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_sympy.p_gate">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_sympy.</span></span><span class="sig-name descname"><span class="pre">p_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_sympy.p_gate" title="Link to this definition"></a></dt>
+<dd><p>Implementation of the PHASE gate with a unitary matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>int</em>) – Target qubit.</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – Phase parameter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sympy.physics.quantum.gate.UGate</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_sympy.rx_gate">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_sympy.</span></span><span class="sig-name descname"><span class="pre">rx_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_sympy.rx_gate" title="Link to this definition"></a></dt>
+<dd><p>Implementation of the RX gate with a unitary matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>int</em>) – Target qubit.</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – Rotation angle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sympy.physics.quantum.gate.UGate</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_sympy.ry_gate">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_sympy.</span></span><span class="sig-name descname"><span class="pre">ry_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_sympy.ry_gate" title="Link to this definition"></a></dt>
+<dd><p>Implementation of the RY gate with a unitary matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>int</em>) – Target qubit.</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – Rotation angle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sympy.physics.quantum.gate.UGate</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_sympy.rz_gate">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_sympy.</span></span><span class="sig-name descname"><span class="pre">rz_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_sympy.rz_gate" title="Link to this definition"></a></dt>
+<dd><p>Implementation of the RZ gate with a unitary matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>int</em>) – Target qubit.</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – Rotation angle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sympy.physics.quantum.gate.UGate</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_sympy.translate_c_to_sympy">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_sympy.</span></span><span class="sig-name descname"><span class="pre">translate_c_to_sympy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_sympy.translate_c_to_sympy" title="Link to this definition"></a></dt>
+<dd><p>Take in an abstract circuit, return a quantum circuit object as defined
+in the Python SYMPY SDK.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_circuit</strong> – quantum circuit in the abstract format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>SYMPY.circuits.Circuit</strong> – quantum circuit in Python SYMPY SDK format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.translate_sympy.translate_op_to_sympy">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.translate_sympy.</span></span><span class="sig-name descname"><span class="pre">translate_op_to_sympy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.translate_sympy.translate_op_to_sympy" title="Link to this definition"></a></dt>
+<dd><p>Helper function to translate a Tangelo QubitOperator to a sympy linear
+combination of tensor products.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_operator</strong> (<em>tangelo.toolboxes.operators.QubitOperator</em>) – Self-explanatory.</p></li>
+<li><p><strong>n_qubits</strong> (<em>int</em>) – The number of qubit the operator acts on.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sympy.core.add.Add</strong> – Summation of sympy.physics.quantum.TensorProduct
+objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.translator">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.linq.translator" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.translator.get_supported_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.translator.</span></span><span class="sig-name descname"><span class="pre">get_supported_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.translator.get_supported_gates" title="Link to this definition"></a></dt>
+<dd><p>List all supported gates for all backends found</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.linq.target.html" class="btn btn-neutral float-left" title="tangelo.linq.target package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.problem_decomposition.html" class="btn btn-neutral float-right" title="tangelo.problem_decomposition package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

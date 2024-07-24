@@ -1,0 +1,34 @@
+tangelo.problem\_decomposition package
+======================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.problem_decomposition.dmet
+   tangelo.problem_decomposition.electron_localization
+   tangelo.problem_decomposition.incremental
+   tangelo.problem_decomposition.oniom
+   tangelo.problem_decomposition.qmmm
+   tangelo.problem_decomposition.tests
+
+Submodules
+----------
+
+tangelo.problem\_decomposition.problem\_decomposition module
+------------------------------------------------------------
+
+.. automodule:: tangelo.problem_decomposition.problem_decomposition
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.problem_decomposition
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.linq.qpu_connection package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.linq.target package" href="tangelo.linq.target.html" />
+    <link rel="prev" title="tangelo.linq.noisy_simulation package" href="tangelo.linq.noisy_simulation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.linq.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.circuit">tangelo.linq.circuit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.gate">tangelo.linq.gate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.qdk_template">tangelo.linq.qdk_template module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq.simulator">tangelo.linq.simulator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.html#module-tangelo.linq">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.linq.html">tangelo.linq package</a></li>
+      <li class="breadcrumb-item active">tangelo.linq.qpu_connection package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.linq.qpu_connection.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-linq-qpu-connection-package">
+<h1>tangelo.linq.qpu_connection package<a class="headerlink" href="#tangelo-linq-qpu-connection-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.linq.qpu_connection.braket_connection">
+<span id="tangelo-linq-qpu-connection-braket-connection-module"></span><h2>tangelo.linq.qpu_connection.braket_connection module<a class="headerlink" href="#module-tangelo.linq.qpu_connection.braket_connection" title="Link to this heading"></a></h2>
+<p>Wrappers around Braket python’s API, to manage quantum experiments run with Braket from Tangelo.
+Braket is available at <a class="reference external" href="https://github.com/aws/amazon-braket-sdk-python">https://github.com/aws/amazon-braket-sdk-python</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.BraketConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.qpu_connection.braket_connection.</span></span><span class="sig-name descname"><span class="pre">BraketConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s3_bucket</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.BraketConnection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.linq.qpu_connection.qpu_connection.QpuConnection" title="tangelo.linq.qpu_connection.qpu_connection.QpuConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">QpuConnection</span></code></a></p>
+<p>Wrapper around Amazon Braket API to facilitate quantum job management from Tangelo</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.BraketConnection.get_backend_info">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_backend_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.BraketConnection.get_backend_info" title="Link to this definition"></a></dt>
+<dd><p>Wrapper method to cut down the information returned by AWS SDK and provide a consistent interface for our code.</p>
+<dl class="field-list">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Dictionary containing device information in the format</strong> –</p>
+<dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>arn: {</dt><dd><p>provider: &lt;provider&gt;,
+price: &lt;price&gt;,
+unit: &lt;unit&gt;,</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_cancel">
+<span class="sig-name descname"><span class="pre">job_cancel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_cancel" title="Link to this definition"></a></dt>
+<dd><p>Attempt to cancel an existing job. May fail depending on job status (e.g too late)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – string representing the job id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>bool</strong> – whether the job was successfully cancelled.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_results">
+<span class="sig-name descname"><span class="pre">job_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_results" title="Link to this definition"></a></dt>
+<dd><p>Blocking call requesting job results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – string representing the job id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – histogram of measurements</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_status">
+<span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_status" title="Link to this definition"></a></dt>
+<dd><p>Return job information corresponding to the input job id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – string representing the job id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>enum | str</strong> – status response from the native API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_submit">
+<span class="sig-name descname"><span class="pre">job_submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend_arn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_submit" title="Link to this definition"></a></dt>
+<dd><p>Submit job as batch, return job id(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>backend_arn</strong> (<em>str</em>) – arn for braket backend</p></li>
+<li><p><strong>n_shots</strong> (<em>int</em>) – Number of shots to use on the target backend</p></li>
+<li><p><strong>circuits</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a><em>]</em>) – Tangelo circuit(s)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>str | List[str]</strong> – Job id(s)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.qpu_connection.braket_connection.</span></span><span class="sig-name descname"><span class="pre">SupportedBraketProviders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>List of the providers currently supported. Needs to be occasionally
+updated in the future as new providers arise.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.AMAZON">
+<span class="sig-name descname"><span class="pre">AMAZON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Amazon</span> <span class="pre">Braket'</span></em><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.AMAZON" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.IONQ">
+<span class="sig-name descname"><span class="pre">IONQ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IonQ'</span></em><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.IONQ" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.OXFORD">
+<span class="sig-name descname"><span class="pre">OXFORD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Oxford'</span></em><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.OXFORD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.RIGETTI">
+<span class="sig-name descname"><span class="pre">RIGETTI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Rigetti'</span></em><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.RIGETTI" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.braket_connection.refresh_available_braket_devices">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.qpu_connection.braket_connection.</span></span><span class="sig-name descname"><span class="pre">refresh_available_braket_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.braket_connection.refresh_available_braket_devices" title="Link to this definition"></a></dt>
+<dd><p>Function to get the available gate-based devices on Braket.
+Note: OFFLINE and RETIRED devices are filtered out.
+:Returns: <strong>list of braket.aws.AwsDevice</strong> – Available gate-based Braket devices.</p>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.qpu_connection.ibm_connection">
+<span id="tangelo-linq-qpu-connection-ibm-connection-module"></span><h2>tangelo.linq.qpu_connection.ibm_connection module<a class="headerlink" href="#module-tangelo.linq.qpu_connection.ibm_connection" title="Link to this heading"></a></h2>
+<p>Wrappers around Qiskit runtime API, to manage quantum experiments run with IBM Cloud or IBM quantum
+from Tangelo.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ibm_connection.IBMConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.qpu_connection.ibm_connection.</span></span><span class="sig-name descname"><span class="pre">IBMConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_quantum_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ibm_connection.IBMConnection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.linq.qpu_connection.qpu_connection.QpuConnection" title="tangelo.linq.qpu_connection.qpu_connection.QpuConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">QpuConnection</span></code></a></p>
+<p>Wrapper around IBM Qiskit runtime API to facilitate job submission from Tangelo</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ibm_connection.IBMConnection.get_backend_info">
+<span class="sig-name descname"><span class="pre">get_backend_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ibm_connection.IBMConnection.get_backend_info" title="Link to this definition"></a></dt>
+<dd><p>Return configuration information for each device found on the service</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_cancel">
+<span class="sig-name descname"><span class="pre">job_cancel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_cancel" title="Link to this definition"></a></dt>
+<dd><p>Attempt to cancel an existing job. May fail depending on job status (e.g too late)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – string representing the job id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>bool</strong> – whether the job was successfully cancelled.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_results">
+<span class="sig-name descname"><span class="pre">job_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_results" title="Link to this definition"></a></dt>
+<dd><p>Blocking call requesting job results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – string representing the job id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – histogram of measurements</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_status">
+<span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_status" title="Link to this definition"></a></dt>
+<dd><p>Return information about the job corresponding to the input job ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – string representing the job id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>enum value</strong> – status response from the native API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_submit">
+<span class="sig-name descname"><span class="pre">job_submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runtime_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_submit" title="Link to this definition"></a></dt>
+<dd><p>Submit job, return job ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>program</strong> (<em>str</em>) – name of available qiskit-runtime program (e.g sampler, estimator currently)</p></li>
+<li><p><strong>backend_name</strong> (<em>str</em>) – name of a qiskit backend</p></li>
+<li><p><strong>n_shots</strong> (<em>int</em>) – Number of shots to use on the target backend</p></li>
+<li><p><strong>circuits</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a><em>]</em>) – Tangelo circuit(s)</p></li>
+<li><p><strong>operators</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a><em>]</em>) – Optional, qubit operators for computing expectation values</p></li>
+<li><p><strong>runtime_options</strong> (<em>dict</em>) – Optional, extra keyword arguments for options supported in qiskit-runtime.</p></li>
+<li><p><strong>instance</strong> (<em>str</em>) – Optional, desired IBM service instance in the “hub/group/project” format. Default is likely to send to “ibm-q/open/main”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>str</strong> – string representing the job id</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.qpu_connection.ionq_connection">
+<span id="tangelo-linq-qpu-connection-ionq-connection-module"></span><h2>tangelo.linq.qpu_connection.ionq_connection module<a class="headerlink" href="#module-tangelo.linq.qpu_connection.ionq_connection" title="Link to this heading"></a></h2>
+<p>Python wrappers around IonQ REST API, to facilitate job submission, result retrieval and post-processing
+Using IonQ services requires an API key.
+Users are expected to set the environment variable IONQ_APIKEY with the value of this token.
+IonQ documentation for the API: <a class="reference external" href="https://docs.ionq.co">https://docs.ionq.co</a>
+IonQ cloud dashboard: <a class="reference external" href="https://cloud.ionq.com/">https://cloud.ionq.com/</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ionq_connection.IonQConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.qpu_connection.ionq_connection.</span></span><span class="sig-name descname"><span class="pre">IonQConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ionq_connection.IonQConnection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.linq.qpu_connection.qpu_connection.QpuConnection" title="tangelo.linq.qpu_connection.qpu_connection.QpuConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">QpuConnection</span></code></a></p>
+<p>Wrapper about the IonQ REST API, to facilitate job submission and automated post-processing of results</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ionq_connection.IonQConnection.get_backend_info">
+<span class="sig-name descname"><span class="pre">get_backend_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.get_backend_info" title="Link to this definition"></a></dt>
+<dd><p>Retrieve all the information available about the backends</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ionq_connection.IonQConnection.get_characterization">
+<span class="sig-name descname"><span class="pre">get_characterization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charac_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.get_characterization" title="Link to this definition"></a></dt>
+<dd><p>Retrieve characterization of a target device, either using the IonQ backend string,
+or an already-retrieved characterization url. The result contains information about
+number of qubits, fidelity of gates, t1, t2 and other specs, connectivity…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>backend_name</strong> (<em>str</em>) – string identifier for the IonQ backend</p></li>
+<li><p><strong>charac_url</strong> (<em>str</em>) – characterization url previously retrieved from IonQ API</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – a dictionary containing various information about the device</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ionq_connection.IonQConnection.header">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">header</span></span><a class="headerlink" href="#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.header" title="Link to this definition"></a></dt>
+<dd><p>Produce the header for REST requests</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_cancel">
+<span class="sig-name descname"><span class="pre">job_cancel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_cancel" title="Link to this definition"></a></dt>
+<dd><p>Cancel / delete a job from IonQ servers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – string representing the job id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – status response from the REST API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_get_history">
+<span class="sig-name descname"><span class="pre">job_get_history</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_get_history" title="Link to this definition"></a></dt>
+<dd><p>Returns information about the job corresponding to the input job id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – alphanumeric character string representing the job id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – status response from the REST API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_results">
+<span class="sig-name descname"><span class="pre">job_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_results" title="Link to this definition"></a></dt>
+<dd><p>Blocking call querying the REST API at a given frequency, until job results are available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>job_id</strong> (<em>str</em>) – string representing the job id</p></li>
+<li><p><strong>wait_time</strong> (<em>int</em>) – Number of seconds between consecutive queries to
+the IonQ API. If the verbosity is set to True, the status is
+printed if it changed since the last query.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – Histogram of measurements</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_status">
+<span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_status" title="Link to this definition"></a></dt>
+<dd><p>Returns information about the job corresponding to the input job id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – string representing the job id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – status response from the REST API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_submit">
+<span class="sig-name descname"><span class="pre">job_submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abs_circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">job_specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_submit" title="Link to this definition"></a></dt>
+<dd><p>Submit job, return job ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_backend</strong> (<em>str</em>) – name of target device. See IonQ documentation for possible values.
+Current acceptable values are ‘simulator’ and ‘qpu’</p></li>
+<li><p><strong>abs_circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – Circuit in Tangelo format</p></li>
+<li><p><strong>n_shots</strong> (<em>int</em>) – number of shots (ignored if target_backend is set to <cite>simulator</cite></p></li>
+<li><p><strong>job_name</strong> (<em>str</em>) – name to make the job more identifiable</p></li>
+<li><p><strong>**job_specs</strong> – extra arguments such as <cite>lang</cite> in the code below; <cite>metadata</cite> is not currently supported.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>str</strong> – string representing the job id</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.qpu_connection.qemist_cloud_connection">
+<span id="tangelo-linq-qpu-connection-qemist-cloud-connection-module"></span><h2>tangelo.linq.qpu_connection.qemist_cloud_connection module<a class="headerlink" href="#module-tangelo.linq.qpu_connection.qemist_cloud_connection" title="Link to this heading"></a></h2>
+<p>Python wrappers facilitating quantum experiment submission, monitoring and
+post-processing, through QEMIST Cloud.</p>
+<p>Users are expected to set the environment variables QEMIST_AUTH_TOKEN and
+QEMIST_PROJECT_ID with values retrieved from their QEMIST Cloud dashboard.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.qpu_connection.qemist_cloud_connection.</span></span><span class="sig-name descname"><span class="pre">QEMISTCloudConnection</span></span><a class="headerlink" href="#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.linq.qpu_connection.qpu_connection.QpuConnection" title="tangelo.linq.qpu_connection.qpu_connection.QpuConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">QpuConnection</span></code></a></p>
+<p>Wrapper about the QEMIST Cloud connection to QPUs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_cancel">
+<span class="sig-name descname"><span class="pre">job_cancel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qemist_cloud_job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_cancel" title="Link to this definition"></a></dt>
+<dd><p>Cancels the job matching the input job id, if done in time before it
+starts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qemist_cloud_job_id</strong> (<em>int</em>) – problem handle / job identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – cancelled problems / subproblems.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_estimate">
+<span class="sig-name descname"><span class="pre">job_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_estimate" title="Link to this definition"></a></dt>
+<dd><p>Returns an estimate of the cost of running an experiment, for a specified backend
+or all backends available. Some service providers care about the
+complexity / structure of the input quantum circuit, some do not.</p>
+<p>The backend identifier strings that a user can provide as argument can be obtained
+by calling this function without specifying a backend. They appear as keys in
+the returned dictionary. These strings may change with time, as we adjust to the
+growing cloud quantum offer (services and devices).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – the abstract circuit to be run on the target device.</p></li>
+<li><p><strong>n_shots</strong> (<em>int</em>) – number of shots in the expriment.</p></li>
+<li><p><strong>backend</strong> (<em>str</em>) – the identifier string for the desired backend.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – Returns dict of prices in USD. If backend is not None, dictionary</p></li>
+<li><p><strong>contains the cost for running the desired job. If backend is None,</strong></p></li>
+<li><p><strong>returns dictionary of prices for all supported backends.</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_results">
+<span class="sig-name descname"><span class="pre">job_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qemist_cloud_job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_results" title="Link to this definition"></a></dt>
+<dd><p>Blocks until the job results are available. Returns a tuple containing
+the histogram of frequencies, and also the more in-depth raw data from the
+cloud services provider as a nested dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qemist_cloud_job_id</strong> (<em>int</em>) – problem handle / job identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – Histogram of measurement frequencies.</p></li>
+<li><p><strong>dict</strong> – The cloud provider raw data.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_status">
+<span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qemist_cloud_job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_status" title="Link to this definition"></a></dt>
+<dd><p>Returns the current status of the problem, as a string. Possible values:
+ready, in_progress, complete, cancelled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qemist_cloud_job_id</strong> (<em>int</em>) – problem handle / job identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>str</strong> – current status of the problem, as a string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_submit">
+<span class="sig-name descname"><span class="pre">job_submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_submit" title="Link to this definition"></a></dt>
+<dd><p>Job submission to run a circuit on quantum hardware.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circuit</strong> – a quantum circuit in the abstract format.</p></li>
+<li><p><strong>n_shots</strong> (<em>int</em>) – the number of shots.</p></li>
+<li><p><strong>backend</strong> (<em>str</em>) – the identifier string for the desired backend.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>int</strong> – A problem handle / job ID that can be used to retrieve the result
+or cancel the problem.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.qpu_connection.qpu_connection">
+<span id="tangelo-linq-qpu-connection-qpu-connection-module"></span><h2>tangelo.linq.qpu_connection.qpu_connection module<a class="headerlink" href="#module-tangelo.linq.qpu_connection.qpu_connection" title="Link to this heading"></a></h2>
+<p>Abstract parent class encapsulating basic features of compute services for quantum circuit simulation</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qpu_connection.QpuConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.qpu_connection.qpu_connection.</span></span><span class="sig-name descname"><span class="pre">QpuConnection</span></span><a class="headerlink" href="#tangelo.linq.qpu_connection.qpu_connection.QpuConnection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract class encapsulating login/authentication setup and job submission and management</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_cancel">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">job_cancel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_cancel" title="Link to this definition"></a></dt>
+<dd><p>Attempt to cancel a previously submitted job, through its job id</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_results">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">job_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_results" title="Link to this definition"></a></dt>
+<dd><p>Retrieve the results of previously submitted job, through its job id</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_status">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_status" title="Link to this definition"></a></dt>
+<dd><p>Retrieve information about a previously submitted job, through its job id</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_submit">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">job_submit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_submit" title="Link to this definition"></a></dt>
+<dd><p>Submit a job to the compute services</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.qpu_connection">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.linq.qpu_connection" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.linq.noisy_simulation.html" class="btn btn-neutral float-left" title="tangelo.linq.noisy_simulation package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.linq.target.html" class="btn btn-neutral float-right" title="tangelo.linq.target package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

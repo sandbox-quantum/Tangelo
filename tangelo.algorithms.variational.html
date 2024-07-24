@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.algorithms.variational package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.helpers package" href="tangelo.helpers.html" />
+    <link rel="prev" title="tangelo.algorithms.projective package" href="tangelo.algorithms.projective.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.algorithms.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.html#module-tangelo.algorithms.electronic_structure_solver">tangelo.algorithms.electronic_structure_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.html#module-tangelo.algorithms">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+      <li class="breadcrumb-item active">tangelo.algorithms.variational package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.algorithms.variational.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-algorithms-variational-package">
+<h1>tangelo.algorithms.variational package<a class="headerlink" href="#tangelo-algorithms-variational-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.algorithms.variational.adapt_vqe_solver">
+<span id="tangelo-algorithms-variational-adapt-vqe-solver-module"></span><h2>tangelo.algorithms.variational.adapt_vqe_solver module<a class="headerlink" href="#module-tangelo.algorithms.variational.adapt_vqe_solver" title="Link to this heading"></a></h2>
+<p>Module that defines the ADAPT-VQE algorithm framework. ADAPT-VQE is a
+variational approach that builds an ansatz iteratively, until a convergence
+criteria or a maximum number of cycles is reached. Each iteration (“cycle”)
+of ADAPT consists in drawing an operator from a pre-defined operator pool,
+selecting the one that impacts the energy the most, growing the ansatz circuit
+accordingly, and optimizing the variational parameters using VQE.</p>
+<dl class="simple">
+<dt>Ref:</dt><dd><p>Grimsley, H.R., Economou, S.E., Barnes, E. et al.
+An adaptive variational algorithm for exact molecular simulations on a
+quantum computer.
+Nat Commun 10, 3007 (2019). <a class="reference external" href="https://doi.org/10.1038/s41467-019-10988-2">https://doi.org/10.1038/s41467-019-10988-2</a>.</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.variational.adapt_vqe_solver.</span></span><span class="sig-name descname"><span class="pre">ADAPTSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>ADAPT VQE class. This is an iterative algorithm that uses VQE. Methods
+are defined to rank operators with respect to their influence on the total
+energy.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.molecule" title="Link to this definition"></a></dt>
+<dd><p>The molecular system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.tol">
+<span class="sig-name descname"><span class="pre">tol</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.tol" title="Link to this definition"></a></dt>
+<dd><p>Maximum gradient allowed for a particular operator  before
+convergence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.max_cycles">
+<span class="sig-name descname"><span class="pre">max_cycles</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.max_cycles" title="Link to this definition"></a></dt>
+<dd><p>Maximum number of iterations for ADAPT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.pool">
+<span class="sig-name descname"><span class="pre">pool</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.pool" title="Link to this definition"></a></dt>
+<dd><p>Function that returns a list of FermionOperator or QubitOperator. Each
+element represents excitation/operator that has an effect of the
+total energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>func</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.pool_args">
+<span class="sig-name descname"><span class="pre">pool_args</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.pool_args" title="Link to this definition"></a></dt>
+<dd><p>The arguments for the pool function. Will be unpacked in
+function call as pool(<a href="#id1"><span class="problematic" id="id2">**</span></a>pool_args)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.qubit_mapping">
+<span class="sig-name descname"><span class="pre">qubit_mapping</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>One of the supported qubit mapping identifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.qubit_hamiltonian">
+<span class="sig-name descname"><span class="pre">qubit_hamiltonian</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.qubit_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QubitOperator-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>Spin orbitals ordering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.n_spinorbitals">
+<span class="sig-name descname"><span class="pre">n_spinorbitals</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.n_spinorbitals" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.n_electrons">
+<span class="sig-name descname"><span class="pre">n_electrons</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.n_electrons" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.spin">
+<span class="sig-name descname"><span class="pre">spin</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.spin" title="Link to this definition"></a></dt>
+<dd><p>The spin of the system (# alpha - # beta electrons)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.optimizer">
+<span class="sig-name descname"><span class="pre">optimizer</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.optimizer" title="Link to this definition"></a></dt>
+<dd><p>Optimization function for VQE minimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>func</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.backend_options">
+<span class="sig-name descname"><span class="pre">backend_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.backend_options" title="Link to this definition"></a></dt>
+<dd><p>Backend options for the underlying VQE object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.simulate_options">
+<span class="sig-name descname"><span class="pre">simulate_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.simulate_options" title="Link to this definition"></a></dt>
+<dd><p>Options for fine-control of the simulator backend, including desired measurement results, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.verbose" title="Link to this definition"></a></dt>
+<dd><p>Flag for verbosity of VQE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.deflation_circuits">
+<span class="sig-name descname"><span class="pre">deflation_circuits</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.deflation_circuits" title="Link to this definition"></a></dt>
+<dd><p>Deflation circuits to add an
+orthogonalization penalty with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.deflation_coeff">
+<span class="sig-name descname"><span class="pre">deflation_coeff</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.deflation_coeff" title="Link to this definition"></a></dt>
+<dd><p>The coefficient of the deflation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.projective_circuit">
+<span class="sig-name descname"><span class="pre">projective_circuit</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.projective_circuit" title="Link to this definition"></a></dt>
+<dd><p>A terminal circuit that projects into the correct space, always added to
+the end of the ansatz circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.ref_state">
+<span class="sig-name descname"><span class="pre">ref_state</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.ref_state" title="Link to this definition"></a></dt>
+<dd><p>The reference configuration to use. Replaces HF state</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array or <a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.LBFGSB_optimizer">
+<span class="sig-name descname"><span class="pre">LBFGSB_optimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.LBFGSB_optimizer" title="Link to this definition"></a></dt>
+<dd><p>Default optimizer for ADAPT-VQE.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.build" title="Link to this definition"></a></dt>
+<dd><p>Builds the underlying objects required to run the ADAPT-VQE
+algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.choose_operator">
+<span class="sig-name descname"><span class="pre">choose_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gradients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.choose_operator" title="Link to this definition"></a></dt>
+<dd><p>Choose next operator to add according to the ADAPT-VQE algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gradients</strong> (<em>list</em><em> of </em><em>float</em>) – Operator gradients corresponding to
+self.pool_operators.</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>) – Minimum value for gradient to be considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list of int</strong> – Index (list of length=1) of the operator with the
+highest gradient. If it is not bigger than tolerance, returns
+an empty list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.compute_gradients">
+<span class="sig-name descname"><span class="pre">compute_gradients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.compute_gradients" title="Link to this definition"></a></dt>
+<dd><p>Compute gradients for the operator pool with a specific circuit.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>circuit (tangelo.linq.Circuit): Circuit for measuring each commutator.
+backend (tangelo.linq.Backend): Backend to compute expectation values.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list of float</strong> – Operator gradients.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.ferm_operators">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ferm_operators</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.ferm_operators" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.get_resources" title="Link to this definition"></a></dt>
+<dd><p>Returns resources currently used in underlying VQE.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.operators">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">operators</span></span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.operators" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.simulate" title="Link to this definition"></a></dt>
+<dd><p>Performs the ADAPT cycles. Each iteration, a VQE minimization is
+done.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms.variational.iqcc_ilc_solver">
+<span id="tangelo-algorithms-variational-iqcc-ilc-solver-module"></span><h2>tangelo.algorithms.variational.iqcc_ilc_solver module<a class="headerlink" href="#module-tangelo.algorithms.variational.iqcc_ilc_solver" title="Link to this heading"></a></h2>
+<p>This module implements the iQCC-ILC VQE procedure of Refs. 1-2. It is
+an iterative and  variational approach that combines an ansatz defined
+as an exponentiated involutory linear combination (ILC) of mutually
+anticommuting Pauli word generators with the QCC ansatz. A small number
+of iterations are performed with the ILC ansatz prior to a single energy
+evaluation with the QCC ansatz. The advantage of this method over the
+iQCC VQE procedure is that Hamiltonian dressing after each iteration
+with the set of ILC generators results in quadratic growth of the
+number of terms, which is an improvement over the exponential growth
+that occurs when QCC generators are used.
+Refs:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><ol class="upperalpha simple" start="18">
+<li><ol class="upperalpha simple">
+<li><p>Lang, I. G. Ryabinkin, and A. F. Izmaylov.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><p>arXiv:2002.05701v1, 2020, 1–10.</p>
+</div></blockquote>
+</li>
+<li><ol class="upperalpha simple" start="18">
+<li><ol class="upperalpha simple">
+<li><p>Lang, I. G. Ryabinkin, and A. F. Izmaylov.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><ol class="upperalpha simple" start="10">
+<li><p>Chem. Theory Comput. 2021, 17, 1, 66–78.</p></li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.variational.iqcc_ilc_solver.</span></span><span class="sig-name descname"><span class="pre">iQCC_ILC_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The iQCC-ILC-VQE solver class combines the both the ILC and ILC ansatze
+Classes with the VQESolver class to perform an iterative and variational
+procedure to compute the total iQCC-ILC energy for a given Hamiltonian.
+The algorithm is outlined below:
+(1) For a user-specified number of iterations, compute the ILC energy:</p>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li><p>prepare/purify the QMF wave function, obtain the ACS of ILC
+generators, and initialize the ILC parameter set;</p></li>
+<li><p>simulate the ILC energy through VQE minimization</p></li>
+<li><p>dress the qubit Hamiltonian with the set of ILC generators and
+optimal parameters; optional: compress the dressed Hamiltonian
+via a technique using the Frobenius norm</p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>With the ILC dressed Hamiltonian, obtain the DIS of QCC generators,
+and initialize QCC parameters</p></li>
+<li><p>Perform a single VQE minimization of the QCC energy functional to
+obtain the final iQCC-ILC energy.</p></li>
+</ol>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.molecule" title="Link to this definition"></a></dt>
+<dd><p>The molecular system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.qubit_mapping">
+<span class="sig-name descname"><span class="pre">qubit_mapping</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>One of the supported qubit mapping identifiers. Default, “jw”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>Change basis ordering putting all spin up orbitals first,
+followed by all spin down. Default, False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.initial_var_params">
+<span class="sig-name descname"><span class="pre">initial_var_params</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.initial_var_params" title="Link to this definition"></a></dt>
+<dd><p>Initial values of the variational parameters
+for the classical optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.backend_options">
+<span class="sig-name descname"><span class="pre">backend_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.backend_options" title="Link to this definition"></a></dt>
+<dd><p>parameters to build the underlying compute backend (simulator, etc).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.penalty_terms">
+<span class="sig-name descname"><span class="pre">penalty_terms</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.penalty_terms" title="Link to this definition"></a></dt>
+<dd><p>Parameters for penalty terms to append to target
+qubit Hamiltonian (see penaly_terms for more details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.ilc_ansatz_options">
+<span class="sig-name descname"><span class="pre">ilc_ansatz_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.ilc_ansatz_options" title="Link to this definition"></a></dt>
+<dd><p>Parameters for ILC ansatz (see ILC ansatz
+file for details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.qcc_ansatz_options">
+<span class="sig-name descname"><span class="pre">qcc_ansatz_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.qcc_ansatz_options" title="Link to this definition"></a></dt>
+<dd><p>Parameters for QCC ansatz (see QCC ansatz
+file for details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.qubit_hamiltonian">
+<span class="sig-name descname"><span class="pre">qubit_hamiltonian</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.qubit_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QubitOperator-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.max_ilc_iter">
+<span class="sig-name descname"><span class="pre">max_ilc_iter</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.max_ilc_iter" title="Link to this definition"></a></dt>
+<dd><p>maximum number of ILC iterations allowed before termination.
+Default, 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.compress_qubit_ham">
+<span class="sig-name descname"><span class="pre">compress_qubit_ham</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.compress_qubit_ham" title="Link to this definition"></a></dt>
+<dd><p>controls whether the qubit Hamiltonian is compressed
+after dressing with the current set of generators at the end of each ILC iteration.
+Default, False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.compress_eps">
+<span class="sig-name descname"><span class="pre">compress_eps</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.compress_eps" title="Link to this definition"></a></dt>
+<dd><p>parameter required for compressing intermediate ILC Hamiltonians
+using the Froebenius norm. Discarding terms in this manner will not alter the
+eigenspectrum of intermediate Hamiltonians by more than compress_eps.
+Default, 1.59e-3 Hartree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.verbose" title="Link to this definition"></a></dt>
+<dd><p>Flag for verbosity. Default, False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.build" title="Link to this definition"></a></dt>
+<dd><p>Builds the underlying objects required to run the ILC-VQE algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.get_resources" title="Link to this definition"></a></dt>
+<dd><p>Returns the quantum resource estimates for the final
+ILC-QCC-VQE iteration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.simulate" title="Link to this definition"></a></dt>
+<dd><p>Executes the ILC-VQE algorithm. During each iteration, a ILC-VQE minimization
+is performed with the current set of generators, amplitudes, and qubit Hamiltonian.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms.variational.iqcc_solver">
+<span id="tangelo-algorithms-variational-iqcc-solver-module"></span><h2>tangelo.algorithms.variational.iqcc_solver module<a class="headerlink" href="#module-tangelo.algorithms.variational.iqcc_solver" title="Link to this heading"></a></h2>
+<p>This module implements the iterative qubit coupled cluster (iQCC)-VQE
+procedure of Ref. 1. It is a variational approach that utilizes the
+the QCC ansatz to produce shallow circuits. The iterative procedure
+allows a small number (1—10) of generators to be used for the QCC
+This results in even shallower circuits and fewer quantum resources
+for the iQCC approach relative to the native QCC method. A caveat
+is that after each iteration, the qubit Hamiltonian is dressed with
+the generators and optimal parameters, the result of which is an
+exponential growth of the number of terms.</p>
+<dl>
+<dt>Refs:</dt><dd><ol class="arabic">
+<li><ol class="upperroman simple">
+<li><ol class="upperalpha simple" start="7">
+<li><p>Ryabinkin, R. A. Lang, S. N. Genin, and A. F. Izmaylov.</p></li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<div><ol class="upperalpha simple" start="10">
+<li><p>Chem. Theory Comput. 2020, 16, 2, 1055–1063.</p></li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.variational.iqcc_solver.</span></span><span class="sig-name descname"><span class="pre">iQCC_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The iQCC-VQE solver class combines the QCC ansatz and VQESolver classes
+to perform an iterative and variational procedure to compute the total QCC
+energy for a given Hamiltonian. The algorithm is outlined below:</p>
+<ol class="arabic simple" start="0">
+<li><p>Prepare a qubit Hamiltonian, initialize QMF parameters, construct the
+DIS, select QCC generators, and initialize QCC amplitudes.</p></li>
+<li><p>Simulate the QCC energy through VQE minimization.</p></li>
+<li><p>Check if the energy is lowered relative to the previous iteration.</p></li>
+<li><p>If the energy is lowered, proceed to (4); else, keep the QCC generators,
+re-initialize the amplitudes, and re-compute the energy. If after several
+attempts the energy is not lowered, set all QCC amplitudes to zero and
+use the QMF parameters from the previous iteration to compute the energy.
+This is guaranteed to yield a lower energy.</p></li>
+<li><p>Check termination criteria: terminate if the change in energy is below a
+threshold, the DIS is empty, or the maximum number of iterations is reached.</p></li>
+<li><p>If not terminated, dress the qubit Hamiltonian with the current QCC
+generators and optimal amplitudes.</p></li>
+<li><p>Purify the QMF parameters, rebuild the DIS, and select generators for
+the next iteration; return to (1) and repeat until termination.</p></li>
+</ol>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.molecule" title="Link to this definition"></a></dt>
+<dd><p>The molecular system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.qubit_mapping">
+<span class="sig-name descname"><span class="pre">qubit_mapping</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>One of the supported qubit mapping identifiers. Default, “jw”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>Change basis ordering putting all spin up orbitals first,
+followed by all spin down. Default, False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.initial_var_params">
+<span class="sig-name descname"><span class="pre">initial_var_params</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.initial_var_params" title="Link to this definition"></a></dt>
+<dd><p>Initial values of the variational parameters
+for the classical optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.backend_options">
+<span class="sig-name descname"><span class="pre">backend_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.backend_options" title="Link to this definition"></a></dt>
+<dd><p>parameters to build the underlying compute backend (simulator, etc).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.penalty_terms">
+<span class="sig-name descname"><span class="pre">penalty_terms</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.penalty_terms" title="Link to this definition"></a></dt>
+<dd><p>Parameters for penalty terms to append to target
+qubit Hamiltonian (see penaly_terms for more details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.ansatz_options">
+<span class="sig-name descname"><span class="pre">ansatz_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.ansatz_options" title="Link to this definition"></a></dt>
+<dd><p>Parameters for the chosen ansatz (see given ansatz
+file for details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.qubit_hamiltonian">
+<span class="sig-name descname"><span class="pre">qubit_hamiltonian</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.qubit_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QubitOperator-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.deqcc_thresh">
+<span class="sig-name descname"><span class="pre">deqcc_thresh</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.deqcc_thresh" title="Link to this definition"></a></dt>
+<dd><p>threshold for the difference in iQCC energies between
+consecutive iterations required for convergence of the algorithm.
+Default, 1e-5 Hartree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.max_iqcc_iter">
+<span class="sig-name descname"><span class="pre">max_iqcc_iter</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.max_iqcc_iter" title="Link to this definition"></a></dt>
+<dd><p>maximum number of iQCC iterations allowed before termination.
+Default, 100.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.max_iqcc_retries">
+<span class="sig-name descname"><span class="pre">max_iqcc_retries</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.max_iqcc_retries" title="Link to this definition"></a></dt>
+<dd><p>if the iQCC energy for a given iteration is not lower than
+the value from the previous iteration, the iQCC parameters are reinitialized
+and the VQE procedure will be attempted up to max_iqcc_retries times. If unsuccessful
+after max_iqcc_retries attempts, the iQCC parameters are all set to 0 and the QMF
+Bloch angles from the previous iteration are used. Default, 10.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.compress_qubit_ham">
+<span class="sig-name descname"><span class="pre">compress_qubit_ham</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.compress_qubit_ham" title="Link to this definition"></a></dt>
+<dd><p>controls whether the qubit Hamiltonian is compressed
+after dressing with the current set of generators at the end of each iQCC iteration.
+Default, False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.compress_eps">
+<span class="sig-name descname"><span class="pre">compress_eps</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.compress_eps" title="Link to this definition"></a></dt>
+<dd><p>parameter required for compressing intermediate iQCC Hamiltonians
+using the Froebenius norm. Discarding terms in this manner will not alter the
+eigenspeectrum of intermediate Hamiltonians by more than compress_eps.
+Default, 1.59e-3 Hartree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.verbose" title="Link to this definition"></a></dt>
+<dd><p>Flag for verbosity. Default, False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.build" title="Link to this definition"></a></dt>
+<dd><p>Builds the underlying objects required to run the iQCC-VQE algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.get_resources" title="Link to this definition"></a></dt>
+<dd><p>Returns the quantum resource estimates for the final
+iQCC-VQE iteration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.iqcc_solver.iQCC_solver.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.simulate" title="Link to this definition"></a></dt>
+<dd><p>Executes the iQCC-VQE algorithm. During each iteration,
+QCC-VQE minimization is performed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms.variational.sa_oo_vqe_solver">
+<span id="tangelo-algorithms-variational-sa-oo-vqe-solver-module"></span><h2>tangelo.algorithms.variational.sa_oo_vqe_solver module<a class="headerlink" href="#module-tangelo.algorithms.variational.sa_oo_vqe_solver" title="Link to this heading"></a></h2>
+<p>Module that defines the SA-OO-VQE algorithm</p>
+<p>Ref:
+[1] Saad Yalouz, Bruno Senjean, Jakob Gunther, Francesco Buda, Thomas E. O’Brien, Lucas Visscher, “A state-averaged
+orbital-optimized hybrid quantum-classical algorithm for a democratic description of ground and excited states”,
+2021, Quantum Sci. Technol. 6 024004</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.variational.sa_oo_vqe_solver.</span></span><span class="sig-name descname"><span class="pre">SA_OO_Solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver" title="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">SA_VQESolver</span></code></a></p>
+<p>State Averaged Orbital Optimized Solver class. This is an iterative algorithm that uses SA-VQE alternatively with an
+orbital optimization step.</p>
+<p>Users must first set the desired options of the SA_OO_Solver object through the
+__init__ method, and call the “build” method to build the underlying objects
+(mean-field, hardware backend, ansatz…). They are then able to call any of
+the energy_estimation, simulate, get_rdm, or iterate methods. In particular, iterate
+runs the SA-OO algorithm, alternating calls to the SA_VQESolver and orbital optimization.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.tol">
+<span class="sig-name descname"><span class="pre">tol</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.tol" title="Link to this definition"></a></dt>
+<dd><p>Maximum energy difference before convergence</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.max_cycles">
+<span class="sig-name descname"><span class="pre">max_cycles</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.max_cycles" title="Link to this definition"></a></dt>
+<dd><p>Maximum number of iterations for sa-oo-vqe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.n_oo_per_iter">
+<span class="sig-name descname"><span class="pre">n_oo_per_iter</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.n_oo_per_iter" title="Link to this definition"></a></dt>
+<dd><p>Number of orbital optimization Newton-Raphson steps per SA-OO-VQE iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.molecule" title="Link to this definition"></a></dt>
+<dd><p>the molecular system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.qubit_mapping">
+<span class="sig-name descname"><span class="pre">qubit_mapping</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>one of the supported qubit mapping identifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.ansatz">
+<span class="sig-name descname"><span class="pre">ansatz</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.ansatz" title="Link to this definition"></a></dt>
+<dd><p>one of the supported ansatze.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Ansatze</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.optimizer">
+<span class="sig-name descname"><span class="pre">optimizer</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.optimizer" title="Link to this definition"></a></dt>
+<dd><p>a function defining the classical optimizer and its behavior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>function handle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.initial_var_params">
+<span class="sig-name descname"><span class="pre">initial_var_params</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.initial_var_params" title="Link to this definition"></a></dt>
+<dd><p>initial value for the classical optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.backend_options">
+<span class="sig-name descname"><span class="pre">backend_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.backend_options" title="Link to this definition"></a></dt>
+<dd><p>parameters to build the underlying compute backend (simulator, etc).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.simulate_options">
+<span class="sig-name descname"><span class="pre">simulate_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.simulate_options" title="Link to this definition"></a></dt>
+<dd><p>Options for fine-control of the simulator backend, including desired measurement results, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.penalty_terms">
+<span class="sig-name descname"><span class="pre">penalty_terms</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.penalty_terms" title="Link to this definition"></a></dt>
+<dd><p>parameters for penalty terms to append to target qubit Hamiltonian (see penalty_terms
+for more details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.ansatz_options">
+<span class="sig-name descname"><span class="pre">ansatz_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.ansatz_options" title="Link to this definition"></a></dt>
+<dd><p>parameters for the given ansatz (see given ansatz file for details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>change basis ordering putting all spin up orbitals first, followed by all spin down.
+Default, False has alternating spin up/down ordering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.qubit_hamiltonian">
+<span class="sig-name descname"><span class="pre">qubit_hamiltonian</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.qubit_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QubitOperator-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.verbose" title="Link to this definition"></a></dt>
+<dd><p>Flag for VQE verbosity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.projective_circuit">
+<span class="sig-name descname"><span class="pre">projective_circuit</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.projective_circuit" title="Link to this definition"></a></dt>
+<dd><p>A terminal circuit that projects into the correct space, always added to
+the end of the ansatz circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.ref_states">
+<span class="sig-name descname"><span class="pre">ref_states</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.ref_states" title="Link to this definition"></a></dt>
+<dd><p>The vector occupations of the reference configurations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.weights">
+<span class="sig-name descname"><span class="pre">weights</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.weights" title="Link to this definition"></a></dt>
+<dd><p>The weights of the occupations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.energy_from_rdms">
+<span class="sig-name descname"><span class="pre">energy_from_rdms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.energy_from_rdms" title="Link to this definition"></a></dt>
+<dd><p>Calculate energy from rdms generated from SA_VQESolver</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.generate_oo_unitary">
+<span class="sig-name descname"><span class="pre">generate_oo_unitary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.generate_oo_unitary" title="Link to this definition"></a></dt>
+<dd><p>Generate the orbital optimization unitary that rotates the orbitals. It uses n_oo_per_iter Newton-Raphson steps
+with the Hessian calculated analytically.</p>
+<p>The unitary is generated using the method outlined in
+[1] Per E. M. Siegbahn, Jan Almlof, Anders Heiberg, and Bjorn O. Roos, “The complete active space SCF (CASSCF) method
+in a Newton-Raphson formulation with application to the HNO molecule”, J. Chem. Phys. 74, 2384-2396 (1981)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>array</strong> – The unitary matrix that when applied to the mean-field coefficients reduces the state averaged energy</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.iterate">
+<span class="sig-name descname"><span class="pre">iterate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.iterate" title="Link to this definition"></a></dt>
+<dd><p>Performs the SA-OO-VQE iterations.</p>
+<p>Each iteration, a SA-VQE minimization is performed followed by an orbital optimization. This process repeats until
+max_cycles are reached or the change in energy is less than tol.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms.variational.sa_vqe_solver">
+<span id="tangelo-algorithms-variational-sa-vqe-solver-module"></span><h2>tangelo.algorithms.variational.sa_vqe_solver module<a class="headerlink" href="#module-tangelo.algorithms.variational.sa_vqe_solver" title="Link to this heading"></a></h2>
+<p>Implements the state-averaged variational quantum eigensolver. Also known as the subspace-search variational quantum
+eigensolver.</p>
+<p>Ref:
+[1] Saad Yalouz, Bruno Senjean, Jakob Gunther, Francesco Buda, Thomas E. O’Brien, Lucas Visscher, “A state-averaged
+orbital-optimized hybrid quantum-classical algorithm for a democratic description of ground and excited states”,
+2021, Quantum Sci. Technol. 6 024004
+[2] Ken M Nakanishi, Kosuke Mitarai, Keisuke Fujii, “Subspace-search variational quantum eigensolver for excited states”,
+Phys. Rev. Research 1, 033062 (2019)</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.variational.sa_vqe_solver.</span></span><span class="sig-name descname"><span class="pre">SA_VQESolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.algorithms.variational.vqe_solver.VQESolver" title="tangelo.algorithms.variational.vqe_solver.VQESolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQESolver</span></code></a></p>
+<p>Solve the electronic structure problem for a molecular system by using
+the state-averaged variational quantum eigensolver (SA-VQE) algorithm.</p>
+<p>This algorithm evaluates the energy of a molecular system by performing
+classical optimization over a parametrized ansatz circuit for multiple reference states.</p>
+<p>Users must first set the desired options of the SA_VQESolver object through the
+__init__ method, and call the “build” method to build the underlying objects
+(mean-field, hardware backend, ansatz…). They are then able to call any of
+the energy_estimation, simulate, or get_rdm methods. In particular, simulate
+runs the VQE algorithm, returning the optimal energy found by the classical
+optimizer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.molecule" title="Link to this definition"></a></dt>
+<dd><p>the molecular system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.qubit_mapping">
+<span class="sig-name descname"><span class="pre">qubit_mapping</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>one of the supported qubit mapping identifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.ansatz">
+<span class="sig-name descname"><span class="pre">ansatz</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.ansatz" title="Link to this definition"></a></dt>
+<dd><p>one of the supported ansatze.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Ansatze</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.optimizer">
+<span class="sig-name descname"><span class="pre">optimizer</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.optimizer" title="Link to this definition"></a></dt>
+<dd><p>a function defining the classical optimizer and its behavior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>function handle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.initial_var_params">
+<span class="sig-name descname"><span class="pre">initial_var_params</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.initial_var_params" title="Link to this definition"></a></dt>
+<dd><p>initial value for the classical optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.backend_options">
+<span class="sig-name descname"><span class="pre">backend_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.backend_options" title="Link to this definition"></a></dt>
+<dd><p>parameters to build the underlying compute backend (simulator, etc).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.simulate_options">
+<span class="sig-name descname"><span class="pre">simulate_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.simulate_options" title="Link to this definition"></a></dt>
+<dd><p>Options for fine-control of the simulator backend, including desired measurement results, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.penalty_terms">
+<span class="sig-name descname"><span class="pre">penalty_terms</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.penalty_terms" title="Link to this definition"></a></dt>
+<dd><p>parameters for penalty terms to append to target qubit Hamiltonian (see penalty_terms
+for more details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.deflation_circuits">
+<span class="sig-name descname"><span class="pre">deflation_circuits</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.deflation_circuits" title="Link to this definition"></a></dt>
+<dd><p>Deflation circuits to add an orthogonalization penalty with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.deflation_coeff">
+<span class="sig-name descname"><span class="pre">deflation_coeff</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.deflation_coeff" title="Link to this definition"></a></dt>
+<dd><p>The coefficient of the deflation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.ansatz_options">
+<span class="sig-name descname"><span class="pre">ansatz_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.ansatz_options" title="Link to this definition"></a></dt>
+<dd><p>parameters for the given ansatz (see given ansatz file for details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>change basis ordering putting all spin up orbitals first, followed by all spin down.
+Default, False has alternating spin up/down ordering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.qubit_hamiltonian">
+<span class="sig-name descname"><span class="pre">qubit_hamiltonian</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.qubit_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QubitOperator-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.verbose" title="Link to this definition"></a></dt>
+<dd><p>Flag for VQE verbosity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.projective_circuit">
+<span class="sig-name descname"><span class="pre">projective_circuit</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.projective_circuit" title="Link to this definition"></a></dt>
+<dd><p>A terminal circuit that projects into the correct space, always added to
+the end of the ansatz circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.ref_states">
+<span class="sig-name descname"><span class="pre">ref_states</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.ref_states" title="Link to this definition"></a></dt>
+<dd><p>The vector occupations of the reference configurations or the reference circuits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.weights">
+<span class="sig-name descname"><span class="pre">weights</span></span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.weights" title="Link to this definition"></a></dt>
+<dd><p>The weights of the occupations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.build" title="Link to this definition"></a></dt>
+<dd><p>Build the underlying objects required to run the SA-VQE algorithm
+afterwards.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.energy_estimation">
+<span class="sig-name descname"><span class="pre">energy_estimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.energy_estimation" title="Link to this definition"></a></dt>
+<dd><p>Estimate state-averaged energy using the given ansatz, qubit hamiltonian and compute
+backend. Keeps track of optimal energy and variational parameters along
+the way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>var_params</strong> (<em>numpy.array</em><em> or </em><em>str</em>) – variational parameters to use for
+VQE energy evaluation.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – energy computed by VQE using the ansatz and input
+variational parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.get_resources" title="Link to this definition"></a></dt>
+<dd><p>Estimate the resources required by SA-VQE, with the current ansatz. This
+assumes “build” has been run, as it requires the ansatz circuit and the
+qubit Hamiltonian. Return information that pertains to the user, for the
+purpose of running an experiment on a classical simulator or a quantum
+device.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.simulate" title="Link to this definition"></a></dt>
+<dd><p>Run the SA-VQE algorithm, using the ansatz, classical optimizer, initial
+parameters and hardware backend built in the build method.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms.variational.tetris_adapt_vqe_solver">
+<span id="tangelo-algorithms-variational-tetris-adapt-vqe-solver-module"></span><h2>tangelo.algorithms.variational.tetris_adapt_vqe_solver module<a class="headerlink" href="#module-tangelo.algorithms.variational.tetris_adapt_vqe_solver" title="Link to this heading"></a></h2>
+<p>Module that defines the TETRIS-ADAPT-VQE algorithm framework. Differences vs
+ADAPT-VQE: more than one operators acting on different qubits can be added to
+the adaptive ansatz during the same ADAPT cycle. This algorithm creates denser
+circuits.</p>
+<dl class="simple">
+<dt>Ref:</dt><dd><p>Panagiotis G. Anastasiou, Yanzhu Chen, Nicholas J. Mayhall, Edwin Barnes,
+and Sophia E. Economou.
+TETRIS-ADAPT-VQE: An adaptive algorithm that yields shallower, denser
+circuit ansätze
+arXiv:2209.10562 (2022)</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.tetris_adapt_vqe_solver.TETRISADAPTSolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.variational.tetris_adapt_vqe_solver.</span></span><span class="sig-name descname"><span class="pre">TETRISADAPTSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.tetris_adapt_vqe_solver.TETRISADAPTSolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver" title="tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">ADAPTSolver</span></code></a></p>
+<p>TETRIS-ADAPT-VQE class. This is an iterative algorithm that uses VQE. A
+single method is redefined from ADAPTSolver to allow the addition of many
+operators per ADAPT cycle.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.tetris_adapt_vqe_solver.TETRISADAPTSolver.choose_operator">
+<span class="sig-name descname"><span class="pre">choose_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gradients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.tetris_adapt_vqe_solver.TETRISADAPTSolver.choose_operator" title="Link to this definition"></a></dt>
+<dd><p>Choose the next operator(s) to add according to the TETRIS-ADAPT-VQE
+algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gradients</strong> (<em>list</em><em> of </em><em>float</em>) – Operator gradients (absolute values)
+corresponding to self.pool_operators.</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>) – Minimum value for gradient to be considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list of int</strong> – Indice(s) of the operator(s) to be considered for this
+ADAPT cycle.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms.variational.vqe_solver">
+<span id="tangelo-algorithms-variational-vqe-solver-module"></span><h2>tangelo.algorithms.variational.vqe_solver module<a class="headerlink" href="#module-tangelo.algorithms.variational.vqe_solver" title="Link to this heading"></a></h2>
+<p>Implements the variational quantum eigensolver (VQE) algorithm to solve
+electronic structure calculations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.variational.vqe_solver.</span></span><span class="sig-name descname"><span class="pre">BuiltInAnsatze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumeration of the ansatz circuits supported by VQE.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.HEA">
+<span class="sig-name descname"><span class="pre">HEA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.ansatz_generator.hea.HEA'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.HEA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.ILC">
+<span class="sig-name descname"><span class="pre">ILC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.ansatz_generator.ilc.ILC'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.ILC" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.QCC">
+<span class="sig-name descname"><span class="pre">QCC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.ansatz_generator.qcc.QCC'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.QCC" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.QMF">
+<span class="sig-name descname"><span class="pre">QMF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.ansatz_generator.qmf.QMF'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.QMF" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCC1">
+<span class="sig-name descname"><span class="pre">UCC1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;tangelo.toolboxes.ansatz_generator.rucc.RUCC</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCC1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCC3">
+<span class="sig-name descname"><span class="pre">UCC3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;tangelo.toolboxes.ansatz_generator.rucc.RUCC</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCC3" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCCGD">
+<span class="sig-name descname"><span class="pre">UCCGD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.ansatz_generator.uccgd.UCCGD'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCCGD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCCSD">
+<span class="sig-name descname"><span class="pre">UCCSD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.ansatz_generator.uccsd.UCCSD'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCCSD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UpCCGSD">
+<span class="sig-name descname"><span class="pre">UpCCGSD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.ansatz_generator.upccgsd.UpCCGSD'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UpCCGSD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.VSQS">
+<span class="sig-name descname"><span class="pre">VSQS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.ansatz_generator.vsqs.VSQS'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.VSQS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.pUCCD">
+<span class="sig-name descname"><span class="pre">pUCCD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'tangelo.toolboxes.ansatz_generator.puccd.pUCCD'&gt;</span></em><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.pUCCD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.variational.vqe_solver.</span></span><span class="sig-name descname"><span class="pre">VQESolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Solve the electronic structure problem for a molecular system by using
+the variational quantum eigensolver (VQE) algorithm.</p>
+<p>This algorithm evaluates the energy of a molecular system by performing
+classical optimization over a parametrized ansatz circuit.</p>
+<p>Users must first set the desired options of the VQESolver object through the
+__init__ method, and call the “build” method to build the underlying objects
+(mean-field, hardware backend, ansatz…). They are then able to call any of
+the energy_estimation, simulate, or get_rdm methods. In particular, simulate
+runs the VQE algorithm, returning the optimal energy found by the classical
+optimizer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.molecule" title="Link to this definition"></a></dt>
+<dd><p>the molecular system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.qubit_mapping">
+<span class="sig-name descname"><span class="pre">qubit_mapping</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.qubit_mapping" title="Link to this definition"></a></dt>
+<dd><p>one of the supported qubit mapping identifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.ansatz">
+<span class="sig-name descname"><span class="pre">ansatz</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.ansatz" title="Link to this definition"></a></dt>
+<dd><p>one of the supported ansatze.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Ansatze</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.optimizer">
+<span class="sig-name descname"><span class="pre">optimizer</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.optimizer" title="Link to this definition"></a></dt>
+<dd><p>a function defining the classical optimizer
+and its behavior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>function handle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.initial_var_params">
+<span class="sig-name descname"><span class="pre">initial_var_params</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.initial_var_params" title="Link to this definition"></a></dt>
+<dd><p>initial value for the classical
+optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.backend_options">
+<span class="sig-name descname"><span class="pre">backend_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.backend_options" title="Link to this definition"></a></dt>
+<dd><p>parameters to build the underlying compute backend (simulator, etc).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.simulate_options">
+<span class="sig-name descname"><span class="pre">simulate_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.simulate_options" title="Link to this definition"></a></dt>
+<dd><p>Options for fine-control of the simulator backend, including desired measurement results, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.penalty_terms">
+<span class="sig-name descname"><span class="pre">penalty_terms</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.penalty_terms" title="Link to this definition"></a></dt>
+<dd><p>parameters for penalty terms to append to target
+qubit Hamiltonian (see penalty_terms for more details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.deflation_circuits">
+<span class="sig-name descname"><span class="pre">deflation_circuits</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.deflation_circuits" title="Link to this definition"></a></dt>
+<dd><p>Deflation circuits to add an
+orthogonalization penalty with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.deflation_coeff">
+<span class="sig-name descname"><span class="pre">deflation_coeff</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.deflation_coeff" title="Link to this definition"></a></dt>
+<dd><p>The coefficient of the deflation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.ansatz_options">
+<span class="sig-name descname"><span class="pre">ansatz_options</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.ansatz_options" title="Link to this definition"></a></dt>
+<dd><p>parameters for the given ansatz (see given ansatz
+file for details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.up_then_down">
+<span class="sig-name descname"><span class="pre">up_then_down</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.up_then_down" title="Link to this definition"></a></dt>
+<dd><p>change basis ordering putting all spin up orbitals
+first, followed by all spin down. Default, False has alternating</p>
+<blockquote>
+<div><p>spin up/down ordering.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.qubit_hamiltonian">
+<span class="sig-name descname"><span class="pre">qubit_hamiltonian</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.qubit_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QubitOperator-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.verbose" title="Link to this definition"></a></dt>
+<dd><p>Flag for VQE verbosity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.projective_circuit">
+<span class="sig-name descname"><span class="pre">projective_circuit</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.projective_circuit" title="Link to this definition"></a></dt>
+<dd><p>A terminal circuit that projects into the correct space, always added to
+the end of the ansatz circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.ref_state">
+<span class="sig-name descname"><span class="pre">ref_state</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.ref_state" title="Link to this definition"></a></dt>
+<dd><p>The reference configuration to use. Replaces HF state
+QMF, QCC, ILC require ref_state to be an array. UCC1, UCC3, VSQS can not use a
+different ref_state than HF by construction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array or <a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit">Circuit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.save_energies">
+<span class="sig-name descname"><span class="pre">save_energies</span></span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.save_energies" title="Link to this definition"></a></dt>
+<dd><p>Flag for saving energy estimation values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.build" title="Link to this definition"></a></dt>
+<dd><p>Build the underlying objects required to run the VQE algorithm afterwards.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.energy_estimation">
+<span class="sig-name descname"><span class="pre">energy_estimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.energy_estimation" title="Link to this definition"></a></dt>
+<dd><p>Estimate energy using the given ansatz, qubit hamiltonian and compute
+backend. Keeps track of optimal energy and variational parameters along
+the way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>var_params</strong> (<em>numpy.array</em><em> or </em><em>str</em>) – variational parameters to use for
+VQE energy evaluation.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – energy computed by VQE using the ansatz and input
+variational parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.get_rdm">
+<span class="sig-name descname"><span class="pre">get_rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resample=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sum_spin=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_state=&lt;tangelo.linq.circuit.Circuit</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.get_rdm" title="Link to this definition"></a></dt>
+<dd><p>Compute the 1- and 2- RDM matrices using the VQE energy evaluation.
+This method allows to combine the DMET problem decomposition technique
+with the VQE as an electronic structure solver. The RDMs are computed by
+using each fermionic Hamiltonian term, transforming them and computing
+the elements one-by-one. Note that the Hamiltonian coefficients will not
+be multiplied as in the energy evaluation. The first element of the
+Hamiltonian is the nuclear repulsion energy term, not the Hamiltonian
+term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var_params</strong> (<em>numpy.array</em><em> or </em><em>list</em>) – variational parameters to use for
+rdm calculation</p></li>
+<li><p><strong>resample</strong> (<em>bool</em>) – Whether to resample saved frequencies. get_rdm with
+savefrequencies=True must be called or a dictionary for each
+qubit terms’ frequencies must be set to self.rdm_freq_dict</p></li>
+<li><p><strong>sum_spin</strong> (<em>bool</em>) – If True, the spin-summed 1-RDM and 2-RDM will be
+returned. If False, the full 1-RDM and 2-RDM will be returned.</p></li>
+<li><p><strong>ref_state</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – A reference state preparation circuit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(numpy.array, numpy.array)</strong> – One &amp; two-particle spin summed RDMs if
+sumspin=True or the full One &amp; two-Particle RDMs if
+sumspin=False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.get_rdm_uhf">
+<span class="sig-name descname"><span class="pre">get_rdm_uhf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resample=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_state=&lt;tangelo.linq.circuit.Circuit</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.get_rdm_uhf" title="Link to this definition"></a></dt>
+<dd><p>Compute the 1- and 2- RDM matrices using the VQE energy evaluation.
+This method allows to combine the DMET problem decomposition technique
+with the VQE as an electronic structure solver. The RDMs are computed by
+using each fermionic Hamiltonian term, transforming them and computing
+the elements one-by-one. Note that the Hamiltonian coefficients will not
+be multiplied as in the energy evaluation. The first element of the
+Hamiltonian is the nuclear repulsion energy term, not the Hamiltonian
+term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var_params</strong> (<em>numpy.array</em><em> or </em><em>list</em>) – variational parameters to use for
+rdm calculation</p></li>
+<li><p><strong>resample</strong> (<em>bool</em>) – Whether to resample saved frequencies. get_rdm with
+savefrequencies=True must be called or a dictionary for each
+qubit terms’ frequencies must be set to self.rdm_freq_dict</p></li>
+<li><p><strong>ref_state</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – A reference state preparation circuit.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns: TODO</dt><dd><dl class="simple">
+<dt>(numpy.array, numpy.array): One &amp; two-particle spin summed RDMs if</dt><dd><p>sumspin=True or the full One &amp; two-Particle RDMs if
+sumspin=False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.get_resources" title="Link to this definition"></a></dt>
+<dd><p>Estimate the resources required by VQE, with the current ansatz. This
+assumes “build” has been run, as it requires the ansatz circuit and the
+qubit Hamiltonian. Return information that pertains to the user, for the
+purpose of running an experiment on a classical simulator or a quantum
+device.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.operator_expectation">
+<span class="sig-name descname"><span class="pre">operator_expectation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_params=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_active_mos=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_active_electrons=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_active_sos=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_state=&lt;tangelo.linq.circuit.Circuit</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.operator_expectation" title="Link to this definition"></a></dt>
+<dd><p>Obtains the operator expectation value of a given operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operator</strong> (<em>str</em><em> or </em><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – The operator to find the
+expectation value of str availability:
+- N : Particle number
+- Sz: Spin in z-direction
+- S^2: Spin quantum number s(s+1)</p></li>
+<li><p><strong>var_params</strong> (<em>str</em><em> or </em><em>numpy.array</em>) – variational parameters to use
+for VQE expectation value evaluation.</p></li>
+<li><p><strong>n_active_mos</strong> (<em>int</em>) – The number of active_mos (int). Only
+required when using a str input and VQESolver is initiated
+with a QubitHamiltonian.</p></li>
+<li><p><strong>n_active_electrons</strong> (<em>int</em>) – The number of active electrons. Only
+required when operator is of type FermionOperator and
+mapping used is scbk and vqe_solver was initiated using a
+QubitHamiltonian.</p></li>
+<li><p><strong>n_active_sos</strong> (<em>int</em>) – Number of active spin orbitals. Only
+required when operator is of type FermionOperator and
+mapping used is scbk and vqe_solver was initiated using a
+QubitHamiltonian.</p></li>
+<li><p><strong>spin</strong> (<em>int</em>) – Spin (n_alpha - n_beta)</p></li>
+<li><p><strong>ref_state</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – A reference state preparation circuit</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – operator expectation value computed by VQE using the
+ansatz and input variational parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.variational.vqe_solver.VQESolver.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.variational.vqe_solver.VQESolver.simulate" title="Link to this definition"></a></dt>
+<dd><p>Run the VQE algorithm, using the ansatz, classical optimizer, initial
+parameters and hardware backend built in the build method.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms.variational">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.algorithms.variational" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.algorithms.projective.html" class="btn btn-neutral float-left" title="tangelo.algorithms.projective package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.helpers.html" class="btn btn-neutral float-right" title="tangelo.helpers package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.linq package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.linq.helpers package" href="tangelo.linq.helpers.html" />
+    <link rel="prev" title="tangelo.helpers package" href="tangelo.helpers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">tangelo.linq package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.linq.circuit">tangelo.linq.circuit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.linq.gate">tangelo.linq.gate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.linq.qdk_template">tangelo.linq.qdk_template module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.linq.simulator">tangelo.linq.simulator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.linq">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+      <li class="breadcrumb-item active">tangelo.linq package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.linq.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-linq-package">
+<h1>tangelo.linq package<a class="headerlink" href="#tangelo-linq-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.linq.helpers.html">tangelo.linq.helpers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.helpers.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.helpers.circuits.html">tangelo.linq.helpers.circuits package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.circuits.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.circuits.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.circuits.html#module-tangelo.linq.helpers.circuits.clifford_circuits">tangelo.linq.helpers.circuits.clifford_circuits module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.circuits.html#module-tangelo.linq.helpers.circuits.measurement_basis">tangelo.linq.helpers.circuits.measurement_basis module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.circuits.html#module-tangelo.linq.helpers.circuits.statevector">tangelo.linq.helpers.circuits.statevector module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.circuits.html#module-tangelo.linq.helpers.circuits">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.helpers.operators.html">tangelo.linq.helpers.operators package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.operators.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.operators.html#module-tangelo.linq.helpers.operators.operators">tangelo.linq.helpers.operators.operators module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.helpers.operators.html#module-tangelo.linq.helpers.operators">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.helpers.html#module-tangelo.linq.helpers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.linq.noisy_simulation.html">tangelo.linq.noisy_simulation package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#module-tangelo.linq.noisy_simulation.noise_models">tangelo.linq.noisy_simulation.noise_models module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#tangelo.linq.noisy_simulation.noise_models.NoiseModel"><code class="docutils literal notranslate"><span class="pre">NoiseModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#tangelo.linq.noisy_simulation.noise_models.NoiseModel.add_quantum_error"><code class="docutils literal notranslate"><span class="pre">NoiseModel.add_quantum_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#tangelo.linq.noisy_simulation.noise_models.NoiseModel.noisy_gates"><code class="docutils literal notranslate"><span class="pre">NoiseModel.noisy_gates</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#tangelo.linq.noisy_simulation.noise_models.get_qiskit_noise_dict"><code class="docutils literal notranslate"><span class="pre">get_qiskit_noise_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#tangelo.linq.noisy_simulation.noise_models.get_qiskit_noise_model"><code class="docutils literal notranslate"><span class="pre">get_qiskit_noise_model()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.noisy_simulation.html#module-tangelo.linq.noisy_simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.linq.qpu_connection.html">tangelo.linq.qpu_connection package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.qpu_connection.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection.braket_connection">tangelo.linq.qpu_connection.braket_connection module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.BraketConnection"><code class="docutils literal notranslate"><span class="pre">BraketConnection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.BraketConnection.get_backend_info"><code class="docutils literal notranslate"><span class="pre">BraketConnection.get_backend_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_cancel"><code class="docutils literal notranslate"><span class="pre">BraketConnection.job_cancel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_results"><code class="docutils literal notranslate"><span class="pre">BraketConnection.job_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_status"><code class="docutils literal notranslate"><span class="pre">BraketConnection.job_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.BraketConnection.job_submit"><code class="docutils literal notranslate"><span class="pre">BraketConnection.job_submit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders"><code class="docutils literal notranslate"><span class="pre">SupportedBraketProviders</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.AMAZON"><code class="docutils literal notranslate"><span class="pre">SupportedBraketProviders.AMAZON</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.IONQ"><code class="docutils literal notranslate"><span class="pre">SupportedBraketProviders.IONQ</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.OXFORD"><code class="docutils literal notranslate"><span class="pre">SupportedBraketProviders.OXFORD</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.SupportedBraketProviders.RIGETTI"><code class="docutils literal notranslate"><span class="pre">SupportedBraketProviders.RIGETTI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.braket_connection.refresh_available_braket_devices"><code class="docutils literal notranslate"><span class="pre">refresh_available_braket_devices()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection.ibm_connection">tangelo.linq.qpu_connection.ibm_connection module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ibm_connection.IBMConnection"><code class="docutils literal notranslate"><span class="pre">IBMConnection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ibm_connection.IBMConnection.get_backend_info"><code class="docutils literal notranslate"><span class="pre">IBMConnection.get_backend_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_cancel"><code class="docutils literal notranslate"><span class="pre">IBMConnection.job_cancel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_results"><code class="docutils literal notranslate"><span class="pre">IBMConnection.job_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_status"><code class="docutils literal notranslate"><span class="pre">IBMConnection.job_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ibm_connection.IBMConnection.job_submit"><code class="docutils literal notranslate"><span class="pre">IBMConnection.job_submit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection.ionq_connection">tangelo.linq.qpu_connection.ionq_connection module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ionq_connection.IonQConnection"><code class="docutils literal notranslate"><span class="pre">IonQConnection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.get_backend_info"><code class="docutils literal notranslate"><span class="pre">IonQConnection.get_backend_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.get_characterization"><code class="docutils literal notranslate"><span class="pre">IonQConnection.get_characterization()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.header"><code class="docutils literal notranslate"><span class="pre">IonQConnection.header</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_cancel"><code class="docutils literal notranslate"><span class="pre">IonQConnection.job_cancel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_get_history"><code class="docutils literal notranslate"><span class="pre">IonQConnection.job_get_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_results"><code class="docutils literal notranslate"><span class="pre">IonQConnection.job_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_status"><code class="docutils literal notranslate"><span class="pre">IonQConnection.job_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.ionq_connection.IonQConnection.job_submit"><code class="docutils literal notranslate"><span class="pre">IonQConnection.job_submit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection.qemist_cloud_connection">tangelo.linq.qpu_connection.qemist_cloud_connection module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection"><code class="docutils literal notranslate"><span class="pre">QEMISTCloudConnection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_cancel"><code class="docutils literal notranslate"><span class="pre">QEMISTCloudConnection.job_cancel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_estimate"><code class="docutils literal notranslate"><span class="pre">QEMISTCloudConnection.job_estimate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_results"><code class="docutils literal notranslate"><span class="pre">QEMISTCloudConnection.job_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_status"><code class="docutils literal notranslate"><span class="pre">QEMISTCloudConnection.job_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qemist_cloud_connection.QEMISTCloudConnection.job_submit"><code class="docutils literal notranslate"><span class="pre">QEMISTCloudConnection.job_submit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection.qpu_connection">tangelo.linq.qpu_connection.qpu_connection module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qpu_connection.QpuConnection"><code class="docutils literal notranslate"><span class="pre">QpuConnection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_cancel"><code class="docutils literal notranslate"><span class="pre">QpuConnection.job_cancel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_results"><code class="docutils literal notranslate"><span class="pre">QpuConnection.job_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_status"><code class="docutils literal notranslate"><span class="pre">QpuConnection.job_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.qpu_connection.html#tangelo.linq.qpu_connection.qpu_connection.QpuConnection.job_submit"><code class="docutils literal notranslate"><span class="pre">QpuConnection.job_submit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.qpu_connection.html#module-tangelo.linq.qpu_connection">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.linq.target.html">tangelo.linq.target package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.target.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.backend">tangelo.linq.target.backend module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend"><code class="docutils literal notranslate"><span class="pre">Backend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend.backend_info"><code class="docutils literal notranslate"><span class="pre">Backend.backend_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend.collapse_statevector_to_desired_measurement"><code class="docutils literal notranslate"><span class="pre">Backend.collapse_statevector_to_desired_measurement()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend.get_expectation_value"><code class="docutils literal notranslate"><span class="pre">Backend.get_expectation_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend.get_expectation_value_from_frequencies_oneterm"><code class="docutils literal notranslate"><span class="pre">Backend.get_expectation_value_from_frequencies_oneterm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend.get_standard_error"><code class="docutils literal notranslate"><span class="pre">Backend.get_standard_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend.get_variance"><code class="docutils literal notranslate"><span class="pre">Backend.get_variance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend.get_variance_from_frequencies_oneterm"><code class="docutils literal notranslate"><span class="pre">Backend.get_variance_from_frequencies_oneterm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend.perform_measurement"><code class="docutils literal notranslate"><span class="pre">Backend.perform_measurement()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend.simulate"><code class="docutils literal notranslate"><span class="pre">Backend.simulate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend.simulate_circuit"><code class="docutils literal notranslate"><span class="pre">Backend.simulate_circuit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.collapse_statevector_to_desired_measurement"><code class="docutils literal notranslate"><span class="pre">collapse_statevector_to_desired_measurement()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.get_expectation_value_from_frequencies_oneterm"><code class="docutils literal notranslate"><span class="pre">get_expectation_value_from_frequencies_oneterm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.get_variance_from_frequencies_oneterm"><code class="docutils literal notranslate"><span class="pre">get_variance_from_frequencies_oneterm()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_cirq">tangelo.linq.target.target_cirq module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_cirq.CirqSimulator"><code class="docutils literal notranslate"><span class="pre">CirqSimulator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_cirq.CirqSimulator.backend_info"><code class="docutils literal notranslate"><span class="pre">CirqSimulator.backend_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_cirq.CirqSimulator.expectation_value_from_prepared_state"><code class="docutils literal notranslate"><span class="pre">CirqSimulator.expectation_value_from_prepared_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_cirq.CirqSimulator.simulate_circuit"><code class="docutils literal notranslate"><span class="pre">CirqSimulator.simulate_circuit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_qdk">tangelo.linq.target.target_qdk module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_qdk.QDKSimulator"><code class="docutils literal notranslate"><span class="pre">QDKSimulator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_qdk.QDKSimulator.backend_info"><code class="docutils literal notranslate"><span class="pre">QDKSimulator.backend_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_qdk.QDKSimulator.simulate_circuit"><code class="docutils literal notranslate"><span class="pre">QDKSimulator.simulate_circuit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_qiskit">tangelo.linq.target.target_qiskit module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_qiskit.QiskitSimulator"><code class="docutils literal notranslate"><span class="pre">QiskitSimulator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_qiskit.QiskitSimulator.backend_info"><code class="docutils literal notranslate"><span class="pre">QiskitSimulator.backend_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_qiskit.QiskitSimulator.simulate_circuit"><code class="docutils literal notranslate"><span class="pre">QiskitSimulator.simulate_circuit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_qulacs">tangelo.linq.target.target_qulacs module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_qulacs.QulacsSimulator"><code class="docutils literal notranslate"><span class="pre">QulacsSimulator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_qulacs.QulacsSimulator.backend_info"><code class="docutils literal notranslate"><span class="pre">QulacsSimulator.backend_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_qulacs.QulacsSimulator.expectation_value_from_prepared_state"><code class="docutils literal notranslate"><span class="pre">QulacsSimulator.expectation_value_from_prepared_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_qulacs.QulacsSimulator.simulate_circuit"><code class="docutils literal notranslate"><span class="pre">QulacsSimulator.simulate_circuit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_stim">tangelo.linq.target.target_stim module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_stim.StimSimulator"><code class="docutils literal notranslate"><span class="pre">StimSimulator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_stim.StimSimulator.backend_info"><code class="docutils literal notranslate"><span class="pre">StimSimulator.backend_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_stim.StimSimulator.simulate_circuit"><code class="docutils literal notranslate"><span class="pre">StimSimulator.simulate_circuit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target.target_sympy">tangelo.linq.target.target_sympy module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_sympy.SympySimulator"><code class="docutils literal notranslate"><span class="pre">SympySimulator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_sympy.SympySimulator.backend_info"><code class="docutils literal notranslate"><span class="pre">SympySimulator.backend_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_sympy.SympySimulator.expectation_value_from_prepared_state"><code class="docutils literal notranslate"><span class="pre">SympySimulator.expectation_value_from_prepared_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.target_sympy.SympySimulator.simulate_circuit"><code class="docutils literal notranslate"><span class="pre">SympySimulator.simulate_circuit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.target.html#module-tangelo.linq.target">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.linq.translator.html">tangelo.linq.translator package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.qdk_template">tangelo.linq.translator.qdk_template module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_braket">tangelo.linq.translator.translate_braket module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_braket.get_braket_gates"><code class="docutils literal notranslate"><span class="pre">get_braket_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_braket.translate_c_from_braket"><code class="docutils literal notranslate"><span class="pre">translate_c_from_braket()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_braket.translate_c_to_braket"><code class="docutils literal notranslate"><span class="pre">translate_c_to_braket()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_circuit">tangelo.linq.translator.translate_circuit module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_circuit.translate_circuit"><code class="docutils literal notranslate"><span class="pre">translate_circuit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_cirq">tangelo.linq.translator.translate_cirq module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_cirq.get_cirq_gates"><code class="docutils literal notranslate"><span class="pre">get_cirq_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_cirq.translate_c_to_cirq"><code class="docutils literal notranslate"><span class="pre">translate_c_to_cirq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_cirq.translate_op_from_cirq"><code class="docutils literal notranslate"><span class="pre">translate_op_from_cirq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_cirq.translate_op_to_cirq"><code class="docutils literal notranslate"><span class="pre">translate_op_to_cirq()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_json_ionq">tangelo.linq.translator.translate_json_ionq module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_json_ionq.get_ionq_gates"><code class="docutils literal notranslate"><span class="pre">get_ionq_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_json_ionq.translate_c_from_json_ionq"><code class="docutils literal notranslate"><span class="pre">translate_c_from_json_ionq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_json_ionq.translate_c_to_json_ionq"><code class="docutils literal notranslate"><span class="pre">translate_c_to_json_ionq()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_openqasm">tangelo.linq.translator.translate_openqasm module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_openqasm.get_openqasm_gates"><code class="docutils literal notranslate"><span class="pre">get_openqasm_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_openqasm.translate_c_from_openqasm"><code class="docutils literal notranslate"><span class="pre">translate_c_from_openqasm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_openqasm.translate_c_to_openqasm"><code class="docutils literal notranslate"><span class="pre">translate_c_to_openqasm()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_pennylane">tangelo.linq.translator.translate_pennylane module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_pennylane.get_pennylane_gates"><code class="docutils literal notranslate"><span class="pre">get_pennylane_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_pennylane.translate_c_to_pennylane"><code class="docutils literal notranslate"><span class="pre">translate_c_to_pennylane()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_pennylane.translate_op_from_pennylane"><code class="docutils literal notranslate"><span class="pre">translate_op_from_pennylane()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_pennylane.translate_op_to_pennylane"><code class="docutils literal notranslate"><span class="pre">translate_op_to_pennylane()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_projectq">tangelo.linq.translator.translate_projectq module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_projectq.get_projectq_gates"><code class="docutils literal notranslate"><span class="pre">get_projectq_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_projectq.translate_c_from_projectq"><code class="docutils literal notranslate"><span class="pre">translate_c_from_projectq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_projectq.translate_c_to_projectq"><code class="docutils literal notranslate"><span class="pre">translate_c_to_projectq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_projectq.translate_op_from_projectq"><code class="docutils literal notranslate"><span class="pre">translate_op_from_projectq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_projectq.translate_op_to_projectq"><code class="docutils literal notranslate"><span class="pre">translate_op_to_projectq()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_qdk">tangelo.linq.translator.translate_qdk module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qdk.get_qdk_gates"><code class="docutils literal notranslate"><span class="pre">get_qdk_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qdk.translate_c_to_qsharp"><code class="docutils literal notranslate"><span class="pre">translate_c_to_qsharp()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_qiskit">tangelo.linq.translator.translate_qiskit module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qiskit.get_qiskit_gates"><code class="docutils literal notranslate"><span class="pre">get_qiskit_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qiskit.translate_c_from_qiskit"><code class="docutils literal notranslate"><span class="pre">translate_c_from_qiskit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qiskit.translate_c_to_qiskit"><code class="docutils literal notranslate"><span class="pre">translate_c_to_qiskit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qiskit.translate_op_from_qiskit"><code class="docutils literal notranslate"><span class="pre">translate_op_from_qiskit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qiskit.translate_op_to_qiskit"><code class="docutils literal notranslate"><span class="pre">translate_op_to_qiskit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_qubitop">tangelo.linq.translator.translate_qubitop module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qubitop.translate_operator"><code class="docutils literal notranslate"><span class="pre">translate_operator()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_qulacs">tangelo.linq.translator.translate_qulacs module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qulacs.get_qulacs_gates"><code class="docutils literal notranslate"><span class="pre">get_qulacs_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qulacs.translate_c_to_qulacs"><code class="docutils literal notranslate"><span class="pre">translate_c_to_qulacs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qulacs.translate_op_from_qulacs"><code class="docutils literal notranslate"><span class="pre">translate_op_from_qulacs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_qulacs.translate_op_to_qulacs"><code class="docutils literal notranslate"><span class="pre">translate_op_to_qulacs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_stim">tangelo.linq.translator.translate_stim module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_stim.get_stim_gates"><code class="docutils literal notranslate"><span class="pre">get_stim_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_stim.translate_c_to_stim"><code class="docutils literal notranslate"><span class="pre">translate_c_to_stim()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_stim.translate_tableau"><code class="docutils literal notranslate"><span class="pre">translate_tableau()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator.translate_sympy">tangelo.linq.translator.translate_sympy module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_sympy.controlled_gate"><code class="docutils literal notranslate"><span class="pre">controlled_gate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_sympy.get_sympy_gates"><code class="docutils literal notranslate"><span class="pre">get_sympy_gates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_sympy.p_gate"><code class="docutils literal notranslate"><span class="pre">p_gate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_sympy.rx_gate"><code class="docutils literal notranslate"><span class="pre">rx_gate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_sympy.ry_gate"><code class="docutils literal notranslate"><span class="pre">ry_gate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_sympy.rz_gate"><code class="docutils literal notranslate"><span class="pre">rz_gate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_sympy.translate_c_to_sympy"><code class="docutils literal notranslate"><span class="pre">translate_c_to_sympy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.translate_sympy.translate_op_to_sympy"><code class="docutils literal notranslate"><span class="pre">translate_op_to_sympy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.linq.translator.html#module-tangelo.linq.translator">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.translator.html#tangelo.linq.translator.get_supported_gates"><code class="docutils literal notranslate"><span class="pre">get_supported_gates()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.linq.circuit">
+<span id="tangelo-linq-circuit-module"></span><h2>tangelo.linq.circuit module<a class="headerlink" href="#module-tangelo.linq.circuit" title="Link to this heading"></a></h2>
+<p>This abstract quantum circuit class allows to represent a quantum circuit,
+described by successive abstract quantum gate operations, without tying it to a
+particular backend. It also provides methods to compute some of its
+characteristics (width, size …).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.circuit.</span></span><span class="sig-name descname"><span class="pre">Circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tangelo.linq.gate.Gate" title="tangelo.linq.gate.Gate"><span class="pre">Gate</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no_name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmeasure_control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An abstract quantum circuit class, represented by a list of abstract gate
+operations acting on qubits indices. From this list of gates, the gate
+counts, width and other properties can be computed. In the future, this
+information allows for finding unentangled registers or qubits only left in
+a classical state.</p>
+<p>The attributes of the Circuit class should not be modified by the user: the
+add_gate method will ensure their value is correct as gates are added to the
+circuit object.</p>
+<p>It is however ok to modify the value of the parameters for variational gate
+operations in a sub-class of Circuit, as this does not impact the quantum
+circuit information. An example of how to do this to engineer a
+parameterized ansatz to be used in a variational algorithm in available in
+the example folder.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.add_gate">
+<span class="sig-name descname"><span class="pre">add_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.add_gate" title="Link to this definition"></a></dt>
+<dd><p>Add a new gate to a circuit object and update other fields of the
+circuit object to gradually keep track of its properties (gate count,
+qubit indices…).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.applied_gates">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">applied_gates</span></span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.applied_gates" title="Link to this definition"></a></dt>
+<dd><p>Returns the list of gates applied during the latest simulation of the circuit.</p>
+<p>If a CMEASURE gate is applied, the resulting circuit can be different from the _gates,
+The CMEASURE or MEASURE gate will store its measurement result as the parameter.</p>
+<p>Example: circuit = Circuit([Gate(“H”, 0), Gate(“CMEASURE”, 0, {“0”: Gate(“X”, 0) “1”: []})])
+will have circuit.applied_gates = [Gate(“H”, 0), Gate(“CMEASURE”, 0, parameter=”0”), Gate(“X”, 1)]  or</p>
+<blockquote>
+<div><p>circuit.applied_gates = [Gate(“H”, 0), Gate(“CMEASURE”, 0, parameter=”1”)]</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.controlled_measurement_op">
+<span class="sig-name descname"><span class="pre">controlled_measurement_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.controlled_measurement_op" title="Link to this definition"></a></dt>
+<dd><p>Call the object self._cmeasure_control and return the next circuit to apply.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.copy" title="Link to this definition"></a></dt>
+<dd><p>Return a deepcopy of circuit</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.counts">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">counts</span></span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.counts" title="Link to this definition"></a></dt>
+<dd><p>Return the counts for all gate types included in the circuit.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.counts_n_qubit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">counts_n_qubit</span></span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.counts_n_qubit" title="Link to this definition"></a></dt>
+<dd><p>Return the number of 1-qubit gates, 2-qubit gates, and so on.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.depth">
+<span class="sig-name descname"><span class="pre">depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.depth" title="Link to this definition"></a></dt>
+<dd><p>Return the depth of the quantum circuit, by computing the number of moments. Does not count
+qubit initialization as a moment (unlike Cirq, for example). Compute from scratch.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.draw" title="Link to this definition"></a></dt>
+<dd><p>Method to output a prettier version of the circuit
+for use in jupyter notebooks that uses cirq SVGCircuit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.finalize_cmeasure_control">
+<span class="sig-name descname"><span class="pre">finalize_cmeasure_control</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.finalize_cmeasure_control" title="Link to this definition"></a></dt>
+<dd><p>Call the finalize method in cmeasure_control</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.fix_variational_parameters">
+<span class="sig-name descname"><span class="pre">fix_variational_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.fix_variational_parameters" title="Link to this definition"></a></dt>
+<dd><p>Fix all variational parameters in this circuit, making the corresponding gates non-variational.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.get_entangled_indices">
+<span class="sig-name descname"><span class="pre">get_entangled_indices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.get_entangled_indices" title="Link to this definition"></a></dt>
+<dd><p>Return a list of unentangled sets of qubit indices. Each set includes indices
+of qubits that form an entangled subset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.inverse" title="Link to this definition"></a></dt>
+<dd><p>Return the inverse (adjoint) of a circuit</p>
+<p>This is performed by reversing the Gate order and applying the inverse to each Gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Circuit</strong> – the inverted circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.is_mixed_state">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_mixed_state</span></span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.is_mixed_state" title="Link to this definition"></a></dt>
+<dd><p>Assume circuit leads to a mixed state due to mid-circuit measurement
+if any MEASURE or CMEASURE gate was explicitly added by the user.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.is_variational">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_variational</span></span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.is_variational" title="Link to this definition"></a></dt>
+<dd><p>Returns true if the circuit holds any variational gate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.merge_rotations">
+<span class="sig-name descname"><span class="pre">merge_rotations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.merge_rotations" title="Link to this definition"></a></dt>
+<dd><p>Convenience method to merge compatible rotations applied successively on identical qubits indices.
+The operation is done in-place and alters the input circuit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.reindex_qubits">
+<span class="sig-name descname"><span class="pre">reindex_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.reindex_qubits" title="Link to this definition"></a></dt>
+<dd><p>Reindex qubit indices according to users labels / new indices. The
+new indices are set according to [new_index_for_qubit0,
+nex_index_for_qubit1, …, new_index_for_qubit_N] where new_index &lt; N.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.remove_redundant_gates">
+<span class="sig-name descname"><span class="pre">remove_redundant_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remove_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.remove_redundant_gates" title="Link to this definition"></a></dt>
+<dd><p>Convenience method to remove redundant gates from the circuit.
+See separate remove_redundant_gates function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>remove_qubits</strong> (<em>bool</em>) – Optional, remove qubit with no operations assigned left</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit without redundant gates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.remove_small_rotations">
+<span class="sig-name descname"><span class="pre">remove_small_rotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.remove_small_rotations" title="Link to this definition"></a></dt>
+<dd><p>Convenience method to remove small rotations from the circuit.
+See separate remove_small_rotations function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param_threshold</strong> (<em>float</em>) – Optional, max absolute value to consider a rotation
+as small enough to be discarded</p></li>
+<li><p><strong>remove_qubits</strong> (<em>bool</em>) – Optional, remove qubit with no operations assigned left</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit without small rotations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.serialize">
+<span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.serialize" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.simplify">
+<span class="sig-name descname"><span class="pre">simplify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.simplify" title="Link to this definition"></a></dt>
+<dd><p>Convenience method to simplify gates in a circuit, by repeating a set of simple passes
+until no further changes occurs, or a maximum number of cycles has been reached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_cycles</strong> (<em>int</em>) – Optional, maximum number of cycles to perform</p></li>
+<li><p><strong>param_threshold</strong> (<em>float</em>) – Optional, max absolute value to consider a rotation
+as small enough to be discarded</p></li>
+<li><p><strong>remove_qubits</strong> (<em>bool</em>) – Optional, remove qubit with no operations assigned left</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.size" title="Link to this definition"></a></dt>
+<dd><p>The size is the number of gates in the circuit. It is different from
+the depth.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.split">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trim_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.split" title="Link to this definition"></a></dt>
+<dd><p>Split a circuit featuring unentangled qubit subsets into as many circuit objects.
+Each circuit only contains the gate operations targeting the qubit indices in its subsets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trim_qubits</strong> (<em>bool</em>) – Trim qubits on each circuit object and reindex to lowest value, Default: True</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list of Circuit</strong> – list of resulting circuits</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.stack">
+<span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">other_circuits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.stack" title="Link to this definition"></a></dt>
+<dd><p>Convenience method to stack other circuits on top of this one.
+See separate stack function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*other_circuits</strong> (<a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – one or several circuit objects to stack</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – the stacked circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.success_probabilities">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">success_probabilities</span></span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.success_probabilities" title="Link to this definition"></a></dt>
+<dd><p>Returns the dictionary of probabilities populated by simulating with different desired_meas_result.</p>
+<p>The keys of the dictionary are bit strings, corresponding to the desired outcomes in the order
+the measurement gates arise in the circuit.</p>
+<p>Each bit string must be simulated using a backend with n_shots=None and desired_meas_result=bitstring
+in order to populate the corresponding probability.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.trim_qubits">
+<span class="sig-name descname"><span class="pre">trim_qubits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.trim_qubits" title="Link to this definition"></a></dt>
+<dd><p>Trim unnecessary qubits and update indices with the lowest values possible.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.Circuit.width">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">width</span></span><a class="headerlink" href="#tangelo.linq.circuit.Circuit.width" title="Link to this definition"></a></dt>
+<dd><p>Return the number of qubits required by this circuit. Assume all
+qubits are needed, even those who do not appear in a gate instruction.
+Qubit indexing starts at 0.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.ClassicalControl">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.circuit.</span></span><span class="sig-name descname"><span class="pre">ClassicalControl</span></span><a class="headerlink" href="#tangelo.linq.circuit.ClassicalControl" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.ClassicalControl.finalize">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.ClassicalControl.finalize" title="Link to this definition"></a></dt>
+<dd><p>Called from simulator after all gates have been called.</p>
+<p>Can be used to reinitialize variables for the next run
+and store results.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.ClassicalControl.return_gates">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">return_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measurement</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tangelo.linq.gate.Gate" title="tangelo.linq.gate.Gate"><span class="pre">Gate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.linq.circuit.ClassicalControl.return_gates" title="Link to this definition"></a></dt>
+<dd><p>Return the list of gates based on the measurement outcome.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measurement</strong> (<em>str</em>) – “1” or “0”</p></li>
+<li><p><strong>qubit</strong> (<em>int</em>) – The qubit index</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>List[Gate]</strong> – The next gates to apply to the circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.generate_applied_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.circuit.</span></span><span class="sig-name descname"><span class="pre">generate_applied_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_meas_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tangelo.linq.gate.Gate" title="tangelo.linq.gate.Gate"><span class="pre">Gate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.linq.circuit.generate_applied_gates" title="Link to this definition"></a></dt>
+<dd><p>Generate the applied gates of a Circuit without explicitly simulating.</p>
+<p>Useful to determine the resources required for a circuit with measurement controlled operations given certain
+measurement outcomes.</p>
+<p>Note: Measurement outcomes with zero probability can not be screened.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_circuit</strong> (<a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – A circuit in the abstract format to be simulated with
+the classical control function called.</p></li>
+<li><p><strong>desired_meas_result</strong> (<em>str</em>) – The binary string of the desired measurement.
+Must have the same length as the number of CMEASURE+MEASURE gates in source_circuit</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.get_unitary_circuit_pieces">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.circuit.</span></span><span class="sig-name descname"><span class="pre">get_unitary_circuit_pieces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.linq.circuit.get_unitary_circuit_pieces" title="Link to this definition"></a></dt>
+<dd><p>Split circuit into the unitary circuits between mid-circuit non-unitary MEASURE gates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>circuit</strong> (<a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – the circuit to split</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>List[Circuit]</strong> – The list of unitary circuits with a terminal non-unitary operation.</p></li>
+<li><p><strong>List[int]</strong> – The qubits that the “MEASURE” operation is applied to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.merge_rotations">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.circuit.</span></span><span class="sig-name descname"><span class="pre">merge_rotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.merge_rotations" title="Link to this definition"></a></dt>
+<dd><p>Merge rotation gates successively applied to the same qubits (targets, controls), into a single
+equivalent rotation gate. If one of the gates involved is labeled variational, the merged rotation is
+as well.</p>
+<p>Agglomerating non-numerical values for parameters is currently unsupported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>circuit</strong> (<a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – Input quantum circuit</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – circuit with merged rotations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.remove_redundant_gates">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.circuit.</span></span><span class="sig-name descname"><span class="pre">remove_redundant_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.remove_redundant_gates" title="Link to this definition"></a></dt>
+<dd><p>Remove redundant gates in a circuit. Redundant gates are adjacent gates
+that can be cancelled as their global effect is the identity. This function
+also works with many-qubit gates. However, it does not perform reordering of
+commutating gates to perform additional cancellations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circuit</strong> (<a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – the circuits to remove redundant gates.</p></li>
+<li><p><strong>remove_qubits</strong> (<em>bool</em>) – Optional, remove qubit with no operations assigned left</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit without redundant gates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.remove_small_rotations">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.circuit.</span></span><span class="sig-name descname"><span class="pre">remove_small_rotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.remove_small_rotations" title="Link to this definition"></a></dt>
+<dd><p>Remove small rotation gates, up to a parameter threshold, from the
+circuit. Rotations from the set {“RX”, “RY”, “RZ”, “CRX”, “CRY”, “CRZ”} are
+considered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circuit</strong> (<a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – the circuits to trim and stack into a single one</p></li>
+<li><p><strong>param_threshold</strong> (<em>float</em>) – Optional, Max absolute value to consider a rotation
+small enough to be discarded</p></li>
+<li><p><strong>remove_qubits</strong> (<em>bool</em>) – Optional, remove qubit with no operations assigned left</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit without small-rotation gates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.simplify">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.circuit.</span></span><span class="sig-name descname"><span class="pre">simplify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.simplify" title="Link to this definition"></a></dt>
+<dd><p>Convenience function to simplify gates in a circuit, by repeating a set of simple passes
+until no further changes occurs, or a maximum number of cycles has been reached (out of place operation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circuit</strong> (<a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – the input circuit</p></li>
+<li><p><strong>max_cycles</strong> (<em>int</em>) – Optional, maximum number of cycles to perform</p></li>
+<li><p><strong>param_threshold</strong> (<em>float</em>) – Optional, max absolute value to consider a rotation
+as small enough to be discarded</p></li>
+<li><p><strong>remove_qubits</strong> (<em>bool</em>) – Optional, remove qubit with no operations assigned left</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The simplified circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.circuit.stack">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.circuit.</span></span><span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">circuits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.circuit.stack" title="Link to this definition"></a></dt>
+<dd><p>Take list of circuits as input, and stack them (e.g concatenate them along the
+width (qubits)) to form a single wider circuit, which allows users to run all of
+these circuits at once on a quantum device.</p>
+<p>Stacking provides a way to “fill up” a device if many qubits would be unused otherwise,
+therefore reducing cost / duration of a hardware experiment. However, depending on the
+device, this may amplify some sources of errors or make qubit placement more challenging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*circuits</strong> (<a class="reference internal" href="#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – the circuits to trim and stack into a single one</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – the stacked circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.gate">
+<span id="tangelo-linq-gate-module"></span><h2>tangelo.linq.gate module<a class="headerlink" href="#module-tangelo.linq.gate" title="Link to this heading"></a></h2>
+<p>Define an abstract quantum gate class holding information about a quantum
+gate operation, without tying it to a particular backend or an underlying
+mathematical operation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.linq.gate.Gate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.linq.gate.</span></span><span class="sig-name descname"><span class="pre">Gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">integer</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">integer</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_variational</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.gate.Gate" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>An abstract gate class that exposes all the gate information such as gate
+name, control and target qubit indices, parameter values. Assumes qubit
+indexation starts at index 0.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.linq.gate.Gate.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#tangelo.linq.gate.Gate.name" title="Link to this definition"></a></dt>
+<dd><p>the gate name,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.linq.gate.Gate.target">
+<span class="sig-name descname"><span class="pre">target</span></span><a class="headerlink" href="#tangelo.linq.gate.Gate.target" title="Link to this definition"></a></dt>
+<dd><p>A positive integer denoting the index of the target qubit,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.linq.gate.Gate.control">
+<span class="sig-name descname"><span class="pre">control</span></span><a class="headerlink" href="#tangelo.linq.gate.Gate.control" title="Link to this definition"></a></dt>
+<dd><p>A positive integer denoting the index of the control
+qubit,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.linq.gate.Gate.parameter">
+<span class="sig-name descname"><span class="pre">parameter</span></span><a class="headerlink" href="#tangelo.linq.gate.Gate.parameter" title="Link to this definition"></a></dt>
+<dd><p>A floating-point number or symbolic expression that will
+resolve at runtime. Can hold anything.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.linq.gate.Gate.is_variational">
+<span class="sig-name descname"><span class="pre">is_variational</span></span><a class="headerlink" href="#tangelo.linq.gate.Gate.is_variational" title="Link to this definition"></a></dt>
+<dd><p>a boolean indicating if the gate operation is
+variational or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.gate.Gate.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.gate.Gate.inverse" title="Link to this definition"></a></dt>
+<dd><p>Return the inverse (adjoint) of a gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the inverse of the gate.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#tangelo.linq.gate.Gate" title="tangelo.linq.gate.Gate">Gate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.gate.Gate.is_clifford">
+<span class="sig-name descname"><span class="pre">is_clifford</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abs_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.gate.Gate.is_clifford" title="Link to this definition"></a></dt>
+<dd><p>Check if a quantum gate is a Clifford gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>abs_tol</strong> (<em>float</em>) – Optional, Absolute tolerance for the difference between gate parameter clifford parameter values</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>bool</strong> – True if the gate is in Clifford gate list or has a parameter corresponding to Clifford points,
+False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.linq.gate.Gate.serialize">
+<span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.gate.Gate.serialize" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq.qdk_template">
+<span id="tangelo-linq-qdk-template-module"></span><h2>tangelo.linq.qdk_template module<a class="headerlink" href="#module-tangelo.linq.qdk_template" title="Link to this heading"></a></h2>
+<p>This python module stores template Q# strings that can be used to have Q#
+code files ready to be shared with collaborators, submitted to a remote compute
+backend through Microsoft services or compiled by the local QDK simulator.</p>
+</section>
+<section id="module-tangelo.linq.simulator">
+<span id="tangelo-linq-simulator-module"></span><h2>tangelo.linq.simulator module<a class="headerlink" href="#module-tangelo.linq.simulator" title="Link to this heading"></a></h2>
+<p>Factory function acting as a unified interface able to instantiate any simulator object
+associated to a specific target (qulacs, qiskit, cirq, user-defined…). Some
+built-in target simulators support features such as noisy simulation, the ability
+to run noiseless simulation with shots, or particular emulation techniques. Target
+backends can also be implemented using APIs to quantum devices.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.linq.simulator.get_backend">
+<span class="sig-prename descclassname"><span class="pre">tangelo.linq.simulator.</span></span><span class="sig-name descname"><span class="pre">get_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><span class="pre">Backend</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cirq'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.linq.simulator.get_backend" title="Link to this definition"></a></dt>
+<dd><p>Return requested target backend object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>string</em><em> or </em><em>Type</em><em>[</em><a class="reference internal" href="tangelo.linq.target.html#tangelo.linq.target.backend.Backend" title="tangelo.linq.target.backend.Backend"><em>Backend</em></a><em>] or </em><em>None</em>) – Supported string identifiers can be found in
+target_dict (from tangelo.linq.target). Can also provide a user-defined backend (child to Backend class)</p></li>
+<li><p><strong>n_shots</strong> (<em>int</em>) – Number of shots if using a shot-based simulator.</p></li>
+<li><p><strong>noise_model</strong> – A noise model object assumed to be in the format expected from the target backend.</p></li>
+<li><p><strong>kwargs</strong> – Other arguments that could be passed to a target. Examples are qubits_to_use for a QPU, transpiler
+optimization level, error mitigation flags etc.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.linq">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.linq" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.helpers.html" class="btn btn-neutral float-left" title="tangelo.helpers package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.linq.helpers.html" class="btn btn-neutral float-right" title="tangelo.linq.helpers package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

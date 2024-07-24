@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.toolboxes.molecular_computation package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.toolboxes.operators package" href="tangelo.toolboxes.operators.html" />
+    <link rel="prev" title="tangelo.toolboxes.measurements.classical_shadows package" href="tangelo.toolboxes.measurements.classical_shadows.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.toolboxes.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.html#module-tangelo.toolboxes">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+      <li class="breadcrumb-item active">tangelo.toolboxes.molecular_computation package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.toolboxes.molecular_computation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-toolboxes-molecular-computation-package">
+<h1>tangelo.toolboxes.molecular_computation package<a class="headerlink" href="#tangelo-toolboxes-molecular-computation-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.toolboxes.molecular_computation.coefficients">
+<span id="tangelo-toolboxes-molecular-computation-coefficients-module"></span><h2>tangelo.toolboxes.molecular_computation.coefficients module<a class="headerlink" href="#module-tangelo.toolboxes.molecular_computation.coefficients" title="Link to this heading"></a></h2>
+<p>Module containing functions to manipulate molecular coefficient arrays.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.coefficients.spatial_from_spinorb">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.coefficients.</span></span><span class="sig-name descname"><span class="pre">spatial_from_spinorb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_body_coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_coefficients</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.coefficients.spatial_from_spinorb" title="Link to this definition"></a></dt>
+<dd><p>Function to reverse openfermion.chem.molecular_data.spinorb_from_spatial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>one_body_coefficients</strong> – One-body coefficients (array of 2N*2N, where N
+is the number of molecular orbitals).</p></li>
+<li><p><strong>two_body_coefficients</strong> – Two-body coefficients (array of 2N*2N*2N*2N,
+where N is the number of molecular orbitals).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(array of floats, array of floats)</strong> – One- and two-body integrals (arrays
+of N*N and N*N*N*N elements, where N is the number of molecular
+orbitals.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.molecular_computation.fno">
+<span id="tangelo-toolboxes-molecular-computation-fno-module"></span><h2>tangelo.toolboxes.molecular_computation.fno module<a class="headerlink" href="#module-tangelo.toolboxes.molecular_computation.fno" title="Link to this heading"></a></h2>
+<p>Module containing datastructures for interfacing with the Frozen Natural
+Orbitals (FNOs), to automatically truncate the virtual orbital space.</p>
+<p>Reference: arXiv:2002.07901</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.fno.</span></span><span class="sig-name descname"><span class="pre">FNO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to interface with the Frozen Natural Orbitals protocol, that aims
+at reducing the computational cost of a molecular problem by truncating
+the virtual space. In general, the virtual orbitals are ranked according to
+their MP2 occupancies, and selected with a given threshold. They are also
+transformed to the FNO basis, using the eigenvectors of the MP2
+virtual-virtual density matrix.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.sqmol">
+<span class="sig-name descname"><span class="pre">sqmol</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.sqmol" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.uhf">
+<span class="sig-name descname"><span class="pre">uhf</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.uhf" title="Link to this definition"></a></dt>
+<dd><p>Flag indicating the type of mean field used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.n_mos">
+<span class="sig-name descname"><span class="pre">n_mos</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.n_mos" title="Link to this definition"></a></dt>
+<dd><p>Number of molecular orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.fock_ao">
+<span class="sig-name descname"><span class="pre">fock_ao</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.fock_ao" title="Link to this definition"></a></dt>
+<dd><p>Fock matrix in atomic orbital form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.frozen_occupied">
+<span class="sig-name descname"><span class="pre">frozen_occupied</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.frozen_occupied" title="Link to this definition"></a></dt>
+<dd><p>List of indices of frozen occupied orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.threshold" title="Link to this definition"></a></dt>
+<dd><p>Threshold(s) for FNO occupancy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float or list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.compute_fno">
+<span class="sig-name descname"><span class="pre">compute_fno</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.compute_fno" title="Link to this definition"></a></dt>
+<dd><p>Method to compute and truncate the FNO orbitals. It calls
+the <cite>_compute_rfno</cite> or the <a href="#id1"><span class="problematic" id="id2">`</span></a>_compute_ufno`method, whichever is
+appropriate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.diagonalize_and_reorder">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">diagonalize_and_reorder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.diagonalize_and_reorder" title="Link to this definition"></a></dt>
+<dd><p>Method to diagonalize a matrix and reorder the eigenvalues and
+eigenvectors based on occupations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m</strong> (<em>np.array</em>) – The matrix to be diagonalized.</p></li>
+<li><p><strong>reorder</strong> (<em>bool</em>) – Flag indicating whether to reorder the eigenvalues
+and eigenvectors based on occupations. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tuple</strong> – A tuple containing the reordered eigenvalues and the
+corresponding eigenvectors. The eigenvalues represent
+occupations, and the eigenvectors represent rotation operators.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.fermionic_hamiltonian">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fermionic_hamiltonian</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.fermionic_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Property that returns a FNO fermionic hamiltonian object, with the
+truncated active space and updated MO coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>FermionOperator</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.get_frozen_indices">
+<span class="sig-name descname"><span class="pre">get_frozen_indices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.get_frozen_indices" title="Link to this definition"></a></dt>
+<dd><p>Method to determine the indices of the frozen orbitals, and it calls
+the <cite>_get_restricted_frozen_indices</cite> or the <cite>_get_unrestricted_frozen_indices</cite>
+method, whether is appropriate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.fno.FNO.get_number_of_fnos_from_frac_occupancies">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_number_of_fnos_from_frac_occupancies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fno_occ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_frac_occ</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.fno.FNO.get_number_of_fnos_from_frac_occupancies" title="Link to this definition"></a></dt>
+<dd><p>Method to calculate the number of Frozen Natural Orbitals (FNOs)
+to consider, based on fractional occupancies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fno_occ</strong> (<em>np.array</em>) – Array containing fractional occupancies of FNOs.</p></li>
+<li><p><strong>threshold_frac_occ</strong> (<em>float</em>) – Threshold value for fractional occupancy.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>int</strong> – Number of FNOs determined by the cumulative sum of fractional
+occupancies satisfying the provided threshold.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.molecular_computation.frozen_orbitals">
+<span id="tangelo-toolboxes-molecular-computation-frozen-orbitals-module"></span><h2>tangelo.toolboxes.molecular_computation.frozen_orbitals module<a class="headerlink" href="#module-tangelo.toolboxes.molecular_computation.frozen_orbitals" title="Link to this heading"></a></h2>
+<p>This module defines functions to get suggestions for freezing orbitals. Those
+functions take a molecule and return an integer or a list of orbital indices for
+freezing orbitals. Depending on the function, a Molecule or a
+SecondQuantizedMolecule object can be used.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.frozen_orbitals.convert_frozen_orbitals">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.frozen_orbitals.</span></span><span class="sig-name descname"><span class="pre">convert_frozen_orbitals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec_mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frozen_orbitals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.frozen_orbitals.convert_frozen_orbitals" title="Link to this definition"></a></dt>
+<dd><p>This function converts an int or a list of frozen_orbitals into four
+categories:
+- Active and occupied MOs;
+- Active and virtual MOs;
+- Frozen and occupied MOs;
+- Frozen and virtual MOs.
+Each of them are list with MOs indices (first one is 0). Note that they
+are MOs labelled, not spin-orbitals (MOs * 2) indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sec_mol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – Self-explanatory</p></li>
+<li><p><strong>frozen_orbitals</strong> (<em>int</em><em> or </em><em>list</em><em> of </em><em>int</em>) – Number of MOs or MOs indices
+to freeze.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tuple of list</strong> – Active occupied, frozen occupied, active virtual and
+frozen virtual orbital indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.frozen_orbitals.get_frozen_core">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.frozen_orbitals.</span></span><span class="sig-name descname"><span class="pre">get_frozen_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.frozen_orbitals.get_frozen_core" title="Link to this definition"></a></dt>
+<dd><p>Function to compute the number of frozen orbitals. This function is only
+for the core (occupied orbitals).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>molecule</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – Molecule to be evaluated.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>int</strong> – First N molecular orbitals to freeze.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.frozen_orbitals.get_orbitals_excluding_homo_lumo">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.frozen_orbitals.</span></span><span class="sig-name descname"><span class="pre">get_orbitals_excluding_homo_lumo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">homo_minus_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lumo_plus_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.frozen_orbitals.get_orbitals_excluding_homo_lumo" title="Link to this definition"></a></dt>
+<dd><p>Function that returns a list of orbitals to freeze if the user wants to
+consider only a subset from HOMO(-homo_min_n) to LUMO(+lumo_plus_n)
+orbitals. Users should be aware of degeneracies, as this function does not
+take this property into account.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – Molecule to be evaluated.</p></li>
+<li><p><strong>homo_minus_n</strong> (<em>int</em>) – Starting point at HOMO - homo_minus_n.</p></li>
+<li><p><strong>lumo_plus_n</strong> (<em>int</em>) – Ending point at LUMO + lumo_plus_n.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list of int</strong> – Frozen orbitals not detected in the active space.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.molecular_computation.integral_solver">
+<span id="tangelo-toolboxes-molecular-computation-integral-solver-module"></span><h2>tangelo.toolboxes.molecular_computation.integral_solver module<a class="headerlink" href="#module-tangelo.toolboxes.molecular_computation.integral_solver" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.integral_solver.</span></span><span class="sig-name descname"><span class="pre">IntegralSolver</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Instantiate electronic integral solver</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver.compute_mean_field">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_mean_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver.compute_mean_field" title="Link to this definition"></a></dt>
+<dd><p>Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following
+variables to sqmol</p>
+<dl class="simple">
+<dt>Modify sqmol variables.</dt><dd><p>sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending on the spin).
+sqmol.mo_energies (list of float): Molecular orbital energies.
+sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0. and 2.).
+sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
+sqmol.n_sos (int): Number of spin-orbitals with a given basis set.</p>
+</dd>
+<dt>Add to sqmol:</dt><dd><dl class="simple">
+<dt>self.mo_coeff (ndarray or List[ndarray]): array of molecular orbital coefficients (MO coeffs) if RHF ROHF</dt><dd><p>list of arrays [alpha MO coeffs, beta MO coeffs] if UHF</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – <p>Populated variables of Molecule plus
+sqmol.basis (string): Basis set.
+sqmol.ecp (dict): The effective core potential (ecp) for any atoms in the molecule.</p>
+<blockquote>
+<div><p>e.g. {“C”: “crenbl”} use CRENBL ecp for Carbon atoms.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>sqmol.symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.</dt><dd><p>Can also specify point group using string. e.g. “Dooh”, “D2h”, “C2v”, …</p>
+</dd>
+</dl>
+<p>sqmol.uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver.get_integrals">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver.get_integrals" title="Link to this definition"></a></dt>
+<dd><p>Computes core constant, one_body, and two-body integrals for all orbitals</p>
+<p>one-body integrals should be in the form
+h[p,q]= int phi_p(x)* (T + V_{ext}) phi_q(x) dx</p>
+<p>two-body integrals should be in the form
+h[p,q,r,s] = int phi_p(x) * phi_q(y) * V_{elec-elec} phi_r(y) phi_s(x) dxdy</p>
+<p>Using molecular orbitals phi_j(x) = sum_{ij} A_i(x) mo_coeff_{i,j} where A_i(x) are the atomic orbitals.</p>
+<p>For UHF (if sqmol.uhf is True)
+one_body coefficients are [alpha one_body, beta one_body]
+two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]</p>
+<p>where one_body and two_body are appropriately sized arrays for each spin sector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – SecondQuantizedMolecule populated with all variables defined above</p></li>
+<li><p><strong>mo_coeff</strong> – Molecular orbital coefficients to use for calculating the integrals, instead of self.mo_coeff</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(float, array or List[array], array or List[array])</strong> – (core_constant, one_body coefficients, two_body coefficients)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver.set_physical_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_physical_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver.set_physical_data" title="Link to this definition"></a></dt>
+<dd><p>Set molecular data that is independant of basis set in mol</p>
+<dl class="simple">
+<dt>Modify mol variable:</dt><dd><dl class="simple">
+<dt>mol.xyz to (list): Nested array-like structure with elements and coordinates</dt><dd><p>(ex:[ [“H”, (0., 0., 0.)], …]) in angstrom</p>
+</dd>
+</dl>
+</dd>
+<dt>Add to mol:</dt><dd><p>mol.n_electrons (int): Self-explanatory.
+mol.n_atoms (int): Self-explanatory.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule" title="tangelo.toolboxes.molecular_computation.molecule.Molecule"><em>Molecule</em></a><em> or </em><a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – Class to add the other variables given populated.
+mol.xyz (in appropriate format for solver): Definition of molecular geometry.
+mol.q (float): Total charge.
+mol.spin (int): Absolute difference between alpha and beta electron number.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolverEmpty">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.integral_solver.</span></span><span class="sig-name descname"><span class="pre">IntegralSolverEmpty</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolverEmpty" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver" title="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegralSolver</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolverEmpty.compute_mean_field">
+<span class="sig-name descname"><span class="pre">compute_mean_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolverEmpty.compute_mean_field" title="Link to this definition"></a></dt>
+<dd><p>Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following
+variables to sqmol</p>
+<dl class="simple">
+<dt>Modify sqmol variables.</dt><dd><p>sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending on the spin).
+sqmol.mo_energies (list of float): Molecular orbital energies.
+sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0. and 2.).
+sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
+sqmol.n_sos (int): Number of spin-orbitals with a given basis set.</p>
+</dd>
+<dt>Add to sqmol:</dt><dd><dl class="simple">
+<dt>self.mo_coeff (ndarray or List[ndarray]): array of molecular orbital coefficients (MO coeffs) if RHF ROHF</dt><dd><p>list of arrays [alpha MO coeffs, beta MO coeffs] if UHF</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – <p>Populated variables of Molecule plus
+sqmol.basis (string): Basis set.
+sqmol.ecp (dict): The effective core potential (ecp) for any atoms in the molecule.</p>
+<blockquote>
+<div><p>e.g. {“C”: “crenbl”} use CRENBL ecp for Carbon atoms.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>sqmol.symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.</dt><dd><p>Can also specify point group using string. e.g. “Dooh”, “D2h”, “C2v”, …</p>
+</dd>
+</dl>
+<p>sqmol.uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolverEmpty.get_integrals">
+<span class="sig-name descname"><span class="pre">get_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolverEmpty.get_integrals" title="Link to this definition"></a></dt>
+<dd><p>Computes core constant, one_body, and two-body integrals for all orbitals</p>
+<p>one-body integrals should be in the form
+h[p,q]= int phi_p(x)* (T + V_{ext}) phi_q(x) dx</p>
+<p>two-body integrals should be in the form
+h[p,q,r,s] = int phi_p(x) * phi_q(y) * V_{elec-elec} phi_r(y) phi_s(x) dxdy</p>
+<p>Using molecular orbitals phi_j(x) = sum_{ij} A_i(x) mo_coeff_{i,j} where A_i(x) are the atomic orbitals.</p>
+<p>For UHF (if sqmol.uhf is True)
+one_body coefficients are [alpha one_body, beta one_body]
+two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]</p>
+<p>where one_body and two_body are appropriately sized arrays for each spin sector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – SecondQuantizedMolecule populated with all variables defined above</p></li>
+<li><p><strong>mo_coeff</strong> – Molecular orbital coefficients to use for calculating the integrals, instead of self.mo_coeff</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(float, array or List[array], array or List[array])</strong> – (core_constant, one_body coefficients, two_body coefficients)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolverEmpty.set_physical_data">
+<span class="sig-name descname"><span class="pre">set_physical_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolverEmpty.set_physical_data" title="Link to this definition"></a></dt>
+<dd><p>Set molecular data that is independant of basis set in mol</p>
+<dl class="simple">
+<dt>Modify mol variable:</dt><dd><dl class="simple">
+<dt>mol.xyz to (list): Nested array-like structure with elements and coordinates</dt><dd><p>(ex:[ [“H”, (0., 0., 0.)], …]) in angstrom</p>
+</dd>
+</dl>
+</dd>
+<dt>Add to mol:</dt><dd><p>mol.n_electrons (int): Self-explanatory.
+mol.n_atoms (int): Self-explanatory.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule" title="tangelo.toolboxes.molecular_computation.molecule.Molecule"><em>Molecule</em></a><em> or </em><a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – Class to add the other variables given populated.
+mol.xyz (in appropriate format for solver): Definition of molecular geometry.
+mol.q (float): Total charge.
+mol.spin (int): Absolute difference between alpha and beta electron number.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.molecular_computation.integral_solver_psi4">
+<span id="tangelo-toolboxes-molecular-computation-integral-solver-psi4-module"></span><h2>tangelo.toolboxes.molecular_computation.integral_solver_psi4 module<a class="headerlink" href="#module-tangelo.toolboxes.molecular_computation.integral_solver_psi4" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.integral_solver_psi4.</span></span><span class="sig-name descname"><span class="pre">IntegralSolverPsi4</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver" title="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegralSolver</span></code></a></p>
+<p>psi4 IntegralSolver class</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.compute_mean_field">
+<span class="sig-name descname"><span class="pre">compute_mean_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.compute_mean_field" title="Link to this definition"></a></dt>
+<dd><p>Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following
+variables to sqmol</p>
+<dl class="simple">
+<dt>Modify sqmol variables.</dt><dd><p>sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending on the spin).
+sqmol.mo_energies (list of float): Molecular orbital energies.
+sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0. and 2.).
+sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
+sqmol.n_sos (int): Number of spin-orbitals with a given basis set.</p>
+</dd>
+<dt>Add to sqmol:</dt><dd><dl class="simple">
+<dt>self.mo_coeff (ndarray or List[ndarray]): array of molecular orbital coefficients (MO coeffs) if RHF ROHF</dt><dd><p>list of arrays [alpha MO coeffs, beta MO coeffs] if UHF</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – <p>Populated variables of Molecule plus
+sqmol.basis (string): Basis set.
+sqmol.ecp (dict): The effective core potential (ecp) for any atoms in the molecule.</p>
+<blockquote>
+<div><p>e.g. {“C”: “crenbl”} use CRENBL ecp for Carbon atoms.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>sqmol.symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.</dt><dd><p>Can also specify point group using string. e.g. “Dooh”, “D2h”, “C2v”, …</p>
+</dd>
+</dl>
+<p>sqmol.uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.compute_uhf_integrals">
+<span class="sig-name descname"><span class="pre">compute_uhf_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.compute_uhf_integrals" title="Link to this definition"></a></dt>
+<dd><p>Compute 1-electron and 2-electron integrals
+The return is formatted as
+[numpy.ndarray]*2 numpy array h_{pq} for alpha and beta blocks
+[numpy.ndarray]*3 numpy array storing h_{pqrs} for alpha-alpha, alpha-beta, beta-beta blocks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mo_coeff</strong> (<em>List</em><em>[</em><em>array</em><em>]</em>) – The molecular orbital coefficients for both spins [alpha, beta]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>List[array], List[array]</strong> – One and two body integrals</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.get_integrals">
+<span class="sig-name descname"><span class="pre">get_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.get_integrals" title="Link to this definition"></a></dt>
+<dd><p>Computes core constant, one_body, and two-body integrals for all orbitals</p>
+<p>one-body integrals should be in the form
+h[p,q]= int phi_p(x)* (T + V_{ext}) phi_q(x) dx</p>
+<p>two-body integrals should be in the form
+h[p,q,r,s] = int phi_p(x) * phi_q(y) * V_{elec-elec} phi_r(y) phi_s(x) dxdy</p>
+<p>Using molecular orbitals phi_j(x) = sum_{ij} A_i(x) mo_coeff_{i,j} where A_i(x) are the atomic orbitals.</p>
+<p>For UHF (if sqmol.uhf is True)
+one_body coefficients are [alpha one_body, beta one_body]
+two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]</p>
+<p>where one_body and two_body are appropriately sized arrays for each spin sector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – SecondQuantizedMolecule populated with all variables defined above</p></li>
+<li><p><strong>mo_coeff</strong> – Molecular orbital coefficients to use for calculating the integrals, instead of self.mo_coeff</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(float, array or List[array], array or List[array])</strong> – (core_constant, one_body coefficients, two_body coefficients)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.modify_c">
+<span class="sig-name descname"><span class="pre">modify_c</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wfn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.modify_c" title="Link to this definition"></a></dt>
+<dd><p>Modify Psi4 WaveFunction coefficient Ca or Cb to be equal to mo_coeff
+:param wfn: The Psi4Wavefunction to be modified
+:type wfn: Psi4 WaveFunction
+:param mo_coeff: The values to place in the wavefunction
+:type mo_coeff: array
+:param a: If True, replace the alpha coefficients Ca, If False replace the beta coefficients Cb
+:type a: bool</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.modify_solver_mo_coeff">
+<span class="sig-name descname"><span class="pre">modify_solver_mo_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.modify_solver_mo_coeff" title="Link to this definition"></a></dt>
+<dd><p>Change the molecular coefficients in the self.wfn object to match self.mo_coeff
+:param sqmol: The SecondQuantizedMolecule object with mo_coeff
+:type sqmol: SecondQuantizedMolecule</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.set_physical_data">
+<span class="sig-name descname"><span class="pre">set_physical_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4.set_physical_data" title="Link to this definition"></a></dt>
+<dd><p>Set molecular data that is independant of basis set in mol</p>
+<dl class="simple">
+<dt>Modify mol variable:</dt><dd><dl class="simple">
+<dt>mol.xyz to (list): Nested array-like structure with elements and coordinates</dt><dd><p>(ex:[ [“H”, (0., 0., 0.)], …]) in angstrom</p>
+</dd>
+</dl>
+</dd>
+<dt>Add to mol:</dt><dd><p>mol.n_electrons (int): Self-explanatory.
+mol.n_atoms (int): Self-explanatory.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule" title="tangelo.toolboxes.molecular_computation.molecule.Molecule"><em>Molecule</em></a><em> or </em><a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – Class to add the other variables given populated.
+mol.xyz (in appropriate format for solver): Definition of molecular geometry.
+mol.q (float): Total charge.
+mol.spin (int): Absolute difference between alpha and beta electron number.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4QMMM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.integral_solver_psi4.</span></span><span class="sig-name descname"><span class="pre">IntegralSolverPsi4QMMM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4QMMM" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4" title="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegralSolverPsi4</span></code></a></p>
+<p>Psi4 IntegralSolver class with charges supplied for electrostatic embedding.</p>
+<dl class="simple">
+<dt>Args: charges (List[Tuple[float, Tuple[float, float, float]]]): The partial charges for the electrostatic embedding as</dt><dd><p>a list with elements (charge, (x, y, z))</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4QMMM.compute_mean_field">
+<span class="sig-name descname"><span class="pre">compute_mean_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4QMMM.compute_mean_field" title="Link to this definition"></a></dt>
+<dd><p>Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following
+variables to sqmol</p>
+<dl class="simple">
+<dt>Modify sqmol variables.</dt><dd><p>sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending on the spin).
+sqmol.mo_energies (list of float): Molecular orbital energies.
+sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0. and 2.).
+sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
+sqmol.n_sos (int): Number of spin-orbitals with a given basis set.</p>
+</dd>
+<dt>Add to sqmol:</dt><dd><dl class="simple">
+<dt>self.mo_coeff (ndarray or List[ndarray]): array of molecular orbital coefficients (MO coeffs) if RHF ROHF</dt><dd><p>list of arrays [alpha MO coeffs, beta MO coeffs] if UHF</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – <p>Populated variables of Molecule plus
+sqmol.basis (string): Basis set.
+sqmol.ecp (dict): The effective core potential (ecp) for any atoms in the molecule.</p>
+<blockquote>
+<div><p>e.g. {“C”: “crenbl”} use CRENBL ecp for Carbon atoms.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>sqmol.symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.</dt><dd><p>Can also specify point group using string. e.g. “Dooh”, “D2h”, “C2v”, …</p>
+</dd>
+</dl>
+<p>sqmol.uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4QMMM.set_physical_data">
+<span class="sig-name descname"><span class="pre">set_physical_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_psi4.IntegralSolverPsi4QMMM.set_physical_data" title="Link to this definition"></a></dt>
+<dd><p>Set molecular data that is independant of basis set in mol</p>
+<dl class="simple">
+<dt>Modify mol variable:</dt><dd><dl class="simple">
+<dt>mol.xyz to (list): Nested array-like structure with elements and coordinates</dt><dd><p>(ex:[ [“H”, (0., 0., 0.)], …]) in angstrom</p>
+</dd>
+</dl>
+</dd>
+<dt>Add to mol:</dt><dd><p>mol.n_electrons (int): Self-explanatory.
+mol.n_atoms (int): Self-explanatory.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule" title="tangelo.toolboxes.molecular_computation.molecule.Molecule"><em>Molecule</em></a><em> or </em><a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – <p>Class to add the other variables given populated.
+mol.xyz (in appropriate format for solver): Definition of molecular geometry. If supplying an input file,</p>
+<blockquote>
+<div><p>nocom and noreorient should be provided.</p>
+</div></blockquote>
+<p>mol.q (float): Total charge.
+mol.spin (int): Absolute difference between alpha and beta electron number.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.molecular_computation.integral_solver_pyscf">
+<span id="tangelo-toolboxes-molecular-computation-integral-solver-pyscf-module"></span><h2>tangelo.toolboxes.molecular_computation.integral_solver_pyscf module<a class="headerlink" href="#module-tangelo.toolboxes.molecular_computation.integral_solver_pyscf" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.integral_solver_pyscf.</span></span><span class="sig-name descname"><span class="pre">IntegralSolverPySCF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chkfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_newton</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver" title="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegralSolver</span></code></a></p>
+<p>Electronic Structure integration for pyscf</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.assign_mo_coeff_symmetries">
+<span class="sig-name descname"><span class="pre">assign_mo_coeff_symmetries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.assign_mo_coeff_symmetries" title="Link to this definition"></a></dt>
+<dd><p>Assigns the symmetry labels for the current molecular coefficients.</p>
+<p>Modify sqmol variables mo_symm_ids and mo_symm_labels to match current molecular coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – The SecondQuantizedMolecule with the symmetrized molecular coefficients to be assigned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.compute_mean_field">
+<span class="sig-name descname"><span class="pre">compute_mean_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.compute_mean_field" title="Link to this definition"></a></dt>
+<dd><p>Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following
+variables to sqmol</p>
+<dl class="simple">
+<dt>Modify sqmol variables.</dt><dd><p>sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending on the spin).
+sqmol.mo_energies (list of float): Molecular orbital energies.
+sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0. and 2.).
+sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
+sqmol.n_sos (int): Number of spin-orbitals with a given basis set.</p>
+</dd>
+<dt>Add to sqmol:</dt><dd><dl class="simple">
+<dt>self.mo_coeff (ndarray or List[ndarray]): array of molecular orbital coefficients (MO coeffs) if RHF ROHF</dt><dd><p>list of arrays [alpha MO coeffs, beta MO coeffs] if UHF</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – <p>Populated variables of Molecule plus
+sqmol.basis (string): Basis set.
+sqmol.ecp (dict): The effective core potential (ecp) for any atoms in the molecule.</p>
+<blockquote>
+<div><p>e.g. {“C”: “crenbl”} use CRENBL ecp for Carbon atoms.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>sqmol.symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.</dt><dd><p>Can also specify point group using string. e.g. “Dooh”, “D2h”, “C2v”, …</p>
+</dd>
+</dl>
+<p>sqmol.uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.compute_uhf_integrals">
+<span class="sig-name descname"><span class="pre">compute_uhf_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.compute_uhf_integrals" title="Link to this definition"></a></dt>
+<dd><p>Compute 1-electron and 2-electron integrals
+The return is formatted as
+[numpy.ndarray]*2 numpy array h_{pq} for alpha and beta blocks
+[numpy.ndarray]*3 numpy array storing h_{pqrs} for alpha-alpha, alpha-beta, beta-beta blocks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – The SecondQuantizedMolecule object to calculated UHF integrals for.</p></li>
+<li><p><strong>mo_coeff</strong> (<em>List</em><em>[</em><em>array</em><em>]</em>) – The molecular orbital coefficients for both spins [alpha, beta]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>List[array], List[array]</strong> – One and two body integrals</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.get_integrals">
+<span class="sig-name descname"><span class="pre">get_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.get_integrals" title="Link to this definition"></a></dt>
+<dd><p>Computes core constant, one_body, and two-body integrals for all orbitals</p>
+<p>one-body integrals should be in the form
+h[p,q]= int phi_p(x)* (T + V_{ext}) phi_q(x) dx</p>
+<p>two-body integrals should be in the form
+h[p,q,r,s] = int phi_p(x) * phi_q(y) * V_{elec-elec} phi_r(y) phi_s(x) dxdy</p>
+<p>Using molecular orbitals phi_j(x) = sum_{ij} A_i(x) mo_coeff_{i,j} where A_i(x) are the atomic orbitals.</p>
+<p>For UHF (if sqmol.uhf is True)
+one_body coefficients are [alpha one_body, beta one_body]
+two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]</p>
+<p>where one_body and two_body are appropriately sized arrays for each spin sector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – SecondQuantizedMolecule populated with all variables defined above</p></li>
+<li><p><strong>mo_coeff</strong> – Molecular orbital coefficients to use for calculating the integrals, instead of self.mo_coeff</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(float, array or List[array], array or List[array])</strong> – (core_constant, one_body coefficients, two_body coefficients)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.modify_solver_mo_coeff">
+<span class="sig-name descname"><span class="pre">modify_solver_mo_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.modify_solver_mo_coeff" title="Link to this definition"></a></dt>
+<dd><p>Change the molecular coefficients in the SecondQuantizedMolecule mean_field object using self.mo_coeff
+:param sqmol: The SecondQuantizedMolecule object with mo_coeff
+:type sqmol: SecondQuantizedMolecule</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.set_physical_data">
+<span class="sig-name descname"><span class="pre">set_physical_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF.set_physical_data" title="Link to this definition"></a></dt>
+<dd><p>Set molecular data that is independant of basis set in mol</p>
+<dl class="simple">
+<dt>Modify mol variable:</dt><dd><dl class="simple">
+<dt>mol.xyz to (list): Nested array-like structure with elements and coordinates</dt><dd><p>(ex:[ [“H”, (0., 0., 0.)], …]) in angstrom</p>
+</dd>
+</dl>
+</dd>
+<dt>Add to mol:</dt><dd><p>mol.n_electrons (int): Self-explanatory.
+mol.n_atoms (int): Self-explanatory.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule" title="tangelo.toolboxes.molecular_computation.molecule.Molecule"><em>Molecule</em></a><em> or </em><a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – Class to add the other variables given populated.
+mol.xyz (in appropriate format for solver): Definition of molecular geometry.
+mol.q (float): Total charge.
+mol.spin (int): Absolute difference between alpha and beta electron number.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCFQMMM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.integral_solver_pyscf.</span></span><span class="sig-name descname"><span class="pre">IntegralSolverPySCFQMMM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chkfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_newton</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCFQMMM" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF" title="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCF"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegralSolverPySCF</span></code></a></p>
+<p>Instantiate Electronic Structure integration with PySCF using electrostatic embedding</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCFQMMM.compute_mean_field">
+<span class="sig-name descname"><span class="pre">compute_mean_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sqmol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.IntegralSolverPySCFQMMM.compute_mean_field" title="Link to this definition"></a></dt>
+<dd><p>Run a unrestricted/restricted (openshell-)Hartree-Fock calculation and modify/add the following
+variables to sqmol</p>
+<dl class="simple">
+<dt>Modify sqmol variables.</dt><dd><p>sqmol.mf_energy (float): Mean-field energy (RHF or ROHF energy depending on the spin).
+sqmol.mo_energies (list of float): Molecular orbital energies.
+sqmol.mo_occ (list of float): Molecular orbital occupancies (between 0. and 2.).
+sqmol.n_mos (int): Number of molecular orbitals with a given basis set.
+sqmol.n_sos (int): Number of spin-orbitals with a given basis set.</p>
+</dd>
+<dt>Add to sqmol:</dt><dd><dl class="simple">
+<dt>self.mo_coeff (ndarray or List[ndarray]): array of molecular orbital coefficients (MO coeffs) if RHF ROHF</dt><dd><p>list of arrays [alpha MO coeffs, beta MO coeffs] if UHF</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – <p>Populated variables of Molecule plus
+sqmol.basis (string): Basis set.
+sqmol.ecp (dict): The effective core potential (ecp) for any atoms in the molecule.</p>
+<blockquote>
+<div><p>e.g. {“C”: “crenbl”} use CRENBL ecp for Carbon atoms.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>sqmol.symmetry (bool or str): Whether to use symmetry in RHF or ROHF calculation.</dt><dd><p>Can also specify point group using string. e.g. “Dooh”, “D2h”, “C2v”, …</p>
+</dd>
+</dl>
+<p>sqmol.uhf (bool): If True, Use UHF instead of RHF or ROHF reference. Default False</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.integral_solver_pyscf.mol_to_pyscf">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.integral_solver_pyscf.</span></span><span class="sig-name descname"><span class="pre">mol_to_pyscf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CRENBL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.integral_solver_pyscf.mol_to_pyscf" title="Link to this definition"></a></dt>
+<dd><p>Method to return a pyscf.gto.Mole object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sqmol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a><em> or </em><a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule" title="tangelo.toolboxes.molecular_computation.molecule.Molecule"><em>Molecule</em></a>) – The molecule to export to a pyscf molecule.</p></li>
+<li><p><strong>basis</strong> (<em>string</em>) – Basis set.</p></li>
+<li><p><strong>symmetry</strong> (<em>bool</em>) – Flag to turn symmetry on</p></li>
+<li><p><strong>ecp</strong> (<em>dict</em>) – Dictionary with ecp definition for each atom e.g. {“Cu”: “crenbl”}</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>pyscf.gto.Mole</strong> – PySCF compatible object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.molecular_computation.mm_charges_solver">
+<span id="tangelo-toolboxes-molecular-computation-mm-charges-solver-module"></span><h2>tangelo.toolboxes.molecular_computation.mm_charges_solver module<a class="headerlink" href="#module-tangelo.toolboxes.molecular_computation.mm_charges_solver" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.mm_charges_solver.</span></span><span class="sig-name descname"><span class="pre">MMChargesSolver</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Instantiate electrostatic charges solver</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolver.get_charges">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_charges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolver.get_charges" title="Link to this definition"></a></dt>
+<dd><p>Obtain the charges for the given low parameters of the input fragment (e.g. file names, list(s) of coordinates)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>List[float]</strong> – The list of charges</p></li>
+<li><p><strong>List[Tuple</strong> (<em>float, Tuple(float, float, float)</em>) – The atoms and geometries of the charges</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolverOpenMM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.mm_charges_solver.</span></span><span class="sig-name descname"><span class="pre">MMChargesSolverOpenMM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_field_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('amber14-all.xml',</span> <span class="pre">'amber14/tip3pfb.xml')</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolverOpenMM" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolver" title="tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">MMChargesSolver</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolverOpenMM.get_charges">
+<span class="sig-name descname"><span class="pre">get_charges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolverOpenMM.get_charges" title="Link to this definition"></a></dt>
+<dd><p>Obtain the charges for the given low parameters of the input fragment (e.g. file names, list(s) of coordinates)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>List[float]</strong> – The list of charges</p></li>
+<li><p><strong>List[Tuple</strong> (<em>float, Tuple(float, float, float)</em>) – The atoms and geometries of the charges</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolverRDKit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.mm_charges_solver.</span></span><span class="sig-name descname"><span class="pre">MMChargesSolverRDKit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mmffVariant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MMFF94'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolverRDKit" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolver" title="tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">MMChargesSolver</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolverRDKit.get_charges">
+<span class="sig-name descname"><span class="pre">get_charges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolverRDKit.get_charges" title="Link to this definition"></a></dt>
+<dd><p>Obtain the charges for the given low parameters of the input fragment (e.g. file names, list(s) of coordinates)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>List[float]</strong> – The list of charges</p></li>
+<li><p><strong>List[Tuple</strong> (<em>float, Tuple(float, float, float)</em>) – The atoms and geometries of the charges</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.mm_charges_solver.convert_files_to_pdbs">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.mm_charges_solver.</span></span><span class="sig-name descname"><span class="pre">convert_files_to_pdbs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.convert_files_to_pdbs" title="Link to this definition"></a></dt>
+<dd><p>Convert file or list of files to pdb files using openbabel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_files</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – The file name(s) that describe the MM region</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>List[str]</strong> – The list of pdb equivalent file name(s).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.mm_charges_solver.get_default_mm_package">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.mm_charges_solver.</span></span><span class="sig-name descname"><span class="pre">get_default_mm_package</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolver" title="tangelo.toolboxes.molecular_computation.mm_charges_solver.MMChargesSolver"><span class="pre">MMChargesSolver</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.get_default_mm_package" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.mm_charges_solver.get_mm_package">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.mm_charges_solver.</span></span><span class="sig-name descname"><span class="pre">get_mm_package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.mm_charges_solver.get_mm_package" title="Link to this definition"></a></dt>
+<dd><p>Return the MMCharges instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>package</strong> (<em>str</em>) – The MM backend to use</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Type[MMChargesSolver]</strong> – The MMChargesSolver that computes the partial charges for given geometries</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.molecular_computation.molecule">
+<span id="tangelo-toolboxes-molecular-computation-molecule-module"></span><h2>tangelo.toolboxes.molecular_computation.molecule module<a class="headerlink" href="#module-tangelo.toolboxes.molecular_computation.molecule" title="Link to this heading"></a></h2>
+<p>Module containing datastructures for interfacing with this package
+functionalities.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.molecule.</span></span><span class="sig-name descname"><span class="pre">Molecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyz:</span> <span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver:</span> <span class="pre">~tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Custom datastructure to store information about a Molecule. This contains
+only physical information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.xyz">
+<span class="sig-name descname"><span class="pre">xyz</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.xyz" title="Link to this definition"></a></dt>
+<dd><p>Nested array-like structure with elements
+and coordinates (ex:[ [“H”, (0., 0., 0.)], …]). Can also be a
+multi-line string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like or string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.q">
+<span class="sig-name descname"><span class="pre">q</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.q" title="Link to this definition"></a></dt>
+<dd><p>Total charge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.spin">
+<span class="sig-name descname"><span class="pre">spin</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.spin" title="Link to this definition"></a></dt>
+<dd><p>Absolute difference between alpha and beta electron number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.solver">
+<span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.solver" title="Link to this definition"></a></dt>
+<dd><p>The class that performs the mean field and integral computation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver" title="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver">IntegralSolver</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.n_atom">
+<span class="sig-name descname"><span class="pre">n_atom</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.n_atom" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.n_electrons">
+<span class="sig-name descname"><span class="pre">n_electrons</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.n_electrons" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.n_min_orbitals">
+<span class="sig-name descname"><span class="pre">n_min_orbitals</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.n_min_orbitals" title="Link to this definition"></a></dt>
+<dd><p>Number of orbitals with a minimal basis set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="simple">
+<dt>Properties:</dt><dd><p>elements (list): List of all elements in the molecule.
+coords (array of float): N x 3 coordinates matrix.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.coords">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coords</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.coords" title="Link to this definition"></a></dt>
+<dd><p>N x 3 coordinates matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(array of float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.elements">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elements</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.elements" title="Link to this definition"></a></dt>
+<dd><p>List of all elements in the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.n_atoms">
+<span class="sig-name descname"><span class="pre">n_atoms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.n_atoms" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">n_electrons</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">solver</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver" title="tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver"><span class="pre">IntegralSolver</span></a></em><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">spin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.to_file">
+<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.to_file" title="Link to this definition"></a></dt>
+<dd><p>Write molecule geometry to filename in specified format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The name of the file to output the geometry.</p></li>
+<li><p><strong>format</strong> (<em>str</em>) – The output type of “raw”, “xyz”, or “zmat”. If None, will be inferred by the filename
+Unless using IntegralSolverPySCF, only “xyz” is supported.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.Molecule.to_openfermion">
+<span class="sig-name descname"><span class="pre">to_openfermion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sto-3g'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule.to_openfermion" title="Link to this definition"></a></dt>
+<dd><p>Method to return a openfermion.MolecularData object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>basis</strong> (<em>string</em>) – Basis set.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>openfermion.MolecularData</strong> – Openfermion compatible object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">xyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.molecule.</span></span><span class="sig-name descname"><span class="pre">SecondQuantizedMolecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyz:</span> <span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver:</span> <span class="pre">~tangelo.toolboxes.molecular_computation.integral_solver.IntegralSolver</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'sto-3g'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecp:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uhf:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frozen_orbitals:</span> <span class="pre">list</span> <span class="pre">=</span> <span class="pre">'frozen_core'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule" title="tangelo.toolboxes.molecular_computation.molecule.Molecule"><code class="xref py py-class docutils literal notranslate"><span class="pre">Molecule</span></code></a></p>
+<p>Custom datastructure to store information about a mean field derived
+from a molecule. This class inherits from Molecule and add a number of
+attributes defined by the second quantization.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.basis">
+<span class="sig-name descname"><span class="pre">basis</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.basis" title="Link to this definition"></a></dt>
+<dd><p>Basis set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.ecp">
+<span class="sig-name descname"><span class="pre">ecp</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.ecp" title="Link to this definition"></a></dt>
+<dd><p>The effective core potential (ecp) for any atoms in the molecule.
+e.g. {“C”: “crenbl”} use CRENBL ecp for Carbon atoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.symmetry">
+<span class="sig-name descname"><span class="pre">symmetry</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.symmetry" title="Link to this definition"></a></dt>
+<dd><p>Whether to use symmetry in RHF or ROHF calculation.
+Can also specify point group using pyscf allowed string.
+e.g. “Dooh”, “D2h”, “C2v”, …</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool or str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.uhf">
+<span class="sig-name descname"><span class="pre">uhf</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.uhf" title="Link to this definition"></a></dt>
+<dd><p>If True, Use UHF instead of RHF or ROHF reference. Default False</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mf_energy">
+<span class="sig-name descname"><span class="pre">mf_energy</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mf_energy" title="Link to this definition"></a></dt>
+<dd><p>Mean-field energy (RHF or ROHF energy depending
+on the spin).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mo_energies">
+<span class="sig-name descname"><span class="pre">mo_energies</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mo_energies" title="Link to this definition"></a></dt>
+<dd><p>Molecular orbital energies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mo_occ">
+<span class="sig-name descname"><span class="pre">mo_occ</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mo_occ" title="Link to this definition"></a></dt>
+<dd><p>Molecular orbital occupancies (between 0.
+and 2.).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mean_field">
+<span class="sig-name descname"><span class="pre">mean_field</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mean_field" title="Link to this definition"></a></dt>
+<dd><p>Mean-field object (used by CCSD and FCI).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyscf.scf</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_mos">
+<span class="sig-name descname"><span class="pre">n_mos</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_mos" title="Link to this definition"></a></dt>
+<dd><p>Number of molecular orbitals with a given basis set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_sos">
+<span class="sig-name descname"><span class="pre">n_sos</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_sos" title="Link to this definition"></a></dt>
+<dd><p>Number of spin-orbitals with a given basis set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_occupied">
+<span class="sig-name descname"><span class="pre">active_occupied</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_occupied" title="Link to this definition"></a></dt>
+<dd><p>Occupied molecular orbital indexes
+that are considered active.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_occupied">
+<span class="sig-name descname"><span class="pre">frozen_occupied</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_occupied" title="Link to this definition"></a></dt>
+<dd><p>Occupied molecular orbital indexes
+that are considered frozen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_virtual">
+<span class="sig-name descname"><span class="pre">active_virtual</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_virtual" title="Link to this definition"></a></dt>
+<dd><p>Virtual molecular orbital indexes
+that are considered active.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_virtual">
+<span class="sig-name descname"><span class="pre">frozen_virtual</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_virtual" title="Link to this definition"></a></dt>
+<dd><p>Virtual molecular orbital indexes
+that are considered frozen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.fermionic_hamiltonian">
+<span class="sig-name descname"><span class="pre">fermionic_hamiltonian</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.fermionic_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Self-explanatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator">FermionOperator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.freeze_mos">
+<span class="sig-name descname"><span class="pre">freeze_mos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.freeze_mos" title="Link to this definition"></a></dt>
+<dd><p>Change frozen orbitals attributes. It can be done inplace
+or not.</p>
+</dd></dl>
+
+<dl>
+<dt>Properties:</dt><dd><dl class="simple">
+<dt>n_active_electrons (int): Difference between number of total</dt><dd><p>electrons and number of electrons in frozen orbitals.</p>
+</dd>
+</dl>
+<p>n_active_sos (int): Number of active spin-orbitals.
+n_active_mos (int): Number of active molecular orbitals.
+frozen_mos (list or None): Frozen MOs indexes.
+actives_mos (list): Active MOs indexes.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_mos">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">active_mos</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_mos" title="Link to this definition"></a></dt>
+<dd><p>This property returns MOs indexes for the active orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list</strong> – MOs indexes that are active (occupied + virtual).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">active_occupied</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_spin">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">active_spin</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.active_spin" title="Link to this definition"></a></dt>
+<dd><p>This property returns the spin of the active space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>int</strong> – n_alpha - n_beta electrons of the active occupied orbital space.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">active_virtual</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">basis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sto-3g'</span></em><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id10">
+<span class="sig-name descname"><span class="pre">ecp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#id10" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.energy_from_rdms">
+<span class="sig-name descname"><span class="pre">energy_from_rdms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_rdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_rdm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.energy_from_rdms" title="Link to this definition"></a></dt>
+<dd><p>Computes the molecular energy from one- and two-particle reduced
+density matrices (RDMs). Coefficients (integrals) are computed
+on-the-fly using a pyscf object and the mean-field. Frozen orbitals
+are supported with this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>one_rdm</strong> (<em>array</em><em> or </em><em>List</em><em>[</em><em>array</em><em>]</em>) – One-particle density matrix in MO basis.
+If UHF [alpha one_rdm, beta one_rdm]</p></li>
+<li><p><strong>two_rdm</strong> (<em>array</em><em> or </em><em>List</em><em>[</em><em>array</em><em>]</em>) – Two-particle density matrix in MO basis.
+If UHF [alpha-alpha two_rdm, alpha-beta two_rdm, beta-beta two_rdm]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – Molecular energy.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id11">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fermionic_hamiltonian</span></span><a class="headerlink" href="#id11" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id12">
+<span class="sig-name descname"><span class="pre">freeze_mos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frozen_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id12" title="Link to this definition"></a></dt>
+<dd><p>This method recomputes frozen orbitals with the provided input.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_mos">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frozen_mos</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_mos" title="Link to this definition"></a></dt>
+<dd><p>This property returns MOs indexes for the frozen orbitals. It was
+written to take into account if one of the two possibilities (occ or
+virt) is None. In fact, list + None, None + list or None + None return
+an error. An empty list cannot be sent because PySCF mp2 returns
+“IndexError: list index out of range”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list</strong> – MOs indexes frozen (occupied + virtual).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id13">
+<span class="sig-name descname"><span class="pre">frozen_occupied</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#id13" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_orbitals">
+<span class="sig-name descname"><span class="pre">frozen_orbitals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'frozen_core'</span></em><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.frozen_orbitals" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id14">
+<span class="sig-name descname"><span class="pre">frozen_virtual</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#id14" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.get_active_space_integrals">
+<span class="sig-name descname"><span class="pre">get_active_space_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.get_active_space_integrals" title="Link to this definition"></a></dt>
+<dd><p>Computes core constant, one_body, and two-body coefficients with frozen orbitals folded into one-body coefficients
+and core constant
+For UHF
+one_body coefficients are [alpha one_body, beta one_body]
+two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mo_coeff</strong> (<em>array</em>) – The molecular orbital coefficients to use to generate the integrals</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(float, array or List[array], array or List[array])</strong> – (core_constant, one_body coefficients, two_body coefficients)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.get_full_space_integrals">
+<span class="sig-name descname"><span class="pre">get_full_space_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.get_full_space_integrals" title="Link to this definition"></a></dt>
+<dd><p>Computes core constant, one_body, and two-body integrals for all orbitals
+For UHF
+one_body coefficients are [alpha one_body, beta one_body]
+two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mo_coeff</strong> (<em>array</em>) – The molecular orbital coefficients to use to generate the integrals.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(float, array or List[array], array or List[array])</strong> – (core_constant, one_body coefficients, two_body coefficients)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.get_integrals">
+<span class="sig-name descname"><span class="pre">get_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mo_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fold_frozen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.get_integrals" title="Link to this definition"></a></dt>
+<dd><p>Computes core constant, one_body, and two-body coefficients with frozen orbitals folded into one-body coefficients
+and core constant for mo_coeff if fold_frozen is True</p>
+<p>For UHF
+one_body coefficients are [alpha one_body, beta one_body]
+two_body coefficients are [alpha-alpha two_body, alpha-beta two_body, beta-beta two_body]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mo_coeff</strong> (<em>array</em>) – The molecular orbital coefficients to use to generate the integrals</p></li>
+<li><p><strong>fold_frozen</strong> (<em>bool</em>) – If False, the full integral matrices and core constant are returned.
+If True, the core constant, one_body, and two-body coefficients are calculated with frozen orbitals
+folded into one-body coefficients and core constant. Default True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(float, array or List[array], array or List[array])</strong> – (core_constant, one_body coefficients, two_body coefficients)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id15">
+<span class="sig-name descname"><span class="pre">mf_energy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id15" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mo_coeff">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mo_coeff</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.mo_coeff" title="Link to this definition"></a></dt>
+<dd><p>This property returns the molecular orbital coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>np.array</strong> – MO coefficient as a numpy array.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id16">
+<span class="sig-name descname"><span class="pre">mo_energies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#id16" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id17">
+<span class="sig-name descname"><span class="pre">mo_occ</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#id17" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_ab_electrons">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_active_ab_electrons</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_ab_electrons" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_electrons">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_active_electrons</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_electrons" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_mos">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_active_mos</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_mos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_sos">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_active_sos</span></span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule.n_active_sos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id18">
+<span class="sig-name descname"><span class="pre">n_mos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#id18" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id19">
+<span class="sig-name descname"><span class="pre">n_sos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#id19" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id20">
+<span class="sig-name descname"><span class="pre">symmetry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#id20" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id21">
+<span class="sig-name descname"><span class="pre">uhf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#id21" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.atom_string_to_list">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.molecule.</span></span><span class="sig-name descname"><span class="pre">atom_string_to_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.atom_string_to_list" title="Link to this definition"></a></dt>
+<dd><p>Convert atom coordinate string (typically stored in text files) into a
+list/tuple representation suitable for openfermion.MolecularData.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.get_default_integral_solver">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.molecule.</span></span><span class="sig-name descname"><span class="pre">get_default_integral_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qmmm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.get_default_integral_solver" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.get_integral_solver">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.molecule.</span></span><span class="sig-name descname"><span class="pre">get_integral_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qmmm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.get_integral_solver" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.molecule.molecule_to_secondquantizedmolecule">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.molecule.</span></span><span class="sig-name descname"><span class="pre">molecule_to_secondquantizedmolecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sto-3g'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frozen_orbitals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.molecule.molecule_to_secondquantizedmolecule" title="Link to this definition"></a></dt>
+<dd><p>Function to convert a Molecule into a SecondQuantizedMolecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.Molecule" title="tangelo.toolboxes.molecular_computation.molecule.Molecule"><em>Molecule</em></a>) – Self-explanatory.</p></li>
+<li><p><strong>basis_set</strong> (<em>string</em>) – String representing the basis set.</p></li>
+<li><p><strong>frozen_orbitals</strong> (<em>int</em><em> or </em><em>list</em><em> of </em><em>int</em>) – Number of MOs or MOs indexes to
+freeze.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>SecondQuantizedMolecule</strong> – Mean-field data structure for a molecule.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.molecular_computation.rdms">
+<span id="tangelo-toolboxes-molecular-computation-rdms-module"></span><h2>tangelo.toolboxes.molecular_computation.rdms module<a class="headerlink" href="#module-tangelo.toolboxes.molecular_computation.rdms" title="Link to this heading"></a></h2>
+<p>Module containing functions to manipulate 1- and 2-RDMs.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.rdms.compute_rdms">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.rdms.</span></span><span class="sig-name descname"><span class="pre">compute_rdms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ferm_ham</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_then_down</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_vals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shadow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_spinsum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">eval_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.rdms.compute_rdms" title="Link to this definition"></a></dt>
+<dd><p>Compute the 1- and 2-RDM and their spin-summed versions
+using a FermionOperator and experimental frequency data in the form of a
+classical shadow or a dictionary of frequency histograms.
+Exactly one of the following must be provided by the user:
+exp_vals, exp_data or shadow</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ferm_ham</strong> (<em>FermionicOperator</em>) – Fermionic operator with n_spinorbitals, n_electrons, and spin defined</p></li>
+<li><p><strong>mapping</strong> (<em>str</em>) – Qubit mapping</p></li>
+<li><p><strong>up_then_down</strong> (<em>bool</em>) – Spin ordering for the mapping</p></li>
+<li><p><strong>exp_vals</strong> (<em>dict</em>) – Optional, dictionary of Pauli word expectation values</p></li>
+<li><p><strong>exp_data</strong> (<em>dict</em>) – Optional, dictionary of {basis: histogram} where basis is the measurement basis
+and histogram is a {bitstring: frequency} dictionary</p></li>
+<li><p><strong>shadow</strong> (<a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow" title="tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow"><em>ClassicalShadow</em></a>) – Optional, a classical shadow object</p></li>
+<li><p><strong>return_spinsum</strong> (<em>bool</em>) – Optional, if True, return also the spin-summed RDMs</p></li>
+<li><p><strong>eval_args</strong> – Optional arguments to pass to the ClassicalShadow object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>complex array</strong> – 1-RDM</p></li>
+<li><p><strong>complex array</strong> – 2-RDM</p></li>
+<li><p><strong>complex array</strong> – spin-summed 1-RDM</p></li>
+<li><p><strong>complex array</strong> – spin-summed 2-RDM</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.rdms.energy_from_rdms">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.rdms.</span></span><span class="sig-name descname"><span class="pre">energy_from_rdms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ferm_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_rdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_rdm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.rdms.energy_from_rdms" title="Link to this definition"></a></dt>
+<dd><p>Computes the molecular energy from one- and two-particle reduced
+density matrices (RDMs). Coefficients (integrals) are computed from the
+fermionic Hamiltonian provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ferm_op</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a>) – Self-explanatory.</p></li>
+<li><p><strong>one_rdm</strong> (<em>numpy.array</em>) – One-particle density matrix in MO basis.</p></li>
+<li><p><strong>two_rdm</strong> (<em>numpy.array</em>) – Two-particle density matrix in MO basis.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – Molecular energy.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.rdms.matricize_2rdm">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.rdms.</span></span><span class="sig-name descname"><span class="pre">matricize_2rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">two_rdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_orbitals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.rdms.matricize_2rdm" title="Link to this definition"></a></dt>
+<dd><p>Turns the two_rdm tensor into a matrix for test purposes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.rdms.pad_rdms_with_frozen_orbitals_restricted">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.rdms.</span></span><span class="sig-name descname"><span class="pre">pad_rdms_with_frozen_orbitals_restricted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec_mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onerdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">twordm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.rdms.pad_rdms_with_frozen_orbitals_restricted" title="Link to this definition"></a></dt>
+<dd><p>Function to pad the RDMs with the frozen orbitals data. It is based on
+the pyscf.cccsd_rdm code, where we can set with_frozen=True.</p>
+<dl class="simple">
+<dt>Source:</dt><dd><p><a class="reference external" href="https://github.com/pyscf/pyscf/blob/master/pyscf/cc/ccsd_rdm.py">https://github.com/pyscf/pyscf/blob/master/pyscf/cc/ccsd_rdm.py</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sec_mol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – Self-explanatory.</p></li>
+<li><p><strong>onerdm</strong> (<em>numpy.array</em>) – One-particle reduced density matrix (shape of
+(N_active_mos,)*2).</p></li>
+<li><p><strong>twordm</strong> (<em>numpy.array</em>) – Two-particle reduced density matrix (shape of
+(N_active_mos,)*4).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>numpy.array</strong> – One-particle reduced density matrix (shape of
+(N_total_mos,)*2).</p></li>
+<li><p><strong>numpy.array</strong> – Two-particle reduced density matrix (shape of
+(N_total_mos,)*4).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.molecular_computation.rdms.pad_rdms_with_frozen_orbitals_unrestricted">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.molecular_computation.rdms.</span></span><span class="sig-name descname"><span class="pre">pad_rdms_with_frozen_orbitals_unrestricted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec_mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onerdm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">twordm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.molecular_computation.rdms.pad_rdms_with_frozen_orbitals_unrestricted" title="Link to this definition"></a></dt>
+<dd><p>Function to pad the RDMs with the frozen orbitals data. It is based on
+the pyscf.ucccsd_rdm code, where we can set with_frozen=True.</p>
+<dl class="simple">
+<dt>Source:</dt><dd><p><a class="reference external" href="https://github.com/pyscf/pyscf/blob/master/pyscf/cc/uccsd_rdm.py">https://github.com/pyscf/pyscf/blob/master/pyscf/cc/uccsd_rdm.py</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sec_mol</strong> (<a class="reference internal" href="#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – Self-explanatory.</p></li>
+<li><p><strong>onerdm</strong> (<em>tuple</em><em> of </em><em>arrays</em>) – Tuple of alpha and beta one-particle
+reduced density matrix (shape of (N_active_mos,)*2).</p></li>
+<li><p><strong>twordm</strong> (<em>tuple</em><em> of </em><em>arrays</em>) – Tuple of alpha-alpha, alpha-beta and beta-beta
+two-particle reduced density matrix (shape of (N_active_mos,)*4).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>tuple of arrays</strong> – Tuple of alpha and beta one-particle reduced density
+matrix (shape of (N_total_mos,)*2).</p></li>
+<li><p><strong>tuple of arrays</strong> – Tuple of alpha-alpha, alpha-beta and beta-beta
+two-particle reduced density matrix (shape of (N_total_mos,)*4).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.molecular_computation">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.toolboxes.molecular_computation" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.toolboxes.measurements.classical_shadows.html" class="btn btn-neutral float-left" title="tangelo.toolboxes.measurements.classical_shadows package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.toolboxes.operators.html" class="btn btn-neutral float-right" title="tangelo.toolboxes.operators package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
