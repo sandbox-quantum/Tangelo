@@ -4,20 +4,21 @@
      <img width="600" alt="tangelo_logo" src="./docs/source/_static/img/tangelo_logo_gradient.png">
    </p>
 
+
 .. raw:: html
 
    <p align="center">
-     <a href="https://github.com/goodchemistryco/Tangelo/blob/main/LICENSE">
+     <a href="https://github.com/sandbox-quantum/Tangelo/blob/main/LICENSE">
        <img src="https://img.shields.io/badge/License-Apache_2.0-green" alt="license">
      </a>
      <img src="https://img.shields.io/badge/OS-Linux%20MacOS%20Windows-7373e3" alt="systems">
-     <a href="https://github.com/goodchemistryco/Tangelo/tree/develop">
+     <a href="https://github.com/sandbox-quantum/Tangelo/tree/develop">
        <img src="https://img.shields.io/badge/DevBranch-develop-yellow" alt="dev_branch">
      </a>
    </p>
 
-.. |build| image:: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml/badge.svg
-   :target: https://github.com/goodchemistryco/Tangelo/actions/workflows/continuous_integration.yml
+.. |build| image:: https://github.com/sandbox-quantum/Tangelo/actions/workflows/continuous_integration.yml/badge.svg
+   :target: https://github.com/sandbox-quantum/Tangelo/actions/workflows/continuous_integration.yml
 
 Tangelo is an open-source Python package maintained by `SandboxAQ <https://www.sandboxaq.com/>`_, focusing on the development of quantum chemistry simulation workflows on quantum computers. It was developed as an engine to accelerate research, and takes advantage of other popular frameworks to harness the innovation in our field.
 
@@ -26,11 +27,11 @@ Tangelo is an open-source Python package maintained by `SandboxAQ <https://www.s
 .. raw:: html
 
    <h3 align="center"> 
-     <a href="https://github.com/goodchemistryco/Tangelo-Examples/blob/main/contents.rst" target="_blank"><b>Tutorials</b></a>
+     <a href="https://github.com/sandbox-quantum/Tangelo-Examples/blob/main/contents.rst" target="_blank"><b>Tutorials</b></a>
    &nbsp;&#183;&nbsp;
-     <a href="https://github.com/goodchemistryco/Tangelo/blob/develop/docs/source/docs/source/_static/img/tangelo_feature_overview.jpeg?raw=true" target="_blank"><b>Features</b></a>
+     <a href="https://github.com/sandbox-quantum/Tangelo/blob/develop/docs/source/docs/source/_static/img/tangelo_feature_overview.jpeg?raw=true" target="_blank"><b>Features</b></a>
    &nbsp;&#183;&nbsp;
-     <a href="https://goodchemistryco.github.io/Tangelo/overview.html" target="_blank"><b>Docs</b></a>
+     <a href="https://sandbox-quantum.github.io/Tangelo/overview.html" target="_blank"><b>Docs</b></a>
    &nbsp;&#183;&nbsp;
      <a href="https://goodchemistry.com/blog/" target="_blank"><b>Blog</b></a>
    </h3>
@@ -68,7 +69,7 @@ If you'd like to install via pip the code in a specific branch of this Github re
 
 .. code-block::
 
-   pip install git+https://github.com/goodchemistryco/Tangelo.git@develop
+   pip install git+https://github.com/sandbox-quantum/Tangelo.git@develop
 
 2. From source, using setuptools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -94,7 +95,7 @@ You can either source this file in your terminal, or set these variables inside 
 Tutorials and examples
 ----------------------
 
-We have a `dedicated repository <https://github.com/goodchemistryco/Tangelo-Examples>`_ for examples and tutorials ! You can get started with just a few clicks.
+We have a `dedicated repository <https://github.com/sandbox-quantum/Tangelo-Examples>`_ for examples and tutorials ! You can get started with just a few clicks.
 Tutorials are organized following a colorful tag system to help people find what is relevant to them. They contain insightful information and advice about chemistry simulations, quantum computing experiments and using Tangelo. Tangelo users can also contribute to this repository and showcase their own work.
 
 Check out our `tutorials <./TUTORIALS.rst>`_ file for more details.
@@ -115,7 +116,7 @@ Contributions
 Thank you very much for considering contributing to this project; we'd love to have you on board !
 You do not need to be a seasoned software developer or expert in your field to make contributions to this project: it will take various kinds of people and backgrounds to tackle the challenges that await us.
 
-You can use the `Issue tab <https://github.com/goodchemistryco/Tangelo/issues>`_ to open a bug report or feature request. Starting a discussion in the `Discussion tab <https://github.com/goodchemistryco/Tangelo/discussions>`_ is also a good start: we'll figure it out from there.
+You can use the `Issue tab <https://github.com/sandbox-quantum/Tangelo/issues>`_ to open a bug report or feature request. Starting a discussion in the `Discussion tab <https://github.com/goodchemistryco/Tangelo/discussions>`_ is also a good start: we'll figure it out from there.
 
 The contribution process is detailed in the `contributions <./CONTRIBUTIONS.rst>`_ file. Don't feel intimidated: we work at the intersection of many difficult fields and we're here to help. By joining the Tangelo community and sharing your ideas and developments, you are creating an opportunity for us to grow together, and take ideas to the finish line and beyond.
 
