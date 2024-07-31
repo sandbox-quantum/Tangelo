@@ -92,8 +92,8 @@ class IntegralSolverFCIDUMP(IntegralSolver):
         sqmol.mean_field = self.tools.fcidump.to_scf(self.fcidump_file)
         sqmol.mean_field.verbose = 0
 
-        # Setting max_cycle=0 lets the mean_field update itself with the
-        # current guess, i.e. the ones found in the FCIDUMP file.
+        # Setting max_cycle=0 lets the mean_field updates itself with the
+        # current guess, i.e. the one found in the FCIDUMP file.
         sqmol.mean_field.max_cycle = 0
         sqmol.mean_field.kernel()
 
