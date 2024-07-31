@@ -116,14 +116,11 @@ class IntegralSolverFCIDUMP(IntegralSolver):
 
         Args:
             sqmol (SecondQuantizedMolecule) : SecondQuantizedMolecule (not used).
-            mo_coeff : Molecular orbital coefficients to use for calculating the integrals, instead of self.mo_coeff
+            mo_coeff : Molecular orbital coefficients (not used).
 
         Returns:
             (float, array or List[array], array or List[array]): (core_constant, one_body coefficients, two_body coefficients)
         """
-
-        if mo_coeff is None:
-            mo_coeff = self.mo_coeff
 
         # Reading the FCIDUMP file.
         fcidump_data = tools.fcidump.read(self.fcidump_file)
@@ -134,10 +131,8 @@ class IntegralSolverFCIDUMP(IntegralSolver):
         # Reading the nuclear repulsion energy and static coulomb energy,
         # and the electron integrals.
         core_constant = fcidump_data["ECORE"]
-        one_electron_integrals = mo_coeff.T @ fcidump_data["H1"].reshape((norb,)*2) @ mo_coeff
-
-        two_electron_integrals = ao2mo.kernel(fcidump_data["H2"], mo_coeff)
-        two_electron_integrals = ao2mo.restore(1, two_electron_integrals, norb)
+        one_electron_integrals = fcidump_data["H1"].reshape((norb,)*2)
+        two_electron_integrals = ao2mo.restore(1, fcidump_data["H2"], norb)
 
         # PQRS convention in openfermion:
         # h[p,q]=\int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
