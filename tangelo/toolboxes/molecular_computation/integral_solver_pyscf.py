@@ -318,7 +318,25 @@ class IntegralSolverPySCF(IntegralSolver):
         return hpq, Gpqrs
 
     def write_fcidump(self, sqmol, filename, **kwargs):
-        """https://pyscf.org/pyscf_api_docs/pyscf.tools.html#pyscf.tools.fcidump.from_scf"""
+        """Write the FCIDUMP file for a given molecule using its SCF mean field
+        object. This method utilizes the `fcidump.from_scf` function from the
+        PySCF library to generate a FCIDUMP file from the SCF mean field object
+        of the input molecule.
+
+        Args:
+            sqmol (SecondQuantizedMolecule): Self-explanatory.
+
+            filename (str): The name of the file to which the FCIDUMP data will
+                be written. This should include the file extension (e.g., '.fcidump').
+
+            **kwarg: Additional keyword arguments to be passed to the
+                `fcidump.from_scf` function.
+
+        Notes:
+            For more details on the `fcidump.from_scf` function and its
+            parameters, refer to the PySCF documentation:
+            https://pyscf.org/pyscf_api_docs/pyscf.tools.html#pyscf.tools.fcidump.from_scf
+        """
 
         from pyscf.tools import fcidump
         fcidump.from_scf(sqmol.mean_field, filename, **kwargs)
