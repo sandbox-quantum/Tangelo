@@ -14,8 +14,6 @@
 
 import os
 
-from pyscf import lib, tools, ao2mo
-
 from tangelo.toolboxes.molecular_computation.integral_solver import IntegralSolver
 from tangelo.toolboxes.molecular_computation.integral_solver_pyscf import mol_to_pyscf
 
@@ -30,6 +28,11 @@ class IntegralSolverFCIDUMP(IntegralSolver):
         Args:
             fcidump_file (string): Path of the FCIDUMP file.
         """
+        from pyscf import ao2mo, lib, tools
+
+        self.ao2mo = ao2mo
+        self.lib = lib
+        self.tools = tools
 
         if os.path.exists(fcidump_file):
             self.fcidump_file = os.path.abspath(fcidump_file)
@@ -56,7 +59,7 @@ class IntegralSolverFCIDUMP(IntegralSolver):
         pymol = mol_to_pyscf(mol)
         mol.xyz = list()
         for sym, xyz in pymol._atom:
-            mol.xyz += [tuple([sym, tuple([x*lib.parameters.BOHR for x in xyz])])]
+            mol.xyz += [tuple([sym, tuple([x*self.lib.parameters.BOHR for x in xyz])])]
 
         mol.n_atoms = pymol.natm
         mol.n_electrons = pymol.nelectron
@@ -86,7 +89,7 @@ class IntegralSolverFCIDUMP(IntegralSolver):
 
         pyscf_mol = mol_to_pyscf(sqmol, sqmol.basis, sqmol.symmetry, sqmol.ecp)
 
-        sqmol.mean_field = tools.fcidump.to_scf(self.fcidump_file)
+        sqmol.mean_field = self.tools.fcidump.to_scf(self.fcidump_file)
         sqmol.mean_field.verbose = 0
 
         # Setting max_cycle=0 lets the mean_field update itself with the
@@ -123,7 +126,7 @@ class IntegralSolverFCIDUMP(IntegralSolver):
         """
 
         # Reading the FCIDUMP file.
-        fcidump_data = tools.fcidump.read(self.fcidump_file)
+        fcidump_data = self.tools.fcidump.read(self.fcidump_file)
 
         # Getting the relevant data, like number of orbitals, core constant.
         norb = fcidump_data["NORB"]
@@ -132,7 +135,7 @@ class IntegralSolverFCIDUMP(IntegralSolver):
         # and the electron integrals.
         core_constant = fcidump_data["ECORE"]
         one_electron_integrals = fcidump_data["H1"].reshape((norb,)*2)
-        two_electron_integrals = ao2mo.restore(1, fcidump_data["H2"], norb)
+        two_electron_integrals = self.ao2mo.restore(1, fcidump_data["H2"], norb)
 
         # PQRS convention in openfermion:
         # h[p,q]=\int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
