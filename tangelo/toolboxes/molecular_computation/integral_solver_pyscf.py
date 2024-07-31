@@ -317,6 +317,12 @@ class IntegralSolverPySCF(IntegralSolver):
 
         return hpq, Gpqrs
 
+    def write_fcidump(self, sqmol, filename, **kwargs):
+        """https://pyscf.org/pyscf_api_docs/pyscf.tools.html#pyscf.tools.fcidump.from_scf"""
+
+        from pyscf.tools import fcidump
+        fcidump.from_scf(sqmol.mean_field, filename, **kwargs)
+
 
 class IntegralSolverPySCFQMMM(IntegralSolverPySCF):
     """Instantiate Electronic Structure integration with PySCF using electrostatic embedding """
