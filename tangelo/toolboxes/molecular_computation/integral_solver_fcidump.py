@@ -106,13 +106,6 @@ class IntegralSolverFCIDUMP(IntegralSolver):
 
         self.mo_coeff = sqmol.mean_field.mo_coeff
 
-    def modify_solver_mo_coeff(self, sqmol):
-        """Change the molecular coefficients in the SecondQuantizedMolecule mean_field object using self.mo_coeff
-        Args:
-            sqmol (SecondQuantizedMolecule): The SecondQuantizedMolecule object with mo_coeff
-        """
-        sqmol.mean_field.mo_coeff = self.mo_coeff
-
     def get_integrals(self, sqmol, mo_coeff=None):
         r"""Retrieves core constant, one_body, and two-body integrals from the
         FCIDUMP file.
