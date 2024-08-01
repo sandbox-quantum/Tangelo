@@ -65,12 +65,13 @@ class IntegralSolverPySCF(IntegralSolver):
             use_newton (bool): Use RHF.newton() for scf iterations
         """
 
-        from pyscf import gto, lib, scf, symm, ao2mo
+        from pyscf import gto, lib, scf, symm, ao2mo, tools
         self.gto = gto
         self.lib = lib
         self.scf = scf
         self.symm = symm
         self.ao2mo = ao2mo
+        self.tools = tools
         self.chkfile = chkfile
         self.newton = use_newton
 
@@ -338,8 +339,7 @@ class IntegralSolverPySCF(IntegralSolver):
             https://pyscf.org/pyscf_api_docs/pyscf.tools.html#pyscf.tools.fcidump.from_scf
         """
 
-        from pyscf.tools import fcidump
-        fcidump.from_scf(sqmol.mean_field, filename, **kwargs)
+        self.tools.fcidump.from_scf(sqmol.mean_field, filename, **kwargs)
 
 
 class IntegralSolverPySCFQMMM(IntegralSolverPySCF):
