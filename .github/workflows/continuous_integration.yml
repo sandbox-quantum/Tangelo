@@ -82,6 +82,12 @@ jobs:
         python -m pip install openbabel-wheel
       if: always()
 
+    - name: Install dependencies for QRE
+      run: |
+        pip install openfermionpyscf
+        pip install benchq
+      if: always()
+
     - name: tangelo tests
       run: |
         cd tangelo
