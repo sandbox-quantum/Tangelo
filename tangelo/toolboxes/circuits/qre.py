@@ -12,78 +12,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module provides the QRE class for handling quantum resource estimation
-(QRE) in quantum chemistry problems. The QRE class is initialized with a
-`sec_mol` object, which is used to obtain one-body and two-body integrals,
-relevant for QRE.
+"""This module provides functions for handling quantum resource estimation
+(QRE) in quantum chemistry problems. The QRE functions take a
+SecondQuantizedMolecule object, which is used to obtain one-body and two-body
+integrals, relevant for QRE.
 """
 
 
-class QRE:
-    """A class for estimating quantum resources for a given molecule.
+def qre_benchq(sec_mol, threshold, **kwargs):
+    """Calculate the Toffoli and qubit cost using the benchq library. For
+    more details, see the benchq documentation:
+    https://github.com/zapatacomputing/benchq/blob/main/src/benchq/problem_embeddings/qpe.py#L128
 
-    Attributes:
-        sec_mol (SecondQuantizedMolecule): Self-explanatory.
-        one_body_int (array): The one-body integrals of the molecule.
-        two_body_int (array): The two-body integrals of the molecule.
+    Dependencies:
+        - benchq
+        - openfermionpycf
 
-    Methods:
-        benchq(threshold, **kwargs):
-            Calculates the Toffoli and qubit cost using the benchq library.
-        pennylane(**kwargs):
-            Calculates the double factorization resource cost using the
-            Pennylane library.
+    Args:
+        threshold (float): The threshold parameter for the double
+            factorization algorithm.
+        **kwargs: Additional parameters to pass to the `benchq` function.
+
+    Returns:
+        (int, int): A tuple containing the Toffoli and qubit cost.
     """
+    from benchq.problem_embeddings.qpe import get_double_factorized_qpe_toffoli_and_qubit_cost
 
-    def __init__(self, sec_mol):
-        """Initialize the QRE object with a given quantum molecule.
+    _, one_body_int, two_body_int = sec_mol.get_integrals(fold_frozen=True)
 
-        Args:
-            sec_mol (SecondQuantizedMolecule): Self-explanatory.
-        """
-        self.sec_mol = sec_mol
-        _, self.one_body_int, self.two_body_int = self.sec_mol.get_integrals(fold_frozen=True)
+    return get_double_factorized_qpe_toffoli_and_qubit_cost(one_body_int,
+        two_body_int, threshold, **kwargs)
 
-    def benchq(self, threshold, **kwargs):
-        """Calculate the Toffoli and qubit cost using the benchq library. For
-        more details, see the benchq documentation:
-        https://github.com/zapatacomputing/benchq/blob/main/src/benchq/problem_embeddings/qpe.py#L128
 
-        Dependencies:
-            - benchq
-            - openfermionpycf
+def qre_pennylane(sec_mol, **kwargs):
+    """Calculate the double factorization resource cost using the Pennylane
+    library. For more details, see the Pennylane documentation:
+    https://docs.pennylane.ai/en/stable/code/api/pennylane.resource.DoubleFactorization.html
 
-        Args:
-            threshold (float): The threshold parameter for the double
-                factorization algorithm.
-            **kwargs: Additional parameters to pass to the `benchq` function.
+    Dependency:
+        - pennylane
 
-        Returns:
-            (int, int): A tuple containing the Toffoli and qubit cost.
-        """
+    Args:
+        **kwargs: Additional parameters to pass to the
+            `DoubleFactorization` constructor.
 
-        from benchq.problem_embeddings.qpe import get_double_factorized_qpe_toffoli_and_qubit_cost
+    Returns:
+        DoubleFactorization: An instance of the Pennylane
+            DoubleFactorization resource.
+    """
+    from pennylane.resource import DoubleFactorization
 
-        return get_double_factorized_qpe_toffoli_and_qubit_cost(self.one_body_int,
-            self.two_body_int, threshold, **kwargs)
+    _, one_body_int, two_body_int = sec_mol.get_integrals(fold_frozen=True)
 
-    def pennylane(self, **kwargs):
-        """Calculate the double factorization resource cost using the Pennylane
-        library. For more details, see the Pennylane documentation:
-        https://docs.pennylane.ai/en/stable/code/api/pennylane.resource.DoubleFactorization.html
-
-        Dependency:
-            - pennylane
-
-        Args:
-            **kwargs: Additional parameters to pass to the
-                `DoubleFactorization` constructor.
-
-        Returns:
-            DoubleFactorization: An instance of the Pennylane
-                DoubleFactorization resource.
-        """
-
-        from pennylane.resource import DoubleFactorization
-
-        return DoubleFactorization(self.one_body_int, self.two_body_int, **kwargs)
+    return DoubleFactorization(one_body_int, two_body_int, **kwargs)
