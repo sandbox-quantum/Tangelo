@@ -17,6 +17,7 @@ import unittest
 from tangelo.molecule_library import mol_H10_321g
 from tangelo.toolboxes.circuits.qre import qre_benchq, qre_pennylane
 
+
 class QRETest(unittest.TestCase):
 
     def test_qre_benchq(self):
