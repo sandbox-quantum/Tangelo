@@ -20,6 +20,7 @@ from tangelo.toolboxes.circuits.qre import qre_benchq, qre_pennylane
 
 class QRETest(unittest.TestCase):
 
+    @unittest.skip("Installing benchq enforces an old qiskit version that breaks our qiskit interface.")
     def test_qre_benchq(self):
         """Test the QRE output type for the benchq interface."""
 
