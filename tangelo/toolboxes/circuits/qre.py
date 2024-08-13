@@ -18,6 +18,8 @@ SecondQuantizedMolecule object, which is used to obtain one-body and two-body
 integrals, relevant for QRE.
 """
 
+import numpy as np
+
 
 def qre_benchq(sec_mol, threshold, **kwargs):
     """Calculate the Toffoli and qubit cost using the benchq library. For
@@ -65,3 +67,62 @@ def qre_pennylane(sec_mol, **kwargs):
     _, one_body_int, two_body_int = sec_mol.get_integrals(fold_frozen=True)
 
     return DoubleFactorization(one_body_int, two_body_int, **kwargs)
+
+
+def qre_pyliqtr(sec_mol, error=0.0016, **kwargs):
+    """Calculate the double factorization resource cost using the pyLIQTR
+    library. For more details, see the pyLIQTR documentation:
+    https://github.com/isi-usc-edu/pyLIQTR
+
+    Dependency:
+        - julia
+        - cirq-core==1.3.0.dev20231018023458
+        - qualtran
+        - openfermionpyscf
+
+    Args:
+        **kwargs: Additional parameters to pass to the
+            `DoubleFactorization` constructor.
+
+    Returns:
+        dict: Dictionary of QRE, in the form of {'LogicalQubits': int,
+            'T': int, 'Clifford': int}.
+    """
+    from qualtran.cirq_interop.testing import GateHelper
+
+    from pyLIQTR.ProblemInstances.getInstance import getInstance
+    from pyLIQTR.BlockEncodings.getEncoding import getEncoding, VALID_ENCODINGS
+    from pyLIQTR.utils.resource_analysis import estimate_resources
+    from pyLIQTR.utils.circuit_decomposition import circuit_decompose_multi
+    from pyLIQTR.qubitization.phase_estimation import QubitizedPhaseEstimation
+
+    mol_ham = sec_mol._get_fermionic_hamiltonian(get_mol=True)
+    mol_instance = getInstance("ChemicalHamiltonian", mol_ham=mol_ham)
+
+    hamiltonian_lambda = mol_instance.lam
+
+    # Get precision qubits m.
+    #m_base = (np.sqrt(2) * np.pi * hamiltonian_lambda) / (2 * error)
+    #m = int(np.ceil(np.log(m_base)))
+
+    # Gget PE QRE.
+    phase_est = QubitizedPhaseEstimation(
+        getEncoding(
+            # https://github.com/isi-usc-edu/pyLIQTR/blob/main/src/pyLIQTR/BlockEncodings/DoubleFactorized.py
+            VALID_ENCODINGS.DoubleFactorized,
+            df_error_threshold=1e-5,
+            sf_error_threshold=1e-5,
+            br=7,
+            phase_gradient_eps=1e-6,
+            energy_error=0.0016,
+            step_error=None,
+            bits_rot_givens=20,
+            keep_bitsize=10,
+            outer_prep_eps=None
+        ), instance=mol_instance
+    )
+
+    #PEGateHelper = GateHelper(phase_est)
+    #circ_decomp = circuit_decompose_multi(PEGateHelper.circuit, 1)
+
+    return estimate_resources(phase_est)
