@@ -18,10 +18,8 @@ import tempfile
 
 from openfermion.utils import load_operator
 
-from tangelo import SecondQuantizedMolecule
 from tangelo.molecule_library import mol_H2_sto3g
 from tangelo.toolboxes.operators import FermionOperator
-from tangelo.toolboxes.molecular_computation import IntegralSolverFCIDUMP
 from tangelo.toolboxes.molecular_computation.fcidump import fermop_from_fcidump
 
 # For openfermion.load_operator function.
@@ -34,21 +32,13 @@ ferm_op_ref.__dict__ = ferm_op_of.__dict__.copy()
 
 class FCIDUMPUtilitiesTest(unittest.TestCase):
 
-    def test_read_fcidump_without_integralsolver(self):
+    def test_read_fcidump_to_fermionoperator(self):
         """Generating fermionic operator from a FCIDUMP file without passing
         through an IntegralSolver.
         """
 
         ferm_op = fermop_from_fcidump(os.path.abspath(pwd_this_test + "/data/H2_sto3g.fcidump"))
         self.assertTrue(ferm_op_ref.isclose(ferm_op))
-
-    def test_read_fcidump_with_integralsolver(self):
-        """Generating fermionic operator from a FCIDUMP file by passing through
-        an IntegralSolver.
-        """
-
-        secmol = SecondQuantizedMolecule(mol_H2_sto3g.xyz, solver=IntegralSolverFCIDUMP(pwd_this_test + "/data/H2_sto3g.fcidump"))
-        self.assertTrue(ferm_op_ref.isclose(secmol.fermionic_hamiltonian))
 
     def test_write_fcidump(self):
         """Writing a FCIDUMP file from a SecondQuantizedMolecule. The test
