@@ -476,19 +476,19 @@ class DMETProblemDecomposition(ProblemDecomposition):
                 print("\t\tFragment Number : # ", i + 1)
                 print("\t\t------------------------")
 
+            is_post_hf_solver = True
+
             # TODO: Changing this into something more simple is preferable. There
             # would be an enum class with every solver in it. After this, we would
             # define every solver in a list and call them recursively.
             solver_fragment = self.fragment_solvers[i]
             solver_options = self.solvers_options[i]
             if solver_fragment == "hf":
-                # This code block would output an error with an UHF mean-field.
-                if self.uhf:
-                    raise NotImplementedError("UHF mean-field is not supported for the HF solver.")
-                onerdm = mf_fragment.mo_coeff.T @ mf_fragment.make_rdm1() @ mf_fragment.mo_coeff
+                is_post_hf_solver = False
+                onerdm = mf_fragment.make_rdm1()
                 twordm = mf_fragment.make_rdm2()
-                twordm = self.ao2mo.kernel(twordm, mf_fragment.mo_coeff)
-                twordm = self.ao2mo.restore(1, twordm, len(mf_fragment.mo_coeff))
+                if not self.uhf and self.molecule.spin != 0:
+                    onerdm = np.sum(onerdm, axis=0)
             elif solver_fragment == "fci":
                 solver_fragment = FCISolver(dummy_mol, **solver_options)
                 solver_fragment.simulate()
@@ -533,11 +533,11 @@ class DMETProblemDecomposition(ProblemDecomposition):
             # Compute the fragment energy and sum up the number of electrons
             if self.uhf:
                 onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals_unrestricted(dummy_mol, onerdm, twordm)
-                fragment_energy, onerdm_a, onerdm_b = self._compute_energy_unrestricted(dummy_mol, onerdm_padded, twordm_padded)
+                fragment_energy, onerdm_a, onerdm_b = self._compute_energy_unrestricted(dummy_mol, onerdm_padded, twordm_padded, is_post_hf_solver)
                 n_electron_frag = np.trace(onerdm_a[ : t_list[0], : t_list[0]]) + np.trace(onerdm_b[ : t_list[0], : t_list[0]])
             else:
                 onerdm_padded, twordm_padded = pad_rdms_with_frozen_orbitals_restricted(dummy_mol, onerdm, twordm)
-                fragment_energy, onerdm = self._compute_energy_restricted(dummy_mol, onerdm_padded, twordm_padded)
+                fragment_energy, onerdm = self._compute_energy_restricted(dummy_mol, onerdm_padded, twordm_padded, is_post_hf_solver)
                 n_electron_frag = np.trace(onerdm[: t_list[0], : t_list[0]])
 
             number_of_electron += n_electron_frag
@@ -605,7 +605,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         return resources_fragments
 
-    def _compute_energy_restricted(self, dmet_fragment, onerdm, twordm):
+    def _compute_energy_restricted(self, dmet_fragment, onerdm, twordm, transform_ao=True):
         """Calculate the fragment energy.
 
         Args:
@@ -627,12 +627,13 @@ class DMETProblemDecomposition(ProblemDecomposition):
         norb = t_list[0]
 
         # Calculate the one- and two- RDM for DMET energy calculation (Transform to AO basis)
-        onerdm = mo_coeff @ onerdm @ mo_coeff.T
+        if transform_ao:
+            onerdm = mo_coeff @ onerdm @ mo_coeff.T
 
-        twordm = np.einsum("pi,ijkl->pjkl", mo_coeff, twordm)
-        twordm = np.einsum("qj,pjkl->pqkl", mo_coeff, twordm)
-        twordm = np.einsum("rk,pqkl->pqrl", mo_coeff, twordm)
-        twordm = np.einsum("sl,pqrl->pqrs", mo_coeff, twordm)
+            twordm = np.einsum("pi,ijkl->pjkl", mo_coeff, twordm)
+            twordm = np.einsum("qj,pjkl->pqkl", mo_coeff, twordm)
+            twordm = np.einsum("rk,pqkl->pqrl", mo_coeff, twordm)
+            twordm = np.einsum("sl,pqrl->pqrs", mo_coeff, twordm)
 
         # Calculate fragment expectation value
         fragment_energy_onerdm = np.einsum("ij,ij->", onerdm[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
@@ -649,7 +650,7 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         return fragment_energy, onerdm
 
-    def _compute_energy_unrestricted(self, dmet_fragment, onerdm, twordm):
+    def _compute_energy_unrestricted(self, dmet_fragment, onerdm, twordm, transform_ao=True):
         """Calculate the fragment energy (unrestricted mean-field).
 
         Args:
@@ -671,28 +672,28 @@ class DMETProblemDecomposition(ProblemDecomposition):
 
         norb = t_list[0]
 
-        # Calculate the one- and two- RDM for DMET energy calculation (Transform to AO basis)
         onerdm_a, onerdm_b = onerdm
-
-        onerdm_a = mo_coeff[0] @ onerdm_a @ mo_coeff[0].T
-        onerdm_b = mo_coeff[1] @ onerdm_b @ mo_coeff[1].T
-
         twordm_aa, twordm_ab, twordm_bb = twordm
 
-        twordm_aa = np.einsum("pi,ijkl->pjkl", mo_coeff[0], twordm_aa)
-        twordm_aa = np.einsum("qj,pjkl->pqkl", mo_coeff[0], twordm_aa)
-        twordm_aa = np.einsum("rk,pqkl->pqrl", mo_coeff[0], twordm_aa)
-        twordm_aa = np.einsum("sl,pqrl->pqrs", mo_coeff[0], twordm_aa)
+        # Calculate the one- and two- RDM for DMET energy calculation (Transform to AO basis)
+        if transform_ao:
+            onerdm_a = mo_coeff[0] @ onerdm_a @ mo_coeff[0].T
+            onerdm_b = mo_coeff[1] @ onerdm_b @ mo_coeff[1].T
 
-        twordm_ab = np.einsum("pi,ijkl->pjkl", mo_coeff[0], twordm_ab)
-        twordm_ab = np.einsum("qj,pjkl->pqkl", mo_coeff[0], twordm_ab)
-        twordm_ab = np.einsum("rk,pqkl->pqrl", mo_coeff[1], twordm_ab)
-        twordm_ab = np.einsum("sl,pqrl->pqrs", mo_coeff[1], twordm_ab)
+            twordm_aa = np.einsum("pi,ijkl->pjkl", mo_coeff[0], twordm_aa)
+            twordm_aa = np.einsum("qj,pjkl->pqkl", mo_coeff[0], twordm_aa)
+            twordm_aa = np.einsum("rk,pqkl->pqrl", mo_coeff[0], twordm_aa)
+            twordm_aa = np.einsum("sl,pqrl->pqrs", mo_coeff[0], twordm_aa)
 
-        twordm_bb = np.einsum("pi,ijkl->pjkl", mo_coeff[1], twordm_bb)
-        twordm_bb = np.einsum("qj,pjkl->pqkl", mo_coeff[1], twordm_bb)
-        twordm_bb = np.einsum("rk,pqkl->pqrl", mo_coeff[1], twordm_bb)
-        twordm_bb = np.einsum("sl,pqrl->pqrs", mo_coeff[1], twordm_bb)
+            twordm_ab = np.einsum("pi,ijkl->pjkl", mo_coeff[0], twordm_ab)
+            twordm_ab = np.einsum("qj,pjkl->pqkl", mo_coeff[0], twordm_ab)
+            twordm_ab = np.einsum("rk,pqkl->pqrl", mo_coeff[1], twordm_ab)
+            twordm_ab = np.einsum("sl,pqrl->pqrs", mo_coeff[1], twordm_ab)
+
+            twordm_bb = np.einsum("pi,ijkl->pjkl", mo_coeff[1], twordm_bb)
+            twordm_bb = np.einsum("qj,pjkl->pqkl", mo_coeff[1], twordm_bb)
+            twordm_bb = np.einsum("rk,pqkl->pqrl", mo_coeff[1], twordm_bb)
+            twordm_bb = np.einsum("sl,pqrl->pqrs", mo_coeff[1], twordm_bb)
 
         # Calculate fragment expectation value
         fragment_energy_one = np.einsum("ij,ij->", onerdm_a[: norb, :], fock[: norb, :] + oneint[: norb, :]) \
