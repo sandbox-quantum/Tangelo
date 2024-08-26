@@ -103,7 +103,7 @@ def qre_pyliqtr(sec_mol, error=0.0016, **kwargs):
     # Get phase estimation QRE.
     phase_est = QubitizedPhaseEstimation(
         # https://github.com/isi-usc-edu/pyLIQTR/blob/main/src/pyLIQTR/BlockEncodings/DoubleFactorized.py
-        getEncoding(VALID_ENCODINGS.DoubleFactorized, **kwargs),
+        getEncoding(VALID_ENCODINGS.DoubleFactorized, energy_error=error, **kwargs),
         instance=mol_instance
     )
 
