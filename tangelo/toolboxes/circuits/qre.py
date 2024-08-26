@@ -85,44 +85,26 @@ def qre_pyliqtr(sec_mol, error=0.0016, **kwargs):
             `DoubleFactorization` constructor.
 
     Returns:
-        dict: Dictionary of QRE, in the form of {'LogicalQubits': int,
-            'T': int, 'Clifford': int}.
+        dict: Dictionary of QRE, in the form of {"LogicalQubits": int,
+            "T": int, "Clifford": int, "lambda":: float}.
     """
-    from qualtran.cirq_interop.testing import GateHelper
 
     from pyLIQTR.ProblemInstances.getInstance import getInstance
     from pyLIQTR.BlockEncodings.getEncoding import getEncoding, VALID_ENCODINGS
     from pyLIQTR.utils.resource_analysis import estimate_resources
-    from pyLIQTR.utils.circuit_decomposition import circuit_decompose_multi
     from pyLIQTR.qubitization.phase_estimation import QubitizedPhaseEstimation
 
     mol_ham = sec_mol._get_fermionic_hamiltonian(get_mol=True)
     mol_instance = getInstance("ChemicalHamiltonian", mol_ham=mol_ham)
 
+    # Compute Hamiltonian 1-norm.
     hamiltonian_lambda = mol_instance.lam
 
-    # Get precision qubits m.
-    #m_base = (np.sqrt(2) * np.pi * hamiltonian_lambda) / (2 * error)
-    #m = int(np.ceil(np.log(m_base)))
-
-    # Gget PE QRE.
+    # Get phase estimation QRE.
     phase_est = QubitizedPhaseEstimation(
-        getEncoding(
-            # https://github.com/isi-usc-edu/pyLIQTR/blob/main/src/pyLIQTR/BlockEncodings/DoubleFactorized.py
-            VALID_ENCODINGS.DoubleFactorized,
-            df_error_threshold=1e-5,
-            sf_error_threshold=1e-5,
-            br=7,
-            phase_gradient_eps=1e-6,
-            energy_error=0.0016,
-            step_error=None,
-            bits_rot_givens=20,
-            keep_bitsize=10,
-            outer_prep_eps=None
-        ), instance=mol_instance
+        # https://github.com/isi-usc-edu/pyLIQTR/blob/main/src/pyLIQTR/BlockEncodings/DoubleFactorized.py
+        getEncoding(VALID_ENCODINGS.DoubleFactorized, **kwargs),
+        instance=mol_instance
     )
 
-    #PEGateHelper = GateHelper(phase_est)
-    #circ_decomp = circuit_decompose_multi(PEGateHelper.circuit, 1)
-
-    return estimate_resources(phase_est)
+    return {**estimate_resources(phase_est), "lambda": hamiltonian_lambda}
