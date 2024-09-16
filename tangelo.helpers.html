@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.helpers package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.linq package" href="tangelo.linq.html" />
+    <link rel="prev" title="tangelo.algorithms.variational package" href="tangelo.algorithms.variational.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">tangelo.helpers package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.helpers.math">tangelo.helpers.math module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.helpers.utils">tangelo.helpers.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.helpers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+      <li class="breadcrumb-item active">tangelo.helpers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.helpers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-helpers-package">
+<h1>tangelo.helpers package<a class="headerlink" href="#tangelo-helpers-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.helpers.math">
+<span id="tangelo-helpers-math-module"></span><h2>tangelo.helpers.math module<a class="headerlink" href="#module-tangelo.helpers.math" title="Link to this heading"></a></h2>
+<p>This file provides utility functions to perform mathematical operations.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.helpers.math.arrays_almost_equal_up_to_global_phase">
+<span class="sig-prename descclassname"><span class="pre">tangelo.helpers.math.</span></span><span class="sig-name descname"><span class="pre">arrays_almost_equal_up_to_global_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.helpers.math.arrays_almost_equal_up_to_global_phase" title="Link to this definition"></a></dt>
+<dd><p>Checks if two arrays are almost equal up to a global phase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array1</strong> (<em>array</em>) – Self-explanatory.</p></li>
+<li><p><strong>array2</strong> (<em>array</em>) – Self-explanatory.</p></li>
+<li><p><strong>atol</strong> (<em>float</em>) – Optional, absolute tolerance</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>bool</strong> – True if arrays are almost equal up to a global phase, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.helpers.math.bool_col_echelon">
+<span class="sig-prename descclassname"><span class="pre">tangelo.helpers.math.</span></span><span class="sig-name descname"><span class="pre">bool_col_echelon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool_array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.helpers.math.bool_col_echelon" title="Link to this definition"></a></dt>
+<dd><p>Function to transform a boolean array into its column echelon form
+(transpose of the row-echelon form).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bool_array</strong> (<em>array</em><em> of </em><em>bool</em>) – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.helpers.utils">
+<span id="tangelo-helpers-utils-module"></span><h2>tangelo.helpers.utils module<a class="headerlink" href="#module-tangelo.helpers.utils" title="Link to this heading"></a></h2>
+<p>This file provides miscellaneous utility functions and sets up variables to facilitate testing.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.helpers.utils.HiddenPrints">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">HiddenPrints</span></span><a class="headerlink" href="#tangelo.helpers.utils.HiddenPrints" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to hide terminal printing with a ‘with’ block.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.helpers.utils.assert_freq_dict_almost_equal">
+<span class="sig-prename descclassname"><span class="pre">tangelo.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">assert_freq_dict_almost_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.helpers.utils.assert_freq_dict_almost_equal" title="Link to this definition"></a></dt>
+<dd><p>Utility function to check whether two frequency dictionaries are almost equal, for arbitrary tolerance</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.helpers.utils.deprecated">
+<span class="sig-prename descclassname"><span class="pre">tangelo.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">deprecated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.helpers.utils.deprecated" title="Link to this definition"></a></dt>
+<dd><p>This is a decorator which can be called to mark functions as deprecated.
+It results in a warning being emitted when the function is used.</p>
+<p>Ref: <a class="reference external" href="https://stackoverflow.com/a/30253848">https://stackoverflow.com/a/30253848</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>custom_message</strong> (<em>str</em>) – Message to append to the deprecation warning.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.helpers.utils.is_package_installed">
+<span class="sig-prename descclassname"><span class="pre">tangelo.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">is_package_installed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.helpers.utils.is_package_installed" title="Link to this definition"></a></dt>
+<dd><p>Check if module is installed without importing.</p>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.helpers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.helpers" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.algorithms.variational.html" class="btn btn-neutral float-left" title="tangelo.algorithms.variational package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.linq.html" class="btn btn-neutral float-right" title="tangelo.linq package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

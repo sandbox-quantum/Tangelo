@@ -1,0 +1,26 @@
+tangelo.toolboxes package
+=========================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.toolboxes.ansatz_generator
+   tangelo.toolboxes.circuits
+   tangelo.toolboxes.measurements
+   tangelo.toolboxes.molecular_computation
+   tangelo.toolboxes.operators
+   tangelo.toolboxes.optimizers
+   tangelo.toolboxes.post_processing
+   tangelo.toolboxes.qubit_mappings
+   tangelo.toolboxes.unitary_generator
+
+Module contents
+---------------
+
+.. automodule:: tangelo.toolboxes
+   :members:
+   :undoc-members:
+   :show-inheritance:

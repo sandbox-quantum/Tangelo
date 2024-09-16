@@ -1,0 +1,93 @@
+tangelo.toolboxes.molecular\_computation package
+================================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.toolboxes.molecular_computation.tests
+
+Submodules
+----------
+
+tangelo.toolboxes.molecular\_computation.coefficients module
+------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.molecular_computation.coefficients
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.molecular\_computation.fno module
+---------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.molecular_computation.fno
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.molecular\_computation.frozen\_orbitals module
+----------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.molecular_computation.frozen_orbitals
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.molecular\_computation.integral\_solver module
+----------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.molecular_computation.integral_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.molecular\_computation.integral\_solver\_psi4 module
+----------------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.molecular_computation.integral_solver_psi4
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.molecular\_computation.integral\_solver\_pyscf module
+-----------------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.molecular_computation.integral_solver_pyscf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.molecular\_computation.mm\_charges\_solver module
+-------------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.molecular_computation.mm_charges_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.molecular\_computation.molecule module
+--------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.molecular_computation.molecule
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.molecular\_computation.rdms module
+----------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.molecular_computation.rdms
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.toolboxes.molecular_computation
+   :members:
+   :undoc-members:
+   :show-inheritance:

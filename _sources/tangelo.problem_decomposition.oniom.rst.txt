@@ -1,0 +1,21 @@
+tangelo.problem\_decomposition.oniom package
+============================================
+
+Submodules
+----------
+
+tangelo.problem\_decomposition.oniom.oniom\_problem\_decomposition module
+-------------------------------------------------------------------------
+
+.. automodule:: tangelo.problem_decomposition.oniom.oniom_problem_decomposition
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.problem_decomposition.oniom
+   :members:
+   :undoc-members:
+   :show-inheritance:

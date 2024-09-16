@@ -1,0 +1,21 @@
+tangelo.linq.noisy\_simulation package
+======================================
+
+Submodules
+----------
+
+tangelo.linq.noisy\_simulation.noise\_models module
+---------------------------------------------------
+
+.. automodule:: tangelo.linq.noisy_simulation.noise_models
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.linq.noisy_simulation
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,45 @@
+tangelo.algorithms.projective package
+=====================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.algorithms.projective.tests
+
+Submodules
+----------
+
+tangelo.algorithms.projective.iqpe module
+-----------------------------------------
+
+.. automodule:: tangelo.algorithms.projective.iqpe
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.algorithms.projective.qpe module
+----------------------------------------
+
+.. automodule:: tangelo.algorithms.projective.qpe
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.algorithms.projective.quantum\_imaginary\_time module
+-------------------------------------------------------------
+
+.. automodule:: tangelo.algorithms.projective.quantum_imaginary_time
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.algorithms.projective
+   :members:
+   :undoc-members:
+   :show-inheritance:

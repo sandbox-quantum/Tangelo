@@ -1,0 +1,125 @@
+tangelo.linq.translator package
+===============================
+
+Submodules
+----------
+
+tangelo.linq.translator.qdk\_template module
+--------------------------------------------
+
+.. automodule:: tangelo.linq.translator.qdk_template
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_braket module
+------------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_braket
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_circuit module
+-------------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_circuit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_cirq module
+----------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_cirq
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_json\_ionq module
+----------------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_json_ionq
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_openqasm module
+--------------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_openqasm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_pennylane module
+---------------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_pennylane
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_projectq module
+--------------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_projectq
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_qdk module
+---------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_qdk
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_qiskit module
+------------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_qiskit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_qubitop module
+-------------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_qubitop
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_qulacs module
+------------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_qulacs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_stim module
+----------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_stim
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.translator.translate\_sympy module
+-----------------------------------------------
+
+.. automodule:: tangelo.linq.translator.translate_sympy
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.linq.translator
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,58 @@
+tangelo.linq package
+====================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.linq.helpers
+   tangelo.linq.noisy_simulation
+   tangelo.linq.qpu_connection
+   tangelo.linq.target
+   tangelo.linq.tests
+   tangelo.linq.translator
+
+Submodules
+----------
+
+tangelo.linq.circuit module
+---------------------------
+
+.. automodule:: tangelo.linq.circuit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.gate module
+------------------------
+
+.. automodule:: tangelo.linq.gate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.qdk\_template module
+---------------------------------
+
+.. automodule:: tangelo.linq.qdk_template
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.simulator module
+-----------------------------
+
+.. automodule:: tangelo.linq.simulator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.linq
+   :members:
+   :undoc-members:
+   :show-inheritance:

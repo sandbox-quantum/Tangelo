@@ -1,0 +1,45 @@
+tangelo.algorithms.classical package
+====================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.algorithms.classical.tests
+
+Submodules
+----------
+
+tangelo.algorithms.classical.ccsd\_solver module
+------------------------------------------------
+
+.. automodule:: tangelo.algorithms.classical.ccsd_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.algorithms.classical.fci\_solver module
+-----------------------------------------------
+
+.. automodule:: tangelo.algorithms.classical.fci_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.algorithms.classical.mp2\_solver module
+-----------------------------------------------
+
+.. automodule:: tangelo.algorithms.classical.mp2_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.algorithms.classical
+   :members:
+   :undoc-members:
+   :show-inheritance:

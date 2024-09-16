@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.algorithms package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.algorithms.classical package" href="tangelo.algorithms.classical.html" />
+    <link rel="prev" title="tangelo package" href="tangelo.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">tangelo.algorithms package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.algorithms.electronic_structure_solver">tangelo.algorithms.electronic_structure_solver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.algorithms">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+      <li class="breadcrumb-item active">tangelo.algorithms package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.algorithms.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-algorithms-package">
+<h1>tangelo.algorithms package<a class="headerlink" href="#tangelo-algorithms-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.algorithms.classical.html">tangelo.algorithms.classical package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.classical.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.classical.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.classical.html#module-tangelo.algorithms.classical.ccsd_solver">tangelo.algorithms.classical.ccsd_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolver"><code class="docutils literal notranslate"><span class="pre">CCSDSolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolver.solver"><code class="docutils literal notranslate"><span class="pre">CCSDSolver.solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolver.get_rdm"><code class="docutils literal notranslate"><span class="pre">CCSDSolver.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolver.simulate"><code class="docutils literal notranslate"><span class="pre">CCSDSolver.simulate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPsi4"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPsi4</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPsi4.ccwfn"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPsi4.ccwfn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPsi4.backend"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPsi4.backend</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPsi4.molecule"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPsi4.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPsi4.get_rdm"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPsi4.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPsi4.simulate"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPsi4.simulate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPySCF"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPySCF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPySCF.cc_fragment"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPySCF.cc_fragment</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPySCF.mean_field"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPySCF.mean_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPySCF.frozen"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPySCF.frozen</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPySCF.get_rdm"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPySCF.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.CCSDSolverPySCF.simulate"><code class="docutils literal notranslate"><span class="pre">CCSDSolverPySCF.simulate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.ccsd_solver.get_ccsd_solver"><code class="docutils literal notranslate"><span class="pre">get_ccsd_solver()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.classical.html#module-tangelo.algorithms.classical.fci_solver">tangelo.algorithms.classical.fci_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolver"><code class="docutils literal notranslate"><span class="pre">FCISolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolver.solver"><code class="docutils literal notranslate"><span class="pre">FCISolver.solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolver.get_rdm"><code class="docutils literal notranslate"><span class="pre">FCISolver.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolver.simulate"><code class="docutils literal notranslate"><span class="pre">FCISolver.simulate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPsi4"><code class="docutils literal notranslate"><span class="pre">FCISolverPsi4</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPsi4.ciwfn"><code class="docutils literal notranslate"><span class="pre">FCISolverPsi4.ciwfn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPsi4.backend"><code class="docutils literal notranslate"><span class="pre">FCISolverPsi4.backend</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPsi4.molecule"><code class="docutils literal notranslate"><span class="pre">FCISolverPsi4.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPsi4.get_rdm"><code class="docutils literal notranslate"><span class="pre">FCISolverPsi4.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPsi4.simulate"><code class="docutils literal notranslate"><span class="pre">FCISolverPsi4.simulate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPySCF"><code class="docutils literal notranslate"><span class="pre">FCISolverPySCF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPySCF.ci"><code class="docutils literal notranslate"><span class="pre">FCISolverPySCF.ci</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPySCF.norb"><code class="docutils literal notranslate"><span class="pre">FCISolverPySCF.norb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPySCF.nelec"><code class="docutils literal notranslate"><span class="pre">FCISolverPySCF.nelec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPySCF.cisolver"><code class="docutils literal notranslate"><span class="pre">FCISolverPySCF.cisolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPySCF.mean_field"><code class="docutils literal notranslate"><span class="pre">FCISolverPySCF.mean_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPySCF.get_rdm"><code class="docutils literal notranslate"><span class="pre">FCISolverPySCF.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.FCISolverPySCF.simulate"><code class="docutils literal notranslate"><span class="pre">FCISolverPySCF.simulate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.fci_solver.get_fci_solver"><code class="docutils literal notranslate"><span class="pre">get_fci_solver()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.classical.html#module-tangelo.algorithms.classical.mp2_solver">tangelo.algorithms.classical.mp2_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2Solver"><code class="docutils literal notranslate"><span class="pre">MP2Solver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2Solver.solver"><code class="docutils literal notranslate"><span class="pre">MP2Solver.solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2Solver.get_mp2_amplitudes"><code class="docutils literal notranslate"><span class="pre">MP2Solver.get_mp2_amplitudes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2Solver.get_rdm"><code class="docutils literal notranslate"><span class="pre">MP2Solver.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2Solver.simulate"><code class="docutils literal notranslate"><span class="pre">MP2Solver.simulate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPsi4"><code class="docutils literal notranslate"><span class="pre">MP2SolverPsi4</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPsi4.mp2wfn"><code class="docutils literal notranslate"><span class="pre">MP2SolverPsi4.mp2wfn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPsi4.backend"><code class="docutils literal notranslate"><span class="pre">MP2SolverPsi4.backend</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPsi4.molecule"><code class="docutils literal notranslate"><span class="pre">MP2SolverPsi4.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPsi4.get_mp2_amplitudes"><code class="docutils literal notranslate"><span class="pre">MP2SolverPsi4.get_mp2_amplitudes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPsi4.get_rdm"><code class="docutils literal notranslate"><span class="pre">MP2SolverPsi4.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPsi4.simulate"><code class="docutils literal notranslate"><span class="pre">MP2SolverPsi4.simulate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPySCF"><code class="docutils literal notranslate"><span class="pre">MP2SolverPySCF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPySCF.mp2_fragment"><code class="docutils literal notranslate"><span class="pre">MP2SolverPySCF.mp2_fragment</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPySCF.mean_field"><code class="docutils literal notranslate"><span class="pre">MP2SolverPySCF.mean_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPySCF.frozen"><code class="docutils literal notranslate"><span class="pre">MP2SolverPySCF.frozen</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPySCF.get_mp2_amplitudes"><code class="docutils literal notranslate"><span class="pre">MP2SolverPySCF.get_mp2_amplitudes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPySCF.get_rdm"><code class="docutils literal notranslate"><span class="pre">MP2SolverPySCF.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.MP2SolverPySCF.simulate"><code class="docutils literal notranslate"><span class="pre">MP2SolverPySCF.simulate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.classical.html#tangelo.algorithms.classical.mp2_solver.get_mp2_solver"><code class="docutils literal notranslate"><span class="pre">get_mp2_solver()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.classical.html#module-tangelo.algorithms.classical">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.algorithms.projective.html">tangelo.algorithms.projective package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.projective.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.projective.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.projective.html#module-tangelo.algorithms.projective.iqpe">tangelo.algorithms.projective.iqpe module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.BuiltInUnitary"><code class="docutils literal notranslate"><span class="pre">BuiltInUnitary</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.BuiltInUnitary.CircuitUnitary"><code class="docutils literal notranslate"><span class="pre">BuiltInUnitary.CircuitUnitary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.BuiltInUnitary.TrotterSuzuki"><code class="docutils literal notranslate"><span class="pre">BuiltInUnitary.TrotterSuzuki</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPEControl"><code class="docutils literal notranslate"><span class="pre">IterativeQPEControl</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPEControl.finalize"><code class="docutils literal notranslate"><span class="pre">IterativeQPEControl.finalize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPEControl.return_gates"><code class="docutils literal notranslate"><span class="pre">IterativeQPEControl.return_gates()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.molecule"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.qubit_mapping"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.qubit_mapping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.unitary"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.unitary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.backend_options"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.backend_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.simulate_options"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.simulate_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.penalty_terms"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.penalty_terms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.unitary_options"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.unitary_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.up_then_down"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.up_then_down</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.qubit_hamiltonian"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.qubit_hamiltonian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.verbose"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.projective_circuit"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.projective_circuit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.ref_state"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.ref_state</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.size_qpe_register"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.size_qpe_register</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.build"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.energy_estimation"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.energy_estimation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.get_resources"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.iqpe.IterativeQPESolver.simulate"><code class="docutils literal notranslate"><span class="pre">IterativeQPESolver.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.projective.html#module-tangelo.algorithms.projective.qpe">tangelo.algorithms.projective.qpe module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.BuiltInUnitary"><code class="docutils literal notranslate"><span class="pre">BuiltInUnitary</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.BuiltInUnitary.CircuitUnitary"><code class="docutils literal notranslate"><span class="pre">BuiltInUnitary.CircuitUnitary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.BuiltInUnitary.TrotterSuzuki"><code class="docutils literal notranslate"><span class="pre">BuiltInUnitary.TrotterSuzuki</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver"><code class="docutils literal notranslate"><span class="pre">QPESolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.molecule"><code class="docutils literal notranslate"><span class="pre">QPESolver.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.qubit_mapping"><code class="docutils literal notranslate"><span class="pre">QPESolver.qubit_mapping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.unitary"><code class="docutils literal notranslate"><span class="pre">QPESolver.unitary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.backend_options"><code class="docutils literal notranslate"><span class="pre">QPESolver.backend_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.simulate_options"><code class="docutils literal notranslate"><span class="pre">QPESolver.simulate_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.penalty_terms"><code class="docutils literal notranslate"><span class="pre">QPESolver.penalty_terms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.unitary_options"><code class="docutils literal notranslate"><span class="pre">QPESolver.unitary_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.up_then_down"><code class="docutils literal notranslate"><span class="pre">QPESolver.up_then_down</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.qubit_hamiltonian"><code class="docutils literal notranslate"><span class="pre">QPESolver.qubit_hamiltonian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.verbose"><code class="docutils literal notranslate"><span class="pre">QPESolver.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.projective_circuit"><code class="docutils literal notranslate"><span class="pre">QPESolver.projective_circuit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.ref_state"><code class="docutils literal notranslate"><span class="pre">QPESolver.ref_state</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.size_qpe_register"><code class="docutils literal notranslate"><span class="pre">QPESolver.size_qpe_register</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.build"><code class="docutils literal notranslate"><span class="pre">QPESolver.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.energy_estimation"><code class="docutils literal notranslate"><span class="pre">QPESolver.energy_estimation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.get_resources"><code class="docutils literal notranslate"><span class="pre">QPESolver.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.qpe.QPESolver.simulate"><code class="docutils literal notranslate"><span class="pre">QPESolver.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.projective.html#module-tangelo.algorithms.projective.quantum_imaginary_time">tangelo.algorithms.projective.quantum_imaginary_time module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver"><code class="docutils literal notranslate"><span class="pre">QITESolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.molecule"><code class="docutils literal notranslate"><span class="pre">QITESolver.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.dt"><code class="docutils literal notranslate"><span class="pre">QITESolver.dt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.min_de"><code class="docutils literal notranslate"><span class="pre">QITESolver.min_de</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.max_cycles"><code class="docutils literal notranslate"><span class="pre">QITESolver.max_cycles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.pool"><code class="docutils literal notranslate"><span class="pre">QITESolver.pool</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.pool_args"><code class="docutils literal notranslate"><span class="pre">QITESolver.pool_args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.qubit_mapping"><code class="docutils literal notranslate"><span class="pre">QITESolver.qubit_mapping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.qubit_hamiltonian"><code class="docutils literal notranslate"><span class="pre">QITESolver.qubit_hamiltonian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.up_then_down"><code class="docutils literal notranslate"><span class="pre">QITESolver.up_then_down</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.n_spinorbitals"><code class="docutils literal notranslate"><span class="pre">QITESolver.n_spinorbitals</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.n_electrons"><code class="docutils literal notranslate"><span class="pre">QITESolver.n_electrons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.backend_options"><code class="docutils literal notranslate"><span class="pre">QITESolver.backend_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.verbose"><code class="docutils literal notranslate"><span class="pre">QITESolver.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.build"><code class="docutils literal notranslate"><span class="pre">QITESolver.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.calculate_matrices"><code class="docutils literal notranslate"><span class="pre">QITESolver.calculate_matrices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.energy_expectation"><code class="docutils literal notranslate"><span class="pre">QITESolver.energy_expectation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.get_resources"><code class="docutils literal notranslate"><span class="pre">QITESolver.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.prepare_reference_state"><code class="docutils literal notranslate"><span class="pre">QITESolver.prepare_reference_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.simulate"><code class="docutils literal notranslate"><span class="pre">QITESolver.simulate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.projective.html#tangelo.algorithms.projective.quantum_imaginary_time.QITESolver.update_statevector"><code class="docutils literal notranslate"><span class="pre">QITESolver.update_statevector()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.projective.html#module-tangelo.algorithms.projective">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.algorithms.variational.html">tangelo.algorithms.variational package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.variational.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.variational.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.adapt_vqe_solver">tangelo.algorithms.variational.adapt_vqe_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.molecule"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.tol"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.tol</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.max_cycles"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.max_cycles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.pool"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.pool</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.pool_args"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.pool_args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.qubit_mapping"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.qubit_mapping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.qubit_hamiltonian"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.qubit_hamiltonian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.up_then_down"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.up_then_down</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.n_spinorbitals"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.n_spinorbitals</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.n_electrons"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.n_electrons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.spin"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.spin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.optimizer"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.backend_options"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.backend_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.simulate_options"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.simulate_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.verbose"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.deflation_circuits"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.deflation_circuits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.deflation_coeff"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.deflation_coeff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.projective_circuit"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.projective_circuit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.ref_state"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.ref_state</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.LBFGSB_optimizer"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.LBFGSB_optimizer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.build"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.choose_operator"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.choose_operator()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.compute_gradients"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.compute_gradients()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.ferm_operators"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.ferm_operators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.get_resources"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.operators"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.operators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.adapt_vqe_solver.ADAPTSolver.simulate"><code class="docutils literal notranslate"><span class="pre">ADAPTSolver.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.iqcc_ilc_solver">tangelo.algorithms.variational.iqcc_ilc_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.molecule"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.qubit_mapping"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.qubit_mapping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.up_then_down"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.up_then_down</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.initial_var_params"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.initial_var_params</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.backend_options"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.backend_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.penalty_terms"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.penalty_terms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.ilc_ansatz_options"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.ilc_ansatz_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.qcc_ansatz_options"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.qcc_ansatz_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.qubit_hamiltonian"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.qubit_hamiltonian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.max_ilc_iter"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.max_ilc_iter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.compress_qubit_ham"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.compress_qubit_ham</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.compress_eps"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.compress_eps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.verbose"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.build"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.get_resources"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_ilc_solver.iQCC_ILC_solver.simulate"><code class="docutils literal notranslate"><span class="pre">iQCC_ILC_solver.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.iqcc_solver">tangelo.algorithms.variational.iqcc_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver"><code class="docutils literal notranslate"><span class="pre">iQCC_solver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.molecule"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.qubit_mapping"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.qubit_mapping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.up_then_down"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.up_then_down</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.initial_var_params"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.initial_var_params</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.backend_options"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.backend_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.penalty_terms"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.penalty_terms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.ansatz_options"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.ansatz_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.qubit_hamiltonian"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.qubit_hamiltonian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.deqcc_thresh"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.deqcc_thresh</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.max_iqcc_iter"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.max_iqcc_iter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.max_iqcc_retries"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.max_iqcc_retries</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.compress_qubit_ham"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.compress_qubit_ham</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.compress_eps"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.compress_eps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.verbose"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.build"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.get_resources"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.iqcc_solver.iQCC_solver.simulate"><code class="docutils literal notranslate"><span class="pre">iQCC_solver.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.sa_oo_vqe_solver">tangelo.algorithms.variational.sa_oo_vqe_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.tol"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.tol</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.max_cycles"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.max_cycles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.n_oo_per_iter"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.n_oo_per_iter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.molecule"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.qubit_mapping"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.qubit_mapping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.ansatz"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.ansatz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.optimizer"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.initial_var_params"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.initial_var_params</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.backend_options"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.backend_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.simulate_options"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.simulate_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.penalty_terms"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.penalty_terms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.ansatz_options"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.ansatz_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.up_then_down"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.up_then_down</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.qubit_hamiltonian"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.qubit_hamiltonian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.verbose"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.projective_circuit"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.projective_circuit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.ref_states"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.ref_states</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.weights"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.weights</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.energy_from_rdms"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.energy_from_rdms()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.generate_oo_unitary"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.generate_oo_unitary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_oo_vqe_solver.SA_OO_Solver.iterate"><code class="docutils literal notranslate"><span class="pre">SA_OO_Solver.iterate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.sa_vqe_solver">tangelo.algorithms.variational.sa_vqe_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.molecule"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.qubit_mapping"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.qubit_mapping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.ansatz"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.ansatz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.optimizer"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.initial_var_params"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.initial_var_params</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.backend_options"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.backend_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.simulate_options"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.simulate_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.penalty_terms"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.penalty_terms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.deflation_circuits"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.deflation_circuits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.deflation_coeff"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.deflation_coeff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.ansatz_options"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.ansatz_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.up_then_down"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.up_then_down</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.qubit_hamiltonian"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.qubit_hamiltonian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.verbose"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.projective_circuit"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.projective_circuit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.ref_states"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.ref_states</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.weights"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.weights</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.build"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.energy_estimation"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.energy_estimation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.get_resources"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.sa_vqe_solver.SA_VQESolver.simulate"><code class="docutils literal notranslate"><span class="pre">SA_VQESolver.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.tetris_adapt_vqe_solver">tangelo.algorithms.variational.tetris_adapt_vqe_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.tetris_adapt_vqe_solver.TETRISADAPTSolver"><code class="docutils literal notranslate"><span class="pre">TETRISADAPTSolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.tetris_adapt_vqe_solver.TETRISADAPTSolver.choose_operator"><code class="docutils literal notranslate"><span class="pre">TETRISADAPTSolver.choose_operator()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational.vqe_solver">tangelo.algorithms.variational.vqe_solver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.HEA"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.HEA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.ILC"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.ILC</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.QCC"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.QCC</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.QMF"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.QMF</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCC1"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.UCC1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCC3"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.UCC3</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCCGD"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.UCCGD</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UCCSD"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.UCCSD</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.UpCCGSD"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.UpCCGSD</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.VSQS"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.VSQS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.BuiltInAnsatze.pUCCD"><code class="docutils literal notranslate"><span class="pre">BuiltInAnsatze.pUCCD</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver"><code class="docutils literal notranslate"><span class="pre">VQESolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.molecule"><code class="docutils literal notranslate"><span class="pre">VQESolver.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.qubit_mapping"><code class="docutils literal notranslate"><span class="pre">VQESolver.qubit_mapping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.ansatz"><code class="docutils literal notranslate"><span class="pre">VQESolver.ansatz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.optimizer"><code class="docutils literal notranslate"><span class="pre">VQESolver.optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.initial_var_params"><code class="docutils literal notranslate"><span class="pre">VQESolver.initial_var_params</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.backend_options"><code class="docutils literal notranslate"><span class="pre">VQESolver.backend_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.simulate_options"><code class="docutils literal notranslate"><span class="pre">VQESolver.simulate_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.penalty_terms"><code class="docutils literal notranslate"><span class="pre">VQESolver.penalty_terms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.deflation_circuits"><code class="docutils literal notranslate"><span class="pre">VQESolver.deflation_circuits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.deflation_coeff"><code class="docutils literal notranslate"><span class="pre">VQESolver.deflation_coeff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.ansatz_options"><code class="docutils literal notranslate"><span class="pre">VQESolver.ansatz_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.up_then_down"><code class="docutils literal notranslate"><span class="pre">VQESolver.up_then_down</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.qubit_hamiltonian"><code class="docutils literal notranslate"><span class="pre">VQESolver.qubit_hamiltonian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.verbose"><code class="docutils literal notranslate"><span class="pre">VQESolver.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.projective_circuit"><code class="docutils literal notranslate"><span class="pre">VQESolver.projective_circuit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.ref_state"><code class="docutils literal notranslate"><span class="pre">VQESolver.ref_state</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.save_energies"><code class="docutils literal notranslate"><span class="pre">VQESolver.save_energies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.build"><code class="docutils literal notranslate"><span class="pre">VQESolver.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.energy_estimation"><code class="docutils literal notranslate"><span class="pre">VQESolver.energy_estimation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.get_rdm"><code class="docutils literal notranslate"><span class="pre">VQESolver.get_rdm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.get_rdm_uhf"><code class="docutils literal notranslate"><span class="pre">VQESolver.get_rdm_uhf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.get_resources"><code class="docutils literal notranslate"><span class="pre">VQESolver.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.operator_expectation"><code class="docutils literal notranslate"><span class="pre">VQESolver.operator_expectation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.algorithms.variational.html#tangelo.algorithms.variational.vqe_solver.VQESolver.simulate"><code class="docutils literal notranslate"><span class="pre">VQESolver.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.algorithms.variational.html#module-tangelo.algorithms.variational">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.algorithms.electronic_structure_solver">
+<span id="tangelo-algorithms-electronic-structure-solver-module"></span><h2>tangelo.algorithms.electronic_structure_solver module<a class="headerlink" href="#module-tangelo.algorithms.electronic_structure_solver" title="Link to this heading"></a></h2>
+<p>Abstract class defining a common interface to all electronic structure
+solvers, in order to have consistency and ensure compatibility with higher-level
+workflows that can use them, such as problem decomposition methods.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.algorithms.electronic_structure_solver.ElectronicStructureSolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.algorithms.electronic_structure_solver.</span></span><span class="sig-name descname"><span class="pre">ElectronicStructureSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.electronic_structure_solver.ElectronicStructureSolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Sets interface for objects that perform energy estimation of a molecule.</p>
+<p>Specifics vary between concrete implementations, but common to all of them
+is that after <cite>simulate</cite> is called, the right internal state is set for the
+class so that <cite>get_rdm</cite> can return reduced density matrices for the last run
+simulation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.electronic_structure_solver.ElectronicStructureSolver.get_rdm">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_rdm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.electronic_structure_solver.ElectronicStructureSolver.get_rdm" title="Link to this definition"></a></dt>
+<dd><p>Returns the RDM for the previous simulation.
+In a concrete implementation, the <cite>simulate</cite> function would set the
+necessary internal state for the class so that this function can return
+the reduced density matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>numpy.array</strong> – One-particle RDM.</p></li>
+<li><p><strong>numpy.array</strong> – Two-particle RDM.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If no simulation has been run.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.algorithms.electronic_structure_solver.ElectronicStructureSolver.simulate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.algorithms.electronic_structure_solver.ElectronicStructureSolver.simulate" title="Link to this definition"></a></dt>
+<dd><p>Performs the simulation for a molecule.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.algorithms">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.algorithms" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.html" class="btn btn-neutral float-left" title="tangelo package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.algorithms.classical.html" class="btn btn-neutral float-right" title="tangelo.algorithms.classical package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

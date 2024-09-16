@@ -1,0 +1,45 @@
+tangelo.toolboxes.unitary\_generator package
+============================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.toolboxes.unitary_generator.tests
+
+Submodules
+----------
+
+tangelo.toolboxes.unitary\_generator.trotter\_suzuki module
+-----------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.unitary_generator.trotter_suzuki
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.unitary\_generator.unitary module
+---------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.unitary_generator.unitary
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.unitary\_generator.unitary\_circuit module
+------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.unitary_generator.unitary_circuit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.toolboxes.unitary_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:

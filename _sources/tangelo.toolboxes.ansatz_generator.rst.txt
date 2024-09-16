@@ -1,0 +1,149 @@
+tangelo.toolboxes.ansatz\_generator package
+===========================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.toolboxes.ansatz_generator.tests
+
+Submodules
+----------
+
+tangelo.toolboxes.ansatz\_generator.adapt\_ansatz module
+--------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.adapt_ansatz
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.ansatz module
+-------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.ansatz
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.ansatz\_utils module
+--------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.ansatz_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.fermionic\_operators module
+---------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.fermionic_operators
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.hea module
+----------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.hea
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.ilc module
+----------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.ilc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.penalty\_terms module
+---------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.penalty_terms
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.puccd module
+------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.puccd
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.qcc module
+----------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.qcc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.qmf module
+----------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.qmf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.rucc module
+-----------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.rucc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.uccgd module
+------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.uccgd
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.uccsd module
+------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.uccsd
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.upccgsd module
+--------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.upccgsd
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.variational\_circuit module
+---------------------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.variational_circuit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.toolboxes.ansatz\_generator.vsqs module
+-----------------------------------------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator.vsqs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.toolboxes.ansatz_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:

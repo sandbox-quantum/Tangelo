@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.toolboxes.measurements package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.toolboxes.measurements.classical_shadows package" href="tangelo.toolboxes.measurements.classical_shadows.html" />
+    <link rel="prev" title="tangelo.toolboxes.circuits package" href="tangelo.toolboxes.circuits.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.toolboxes.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.html#module-tangelo.toolboxes">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+      <li class="breadcrumb-item active">tangelo.toolboxes.measurements package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.toolboxes.measurements.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-toolboxes-measurements-package">
+<h1>tangelo.toolboxes.measurements package<a class="headerlink" href="#tangelo-toolboxes-measurements-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html">tangelo.toolboxes.measurements.classical_shadows package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#module-tangelo.toolboxes.measurements.classical_shadows.adaptive">tangelo.toolboxes.measurements.classical_shadows.adaptive module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.adaptive.AdaptiveClassicalShadow"><code class="docutils literal notranslate"><span class="pre">AdaptiveClassicalShadow</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.adaptive.AdaptiveClassicalShadow.build"><code class="docutils literal notranslate"><span class="pre">AdaptiveClassicalShadow.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.adaptive.AdaptiveClassicalShadow.get_basis_circuits"><code class="docutils literal notranslate"><span class="pre">AdaptiveClassicalShadow.get_basis_circuits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.adaptive.AdaptiveClassicalShadow.get_term_observable"><code class="docutils literal notranslate"><span class="pre">AdaptiveClassicalShadow.get_term_observable()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#module-tangelo.toolboxes.measurements.classical_shadows.classical_shadows">tangelo.toolboxes.measurements.classical_shadows.classical_shadows module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow"><code class="docutils literal notranslate"><span class="pre">ClassicalShadow</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow.append"><code class="docutils literal notranslate"><span class="pre">ClassicalShadow.append()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow.build"><code class="docutils literal notranslate"><span class="pre">ClassicalShadow.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow.get_basis_circuits"><code class="docutils literal notranslate"><span class="pre">ClassicalShadow.get_basis_circuits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow.get_observable"><code class="docutils literal notranslate"><span class="pre">ClassicalShadow.get_observable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow.get_term_observable"><code class="docutils literal notranslate"><span class="pre">ClassicalShadow.get_term_observable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow.n_qubits"><code class="docutils literal notranslate"><span class="pre">ClassicalShadow.n_qubits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow.simulate"><code class="docutils literal notranslate"><span class="pre">ClassicalShadow.simulate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow.size"><code class="docutils literal notranslate"><span class="pre">ClassicalShadow.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.classical_shadows.ClassicalShadow.unique_unitaries"><code class="docutils literal notranslate"><span class="pre">ClassicalShadow.unique_unitaries</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#module-tangelo.toolboxes.measurements.classical_shadows.derandomized">tangelo.toolboxes.measurements.classical_shadows.derandomized module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.derandomized.DerandomizedClassicalShadow"><code class="docutils literal notranslate"><span class="pre">DerandomizedClassicalShadow</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.derandomized.DerandomizedClassicalShadow.build"><code class="docutils literal notranslate"><span class="pre">DerandomizedClassicalShadow.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.derandomized.DerandomizedClassicalShadow.get_basis_circuits"><code class="docutils literal notranslate"><span class="pre">DerandomizedClassicalShadow.get_basis_circuits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.derandomized.DerandomizedClassicalShadow.get_term_observable"><code class="docutils literal notranslate"><span class="pre">DerandomizedClassicalShadow.get_term_observable()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#module-tangelo.toolboxes.measurements.classical_shadows.randomized">tangelo.toolboxes.measurements.classical_shadows.randomized module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.randomized.RandomizedClassicalShadow"><code class="docutils literal notranslate"><span class="pre">RandomizedClassicalShadow</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.randomized.RandomizedClassicalShadow.build"><code class="docutils literal notranslate"><span class="pre">RandomizedClassicalShadow.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.randomized.RandomizedClassicalShadow.estimate_state"><code class="docutils literal notranslate"><span class="pre">RandomizedClassicalShadow.estimate_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.randomized.RandomizedClassicalShadow.get_basis_circuits"><code class="docutils literal notranslate"><span class="pre">RandomizedClassicalShadow.get_basis_circuits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#tangelo.toolboxes.measurements.classical_shadows.randomized.RandomizedClassicalShadow.get_term_observable"><code class="docutils literal notranslate"><span class="pre">RandomizedClassicalShadow.get_term_observable()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.toolboxes.measurements.classical_shadows.html#module-tangelo.toolboxes.measurements.classical_shadows">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.toolboxes.measurements.estimate_measurements">
+<span id="tangelo-toolboxes-measurements-estimate-measurements-module"></span><h2>tangelo.toolboxes.measurements.estimate_measurements module<a class="headerlink" href="#module-tangelo.toolboxes.measurements.estimate_measurements" title="Link to this heading"></a></h2>
+<p>This file provides functions allowing users to estimate the number of
+measurements that are needed to approximate the expectation values of some qubit
+operators up to a given accuracy.</p>
+<p>The functions range from simple general heuristics to more complex approaches
+that may leverage our knowledge of the quantum state.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.measurements.estimate_measurements.get_measurement_estimate">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.measurements.estimate_measurements.</span></span><span class="sig-name descname"><span class="pre">get_measurement_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qb_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.measurements.estimate_measurements.get_measurement_estimate" title="Link to this definition"></a></dt>
+<dd><p>Given a qubit operator and a level of accuracy, computes the number of
+measurements required by each term of the qubit operator to reach the
+accuracy provided by the user when computing expectation values, returns it
+as a dictionary mapping measurement basis to number of measurements.</p>
+<p>“uniform” method makes no assumption about the underlying probability
+distribution resulting from the quantum state preparation circuit. The rule
+of thumb is “Multiply number of samples by 100 for each digit of accuracy”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qb_op</strong> – qubit operator.</p></li>
+<li><p><strong>digits</strong> (<em>integer</em>) – number of digits of accuracy desired on expectation
+value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – Dictionary mapping terms / measurement bases to their number of
+measurements.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.measurements.qubit_terms_grouping">
+<span id="tangelo-toolboxes-measurements-qubit-terms-grouping-module"></span><h2>tangelo.toolboxes.measurements.qubit_terms_grouping module<a class="headerlink" href="#module-tangelo.toolboxes.measurements.qubit_terms_grouping" title="Link to this heading"></a></h2>
+<p>This file provides access to different approaches aiming at reducing the
+number of measurements required to compute the expectation value of a qubit
+(Pauli) operator. They attempt to identify the minimal amount of measurement
+bases / terms required to deduce the expectation values associated to the other
+terms present in the Pauli operator.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.measurements.qubit_terms_grouping.check_bases_commute_qwc">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.measurements.qubit_terms_grouping.</span></span><span class="sig-name descname"><span class="pre">check_bases_commute_qwc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.measurements.qubit_terms_grouping.check_bases_commute_qwc" title="Link to this definition"></a></dt>
+<dd><p>Check whether two bases commute qubitwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b1</strong> (<em>tuple</em><em> of </em><em>(</em><em>int</em><em>, </em><em>str</em><em>)</em>) – the first measurement basis</p></li>
+<li><p><strong>b2</strong> (<em>tuple</em><em> of </em><em>(</em><em>int</em><em>, </em><em>str</em><em>)</em>) – the second measurement basis</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>bool</strong> – whether or not the bases commute qubitwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.measurements.qubit_terms_grouping.exp_value_from_measurement_bases">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.measurements.qubit_terms_grouping.</span></span><span class="sig-name descname"><span class="pre">exp_value_from_measurement_bases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">histograms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.measurements.qubit_terms_grouping.exp_value_from_measurement_bases" title="Link to this definition"></a></dt>
+<dd><p>Computes the expectation value of the sum of all suboperators
+corresponding to the different measurement bases in the input dictionary.
+This is how one would go about computing the expectation value of an
+operator while trying to send a limited amount of tasks to a quantum
+computer, thereby lowering the cost in terms of number of measurements
+needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sub_ops</strong> (<em>dict</em>) – Maps measurement bases to suboperators whose exp. value
+can be computed from it.</p></li>
+<li><p><strong>histograms</strong> (<em>dict</em>) – Maps measurement bases to histograms corresponding to
+that quantum circuit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float or complex</strong> – Expectation value of the sum of all suboperators.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.measurements.qubit_terms_grouping.group_qwc">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.measurements.qubit_terms_grouping.</span></span><span class="sig-name descname"><span class="pre">group_qwc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qb_ham</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.measurements.qubit_terms_grouping.group_qwc" title="Link to this definition"></a></dt>
+<dd><p>Wrapper around Openfermion functionality that takes as input a
+QubitOperator and yields a collection of measurement bases defining a
+partition of groups of sub-operators with terms that are diagonal in the
+same tensor product basis. Each sub-operator can be measured using the same
+qubit post-rotations in expectation estimation. This uses the idea of
+qubitwise commutativity (qwc), and the minimum clique cover algorithm.</p>
+<p>The resulting dictionary maps the measurement basis (key) to the list of
+qubit operators whose expectation value can be computed using the
+corresponding circuit. The size of this dictionary determines how many
+quantum circuits need to be executed in order to provide the expectation
+value of the input qubit operator.</p>
+<p>The minimum clique cover algorithm can be initialized with a random seed
+and can be repeated several times with different seeds in order to return
+the run that produces the lowest number of groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qb_ham</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – the operator that will be split into
+sub-operators (tensor product basis sets).</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – default None. Random seed used to initialize the
+numpy.RandomState pseudo-RNG.</p></li>
+<li><p><strong>n_repeat</strong> (<em>int</em>) – Repeat with a different random seed, keep the outcome
+resulting in the lowest number of groups.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – a dictionary where each key defines a tensor product basis, and
+each corresponding value is a QubitOperator with terms that are all
+diagonal in that basis.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.measurements.qubit_terms_grouping.map_measurements_qwc">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.measurements.qubit_terms_grouping.</span></span><span class="sig-name descname"><span class="pre">map_measurements_qwc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qwc_group_map</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.measurements.qubit_terms_grouping.map_measurements_qwc" title="Link to this definition"></a></dt>
+<dd><p>Somewhat reverses a grouping dictionary, linking all measurement bases to the list of
+group representatives that commute with them qubitwise. Useful to find all the bases
+whose shots can be used in order to form data for other bases during a hardware experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qwc_group_map</strong> (<em>dict</em>) – maps a measurement basis to a qubit operator whose terms commute
+with said measurement basis qubit-wise.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – maps each of the bases to all group representatives that commute with them qubitwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.measurements">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.toolboxes.measurements" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.toolboxes.circuits.html" class="btn btn-neutral float-left" title="tangelo.toolboxes.circuits package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.toolboxes.measurements.classical_shadows.html" class="btn btn-neutral float-right" title="tangelo.toolboxes.measurements.classical_shadows package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

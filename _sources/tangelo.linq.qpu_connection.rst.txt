@@ -1,0 +1,53 @@
+tangelo.linq.qpu\_connection package
+====================================
+
+Submodules
+----------
+
+tangelo.linq.qpu\_connection.braket\_connection module
+------------------------------------------------------
+
+.. automodule:: tangelo.linq.qpu_connection.braket_connection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.qpu\_connection.ibm\_connection module
+---------------------------------------------------
+
+.. automodule:: tangelo.linq.qpu_connection.ibm_connection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.qpu\_connection.ionq\_connection module
+----------------------------------------------------
+
+.. automodule:: tangelo.linq.qpu_connection.ionq_connection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.qpu\_connection.qemist\_cloud\_connection module
+-------------------------------------------------------------
+
+.. automodule:: tangelo.linq.qpu_connection.qemist_cloud_connection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.qpu\_connection.qpu\_connection module
+---------------------------------------------------
+
+.. automodule:: tangelo.linq.qpu_connection.qpu_connection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.linq.qpu_connection
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.problem_decomposition.dmet package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.problem_decomposition.electron_localization package" href="tangelo.problem_decomposition.electron_localization.html" />
+    <link rel="prev" title="tangelo.problem_decomposition package" href="tangelo.problem_decomposition.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.problem_decomposition.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.html#module-tangelo.problem_decomposition.problem_decomposition">tangelo.problem_decomposition.problem_decomposition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.html#module-tangelo.problem_decomposition">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+      <li class="breadcrumb-item active">tangelo.problem_decomposition.dmet package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.problem_decomposition.dmet.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-problem-decomposition-dmet-package">
+<h1>tangelo.problem_decomposition.dmet package<a class="headerlink" href="#tangelo-problem-decomposition-dmet-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.problem_decomposition.dmet.dmet_problem_decomposition">
+<span id="tangelo-problem-decomposition-dmet-dmet-problem-decomposition-module"></span><h2>tangelo.problem_decomposition.dmet.dmet_problem_decomposition module<a class="headerlink" href="#module-tangelo.problem_decomposition.dmet.dmet_problem_decomposition" title="Link to this heading"></a></h2>
+<p>Employ DMET as a problem decomposition technique.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.problem_decomposition.dmet.dmet_problem_decomposition.</span></span><span class="sig-name descname"><span class="pre">DMETProblemDecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="tangelo.problem_decomposition.html#tangelo.problem_decomposition.problem_decomposition.ProblemDecomposition" title="tangelo.problem_decomposition.problem_decomposition.ProblemDecomposition"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProblemDecomposition</span></code></a></p>
+<p>DMET single-shot algorithm is used for problem decomposition technique.
+By default, CCSD is used as the electronic structure solver, and Meta-Lowdin
+is used for the localization scheme. Users can define other electronic
+structure solver such as FCI or VQE as an impurity solver. IAO scheme can be
+used instead of the Meta-Lowdin localization scheme, but it cannot be used
+for minimal basis set.</p>
+<p>The underlying mean-field for the computation is automatically detected
+from the SecondQuantizedMolecule. RHF, ROHF and UHF mean-fields are
+supported.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.molecule" title="Link to this definition"></a></dt>
+<dd><p>The molecular system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule">SecondQuantizedMolecule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.electron_localization">
+<span class="sig-name descname"><span class="pre">electron_localization</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.electron_localization" title="Link to this definition"></a></dt>
+<dd><p>A type of localization scheme.
+Default is Meta-Lowdin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization" title="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization">Localization</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.fragment_atoms">
+<span class="sig-name descname"><span class="pre">fragment_atoms</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.fragment_atoms" title="Link to this definition"></a></dt>
+<dd><p>List of number of atoms in each fragment. Sum of
+this list should be the same as the number of atoms in the original
+system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.fragment_solvers">
+<span class="sig-name descname"><span class="pre">fragment_solvers</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.fragment_solvers" title="Link to this definition"></a></dt>
+<dd><p>List of solvers for each fragment. If
+only a string is detected, this solver is used for all fragments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list or str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.fragment_frozen_orbitals">
+<span class="sig-name descname"><span class="pre">fragment_frozen_orbitals</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.fragment_frozen_orbitals" title="Link to this definition"></a></dt>
+<dd><p>List of frozen orbitals. List of
+integers freezes the n first orbitals in the fragment. Nested list
+of integers freezes orbitals based on indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.optimizer">
+<span class="sig-name descname"><span class="pre">optimizer</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.optimizer" title="Link to this definition"></a></dt>
+<dd><p>A function defining the classical optimizer
+and its behavior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>function handle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.initial_chemical_potential">
+<span class="sig-name descname"><span class="pre">initial_chemical_potential</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.initial_chemical_potential" title="Link to this definition"></a></dt>
+<dd><p>Initial value for the chemical
+potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.solvers_options">
+<span class="sig-name descname"><span class="pre">solvers_options</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.solvers_options" title="Link to this definition"></a></dt>
+<dd><p>List of dictionaries for the solver
+options. If only a single dictionary is passed, the same options are
+applied for every solver. This will raise an error if different
+solvers are parsed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list or dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.virtual_orbital_threshold">
+<span class="sig-name descname"><span class="pre">virtual_orbital_threshold</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.virtual_orbital_threshold" title="Link to this definition"></a></dt>
+<dd><p>Occupation threshold for the virtual
+orbital space. Setting it to 0. is the equivalent of turning off
+the virtual orbital space truncation.
+Default=1e-13.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.verbose" title="Link to this definition"></a></dt>
+<dd><p>Flag for DMET verbosity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.build" title="Link to this definition"></a></dt>
+<dd><p>Building the orbitals list for each fragment. It sets the values of
+self.orbitals, self.orb_list and self.orb_list2.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.energy_error_bars">
+<span class="sig-name descname"><span class="pre">energy_error_bars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_resamples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdm_measurements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.energy_error_bars" title="Link to this definition"></a></dt>
+<dd><p>Perform bootstrapping of measured qubit terms in RDMs to obtain error
+bars for the calculated energy. Can also perform McWeeny purification of
+the RDMs between resampling and calculating the energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_shots</strong> (<em>int</em>) – The number of shots used to resample from qubit
+terms.</p></li>
+<li><p><strong>n_resamples</strong> (<em>int</em>) – The number of bootstrapping samples for the
+estimate of the energy and standard deviation.</p></li>
+<li><p><strong>purify</strong> (<em>bool</em>) – Use mc_weeny_rdm_purification technique on 2-RDMs.
+Will only apply to fragments with 2 electrons.</p></li>
+<li><p><strong>rdm_measurements</strong> (<em>dict</em>) – <p>A dictionary with keys being the DMET
+fragment number and corresponding values of a dictionary with
+keys of qubit terms in the rdm and corresponding values of a
+frequencies dictionary of the measurements.
+Example: {
+0: {((0, “X”), (1, “Y”)): {“10”: 0.5, “01”: 0.5},</p>
+<blockquote>
+<div><p>((1, “Z”), (1, “X”)): {“00”: 0.25, “11”: 0.25, “01”: 0.5}}</p>
+</div></blockquote>
+<dl class="simple">
+<dt>1: {((0, “Z”)): {“0000”: 1}</dt><dd><p>((0, “X”), (1, “Y”)): {“1111”: 0.5, “0101”: 0.5}}</p>
+</dd>
+</dl>
+<p>}.
+If run _oneshot_loop with save_results=True is called:
+self.rdm_measurements will have the proper dictionary format
+with all values populated.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – The bootstrapped DMET energy and standard deviation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.get_resources" title="Link to this definition"></a></dt>
+<dd><p>Estimate the resources required by DMET. Only supports fragments
+solved with VQESolver. Resources for each fragments are outputed as a
+list.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.quantum_fragments_data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">quantum_fragments_data</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.quantum_fragments_data" title="Link to this definition"></a></dt>
+<dd><p>This aims to return a dictionary with all necessary components to
+run a quantum experiment for a (or more) DMET fragment(s).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.simulate" title="Link to this definition"></a></dt>
+<dd><p>Perform DMET loop to optimize the chemical potential. It converges
+when the electron summation across all fragments is the same as the
+number of electron in the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>float</strong> – The DMET energy (dmet_energy).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.problem_decomposition.dmet.dmet_problem_decomposition.</span></span><span class="sig-name descname"><span class="pre">Localization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumeration of the electron localization supported by DMET.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization.iao">
+<span class="sig-name descname"><span class="pre">iao</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization.iao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization.meta_lowdin">
+<span class="sig-name descname"><span class="pre">meta_lowdin</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization.meta_lowdin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization.nao">
+<span class="sig-name descname"><span class="pre">nao</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization.nao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.problem_decomposition.dmet.fragment">
+<span id="tangelo-problem-decomposition-dmet-fragment-module"></span><h2>tangelo.problem_decomposition.dmet.fragment module<a class="headerlink" href="#module-tangelo.problem_decomposition.dmet.fragment" title="Link to this heading"></a></h2>
+<p>Module for data structure for DMET fragments.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.problem_decomposition.dmet.fragment.</span></span><span class="sig-name descname"><span class="pre">SecondQuantizedDMETFragment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule:</span> <span class="pre">&lt;module</span> <span class="pre">'pyscf.gto'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.11.9/x64/lib/python3.11/site-packages/pyscf/gto/__init__.py'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_field:</span> <span class="pre">&lt;module</span> <span class="pre">'pyscf.scf'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.11.9/x64/lib/python3.11/site-packages/pyscf/scf/__init__.py'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fock:</span> <span class="pre">~numpy.array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fock_frag_copy:</span> <span class="pre">~numpy.array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_list:</span> <span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_ele:</span> <span class="pre">~numpy.array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_ele:</span> <span class="pre">~numpy.array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uhf:</span> <span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frozen_orbitals:</span> <span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Mimicking SecondQuantizedMolecule for DMET fragments. It has the minimal
+number of attributes and methods to be parsed by electronic solvers.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.basis">
+<span class="sig-name descname"><span class="pre">basis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.basis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.fermionic_hamiltonian">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fermionic_hamiltonian</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.fermionic_hamiltonian" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.fock">
+<span class="sig-name descname"><span class="pre">fock</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">array</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.fock" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.fock_frag_copy">
+<span class="sig-name descname"><span class="pre">fock_frag_copy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">array</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.fock_frag_copy" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.frozen_mos">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frozen_mos</span></span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.frozen_mos" title="Link to this definition"></a></dt>
+<dd><p>This property returns MOs indexes for the frozen orbitals. It was
+written to take into account if one of the two possibilities (occ or
+virt) is None. In fact, list + None, None + list or None + None return
+an error. An empty list cannot be sent because PySCF mp2 returns
+“IndexError: list index out of range”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list</strong> – MOs indexes frozen (occupied + virtual).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.frozen_orbitals">
+<span class="sig-name descname"><span class="pre">frozen_orbitals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.frozen_orbitals" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.mean_field">
+<span class="sig-name descname"><span class="pre">mean_field</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">&lt;module</span> <span class="pre">'pyscf.scf'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.11.9/x64/lib/python3.11/site-packages/pyscf/scf/__init__.py'&gt;</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.mean_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">&lt;module</span> <span class="pre">'pyscf.gto'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.11.9/x64/lib/python3.11/site-packages/pyscf/gto/__init__.py'&gt;</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.molecule" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.n_active_electrons">
+<span class="sig-name descname"><span class="pre">n_active_electrons</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.n_active_electrons" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.n_active_mos">
+<span class="sig-name descname"><span class="pre">n_active_mos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.n_active_mos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.n_active_sos">
+<span class="sig-name descname"><span class="pre">n_active_sos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.n_active_sos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.one_ele">
+<span class="sig-name descname"><span class="pre">one_ele</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">array</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.one_ele" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.q" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.spin">
+<span class="sig-name descname"><span class="pre">spin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.spin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.t_list">
+<span class="sig-name descname"><span class="pre">t_list</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.t_list" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.to_pyscf">
+<span class="sig-name descname"><span class="pre">to_pyscf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.to_pyscf" title="Link to this definition"></a></dt>
+<dd><p>Method to output the PySCF molecule.</p>
+<dl class="simple">
+<dt>Returns</dt><dd><p>pyscf.gto.Mole: PySCF molecule.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.two_ele">
+<span class="sig-name descname"><span class="pre">two_ele</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">array</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.two_ele" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.uhf">
+<span class="sig-name descname"><span class="pre">uhf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.uhf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.problem_decomposition.dmet">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.problem_decomposition.dmet" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.problem_decomposition.html" class="btn btn-neutral float-left" title="tangelo.problem_decomposition package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.problem_decomposition.electron_localization.html" class="btn btn-neutral float-right" title="tangelo.problem_decomposition.electron_localization package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

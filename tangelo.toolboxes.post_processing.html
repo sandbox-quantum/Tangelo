@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.toolboxes.post_processing package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.toolboxes.qubit_mappings package" href="tangelo.toolboxes.qubit_mappings.html" />
+    <link rel="prev" title="tangelo.toolboxes.optimizers package" href="tangelo.toolboxes.optimizers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.toolboxes.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.html#module-tangelo.toolboxes">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+      <li class="breadcrumb-item active">tangelo.toolboxes.post_processing package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.toolboxes.post_processing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-toolboxes-post-processing-package">
+<h1>tangelo.toolboxes.post_processing package<a class="headerlink" href="#tangelo-toolboxes-post-processing-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.toolboxes.post_processing.bootstrapping">
+<span id="tangelo-toolboxes-post-processing-bootstrapping-module"></span><h2>tangelo.toolboxes.post_processing.bootstrapping module<a class="headerlink" href="#module-tangelo.toolboxes.post_processing.bootstrapping" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.bootstrapping.get_resampled_frequencies">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.bootstrapping.</span></span><span class="sig-name descname"><span class="pre">get_resampled_frequencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.bootstrapping.get_resampled_frequencies" title="Link to this definition"></a></dt>
+<dd><p>From a frequencies dictionary, makes a set of samples consistent with
+those frequencies and resample from that set to obtain a new frequencies
+dictionary consistent with ncount measurements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freq_dict</strong> (<em>array</em>) – dictionary of measurement/sample frequencies.</p></li>
+<li><p><strong>ncount</strong> (<em>int</em>) – number of shots/samples to generate resampled frequencies.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>dict: new frequencies dictionary with resampled distribution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.post_processing.extrapolation">
+<span id="tangelo-toolboxes-post-processing-extrapolation-module"></span><h2>tangelo.toolboxes.post_processing.extrapolation module<a class="headerlink" href="#module-tangelo.toolboxes.post_processing.extrapolation" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.extrapolation.diis">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.extrapolation.</span></span><span class="sig-name descname"><span class="pre">diis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.extrapolation.diis" title="Link to this definition"></a></dt>
+<dd><p>DIIS extrapolation, originally developed by Pulay in
+Chemical Physics Letters 73, 393-398 (1980)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coeffs</strong> (<em>array-like</em>) – Noise rate amplification factors</p></li>
+<li><p><strong>energies</strong> (<em>array-like</em>) – Energy expectation values for amplified noise rates</p></li>
+<li><p><strong>stderr</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Energy standard error estimates</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>float</strong> – Extrapolated energy</p></li>
+<li><p><strong>float</strong> – Error estimation for extrapolated energy</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.extrapolation.extrapolation">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.extrapolation.</span></span><span class="sig-name descname"><span class="pre">extrapolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taylor_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.extrapolation.extrapolation" title="Link to this definition"></a></dt>
+<dd><p>General, DIIS-like extrapolation procedure as found in
+Nature 567, 491-495 (2019) [arXiv:1805.04492]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coeffs</strong> (<em>array-like</em>) – Noise rate amplification factors</p></li>
+<li><p><strong>energies</strong> (<em>array-like</em>) – Energy expectation values for amplified noise rates</p></li>
+<li><p><strong>stderr</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Energy standard error estimates</p></li>
+<li><p><strong>taylor_order</strong> (<em>int</em><em>, </em><em>optional</em>) – Taylor expansion order;
+None for Richardson extrapolation (order determined from number of datapoints),
+1 for DIIS extrapolation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>float</strong> – Extrapolated energy</p></li>
+<li><p><strong>float</strong> – Error estimation for extrapolated energy</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.extrapolation.richardson">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.extrapolation.</span></span><span class="sig-name descname"><span class="pre">richardson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimate_exp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.extrapolation.richardson" title="Link to this definition"></a></dt>
+<dd><p>General, DIIS-like extrapolation procedure as found in
+Nature 567, 491-495 (2019) [arXiv:1805.04492]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coeffs</strong> (<em>array-like</em>) – Noise rate amplification factors</p></li>
+<li><p><strong>energies</strong> (<em>array-like</em>) – Energy expectation values for amplified noise rates</p></li>
+<li><p><strong>stderr</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Energy standard error estimates</p></li>
+<li><p><strong>estimate_exp</strong> (<em>bool</em><em>, </em><em>optional</em>) – Choose to estimate exponent in the Richardson method. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>float</strong> – Extrapolated energy</p></li>
+<li><p><strong>float</strong> – Error estimation for extrapolated energy</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.extrapolation.richardson_analytical">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.extrapolation.</span></span><span class="sig-name descname"><span class="pre">richardson_analytical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.extrapolation.richardson_analytical" title="Link to this definition"></a></dt>
+<dd><p>Richardson extrapolation explicit result as found in
+Phys. Rev. Lett. 119, 180509 [arXiv:1612.02058] (up to sign difference)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coeffs</strong> (<em>array-like</em>) – Noise rate amplification factors</p></li>
+<li><p><strong>energies</strong> (<em>array-like</em>) – Energy expectation values for amplified noise rates</p></li>
+<li><p><strong>stderr</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Energy standard error estimates</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>float</strong> – Extrapolated energy</p></li>
+<li><p><strong>float</strong> – Error estimation for extrapolated energy</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.extrapolation.richardson_with_exp_estimation">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.extrapolation.</span></span><span class="sig-name descname"><span class="pre">richardson_with_exp_estimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.extrapolation.richardson_with_exp_estimation" title="Link to this definition"></a></dt>
+<dd><p>Richardson extrapolation by recurrence, with exponent estimation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energies</strong> (<em>array-like</em>) – Energy expectation values for amplified noise rates</p></li>
+<li><p><strong>coeffs</strong> (<em>array-like</em>) – Noise rate amplification factors</p></li>
+<li><p><strong>stderr</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Energy standard error estimates</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>float</strong> – Extrapolated energy</p></li>
+<li><p><strong>float</strong> – Error estimation for extrapolated energy</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.post_processing.histogram">
+<span id="tangelo-toolboxes-post-processing-histogram-module"></span><h2>tangelo.toolboxes.post_processing.histogram module<a class="headerlink" href="#module-tangelo.toolboxes.post_processing.histogram" title="Link to this heading"></a></h2>
+<p>This module provides a Histogram class and functions to manipulate them,
+in order to facilitate post-processing of quantum experiments.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.histogram.Histogram">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.histogram.</span></span><span class="sig-name descname"><span class="pre">Histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outcomes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msq_first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.histogram.Histogram" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to provide useful tools helping redundant tasks when analyzing
+data from an experiment. The expected data input is an histogram of
+bitstrings (“010…”), where 0 (resp. 1) correspond to the <a href="#id1"><span class="problematic" id="id2">|</span></a>0&gt; (resp. <a href="#id3"><span class="problematic" id="id4">|</span></a>1&gt;)
+measured state in the computational basis. The outcomes can refer to either
+the shot counts for each computational basis, or the corresponding
+probability.</p>
+<p>The internal representation is kept as an histogram of shots. Normalized
+quantities are accessible via the Histogram “frequencies” properties.
+Bitstrings are stored with the lowest-significant qubit first (lsq_first)
+ordering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>string</strong> (<em>outcomes</em><em> (</em><em>dict of</em>) – int or float): Results in the format of bitstring:</p></li>
+<li><p><strong>outcome</strong></p></li>
+<li><p><strong>probability.</strong> (<em>where outcome can be a number</em><em> of </em><em>shots a</em>)</p></li>
+<li><p><strong>n_shots</strong> (<em>int</em>) – Self-explanatory. If it is equal 0, the class
+considers that probabilities are provided.</p></li>
+<li><p><strong>msq_first</strong> (<em>bool</em>) – Bit ordering. For example, 011 (msq_first) = 110
+(lsq_first). This depends on the hardware provider convention.</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em>) – When probabilities are provided, this parameter is used
+to check if the sum is within [1-epsilon, 1+epsilon]. Default is
+1e-2.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.histogram.Histogram.frequencies">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frequencies</span></span><a class="headerlink" href="#tangelo.toolboxes.post_processing.histogram.Histogram.frequencies" title="Link to this definition"></a></dt>
+<dd><p>The frequencies are normalized counts vs the number of shots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dict</strong> – Frequencies in a {bitstring: probability, …} format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.histogram.Histogram.get_expectation_value">
+<span class="sig-name descname"><span class="pre">get_expectation_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.histogram.Histogram.get_expectation_value" title="Link to this definition"></a></dt>
+<dd><p>Output the expectation value for qubit operator term. The histogram
+data is expected to have been acquired in a compatible measurement
+basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>term</strong> (<em>openfermion-style QubitOperator object</em>) – a qubit operator, with
+only a single term.</p></li>
+<li><p><strong>coeff</strong> (<em>imaginary</em>) – Coefficient to multiply the eigenvalue by.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>imaginary</strong> – Expectation value for this operator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.histogram.Histogram.n_qubits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_qubits</span></span><a class="headerlink" href="#tangelo.toolboxes.post_processing.histogram.Histogram.n_qubits" title="Link to this definition"></a></dt>
+<dd><p>The length of the bitstrings represents the number of qubits.”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>int</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.histogram.Histogram.n_shots">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_shots</span></span><a class="headerlink" href="#tangelo.toolboxes.post_processing.histogram.Histogram.n_shots" title="Link to this definition"></a></dt>
+<dd><p>Return the number of shots encoded in the Histogram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>int</strong> – Self-explanatory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.histogram.Histogram.post_select">
+<span class="sig-name descname"><span class="pre">post_select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expected_outcomes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.histogram.Histogram.post_select" title="Link to this definition"></a></dt>
+<dd><p>Method to apply post selection on Histogram data, based on a post
+selection function in this module. This method changes the Histogram
+object inplace. This is explicitly done on desired outcomes for specific
+qubit indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>expected_outcomes</strong> (<em>dict</em>) – Desired outcomes on certain qubit indices
+and their expected state. For example, {0: “1”, 1: “0”} would
+filter results based on the first qubit with the <a href="#id5"><span class="problematic" id="id6">|</span></a>1&gt; state and
+the second qubit with the <a href="#id7"><span class="problematic" id="id8">|</span></a>0&gt; state measured.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.histogram.Histogram.remove_qubit_indices">
+<span class="sig-name descname"><span class="pre">remove_qubit_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.histogram.Histogram.remove_qubit_indices" title="Link to this definition"></a></dt>
+<dd><p>Method to remove qubit indices in the result. The remaining
+bitstrings (of new length = length - N_indices) are summed up together.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>indices</strong> (<em>variable number</em><em> of </em><em>int</em>) – Qubit indices to remove.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.histogram.Histogram.resample">
+<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_shots</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.histogram.Histogram.resample" title="Link to this definition"></a></dt>
+<dd><p>Generating new Histogram with n_shots, done with the
+get_resampled_frequencies function (see the relevant documentation for
+more details).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n_shots</strong> (<em>int</em>) – Self-explanatory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Histogram</strong> – resampled data with n_shots from the distribution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.histogram.aggregate_histograms">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.histogram.</span></span><span class="sig-name descname"><span class="pre">aggregate_histograms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">hists</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.histogram.aggregate_histograms" title="Link to this definition"></a></dt>
+<dd><p>Return a Histogram object formed from data aggregated from all input
+Histogram objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>hists</strong> (<em>variable number</em><em> of </em><em>Histogram objects</em>) – the input Histogram objects.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Histogram</strong> – The aggregated histogram.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.histogram.filter_hist">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.histogram.</span></span><span class="sig-name descname"><span class="pre">filter_hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.histogram.filter_hist" title="Link to this definition"></a></dt>
+<dd><p>Filter selection function to consider bitstrings in respect to a boolean
+predicate on a bitstring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hist</strong> (<a class="reference internal" href="#tangelo.toolboxes.post_processing.histogram.Histogram" title="tangelo.toolboxes.post_processing.histogram.Histogram"><em>Histogram</em></a>) – Self-explanatory.</p></li>
+<li><p><strong>function</strong> (<em>function</em>) – Given a bitstring and some arbitrary arguments, the
+predicate should return a boolean value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Histogram</strong> – New Histogram with filtered outcomes based on the predicate
+provided.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.post_processing.mc_weeny_rdm_purification">
+<span id="tangelo-toolboxes-post-processing-mc-weeny-rdm-purification-module"></span><h2>tangelo.toolboxes.post_processing.mc_weeny_rdm_purification module<a class="headerlink" href="#module-tangelo.toolboxes.post_processing.mc_weeny_rdm_purification" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.mc_weeny_rdm_purification.mcweeny_purify_2rdm">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.mc_weeny_rdm_purification.</span></span><span class="sig-name descname"><span class="pre">mcweeny_purify_2rdm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rdm2_spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.mc_weeny_rdm_purification.mcweeny_purify_2rdm" title="Link to this definition"></a></dt>
+<dd><p>Perform 2-RDM purification based on McWeeny”s algorithm. The value
+selected for the convergence criteria should be consistent with the accuracy
+of the 2-RDM provided as input (in particular it should be correlated to the
+number of shots used to compute the RDM values, if a QPU or a shot-based
+quantum circuit simulator was used).</p>
+<p>This algorithm only works on a RDM associated with a 2-electron system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rdm2_spin</strong> (<em>numpy array</em>) – The 2-RDM to be purified (in chemistry
+notation).</p></li>
+<li><p><strong>conv</strong> (<em>float</em>) – The convergence criteria for McWeeny”s
+purification.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>numpy.array</strong> – One-particle RDM in spatial orbital basis.</p></li>
+<li><p><strong>numpy.array</strong> – Two-particle RDM in spatial orbital basis (in chemistry
+notation).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.post_processing.post_selection">
+<span id="tangelo-toolboxes-post-processing-post-selection-module"></span><h2>tangelo.toolboxes.post_processing.post_selection module<a class="headerlink" href="#module-tangelo.toolboxes.post_processing.post_selection" title="Link to this heading"></a></h2>
+<p>This module provides functions to create symmetry verification and post-selection circuits.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.post_selection.ancilla_symmetry_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.post_selection.</span></span><span class="sig-name descname"><span class="pre">ancilla_symmetry_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sym_op</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.post_selection.ancilla_symmetry_circuit" title="Link to this definition"></a></dt>
+<dd><p>Append a symmetry operator circuit to an input circuit using an extra ancilla qubit,
+for the purpose of symmetry verification and post-selection.
+For more details see arXiv:1807.10050.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circuit</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – A quantum circuit to be equipped with symmetry verification</p></li>
+<li><p><strong>sym_op</strong> (<em>string</em>) – The symmetry operator to be verified.
+Can be a Pauli string, OpenFermion style list or a QubitOperator</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The input circuit appended with the proper basis rotation
+and entanglement with an ancilla qubit, which is added as the last qubit.
+This appends an additional qubit to the circuit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.post_selection.post_select">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.post_selection.</span></span><span class="sig-name descname"><span class="pre">post_select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_outcomes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.post_selection.post_select" title="Link to this definition"></a></dt>
+<dd><p>Apply post selection to frequency data based on
+a dictionary of expected outcomes on ancilla qubits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freqs</strong> (<em>dict</em>) – A dictionary of {bitstring: frequency} pairs</p></li>
+<li><p><strong>expected_outcomes</strong> (<em>dict</em>) – Desired outcomes on certain qubit indices
+and their expected state. For example, {0: “1”, 1: “0”} would
+filter results based on the first qubit with the <a href="#id9"><span class="problematic" id="id10">|</span></a>1&gt; state and
+the second qubit with the <a href="#id11"><span class="problematic" id="id12">|</span></a>0&gt; state measured.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – A dictionary of post-selected, renormalized frequencies
+and bitstrings with removed ancilla qubits</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.post_selection.split_frequency_dict">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.post_selection.</span></span><span class="sig-name descname"><span class="pre">split_frequency_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_measurement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.post_selection.split_frequency_dict" title="Link to this definition"></a></dt>
+<dd><p>Marginalize the frequencies dictionary over the indices.
+This splits the frequency dictionary into two frequency dictionaries
+and aggregates the corresponding frequencies.
+If desired_measurement is provided, the marginalized frequencies are
+post-selected for that outcome on the mid-circuit measurements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frequencies</strong> (<em>dict</em>) – The input frequency dictionary</p></li>
+<li><p><strong>indices</strong> (<em>list</em>) – The list of indices in the frequency dictionary to marginalize over</p></li>
+<li><p><strong>desired_measurement</strong> (<em>str</em>) – The bit string that is to be selected</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – The marginal frequencies for provided indices</p></li>
+<li><p><strong>dict</strong> – The marginal frequencies for remaining indices</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.post_selection.split_frequency_dict_for_last_n_digits">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.post_selection.</span></span><span class="sig-name descname"><span class="pre">split_frequency_dict_for_last_n_digits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.post_selection.split_frequency_dict_for_last_n_digits" title="Link to this definition"></a></dt>
+<dd><p>Marginalize the frequencies dictionary over the last_n_digits.
+This splits the frequency dictionary into two frequency dictionaries
+and aggregates the corresponding frequencies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frequencies</strong> (<em>dict</em>) – The input frequency dictionary</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – The last n digits of the bitstring to store</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>dict</strong> – The marginal frequencies for remaining indices (different bitstring lengths in general)</p></li>
+<li><p><strong>dict</strong> – The frequencies for the last n bits</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.post_processing.post_selection.strip_post_selection">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.post_processing.post_selection.</span></span><span class="sig-name descname"><span class="pre">strip_post_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.post_processing.post_selection.strip_post_selection" title="Link to this definition"></a></dt>
+<dd><p>Convenience function to remove the symmetry ancilla qubit
+and aggregate data to recreate results without post-selection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freqs</strong> (<em>dict</em>) – A dictionary of {bitstring: frequency} as returned from a quantum device</p></li>
+<li><p><strong>qubits</strong> (<em>variable number</em><em> of </em><em>int</em>) – The ancilla qubit indices to be removed from the bitstrings</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dict</strong> – A frequency dictionary with the qubits stripped and data aggregated</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.post_processing">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.toolboxes.post_processing" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.toolboxes.optimizers.html" class="btn btn-neutral float-left" title="tangelo.toolboxes.optimizers package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.toolboxes.qubit_mappings.html" class="btn btn-neutral float-right" title="tangelo.toolboxes.qubit_mappings package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

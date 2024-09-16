@@ -1,0 +1,69 @@
+tangelo.linq.target package
+===========================
+
+Submodules
+----------
+
+tangelo.linq.target.backend module
+----------------------------------
+
+.. automodule:: tangelo.linq.target.backend
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.target.target\_cirq module
+---------------------------------------
+
+.. automodule:: tangelo.linq.target.target_cirq
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.target.target\_qdk module
+--------------------------------------
+
+.. automodule:: tangelo.linq.target.target_qdk
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.target.target\_qiskit module
+-----------------------------------------
+
+.. automodule:: tangelo.linq.target.target_qiskit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.target.target\_qulacs module
+-----------------------------------------
+
+.. automodule:: tangelo.linq.target.target_qulacs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.target.target\_stim module
+---------------------------------------
+
+.. automodule:: tangelo.linq.target.target_stim
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tangelo.linq.target.target\_sympy module
+----------------------------------------
+
+.. automodule:: tangelo.linq.target.target_sympy
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.linq.target
+   :members:
+   :undoc-members:
+   :show-inheritance:

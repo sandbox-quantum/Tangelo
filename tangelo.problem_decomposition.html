@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.problem_decomposition package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.problem_decomposition.dmet package" href="tangelo.problem_decomposition.dmet.html" />
+    <link rel="prev" title="tangelo.linq.translator package" href="tangelo.linq.translator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">tangelo.problem_decomposition package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.problem_decomposition.problem_decomposition">tangelo.problem_decomposition.problem_decomposition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-tangelo.problem_decomposition">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+      <li class="breadcrumb-item active">tangelo.problem_decomposition package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.problem_decomposition.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-problem-decomposition-package">
+<h1>tangelo.problem_decomposition package<a class="headerlink" href="#tangelo-problem-decomposition-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html">tangelo.problem_decomposition.dmet package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#module-tangelo.problem_decomposition.dmet.dmet_problem_decomposition">tangelo.problem_decomposition.dmet.dmet_problem_decomposition module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.molecule"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.electron_localization"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.electron_localization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.fragment_atoms"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.fragment_atoms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.fragment_solvers"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.fragment_solvers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.fragment_frozen_orbitals"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.fragment_frozen_orbitals</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.optimizer"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.initial_chemical_potential"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.initial_chemical_potential</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.solvers_options"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.solvers_options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.virtual_orbital_threshold"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.virtual_orbital_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.verbose"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.build"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.energy_error_bars"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.energy_error_bars()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.get_resources"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.quantum_fragments_data"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.quantum_fragments_data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.DMETProblemDecomposition.simulate"><code class="docutils literal notranslate"><span class="pre">DMETProblemDecomposition.simulate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization"><code class="docutils literal notranslate"><span class="pre">Localization</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization.iao"><code class="docutils literal notranslate"><span class="pre">Localization.iao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization.meta_lowdin"><code class="docutils literal notranslate"><span class="pre">Localization.meta_lowdin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.dmet_problem_decomposition.Localization.nao"><code class="docutils literal notranslate"><span class="pre">Localization.nao</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#module-tangelo.problem_decomposition.dmet.fragment">tangelo.problem_decomposition.dmet.fragment module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.basis"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.basis</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.fermionic_hamiltonian"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.fermionic_hamiltonian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.fock"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.fock</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.fock_frag_copy"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.fock_frag_copy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.frozen_mos"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.frozen_mos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.frozen_orbitals"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.frozen_orbitals</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.mean_field"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.mean_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.molecule"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.molecule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.n_active_electrons"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.n_active_electrons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.n_active_mos"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.n_active_mos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.n_active_sos"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.n_active_sos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.one_ele"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.one_ele</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.q"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.q</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.spin"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.spin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.t_list"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.t_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.to_pyscf"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.to_pyscf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.two_ele"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.two_ele</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#tangelo.problem_decomposition.dmet.fragment.SecondQuantizedDMETFragment.uhf"><code class="docutils literal notranslate"><span class="pre">SecondQuantizedDMETFragment.uhf</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.dmet.html#module-tangelo.problem_decomposition.dmet">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html">tangelo.problem_decomposition.electron_localization package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#module-tangelo.problem_decomposition.electron_localization.iao_localization">tangelo.problem_decomposition.electron_localization.iao_localization module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#tangelo.problem_decomposition.electron_localization.iao_localization.iao_localization"><code class="docutils literal notranslate"><span class="pre">iao_localization()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#module-tangelo.problem_decomposition.electron_localization.meta_lowdin_localization">tangelo.problem_decomposition.electron_localization.meta_lowdin_localization module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#tangelo.problem_decomposition.electron_localization.meta_lowdin_localization.meta_lowdin_localization"><code class="docutils literal notranslate"><span class="pre">meta_lowdin_localization()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#module-tangelo.problem_decomposition.electron_localization.nao_localization">tangelo.problem_decomposition.electron_localization.nao_localization module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#tangelo.problem_decomposition.electron_localization.nao_localization.nao_localization"><code class="docutils literal notranslate"><span class="pre">nao_localization()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.electron_localization.html#module-tangelo.problem_decomposition.electron_localization">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html">tangelo.problem_decomposition.incremental package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#module-tangelo.problem_decomposition.incremental.incremental_helper">tangelo.problem_decomposition.incremental.incremental_helper module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.e_tot"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.e_tot</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.e_corr"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.e_corr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.e_mf"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.e_mf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.frag_info"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.frag_info</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.compute_fermionoperator"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.compute_fermionoperator()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.frag_info_flattened"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.frag_info_flattened</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.fragment_ids"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.fragment_ids</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.mi_summation"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.mi_summation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.n_electrons_spinorbs"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.n_electrons_spinorbs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.read_mi_info"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.read_mi_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.retrieve_mo_coeff"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.retrieve_mo_coeff()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#tangelo.problem_decomposition.incremental.incremental_helper.MethodOfIncrementsHelper.to_dataframe"><code class="docutils literal notranslate"><span class="pre">MethodOfIncrementsHelper.to_dataframe</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.incremental.html#module-tangelo.problem_decomposition.incremental">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html">tangelo.problem_decomposition.oniom package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html#module-tangelo.problem_decomposition.oniom.oniom_problem_decomposition">tangelo.problem_decomposition.oniom.oniom_problem_decomposition module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html#tangelo.problem_decomposition.oniom.oniom_problem_decomposition.ONIOMProblemDecomposition"><code class="docutils literal notranslate"><span class="pre">ONIOMProblemDecomposition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html#tangelo.problem_decomposition.oniom.oniom_problem_decomposition.ONIOMProblemDecomposition.distribute_atoms"><code class="docutils literal notranslate"><span class="pre">ONIOMProblemDecomposition.distribute_atoms()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html#tangelo.problem_decomposition.oniom.oniom_problem_decomposition.ONIOMProblemDecomposition.get_resources"><code class="docutils literal notranslate"><span class="pre">ONIOMProblemDecomposition.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html#tangelo.problem_decomposition.oniom.oniom_problem_decomposition.ONIOMProblemDecomposition.simulate"><code class="docutils literal notranslate"><span class="pre">ONIOMProblemDecomposition.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.oniom.html#module-tangelo.problem_decomposition.oniom">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html">tangelo.problem_decomposition.qmmm package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html#module-tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition">tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html#tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition.QMMMProblemDecomposition"><code class="docutils literal notranslate"><span class="pre">QMMMProblemDecomposition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html#tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition.QMMMProblemDecomposition.distribute_atoms"><code class="docutils literal notranslate"><span class="pre">QMMMProblemDecomposition.distribute_atoms()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html#tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition.QMMMProblemDecomposition.get_resources"><code class="docutils literal notranslate"><span class="pre">QMMMProblemDecomposition.get_resources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html#tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition.QMMMProblemDecomposition.simulate"><code class="docutils literal notranslate"><span class="pre">QMMMProblemDecomposition.simulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.problem_decomposition.qmmm.html#module-tangelo.problem_decomposition.qmmm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.problem_decomposition.problem_decomposition">
+<span id="tangelo-problem-decomposition-problem-decomposition-module"></span><h2>tangelo.problem_decomposition.problem_decomposition module<a class="headerlink" href="#module-tangelo.problem_decomposition.problem_decomposition" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.problem_decomposition.ProblemDecomposition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.problem_decomposition.problem_decomposition.</span></span><span class="sig-name descname"><span class="pre">ProblemDecomposition</span></span><a class="headerlink" href="#tangelo.problem_decomposition.problem_decomposition.ProblemDecomposition" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.problem_decomposition.problem_decomposition.ProblemDecomposition.simulate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.problem_decomposition.problem_decomposition.ProblemDecomposition.simulate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.problem_decomposition">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.problem_decomposition" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.linq.translator.html" class="btn btn-neutral float-left" title="tangelo.linq.translator package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.problem_decomposition.dmet.html" class="btn btn-neutral float-right" title="tangelo.problem_decomposition.dmet package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

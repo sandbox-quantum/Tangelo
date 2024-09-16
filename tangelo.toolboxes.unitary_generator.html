@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.toolboxes.unitary_generator package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="tangelo.toolboxes.qubit_mappings package" href="tangelo.toolboxes.qubit_mappings.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.toolboxes.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.html#module-tangelo.toolboxes">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+      <li class="breadcrumb-item active">tangelo.toolboxes.unitary_generator package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.toolboxes.unitary_generator.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-toolboxes-unitary-generator-package">
+<h1>tangelo.toolboxes.unitary_generator package<a class="headerlink" href="#tangelo-toolboxes-unitary-generator-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.toolboxes.unitary_generator.trotter_suzuki">
+<span id="tangelo-toolboxes-unitary-generator-trotter-suzuki-module"></span><h2>tangelo.toolboxes.unitary_generator.trotter_suzuki module<a class="headerlink" href="#module-tangelo.toolboxes.unitary_generator.trotter_suzuki" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.unitary_generator.trotter_suzuki.TrotterSuzukiUnitary">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.unitary_generator.trotter_suzuki.</span></span><span class="sig-name descname"><span class="pre">TrotterSuzukiUnitary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_hamiltonian</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trotter_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_trotter_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'time'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.unitary_generator.trotter_suzuki.TrotterSuzukiUnitary" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.unitary_generator.unitary.Unitary" title="tangelo.toolboxes.unitary_generator.unitary.Unitary"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unitary</span></code></a></p>
+<p>Class that implements the Trotter-Suzuki time evolution.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.unitary_generator.trotter_suzuki.TrotterSuzukiUnitary.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.unitary_generator.trotter_suzuki.TrotterSuzukiUnitary.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the unitary evolution for n_steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_steps</strong> (<em>int</em>) – The number of unitary evolution steps</p></li>
+<li><p><strong>control</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – The qubit or qubits to control with.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – The method used to apply the controlled operation for n_steps.
+“time” to not change the circuit size, less accurate
+“repeat” to repate the circuit n_steps</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit that implements the unitary evolution for n_steps with control.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.unitary_generator.trotter_suzuki.TrotterSuzukiUnitary.qubit_indices">
+<span class="sig-name descname"><span class="pre">qubit_indices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.unitary_generator.trotter_suzuki.TrotterSuzukiUnitary.qubit_indices" title="Link to this definition"></a></dt>
+<dd><p>Return the indices used by the algorithm to propagate the unitary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>List[int]</strong> – State qubits</p></li>
+<li><p><strong>List[int]</strong> – Ancilla qubits</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.unitary_generator.unitary">
+<span id="tangelo-toolboxes-unitary-generator-unitary-module"></span><h2>tangelo.toolboxes.unitary_generator.unitary module<a class="headerlink" href="#module-tangelo.toolboxes.unitary_generator.unitary" title="Link to this heading"></a></h2>
+<p>This module defines the unitary abstract class, providing the foundation to
+implement unitary evolution circuits.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.unitary_generator.unitary.Unitary">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.unitary_generator.unitary.</span></span><span class="sig-name descname"><span class="pre">Unitary</span></span><a class="headerlink" href="#tangelo.toolboxes.unitary_generator.unitary.Unitary" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for all Unitary circuit definitions. Derived/children classes wirtten by users and
+developers must implement the following abstract methods.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.unitary_generator.unitary.Unitary.build_circuit">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">typing.Union[NoneType,</span> <span class="pre">int,</span> <span class="pre">typing.List[int]]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.unitary_generator.unitary.Unitary.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the unitary evolution for n_steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_steps</strong> (<em>int</em>) – The number of unitary evolution steps with control</p></li>
+<li><p><strong>control</strong><strong>(</strong><strong>Union</strong><strong>[</strong><strong>int</strong> – The control qubit(s)</p></li>
+<li><p><strong>List</strong><strong>[</strong><strong>int</strong><strong>]</strong><strong>]</strong> – The control qubit(s)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit that implements the unitary evolution for n_steps with control.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.unitary_generator.unitary.Unitary.qubit_indices">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qubit_indices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.unitary_generator.unitary.Unitary.qubit_indices" title="Link to this definition"></a></dt>
+<dd><p>Return the indices used by the algorithm to propagate the unitary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>List[int]</strong> – State qubits</p></li>
+<li><p><strong>List[int]</strong> – Ancilla qubits</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.unitary_generator.unitary_circuit">
+<span id="tangelo-toolboxes-unitary-generator-unitary-circuit-module"></span><h2>tangelo.toolboxes.unitary_generator.unitary_circuit module<a class="headerlink" href="#module-tangelo.toolboxes.unitary_generator.unitary_circuit" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.unitary_generator.unitary_circuit.CircuitUnitary">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.unitary_generator.unitary_circuit.</span></span><span class="sig-name descname"><span class="pre">CircuitUnitary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.unitary_generator.unitary_circuit.CircuitUnitary" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tangelo.toolboxes.unitary_generator.unitary.Unitary" title="tangelo.toolboxes.unitary_generator.unitary.Unitary"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unitary</span></code></a></p>
+<p>Class that implements the necessary methods for QPE given a Circuit that represents a Unitary.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.unitary_generator.unitary_circuit.CircuitUnitary.add_controls">
+<span class="sig-name descname"><span class="pre">add_controls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.unitary_generator.unitary_circuit.CircuitUnitary.add_controls" title="Link to this definition"></a></dt>
+<dd><p>Adds control gates to the circuit
+:param method: Default “all” add controls to all gates. “variational” add controls to only gates marked is_variational
+:type method: str
+:param control: The qubit(s) to control the unitary circuit with.
+:type control: Union[int, List[int]]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.unitary_generator.unitary_circuit.CircuitUnitary.build_circuit">
+<span class="sig-name descname"><span class="pre">build_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.unitary_generator.unitary_circuit.CircuitUnitary.build_circuit" title="Link to this definition"></a></dt>
+<dd><p>Build and return the quantum circuit implementing the unitary evolution for n_steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_steps</strong> (<em>int</em>) – The number of unitary evolution steps</p></li>
+<li><p><strong>control</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – The control qubit(s) for the unitary evolution.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – “all” add controls to all gates. “variational” add controls to only gates marked is_variational</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit that implements the unitary evolution for n_steps with control.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.unitary_generator.unitary_circuit.CircuitUnitary.qubit_indices">
+<span class="sig-name descname"><span class="pre">qubit_indices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.unitary_generator.unitary_circuit.CircuitUnitary.qubit_indices" title="Link to this definition"></a></dt>
+<dd><p>Return the indices used by the algorithm to propagate the unitary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>List[int]</strong> – State qubits</p></li>
+<li><p><strong>List[int]</strong> – Ancilla qubits</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.unitary_generator">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.toolboxes.unitary_generator" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.toolboxes.qubit_mappings.html" class="btn btn-neutral float-left" title="tangelo.toolboxes.qubit_mappings package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

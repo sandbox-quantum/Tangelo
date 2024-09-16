@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tangelo.toolboxes.circuits package &mdash; tangelo 0.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=c473181c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5bfaad31"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tangelo.toolboxes.measurements package" href="tangelo.toolboxes.measurements.html" />
+    <link rel="prev" title="tangelo.toolboxes.ansatz_generator package" href="tangelo.toolboxes.ansatz_generator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tangelo
+              <img src="_static/tangelo_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TUTORIALS.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTIONS.html">Contributions guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tangelo.html">tangelo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tangelo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tangelo.algorithms.html">tangelo.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.helpers.html">tangelo.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.linq.html">tangelo.linq package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangelo.problem_decomposition.html">tangelo.problem_decomposition package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tangelo.toolboxes.html">tangelo.toolboxes package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tangelo.toolboxes.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tangelo.toolboxes.html#module-tangelo.toolboxes">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo.molecule_library">tangelo.molecule_library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tangelo.html#module-tangelo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tangelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tangelo.html">tangelo package</a></li>
+          <li class="breadcrumb-item"><a href="tangelo.toolboxes.html">tangelo.toolboxes package</a></li>
+      <li class="breadcrumb-item active">tangelo.toolboxes.circuits package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tangelo.toolboxes.circuits.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tangelo-toolboxes-circuits-package">
+<h1>tangelo.toolboxes.circuits package<a class="headerlink" href="#tangelo-toolboxes-circuits-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-tangelo.toolboxes.circuits.diagonal_coulomb">
+<span id="tangelo-toolboxes-circuits-diagonal-coulomb-module"></span><h2>tangelo.toolboxes.circuits.diagonal_coulomb module<a class="headerlink" href="#module-tangelo.toolboxes.circuits.diagonal_coulomb" title="Link to this heading"></a></h2>
+<p>Module to generate the rotations to convert the 2-body integrals into a sum of diagonal terms</p>
+<dl class="simple">
+<dt>Refs:</dt><dd><p>[1] Mario Motta, Erika Ye, Jarrod R. McClean, Zhendong Li, Austin J. Minnich, Ryan Babbush, Garnet Kin-Lic Chan
+“Low rank representations for quantum simulation of electronic structure”. <a class="reference external" href="https://arxiv.org/abs/1808.02625">https://arxiv.org/abs/1808.02625</a></p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.diagonal_coulomb.</span></span><span class="sig-name descname"><span class="pre">OrbitalRotations</span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The class that holds the various rotations, operators and coefficients</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.rotation_gates">
+<span class="sig-name descname"><span class="pre">rotation_gates</span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.rotation_gates" title="Link to this definition"></a></dt>
+<dd><p>The gates to apply to rotate the basis to a diagonal form for a given operator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.qubit_operators">
+<span class="sig-name descname"><span class="pre">qubit_operators</span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.qubit_operators" title="Link to this definition"></a></dt>
+<dd><p>The qubit operators to measure from qubit_mapping=”JW” and up_then_down=False. Each is diagonal in the Z basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.one_body_coefficients">
+<span class="sig-name descname"><span class="pre">one_body_coefficients</span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.one_body_coefficients" title="Link to this definition"></a></dt>
+<dd><p>The one-body coefficients corresponding to each operator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.constants">
+<span class="sig-name descname"><span class="pre">constants</span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.constants" title="Link to this definition"></a></dt>
+<dd><p>The constants corresponding to each operator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.two_body_coefficients">
+<span class="sig-name descname"><span class="pre">two_body_coefficients</span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.two_body_coefficients" title="Link to this definition"></a></dt>
+<dd><p>The two-body coefficients corresponding to each operator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.add_elements">
+<span class="sig-name descname"><span class="pre">add_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_body_coefs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_body_coefs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.add_elements" title="Link to this definition"></a></dt>
+<dd><p>Add elements to the class for each term to diagonalize a portion of the Hamiltonian</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rot_mat</strong> (<em>array</em>) – The unitary rotation matrix</p></li>
+<li><p><strong>constant</strong> (<em>float</em>) – A constant value for this element</p></li>
+<li><p><strong>one_body_coefs</strong> (<em>array</em>) – The diagonal coefficients</p></li>
+<li><p><strong>two_body_coefs</strong> (<em>array</em>) – The two-body coefficients</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.n_rotations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_rotations</span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.diagonal_coulomb.OrbitalRotations.n_rotations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.diagonal_coulomb.bogoliubov_transform">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.diagonal_coulomb.</span></span><span class="sig-name descname"><span class="pre">bogoliubov_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">umat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.circuits.diagonal_coulomb.bogoliubov_transform" title="Link to this definition"></a></dt>
+<dd><p>Generate the gates that implement the orbital rotation defined by a given unitary.</p>
+<p>The given matrix is decomposed into umat=DU where U is unitary D is a diagonal matrix.
+If umat is unitary, the values of D will be exp(1j*theta) where theta is real
+and can be incorporated using add_phase=True.
+If umat is non-unitary, the values of D will be m*exp(1j*theta) where m and theta are real.
+m is ignored with only the phase (theta) incorporated in the circuit if add_phase=True.</p>
+<p>This implementation uses the circuit outlined in <a class="reference external" href="https://arxiv.org/abs/1711.05395">https://arxiv.org/abs/1711.05395</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>umat</strong> (<em>array</em>) – The square unitary matrix that descibes the basis rotation</p></li>
+<li><p><strong>add_phase</strong> (<em>bool</em>) – If True, adds PHASE gates according to givens decomposition values D</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list of Gate</strong> – The sequence of Gates that implement the orbital rotation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.diagonal_coulomb.get_orbital_rotations">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.diagonal_coulomb.</span></span><span class="sig-name descname"><span class="pre">get_orbital_rotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><span class="pre">SecondQuantizedMolecule</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.circuits.diagonal_coulomb.get_orbital_rotations" title="Link to this definition"></a></dt>
+<dd><p>Generate the gates that rotate the orbitals such that each operator is diagonal.</p>
+<p>The orbital rotation gates generated are only applicable for qubit_mapping=”JW” and up_then_down=False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>molecule</strong> (<a class="reference internal" href="tangelo.toolboxes.molecular_computation.html#tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule" title="tangelo.toolboxes.molecular_computation.molecule.SecondQuantizedMolecule"><em>SecondQuantizedMolecule</em></a>) – The molecule for which the diagonal representation is requested</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>OrbitalRotations</strong> – The class that contains the list of transformation gates and operators to measure</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.circuits.discrete_clock">
+<span id="tangelo-toolboxes-circuits-discrete-clock-module"></span><h2>tangelo.toolboxes.circuits.discrete_clock module<a class="headerlink" href="#module-tangelo.toolboxes.circuits.discrete_clock" title="Link to this heading"></a></h2>
+<p>Module to generate the circuits necessary to implement discrete clock time
+Refs:</p>
+<blockquote>
+<div><p>[1] Jacob Watkins, Nathan Wiebe, Alessandro Roggero, Dean Lee, “Time-dependent Hamiltonian
+Simulation using Discrete Clock Constructions” arXiv: 2203.11353</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.discrete_clock.get_adder_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.discrete_clock.</span></span><span class="sig-name descname"><span class="pre">get_adder_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.discrete_clock.get_adder_circuit" title="Link to this definition"></a></dt>
+<dd><p>Return circuit that takes all bitstrings and add binary(t) to it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_list</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The qubits to apply the addition of t.</p></li>
+<li><p><strong>t</strong> (<em>int</em>) – The integer to add</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit that applies the addition of t</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.discrete_clock.get_discrete_clock_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.discrete_clock.</span></span><span class="sig-name descname"><span class="pre">get_discrete_clock_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trotter_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trotter_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_state_qus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_time_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.discrete_clock.get_discrete_clock_circuit" title="Link to this definition"></a></dt>
+<dd><p>Return discrete clock circuit as described in arXiv: 2203.11353</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trotter_func</strong> (<em>Callable</em><em>[</em><em>...</em><em>, </em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a><em>]</em>) – The function that implements the controlled 2nd order trotter time-evolution
+starting at “t0” for “time” using “n_trotter_steps” using “control”</p></li>
+<li><p><strong>trotter_kwargs</strong> (<em>dict</em>) – Other keyword arguments for trotter_func.</p></li>
+<li><p><strong>n_state_qus</strong> (<em>int</em>) – The number of qubits used to represent the state to time-evolve.</p></li>
+<li><p><strong>time</strong> (<em>float</em>) – The total time to evolve.</p></li>
+<li><p><strong>n_time_steps</strong> (<em>int</em>) – The number of time steps in the discrete clock.</p></li>
+<li><p><strong>mp_order</strong> (<em>int</em>) – The multi-product order to use for the time-evolution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The time-evolution circuit using the discrete clock construction.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.circuits.grid_circuits">
+<span id="tangelo-toolboxes-circuits-grid-circuits-module"></span><h2>tangelo.toolboxes.circuits.grid_circuits module<a class="headerlink" href="#module-tangelo.toolboxes.circuits.grid_circuits" title="Link to this heading"></a></h2>
+<p>Module to generate the circuits for grid based computation</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.grid_circuits.get_psquared_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.grid_circuits.</span></span><span class="sig-name descname"><span class="pre">get_psquared_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.grid_circuits.get_psquared_circuit" title="Link to this definition"></a></dt>
+<dd><p>Return circuit for p^2/2/m as defined in arXiv:2006.09405 using qft</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dt</strong> (<em>float</em>) – Time to evolve.</p></li>
+<li><p><strong>dx</strong> (<em>float</em>) – Grid spacing.</p></li>
+<li><p><strong>mass</strong> (<em>float</em>) – The mass used for the time-evolution.</p></li>
+<li><p><strong>qubit_list</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – Qubits to apply circuit to. The order is important depending on lsq_first or msq_first</p></li>
+<li><p><strong>control</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – The control qubits</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit that applies exp(-1j*dt*p^2/2/m)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.grid_circuits.get_xsquared_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.grid_circuits.</span></span><span class="sig-name descname"><span class="pre">get_xsquared_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fac</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.grid_circuits.get_xsquared_circuit" title="Link to this definition"></a></dt>
+<dd><p>Return circuit for exp(-1j*dt*[fac*(x - x0)**2 + delta]) as defined in arXiv:2006.09405</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dt</strong> (<em>float</em>) – Time to evolve.</p></li>
+<li><p><strong>dx</strong> (<em>float</em>) – Grid spacing.</p></li>
+<li><p><strong>fac</strong> (<em>float</em>) – Factor in front of x^2 term.</p></li>
+<li><p><strong>x0</strong> (<em>float</em>) – Shift for (x-x0)^2 term</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Constant shift</p></li>
+<li><p><strong>qubit_list</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – Qubits to apply circuit to. The order is important depending on lsq_first or msq_first</p></li>
+<li><p><strong>control</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – The control qubits</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit that applies exp(-1j*dt*[fac*(x-x0)**2 +delta])</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.circuits.lcu">
+<span id="tangelo-toolboxes-circuits-lcu-module"></span><h2>tangelo.toolboxes.circuits.lcu module<a class="headerlink" href="#module-tangelo.toolboxes.circuits.lcu" title="Link to this heading"></a></h2>
+<p>Module to generate the circuits necessary to implement linear combinations of unitaries
+Refs:</p>
+<blockquote>
+<div><p>[1] Dominic W. Berry, Andrew M. Childs, Richard Cleve, Robin Kothari, Rolando D. Somma, “Simulating
+Hamiltonian dynamics with a truncated Taylor series” arXiv: 1412.4687 Phys. Rev. Lett. 114, 090502 (2015)</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.lcu.USelectkl">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.lcu.</span></span><span class="sig-name descname"><span class="pre">USelectkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unitaries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits_sv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.lcu.USelectkl" title="Link to this definition"></a></dt>
+<dd><p>Generate the truncated Taylor series U_{Select} circuit for the list of QubitOperator as defined arXiv:1412.4687
+The returned Circuit will have qubits defined in registers <a href="#id1"><span class="problematic" id="id2">|</span></a>n_qubits_sv&gt;|kmax-1&gt;|n_qubits_u&gt;^{kmax-1}|ancilla&gt;
+n_qubits_sv is the number of qubits to define the state to propagate. <a href="#id3"><span class="problematic" id="id4">|</span></a>kmax-1&gt; defines the unary encoding
+of the Taylor series order. kmax-1 copies of length log2(len(unitaries)) to define the binary encoding of the linear
+combination of unitaries. Finally, one ancilla qubit to ensure the success of oblivious amplitude amplification.
+:param unitaries: The list of unitaries that defines the U_{Select} operation
+:type unitaries: list[QubitOperator]
+:param n_qubits_sv: The number of qubits in the statevector register
+:type n_qubits_sv: int
+:param kmax: The maximum Taylor series order
+:type kmax: int
+:param control: Control qubits for operation
+:type control: int or list[int]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Circuit</strong> – The circuit that implements the truncated Taylor series U_{Select} operation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.lcu.Uprepkl">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.lcu.</span></span><span class="sig-name descname"><span class="pre">Uprepkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qu_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.lcu.Uprepkl" title="Link to this definition"></a></dt>
+<dd><p>Generate Uprep circuit using qubit encoding defined in arXiv:1412.4687
+:param qu_op:
+:type qu_op: QubitOperator
+:param kmax: the order of the truncated Taylor series
+:type kmax: int
+:param t: The evolution time
+:type t: float</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Circuit</strong> – The Uprep circuit for the truncated Taylor series</p></li>
+<li><p><strong>list</strong> – the individual QubitOperator unitaries with only the prefactor remaining. i.e.  all coefficients are 1, -1, 1j or -1j</p></li>
+<li><p><strong>int</strong> – The number of repeated applications of the circuit that need to be applied</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.lcu.get_lcu_qubit_op_info">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.lcu.</span></span><span class="sig-name descname"><span class="pre">get_lcu_qubit_op_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qu_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="m"><span class="pre">0</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.lcu.get_lcu_qubit_op_info" title="Link to this definition"></a></dt>
+<dd><p>Return the operator and auxillary qubit indices and 1-norm for the LCU block decomposition of given QubitOperator.
+:param qu_op: The qubit operator to decompose into an Linear Combination of Unitaries block encoding.
+:type qu_op: QubitOperator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>List[int]</strong> – The qubit operator indices.</p></li>
+<li><p><strong>List[int]</strong> – The auxillary qubits for the uprep circuit.</p></li>
+<li><p><strong>float</strong> – The 1-norm of the qubit operator.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.lcu.get_oaa_lcu_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.lcu.</span></span><span class="sig-name descname"><span class="pre">get_oaa_lcu_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qu_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.lcu.get_oaa_lcu_circuit" title="Link to this definition"></a></dt>
+<dd><p>Apply qu_op using linear combination of unitaries (LCU) with oblivious amplitude amplification (OAA)
+1-norm of coefficients must be less than 2. The unitarity of qu_op is not checked by the algorithm
+:param qu_op: The qu_op to apply. Must be nearly unitary for algorithm to succeed with high probability.
+:type qu_op: QubitOperator
+:param control: Control qubit(s)
+:type control: int or list[int]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Circuit</strong> – The circuit that implements the linear combination of unitaries for the qu_op</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.lcu.get_truncated_taylor_series">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.lcu.</span></span><span class="sig-name descname"><span class="pre">get_truncated_taylor_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qu_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.lcu.get_truncated_taylor_series" title="Link to this definition"></a></dt>
+<dd><p>Generate Circuit to implement the truncated Taylor series algorithm as implemented in arXiv:1412.4687
+:param qu_op: The qubit operator to apply the truncated Taylor series exponential
+:type qu_op: QubitOperator
+:param kmax: The maximum order of the Taylor series exp{-1j*t*qu_op} = sum_{k}^{kmax}(-1j*t)**k/k! qu_op**k
+:type kmax: int
+:param t: The total time to evolve
+:type t: float
+:param control: The control qubit(s)
+:type control: int or list[int]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Circuit</strong> – the circuit that implements the time-evolution of qu_op for time t with Taylor series kmax</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.lcu.get_truncated_taylor_series_qubits">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.lcu.</span></span><span class="sig-name descname"><span class="pre">get_truncated_taylor_series_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qu_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tangelo.toolboxes.circuits.lcu.get_truncated_taylor_series_qubits" title="Link to this definition"></a></dt>
+<dd><p>Return the list of qubits used in the Truncated Taylor series circuit
+:param qu_op:
+:type qu_op: QubitOperator
+:param kmax: the order of the truncated Taylor series
+:type kmax: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>List[int]</strong> – The list of qubit indices used</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.lcu.get_unary_prep">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.lcu.</span></span><span class="sig-name descname"><span class="pre">get_unary_prep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kvec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.lcu.get_unary_prep" title="Link to this definition"></a></dt>
+<dd><p>Generate the prep circuit for the unary+ancilla part of the Taylor series encoding. This implementation
+scales linearly with kmax whereas StateVector.initializing_circuit() scaled exponentially.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kvec</strong> (<em>array</em>) – Array representing the coefficients needed to generate unary portion of encoding.
+Length of array is kmax+2. order “00…000”, “00…001”, “00…011”, …, “01…111”, “1000…”</p></li>
+<li><p><strong>kmax</strong> (<em>int</em>) – The Taylor series order</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The unary encoding prep circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.lcu.get_uprep_uselect">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.lcu.</span></span><span class="sig-name descname"><span class="pre">get_uprep_uselect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qu_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_alpha_eq_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.lcu.get_uprep_uselect" title="Link to this definition"></a></dt>
+<dd><p>Get uprep and (controlled-)uselect circuits along with their corresponding qubits for a QubitOperator.
+:param qu_op: The qu_op to apply.
+:type qu_op: QubitOperator
+:param control: Control qubit(s).
+:type control: int or list[int]
+:param make_alpha_eq_2: Make 1-norm equal 2 by adding and subtracting identity terms. Useful for oblivious amplitude amplification</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Circuit</strong> – Uprep circuit</p></li>
+<li><p><strong>Circuit</strong> – Uselect circuit</p></li>
+<li><p><strong>List[int]</strong> – QubitOperator qubits</p></li>
+<li><p><strong>List[int]</strong> – Auxillary qubits</p></li>
+<li><p><strong>float</strong> – alpha = 1-norm of coefficients of applied qu_op</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.lcu.sign_flip">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.lcu.</span></span><span class="sig-name descname"><span class="pre">sign_flip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.lcu.sign_flip" title="Link to this definition"></a></dt>
+<dd><p>Generate Circuit corresponding to the sign flip of the <a href="#id5"><span class="problematic" id="id6">|</span></a>0&gt;^n vector for the given qubit_list
+:param qubit_list: The list of n qubits for which the 2*|0&gt;^n-I operation is generated
+:type qubit_list: list[int]
+:param control: Control qubit or list of control qubits.
+:type control: int or list[int]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Circuit</strong> – The circuit that generates the sign flip on <a href="#id7"><span class="problematic" id="id8">|</span></a>0&gt;^n</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.circuits.multiproduct">
+<span id="tangelo-toolboxes-circuits-multiproduct-module"></span><h2>tangelo.toolboxes.circuits.multiproduct module<a class="headerlink" href="#module-tangelo.toolboxes.circuits.multiproduct" title="Link to this heading"></a></h2>
+<p>Module to generate the circuits necessary to implement multi-product time-evolution
+Refs:</p>
+<blockquote>
+<div><p>[1] Guang Hao Low, Vadym Kliuchnikov and Nathan Wiebe, “Well-conditioned multi-product
+Hamiltonian simulation” arXiv: 1907.11679</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.multiproduct.get_ajs_kjs">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.multiproduct.</span></span><span class="sig-name descname"><span class="pre">get_ajs_kjs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.multiproduct.get_ajs_kjs" title="Link to this definition"></a></dt>
+<dd><p>Return aj coefficients and number of steps kj for multi-product order
+The first two indices of aj coefficients are the portion need to make the one-norm sum to two.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order</strong> (<em>int</em>) – The desired order of expansion</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>List[float], List[int], int</strong> – aj coefficients, kj steps, number of ancilla qubits needed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.multiproduct.get_multi_product_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.multiproduct.</span></span><span class="sig-name descname"><span class="pre">get_multi_product_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_state_qus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><span class="pre">FermionOperator</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">second_order_trotter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trotter_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.multiproduct.get_multi_product_circuit" title="Link to this definition"></a></dt>
+<dd><p>Return multi-product circuit as defined in arXiv: 1907.11679. Only up to 6th order is currently supported</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>float</em>) – The time to evolve.</p></li>
+<li><p><strong>order</strong> (<em>int</em>) – The order of the multi-product expansion</p></li>
+<li><p><strong>n_state_qus</strong> (<em>int</em>) – The number of qubits in the state to evolve.</p></li>
+<li><p><strong>operator</strong> (<em>Union</em><em>[</em><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a><em>, </em><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.FermionOperator" title="tangelo.toolboxes.operators.operators.FermionOperator"><em>FermionOperator</em></a><em>]</em>) – The operator to evolve in time. Default None</p></li>
+<li><p><strong>control</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – The control qubit(s). Default None</p></li>
+<li><p><strong>second_order_trotter</strong> (<em>Callable</em><em>[</em><em>...</em><em>, </em><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a><em>]</em>) – The callable function that defines the controlled 2nd order
+time-evolution. Must have arguments “control” and “n_trotter_steps”.</p></li>
+<li><p><strong>trotter_kwargs</strong> (<em>dict</em>) – Other keyword arguments necessary to evaluate second_order_trotter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The circuit representing the time-evolution using the multi-product construction.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.circuits.qsp">
+<span id="tangelo-toolboxes-circuits-qsp-module"></span><h2>tangelo.toolboxes.circuits.qsp module<a class="headerlink" href="#module-tangelo.toolboxes.circuits.qsp" title="Link to this heading"></a></h2>
+<p>Module to generate the circuits necessary to implement quantum signal processing (QSP) Hamiltonian Simulation</p>
+<p>Ref:
+[1]: Yulong Dong, Xiang Meng, K. Birgitta Whaley, Lin Lin, “Efficient phase-factor evaluation in quantum signal processing”
+2021, arXiv:2002.11649 (https://arxiv.org/abs/2002.11649)</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.qsp.get_qsp_circuit_no_anc">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.qsp.</span></span><span class="sig-name descname"><span class="pre">get_qsp_circuit_no_anc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cua</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_qs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.qsp.get_qsp_circuit_no_anc" title="Link to this definition"></a></dt>
+<dd><p>Generate the ancilla free QSP circuit as defined in Fig 16 of <a class="reference external" href="https://arxiv.org/abs/2002.11649">https://arxiv.org/abs/2002.11649</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cua</strong> (<a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><em>Circuit</em></a>) – The controlled unitary (U_A).</p></li>
+<li><p><strong>m_qs</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The m ancilla qubits used for the Uprep circuit.</p></li>
+<li><p><strong>angles</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – The phases for the QSP circuit.</p></li>
+<li><p><strong>control</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – The control qubit(s).</p></li>
+<li><p><strong>with_z</strong> (<em>bool</em>) – If True, an extra CZ gate is included. This adds a 1j phase to the operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The ancilla free QSP circuit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.qsp.get_qsp_hamiltonian_simulation_circuit">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.qsp.</span></span><span class="sig-name descname"><span class="pre">get_qsp_hamiltonian_simulation_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qu_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'laurent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.qsp.get_qsp_hamiltonian_simulation_circuit" title="Link to this definition"></a></dt>
+<dd><p>Returns Quantum Signal Processing (QSP) Hamiltonian simulation circuit for a given QubitOperator for time tau.</p>
+<p>The circuits are derived from <a class="reference external" href="https://arxiv.org/abs/2002.11649">https://arxiv.org/abs/2002.11649</a>.
+The list of qubits used for the circuit can be found by qubit_list = get_qs_hamiltonian_simulation_qubit_list(qu_op)
+qu_op must have it’s spectral range in [-1, 1]. This property is not checked by this function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qu_op</strong> (<a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><em>QubitOperator</em></a>) – The qubit operator defining the QSP time-evolution circuit.</p></li>
+<li><p><strong>tau</strong> (<em>float</em>) – The evolution time.</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – The allowed error of the time-evolution. Higher accuracy requires longer circuits, and obtaining the phases can be unstable.</p></li>
+<li><p><strong>control</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – The control qubit(s).</p></li>
+<li><p><strong>n_attempts</strong> (<em>int</em>) – The number of attempts to calculate the phase factors using pyqsp.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – “laurent”: Use laurent polynomial method of pyqsp, “tf”: Use TensorFlow with pyqsp, “QSPPACK”: Use QSPPACK to calculate phases</p></li>
+<li><p><strong>folder</strong> (<em>str</em>) – Folder that contains QSPPACK.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The QSP Hamiltonian simulation circuit with oblivious amplitude amplification to ensure very high success probability.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.qsp.get_qsp_hamiltonian_simulation_qubit_list">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.qsp.</span></span><span class="sig-name descname"><span class="pre">get_qsp_hamiltonian_simulation_qubit_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qu_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tangelo.toolboxes.operators.html#tangelo.toolboxes.operators.operators.QubitOperator" title="tangelo.toolboxes.operators.operators.QubitOperator"><span class="pre">QubitOperator</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.qsp.get_qsp_hamiltonian_simulation_qubit_list" title="Link to this definition"></a></dt>
+<dd><p>Returns the list of qubits used for the QSP Hamiltonian simulation algorithm</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.qsp.ham_sim_phases">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.qsp.</span></span><span class="sig-name descname"><span class="pre">ham_sim_phases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'laurent'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.qsp.ham_sim_phases" title="Link to this definition"></a></dt>
+<dd><p>Generate the phases required for QSP time-evolution using the pyqsp package</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tau</strong> (<em>float</em>) – The evolution time.</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – The precision to calculate the factors. Higher precision is more likely to fail.</p></li>
+<li><p><strong>n_attempts</strong> (<em>int</em>) – The number of attempts to calculate the phase factors. Often multiple tries are required.</p></li>
+<li><p><strong>method</strong> – “laurent”: Laurent Polynomial method (unstable but fast). “tf” requires TensorFlow installed and is stable but very slow.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>List[float]</strong> – The phases for Cos(Ht).</p></li>
+<li><p><strong>List[float]</strong> – The phases for i*Sin(Ht).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.qsp.ham_sim_phases_QSPPACK">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.qsp.</span></span><span class="sig-name descname"><span class="pre">ham_sim_phases_QSPPACK</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-07</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.qsp.ham_sim_phases_QSPPACK" title="Link to this definition"></a></dt>
+<dd><p>Generate the phases required for QSP time-evolution using the QSPPACK package.</p>
+<p>QSPPACK is an Matlab/Octave based package that calculates the phase factors. To run this function, a user needs to have:
+1) Octave installed and accessible in path. Octave can be found at <a class="reference external" href="https://octave.org/">https://octave.org/</a>
+2) oct2py installed. pip install oct2py
+3) QSPPACK downloaded in an accessible folder. Can be found at <a class="reference external" href="https://github.com/qsppack/QSPPACK/tree/dev">https://github.com/qsppack/QSPPACK/tree/dev</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>str</em>) – The folder location of QSPPACK.</p></li>
+<li><p><strong>tau</strong> (<em>float</em>) – The evolution time.</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – The precision to calculate the factors.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>List[float]</strong> – The phases for Cos(Ht).</p></li>
+<li><p><strong>List[float]</strong> – The phases for i*Sin(Ht).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tangelo.toolboxes.circuits.qsp.zero_controlled_cnot">
+<span class="sig-prename descclassname"><span class="pre">tangelo.toolboxes.circuits.qsp.</span></span><span class="sig-name descname"><span class="pre">zero_controlled_cnot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tangelo.linq.html#tangelo.linq.circuit.Circuit" title="tangelo.linq.circuit.Circuit"><span class="pre">Circuit</span></a></span></span><a class="headerlink" href="#tangelo.toolboxes.circuits.qsp.zero_controlled_cnot" title="Link to this definition"></a></dt>
+<dd><p>Return the circuit for a zero-controlled CNOT gate with possible extra controls on 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_list</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The qubits controlled by zero.</p></li>
+<li><p><strong>target</strong> (<em>int</em>) – The target qubit.</p></li>
+<li><p><strong>control</strong> (<em>List</em><em>[</em><em>int</em><em>] or </em><em>int</em>) – The qubits controlled by one.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Circuit</strong> – The zero controlled cnot circuit with possible extra controls on 1.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-tangelo.toolboxes.circuits">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tangelo.toolboxes.circuits" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tangelo.toolboxes.ansatz_generator.html" class="btn btn-neutral float-left" title="tangelo.toolboxes.ansatz_generator package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tangelo.toolboxes.measurements.html" class="btn btn-neutral float-right" title="tangelo.toolboxes.measurements package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright SandboxAQ 2021-2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

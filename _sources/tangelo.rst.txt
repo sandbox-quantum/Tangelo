@@ -1,0 +1,33 @@
+tangelo package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.algorithms
+   tangelo.helpers
+   tangelo.linq
+   tangelo.problem_decomposition
+   tangelo.toolboxes
+
+Submodules
+----------
+
+tangelo.molecule\_library module
+--------------------------------
+
+.. automodule:: tangelo.molecule_library
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tangelo
+   :members:
+   :undoc-members:
+   :show-inheritance:

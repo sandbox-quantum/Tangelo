@@ -1,0 +1,19 @@
+tangelo.linq.helpers package
+============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.linq.helpers.circuits
+   tangelo.linq.helpers.operators
+
+Module contents
+---------------
+
+.. automodule:: tangelo.linq.helpers
+   :members:
+   :undoc-members:
+   :show-inheritance:
