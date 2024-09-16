@@ -26,7 +26,7 @@ Tangelo is an open-source Python package maintained by `SandboxAQ <https://www.s
 .. raw:: html
 
    <h3 align="center"> 
-     <a href="https://github.com/goodchemistryco/Tangelo-Examples/blob/main/contents.rst" target="_blank"><b>Tutorials</b></a>
+     <a href="https://github.com/goodchemistryco/Tangelo-Examples/blob/main/" target="_blank"><b>Tutorials</b></a>
    &nbsp;&#183;&nbsp;
      <a href="https://github.com/goodchemistryco/Tangelo/blob/develop/docs/source/docs/source/_static/img/tangelo_feature_overview.jpeg?raw=true" target="_blank"><b>Features</b></a>
    &nbsp;&#183;&nbsp;
