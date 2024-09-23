@@ -15,7 +15,7 @@
 import unittest
 
 from tangelo.molecule_library import mol_H10_321g
-from tangelo.toolboxes.circuits.qre import qre_benchq, qre_pennylane
+from tangelo.toolboxes.circuits.qre import qre_benchq, qre_pennylane, qre_pyliqtr
 
 
 class QRETest(unittest.TestCase):
@@ -39,6 +39,17 @@ class QRETest(unittest.TestCase):
 
         self.assertIsInstance(output.gates, int)
         self.assertIsInstance(output.qubits, int)
+
+    @unittest.skip("Installing pyLIQTR requires and old cirq version that breaks linq tests.")
+    def test_qre_pyliqtr(self):
+        """Test the QRE output type for the pyLIQTR interface."""
+
+        output = qre_pyliqtr(mol_H10_321g)
+
+        self.assertIsInstance(output.get("LogicalQubits"), int)
+        self.assertIsInstance(output.get("T"), int)
+        self.assertIsInstance(output.get("Clifford"), int)
+        self.assertIsInstance(output.get("lambda"), float)
 
 
 if __name__ == "__main__":

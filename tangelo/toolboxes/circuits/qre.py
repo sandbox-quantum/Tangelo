@@ -18,8 +18,6 @@ SecondQuantizedMolecule object, which is used to obtain one-body and two-body
 integrals, relevant for QRE.
 """
 
-import numpy as np
-
 
 def qre_benchq(sec_mol, threshold, **kwargs):
     """Calculate the Toffoli and qubit cost using the benchq library. For
@@ -31,6 +29,8 @@ def qre_benchq(sec_mol, threshold, **kwargs):
         - openfermionpycf
 
     Args:
+        sec_mol (SecondQuantizedMolecule): Molecular system for evaluating the
+            quantum resources.
         threshold (float): The threshold parameter for the double
             factorization algorithm.
         **kwargs: Additional parameters to pass to the `benchq` function.
@@ -55,6 +55,8 @@ def qre_pennylane(sec_mol, **kwargs):
         - pennylane
 
     Args:
+        sec_mol (SecondQuantizedMolecule): Molecular system for evaluating the
+            quantum resources.
         **kwargs: Additional parameters to pass to the
             `DoubleFactorization` constructor.
 
@@ -81,6 +83,8 @@ def qre_pyliqtr(sec_mol, error=0.0016, **kwargs):
         - openfermionpyscf
 
     Args:
+        sec_mol (SecondQuantizedMolecule): Molecular system for evaluating the
+            quantum resources.
         **kwargs: Additional parameters to pass to the
             `DoubleFactorization` constructor.
 
