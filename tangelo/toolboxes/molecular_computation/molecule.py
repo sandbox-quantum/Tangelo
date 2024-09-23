@@ -661,7 +661,7 @@ class SecondQuantizedMolecule(Molecule):
             raise RuntimeError(f"There is no FCIDUMP standard for UHF orbitals, see "
                                "https://mattermodeling.stackexchange.com/questions/13172/fcidump-file-from-uhf-calculation-in-pyscf.")
 
-        if hasattr(self.solver, "write_fcidump") and callable(getattr(self.solver, "write_fcidump")):
+        if hasattr(self.solver, "write_fcidump") and callable(self.solver.write_fcidump):
             self.solver.write_fcidump(self, filename, **kwargs)
         else:
             raise NotImplementedError(f"The write_fcidump method is not implemented for solver {self.solver.__class__}.")

@@ -330,7 +330,7 @@ class IntegralSolverPySCF(IntegralSolver):
             filename (str): The name of the file to which the FCIDUMP data will
                 be written. This should include the file extension (e.g., '.fcidump').
 
-            **kwarg: Additional keyword arguments to be passed to the
+            **kwargs: Additional keyword arguments to be passed to the
                 `fcidump.from_scf` function.
 
         Notes:
