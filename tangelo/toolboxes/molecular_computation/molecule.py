@@ -340,7 +340,7 @@ class SecondQuantizedMolecule(Molecule):
         if hasattr(self.solver, "assign_mo_coeff_symmetries") and self.symmetry:
             self.solver.assign_mo_coeff_symmetries(self)
 
-    def _get_fermionic_hamiltonian(self, mo_coeff=None):
+    def _get_fermionic_hamiltonian(self, mo_coeff=None, get_mol=False):
         """This method returns the fermionic hamiltonian. It written to take
         into account calls for this function is without argument, and attributes
         are parsed into it.
@@ -360,7 +360,10 @@ class SecondQuantizedMolecule(Molecule):
 
         molecular_hamiltonian = reps.InteractionOperator(core_constant, one_body_coefficients, 1 / 2 * two_body_coefficients)
 
-        return get_fermion_operator(molecular_hamiltonian)
+        if get_mol:
+            return molecular_hamiltonian
+        else:
+            return get_fermion_operator(molecular_hamiltonian)
 
     def freeze_mos(self, frozen_orbitals, inplace=True):
         """This method recomputes frozen orbitals with the provided input."""
