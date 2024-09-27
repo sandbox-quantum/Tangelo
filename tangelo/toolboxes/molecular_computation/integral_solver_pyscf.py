@@ -65,12 +65,13 @@ class IntegralSolverPySCF(IntegralSolver):
             use_newton (bool): Use RHF.newton() for scf iterations
         """
 
-        from pyscf import gto, lib, scf, symm, ao2mo
+        from pyscf import gto, lib, scf, symm, ao2mo, tools
         self.gto = gto
         self.lib = lib
         self.scf = scf
         self.symm = symm
         self.ao2mo = ao2mo
+        self.tools = tools
         self.chkfile = chkfile
         self.newton = use_newton
 
@@ -316,6 +317,29 @@ class IntegralSolverPySCF(IntegralSolver):
         Gpqrs = (two_body_integrals_a, two_body_integrals_ab, two_body_integrals_b)
 
         return hpq, Gpqrs
+
+    def write_fcidump(self, sqmol, filename, **kwargs):
+        """Write the FCIDUMP file for a given molecule using its SCF mean field
+        object. This method utilizes the `fcidump.from_scf` function from the
+        PySCF library to generate a FCIDUMP file from the SCF mean field object
+        of the input molecule.
+
+        Args:
+            sqmol (SecondQuantizedMolecule): Self-explanatory.
+
+            filename (str): The name of the file to which the FCIDUMP data will
+                be written. This should include the file extension (e.g., '.fcidump').
+
+            **kwargs: Additional keyword arguments to be passed to the
+                `fcidump.from_scf` function.
+
+        Notes:
+            For more details on the `fcidump.from_scf` function and its
+            parameters, refer to the PySCF documentation:
+            https://pyscf.org/pyscf_api_docs/pyscf.tools.html#pyscf.tools.fcidump.from_scf
+        """
+
+        self.tools.fcidump.from_scf(sqmol.mean_field, filename, **kwargs)
 
 
 class IntegralSolverPySCFQMMM(IntegralSolverPySCF):

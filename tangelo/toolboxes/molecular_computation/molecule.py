@@ -634,3 +634,37 @@ class SecondQuantizedMolecule(Molecule):
         molecular_hamiltonian = openfermion.InteractionOperator(constant, one_body_coefficients, two_body_coefficients)
 
         return molecular_hamiltonian
+
+    def write_fcidump(self, filename, **kwargs):
+        """Write the FCIDUMP file for the electronic structure calculation.
+
+        This method generates an FCIDUMP file which is a standard format for
+        storing the one- and two-electron integrals of the electronic
+        Hamiltonian. It is used in quantum chemistry calculations to facilitate
+        interfacing with various quantum chemistry programs.
+
+        Args:
+            filename (str): The name of the output FCIDUMP file to be created.
+                This should include the full path if not writing to the current
+                working directory.
+            **kwargs: Additional keyword arguments that may be passed to the
+                underlying solver's `write_fcidump` method. These could include
+                options for formatting or additional parameters specific to the
+                solver.
+
+        Raises:
+            RuntimeError: If the calculation is using UHF (Unrestricted
+                Hartree-Fock) orbitals, which do not have a standard FCIDUMP
+                format.
+            NotImplementedError: If the `write_fcidump` method is not
+                implemented for the current solver.
+        """
+
+        if self.uhf:
+            raise RuntimeError(f"There is no FCIDUMP standard for UHF orbitals, see "
+                               "https://mattermodeling.stackexchange.com/questions/13172/fcidump-file-from-uhf-calculation-in-pyscf.")
+
+        if hasattr(self.solver, "write_fcidump") and callable(self.solver.write_fcidump):
+            self.solver.write_fcidump(self, filename, **kwargs)
+        else:
+            raise NotImplementedError(f"The write_fcidump method is not implemented for solver {self.solver.__class__}.")
