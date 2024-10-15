@@ -173,7 +173,8 @@ class DMETProblemDecompositionTest(unittest.TestCase):
 
         solver = DMETProblemDecomposition(opt_dmet)
         solver.build()
-        energy = solver.simulate()
+        solver._oneshot_loop(0.)
+        energy = solver.dmet_energy
         self.assertAlmostEqual(energy, mol_H10_321g.mf_energy, places=4)
 
     def test_solver_mp2(self):
