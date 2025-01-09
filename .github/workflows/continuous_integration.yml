@@ -89,19 +89,19 @@ jobs:
       if: always()
 
     - name: Upload nopyscf test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: tangelo-no-pyscf-test-results
         path: tangelo/toolboxes/molecular_computation/tests/junit/nopyscf-test-results_${{ matrix.python-version }}.xml
 
     - name: Upload pytest test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: tangelo-test-results
         path: tangelo/junit/tangelo-test-results_${{ matrix.python-version }}.xml
 
     - name: Upload pytest html results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: tangelo-tests-coverage_${{ matrix.python-version }}
         path: tangelo/htmlcov

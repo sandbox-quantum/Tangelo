@@ -5,6 +5,8 @@ on:
       versionName:
         description: 'Name of version  (ie 5.5.0)'
         required: true
+env:
+  VERSION: ${{ github.event.inputs.versionName }}
 jobs:
   createrelease:
     runs-on: ubuntu-latest
@@ -13,14 +15,14 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
     - name: Create release branch
-      run: git checkout -b release/v${{ github.event.inputs.versionName }}
+      run: git checkout -b release/v"$VERSION"
     - name: Initialize mandatory git config
       run: |
        git config user.name "GitHub Actions"
        git config user.email noreply@github.com
     - name: Change version number and name
       run: |
-       sed -i 's/__version__ = .*/__version__ = "${{ github.event.inputs.versionName }}"/' tangelo/_version.py
+       sed -i 's/__version__ = .*/__version__ = "$VERSION"/' tangelo/_version.py
        git commit tangelo/_version.py --message "Bumping Tangelo version number in _version.py"
 #    - name: Update Changelog
 #      uses: thomaseizinger/keep-a-changelog-new-release@v1
@@ -30,10 +32,10 @@ jobs:
 #      id: make-commit
 #      run: |
 #        git add CHANGELOG.md
-#        git commit --message "Prepare release ${{ github.event.inputs.versionName }}"
+#        git commit --message 'Prepare release "$VERSION"'
 #        echo "::set-output name=commit::$(git rev-parse HEAD)"
     - name: Push new branch
-      run: git push origin release/v${{ github.event.inputs.versionName }}
+      run: git push origin release/v"$VERSION"
     - name: Create pull request into main
       uses: thomaseizinger/create-pull-request@1.0.0
       with:
