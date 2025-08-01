@@ -1,6 +1,10 @@
 .. raw:: html
 
    <p align="center">
+     <img width="400" alt="sandboxaq_logo" src="./docs/source/_static/img/sandboxaq_logo.png">
+   </p>
+
+   <p align="center">
      <img width="600" alt="tangelo_logo" src="./docs/source/_static/img/tangelo_logo_gradient.png">
    </p>
 
