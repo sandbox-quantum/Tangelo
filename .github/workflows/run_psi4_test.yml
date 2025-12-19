@@ -64,17 +64,17 @@ jobs:
       if: always()
 
     - name: Upload psi4 test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: tangelo-psi4-test-results
         path: tangelo/toolboxes/molecular_computation/tests/junit/psi4-test-results_${{ matrix.python-version }}.xml
 
     - name: Upload classical psi4 test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: tangelo-classical-psi4-test-results
         path: tangelo/algorithms/classical/tests/junit/psi4-classical-test-results_${{ matrix.python-version }}.xml
 
     - name: Download all workflow run artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       if: always()
