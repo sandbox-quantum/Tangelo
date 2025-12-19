@@ -34,7 +34,7 @@ jobs:
        title: New release v${{ env.VERSION }} into main
        reviewers: ${{ github.event.issue.user.login }}
        body: |
-         This PR was created in response to \"create_release_branch\" workflow running.
+         This PR was created in response to "create_release_branch" workflow running.
          It automatically updated the version number.
          Don't forget to update CHANGELOGS.md, and then merge back main into develop after this PR goes through.
          For the review, only version bumping files are of interest, and making sure tests are passing.
