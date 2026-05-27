@@ -379,52 +379,78 @@ class Circuit:
         """Convenience method to remove small rotations from the circuit.
         See separate remove_small_rotations function.
 
+        The operation is performed in place; ``self`` is returned so the call
+        also reads naturally as an expression
+        (e.g. ``c2 = Circuit(...).remove_small_rotations()``).
+
         Args:
             param_threshold (float): Optional, max absolute value to consider a rotation
                 as small enough to be discarded
             remove_qubits (bool): Optional, remove qubit with no operations assigned left
 
         Returns:
-            Circuit: The circuit without small rotations.
+            Circuit: ``self`` after the simplification pass, even when the
+                resulting circuit contains zero gates.
         """
         opt_circuit = remove_small_rotations(self, param_threshold=param_threshold, remove_qubits=remove_qubits)
         self.__dict__ = opt_circuit.__dict__
+        return self
 
     def remove_redundant_gates(self, remove_qubits=False):
         """Convenience method to remove redundant gates from the circuit.
         See separate remove_redundant_gates function.
 
+        The operation is performed in place; ``self`` is returned so the call
+        also reads naturally as an expression.
+
         Args:
             remove_qubits (bool): Optional, remove qubit with no operations assigned left
 
         Returns:
-            Circuit: The circuit without redundant gates.
+            Circuit: ``self`` after the simplification pass, even when the
+                resulting circuit contains zero gates.
         """
         opt_circuit = remove_redundant_gates(self, remove_qubits=remove_qubits)
         self.__dict__ = opt_circuit.__dict__
+        return self
 
     def merge_rotations(self):
-        """ Convenience method to merge compatible rotations applied successively on identical qubits indices.
+        """Convenience method to merge compatible rotations applied successively on identical qubits indices.
         The operation is done in-place and alters the input circuit.
+
+        Returns:
+            Circuit: ``self`` after the merge pass, even when the resulting
+                circuit contains zero gates.
         """
         opt_circuit = merge_rotations(self)
         self.__dict__ = opt_circuit.__dict__
+        return self
 
     def simplify(self, max_cycles=100, param_threshold=1e-3, remove_qubits=False):
         """ Convenience method to simplify gates in a circuit, by repeating a set of simple passes
         until no further changes occurs, or a maximum number of cycles has been reached.
+
+        The operation is performed in place; ``self`` is returned so the call
+        also reads naturally as an expression
+        (e.g. ``c_simp = Circuit([Gate("H", 0)] * 2).simplify()``).
 
         Args:
             max_cycles (int): Optional, maximum number of cycles to perform
             param_threshold (float): Optional, max absolute value to consider a rotation
                 as small enough to be discarded
             remove_qubits (bool): Optional, remove qubit with no operations assigned left
+
+        Returns:
+            Circuit: ``self`` after the simplification pass. When every gate
+                cancels out, a Circuit with zero gates and the original
+                ``n_qubits`` is returned (see issue #408).
         """
 
         opt_circuit = simplify(self,
                                max_cycles=max_cycles, param_threshold=param_threshold,
                                remove_qubits=remove_qubits)
         self.__dict__ = opt_circuit.__dict__
+        return self
 
     def controlled_measurement_op(self, measure):
         """Call the object self._cmeasure_control and return the next circuit to apply."""
