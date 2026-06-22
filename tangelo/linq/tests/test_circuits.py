@@ -336,6 +336,30 @@ class TestCircuits(unittest.TestCase):
         c.simplify()
         assert(c == Circuit([Gate('X', i) for i in range(2)]))
 
+    def test_simplify_returns_circuit_when_everything_cancels(self):
+        """Regression test for issue #408. The convenience methods that wrap
+        in-place simplification passes must return ``self`` so that the call
+        site reads as an expression. Before the fix,
+        ``Circuit([Gate("H", 0)] * 2).simplify()`` returned ``None`` and any
+        attribute access on the result raised ``AttributeError``."""
+
+        # The original failing one-liner from the issue body.
+        c = Circuit([Gate("H", 0)] * 2).simplify()
+        assert c is not None, "Circuit.simplify() must not return None"
+        assert isinstance(c, Circuit), f"expected Circuit, got {type(c).__name__}"
+        assert len(c._gates) == 0, "two H gates should cancel out"
+        assert c.width == 1, "qubit count should be preserved when remove_qubits=False"
+
+        # The same guarantee for the other three in-place convenience methods.
+        c1 = Circuit([Gate("X", 0)]).remove_redundant_gates()
+        c2 = Circuit([Gate("RZ", 0, parameter=1e-9)]).remove_small_rotations()
+        c3 = Circuit([Gate("RZ", 0, parameter=0.1), Gate("RZ", 0, parameter=0.2)]).merge_rotations()
+        for name, returned in [("remove_redundant_gates", c1),
+                               ("remove_small_rotations", c2),
+                               ("merge_rotations", c3)]:
+            assert returned is not None, f"Circuit.{name}() must not return None"
+            assert isinstance(returned, Circuit), f"Circuit.{name}() should return Circuit, got {type(returned).__name__}"
+
     def test_copy(self):
         """ Test if copy function is working properly."""
         test_circuit = Circuit([Gate("X", 0), Gate("H", 1), Gate("H", 1)])
