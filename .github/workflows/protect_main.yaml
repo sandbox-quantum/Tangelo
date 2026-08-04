@@ -1,5 +1,8 @@
 name: 'Protect Main Branch'
 
+permissions:
+  contents: read
+
 on:
   pull_request:
 
