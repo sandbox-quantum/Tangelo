@@ -17,7 +17,7 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v2
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
     - name: Create release branch
       run: git checkout -b release/v"$VERSION"
     - name: Initialize mandatory git config
@@ -41,7 +41,7 @@ jobs:
     - name: Push new branch
       run: git push origin release/v"$VERSION"
     - name: Create pull request into main
-      uses: thomaseizinger/create-pull-request@1.0.0
+      uses: thomaseizinger/create-pull-request@708b87f1bf8075327bd126082bb2430020bab194 # 1.0.0
       with:
        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
        head: release/v${{ github.event.inputs.versionName }}
