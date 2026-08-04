@@ -1,4 +1,8 @@
 name: Create Release Branch
+permissions:
+  contents: write        # pushes the release/vX.Y.Z branch
+  pull-requests: write   # opens the release PR into main
+
 on:
   workflow_dispatch:
     inputs:
