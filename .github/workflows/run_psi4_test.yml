@@ -19,8 +19,8 @@ jobs:
         shell: bash -el {0}
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+    - uses: conda-incubator/setup-miniconda@9f54435e0e72c53962ee863144e47a4b094bfd35 # v2
       with:
         activate-environment: anaconda-client-env
     - run: conda info
@@ -67,17 +67,17 @@ jobs:
       if: always()
 
     - name: Upload psi4 test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
-        name: tangelo-psi4-test-results
+        name: tangelo-psi4-test-results_${{ matrix.python-version }}
         path: tangelo/toolboxes/molecular_computation/tests/junit/psi4-test-results_${{ matrix.python-version }}.xml
 
     - name: Upload classical psi4 test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
-        name: tangelo-classical-psi4-test-results
+        name: tangelo-classical-psi4-test-results_${{ matrix.python-version }}
         path: tangelo/algorithms/classical/tests/junit/psi4-classical-test-results_${{ matrix.python-version }}.xml
 
     - name: Download all workflow run artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
       if: always()
