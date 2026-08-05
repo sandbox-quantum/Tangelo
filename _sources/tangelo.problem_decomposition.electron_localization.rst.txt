@@ -1,0 +1,37 @@
+tangelo.problem\_decomposition.electron\_localization package
+=============================================================
+
+Submodules
+----------
+
+tangelo.problem\_decomposition.electron\_localization.iao\_localization module
+------------------------------------------------------------------------------
+
+.. automodule:: tangelo.problem_decomposition.electron_localization.iao_localization
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tangelo.problem\_decomposition.electron\_localization.meta\_lowdin\_localization module
+---------------------------------------------------------------------------------------
+
+.. automodule:: tangelo.problem_decomposition.electron_localization.meta_lowdin_localization
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tangelo.problem\_decomposition.electron\_localization.nao\_localization module
+------------------------------------------------------------------------------
+
+.. automodule:: tangelo.problem_decomposition.electron_localization.nao_localization
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.problem_decomposition.electron_localization
+   :members:
+   :show-inheritance:
+   :undoc-members:

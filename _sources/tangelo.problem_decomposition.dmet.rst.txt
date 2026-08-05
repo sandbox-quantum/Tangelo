@@ -1,0 +1,29 @@
+tangelo.problem\_decomposition.dmet package
+===========================================
+
+Submodules
+----------
+
+tangelo.problem\_decomposition.dmet.dmet\_problem\_decomposition module
+-----------------------------------------------------------------------
+
+.. automodule:: tangelo.problem_decomposition.dmet.dmet_problem_decomposition
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tangelo.problem\_decomposition.dmet.fragment module
+---------------------------------------------------
+
+.. automodule:: tangelo.problem_decomposition.dmet.fragment
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.problem_decomposition.dmet
+   :members:
+   :show-inheritance:
+   :undoc-members:

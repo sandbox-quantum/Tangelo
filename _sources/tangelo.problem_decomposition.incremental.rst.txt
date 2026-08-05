@@ -1,0 +1,21 @@
+tangelo.problem\_decomposition.incremental package
+==================================================
+
+Submodules
+----------
+
+tangelo.problem\_decomposition.incremental.incremental\_helper module
+---------------------------------------------------------------------
+
+.. automodule:: tangelo.problem_decomposition.incremental.incremental_helper
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.problem_decomposition.incremental
+   :members:
+   :show-inheritance:
+   :undoc-members:

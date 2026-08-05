@@ -1,0 +1,21 @@
+tangelo.problem\_decomposition.qmmm package
+===========================================
+
+Submodules
+----------
+
+tangelo.problem\_decomposition.qmmm.qmmm\_problem\_decomposition module
+-----------------------------------------------------------------------
+
+.. automodule:: tangelo.problem_decomposition.qmmm.qmmm_problem_decomposition
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.problem_decomposition.qmmm
+   :members:
+   :show-inheritance:
+   :undoc-members:

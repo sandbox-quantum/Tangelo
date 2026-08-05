@@ -1,0 +1,29 @@
+tangelo.helpers package
+=======================
+
+Submodules
+----------
+
+tangelo.helpers.math module
+---------------------------
+
+.. automodule:: tangelo.helpers.math
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tangelo.helpers.utils module
+----------------------------
+
+.. automodule:: tangelo.helpers.utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.helpers
+   :members:
+   :show-inheritance:
+   :undoc-members:

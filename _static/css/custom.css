@@ -1,0 +1,15 @@
+body {
+    --themecolor: rgb(217,100, 0);
+    background: rgb(100, 200, 10);
+    background-image: url("./_static/img/tangelo_logo.png"); /* Ignored by sphinx */
+}
+
+h1, h2, h3, h4  {
+  color: rgb(217, 100, 0);
+}
+
+
+.wy-side-nav-search, .wy-nav-top {
+    background: linear-gradient(0deg, rgb(217, 100, 0), rgb(255,183,0));
+    /*var(--themecolor);*/
+}

@@ -1,0 +1,69 @@
+tangelo.toolboxes.circuits package
+==================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tangelo.toolboxes.circuits.tests
+
+Submodules
+----------
+
+tangelo.toolboxes.circuits.diagonal\_coulomb module
+---------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.circuits.diagonal_coulomb
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tangelo.toolboxes.circuits.discrete\_clock module
+-------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.circuits.discrete_clock
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tangelo.toolboxes.circuits.grid\_circuits module
+------------------------------------------------
+
+.. automodule:: tangelo.toolboxes.circuits.grid_circuits
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tangelo.toolboxes.circuits.lcu module
+-------------------------------------
+
+.. automodule:: tangelo.toolboxes.circuits.lcu
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tangelo.toolboxes.circuits.multiproduct module
+----------------------------------------------
+
+.. automodule:: tangelo.toolboxes.circuits.multiproduct
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+tangelo.toolboxes.circuits.qsp module
+-------------------------------------
+
+.. automodule:: tangelo.toolboxes.circuits.qsp
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: tangelo.toolboxes.circuits
+   :members:
+   :show-inheritance:
+   :undoc-members:
