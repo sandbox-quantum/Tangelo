@@ -7,46 +7,37 @@ on:
   workflow_dispatch:
     inputs:
       versionName:
-        description: 'Name of version  (ie 5.5.0)'
+        description: 'Name of version (ie 5.5.0)'
         required: true
 env:
   VERSION: ${{ github.event.inputs.versionName }}
 jobs:
   createrelease:
     runs-on: ubuntu-latest
-
+    env:
+      VERSION: ${{ github.event.inputs.versionName }}
     steps:
     - name: Check out code
       uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
     - name: Create release branch
-      run: git checkout -b release/v"$VERSION"
+      run: git checkout -b "release/v${VERSION}"
     - name: Initialize mandatory git config
       run: |
        git config user.name "GitHub Actions"
        git config user.email noreply@github.com
     - name: Change version number and name
       run: |
-       sed -i 's/__version__ = .*/__version__ = "$VERSION"/' tangelo/_version.py
+       sed -i "s/__version__ = .*/__version__ = \"${VERSION}\"/" tangelo/_version.py
        git commit tangelo/_version.py --message "Bumping Tangelo version number in _version.py"
-#    - name: Update Changelog
-#      uses: thomaseizinger/keep-a-changelog-new-release@v1
-#      with:
-#        version: ${{ github.event.inputs.versionName }}
-#    - name: Commit changelog and manifest files
-#      id: make-commit
-#      run: |
-#        git add CHANGELOG.md
-#        git commit --message 'Prepare release "$VERSION"'
-#        echo "::set-output name=commit::$(git rev-parse HEAD)"
     - name: Push new branch
-      run: git push origin release/v"$VERSION"
+      run: git push origin "release/v${VERSION}"
     - name: Create pull request into main
       uses: thomaseizinger/create-pull-request@708b87f1bf8075327bd126082bb2430020bab194 # 1.0.0
       with:
        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-       head: release/v${{ github.event.inputs.versionName }}
+       head: release/v${{ env.VERSION }}
        base: main
-       title: New release v${{ github.event.inputs.versionName }} into main
+       title: New release v${{ env.VERSION }} into main
        reviewers: ${{ github.event.issue.user.login }}
        body: |
          This PR was created in response to "create_release_branch" workflow running.
