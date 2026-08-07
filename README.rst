@@ -27,13 +27,13 @@ Tangelo is an open-source Python package maintained by `SandboxAQ <https://www.s
 .. raw:: html
 
    <h3 align="center"> 
-     <a href="https://github.com/sandbox-quantum/Tangelo-Examples/blob/main/contents.rst" target="_blank"><b>Tutorials</b></a>
+     <a href="https://github.com/sandbox-quantum/Tangelo-Examples/blob/main/" target="_blank"><b>Tutorials</b></a>
    &nbsp;&#183;&nbsp;
      <a href="https://github.com/sandbox-quantum/Tangelo/blob/develop/docs/source/docs/source/_static/img/tangelo_feature_overview.jpeg?raw=true" target="_blank"><b>Features</b></a>
    &nbsp;&#183;&nbsp;
      <a href="https://sandbox-quantum.github.io/Tangelo/overview.html" target="_blank"><b>Docs</b></a>
    &nbsp;&#183;&nbsp;
-     <a href="https://goodchemistry.com/blog/" target="_blank"><b>Blog</b></a>
+     <a href="https://www.sandboxaq.com/post/tangelo-a-tool-for-exploring-the-state-of-the-art-of-quantum-computing-for-chemistry" target="_blank"><b>Blog</b></a>
    </h3>
 
 -------------
